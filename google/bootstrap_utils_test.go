@@ -51,10 +51,12 @@ func BootstrapKMSKeyWithPurpose(t *testing.T, purpose string) bootstrappedKMS {
 * a KMS key.
 **/
 func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID string) bootstrappedKMS {
-	if v := os.Getenv("TF_ACC"); v == "" {
-		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+	return BootstrapKMSKeyWithPurposeInLocationAndName(t, purpose, locationID, SharedCryptoKey[purpose])
+}
 
-		// If not running acceptance tests, return an empty object
+func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, locationID, keyShortName string) bootstrappedKMS {
+	config := BootstrapConfig(t)
+	if config == nil {
 		return bootstrappedKMS{
 			&cloudkms.KeyRing{},
 			&cloudkms.CryptoKey{},
@@ -65,20 +67,7 @@ func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID stri
 	keyRingParent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
 	keyRingName := fmt.Sprintf("%s/keyRings/%s", keyRingParent, SharedKeyRing)
 	keyParent := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", projectID, locationID, SharedKeyRing)
-	keyName := fmt.Sprintf("%s/cryptoKeys/%s", keyParent, SharedCryptoKey[purpose])
-
-	config := &Config{
-		Credentials: getTestCredsFromEnv(),
-		Project:     getTestProjectFromEnv(),
-		Region:      getTestRegionFromEnv(),
-		Zone:        getTestZoneFromEnv(),
-	}
-
-	ConfigureBasePaths(config)
-
-	if err := config.LoadAndValidate(context.Background()); err != nil {
-		t.Errorf("Unable to bootstrap KMS key: %s", err)
-	}
+	keyName := fmt.Sprintf("%s/cryptoKeys/%s", keyParent, keyShortName)
 
 	// Get or Create the hard coded shared keyring for testing
 	kmsClient := config.clientKms
@@ -118,7 +107,7 @@ func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID stri
 			}
 
 			cryptoKey, err = kmsClient.Projects.Locations.KeyRings.CryptoKeys.Create(keyParent, &newKey).
-				CryptoKeyId(SharedCryptoKey[purpose]).Do()
+				CryptoKeyId(keyShortName).Do()
 			if err != nil {
 				t.Errorf("Unable to bootstrap KMS key. Cannot create new CryptoKey: %s", err)
 			}
@@ -202,22 +191,9 @@ func impersonationServiceAccountPermissions(config *Config, sa *iam.ServiceAccou
 }
 
 func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
-	if v := os.Getenv("TF_ACC"); v == "" {
-		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+	config := BootstrapConfig(t)
+	if config == nil {
 		return ""
-	}
-
-	config := &Config{
-		Credentials: getTestCredsFromEnv(),
-		Project:     getTestProjectFromEnv(),
-		Region:      getTestRegionFromEnv(),
-		Zone:        getTestZoneFromEnv(),
-	}
-
-	ConfigureBasePaths(config)
-
-	if err := config.LoadAndValidate(context.Background()); err != nil {
-		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
 	}
 
 	sa, err := getOrCreateServiceAccount(config, project)
@@ -244,23 +220,12 @@ const SharedTestNetworkPrefix = "tf-bootstrap-net-"
 // testId specifies the test/suite for which a shared network is used/initialized.
 // Returns the name of an network, creating it if hasn't been created in the test projcet.
 func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
-	if v := os.Getenv("TF_ACC"); v == "" {
-		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
-		// If not running acceptance tests, return an empty string
-		return ""
-	}
-
 	project := getTestProjectFromEnv()
 	networkName := SharedTestNetworkPrefix + testId
-	config := &Config{
-		Credentials: getTestCredsFromEnv(),
-		Project:     project,
-		Region:      getTestRegionFromEnv(),
-		Zone:        getTestZoneFromEnv(),
-	}
-	ConfigureBasePaths(config)
-	if err := config.LoadAndValidate(context.Background()); err != nil {
-		t.Errorf("Unable to bootstrap network: %s", err)
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		return ""
 	}
 
 	log.Printf("[DEBUG] Getting shared test network %q", networkName)
@@ -298,24 +263,12 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 var SharedServicePerimeterProjectPrefix = "tf-bootstrap-sp-"
 
 func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*cloudresourcemanager.Project {
-	if v := os.Getenv("TF_ACC"); v == "" {
-		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+	config := BootstrapConfig(t)
+	if config == nil {
 		return nil
 	}
 
 	org := getTestOrgFromEnv(t)
-	config := &Config{
-		Credentials: getTestCredsFromEnv(),
-		Project:     getTestProjectFromEnv(),
-		Region:      getTestRegionFromEnv(),
-		Zone:        getTestZoneFromEnv(),
-	}
-
-	ConfigureBasePaths(config)
-
-	if err := config.LoadAndValidate(context.Background()); err != nil {
-		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
-	}
 
 	// The filter endpoint works differently if you provide both the parent id and parent type, and
 	// doesn't seem to allow for prefix matching. Don't change this to include the parent type unless
@@ -360,4 +313,25 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 	}
 
 	return projects
+}
+
+func BootstrapConfig(t *testing.T) *Config {
+	if v := os.Getenv("TF_ACC"); v == "" {
+		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		return nil
+	}
+
+	config := &Config{
+		Credentials: getTestCredsFromEnv(),
+		Project:     getTestProjectFromEnv(),
+		Region:      getTestRegionFromEnv(),
+		Zone:        getTestZoneFromEnv(),
+	}
+
+	ConfigureBasePaths(config)
+
+	if err := config.LoadAndValidate(context.Background()); err != nil {
+		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
+	}
+	return config
 }

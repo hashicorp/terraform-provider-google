@@ -50,7 +50,58 @@ func TestAccContainerAnalysisNote_containerAnalysisNoteBasicExample(t *testing.T
 func testAccContainerAnalysisNote_containerAnalysisNoteBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_container_analysis_note" "note" {
-  name = "tf-test-test-attestor-note%{random_suffix}"
+  name = "tf-test-attestor-note%{random_suffix}"
+  attestation_authority {
+    hint {
+      human_readable_name = "Attestor Note"
+    }
+  }
+}
+`, context)
+}
+
+func TestAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerAnalysisNoteDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(context),
+			},
+			{
+				ResourceName:      "google_container_analysis_note.note",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_container_analysis_note" "note" {
+  name = "tf-test-attestor-note%{random_suffix}"
+
+  short_description = "test note"
+  long_description = "a longer description of test note"
+  expiration_time = "2120-10-02T15:01:23.045123456Z"
+
+  related_url {
+    url = "some.url"
+    label = "foo"
+  }
+
+  related_url {
+    url = "google.com"
+  }
+
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
