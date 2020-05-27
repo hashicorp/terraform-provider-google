@@ -9,6 +9,15 @@ import (
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 )
 
+// Wraps Op.Error in an implementation of built-in Error
+type CommonOpError struct {
+	*cloudresourcemanager.Status
+}
+
+func (e *CommonOpError) Error() string {
+	return fmt.Sprintf("Error code %v, message: %s", e.Code, e.Message)
+}
+
 type Waiter interface {
 	// State returns the current status of the operation.
 	State() string
@@ -56,7 +65,7 @@ func (w *CommonOperationWaiter) State() string {
 
 func (w *CommonOperationWaiter) Error() error {
 	if w != nil && w.Op.Error != nil {
-		return fmt.Errorf("Error code %v, message: %s", w.Op.Error.Code, w.Op.Error.Message)
+		return &CommonOpError{w.Op.Error}
 	}
 	return nil
 }

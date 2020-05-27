@@ -401,21 +401,27 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Creating cloud function: %s", function.Name)
-	op, err := config.clientCloudFunctions.Projects.Locations.Functions.Create(
-		cloudFuncId.locationId(), function).Do()
-	if err != nil {
-		return err
+
+	// We retry the whole create-and-wait because Cloud Functions
+	// will sometimes fail a creation operation entirely if it fails to pull
+	// source code and we need to try the whole creation again.
+	rerr := retryTimeDuration(func() error {
+		op, err := config.clientCloudFunctions.Projects.Locations.Functions.Create(
+			cloudFuncId.locationId(), function).Do()
+		if err != nil {
+			return err
+		}
+
+		// Name of function should be unique
+		d.SetId(cloudFuncId.cloudFunctionId())
+
+		return cloudFunctionsOperationWait(config, op, "Creating CloudFunctions Function",
+			d.Timeout(schema.TimeoutCreate))
+	}, d.Timeout(schema.TimeoutCreate), isCloudFunctionsSourceCodeError)
+	if rerr != nil {
+		return rerr
 	}
-
-	// Name of function should be unique
-	d.SetId(cloudFuncId.cloudFunctionId())
-
-	err = cloudFunctionsOperationWait(config, op, "Creating CloudFunctions Function",
-		d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return err
-	}
-
+	log.Printf("[DEBUG] Finished creating cloud function: %s", function.Name)
 	return resourceCloudFunctionsRead(d, meta)
 }
 
