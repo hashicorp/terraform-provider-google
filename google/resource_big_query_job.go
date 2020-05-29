@@ -900,9 +900,35 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
+	err = PollingWaitTime(resourceBigQueryJobPollRead(d, meta), PollCheckForExistence, "Creating Job", d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf("Error waiting to create Job: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating Job %q: %#v", d.Id(), res)
 
 	return resourceBigQueryJobRead(d, meta)
+}
+
+func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+
+		url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}")
+		if err != nil {
+			return nil, err
+		}
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		res, err := sendRequest(config, "GET", project, url, nil)
+		if err != nil {
+			return res, err
+		}
+		return res, nil
+	}
 }
 
 func resourceBigQueryJobRead(d *schema.ResourceData, meta interface{}) error {
