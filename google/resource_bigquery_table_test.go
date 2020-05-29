@@ -64,6 +64,53 @@ func TestAccBigQueryTable_Kms(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryTable_HivePartitioning(t *testing.T) {
+	t.Parallel()
+	bucketName := testBucketName(t)
+	resourceName := "google_bigquery_table.test"
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableHivePartitioning(bucketName, datasetID, tableID),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccBigQueryTable_RangePartitioning(t *testing.T) {
+	t.Parallel()
+	resourceName := "google_bigquery_table.test"
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableRangePartitioning(datasetID, tableID),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccBigQueryTable_View(t *testing.T) {
 	t.Parallel()
 
@@ -329,6 +376,78 @@ resource "google_bigquery_table" "test" {
 EOH
 }
 `, datasetID, cryptoKeyName, tableID)
+}
+
+func testAccBigQueryTableHivePartitioning(bucketName, datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "test" {
+	name          = "%s"
+	force_destroy = true
+}
+
+resource "google_storage_bucket_object" "test" {
+	name    = "key1=20200330/init.csv"
+	content = ";"
+	bucket  = google_storage_bucket.test.name
+}
+
+resource "google_bigquery_dataset" "test" {
+        dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+	table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+
+	external_data_configuration {
+            source_format = "CSV"
+            autodetect = true
+            source_uris= ["gs://${google_storage_bucket.test.name}/*"]
+
+            hive_partitioning_options {
+                mode = "AUTO"
+                source_uri_prefix = "gs://${google_storage_bucket.test.name}/"
+	    }
+
+        }
+	depends_on = ["google_storage_bucket_object.test"]
+}
+`, bucketName, datasetID, tableID)
+}
+
+func testAccBigQueryTableRangePartitioning(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+	resource "google_bigquery_dataset" "test" {
+		dataset_id = "%s"
+	}
+
+	resource "google_bigquery_table" "test" {
+		table_id   = "%s"
+		dataset_id = google_bigquery_dataset.test.dataset_id
+
+		range_partitioning {
+			field = "id"
+			range {
+				start    = 1
+				end      = 10000
+				interval = 100
+			}
+		}
+
+		schema = <<EOH
+[
+	{
+		"name": "ts",
+		"type": "TIMESTAMP"
+	},
+	{
+		"name": "id",
+		"type": "INTEGER"
+	}
+]
+EOH
+}
+	`, datasetID, tableID)
 }
 
 func testAccBigQueryTableWithView(datasetID, tableID string) string {
