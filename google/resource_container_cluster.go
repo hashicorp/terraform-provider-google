@@ -784,6 +784,19 @@ func resourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			"workload_identity_config": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"identity_namespace": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 
 			"resource_usage_export_config": {
 				Type:     schema.TypeList,
@@ -1012,6 +1025,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.VerticalPodAutoscaling = expandVerticalPodAutoscaling(v)
 	}
 
+	if v, ok := d.GetOk("workload_identity_config"); ok {
+		cluster.WorkloadIdentityConfig = expandWorkloadIdentityConfig(v)
+	}
+
 	if v, ok := d.GetOk("resource_usage_export_config"); ok {
 		cluster.ResourceUsageExportConfig = expandResourceUsageExportConfig(v)
 	}
@@ -1212,6 +1229,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("vertical_pod_autoscaling", flattenVerticalPodAutoscaling(cluster.VerticalPodAutoscaling)); err != nil {
+		return err
+	}
+
+	if err := d.Set("workload_identity_config", flattenWorkloadIdentityConfig(cluster.WorkloadIdentityConfig)); err != nil {
 		return err
 	}
 
@@ -1693,6 +1714,35 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 			d.SetPartial("vertical_pod_autoscaling")
 		}
+	}
+
+	if d.HasChange("workload_identity_config") {
+		// Because GKE uses a non-RESTful update function, when removing the
+		// feature you need to specify a fairly full request body or it fails:
+		// "update": {"desiredWorkloadIdentityConfig": {"identityNamespace": ""}}
+		req := &containerBeta.UpdateClusterRequest{}
+		if v, ok := d.GetOk("workload_identity_config"); !ok {
+			req.Update = &containerBeta.ClusterUpdate{
+				DesiredWorkloadIdentityConfig: &containerBeta.WorkloadIdentityConfig{
+					IdentityNamespace: "",
+					ForceSendFields:   []string{"IdentityNamespace"},
+				},
+			}
+		} else {
+			req.Update = &containerBeta.ClusterUpdate{
+				DesiredWorkloadIdentityConfig: expandWorkloadIdentityConfig(v),
+			}
+		}
+
+		updateF := updateFunc(req, "updating GKE cluster workload identity config")
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s workload identity config has been updated", d.Id())
+
+		d.SetPartial("workload_identity_config")
 	}
 
 	if d.HasChange("resource_labels") {
@@ -2216,6 +2266,17 @@ func expandVerticalPodAutoscaling(configured interface{}) *containerBeta.Vertica
 	}
 }
 
+func expandWorkloadIdentityConfig(configured interface{}) *containerBeta.WorkloadIdentityConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &containerBeta.WorkloadIdentityConfig{
+		IdentityNamespace: config["identity_namespace"].(string),
+	}
+}
+
 func expandPodSecurityPolicyConfig(configured interface{}) *containerBeta.PodSecurityPolicyConfig {
 	// Removing lists is hard - the element count (#) will have a diff from nil -> computed
 	// If we set this to empty on Read, it will be stable.
@@ -2363,6 +2424,17 @@ func flattenVerticalPodAutoscaling(c *containerBeta.VerticalPodAutoscaling) []ma
 	return []map[string]interface{}{
 		{
 			"enabled": c.Enabled,
+		},
+	}
+}
+
+func flattenWorkloadIdentityConfig(c *containerBeta.WorkloadIdentityConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"identity_namespace": c.IdentityNamespace,
 		},
 	}
 }
