@@ -92,6 +92,14 @@ func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccRegionInstanceGroupManager_update3(template1, target1, target2, template2, igm),
+			},
+			{
+				ResourceName:      "google_compute_region_instance_group_manager.igm-update",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -534,6 +542,92 @@ resource "google_compute_region_instance_group_manager" "igm-update" {
     google_compute_target_pool.igm-update.self_link,
     google_compute_target_pool.igm-update2.self_link,
   ]
+  base_instance_name = "igm-update"
+  region             = "us-central1"
+  target_size        = 3
+  named_port {
+    name = "customhttp"
+    port = 8080
+  }
+  named_port {
+    name = "customhttps"
+    port = 8443
+  }
+}
+`, template1, target1, target2, template2, igm)
+}
+
+// Remove target pools
+func testAccRegionInstanceGroupManager_update3(template1, target1, target2, template2, igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-update" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_target_pool" "igm-update" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
+
+resource "google_compute_target_pool" "igm-update2" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
+
+resource "google_compute_instance_template" "igm-update2" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "igm-update" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+
+  version {
+    instance_template = google_compute_instance_template.igm-update2.self_link
+    name              = "primary"
+  }
+
   base_instance_name = "igm-update"
   region             = "us-central1"
   target_size        = 3

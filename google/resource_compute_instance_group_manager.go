@@ -470,6 +470,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("target_pools") {
 		updatedManager.TargetPools = convertStringSet(d.Get("target_pools").(*schema.Set))
+		updatedManager.ForceSendFields = append(updatedManager.ForceSendFields, "TargetPools")
 		change = true
 	}
 
