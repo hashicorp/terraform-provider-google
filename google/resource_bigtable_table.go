@@ -25,19 +25,22 @@ func resourceBigtableTable() *schema.Resource {
 		// ----------------------------------------------------------------------
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the table.`,
 			},
 
 			"column_family": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: `A group of columns within a table which share a common configuration. This can be specified multiple times.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"family": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the column family.`,
 						},
 					},
 				},
@@ -48,20 +51,23 @@ func resourceBigtableTable() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareResourceNames,
+				Description:      `The name of the Bigtable instance.`,
 			},
 
 			"split_keys": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A list of predefined keys to split the table on. !> Warning: Modifying the split_keys of an existing table will cause Terraform to delete/recreate the entire google_bigtable_table resource.`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 		},
 	}
