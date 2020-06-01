@@ -77,7 +77,7 @@ func testAccCheckMonitoringNotificationChannelDestroyProducer(t *testing.T) func
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil, isMonitoringRetryableError)
+			_, err = sendRequest(config, "GET", "", url, nil, isMonitoringConcurrentEditError)
 			if err == nil {
 				return fmt.Errorf("MonitoringNotificationChannel still exists at %s", url)
 			}

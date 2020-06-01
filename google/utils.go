@@ -82,7 +82,8 @@ func handleNotFoundError(err error, d *schema.ResourceData, resource string) err
 		return nil
 	}
 
-	return fmt.Errorf("Error reading %s: %s", resource, err)
+	return errwrap.Wrapf(
+		fmt.Sprintf("Error when reading or editing %s: {{err}}", resource), err)
 }
 
 func isGoogleApiErrorWithCode(err error, errCode int) bool {

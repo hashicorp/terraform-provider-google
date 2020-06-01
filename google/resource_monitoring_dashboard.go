@@ -86,7 +86,7 @@ func resourceMonitoringDashboardCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringRetryableError)
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating Dashboard: %s", err)
 	}
@@ -110,7 +110,7 @@ func resourceMonitoringDashboardRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringRetryableError)
+	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringDashboard %q", d.Id()))
 	}
@@ -151,7 +151,7 @@ func resourceMonitoringDashboardUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	url := config.MonitoringBasePath + "v1/" + d.Id()
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, nObj, d.Timeout(schema.TimeoutUpdate), isMonitoringRetryableError)
+	_, err = sendRequestWithTimeout(config, "PATCH", project, url, nObj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error updating Dashboard %q: %s", d.Id(), err)
 	}
@@ -169,7 +169,7 @@ func resourceMonitoringDashboardDelete(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	_, err = sendRequestWithTimeout(config, "DELETE", project, url, nil, d.Timeout(schema.TimeoutDelete), isMonitoringRetryableError)
+	_, err = sendRequestWithTimeout(config, "DELETE", project, url, nil, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringDashboard %q", d.Id()))
 	}

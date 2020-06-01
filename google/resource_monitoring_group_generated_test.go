@@ -113,7 +113,7 @@ func testAccCheckMonitoringGroupDestroyProducer(t *testing.T) func(s *terraform.
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil, isMonitoringRetryableError)
+			_, err = sendRequest(config, "GET", "", url, nil, isMonitoringConcurrentEditError)
 			if err == nil {
 				return fmt.Errorf("MonitoringGroup still exists at %s", url)
 			}
