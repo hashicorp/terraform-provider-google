@@ -1,4 +1,4 @@
-## 3.24.0 (Unreleased)
+## 3.24.0 (June 01, 2020)
 
 FEATURES:
 * **New Data Source:** `google_secret_manager_secret_version` ([#6432](https://github.com/terraform-providers/terraform-provider-google/pull/6432))
