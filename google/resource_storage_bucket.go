@@ -224,7 +224,7 @@ func resourceStorageBucket() *schema.Resource {
 						"retention_period": {
 							Type:         schema.TypeInt,
 							Required:     true,
-							ValidateFunc: validation.IntBetween(1, math.MaxInt32),
+							ValidateFunc: validation.IntBetween(1, 3155760000),
 						},
 					},
 				},
