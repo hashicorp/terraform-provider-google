@@ -197,6 +197,10 @@ The `files` block supports:
   (Optional)
   The entrypoint for the application.  Structure is documented below.
 
+* `inbound_services` -
+  (Optional)
+  Before an application can receive email or XMPP messages, the application must be configured to enable the service.
+
 * `instance_class` -
   (Optional)
   Instance class that is used to run this version. Valid values are

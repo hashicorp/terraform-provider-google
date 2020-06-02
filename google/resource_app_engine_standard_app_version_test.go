@@ -84,6 +84,8 @@ resource "google_app_engine_standard_app_version" "foo" {
     }
   }
 
+  inbound_services = ["INBOUND_SERVICE_WARMUP", "INBOUND_SERVICE_MAIL"]
+
   env_variables = {
     port = "8000"
   }
@@ -167,6 +169,8 @@ resource "google_app_engine_standard_app_version" "foo" {
       source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.requirements.name}"
     }
   }
+
+  inbound_services = []
 
   env_variables = {
     port = "8000"

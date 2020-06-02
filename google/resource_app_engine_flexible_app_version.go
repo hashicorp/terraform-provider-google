@@ -641,12 +641,13 @@ All URLs that begin with this prefix are handled by this handler, using the port
 				},
 			},
 			"inbound_services": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Optional:    true,
 				Description: `Before an application can receive email or XMPP messages, the application must be configured to enable the service.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Set: schema.HashString,
 			},
 			"instance_class": {
 				Type:     schema.TypeString,
@@ -1432,7 +1433,10 @@ func flattenAppEngineFlexibleAppVersionVersionId(v interface{}, d *schema.Resour
 }
 
 func flattenAppEngineFlexibleAppVersionInboundServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenAppEngineFlexibleAppVersionInstanceClass(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -2310,6 +2314,7 @@ func expandAppEngineFlexibleAppVersionVersionId(v interface{}, d TerraformResour
 }
 
 func expandAppEngineFlexibleAppVersionInboundServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	return v, nil
 }
 
