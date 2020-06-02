@@ -2,15 +2,13 @@ TEST?=$$(go list ./...)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=google
 
-GO111MODULE=on
-
 default: build
 
 build: fmtcheck generate
 	go install
 
 test: fmtcheck generate
-	go test $(TESTARGS) -timeout=30s -parallel=4 $(TEST)
+	go test $(TESTARGS) -timeout=30s $(TEST)
 
 testacc: fmtcheck generate
 	TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test $(TEST) -v $(TESTARGS) -timeout 240m -ldflags="-X=github.com/terraform-providers/terraform-provider-google/version.ProviderVersion=acc"
@@ -63,4 +61,3 @@ docscheck:
 	@sh -c "'$(CURDIR)/scripts/docscheck.sh'"
 
 .PHONY: build test testacc vet fmt fmtcheck lint tools errcheck test-compile website website-test docscheck generate
-

@@ -116,7 +116,7 @@ function tpgpatch1 {
   git checkout $pr_username/$feature_branch
   git format-patch $(git merge-base HEAD master)
 }
- 
+
 function tpgpatch2 {
   for patch in $GOPATH/src/github.com/terraform-providers/terraform-provider-google*/*.patch; do
     echo "checking ${patch}"
