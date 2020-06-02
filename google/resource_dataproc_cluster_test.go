@@ -570,6 +570,8 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 }
 
 func TestAccDataprocCluster_withNetworkRefs(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 	t.Parallel()
 
 	var c1, c2 dataproc.Cluster

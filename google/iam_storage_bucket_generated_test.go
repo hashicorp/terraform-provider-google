@@ -87,12 +87,14 @@ func TestAccStorageBucketIamMemberGenerated(t *testing.T) {
 func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	// This may skip test, so do it first
+	sa := getTestServiceAccountFromEnv(t)
 	context := map[string]interface{}{
 		"random_suffix": randString(t, 10),
 		"role":          "roles/storage.objectViewer",
 		"admin_role":    "roles/storage.admin",
 	}
-	context["service_account"] = getTestServiceAccountFromEnv(t)
+	context["service_account"] = sa
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
