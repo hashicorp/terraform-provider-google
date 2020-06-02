@@ -42,33 +42,38 @@ func resourceContainerNodePool() *schema.Resource {
 			schemaNodePool,
 			map[string]*schema.Schema{
 				"project": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Computed: true,
-					ForceNew: true,
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					ForceNew:    true,
+					Description: `The ID of the project in which to create the node pool. If blank, the provider-configured project will be used.`,
 				},
 				"cluster": {
-					Type:     schema.TypeString,
-					Required: true,
-					ForceNew: true,
+					Type:        schema.TypeString,
+					Required:    true,
+					ForceNew:    true,
+					Description: `The cluster to create the node pool for. Cluster must be present in location provided for zonal clusters.`,
 				},
 				"zone": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Removed:  "use location instead",
-					Computed: true,
+					Type:        schema.TypeString,
+					Optional:    true,
+					Removed:     "use location instead",
+					Computed:    true,
+					Description: `The zone of the cluster`,
 				},
 				"region": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Removed:  "use location instead",
-					Computed: true,
+					Type:        schema.TypeString,
+					Optional:    true,
+					Removed:     "use location instead",
+					Computed:    true,
+					Description: `The region of the cluster`,
 				},
 				"location": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Computed: true,
-					ForceNew: true,
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					ForceNew:    true,
+					Description: `The location (region or zone) of the cluster.`,
 				},
 			}),
 	}
@@ -76,109 +81,124 @@ func resourceContainerNodePool() *schema.Resource {
 
 var schemaNodePool = map[string]*schema.Schema{
 	"autoscaling": {
-		Type:     schema.TypeList,
-		Optional: true,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: `Configuration required by cluster autoscaler to adjust the size of the node pool to the current cluster usage.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"min_node_count": {
 					Type:         schema.TypeInt,
 					Required:     true,
 					ValidateFunc: validation.IntAtLeast(0),
+					Description:  `Minimum number of nodes in the NodePool. Must be >=0 and <= max_node_count.`,
 				},
 
 				"max_node_count": {
 					Type:         schema.TypeInt,
 					Required:     true,
 					ValidateFunc: validation.IntAtLeast(1),
+					Description:  `Maximum number of nodes in the NodePool. Must be >= min_node_count.`,
 				},
 			},
 		},
 	},
 
 	"max_pods_per_node": {
-		Type:     schema.TypeInt,
-		Optional: true,
-		ForceNew: true,
-		Computed: true,
+		Type:        schema.TypeInt,
+		Optional:    true,
+		ForceNew:    true,
+		Computed:    true,
+		Description: `The maximum number of pods per node in this node pool. Note that this does not work on node pools which are "route-based" - that is, node pools belonging to clusters that do not have IP Aliasing enabled.`,
 	},
 
 	"node_locations": {
-		Type:     schema.TypeSet,
-		Optional: true,
-		Computed: true,
-		Elem:     &schema.Schema{Type: schema.TypeString},
+		Type:        schema.TypeSet,
+		Optional:    true,
+		Computed:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString},
+		Description: `The list of zones in which the node pool's nodes should be located. Nodes must be in the region of their regional cluster or in the same region as their cluster's zone for zonal clusters. If unspecified, the cluster-level node_locations will be used.`,
 	},
 
 	"upgrade_settings": {
-		Type:     schema.TypeList,
-		Optional: true,
-		Computed: true,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		Optional:    true,
+		Computed:    true,
+		MaxItems:    1,
+		Description: `Specify node upgrade settings to change how many nodes GKE attempts to upgrade at once. The number of nodes upgraded simultaneously is the sum of max_surge and max_unavailable. The maximum number of nodes upgraded simultaneously is limited to 20.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"max_surge": {
 					Type:         schema.TypeInt,
 					Required:     true,
 					ValidateFunc: validation.IntAtLeast(0),
+					Description:  `The number of additional nodes that can be added to the node pool during an upgrade. Increasing max_surge raises the number of nodes that can be upgraded simultaneously. Can be set to 0 or greater.`,
 				},
 
 				"max_unavailable": {
 					Type:         schema.TypeInt,
 					Required:     true,
 					ValidateFunc: validation.IntAtLeast(0),
+					Description:  `The number of nodes that can be simultaneously unavailable during an upgrade. Increasing max_unavailable raises the number of nodes that can be upgraded in parallel. Can be set to 0 or greater.`,
 				},
 			},
 		},
 	},
 
 	"initial_node_count": {
-		Type:     schema.TypeInt,
-		Optional: true,
-		ForceNew: true,
-		Computed: true,
+		Type:        schema.TypeInt,
+		Optional:    true,
+		ForceNew:    true,
+		Computed:    true,
+		Description: `The initial number of nodes for the pool. In regional or multi-zonal clusters, this is the number of nodes per zone. Changing this will force recreation of the resource.`,
 	},
 
 	"instance_group_urls": {
-		Type:     schema.TypeList,
-		Computed: true,
-		Elem:     &schema.Schema{Type: schema.TypeString},
+		Type:        schema.TypeList,
+		Computed:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString},
+		Description: `The resource URLs of the managed instance groups associated with this node pool.`,
 	},
 
 	"management": {
-		Type:     schema.TypeList,
-		Optional: true,
-		Computed: true,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		Optional:    true,
+		Computed:    true,
+		MaxItems:    1,
+		Description: `Node management configuration, wherein auto-repair and auto-upgrade is configured.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"auto_repair": {
-					Type:     schema.TypeBool,
-					Optional: true,
-					Default:  false,
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Default:     false,
+					Description: `Whether the nodes will be automatically repaired.`,
 				},
 
 				"auto_upgrade": {
-					Type:     schema.TypeBool,
-					Optional: true,
-					Default:  false,
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Default:     false,
+					Description: `Whether the nodes will be automatically upgraded.`,
 				},
 			},
 		},
 	},
 
 	"name": {
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Optional:    true,
+		Computed:    true,
+		ForceNew:    true,
+		Description: `The name of the node pool. If left blank, Terraform will auto-generate a unique name.`,
 	},
 
 	"name_prefix": {
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Optional:    true,
+		Computed:    true,
+		ForceNew:    true,
+		Description: `Creates a unique name for the node pool beginning with the specified prefix. Conflicts with name.`,
 	},
 
 	"node_config": schemaNodeConfig(),
@@ -188,12 +208,14 @@ var schemaNodePool = map[string]*schema.Schema{
 		Optional:     true,
 		Computed:     true,
 		ValidateFunc: validation.IntAtLeast(0),
+		Description:  `The number of nodes per instance group. This field can be used to update the number of nodes per instance group but should not be used alongside autoscaling.`,
 	},
 
 	"version": {
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
+		Type:        schema.TypeString,
+		Optional:    true,
+		Computed:    true,
+		Description: `The Kubernetes version for the nodes in this pool. Note that if this field and auto_upgrade are both specified, they will fight each other for what the node version should be, so setting both is highly discouraged. While a fuzzy version can be specified, it's recommended that you specify explicit versions as Terraform will see spurious diffs when fuzzy versions are used. See the google_container_engine_versions data source's version_prefix field to approximate fuzzy versions in a Terraform-compatible way.`,
 	},
 }
 
