@@ -71,7 +71,7 @@ func TestAccBigQueryTable_HivePartitioning(t *testing.T) {
 	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),

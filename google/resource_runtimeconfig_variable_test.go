@@ -108,6 +108,8 @@ func TestAccRuntimeconfigVariable_basicValue(t *testing.T) {
 }
 
 func TestAccRuntimeconfigVariable_errorsOnBothValueAndText(t *testing.T) {
+	// Unit test, no HTTP interactions
+	skipIfVcr(t)
 	t.Parallel()
 
 	vcrTest(t, resource.TestCase{

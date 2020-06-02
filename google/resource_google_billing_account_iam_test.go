@@ -11,6 +11,8 @@ import (
 )
 
 func TestAccBillingAccountIam(t *testing.T) {
+	// Deletes two fine-grained resources in same step
+	skipIfVcr(t)
 	t.Parallel()
 
 	billing := getTestBillingAccountFromEnv(t)

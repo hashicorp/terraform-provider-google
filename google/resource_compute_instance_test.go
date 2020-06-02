@@ -3076,6 +3076,7 @@ func testAccComputeInstance_disks_kms(pid string, bootEncryptionKey string, disk
 	for k := range diskNameToEncryptionKey {
 		diskNames = append(diskNames, k)
 	}
+	sort.Strings(diskNames)
 	return fmt.Sprintf(`
 data "google_project" "project" {
   project_id = "%s"

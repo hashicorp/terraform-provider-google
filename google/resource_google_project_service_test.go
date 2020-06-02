@@ -13,6 +13,8 @@ import (
 // Test that services can be enabled and disabled on a project
 func TestAccProjectService_basic(t *testing.T) {
 	t.Parallel()
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 
 	org := getTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", randInt(t))
