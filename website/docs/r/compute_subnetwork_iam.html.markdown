@@ -84,7 +84,7 @@ resource "google_compute_subnetwork_iam_member" "member" {
 The following arguments are supported:
 
 * `subnetwork` - (Required) Used to find the parent resource to bind the IAM policy to
-* `region` - (Optional) URL of the GCP region for this subnetwork.
+* `region` - (Optional) The GCP region for this subnetwork.
  Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no region is provided in the parent identifier and no
   region is specified, it is taken from the provider configuration.
