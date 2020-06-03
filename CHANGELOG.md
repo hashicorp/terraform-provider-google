@@ -4,7 +4,7 @@ FEATURES:
 * **New Resource:** `google_container_analysis_occurence` ([#6474](https://github.com/terraform-providers/terraform-provider-google/pull/6474))
 
 IMPROVEMENTS:
-* appengine: add `inbound_services` to `StandardAppVersion` resource ([#6514](https://github.com/terraform-providers/terraform-provider-google/pull/6514))
+* appengine: added `inbound_services` to `StandardAppVersion` resource ([#6514](https://github.com/terraform-providers/terraform-provider-google/pull/6514))
 * bigquery: Added `google_bigquery_table` `range_partitioning` to GA ([#6488](https://github.com/terraform-providers/terraform-provider-google/pull/6488))
 * bigquery: Added support for `google_bigquery_table` `hive_partitioning_options` ([#6488](https://github.com/terraform-providers/terraform-provider-google/pull/6488))
 * container: Changed retry logic for `google_container_node_pool` deletion to use timeouts and retry errors more specifically when cluster is updating. ([#6335](https://github.com/terraform-providers/terraform-provider-google/pull/6335))
