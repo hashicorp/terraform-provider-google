@@ -36,8 +36,8 @@ resource "google_compute_instance_group" "webservers" {
   description = "Terraform test instance group"
 
   instances = [
-    google_compute_instance.test.id,
-    google_compute_instance.test2.id,
+    google_compute_instance.test.self_link,
+    google_compute_instance.test2.self_link,
   ]
 
   named_port {
@@ -63,7 +63,7 @@ as shown in this example to avoid this type of error.
 resource "google_compute_instance_group" "staging_group" {
   name      = "staging-instance-group"
   zone      = "us-central1-c"
-  instances = [google_compute_instance.staging_vm.id]
+  instances = [google_compute_instance.staging_vm.self_link]
   named_port {
     name = "http"
     port = "8080"
