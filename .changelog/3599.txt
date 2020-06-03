@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed issue where trying to update the region of `google_compute_subnetwork` would fail instead of destroying/recreating the subnetwork
+```
