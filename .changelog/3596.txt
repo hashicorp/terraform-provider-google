@@ -1,0 +1,3 @@
+```release-note:bug
+dialogflow: Changed `google_dialogflow_agent.time_zone` to be updatable
+```

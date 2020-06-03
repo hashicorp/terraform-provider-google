@@ -57,7 +57,6 @@ for a list of the currently supported language codes. This field cannot be updat
 			"time_zone": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				Description: `The time zone of this agent from the [time zone database](https://www.iana.org/time-zones), e.g., America/New_York,
 Europe/Paris.`,
 			},

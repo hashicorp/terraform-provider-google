@@ -114,7 +114,7 @@ func testAccDialogflowAgent_full2(context map[string]interface{}) string {
 		display_name = "tf-test-%{random_suffix}update"
 		default_language_code = "en"
 		supported_language_codes = ["no"]
-		time_zone = "America/New_York"
+		time_zone = "Europe/London"
 		description = "Description 2!"
 		avatar_uri = "https://storage.cloud.google.com/dialogflow-test-host-image/cloud-logo-2.png"
 		enable_logging = false
