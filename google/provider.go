@@ -341,6 +341,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_MONITORING_CUSTOM_ENDPOINT",
 				}, MonitoringDefaultBasePath),
 			},
+			"network_management_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_NETWORK_MANAGEMENT_CUSTOM_ENDPOINT",
+				}, NetworkManagementDefaultBasePath),
+			},
 			"os_login_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -563,9 +571,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 134
+// Generated resources: 135
 // Generated IAM resources: 57
-// Total generated resources: 191
+// Total generated resources: 192
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -728,6 +736,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_monitoring_custom_service":                             resourceMonitoringService(),
 			"google_monitoring_slo":                                        resourceMonitoringSlo(),
 			"google_monitoring_uptime_check_config":                        resourceMonitoringUptimeCheckConfig(),
+			"google_network_management_connectivity_test":                  resourceNetworkManagementConnectivityTest(),
 			"google_os_login_ssh_public_key":                               resourceOSLoginSSHPublicKey(),
 			"google_pubsub_topic":                                          resourcePubsubTopic(),
 			"google_pubsub_topic_iam_binding":                              ResourceIamBinding(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
@@ -959,6 +968,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 	config.LoggingBasePath = d.Get("logging_custom_endpoint").(string)
 	config.MLEngineBasePath = d.Get("ml_engine_custom_endpoint").(string)
 	config.MonitoringBasePath = d.Get("monitoring_custom_endpoint").(string)
+	config.NetworkManagementBasePath = d.Get("network_management_custom_endpoint").(string)
 	config.OSLoginBasePath = d.Get("os_login_custom_endpoint").(string)
 	config.PubsubBasePath = d.Get("pubsub_custom_endpoint").(string)
 	config.RedisBasePath = d.Get("redis_custom_endpoint").(string)
