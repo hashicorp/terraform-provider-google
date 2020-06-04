@@ -20,6 +20,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
@@ -190,10 +191,11 @@ zone. The value of this field contains the network to peer with.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"network_url": {
-										Type:     schema.TypeString,
-										Required: true,
-										Description: `The fully qualified URL of the VPC network to forward queries to.
-This should be formatted like
+										Type:             schema.TypeString,
+										Required:         true,
+										DiffSuppressFunc: compareSelfLinkOrResourceName,
+										Description: `The id or fully qualified URL of the VPC network to forward queries to.
+This should be formatted like 'projects/{project}/global/networks/{network}' or
 'https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}'`,
 									},
 								},
@@ -271,8 +273,8 @@ func dnsManagedZonePrivateVisibilityConfigNetworksSchema() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description: `The fully qualified URL of the VPC network to bind to.
-This should be formatted like
+				Description: `The id or fully qualified URL of the VPC network to bind to.
+This should be formatted like 'projects/{project}/global/networks/{network}' or
 'https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}'`,
 			},
 		},
@@ -960,7 +962,16 @@ func expandDNSManagedZonePrivateVisibilityConfigNetworks(v interface{}, d Terraf
 }
 
 func expandDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	if v == nil || v.(string) == "" {
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		return v, nil
+	}
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	if err != nil {
+		return "", err
+	}
+	return ConvertSelfLinkToV1(url), nil
 }
 
 func expandDNSManagedZoneForwardingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -1059,5 +1070,14 @@ func expandDNSManagedZonePeeringConfigTargetNetwork(v interface{}, d TerraformRe
 }
 
 func expandDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	if v == nil || v.(string) == "" {
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		return v, nil
+	}
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	if err != nil {
+		return "", err
+	}
+	return ConvertSelfLinkToV1(url), nil
 }
