@@ -77,10 +77,10 @@ resource "google_dns_managed_zone" "private-zone" {
 
   private_visibility_config {
     networks {
-      network_url = google_compute_network.network-1.self_link
+      network_url = google_compute_network.network-1.id
     }
     networks {
-      network_url = google_compute_network.network-2.self_link
+      network_url = google_compute_network.network-2.id
     }
   }
 }
@@ -156,13 +156,13 @@ resource "google_dns_managed_zone" "peering-zone" {
 
   private_visibility_config {
     networks {
-      network_url = google_compute_network.network-source.self_link
+      network_url = google_compute_network.network-source.id
     }
   }
 
   peering_config {
     target_network {
-      network_url = google_compute_network.network-target.self_link
+      network_url = google_compute_network.network-target.id
     }
   }
 }
@@ -358,8 +358,8 @@ The `networks` block supports:
 
 * `network_url` -
   (Required)
-  The fully qualified URL of the VPC network to bind to.
-  This should be formatted like
+  The id or fully qualified URL of the VPC network to bind to.
+  This should be formatted like `projects/{project}/global/networks/{network}` or
   `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
 
 The `forwarding_config` block supports:
@@ -398,8 +398,8 @@ The `target_network` block supports:
 
 * `network_url` -
   (Required)
-  The fully qualified URL of the VPC network to forward queries to.
-  This should be formatted like
+  The id or fully qualified URL of the VPC network to forward queries to.
+  This should be formatted like `projects/{project}/global/networks/{network}` or
   `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
 
 ## Attributes Reference
