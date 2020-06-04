@@ -47,6 +47,9 @@ func resourceDataflowJob() *schema.Resource {
 		Read:   resourceDataflowJobRead,
 		Update: resourceDataflowJobUpdateByReplacement,
 		Delete: resourceDataflowJobDelete,
+		Timeouts: &schema.ResourceTimeout{
+			Update: schema.DefaultTimeout(10 * time.Minute),
+		},
 		CustomizeDiff: customdiff.All(
 			resourceDataflowJobTypeCustomizeDiff,
 		),
@@ -309,6 +312,11 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+
+	if err := waitForDataflowJobToBeUpdated(d, config, response.Job.Id, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return fmt.Errorf("Error updating job with job ID %q: %v", d.Id(), err)
+	}
+
 	d.SetId(response.Job.Id)
 
 	return resourceDataflowJobRead(d, meta)
@@ -498,4 +506,34 @@ func resourceDataflowJobIsVirtualUpdate(d *schema.ResourceData) bool {
 	}
 
 	return false
+}
+
+func waitForDataflowJobToBeUpdated(d *schema.ResourceData, config *Config, replacementJobID string, timeout time.Duration) error {
+	return resource.Retry(timeout, func() *resource.RetryError {
+		project, err := getProject(d, config)
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+
+		region, err := getRegion(d, config)
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+
+		replacementJob, err := resourceDataflowJobGetJob(config, project, region, replacementJobID)
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+
+		state := replacementJob.CurrentState
+		switch state {
+		case "", "JOB_STATE_PENDING":
+			return resource.RetryableError(fmt.Errorf("the replacement job with ID %q has pending state %q.", replacementJobID, state))
+		case "JOB_STATE_FAILED":
+			return resource.NonRetryableError(fmt.Errorf("the replacement job with ID %q failed with state %q.", replacementJobID, state))
+		default:
+			log.Printf("[DEBUG] the replacement job with ID %q has state %q.", replacementJobID, state)
+			return nil
+		}
+	})
 }

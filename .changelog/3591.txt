@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataflow: changed the update logic for `google_dataflow_job` to wait for the replacement job to start successfully before modifying the resource ID to point to the replacement job
+```
