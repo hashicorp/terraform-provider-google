@@ -553,6 +553,7 @@ func Provider() terraform.ResourceProvider {
 			"google_storage_project_service_account":          dataSourceGoogleStorageProjectServiceAccount(),
 			"google_storage_transfer_project_service_account": dataSourceGoogleStorageTransferProjectServiceAccount(),
 			"google_tpu_tensorflow_versions":                  dataSourceTpuTensorflowVersions(),
+			"google_redis_instance":                           dataSourceGoogleRedisInstance(),
 		},
 
 		ResourcesMap: ResourceMap(),
