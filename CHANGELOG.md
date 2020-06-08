@@ -1,4 +1,24 @@
 ## 3.25.0 (Unreleased)
+FEATURES:
+* **New Resource:** `google_data_catalog_tag_template` ([#6485](https://github.com/terraform-providers/terraform-provider-google/pull/6485))
+* **New Resource:** `google_container_analysis_occurence` ([#6474](https://github.com/terraform-providers/terraform-provider-google/pull/6474))
+
+IMPROVEMENTS:
+* appengine: added `inbound_services` to `StandardAppVersion` resource ([#6514](https://github.com/terraform-providers/terraform-provider-google/pull/6514))
+* bigquery: Promoted `google_bigquery_table` `range_partitioning` to GA ([#6488](https://github.com/terraform-providers/terraform-provider-google/pull/6488))
+* bigquery: Added support for `google_bigquery_table` `hive_partitioning_options` ([#6488](https://github.com/terraform-providers/terraform-provider-google/pull/6488))
+* container: Changed retry logic for `google_container_node_pool` deletion to use timeouts and retry errors more specifically when cluster is updating. ([#6335](https://github.com/terraform-providers/terraform-provider-google/pull/6335))
+* container: Promoted `google_container_cluster.workload_identity_config` to GA. ([#6490](https://github.com/terraform-providers/terraform-provider-google/pull/6490))
+* container_analysis: Added top-level generic note fields to `google_container_analysis_note` ([#6474](https://github.com/terraform-providers/terraform-provider-google/pull/6474))
+
+BUG FIXES:
+* bigquery: Fixed an issue where `google_bigquery_job` would return "was present, but now absent" error after job creation ([#6489](https://github.com/terraform-providers/terraform-provider-google/pull/6489))
+* dataflow: fixed an issue where `google_dataflow_job` would try to update `max_workers` ([#6468](https://github.com/terraform-providers/terraform-provider-google/pull/6468))
+* dataflow: fixed an issue where updating `on_delete` in `google_dataflow_job` would cause the job to be replaced ([#6468](https://github.com/terraform-providers/terraform-provider-google/pull/6468))
+* compute: fixed issue where removing all target pools from `google_compute_instance_group_manager` or `google_compute_region_instance_group_manager` had no effect ([#6492](https://github.com/terraform-providers/terraform-provider-google/pull/6492))
+* functions: Added retry to `google_cloudfunctions_function` creation when API returns error while pulling source from GCS ([#6476](https://github.com/terraform-providers/terraform-provider-google/pull/6476))
+* provider: Removed credentials from output error when provider cannot parse given credentials ([#6473](https://github.com/terraform-providers/terraform-provider-google/pull/6473))
+
 ## 3.24.0 (June 01, 2020)
 
 FEATURES:
