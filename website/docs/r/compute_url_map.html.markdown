@@ -530,6 +530,14 @@ The following arguments are supported:
   by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService or
   defaultRouteAction must not be set.  Structure is documented below.
 
+* `default_route_action` -
+  (Optional)
+  defaultRouteAction takes effect when none of the hostRules match. The load balancer performs advanced routing actions
+  like URL rewrites, header transformations, etc. prior to forwarding the request to the selected backend.
+  If defaultRouteAction specifies any weightedBackendServices, defaultService must not be set. Conversely if defaultService
+  is set, defaultRouteAction cannot contain any weightedBackendServices.
+  Only one of defaultRouteAction or defaultUrlRedirect must be set.  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -650,6 +658,14 @@ The `path_matcher` block supports:
   When none of the specified hostRules match, the request is redirected to a URL specified
   by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService or
   defaultRouteAction must not be set.  Structure is documented below.
+
+* `default_route_action` -
+  (Optional)
+  defaultRouteAction takes effect when none of the pathRules or routeRules match. The load balancer performs
+  advanced routing actions like URL rewrites, header transformations, etc. prior to forwarding the request
+  to the selected backend. If defaultRouteAction specifies any weightedBackendServices, defaultService must not be set.
+  Conversely if defaultService is set, defaultRouteAction cannot contain any weightedBackendServices.
+  Only one of defaultRouteAction or defaultUrlRedirect must be set.  Structure is documented below.
 
 
 The `header_action` block supports:
@@ -1795,6 +1811,289 @@ The `default_url_redirect` block supports:
   retained.
    This field is required to ensure an empty block is not set. The normal default value is false.
 
+The `default_route_action` block supports:
+
+* `weighted_backend_services` -
+  (Optional)
+  A list of weighted backend services to send traffic to when a route match occurs.
+  The weights determine the fraction of traffic that flows to their corresponding backend service.
+  If all traffic needs to go to a single backend service, there must be one weightedBackendService
+  with weight set to a non 0 number.
+  Once a backendService is identified and before forwarding the request to the backend service,
+  advanced routing actions like Url rewrites and header transformations are applied depending on
+  additional settings specified in this HttpRouteAction.  Structure is documented below.
+
+* `url_rewrite` -
+  (Optional)
+  The spec to modify the URL of the request, prior to forwarding the request to the matched service.  Structure is documented below.
+
+* `timeout` -
+  (Optional)
+  Specifies the timeout for the selected route. Timeout is computed from the time the request has been
+  fully processed (i.e. end-of-stream) up until the response has been completely processed. Timeout includes all retries.
+  If not specified, will use the largest timeout among all backend services associated with the route.  Structure is documented below.
+
+* `retry_policy` -
+  (Optional)
+  Specifies the retry policy associated with this route.  Structure is documented below.
+
+* `request_mirror_policy` -
+  (Optional)
+  Specifies the policy on how requests intended for the route's backends are shadowed to a separate mirrored backend service.
+  Loadbalancer does not wait for responses from the shadow service. Prior to sending traffic to the shadow service,
+  the host / authority header is suffixed with -shadow.  Structure is documented below.
+
+* `cors_policy` -
+  (Optional)
+  The specification for allowing client side cross-origin requests. Please see
+  [W3C Recommendation for Cross Origin Resource Sharing](https://www.w3.org/TR/cors/)  Structure is documented below.
+
+* `fault_injection_policy` -
+  (Optional)
+  The specification for fault injection introduced into traffic to test the resiliency of clients to backend service failure.
+  As part of fault injection, when clients send requests to a backend service, delays can be introduced by Loadbalancer on a
+  percentage of requests before sending those request to the backend service. Similarly requests from clients can be aborted
+  by the Loadbalancer for a percentage of requests.
+  timeout and retryPolicy will be ignored by clients that are configured with a faultInjectionPolicy.  Structure is documented below.
+
+
+The `weighted_backend_services` block supports:
+
+* `backend_service` -
+  (Optional)
+  The full or partial URL to the default BackendService resource. Before forwarding the
+  request to backendService, the loadbalancer applies any relevant headerActions
+  specified as part of this backendServiceWeight.
+
+* `weight` -
+  (Optional)
+  Specifies the fraction of traffic sent to backendService, computed as
+  weight / (sum of all weightedBackendService weights in routeAction) .
+  The selection of a backend service is determined only for new traffic. Once a user's request
+  has been directed to a backendService, subsequent requests will be sent to the same backendService
+  as determined by the BackendService's session affinity policy.
+  The value must be between 0 and 1000
+
+* `header_action` -
+  (Optional)
+  Specifies changes to request and response headers that need to take effect for
+  the selected backendService.
+  headerAction specified here take effect before headerAction in the enclosing
+  HttpRouteRule, PathMatcher and UrlMap.  Structure is documented below.
+
+
+The `header_action` block supports:
+
+* `request_headers_to_remove` -
+  (Optional)
+  A list of header names for headers that need to be removed from the request prior to
+  forwarding the request to the backendService.
+
+* `request_headers_to_add` -
+  (Optional)
+  Headers to add to a matching request prior to forwarding the request to the backendService.  Structure is documented below.
+
+* `response_headers_to_remove` -
+  (Optional)
+  A list of header names for headers that need to be removed from the response prior to sending the
+  response back to the client.
+
+* `response_headers_to_add` -
+  (Optional)
+  Headers to add the response prior to sending the response back to the client.  Structure is documented below.
+
+
+The `request_headers_to_add` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header to add.
+
+* `header_value` -
+  (Optional)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  If false, headerValue is appended to any values that already exist for the header.
+  If true, headerValue is set for the header, discarding any values that were set for that header.
+
+The `response_headers_to_add` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header to add.
+
+* `header_value` -
+  (Optional)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  If false, headerValue is appended to any values that already exist for the header.
+  If true, headerValue is set for the header, discarding any values that were set for that header.
+
+The `url_rewrite` block supports:
+
+* `path_prefix_rewrite` -
+  (Optional)
+  Prior to forwarding the request to the selected backend service, the matching portion of the
+  request's path is replaced by pathPrefixRewrite.
+  The value must be between 1 and 1024 characters.
+
+* `host_rewrite` -
+  (Optional)
+  Prior to forwarding the request to the selected service, the request's host header is replaced
+  with contents of hostRewrite.
+  The value must be between 1 and 255 characters.
+
+The `timeout` block supports:
+
+* `seconds` -
+  (Optional)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
+  Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented
+  with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+
+The `retry_policy` block supports:
+
+* `retry_conditions` -
+  (Optional)
+  Specfies one or more conditions when this retry rule applies. Valid values are:
+  5xx: Loadbalancer will attempt a retry if the backend service responds with any 5xx response code,
+  or if the backend service does not respond at all, example: disconnects, reset, read timeout,
+  connection failure, and refused streams.
+  gateway-error: Similar to 5xx, but only applies to response codes 502, 503 or 504.
+  connect-failure: Loadbalancer will retry on failures connecting to backend services,
+  for example due to connection timeouts.
+  retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
+  Currently the only retriable error supported is 409.
+  refused-stream:Loadbalancer will retry if the backend service resets the stream with a REFUSED_STREAM error code.
+  This reset type indicates that it is safe to retry.
+  cancelled: Loadbalancer will retry if the gRPC status code in the response header is set to cancelled
+  deadline-exceeded: Loadbalancer will retry if the gRPC status code in the response header is set to deadline-exceeded
+  resource-exhausted: Loadbalancer will retry if the gRPC status code in the response header is set to resource-exhausted
+  unavailable: Loadbalancer will retry if the gRPC status code in the response header is set to unavailable
+
+* `num_retries` -
+  (Optional)
+  Specifies the allowed number retries. This number must be > 0. If not specified, defaults to 1.
+
+* `per_try_timeout` -
+  (Optional)
+  Specifies a non-zero timeout per retry attempt.
+  If not specified, will use the timeout set in HttpRouteAction. If timeout in HttpRouteAction is not set,
+  will use the largest timeout among all backend services associated with the route.  Structure is documented below.
+
+
+The `per_try_timeout` block supports:
+
+* `seconds` -
+  (Optional)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
+  Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
+  represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+
+The `request_mirror_policy` block supports:
+
+* `backend_service` -
+  (Required)
+  The full or partial URL to the BackendService resource being mirrored to.
+
+The `cors_policy` block supports:
+
+* `allow_origins` -
+  (Optional)
+  Specifies the list of origins that will be allowed to do CORS requests.
+  An origin is allowed if it matches either an item in allowOrigins or an item in allowOriginRegexes.
+
+* `allow_origin_regexes` -
+  (Optional)
+  Specifies the regualar expression patterns that match allowed origins. For regular expression grammar
+  please see en.cppreference.com/w/cpp/regex/ecmascript
+  An origin is allowed if it matches either an item in allowOrigins or an item in allowOriginRegexes.
+
+* `allow_methods` -
+  (Optional)
+  Specifies the content for the Access-Control-Allow-Methods header.
+
+* `allow_headers` -
+  (Optional)
+  Specifies the content for the Access-Control-Allow-Headers header.
+
+* `expose_headers` -
+  (Optional)
+  Specifies the content for the Access-Control-Expose-Headers header.
+
+* `max_age` -
+  (Optional)
+  Specifies how long results of a preflight request can be cached in seconds.
+  This translates to the Access-Control-Max-Age header.
+
+* `allow_credentials` -
+  (Optional)
+  In response to a preflight request, setting this to true indicates that the actual request can include user credentials.
+  This translates to the Access-Control-Allow-Credentials header.
+
+* `disabled` -
+  (Optional)
+  If true, specifies the CORS policy is disabled. The default value is false, which indicates that the CORS policy is in effect.
+
+The `fault_injection_policy` block supports:
+
+* `delay` -
+  (Optional)
+  The specification for how client requests are delayed as part of fault injection, before being sent to a backend service.  Structure is documented below.
+
+* `abort` -
+  (Optional)
+  The specification for how client requests are aborted as part of fault injection.  Structure is documented below.
+
+
+The `delay` block supports:
+
+* `fixed_delay` -
+  (Optional)
+  Specifies the value of the fixed delay interval.  Structure is documented below.
+
+* `percentage` -
+  (Optional)
+  The percentage of traffic (connections/operations/requests) on which delay will be introduced as part of fault injection.
+  The value must be between 0.0 and 100.0 inclusive.
+
+
+The `fixed_delay` block supports:
+
+* `seconds` -
+  (Optional)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
+  Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
+  represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+
+The `abort` block supports:
+
+* `http_status` -
+  (Optional)
+  The HTTP status code used to abort the request.
+  The value must be between 200 and 599 inclusive.
+
+* `percentage` -
+  (Optional)
+  The percentage of traffic (connections/operations/requests) which will be aborted as part of fault injection.
+  The value must be between 0.0 and 100.0 inclusive.
+
 The `test` block supports:
 
 * `description` -
@@ -1867,6 +2166,289 @@ The `default_url_redirect` block supports:
   to redirecting the request. If set to false, the query portion of the original URL is
   retained. The default is set to false.
    This field is required to ensure an empty block is not set. The normal default value is false.
+
+The `default_route_action` block supports:
+
+* `weighted_backend_services` -
+  (Optional)
+  A list of weighted backend services to send traffic to when a route match occurs.
+  The weights determine the fraction of traffic that flows to their corresponding backend service.
+  If all traffic needs to go to a single backend service, there must be one weightedBackendService
+  with weight set to a non 0 number.
+  Once a backendService is identified and before forwarding the request to the backend service,
+  advanced routing actions like Url rewrites and header transformations are applied depending on
+  additional settings specified in this HttpRouteAction.  Structure is documented below.
+
+* `url_rewrite` -
+  (Optional)
+  The spec to modify the URL of the request, prior to forwarding the request to the matched service.  Structure is documented below.
+
+* `timeout` -
+  (Optional)
+  Specifies the timeout for the selected route. Timeout is computed from the time the request has been
+  fully processed (i.e. end-of-stream) up until the response has been completely processed. Timeout includes all retries.
+  If not specified, will use the largest timeout among all backend services associated with the route.  Structure is documented below.
+
+* `retry_policy` -
+  (Optional)
+  Specifies the retry policy associated with this route.  Structure is documented below.
+
+* `request_mirror_policy` -
+  (Optional)
+  Specifies the policy on how requests intended for the route's backends are shadowed to a separate mirrored backend service.
+  Loadbalancer does not wait for responses from the shadow service. Prior to sending traffic to the shadow service,
+  the host / authority header is suffixed with -shadow.  Structure is documented below.
+
+* `cors_policy` -
+  (Optional)
+  The specification for allowing client side cross-origin requests. Please see
+  [W3C Recommendation for Cross Origin Resource Sharing](https://www.w3.org/TR/cors/)  Structure is documented below.
+
+* `fault_injection_policy` -
+  (Optional)
+  The specification for fault injection introduced into traffic to test the resiliency of clients to backend service failure.
+  As part of fault injection, when clients send requests to a backend service, delays can be introduced by Loadbalancer on a
+  percentage of requests before sending those request to the backend service. Similarly requests from clients can be aborted
+  by the Loadbalancer for a percentage of requests.
+  timeout and retryPolicy will be ignored by clients that are configured with a faultInjectionPolicy.  Structure is documented below.
+
+
+The `weighted_backend_services` block supports:
+
+* `backend_service` -
+  (Optional)
+  The full or partial URL to the default BackendService resource. Before forwarding the
+  request to backendService, the loadbalancer applies any relevant headerActions
+  specified as part of this backendServiceWeight.
+
+* `weight` -
+  (Optional)
+  Specifies the fraction of traffic sent to backendService, computed as
+  weight / (sum of all weightedBackendService weights in routeAction) .
+  The selection of a backend service is determined only for new traffic. Once a user's request
+  has been directed to a backendService, subsequent requests will be sent to the same backendService
+  as determined by the BackendService's session affinity policy.
+  The value must be between 0 and 1000
+
+* `header_action` -
+  (Optional)
+  Specifies changes to request and response headers that need to take effect for
+  the selected backendService.
+  headerAction specified here take effect before headerAction in the enclosing
+  HttpRouteRule, PathMatcher and UrlMap.  Structure is documented below.
+
+
+The `header_action` block supports:
+
+* `request_headers_to_remove` -
+  (Optional)
+  A list of header names for headers that need to be removed from the request prior to
+  forwarding the request to the backendService.
+
+* `request_headers_to_add` -
+  (Optional)
+  Headers to add to a matching request prior to forwarding the request to the backendService.  Structure is documented below.
+
+* `response_headers_to_remove` -
+  (Optional)
+  A list of header names for headers that need to be removed from the response prior to sending the
+  response back to the client.
+
+* `response_headers_to_add` -
+  (Optional)
+  Headers to add the response prior to sending the response back to the client.  Structure is documented below.
+
+
+The `request_headers_to_add` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header to add.
+
+* `header_value` -
+  (Optional)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  If false, headerValue is appended to any values that already exist for the header.
+  If true, headerValue is set for the header, discarding any values that were set for that header.
+
+The `response_headers_to_add` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header to add.
+
+* `header_value` -
+  (Optional)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  If false, headerValue is appended to any values that already exist for the header.
+  If true, headerValue is set for the header, discarding any values that were set for that header.
+
+The `url_rewrite` block supports:
+
+* `path_prefix_rewrite` -
+  (Optional)
+  Prior to forwarding the request to the selected backend service, the matching portion of the
+  request's path is replaced by pathPrefixRewrite.
+  The value must be between 1 and 1024 characters.
+
+* `host_rewrite` -
+  (Optional)
+  Prior to forwarding the request to the selected service, the request's host header is replaced
+  with contents of hostRewrite.
+  The value must be between 1 and 255 characters.
+
+The `timeout` block supports:
+
+* `seconds` -
+  (Optional)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
+  Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented
+  with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+
+The `retry_policy` block supports:
+
+* `retry_conditions` -
+  (Optional)
+  Specfies one or more conditions when this retry rule applies. Valid values are:
+  5xx: Loadbalancer will attempt a retry if the backend service responds with any 5xx response code,
+  or if the backend service does not respond at all, example: disconnects, reset, read timeout,
+  connection failure, and refused streams.
+  gateway-error: Similar to 5xx, but only applies to response codes 502, 503 or 504.
+  connect-failure: Loadbalancer will retry on failures connecting to backend services,
+  for example due to connection timeouts.
+  retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
+  Currently the only retriable error supported is 409.
+  refused-stream:Loadbalancer will retry if the backend service resets the stream with a REFUSED_STREAM error code.
+  This reset type indicates that it is safe to retry.
+  cancelled: Loadbalancer will retry if the gRPC status code in the response header is set to cancelled
+  deadline-exceeded: Loadbalancer will retry if the gRPC status code in the response header is set to deadline-exceeded
+  resource-exhausted: Loadbalancer will retry if the gRPC status code in the response header is set to resource-exhausted
+  unavailable: Loadbalancer will retry if the gRPC status code in the response header is set to unavailable
+
+* `num_retries` -
+  (Optional)
+  Specifies the allowed number retries. This number must be > 0. If not specified, defaults to 1.
+
+* `per_try_timeout` -
+  (Optional)
+  Specifies a non-zero timeout per retry attempt.
+  If not specified, will use the timeout set in HttpRouteAction. If timeout in HttpRouteAction is not set,
+  will use the largest timeout among all backend services associated with the route.  Structure is documented below.
+
+
+The `per_try_timeout` block supports:
+
+* `seconds` -
+  (Optional)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
+  Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
+  represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+
+The `request_mirror_policy` block supports:
+
+* `backend_service` -
+  (Required)
+  The full or partial URL to the BackendService resource being mirrored to.
+
+The `cors_policy` block supports:
+
+* `allow_origins` -
+  (Optional)
+  Specifies the list of origins that will be allowed to do CORS requests.
+  An origin is allowed if it matches either an item in allowOrigins or an item in allowOriginRegexes.
+
+* `allow_origin_regexes` -
+  (Optional)
+  Specifies the regualar expression patterns that match allowed origins. For regular expression grammar
+  please see en.cppreference.com/w/cpp/regex/ecmascript
+  An origin is allowed if it matches either an item in allowOrigins or an item in allowOriginRegexes.
+
+* `allow_methods` -
+  (Optional)
+  Specifies the content for the Access-Control-Allow-Methods header.
+
+* `allow_headers` -
+  (Optional)
+  Specifies the content for the Access-Control-Allow-Headers header.
+
+* `expose_headers` -
+  (Optional)
+  Specifies the content for the Access-Control-Expose-Headers header.
+
+* `max_age` -
+  (Optional)
+  Specifies how long results of a preflight request can be cached in seconds.
+  This translates to the Access-Control-Max-Age header.
+
+* `allow_credentials` -
+  (Optional)
+  In response to a preflight request, setting this to true indicates that the actual request can include user credentials.
+  This translates to the Access-Control-Allow-Credentials header.
+
+* `disabled` -
+  (Optional)
+  If true, specifies the CORS policy is disabled. The default value is false, which indicates that the CORS policy is in effect.
+
+The `fault_injection_policy` block supports:
+
+* `delay` -
+  (Optional)
+  The specification for how client requests are delayed as part of fault injection, before being sent to a backend service.  Structure is documented below.
+
+* `abort` -
+  (Optional)
+  The specification for how client requests are aborted as part of fault injection.  Structure is documented below.
+
+
+The `delay` block supports:
+
+* `fixed_delay` -
+  (Optional)
+  Specifies the value of the fixed delay interval.  Structure is documented below.
+
+* `percentage` -
+  (Optional)
+  The percentage of traffic (connections/operations/requests) on which delay will be introduced as part of fault injection.
+  The value must be between 0.0 and 100.0 inclusive.
+
+
+The `fixed_delay` block supports:
+
+* `seconds` -
+  (Optional)
+  Span of time at a resolution of a second. Must be from 0 to 315,576,000,000 inclusive.
+  Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
+  represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+
+The `abort` block supports:
+
+* `http_status` -
+  (Optional)
+  The HTTP status code used to abort the request.
+  The value must be between 200 and 599 inclusive.
+
+* `percentage` -
+  (Optional)
+  The percentage of traffic (connections/operations/requests) which will be aborted as part of fault injection.
+  The value must be between 0.0 and 100.0 inclusive.
 
 ## Attributes Reference
 
