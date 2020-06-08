@@ -1,4 +1,4 @@
-## 3.25.0 (Unreleased)
+## 3.25.0 (June 08, 2020)
 FEATURES:
 * **New Resource:** `google_data_catalog_tag_template` ([#6485](https://github.com/terraform-providers/terraform-provider-google/pull/6485))
 * **New Resource:** `google_container_analysis_occurence` ([#6474](https://github.com/terraform-providers/terraform-provider-google/pull/6474))
