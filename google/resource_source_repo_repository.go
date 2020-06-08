@@ -351,13 +351,16 @@ func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d TerraformResourceD
 		transformedMessageFormat, err := expandSourceRepoRepositoryPubsubConfigsMessageFormat(original["message_format"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedMessageFormat); val.IsValid() && !isEmptyValue(val) {
+			transformed["messageFormat"] = transformedMessageFormat
 		}
-		transformed["messageFormat"] = transformedMessageFormat
+
 		transformedServiceAccountEmail, err := expandSourceRepoRepositoryPubsubConfigsServiceAccountEmail(original["service_account_email"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !isEmptyValue(val) {
+			transformed["serviceAccountEmail"] = transformedServiceAccountEmail
 		}
-		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
 
 		transformedTopic, err := expandSourceRepoRepositoryPubsubConfigsTopic(original["topic"], d, config)
 		if err != nil {

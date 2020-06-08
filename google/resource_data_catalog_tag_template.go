@@ -341,7 +341,7 @@ func resourceDataCatalogTagTemplateImport(d *schema.ResourceData, meta interface
 
 	parts := egRegex.FindStringSubmatch(name)
 	if len(parts) != 4 {
-		return nil, fmt.Errorf("entry group name does not fit the format %s", egRegex)
+		return nil, fmt.Errorf("tag template name does not fit the format %s", egRegex)
 	}
 	d.Set("project", parts[1])
 	d.Set("region", parts[2])
@@ -475,28 +475,37 @@ func expandDataCatalogTagTemplateFields(v interface{}, d TerraformResourceData, 
 		transformedName, err := expandDataCatalogTagTemplateFieldsName(original["name"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+			transformed["name"] = transformedName
 		}
-		transformed["name"] = transformedName
+
 		transformedDisplayName, err := expandDataCatalogTagTemplateFieldsDisplayName(original["display_name"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedDisplayName); val.IsValid() && !isEmptyValue(val) {
+			transformed["displayName"] = transformedDisplayName
 		}
-		transformed["displayName"] = transformedDisplayName
+
 		transformedType, err := expandDataCatalogTagTemplateFieldsType(original["type"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !isEmptyValue(val) {
+			transformed["type"] = transformedType
 		}
-		transformed["type"] = transformedType
+
 		transformedIsRequired, err := expandDataCatalogTagTemplateFieldsIsRequired(original["is_required"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedIsRequired); val.IsValid() && !isEmptyValue(val) {
+			transformed["isRequired"] = transformedIsRequired
 		}
-		transformed["isRequired"] = transformedIsRequired
+
 		transformedOrder, err := expandDataCatalogTagTemplateFieldsOrder(original["order"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedOrder); val.IsValid() && !isEmptyValue(val) {
+			transformed["order"] = transformedOrder
 		}
-		transformed["order"] = transformedOrder
 
 		transformedFieldId, err := expandString(original["field_id"], d, config)
 		if err != nil {

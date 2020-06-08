@@ -3073,13 +3073,16 @@ func expandAppEngineFlexibleAppVersionDeploymentFiles(v interface{}, d Terraform
 		transformedSha1Sum, err := expandAppEngineFlexibleAppVersionDeploymentFilesSha1Sum(original["sha1_sum"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedSha1Sum); val.IsValid() && !isEmptyValue(val) {
+			transformed["sha1Sum"] = transformedSha1Sum
 		}
-		transformed["sha1Sum"] = transformedSha1Sum
+
 		transformedSourceUrl, err := expandAppEngineFlexibleAppVersionDeploymentFilesSourceUrl(original["source_url"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedSourceUrl); val.IsValid() && !isEmptyValue(val) {
+			transformed["sourceUrl"] = transformedSourceUrl
 		}
-		transformed["sourceUrl"] = transformedSourceUrl
 
 		transformedName, err := expandString(original["name"], d, config)
 		if err != nil {
