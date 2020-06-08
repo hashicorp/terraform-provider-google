@@ -69,6 +69,57 @@ resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=healthcare_fhir_store_streaming_config&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Healthcare Fhir Store Streaming Config
+
+
+```hcl
+resource "google_healthcare_fhir_store" "default" {
+  name    = "example-fhir-store"
+  dataset = google_healthcare_dataset.dataset.id
+  version = "R4"
+
+  enable_update_create          = false
+  disable_referential_integrity = false
+  disable_resource_versioning   = false
+  enable_history_import         = false
+
+  labels = {
+    label1 = "labelvalue1"
+  }
+
+  stream_configs {
+    resource_types = ["Observation"]
+    bigquery_destination {
+      dataset_uri = "bq://${google_bigquery_dataset.bq_dataset.project}.${google_bigquery_dataset.bq_dataset.dataset_id}"
+      schema_config {
+        recursive_structure_depth = 3
+      }
+    }
+  }
+}
+
+resource "google_pubsub_topic" "topic" {
+  name     = "fhir-notifications"
+}
+
+resource "google_healthcare_dataset" "dataset" {
+  name     = "example-dataset"
+  location = "us-central1"
+}
+
+resource "google_bigquery_dataset" "bq_dataset" {
+  dataset_id    = "bq_example_dataset"
+  friendly_name = "test"
+  description   = "This is a test description"
+  location      = "US"
+  delete_contents_on_destroy = true
+}
+```
 
 ## Argument Reference
 
@@ -149,6 +200,15 @@ The following arguments are supported:
   (Optional)
   A nested object resource  Structure is documented below.
 
+* `stream_configs` -
+  (Optional)
+  A list of streaming configs that configure the destinations of streaming export for every resource mutation in
+  this FHIR store. Each store is allowed to have up to 10 streaming configs. After a new config is added, the next
+  resource mutation is streamed to the new location in addition to the existing ones. When a location is removed
+  from the list, the server stops streaming to that location. Before adding a new config, you must add the required
+  bigquery.dataEditor role to your project's Cloud Healthcare Service Agent service account. Some lag (typically on
+  the order of dozens of seconds) is expected before the results show up in the streaming destination.  Structure is documented below.
+
 
 The `notification_config` block supports:
 
@@ -160,6 +220,53 @@ The `notification_config` block supports:
   was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
   project. cloud-healthcare@system.gserviceaccount.com must have publisher permissions on the given
   Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
+
+The `stream_configs` block supports:
+
+* `resource_types` -
+  (Optional)
+  Supply a FHIR resource type (such as "Patient" or "Observation"). See 
+  https://www.hl7.org/fhir/valueset-resource-types.html for a list of all FHIR resource types. The server treats
+  an empty list as an intent to stream all the supported resource types in this FHIR store.
+
+* `bigquery_destination` -
+  (Required)
+  The destination BigQuery structure that contains both the dataset location and corresponding schema config.
+  The output is organized in one table per resource type. The server reuses the existing tables (if any) that
+  are named after the resource types, e.g. "Patient", "Observation". When there is no existing table for a given
+  resource type, the server attempts to create one.
+  See the [streaming config reference](https://cloud.google.com/healthcare/docs/reference/rest/v1beta1/projects.locations.datasets.fhirStores#streamconfig) for more details.  Structure is documented below.
+
+
+The `bigquery_destination` block supports:
+
+* `dataset_uri` -
+  (Required)
+  BigQuery URI to a dataset, up to 2000 characters long, in the format bq://projectId.bqDatasetId
+
+* `schema_config` -
+  (Required)
+  The configuration for the exported BigQuery schema.  Structure is documented below.
+
+
+The `schema_config` block supports:
+
+* `schema_type` -
+  (Optional)
+  Specifies the output schema type. Only ANALYTICS is supported at this time.
+   * ANALYTICS: Analytics schema defined by the FHIR community.
+    See https://github.com/FHIR/sql-on-fhir/blob/master/sql-on-fhir.md.
+
+  Default value: `ANALYTICS`
+  Possible values are:
+  * `ANALYTICS`
+
+* `recursive_structure_depth` -
+  (Required)
+  The depth for all recursive structures in the output analytics schema. For example, concept in the CodeSystem
+  resource is a recursive structure; when the depth is 2, the CodeSystem table will have a column called
+  concept.concept but not concept.concept.concept. If not specified or set to 0, the server will use the default
+  value 2. The maximum depth allowed is 5.
 
 ## Attributes Reference
 
