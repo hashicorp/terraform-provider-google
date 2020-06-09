@@ -224,6 +224,7 @@ func resourceStorageBucket() *schema.Resource {
 						"retention_period": {
 							Type:         schema.TypeInt,
 							Required:     true,
+							// Needs to compile for 32 bit machines. Cannot set retention period beyond MaxInt32.
 							ValidateFunc: validation.IntBetween(1, math.MaxInt32),
 						},
 					},
