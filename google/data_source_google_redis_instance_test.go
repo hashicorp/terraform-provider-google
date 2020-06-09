@@ -27,13 +27,13 @@ func TestAccRedisInstanceDatasource_basic(t *testing.T) {
 func testAccRedisInstanceDatasourceConfig(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_redis_instance" "redis" {
-	name               = "redis-test-%s"
+  name               = "redis-test-%s"
   memory_size_gb     = 1
   region             = "europe-west1"
 }
 
 data "google_redis_instance" "redis" {
-	name = "${google_redis_instance.redis.name}"
+  name = "${google_redis_instance.redis.name}"
 }
 `, suffix)
 }
