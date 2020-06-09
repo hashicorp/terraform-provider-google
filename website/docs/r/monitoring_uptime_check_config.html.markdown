@@ -182,6 +182,16 @@ The `content_matchers` block supports:
   (Required)
   String or regex content to match (max 1024 bytes)
 
+* `matcher` -
+  (Optional)
+  The type of content matcher that will be applied to the server output, compared to the content string when the check is run.
+
+  Possible values are:
+  * `CONTAINS_STRING`
+  * `NOT_CONTAINS_STRING`
+  * `MATCHES_REGEX`
+  * `NON_MATCHES_REGEX`
+
 The `http_check` block supports:
 
 * `auth_info` -
