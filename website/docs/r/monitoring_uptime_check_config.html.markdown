@@ -186,6 +186,7 @@ The `content_matchers` block supports:
   (Optional)
   The type of content matcher that will be applied to the server output, compared to the content string when the check is run.
 
+  Default value: `CONTAINS_STRING`
   Possible values are:
   * `CONTAINS_STRING`
   * `NOT_CONTAINS_STRING`
