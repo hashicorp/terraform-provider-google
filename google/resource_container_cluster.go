@@ -433,7 +433,7 @@ func resourceContainerCluster() *schema.Resource {
 			"logging_service": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "logging.googleapis.com/kubernetes",
+				Computed:     true,
 				ValidateFunc: validation.StringInSlice([]string{"logging.googleapis.com", "logging.googleapis.com/kubernetes", "none"}, false),
 				Description:  `The logging service that the cluster should write logs to. Available options include logging.googleapis.com(Legacy Stackdriver), logging.googleapis.com/kubernetes(Stackdriver Kubernetes Engine Logging), and none. Defaults to logging.googleapis.com/kubernetes.`,
 			},
@@ -588,7 +588,7 @@ func resourceContainerCluster() *schema.Resource {
 			"monitoring_service": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "monitoring.googleapis.com/kubernetes",
+				Computed:     true,
 				ValidateFunc: validation.StringInSlice([]string{"monitoring.googleapis.com", "monitoring.googleapis.com/kubernetes", "none"}, false),
 				Description:  `The monitoring service that the cluster should write metrics to. Automatically send metrics from pods in the cluster to the Google Cloud Monitoring API. VM metrics will be collected by Google Compute Engine regardless of this setting Available options include monitoring.googleapis.com(Legacy Stackdriver), monitoring.googleapis.com/kubernetes(Stackdriver Kubernetes Engine Monitoring), and none. Defaults to monitoring.googleapis.com/kubernetes.`,
 			},
