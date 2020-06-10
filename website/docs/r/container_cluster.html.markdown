@@ -664,6 +664,10 @@ subnet. See [Private Cluster Limitations](https://cloud.google.com/kubernetes-en
 for more details. This field only applies to private clusters, when
 `enable_private_nodes` is `true`.
 
+* `master_global_access_config` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - Controls cluster master global
+access settings. If unset, Terraform will no longer manage this field and will
+not modify the previously-set value. Structure is documented below.
+
 In addition, the `private_cluster_config` allows access to the following read-only fields:
 
 * `peering_name` - The name of the peering between this cluster and the Google owned VPC.
@@ -675,6 +679,11 @@ In addition, the `private_cluster_config` allows access to the following read-on
 !> The Google provider is unable to validate certain configurations of
 `private_cluster_config` when `enable_private_nodes` is `false`. It's
 recommended that you omit the block entirely if the field is not set to `true`.
+
+The `private_cluster_config.master_global_access_config` block supports:
+
+* `enabled` (Optional) - Whether the cluster master is accessible globally or
+not.
 
 The `sandbox_config` block supports:
 
