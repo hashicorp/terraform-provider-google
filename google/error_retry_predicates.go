@@ -266,3 +266,12 @@ func isCloudFunctionsSourceCodeError(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+func datastoreIndex409Contention(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 && strings.Contains(gerr.Body, "too much contention") {
+			return true, "too much contention - waiting for less activity"
+		}
+	}
+	return false, ""
+}

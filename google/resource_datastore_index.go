@@ -126,7 +126,7 @@ func resourceDatastoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), datastoreIndex409Contention)
 	if err != nil {
 		return fmt.Errorf("Error creating Index: %s", err)
 	}
@@ -178,7 +178,7 @@ func resourceDatastoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	res, err := sendRequest(config, "GET", project, url, nil, datastoreIndex409Contention)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DatastoreIndex %q", d.Id()))
 	}
@@ -219,7 +219,7 @@ func resourceDatastoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Index %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), datastoreIndex409Contention)
 	if err != nil {
 		return handleNotFoundError(err, d, "Index")
 	}
