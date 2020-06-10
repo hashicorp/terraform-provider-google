@@ -1,4 +1,26 @@
 ## 3.26.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `data_catalog_tag` ([#6550](https://github.com/terraform-providers/terraform-provider-google/pull/6550))
+* **New Resource:** `google_bigquery_dataset_iam_binding` ([#6553](https://github.com/terraform-providers/terraform-provider-google/pull/6553))
+* **New Resource:** `google_bigquery_dataset_iam_member` ([#6553](https://github.com/terraform-providers/terraform-provider-google/pull/6553))
+* **New Resource:** `google_bigquery_dataset_iam_policy` ([#6553](https://github.com/terraform-providers/terraform-provider-google/pull/6553))
+* **New Resource:** `google_memcache_instance` ([#6540](https://github.com/terraform-providers/terraform-provider-google/pull/6540))
+* **New Resource:** `google_network_management_connectivity_test` ([#6529](https://github.com/terraform-providers/terraform-provider-google/pull/6529))
+
+IMPROVEMENTS:
+* compute: added `default_route_action` to `compute_url_map` and `compute_url_map.path_matchers` ([#6547](https://github.com/terraform-providers/terraform-provider-google/pull/6547))
+* container :  Added cluster_telemetry attribute to `google_container_cluster` ([#6555](https://github.com/terraform-providers/terraform-provider-google/pull/6555))
+* dataflow: changed the update logic for `google_dataflow_job` to wait for the replacement job to start successfully before modifying the resource ID to point to the replacement job ([#6534](https://github.com/terraform-providers/terraform-provider-google/pull/6534))
+* dns: enabled google_dns_managed_zone to accept network id for two attributes ([#6533](https://github.com/terraform-providers/terraform-provider-google/pull/6533))
+* healthcare: Added support for `streaming_configs` to `google_healthcare_fhir_store` ([#6551](https://github.com/terraform-providers/terraform-provider-google/pull/6551))
+* monitoring: added `matcher` attribute to `content_matchers` block for `google_monitoring_uptime_check_config` ([#6558](https://github.com/terraform-providers/terraform-provider-google/pull/6558))
+
+BUG FIXES:
+* compute: fixed issue where trying to update the region of `google_compute_subnetwork` would fail instead of destroying/recreating the subnetwork ([#6522](https://github.com/terraform-providers/terraform-provider-google/pull/6522))
+* dataflow: added retries in `google_dataflow_job` for common retryable API errors when waiting for job to update ([#6552](https://github.com/terraform-providers/terraform-provider-google/pull/6552))
+* dialogflow: Changed `google_dialogflow_agent.time_zone` to be updatable ([#6519](https://github.com/terraform-providers/terraform-provider-google/pull/6519))
+
 ## 3.25.0 (June 08, 2020)
 
 FEATURES:
