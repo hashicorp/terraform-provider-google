@@ -173,9 +173,19 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	if v, ok := d.GetOk("instances"); ok {
-		instanceUrls := convertStringArr(v.(*schema.Set).List())
-		if !validInstanceURLs(instanceUrls) {
-			return fmt.Errorf("Error invalid instance URLs: %v", instanceUrls)
+		tmpUrls := convertStringArr(v.(*schema.Set).List())
+
+		var instanceUrls []string
+		for _, v := range tmpUrls {
+			if strings.HasPrefix(v, "https://") {
+				instanceUrls = append(instanceUrls, v)
+			} else {
+				url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v)
+				if err != nil {
+					return err
+				}
+				instanceUrls = append(instanceUrls, url)
+			}
 		}
 
 		addInstanceReq := &compute.InstanceGroupsAddInstancesRequest{

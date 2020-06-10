@@ -346,7 +346,7 @@ resource "google_compute_instance_group" "basic" {
   description = "Terraform test instance group"
   name        = "%s"
   zone        = "%s"
-  instances   = [google_compute_instance.ig_instance.self_link]
+  instances   = [google_compute_instance.ig_instance.id]
   named_port {
     name = "http"
     port = "8080"
