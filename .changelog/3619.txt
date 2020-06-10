@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added support for `private_cluster_config.master_global_access_config` to `google_container_cluster` (beta)
+```
