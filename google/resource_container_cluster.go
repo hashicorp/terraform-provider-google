@@ -1071,7 +1071,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("subnetwork"); ok {
-		subnetwork, err := ParseSubnetworkFieldValue(v.(string), d, config)
+		subnetwork, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "location", "location", d, config, true) // variant of ParseSubnetworkFieldValue
 		if err != nil {
 			return err
 		}
