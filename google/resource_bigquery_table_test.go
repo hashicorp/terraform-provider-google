@@ -428,7 +428,7 @@ func testAccBigQueryTableRangePartitioning(datasetID, tableID string) string {
 		range_partitioning {
 			field = "id"
 			range {
-				start    = 1
+				start    = 0
 				end      = 10000
 				interval = 100
 			}
