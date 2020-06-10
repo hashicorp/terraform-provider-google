@@ -154,8 +154,10 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	// API tends to be asynchronous
-	time.Sleep(time.Second)
+	// This API is meant to be synchronous, but in practice it shows the old value for
+	// a few milliseconds after the update goes through. 5 seconds is more than enough
+	// time to ensure following reads are correct.
+	time.Sleep(time.Second * 5)
 
 	return nil
 }
