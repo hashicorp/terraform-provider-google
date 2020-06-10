@@ -992,9 +992,10 @@ func expandRangePartitioning(configured interface{}) (*bigquery.RangePartitionin
 
 		rangeJson := rangeLs[0].(map[string]interface{})
 		rp.Range = &bigquery.RangePartitioningRange{
-			Start:    int64(rangeJson["start"].(int)),
-			End:      int64(rangeJson["end"].(int)),
-			Interval: int64(rangeJson["interval"].(int)),
+			Start:           int64(rangeJson["start"].(int)),
+			End:             int64(rangeJson["end"].(int)),
+			Interval:        int64(rangeJson["interval"].(int)),
+			ForceSendFields: []string{"Start"},
 		}
 	}
 
