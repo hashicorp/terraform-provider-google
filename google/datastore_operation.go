@@ -31,7 +31,7 @@ func (w *DatastoreOperationWaiter) QueryOp() (interface{}, error) {
 	}
 	// Returns the proper get.
 	url := fmt.Sprintf("https://datastore.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
-	return sendRequest(w.Config, "GET", w.Project, url, nil)
+	return sendRequest(w.Config, "GET", w.Project, url, nil, datastoreIndex409Contention)
 }
 
 func createDatastoreWaiter(config *Config, op map[string]interface{}, project, activity string) (*DatastoreOperationWaiter, error) {

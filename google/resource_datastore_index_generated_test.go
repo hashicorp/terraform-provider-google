@@ -80,7 +80,7 @@ func testAccCheckDatastoreIndexDestroyProducer(t *testing.T) func(s *terraform.S
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, nil, datastoreIndex409Contention)
 			if err == nil {
 				return fmt.Errorf("DatastoreIndex still exists at %s", url)
 			}
