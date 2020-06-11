@@ -315,6 +315,12 @@ service. The service account represents the identity of the running revision,
 and determines what permissions the revision has. If not provided, the revision
 will use the project's default service account.`,
 									},
+									"timeout_seconds": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Optional:    true,
+										Description: `TimeoutSeconds holds the max duration the instance is allowed for responding to a request.`,
+									},
 									"serving_state": {
 										Type:       schema.TypeString,
 										Computed:   true,
@@ -995,6 +1001,8 @@ func flattenCloudRunServiceSpecTemplateSpec(v interface{}, d *schema.ResourceDat
 		flattenCloudRunServiceSpecTemplateSpecContainers(original["containers"], d, config)
 	transformed["container_concurrency"] =
 		flattenCloudRunServiceSpecTemplateSpecContainerConcurrency(original["containerConcurrency"], d, config)
+	transformed["timeout_seconds"] =
+		flattenCloudRunServiceSpecTemplateSpecTimeoutSeconds(original["timeoutSeconds"], d, config)
 	transformed["service_account_name"] =
 		flattenCloudRunServiceSpecTemplateSpecServiceAccountName(original["serviceAccountName"], d, config)
 	transformed["serving_state"] =
@@ -1188,6 +1196,23 @@ func flattenCloudRunServiceSpecTemplateSpecContainersResourcesRequests(v interfa
 }
 
 func flattenCloudRunServiceSpecTemplateSpecContainerConcurrency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTemplateSpecTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
@@ -1605,6 +1630,13 @@ func expandCloudRunServiceSpecTemplateSpec(v interface{}, d TerraformResourceDat
 		transformed["containerConcurrency"] = transformedContainerConcurrency
 	}
 
+	transformedTimeoutSeconds, err := expandCloudRunServiceSpecTemplateSpecTimeoutSeconds(original["timeout_seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeoutSeconds); val.IsValid() && !isEmptyValue(val) {
+		transformed["timeoutSeconds"] = transformedTimeoutSeconds
+	}
+
 	transformedServiceAccountName, err := expandCloudRunServiceSpecTemplateSpecServiceAccountName(original["service_account_name"], d, config)
 	if err != nil {
 		return nil, err
@@ -1934,6 +1966,10 @@ func expandCloudRunServiceSpecTemplateSpecContainersResourcesRequests(v interfac
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainerConcurrency(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecTimeoutSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
