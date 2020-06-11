@@ -335,6 +335,10 @@ The `spec` block supports:
   - `1` not-thread-safe. Single concurrency
   - `2-N` thread-safe, max concurrency of N
 
+* `timeout_seconds` -
+  (Optional)
+  TimeoutSeconds holds the max duration the instance is allowed for responding to a request.
+
 * `service_account_name` -
   (Optional)
   Email address of the IAM service account associated with the revision of the
