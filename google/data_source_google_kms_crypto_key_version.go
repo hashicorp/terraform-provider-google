@@ -117,7 +117,7 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 			return fmt.Errorf("Error reading CryptoKeyVersion public key: %s", err)
 		}
 	}
-	d.SetId(fmt.Sprintf("//cloudkms.googleapis.com/%s/cryptoKeyVersions/%d", d.Get("crypto_key"), d.Get("version")))
+	d.SetId(fmt.Sprintf("//cloudkms.googleapis.com/v1/%s/cryptoKeyVersions/%d", d.Get("crypto_key"), d.Get("version")))
 
 	return nil
 }
