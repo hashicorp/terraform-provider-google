@@ -98,7 +98,7 @@ resource "google_compute_region_health_check" "default" {
 resource "google_compute_region_target_http_proxy" "default" {
   region  = "us-central1"
   name    = "test-https-redirect-proxy"
-  url_map = google_compute_region_url_map.default.self_link
+  url_map = google_compute_region_url_map.default.id
 }
 
 resource "google_compute_region_url_map" "default" {

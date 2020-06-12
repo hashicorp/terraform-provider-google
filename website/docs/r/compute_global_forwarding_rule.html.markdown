@@ -172,7 +172,7 @@ resource "google_compute_instance_group_manager" "igm" {
   provider = google-beta
   name     = "igm-internal"
   version {
-    instance_template = google_compute_instance_template.instance_template.self_link
+    instance_template = google_compute_instance_template.instance_template.id
     name              = "primary"
   }
   base_instance_name = "internal-glb"

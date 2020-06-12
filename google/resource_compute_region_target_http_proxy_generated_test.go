@@ -124,7 +124,7 @@ func testAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpsRedirectExamp
 resource "google_compute_region_target_http_proxy" "default" {
   region  = "us-central1"
   name    = "tf-test-test-https-redirect-proxy%{random_suffix}"
-  url_map = google_compute_region_url_map.default.self_link
+  url_map = google_compute_region_url_map.default.id
 }
 
 resource "google_compute_region_url_map" "default" {
