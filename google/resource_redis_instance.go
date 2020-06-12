@@ -50,10 +50,11 @@ func resourceRedisInstance() *schema.Resource {
 				Description: `Redis memory size in GiB.`,
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The ID of the instance or a fully qualified identifier for the instance.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateRegexp(`^[a-z][a-z0-9-]{0,39}[a-z0-9]$`),
+				Description:  `The ID of the instance or a fully qualified identifier for the instance.`,
 			},
 			"alternative_location_id": {
 				Type:     schema.TypeString,
