@@ -1,3 +1,4 @@
+//
 package google
 
 import (
@@ -91,7 +92,6 @@ func expandScheduling(v interface{}) (*computeBeta.Scheduling, error) {
 	if v, ok := original["preemptible"]; ok {
 		scheduling.Preemptible = v.(bool)
 		scheduling.ForceSendFields = append(scheduling.ForceSendFields, "Preemptible")
-
 	}
 
 	if v, ok := original["on_host_maintenance"]; ok {
