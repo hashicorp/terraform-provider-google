@@ -1,3 +1,4 @@
+//
 package google
 
 import (
@@ -1960,7 +1961,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instancet-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "n1-standard-4"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -1980,6 +1981,7 @@ resource "google_compute_instance_template" "foobar" {
       operator = "IN"
       values   = ["testinstancetemplate"]
     }
+
   }
 
   service_account {

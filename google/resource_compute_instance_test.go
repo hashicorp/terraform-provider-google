@@ -1,3 +1,4 @@
+//
 package google
 
 import (
@@ -4303,7 +4304,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-2"
+  machine_type = "n1-standard-8"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -4334,6 +4335,7 @@ resource "google_compute_instance" "foobar" {
       operator = "IN"
       values   = [google_compute_node_group.nodes.name]
     }
+
   }
 }
 
@@ -4349,7 +4351,7 @@ resource "google_compute_node_template" "nodetmpl" {
     tfacc = "test"
   }
 
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = data.google_compute_node_types.central1a.names[1]
 }
 
 resource "google_compute_node_group" "nodes" {
@@ -4371,7 +4373,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-2"
+  machine_type = "n1-standard-8"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -4402,6 +4404,7 @@ resource "google_compute_instance" "foobar" {
       operator = "IN"
       values   = [google_compute_node_group.nodes.name]
     }
+
   }
 }
 
@@ -4417,7 +4420,7 @@ resource "google_compute_node_template" "nodetmpl" {
     tfacc = "test"
   }
 
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = data.google_compute_node_types.central1a.names[1]
 }
 
 resource "google_compute_node_group" "nodes" {
