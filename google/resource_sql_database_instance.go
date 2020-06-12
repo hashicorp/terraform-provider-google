@@ -145,7 +145,10 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							// configuration.
 							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"REGIONAL", "ZONAL"}, false),
-							Description:  `The availability type of the Cloud SQL instance, high availability (REGIONAL) or single zone (ZONAL).'`,
+							Description: `The availability type of the Cloud SQL instance, high availability
+(REGIONAL) or single zone (ZONAL). For MySQL instances, ensure that
+settings.backup_configuration.enabled and
+settings.backup_configuration.binary_log_enabled are both set to true.`,
 						},
 						"backup_configuration": {
 							Type:     schema.TypeList,

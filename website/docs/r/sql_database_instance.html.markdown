@@ -240,7 +240,10 @@ The required `settings` block supports:
     for information on how to upgrade to Second Generation instances.
     A list of Google App Engine (GAE) project names that are allowed to access this instance.
 
-* `availability_type` - (Optional) The availability type of the Cloud SQL instance, high availability (`REGIONAL`) or single zone (`ZONAL`).'
+* `availability_type` - (Optional) The availability type of the Cloud SQL
+instance, high availability (`REGIONAL`) or single zone (`ZONAL`).' For MySQL
+instances, ensure that `settings.backup_configuration.enabled` and
+`settings.backup_configuration.binary_log_enabled` are both set to `true`.
 
 * `crash_safe_replication` - (Optional, Deprecated) This property is only applicable to First Generation instances.
     First Generation instances are now deprecated, see [here](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
