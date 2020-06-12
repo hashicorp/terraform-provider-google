@@ -120,7 +120,7 @@ func testAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(context m
 	return Nprintf(`
 resource "google_compute_target_http_proxy" "default" {
   name    = "tf-test-test-https-redirect-proxy%{random_suffix}"
-  url_map = google_compute_url_map.default.self_link
+  url_map = google_compute_url_map.default.id
 }
 
 resource "google_compute_url_map" "default" {
