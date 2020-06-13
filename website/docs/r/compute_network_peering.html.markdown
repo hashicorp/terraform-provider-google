@@ -62,6 +62,12 @@ Whether to export the custom routes to the peer network. Defaults to `false`.
 * `import_custom_routes` - (Optional)
 Whether to export the custom routes from the peer network. Defaults to `false`.
 
+* `export_subnet_routes_with_public_ip` - (Optional)
+Whether subnet routes with public IP range are exported. The default value is true, all subnet routes are exported. The IPv4 special-use ranges (https://en.wikipedia.org/wiki/IPv4#Special_addresses) are always exported to peers and are not controlled by this field.
+
+* `import_subnet_routes_with_public_ip` - (Optional)
+Whether subnet routes with public IP range are imported. The default value is false. The IPv4 special-use ranges (https://en.wikipedia.org/wiki/IPv4#Special_addresses) are always imported from peers and are not controlled by this field.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
