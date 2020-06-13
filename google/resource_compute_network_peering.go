@@ -66,6 +66,19 @@ func resourceComputeNetworkPeering() *schema.Resource {
 				Default:  false,
 			},
 
+			"export_subnet_routes_with_public_ip": {
+				Type:     schema.TypeBool,
+				ForceNew: true,
+				Optional: true,
+				Default:  true,
+			},
+
+			"import_subnet_routes_with_public_ip": {
+				Type:     schema.TypeBool,
+				ForceNew: true,
+				Optional: true,
+			},
+
 			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -148,6 +161,8 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 	d.Set("name", peering.Name)
 	d.Set("import_custom_routes", peering.ImportCustomRoutes)
 	d.Set("export_custom_routes", peering.ExportCustomRoutes)
+	d.Set("import_subnet_routes_with_public_ip", peering.ImportSubnetRoutesWithPublicIp)
+	d.Set("export_subnet_routes_with_public_ip", peering.ExportSubnetRoutesWithPublicIp)
 	d.Set("state", peering.State)
 	d.Set("state_details", peering.StateDetails)
 
@@ -207,11 +222,14 @@ func findPeeringFromNetwork(network *compute.Network, peeringName string) *compu
 }
 func expandNetworkPeering(d *schema.ResourceData) *compute.NetworkPeering {
 	return &compute.NetworkPeering{
-		ExchangeSubnetRoutes: true,
-		Name:                 d.Get("name").(string),
-		Network:              d.Get("peer_network").(string),
-		ExportCustomRoutes:   d.Get("export_custom_routes").(bool),
-		ImportCustomRoutes:   d.Get("import_custom_routes").(bool),
+		ExchangeSubnetRoutes:           true,
+		Name:                           d.Get("name").(string),
+		Network:                        d.Get("peer_network").(string),
+		ExportCustomRoutes:             d.Get("export_custom_routes").(bool),
+		ImportCustomRoutes:             d.Get("import_custom_routes").(bool),
+		ExportSubnetRoutesWithPublicIp: d.Get("export_subnet_routes_with_public_ip").(bool),
+		ImportSubnetRoutesWithPublicIp: d.Get("import_subnet_routes_with_public_ip").(bool),
+		ForceSendFields:                []string{"ExportSubnetRoutesWithPublicIp"},
 	}
 }
 
