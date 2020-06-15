@@ -37,9 +37,10 @@ func resourceStorageBucket() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the bucket.`,
 			},
 
 			"encryption": {
@@ -49,28 +50,33 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"default_kms_key_name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `A Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no encryption method is specified. You must pay attention to whether the crypto key is available in the location that this bucket is created in. See the docs for more details.`,
 						},
 					},
 				},
+				Description: `The bucket's encryption configuration.`,
 			},
 
 			"requester_pays": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Enables Requester Pays on a storage bucket.`,
 			},
 
 			"force_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `When deleting a bucket, this boolean option will delete all contained objects. If you try to delete a bucket that contains objects, Terraform will fail that run.`,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A set of key/value label pairs to assign to the bucket.`,
 			},
 
 			"location": {
@@ -81,29 +87,34 @@ func resourceStorageBucket() *schema.Resource {
 				StateFunc: func(s interface{}) string {
 					return strings.ToUpper(s.(string))
 				},
+				Description: `The GCS location`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The URI of the created resource.`,
 			},
 
 			"url": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The base URL of the bucket, in the format gs://<bucket-name>.`,
 			},
 
 			"storage_class": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "STANDARD",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "STANDARD",
+				Description: `The Storage Class of the new bucket. Supported values include: STANDARD, MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE.`,
 			},
 
 			"lifecycle_rule": {
@@ -121,15 +132,18 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"type": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The type of the action of this Lifecycle Rule. Supported values include: Delete and SetStorageClass.`,
 									},
 									"storage_class": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The target Storage Class of objects affected by this Lifecycle Rule. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE.`,
 									},
 								},
 							},
+							Description: `The Lifecycle Rule's action configuration. A single block of this type is supported.`,
 						},
 						"condition": {
 							Type:     schema.TypeSet,
@@ -140,12 +154,14 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"age": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Minimum age of an object in days to satisfy this condition.`,
 									},
 									"created_before": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
 									},
 									"is_live": {
 										Type:     schema.TypeBool,
@@ -158,22 +174,27 @@ func resourceStorageBucket() *schema.Resource {
 										Computed:     true,
 										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"LIVE", "ARCHIVED", "ANY", ""}, false),
+										Description:  `Match to live and/or archived objects. Unversioned buckets have only live objects. Supported values include: "LIVE", "ARCHIVED", "ANY".`,
 									},
 									"matches_storage_class": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MinItems: 1,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Type:        schema.TypeList,
+										Optional:    true,
+										MinItems:    1,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: `Storage Class of objects to satisfy this condition. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, STANDARD, DURABLE_REDUCED_AVAILABILITY.`,
 									},
 									"num_newer_versions": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition.`,
 									},
 								},
 							},
+							Description: `The Lifecycle Rule's condition configuration.`,
 						},
 					},
 				},
+				Description: `The bucket's Lifecycle Rules configuration.`,
 			},
 
 			"versioning": {
@@ -183,11 +204,13 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `While set to true, versioning is fully enabled for this bucket.`,
 						},
 					},
 				},
+				Description: `The bucket's Versioning configuration.`,
 			},
 
 			"website": {
@@ -200,14 +223,17 @@ func resourceStorageBucket() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							AtLeastOneOf: []string{"website.0.not_found_page", "website.0.main_page_suffix"},
+							Description:  `Behaves as the bucket's directory index where missing objects are treated as potential directories.`,
 						},
 						"not_found_page": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							AtLeastOneOf: []string{"website.0.main_page_suffix", "website.0.not_found_page"},
+							Description:  `The custom object to return when a requested resource is not found.`,
 						},
 					},
 				},
+				Description: `Configuration if the bucket acts as a website.`,
 			},
 
 			"retention_policy": {
@@ -217,17 +243,20 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"is_locked": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: `If set to true, the bucket will be locked and permanently restrict edits to the bucket's retention policy.  Caution: Locking a bucket is an irreversible action.`,
 						},
 						"retention_period": {
 							Type:         schema.TypeInt,
 							Required:     true,
 							ValidateFunc: validation.IntBetween(1, math.MaxInt32),
+							Description:  `The period of time, in seconds, that objects in the bucket must be retained and cannot be deleted, overwritten, or archived. The value must be less than 3,155,760,000 seconds.`,
 						},
 					},
 				},
+				Description: `Configuration of the bucket's data retention policy for how long objects in the bucket should be retained.`,
 			},
 
 			"cors": {
@@ -241,6 +270,7 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: `The list of Origins eligible to receive CORS response headers. Note: "*" is permitted in the list of origins, and means "any Origin".`,
 						},
 						"method": {
 							Type:     schema.TypeList,
@@ -248,6 +278,7 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: `The list of HTTP methods on which to include CORS response headers, (GET, OPTIONS, POST, etc) Note: "*" is permitted in the list of methods, and means "any method".`,
 						},
 						"response_header": {
 							Type:     schema.TypeList,
@@ -255,13 +286,16 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: `The list of HTTP headers other than the simple response headers to give permission for the user-agent to share across domains.`,
 						},
 						"max_age_seconds": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `The value, in seconds, to return in the Access-Control-Max-Age header used in preflight responses.`,
 						},
 					},
 				},
+				Description: `The bucket's Cross-Origin Resource Sharing (CORS) configuration.`,
 			},
 
 			"default_event_based_hold": {
@@ -276,21 +310,25 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"log_bucket": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The bucket that will receive log objects.`,
 						},
 						"log_object_prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `The object prefix for log objects. If it's not provided, by default GCS sets this to this bucket's name.`,
 						},
 					},
 				},
+				Description: `The bucket's Access & Storage Logs configuration.`,
 			},
 			"bucket_policy_only": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: `Enables Bucket Policy Only access to a bucket.`,
 			},
 		},
 	}
