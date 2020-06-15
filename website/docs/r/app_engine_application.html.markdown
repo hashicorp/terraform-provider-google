@@ -61,6 +61,9 @@ The following arguments are supported:
   * `oauth2_client_secret` - (Required) OAuth2 client secret to use for the authentication flow.
     The SHA-256 hash of the value is returned in the oauth2ClientSecretSha256 field.
 
+* `database_type` - (Optional) The type of the Cloud Firestore or Cloud Datastore database associated with this application.
+  [databaseType](https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1beta/apps#databasetype)
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are

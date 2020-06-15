@@ -102,6 +102,7 @@ resource "google_app_engine_application" "acceptance" {
   auth_domain    = "hashicorptest.com"
   location_id    = "us-central"
   serving_status = "SERVING"
+  database_type  = "DATABASE_TYPE_UNSPECIFIED"
 }
 `, pid, pid, org)
 }
@@ -119,6 +120,7 @@ resource "google_app_engine_application" "acceptance" {
   auth_domain    = "tf-test.club"
   location_id    = "us-central"
   serving_status = "USER_DISABLED"
+  database_type  = "DATABASE_TYPE_UNSPECIFIED"  
 }
 `, pid, pid, org)
 }

@@ -59,6 +59,17 @@ func resourceAppEngineApplication() *schema.Resource {
 				}, false),
 				Computed: true,
 			},
+			"database_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"DATABASE_TYPE_UNSPECIFIED",
+					"CLOUD_DATASTORE",
+					"CLOUD_FIRESTORE",
+					"CLOUD_DATASTORE_COMPATIBILITY",
+				}, false),
+				Computed: true,
+			},
 			"feature_settings": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -216,6 +227,7 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("code_bucket", app.CodeBucket)
 	d.Set("default_bucket", app.DefaultBucket)
 	d.Set("default_hostname", app.DefaultHostname)
+	d.Set("database_type", app.DatabaseType)
 	d.Set("location_id", app.LocationId)
 	d.Set("name", app.Name)
 	d.Set("app_id", app.Id)
@@ -292,6 +304,7 @@ func expandAppEngineApplication(d *schema.ResourceData, project string) (*appeng
 		Id:            project,
 		GcrDomain:     d.Get("gcr_domain").(string),
 		ServingStatus: d.Get("serving_status").(string),
+		DatabaseType:  d.Get("database_type").(string),
 	}
 	featureSettings, err := expandAppEngineApplicationFeatureSettings(d)
 	if err != nil {
