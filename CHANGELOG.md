@@ -1,7 +1,7 @@
 ## 3.26.0 (Unreleased)
 
 FEATURES:
-* **New Resource:** `data_catalog_tag` ([#6550](https://github.com/terraform-providers/terraform-provider-google/pull/6550))
+* **New Resource:** `google_data_catalog_tag` ([#6550](https://github.com/terraform-providers/terraform-provider-google/pull/6550))
 * **New Resource:** `google_bigquery_dataset_iam_binding` ([#6553](https://github.com/terraform-providers/terraform-provider-google/pull/6553))
 * **New Resource:** `google_bigquery_dataset_iam_member` ([#6553](https://github.com/terraform-providers/terraform-provider-google/pull/6553))
 * **New Resource:** `google_bigquery_dataset_iam_policy` ([#6553](https://github.com/terraform-providers/terraform-provider-google/pull/6553))
