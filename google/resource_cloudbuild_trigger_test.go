@@ -194,6 +194,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   trigger_template {
     branch_name = "master"
     repo_name   = "some-repo"
+	invert_regex = false
   }
   build {
     images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
@@ -221,6 +222,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   trigger_template {
     branch_name = "master-updated"
     repo_name   = "some-repo-updated"
+	invert_regex = true
   }
   build {
     images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA"]
