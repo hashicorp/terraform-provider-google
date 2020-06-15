@@ -369,6 +369,11 @@ This must be a relative path. If a step's dir is specified and
 is an absolute path, this value is ignored for that step's
 execution.`,
 						},
+						"invert_regex": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Only trigger a build if the revision regex does NOT match the revision regex.`,
+						},
 						"project_id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -747,6 +752,8 @@ func flattenCloudBuildTriggerTriggerTemplate(v interface{}, d *schema.ResourceDa
 		flattenCloudBuildTriggerTriggerTemplateRepoName(original["repoName"], d, config)
 	transformed["dir"] =
 		flattenCloudBuildTriggerTriggerTemplateDir(original["dir"], d, config)
+	transformed["invert_regex"] =
+		flattenCloudBuildTriggerTriggerTemplateInvertRegex(original["invertRegex"], d, config)
 	transformed["branch_name"] =
 		flattenCloudBuildTriggerTriggerTemplateBranchName(original["branchName"], d, config)
 	transformed["tag_name"] =
@@ -764,6 +771,10 @@ func flattenCloudBuildTriggerTriggerTemplateRepoName(v interface{}, d *schema.Re
 }
 
 func flattenCloudBuildTriggerTriggerTemplateDir(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerTriggerTemplateInvertRegex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -970,6 +981,13 @@ func expandCloudBuildTriggerTriggerTemplate(v interface{}, d TerraformResourceDa
 		transformed["dir"] = transformedDir
 	}
 
+	transformedInvertRegex, err := expandCloudBuildTriggerTriggerTemplateInvertRegex(original["invert_regex"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInvertRegex); val.IsValid() && !isEmptyValue(val) {
+		transformed["invertRegex"] = transformedInvertRegex
+	}
+
 	transformedBranchName, err := expandCloudBuildTriggerTriggerTemplateBranchName(original["branch_name"], d, config)
 	if err != nil {
 		return nil, err
@@ -1003,6 +1021,10 @@ func expandCloudBuildTriggerTriggerTemplateRepoName(v interface{}, d TerraformRe
 }
 
 func expandCloudBuildTriggerTriggerTemplateDir(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerTriggerTemplateInvertRegex(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

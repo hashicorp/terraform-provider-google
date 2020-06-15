@@ -140,6 +140,10 @@ The `trigger_template` block supports:
   is an absolute path, this value is ignored for that step's
   execution.
 
+* `invert_regex` -
+  (Optional)
+  Only trigger a build if the revision regex does NOT match the revision regex.
+
 * `branch_name` -
   (Optional)
   Name of the branch to build. Exactly one a of branch name, tag, or commit SHA must be provided.
