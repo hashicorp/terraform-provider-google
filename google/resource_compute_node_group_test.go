@@ -86,20 +86,16 @@ func testAccCheckComputeNodeGroupCreationTimeBefore(prevTimeCreated *time.Time) 
 
 func testAccComputeNodeGroup_updateNodeTemplate(groupName, tmplPrefix, tmplToUse string) string {
 	return fmt.Sprintf(`
-data "google_compute_node_types" "central1a" {
-  zone = "us-central1-a"
-}
-
 resource "google_compute_node_template" "tmpl1" {
   name      = "%s-first"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_template" "tmpl2" {
   name      = "%s-second"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_group" "nodes" {
