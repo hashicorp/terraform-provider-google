@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: Moved `google_sql_database_instance` `root_password` (MS SQL) to GA
+```
