@@ -214,7 +214,7 @@ includes an up-to-date reference of supported versions.
 * `replica_configuration` - (Optional) The configuration for replication. The
     configuration is detailed below.
     
-* `root_password` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Initial root password. Required for MS SQL Server, ignored by MySQL and PostgreSQL.
+* `root_password` - (Optional) Initial root password. Required for MS SQL Server, ignored by MySQL and PostgreSQL.
 
 * `encryption_key_name` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
     The full path to the encryption key used for the CMEK disk encryption.  Setting

@@ -359,6 +359,14 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, POSTGRES_9_6,POSTGRES_11, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 			},
 
+			"root_password": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Sensitive:   true,
+				Description: `Initial root password. Required for MS SQL Server, ignored by MySQL and PostgreSQL.`,
+			},
+
 			"ip_address": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -616,6 +624,11 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		DatabaseVersion:      d.Get("database_version").(string),
 		MasterInstanceName:   d.Get("master_instance_name").(string),
 		ReplicaConfiguration: expandReplicaConfiguration(d.Get("replica_configuration").([]interface{})),
+	}
+
+	// MSSQL Server require rootPassword to be set
+	if strings.Contains(instance.DatabaseVersion, "SQLSERVER") {
+		instance.RootPassword = d.Get("root_password").(string)
 	}
 
 	// Modifying a replica during Create can cause problems if the master is
