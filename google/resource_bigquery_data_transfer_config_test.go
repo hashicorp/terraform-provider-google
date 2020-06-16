@@ -173,7 +173,7 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   schedule               = "%s sunday of quarter 00:00"
   destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
   params = {
-    destination_table_name_template = "my-table"
+    destination_table_name_template = "my_table"
     write_disposition               = "WRITE_APPEND"
     query                           = "SELECT name FROM tabl WHERE x = '%s'"
   }
@@ -211,7 +211,7 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
   service_account_name   = google_service_account.bqwriter.email
   params = {
-    destination_table_name_template = "my-table"
+    destination_table_name_template = "my_table"
     write_disposition               = "WRITE_APPEND"
     query                           = "SELECT 1 AS a"
   }
