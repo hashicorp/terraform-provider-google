@@ -810,6 +810,12 @@ func resourceContainerCluster() *schema.Resource {
 							ValidateFunc: orEmpty(validation.CIDRNetwork(28, 28)),
 							Description:  `The IP range in CIDR notation to use for the hosted master network. This range will be used for assigning private IP addresses to the cluster master(s) and the ILB VIP. This range must not overlap with any other ranges in use within the cluster's network, and it must be a /28 subnet. See Private Cluster Limitations for more details. This field only applies to private clusters, when enable_private_nodes is true.`,
 						},
+						"master_global_access": {
+							Type:        schema.TypeBool,
+							Default:     false,
+							Optional:    true,
+							Description: `Enable Master Global Access for Private Master Endpoint`,
+						},
 						"peering_name": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -1386,6 +1392,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s master authorized networks config has been updated", d.Id())
 
 		d.SetPartial("master_authorized_networks_config")
+	}
+
+	if d.HasChange("private_cluster_config") {
+		c := d.Get("private_cluster_config")
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredPrivateClusterConfig: expandPrivateClusterConfig(c),
+			},
+		}
+
+		updateF := updateFunc(req, "updating the GKE private cluster config")
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+		log.Printf("[INFO] GKE cluster %s private cluster config has been updated", d.Id())
 	}
 
 	if d.HasChange("addons_config") {
@@ -2338,7 +2359,11 @@ func expandPrivateClusterConfig(configured interface{}) *containerBeta.PrivateCl
 		EnablePrivateEndpoint: config["enable_private_endpoint"].(bool),
 		EnablePrivateNodes:    config["enable_private_nodes"].(bool),
 		MasterIpv4CidrBlock:   config["master_ipv4_cidr_block"].(string),
-		ForceSendFields:       []string{"EnablePrivateEndpoint", "EnablePrivateNodes", "MasterIpv4CidrBlock"},
+		MasterGlobalAccessConfig: &containerBeta.PrivateClusterMasterGlobalAccessConfig{
+			Enabled:         config["master_global_access"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		},
+		ForceSendFields: []string{"EnablePrivateEndpoint", "EnablePrivateNodes", "MasterIpv4CidrBlock", "MasterGlobalAccessConfig"},
 	}
 }
 
@@ -2492,16 +2517,21 @@ func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[st
 	if c == nil {
 		return nil
 	}
-	return []map[string]interface{}{
-		{
-			"enable_private_endpoint": c.EnablePrivateEndpoint,
-			"enable_private_nodes":    c.EnablePrivateNodes,
-			"master_ipv4_cidr_block":  c.MasterIpv4CidrBlock,
-			"peering_name":            c.PeeringName,
-			"private_endpoint":        c.PrivateEndpoint,
-			"public_endpoint":         c.PublicEndpoint,
-		},
+	result := map[string]interface{}{
+		"enable_private_endpoint": c.EnablePrivateEndpoint,
+		"enable_private_nodes":    c.EnablePrivateNodes,
+		"master_ipv4_cidr_block":  c.MasterIpv4CidrBlock,
+		"master_global_access":    false,
+		"peering_name":            c.PeeringName,
+		"private_endpoint":        c.PrivateEndpoint,
+		"public_endpoint":         c.PublicEndpoint,
 	}
+
+	if c.MasterGlobalAccessConfig != nil {
+		result["master_global_access"] = c.MasterGlobalAccessConfig.Enabled
+	}
+
+	return []map[string]interface{}{result}
 }
 
 func flattenVerticalPodAutoscaling(c *containerBeta.VerticalPodAutoscaling) []map[string]interface{} {

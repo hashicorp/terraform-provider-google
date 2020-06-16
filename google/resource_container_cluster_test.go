@@ -1620,7 +1620,7 @@ func testAccContainerCluster_updateAddons(projectID string, clusterName string) 
 	return fmt.Sprintf(`
 data "google_project" "project" {
   project_id = "%s"
-}	
+}
 
 resource "google_container_cluster" "primary" {
   name               = "%s"
@@ -2749,7 +2749,8 @@ resource "google_container_cluster" "with_private_cluster" {
   private_cluster_config {
     enable_private_endpoint = true
     enable_private_nodes    = true
-    master_ipv4_cidr_block  = "10.42.0.0/28"
+	master_ipv4_cidr_block  = "10.42.0.0/28"
+	master_global_access    = true
   }
   master_authorized_networks_config {
   }
