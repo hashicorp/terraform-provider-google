@@ -49,14 +49,10 @@ func TestAccComputeNodeTemplate_nodeTemplateBasicExample(t *testing.T) {
 
 func testAccComputeNodeTemplate_nodeTemplateBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
-data "google_compute_node_types" "central1a" {
-  zone = "us-central1-a"
-}
-
 resource "google_compute_node_template" "template" {
   name      = "tf-test-soletenant-tmpl%{random_suffix}"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 }
 `, context)
 }

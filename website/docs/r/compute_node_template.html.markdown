@@ -42,14 +42,10 @@ To get more information about NodeTemplate, see:
 
 
 ```hcl
-data "google_compute_node_types" "central1a" {
-  zone = "us-central1-a"
-}
-
 resource "google_compute_node_template" "template" {
   name      = "soletenant-tmpl"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -76,7 +72,7 @@ resource "google_compute_node_template" "template" {
 
   name      = "soletenant-with-licenses"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 
   node_affinity_labels = {
     foo = "baz"
