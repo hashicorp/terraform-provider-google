@@ -83,6 +83,7 @@ func TestAccAccessContextManager(t *testing.T) {
 		"service_perimeter_resource": testAccAccessContextManagerServicePerimeterResource_basicTest,
 		"access_level":               testAccAccessContextManagerAccessLevel_basicTest,
 		"access_level_full":          testAccAccessContextManagerAccessLevel_fullTest,
+		"access_level_custom":        testAccAccessContextManagerAccessLevel_customTest,
 	}
 
 	for name, tc := range testCases {
