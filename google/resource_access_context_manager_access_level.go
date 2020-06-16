@@ -223,6 +223,51 @@ for the AccessLevel to be applied. Default value: "AND" Possible values: ["AND",
 						},
 					},
 				},
+				ConflictsWith: []string{"custom"},
+			},
+			"custom": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Custom access level conditions are set using the Cloud Common Expression Language to represent the necessary conditions for the level to apply to a request. 
+See CEL spec at: https://github.com/google/cel-spec.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"expr": {
+							Type:     schema.TypeList,
+							Required: true,
+							Description: `Represents a textual expression in the Common Expression Language (CEL) syntax. CEL is a C-like expression language.
+This page details the objects and attributes that are used to the build the CEL expressions for 
+custom access levels - https://cloud.google.com/access-context-manager/docs/custom-access-level-spec.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"expression": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Textual representation of an expression in Common Expression Language syntax.`,
+									},
+									"description": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Description of the expression`,
+									},
+									"location": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `String indicating the location of the expression for error reporting, e.g. a file name and a position in the file`,
+									},
+									"title": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Title for the expression, i.e. a short string describing its purpose.`,
+									},
+								},
+							},
+						},
+					},
+				},
+				ConflictsWith: []string{"basic"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -254,6 +299,12 @@ func resourceAccessContextManagerAccessLevelCreate(d *schema.ResourceData, meta 
 		return err
 	} else if v, ok := d.GetOkExists("basic"); !isEmptyValue(reflect.ValueOf(basicProp)) && (ok || !reflect.DeepEqual(v, basicProp)) {
 		obj["basic"] = basicProp
+	}
+	customProp, err := expandAccessContextManagerAccessLevelCustom(d.Get("custom"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom"); !isEmptyValue(reflect.ValueOf(customProp)) && (ok || !reflect.DeepEqual(v, customProp)) {
+		obj["custom"] = customProp
 	}
 	parentProp, err := expandAccessContextManagerAccessLevelParent(d.Get("parent"), d, config)
 	if err != nil {
@@ -341,6 +392,9 @@ func resourceAccessContextManagerAccessLevelRead(d *schema.ResourceData, meta in
 	if err := d.Set("basic", flattenAccessContextManagerAccessLevelBasic(res["basic"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessLevel: %s", err)
 	}
+	if err := d.Set("custom", flattenAccessContextManagerAccessLevelCustom(res["custom"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessLevel: %s", err)
+	}
 	if err := d.Set("name", flattenAccessContextManagerAccessLevelName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessLevel: %s", err)
 	}
@@ -370,6 +424,12 @@ func resourceAccessContextManagerAccessLevelUpdate(d *schema.ResourceData, meta 
 	} else if v, ok := d.GetOkExists("basic"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, basicProp)) {
 		obj["basic"] = basicProp
 	}
+	customProp, err := expandAccessContextManagerAccessLevelCustom(d.Get("custom"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customProp)) {
+		obj["custom"] = customProp
+	}
 
 	obj, err = resourceAccessContextManagerAccessLevelEncoder(d, meta, obj)
 	if err != nil {
@@ -394,6 +454,10 @@ func resourceAccessContextManagerAccessLevelUpdate(d *schema.ResourceData, meta 
 
 	if d.HasChange("basic") {
 		updateMask = append(updateMask, "basic")
+	}
+
+	if d.HasChange("custom") {
+		updateMask = append(updateMask, "custom")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -602,6 +666,54 @@ func flattenAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireCor
 }
 
 func flattenAccessContextManagerAccessLevelBasicConditionsRegions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerAccessLevelCustom(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["expr"] =
+		flattenAccessContextManagerAccessLevelCustomExpr(original["expr"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerAccessLevelCustomExpr(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["expression"] =
+		flattenAccessContextManagerAccessLevelCustomExprExpression(original["expression"], d, config)
+	transformed["title"] =
+		flattenAccessContextManagerAccessLevelCustomExprTitle(original["title"], d, config)
+	transformed["description"] =
+		flattenAccessContextManagerAccessLevelCustomExprDescription(original["description"], d, config)
+	transformed["location"] =
+		flattenAccessContextManagerAccessLevelCustomExprLocation(original["location"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerAccessLevelCustomExprExpression(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerAccessLevelCustomExprTitle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerAccessLevelCustomExprDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerAccessLevelCustomExprLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -832,6 +944,81 @@ func expandAccessContextManagerAccessLevelBasicConditionsDevicePolicyRequireCorp
 }
 
 func expandAccessContextManagerAccessLevelBasicConditionsRegions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerAccessLevelCustom(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExpr, err := expandAccessContextManagerAccessLevelCustomExpr(original["expr"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExpr); val.IsValid() && !isEmptyValue(val) {
+		transformed["expr"] = transformedExpr
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerAccessLevelCustomExpr(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExpression, err := expandAccessContextManagerAccessLevelCustomExprExpression(original["expression"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExpression); val.IsValid() && !isEmptyValue(val) {
+		transformed["expression"] = transformedExpression
+	}
+
+	transformedTitle, err := expandAccessContextManagerAccessLevelCustomExprTitle(original["title"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !isEmptyValue(val) {
+		transformed["title"] = transformedTitle
+	}
+
+	transformedDescription, err := expandAccessContextManagerAccessLevelCustomExprDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedLocation, err := expandAccessContextManagerAccessLevelCustomExprLocation(original["location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !isEmptyValue(val) {
+		transformed["location"] = transformedLocation
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerAccessLevelCustomExprExpression(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerAccessLevelCustomExprTitle(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerAccessLevelCustomExprDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerAccessLevelCustomExprLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

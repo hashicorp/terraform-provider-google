@@ -83,6 +83,26 @@ func testAccCheckAccessContextManagerAccessLevelDestroyProducer(t *testing.T) fu
 	}
 }
 
+func testAccAccessContextManagerAccessLevel_customTest(t *testing.T) {
+	org := getTestOrgFromEnv(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAccessContextManagerAccessLevel_custom(org, "my policy", "level"),
+			},
+			{
+				ResourceName:      "google_access_context_manager_access_level.test-access",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccAccessContextManagerAccessLevel_basic(org, policyTitle, levelTitleName string) string {
 	return fmt.Sprintf(`
 resource "google_access_context_manager_access_policy" "test-access" {
@@ -100,6 +120,27 @@ resource "google_access_context_manager_access_level" "test-access" {
     conditions {
       ip_subnetworks = ["192.0.4.0/24"]
     }
+  }
+}
+`, org, policyTitle, levelTitleName, levelTitleName)
+}
+
+func testAccAccessContextManagerAccessLevel_custom(org, policyTitle, levelTitleName string) string {
+	return fmt.Sprintf(`
+resource "google_access_context_manager_access_policy" "test-access" {
+  parent = "organizations/%s"
+  title  = "%s"
+}
+
+resource "google_access_context_manager_access_level" "test-access" {
+  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/%s"
+  title       = "%s"
+  description = "hello"
+    custom {
+		expr {
+			expression = "device.os_type == OsType.DESKTOP_MAC"
+		}
   }
 }
 `, org, policyTitle, levelTitleName, levelTitleName)
