@@ -12,10 +12,10 @@ import (
 func TestAccRegionInstanceGroupManager_basic(t *testing.T) {
 	t.Parallel()
 
-	template := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	target := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	igm1 := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	igm2 := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	template := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	target := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	igm1 := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	igm2 := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -42,8 +42,8 @@ func TestAccRegionInstanceGroupManager_basic(t *testing.T) {
 func TestAccRegionInstanceGroupManager_targetSizeZero(t *testing.T) {
 	t.Parallel()
 
-	templateName := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	igmName := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	igmName := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -65,11 +65,11 @@ func TestAccRegionInstanceGroupManager_targetSizeZero(t *testing.T) {
 func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 	t.Parallel()
 
-	template1 := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	target1 := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	target2 := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	template2 := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	template1 := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	target1 := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	target2 := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	template2 := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	igm := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -111,7 +111,7 @@ func TestAccRegionInstanceGroupManager_updateLifecycle(t *testing.T) {
 
 	tag1 := "tag1"
 	tag2 := "tag2"
-	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	igm := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -143,7 +143,7 @@ func TestAccRegionInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
 
-	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	igm := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -180,8 +180,8 @@ func TestAccRegionInstanceGroupManager_separateRegions(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
 
-	igm1 := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	igm2 := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	igm1 := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	igm2 := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -208,9 +208,9 @@ func TestAccRegionInstanceGroupManager_separateRegions(t *testing.T) {
 func TestAccRegionInstanceGroupManager_versions(t *testing.T) {
 	t.Parallel()
 
-	primaryTemplate := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	canaryTemplate := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	primaryTemplate := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	canaryTemplate := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	igm := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -232,10 +232,10 @@ func TestAccRegionInstanceGroupManager_versions(t *testing.T) {
 func TestAccRegionInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 	t.Parallel()
 
-	template := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	target := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	hck := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	template := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	target := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	igm := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	hck := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -265,8 +265,8 @@ func TestAccRegionInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 func TestAccRegionInstanceGroupManager_distributionPolicy(t *testing.T) {
 	t.Parallel()
 
-	template := fmt.Sprintf("igm-test-%s", randString(t, 10))
-	igm := fmt.Sprintf("igm-test-%s", randString(t, 10))
+	template := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
+	igm := fmt.Sprintf("tf-test-rigm-%s", randString(t, 10))
 	zones := []string{"us-central1-a", "us-central1-b"}
 
 	vcrTest(t, resource.TestCase{
