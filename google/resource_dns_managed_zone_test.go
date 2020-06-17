@@ -245,12 +245,12 @@ resource "google_dns_managed_zone" "private" {
 }
 
 resource "google_compute_network" "network-1" {
-  name                    = "network-1-%s"
+  name                    = "tf-test-net-1-%s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network-2" {
-  name                    = "network-2-%s"
+  name                    = "tf-test-net-2-%s"
   auto_create_subnetworks = false
 }
 
@@ -287,7 +287,7 @@ resource "google_dns_managed_zone" "private" {
 }
 
 resource "google_compute_network" "network-1" {
-  name                    = "network-1-%s"
+  name                    = "tf-test-net-1-%s"
   auto_create_subnetworks = false
 }
 `, suffix, first_nameserver, first_forwarding_path, second_nameserver, second_forwarding_path, suffix)

@@ -9,7 +9,7 @@ import (
 
 func TestAccDataSourceComputeRouter(t *testing.T) {
 	t.Parallel()
-	name := fmt.Sprintf("router-test-%d", randInt(t))
+	name := fmt.Sprintf("tf-test-router-%d", randInt(t))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
