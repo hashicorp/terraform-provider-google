@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: Added `remove_instance_state_on_destroy` to `google_compute_region_per_instance_config` to control deletion of underlying instance state. (beta only)
+```
+```release-note:enhancement
+compute: Added `remove_instance_state_on_destroy` to `google_compute_per_instance_config` to control deletion of underlying instance state. (beta only)
+```
