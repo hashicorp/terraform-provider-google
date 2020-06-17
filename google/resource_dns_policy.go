@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
@@ -139,10 +140,11 @@ func dnsPolicyNetworksSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"network_url": {
-				Type:     schema.TypeString,
-				Required: true,
-				Description: `The fully qualified URL of the VPC network to bind to.
-This should be formatted like
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The id or fully qualified URL of the VPC network to forward queries to.
+This should be formatted like 'projects/{project}/global/networks/{network}' or
 'https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}'`,
 			},
 		},
@@ -560,5 +562,14 @@ func expandDNSPolicyNetworks(v interface{}, d TerraformResourceData, config *Con
 }
 
 func expandDNSPolicyNetworksNetworkUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	if v == nil || v.(string) == "" {
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		return v, nil
+	}
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	if err != nil {
+		return "", err
+	}
+	return ConvertSelfLinkToV1(url), nil
 }
