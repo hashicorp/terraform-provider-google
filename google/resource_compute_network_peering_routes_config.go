@@ -85,13 +85,13 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 	exportCustomRoutesProp, err := expandNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(d.Get("export_custom_routes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("export_custom_routes"); !isEmptyValue(reflect.ValueOf(exportCustomRoutesProp)) && (ok || !reflect.DeepEqual(v, exportCustomRoutesProp)) {
+	} else if v, ok := d.GetOkExists("export_custom_routes"); ok || !reflect.DeepEqual(v, exportCustomRoutesProp) {
 		obj["exportCustomRoutes"] = exportCustomRoutesProp
 	}
 	importCustomRoutesProp, err := expandNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(d.Get("import_custom_routes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("import_custom_routes"); !isEmptyValue(reflect.ValueOf(importCustomRoutesProp)) && (ok || !reflect.DeepEqual(v, importCustomRoutesProp)) {
+	} else if v, ok := d.GetOkExists("import_custom_routes"); ok || !reflect.DeepEqual(v, importCustomRoutesProp) {
 		obj["importCustomRoutes"] = importCustomRoutesProp
 	}
 
@@ -208,13 +208,13 @@ func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, met
 	exportCustomRoutesProp, err := expandNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(d.Get("export_custom_routes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("export_custom_routes"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, exportCustomRoutesProp)) {
+	} else if v, ok := d.GetOkExists("export_custom_routes"); ok || !reflect.DeepEqual(v, exportCustomRoutesProp) {
 		obj["exportCustomRoutes"] = exportCustomRoutesProp
 	}
 	importCustomRoutesProp, err := expandNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(d.Get("import_custom_routes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("import_custom_routes"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, importCustomRoutesProp)) {
+	} else if v, ok := d.GetOkExists("import_custom_routes"); ok || !reflect.DeepEqual(v, importCustomRoutesProp) {
 		obj["importCustomRoutes"] = importCustomRoutesProp
 	}
 
