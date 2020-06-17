@@ -28,16 +28,18 @@ func resourceComputeProjectMetadata() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"metadata": {
-				Type:     schema.TypeMap,
-				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A series of key value pairs.`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 		},
 	}
