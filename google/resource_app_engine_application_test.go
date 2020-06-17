@@ -101,6 +101,7 @@ resource "google_app_engine_application" "acceptance" {
   project        = google_project.acceptance.project_id
   auth_domain    = "hashicorptest.com"
   location_id    = "us-central"
+  database_type  = "CLOUD_DATASTORE_COMPATIBILITY"
   serving_status = "SERVING"
 }
 `, pid, pid, org)
@@ -118,6 +119,7 @@ resource "google_app_engine_application" "acceptance" {
   project        = google_project.acceptance.project_id
   auth_domain    = "tf-test.club"
   location_id    = "us-central"
+  database_type  = "CLOUD_DATASTORE_COMPATIBILITY"
   serving_status = "USER_DISABLED"
 }
 `, pid, pid, org)

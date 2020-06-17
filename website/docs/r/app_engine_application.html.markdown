@@ -47,6 +47,8 @@ The following arguments are supported:
 
 * `auth_domain` - (Optional) The domain to authenticate users with when using App Engine's User API.
 
+* `database_type` - (Optional) The type of the Cloud Firestore or Cloud Datastore database associated with this application.
+
 * `serving_status` - (Optional) The serving status of the app.
 
 * `feature_settings` - (Optional) A block of optional settings to configure specific App Engine features:
