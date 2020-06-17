@@ -1302,7 +1302,7 @@ resource "google_compute_firewall" "dataproc_network_firewall" {
 }
 
 resource "google_dataproc_cluster" "with_net_ref_by_name" {
-  name       = "tf-test-dproc-%s"
+  name       = "tf-test-dproc-net-%s"
   region     = "us-central1"
   depends_on = [google_compute_firewall.dataproc_network_firewall]
 
@@ -1328,7 +1328,7 @@ resource "google_dataproc_cluster" "with_net_ref_by_name" {
 }
 
 resource "google_dataproc_cluster" "with_net_ref_by_url" {
-  name       = "tf-test-dproc-%s"
+  name       = "tf-test-dproc-url-%s"
   region     = "us-central1"
   depends_on = [google_compute_firewall.dataproc_network_firewall]
 
