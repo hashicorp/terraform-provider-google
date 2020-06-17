@@ -59,6 +59,15 @@ func resourceAppEngineApplication() *schema.Resource {
 				}, false),
 				Computed: true,
 			},
+			"database_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"CLOUD_FIRESTORE",
+					"CLOUD_DATASTORE_COMPATIBILITY",
+				}, false),
+				Computed: true,
+			},
 			"feature_settings": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -221,6 +230,7 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("app_id", app.Id)
 	d.Set("serving_status", app.ServingStatus)
 	d.Set("gcr_domain", app.GcrDomain)
+	d.Set("database_type", app.DatabaseType)
 	d.Set("project", pid)
 	dispatchRules, err := flattenAppEngineApplicationDispatchRules(app.DispatchRules)
 	if err != nil {
@@ -265,7 +275,7 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 	defer mutexKV.Unlock(lockName)
 
 	log.Printf("[DEBUG] Updating App Engine App")
-	op, err := config.clientAppEngine.Apps.Patch(pid, app).UpdateMask("authDomain,servingStatus,featureSettings.splitHealthChecks,iap").Do()
+	op, err := config.clientAppEngine.Apps.Patch(pid, app).UpdateMask("authDomain,databaseType,servingStatus,featureSettings.splitHealthChecks,iap").Do()
 	if err != nil {
 		return fmt.Errorf("Error updating App Engine application: %s", err.Error())
 	}
@@ -291,6 +301,7 @@ func expandAppEngineApplication(d *schema.ResourceData, project string) (*appeng
 		LocationId:    d.Get("location_id").(string),
 		Id:            project,
 		GcrDomain:     d.Get("gcr_domain").(string),
+		DatabaseType:  d.Get("database_type").(string),
 		ServingStatus: d.Get("serving_status").(string),
 	}
 	featureSettings, err := expandAppEngineApplicationFeatureSettings(d)
