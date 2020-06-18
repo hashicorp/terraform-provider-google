@@ -128,7 +128,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 
 	// ok, if a token was provided either directly as access_token parameter
 	// or inderectly as an impersonated token provider
-	// either way, generate a credential object for this
+	// generate a credential object for this
 	accessToken := d.Get("access_token").(string)
 	if accessToken != "" {
 		token := &oauth2.Token{AccessToken: accessToken}
@@ -147,10 +147,9 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Unable to get Token() from tokenSource: %v", err)
 	}
 
-	// TODO: improve all this
-	// ok, if we've got a statictoken, all we can do is use the iamcredentials api to get an idtoken
+	// If the source token is just an access_token, all we can do is use the iamcredentials api to get an idtoken
 	if fmt.Sprintf("%s", reflect.TypeOf(ts)) == "oauth2.staticTokenSource" {
-		// all we have here is an access_token so we have to use
+		// Use
 		// https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateIdToken
 		service := config.clientIamCredentials
 		if err != nil {
