@@ -156,7 +156,7 @@ The following arguments are supported:
     Structure is documented below.
     **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
-* `tags` - (Optional) A list of tags to attach to the instance.
+* `tags` - (Optional) A list of network tags to attach to the instance.
 
 * `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is documented below.
 	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
