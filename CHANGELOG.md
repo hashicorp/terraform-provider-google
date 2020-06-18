@@ -1,5 +1,22 @@
 ## 3.27.0 (Unreleased)
 
+IMPROVEMENTS:
+* accesscontextmanager: Added `custom` config to `google_access_context_manager_access_level` ([#6611](https://github.com/terraform-providers/terraform-provider-google/pull/6611))
+* cloudbuild: Added `invert_regex` flag in Github PullRequestFilter and PushFilter in triggerTemplate ([#6594](https://github.com/terraform-providers/terraform-provider-google/pull/6594))
+* cloudrun: Added `template.spec.timeout_seconds` to `google_cloud_run_service` ([#6575](https://github.com/terraform-providers/terraform-provider-google/pull/6575))
+* compute: Added `export_subnet_routes_with_public_ip` and `import_subnet_routes_with_public_ip` to `google_compute_network_peering` ([#6586](https://github.com/terraform-providers/terraform-provider-google/pull/6586))
+* compute: Added support for `google_compute_instance_group` `instances` to accept instance id field as well as self_link ([#6569](https://github.com/terraform-providers/terraform-provider-google/pull/6569))
+* dns: Added support for `google_dns_policy` network to accept `google_compute_network.id` ([#6624](https://github.com/terraform-providers/terraform-provider-google/pull/6624))
+* redis: Added validation for name attribute in `redis_instance` ([#6581](https://github.com/terraform-providers/terraform-provider-google/pull/6581))
+* sql: Promoted `google_sql_database_instance` `root_password` (MS SQL) to GA ([#6601](https://github.com/terraform-providers/terraform-provider-google/pull/6601))
+
+BUG FIXES:
+* bigquery: Fixed `range_partitioning.range.start` so that the value `0` is sent in `google_bigquery_table` ([#6562](https://github.com/terraform-providers/terraform-provider-google/pull/6562))
+* container: Fixed a regression in `google_container_cluster` where the location was not inferred when using a `subnetwork` shortname value like `name` ([#6568](https://github.com/terraform-providers/terraform-provider-google/pull/6568))
+* datastore: Added retries to `google_datastore_index` requests when under contention. ([#6563](https://github.com/terraform-providers/terraform-provider-google/pull/6563))
+* kms: Fixed the `id` value in the `google_kms_crypto_key_version` datasource to include a `/v1` part following `//cloudkms.googleapis.com/`, making it useful for interpolation into Binary Authorization. ([#6576](https://github.com/terraform-providers/terraform-provider-google/pull/6576))
+
+
 ## 3.26.0 (June 15, 2020)
 
 FEATURES:
