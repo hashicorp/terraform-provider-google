@@ -28,60 +28,69 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareResourceNames,
+				Description:      `The name of the Bigtable instance.`,
 			},
 
 			"table": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the table.`,
 			},
 
 			"column_family": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the column family.`,
 			},
 
 			"mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
+				Description:  `If multiple policies are set, you should choose between UNION OR INTERSECTION.`,
 				ValidateFunc: validation.StringInSlice([]string{GCPolicyModeIntersection, GCPolicyModeUnion}, false),
 			},
 
 			"max_age": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `GC policy that applies to all cells older than the given age.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"days": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `Number of days before applying GC policy.`,
 						},
 					},
 				},
 			},
 
 			"max_version": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `GC policy that applies to all versions of a cell except for the most recent.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"number": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `Number of version before applying the GC policy.`,
 						},
 					},
 				},
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 		},
 	}
