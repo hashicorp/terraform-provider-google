@@ -152,13 +152,6 @@ func TestAccStorageBucket_lifecycleRuleStateLive(t *testing.T) {
 
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", randInt(t))
-	hashK := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{
-		"age":                10,
-		"with_state":         "LIVE",
-		"num_newer_versions": 0,
-		"created_before":     "",
-	})
-	attrPrefix := fmt.Sprintf("lifecycle_rule.0.condition.%d.", hashK)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -171,8 +164,6 @@ func TestAccStorageBucket_lifecycleRuleStateLive(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &bucket),
 					testAccCheckStorageBucketLifecycleConditionState(googleapi.Bool(true), &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", attrPrefix+"with_state", "LIVE"),
 				),
 			},
 			{
@@ -189,13 +180,6 @@ func TestAccStorageBucket_lifecycleRuleStateArchived(t *testing.T) {
 
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", randInt(t))
-	hashK := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{
-		"age":                10,
-		"with_state":         "ARCHIVED",
-		"num_newer_versions": 0,
-		"created_before":     "",
-	})
-	attrPrefix := fmt.Sprintf("lifecycle_rule.0.condition.%d.", hashK)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -221,8 +205,6 @@ func TestAccStorageBucket_lifecycleRuleStateArchived(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &bucket),
 					testAccCheckStorageBucketLifecycleConditionState(googleapi.Bool(false), &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", attrPrefix+"with_state", "ARCHIVED"),
 				),
 			},
 			{
@@ -240,25 +222,6 @@ func TestAccStorageBucket_lifecycleRuleStateAny(t *testing.T) {
 	var bucket storage.Bucket
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", randInt(t))
 
-	hashKLive := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{
-		"age":                10,
-		"with_state":         "LIVE",
-		"num_newer_versions": 0,
-		"created_before":     "",
-	})
-	hashKArchived := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{
-		"age":                10,
-		"with_state":         "ARCHIVED",
-		"num_newer_versions": 0,
-		"created_before":     "",
-	})
-	hashKAny := resourceGCSBucketLifecycleRuleConditionHash(map[string]interface{}{
-		"age":                10,
-		"with_state":         "ANY",
-		"num_newer_versions": 0,
-		"created_before":     "",
-	})
-
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -270,8 +233,6 @@ func TestAccStorageBucket_lifecycleRuleStateAny(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &bucket),
 					testAccCheckStorageBucketLifecycleConditionState(googleapi.Bool(false), &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", fmt.Sprintf("lifecycle_rule.0.condition.%d.with_state", hashKArchived), "ARCHIVED"),
 				),
 			},
 			{
@@ -285,8 +246,6 @@ func TestAccStorageBucket_lifecycleRuleStateAny(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &bucket),
 					testAccCheckStorageBucketLifecycleConditionState(googleapi.Bool(true), &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", fmt.Sprintf("lifecycle_rule.0.condition.%d.with_state", hashKLive), "LIVE"),
 				),
 			},
 			{
@@ -300,8 +259,6 @@ func TestAccStorageBucket_lifecycleRuleStateAny(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &bucket),
 					testAccCheckStorageBucketLifecycleConditionState(nil, &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", fmt.Sprintf("lifecycle_rule.0.condition.%d.with_state", hashKAny), "ANY"),
 				),
 			},
 			{
@@ -315,8 +272,6 @@ func TestAccStorageBucket_lifecycleRuleStateAny(t *testing.T) {
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &bucket),
 					testAccCheckStorageBucketLifecycleConditionState(googleapi.Bool(false), &bucket),
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", fmt.Sprintf("lifecycle_rule.0.condition.%d.with_state", hashKArchived), "ARCHIVED"),
 				),
 			},
 			{
