@@ -138,9 +138,35 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	err = PollingWaitTime(resourceAppEngineFirewallRulePollRead(d, meta), PollCheckForExistence, "Creating FirewallRule", d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf("Error waiting to create FirewallRule: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating FirewallRule %q: %#v", d.Id(), res)
 
 	return resourceAppEngineFirewallRuleRead(d, meta)
+}
+
+func resourceAppEngineFirewallRulePollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+
+		url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
+		if err != nil {
+			return nil, err
+		}
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		res, err := sendRequest(config, "GET", project, url, nil)
+		if err != nil {
+			return res, err
+		}
+		return res, nil
+	}
 }
 
 func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{}) error {
