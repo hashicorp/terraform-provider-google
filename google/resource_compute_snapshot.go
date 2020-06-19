@@ -164,7 +164,7 @@ snapshot using a customer-supplied encryption key.`,
 			"storage_bytes": {
 				Type:     schema.TypeInt,
 				Computed: true,
-				Description: `A size of the the storage used by the snapshot. As snapshots share
+				Description: `A size of the storage used by the snapshot. As snapshots share
 storage, this number is expected to change with snapshot
 creation/deletion.`,
 			},
