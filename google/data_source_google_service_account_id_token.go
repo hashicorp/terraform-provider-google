@@ -115,38 +115,19 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 	config := meta.(*Config)
 	targetAudience := d.Get("target_audience").(string)
 
-	var ts oauth2.TokenSource
-	var creds google.Credentials
-	var err error
-
-	ts, err = config.getTokenSource([]string{userInfoScope})
+	creds, err := getCredentials(config, []string{userInfoScope})
 	if err != nil {
-		return fmt.Errorf("Unable to acquire TokenSource from credentials: %v", err)
+		return fmt.Errorf("data_source_google_service_account_id_token: Error calling getCredentials(): %v", err)
 	}
 
-	// if a token was provided either directly as access_token parameter
-	// or inderectly as an impersonated token provider
-	// generate an use a static tokens source
-	accessToken := d.Get("access_token").(string)
-	if accessToken != "" {
-		token := &oauth2.Token{AccessToken: accessToken}
-		ts = oauth2.StaticTokenSource(token)
-		creds = google.Credentials{
-			TokenSource: ts,
-		}
-	} else if reflect.TypeOf(ts) != reflect.TypeOf(oauth2.StaticTokenSource) {
-		creds = google.Credentials{
-			TokenSource: ts,
-		}
-	}
-
+	ts := creds.TokenSource
 	tok, err := ts.Token()
 	if err != nil {
 		return fmt.Errorf("Unable to get Token() from tokenSource: %v", err)
 	}
 
 	// If the source token is just an access_token, all we can do is use the iamcredentials api to get an id_token
-	if fmt.Sprintf("%s", reflect.TypeOf(ts)) == "oauth2.staticTokenSource" {
+	if reflect.TypeOf(ts) == reflect.TypeOf(oauth2.StaticTokenSource) {
 		// Use
 		// https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateIdToken
 		service := config.clientIamCredentials
@@ -171,12 +152,6 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		return nil
 	}
 
-	// otherwise, it could be either a service account JSON or compute engine metadata
-	creds, err = getCredentials(config, []string{userInfoScope})
-	if err != nil {
-		return fmt.Errorf("data_source_google_service_account_id_token: Error calling getCredentials(): %v", err)
-	}
-
 	if creds.JSON != nil {
 		ctx := context.Background()
 		ts, err := idtoken.NewTokenSource(ctx, targetAudience, idtoken.WithCredentialsJSON(creds.JSON))
@@ -194,7 +169,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		ctx := context.Background()
 		ts, err := idtoken.NewTokenSource(ctx, targetAudience)
 		if err != nil {
-			return fmt.Errorf("data_source_google_service_account Unable to init idTokenSource%v", err)
+			return fmt.Errorf("data_source_google_service_account Unable to init idTokenSource %v", err)
 		}
 		tok, err := ts.Token()
 		if err != nil {
