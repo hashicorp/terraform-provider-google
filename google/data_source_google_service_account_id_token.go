@@ -1,7 +1,6 @@
 package google
 
 import (
-	"log"
 	"time"
 
 	"fmt"
@@ -32,7 +31,6 @@ func dataSourceGoogleServiceAccountIdToken() *schema.Resource {
 			"target_audience": {
 				Type:     schema.TypeString,
 				Required: true,
-				//ValidateFunc: validateRegexp("(" + strings.Join(PossibleServiceAccountNames, "|") + ")"),
 			},
 			"access_token": {
 				Type:      schema.TypeString,
@@ -57,6 +55,15 @@ func dataSourceGoogleServiceAccountIdToken() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			// Not used currently
+			// https://github.com/googleapis/google-api-go-client/issues/542
+			// "format": {
+			// 	Type:     schema.TypeString,
+			// 	Optional: true,
+			// 	ValidateFunc: validation.StringInSlice([]string{
+			// 		"FULL", "STANDARD"}, true),
+			// 	Default: "STANDARD",
+			// },
 			"id_token": {
 				Type:      schema.TypeString,
 				Sensitive: true,
@@ -72,9 +79,6 @@ func getCredentials(c *Config, clientScopes []string) (google.Credentials, error
 		if err != nil {
 			return google.Credentials{}, fmt.Errorf("Error loading access token: %s", err)
 		}
-
-		log.Printf("[INFO] Authenticating using configured Google JSON 'access_token'...")
-		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
 
 		token := &oauth2.Token{AccessToken: contents}
 
@@ -94,13 +98,8 @@ func getCredentials(c *Config, clientScopes []string) (google.Credentials, error
 			return google.Credentials{}, fmt.Errorf("Unable to parse credentials from '%s': %s", contents, err)
 		}
 
-		log.Printf("[INFO] Authenticating using configured Google JSON 'credentials'...")
-		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
 		return *creds, nil
 	}
-
-	log.Printf("[INFO] Authenticating using DefaultClient...")
-	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
 
 	creds, err := google.FindDefaultCredentials(c.context, clientScopes...)
 	if err != nil {
@@ -115,7 +114,6 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 
 	config := meta.(*Config)
 	targetAudience := d.Get("target_audience").(string)
-	log.Printf("[INFO] Acquire  IdToken for Audience %s", targetAudience)
 
 	var ts oauth2.TokenSource
 	var creds google.Credentials
@@ -126,9 +124,9 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Unable to acquire TokenSource from credentials: %v", err)
 	}
 
-	// ok, if a token was provided either directly as access_token parameter
+	// if a token was provided either directly as access_token parameter
 	// or inderectly as an impersonated token provider
-	// generate a credential object for this
+	// generate an use a static tokens source
 	accessToken := d.Get("access_token").(string)
 	if accessToken != "" {
 		token := &oauth2.Token{AccessToken: accessToken}
@@ -147,7 +145,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Unable to get Token() from tokenSource: %v", err)
 	}
 
-	// If the source token is just an access_token, all we can do is use the iamcredentials api to get an idtoken
+	// If the source token is just an access_token, all we can do is use the iamcredentials api to get an id_token
 	if fmt.Sprintf("%s", reflect.TypeOf(ts)) == "oauth2.staticTokenSource" {
 		// Use
 		// https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateIdToken
