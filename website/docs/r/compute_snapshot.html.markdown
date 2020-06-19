@@ -161,7 +161,7 @@ In addition to the arguments listed above, the following computed attributes are
   Size of the snapshot, specified in GB.
 
 * `storage_bytes` -
-  A size of the the storage used by the snapshot. As snapshots share
+  A size of the storage used by the snapshot. As snapshots share
   storage, this number is expected to change with snapshot
   creation/deletion.
 
