@@ -293,7 +293,7 @@ The `software_config` block supports:
   The major version of Python used to run the Apache Airflow scheduler, worker, and webserver processes.
   Can be set to '2' or '3'. If not specified, the default is '2'. Cannot be updated.
 
-See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for seting up private environments. The `private_environment_config` block supports:
+See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for setting up private environments. The `private_environment_config` block supports:
 
 * `enable_private_endpoint` -
   If true, access to the public endpoint of the GKE cluster is denied.
