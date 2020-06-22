@@ -53,11 +53,10 @@ func TestAccDataSourceGoogleServiceAccountIdToken_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:  testAccCheckGoogleServiceAccountIdToken_datasource(targetAudience),
-				Destroy: true,
+				Config: testAccCheckGoogleServiceAccountIdToken_datasource(targetAudience),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "target_audience", targetAudience),
-					testAccCheckServiceAccountIdTokenValue("oidc-token", fakeIdToken),
+					testAccCheckServiceAccountIdTokenValue("google_service_account_id_token.default", fakeIdToken),
 				),
 			},
 		},
@@ -70,9 +69,5 @@ func testAccCheckGoogleServiceAccountIdToken_datasource(targetAudience string) s
 data "google_service_account_id_token" "default" {
   target_audience = "%s"
 }
-
-output "oidc-token" {
-	value = data.google_service_account_id_token.oidc.id_token
-  }
 `, targetAudience)
 }

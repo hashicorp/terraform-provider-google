@@ -694,37 +694,51 @@ func (c *Config) synchronousTimeout() time.Duration {
 }
 
 func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, error) {
+	creds, err := c.GetCredentials(clientScopes)
+	if err != nil {
+		return nil, fmt.Errorf("%s", err)
+	}
+	return creds.TokenSource, nil
+}
+
+func (c *Config) GetCredentials(clientScopes []string) (googleoauth.Credentials, error) {
 	if c.AccessToken != "" {
 		contents, _, err := pathorcontents.Read(c.AccessToken)
 		if err != nil {
-			return nil, fmt.Errorf("Error loading access token: %s", err)
+			return googleoauth.Credentials{}, fmt.Errorf("Error loading access token: %s", err)
 		}
-
 		log.Printf("[INFO] Authenticating using configured Google JSON 'access_token'...")
 		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
 		token := &oauth2.Token{AccessToken: contents}
-		return oauth2.StaticTokenSource(token), nil
+
+		return googleoauth.Credentials{
+			TokenSource: oauth2.StaticTokenSource(token),
+		}, nil
 	}
 
 	if c.Credentials != "" {
 		contents, _, err := pathorcontents.Read(c.Credentials)
 		if err != nil {
-			return nil, fmt.Errorf("Error loading credentials: %s", err)
+			return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
 		}
 
-		creds, err := googleoauth.CredentialsFromJSON(context.Background(), []byte(contents), clientScopes...)
+		creds, err := googleoauth.CredentialsFromJSON(c.context, []byte(contents), clientScopes...)
 		if err != nil {
 			return nil, fmt.Errorf("Unable to parse credentials: %s", err)
 		}
-
 		log.Printf("[INFO] Authenticating using configured Google JSON 'credentials'...")
 		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-		return creds.TokenSource, nil
+		return *creds, nil
 	}
 
 	log.Printf("[INFO] Authenticating using DefaultClient...")
 	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-	return googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
+	creds, err := googleoauth.FindDefaultCredentials(c.context, clientScopes...)
+	if err != nil {
+		return googleoauth.Credentials{}, fmt.Errorf("unable FindDefaultCredentials '%s'", err)
+	}
+	return *creds, err
+
 }
 
 // Remove the `/{{version}}/` from a base path if present.

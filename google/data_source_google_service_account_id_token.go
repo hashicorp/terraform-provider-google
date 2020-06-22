@@ -9,12 +9,10 @@ import (
 
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	"google.golang.org/api/idtoken"
+	"google.golang.org/api/option"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"golang.org/x/net/context"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 )
 
 const (
@@ -31,11 +29,6 @@ func dataSourceGoogleServiceAccountIdToken() *schema.Resource {
 			"target_audience": {
 				Type:     schema.TypeString,
 				Required: true,
-			},
-			"access_token": {
-				Type:      schema.TypeString,
-				Sensitive: true,
-				Optional:  true,
 			},
 			"target_service_account": {
 				Type:         schema.TypeString,
@@ -73,67 +66,27 @@ func dataSourceGoogleServiceAccountIdToken() *schema.Resource {
 	}
 }
 
-func getCredentials(c *Config, clientScopes []string) (google.Credentials, error) {
-	if c.AccessToken != "" {
-		contents, _, err := pathorcontents.Read(c.AccessToken)
-		if err != nil {
-			return google.Credentials{}, fmt.Errorf("Error loading access token: %s", err)
-		}
-
-		token := &oauth2.Token{AccessToken: contents}
-
-		return google.Credentials{
-			TokenSource: oauth2.StaticTokenSource(token),
-		}, nil
-	}
-
-	if c.Credentials != "" {
-		contents, _, err := pathorcontents.Read(c.Credentials)
-		if err != nil {
-			return google.Credentials{}, fmt.Errorf("Error loading credentials: %s", err)
-		}
-
-		creds, err := google.CredentialsFromJSON(c.context, []byte(contents), clientScopes...)
-		if err != nil {
-			return google.Credentials{}, fmt.Errorf("Unable to parse credentials from '%s': %s", contents, err)
-		}
-
-		return *creds, nil
-	}
-
-	creds, err := google.FindDefaultCredentials(c.context, clientScopes...)
-	if err != nil {
-		return google.Credentials{}, fmt.Errorf("Unable FindDefaultCredentials '%s'", err)
-	}
-	return *creds, nil
-
-}
-
 func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta interface{}) error {
 	var idToken string
 
 	config := meta.(*Config)
 	targetAudience := d.Get("target_audience").(string)
-
-	creds, err := getCredentials(config, []string{userInfoScope})
+	creds, err := config.GetCredentials([]string{userInfoScope})
 	if err != nil {
-		return fmt.Errorf("data_source_google_service_account_id_token: Error calling getCredentials(): %v", err)
+		return fmt.Errorf("error calling getCredentials(): %v", err)
 	}
 
 	ts := creds.TokenSource
 	tok, err := ts.Token()
 	if err != nil {
-		return fmt.Errorf("Unable to get Token() from tokenSource: %v", err)
+		return fmt.Errorf("unable to get Token() from tokenSource: %v", err)
 	}
 
 	// If the source token is just an access_token, all we can do is use the iamcredentials api to get an id_token
-	if reflect.TypeOf(ts) == reflect.TypeOf(oauth2.StaticTokenSource) {
+	if fmt.Sprintf("%s", reflect.TypeOf(ts)) == "oauth2.staticTokenSource" {
 		// Use
 		// https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateIdToken
 		service := config.clientIamCredentials
-		if err != nil {
-			return fmt.Errorf("data_source_google_service_account_id_token: Error creating IAMCredentials: %v", err)
-		}
 		name := fmt.Sprintf("projects/-/serviceAccounts/%s", d.Get("target_service_account").(string))
 		tokenRequest := &iamcredentials.GenerateIdTokenRequest{
 			Audience:     targetAudience,
@@ -142,44 +95,33 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		}
 		at, err := service.Projects.ServiceAccounts.GenerateIdToken(name, tokenRequest).Do()
 		if err != nil {
-			return fmt.Errorf("data_source_google_service_account_id_token:: Error calling iamcredentials.GenerateIdToken: %v", err)
+			return fmt.Errorf("error calling iamcredentials.GenerateIdToken: %v", err)
 		}
-		idToken = at.Token
 
 		d.SetId(time.Now().UTC().String())
-		d.Set("id_token", idToken)
+		d.Set("id_token", at.Token)
 
 		return nil
 	}
 
-	if creds.JSON != nil {
-		ctx := context.Background()
-		ts, err := idtoken.NewTokenSource(ctx, targetAudience, idtoken.WithCredentialsJSON(creds.JSON))
-		if err != nil {
-			return fmt.Errorf("data_source_google_service_account Unable to init idTokenSource%v", err)
-		}
-		tok, err := ts.Token()
-		if err != nil {
-			return fmt.Errorf("unable to retrieve Token: %v", err)
-		}
-		idToken = tok.AccessToken
-
-	} else if tok.RefreshToken == "" {
-		// if the token isn't a json cert, it should be a ReuseTokenSource from MetadataServer
-		ctx := context.Background()
-		ts, err := idtoken.NewTokenSource(ctx, targetAudience)
-		if err != nil {
-			return fmt.Errorf("data_source_google_service_account Unable to init idTokenSource %v", err)
-		}
-		tok, err := ts.Token()
-		if err != nil {
-			return fmt.Errorf("unable to retrieve Token: %v", err)
-		}
-		idToken = tok.AccessToken
-	} else {
-		// bail, this shoudn't happen
-		return fmt.Errorf("data_source_google_service_account_id_token: Unsupported Credential Type supplied: got %v", reflect.TypeOf(creds.TokenSource))
+	if creds.JSON == nil && tok.RefreshToken != "" {
+		return fmt.Errorf("unsupported Credential Type supplied: got %v", reflect.TypeOf(creds.TokenSource))
 	}
+	ctx := context.Background()
+	co := []option.ClientOption{}
+	if creds.JSON != nil {
+		co = append(co, idtoken.WithCredentialsJSON(creds.JSON))
+	}
+
+	ts, err = idtoken.NewTokenSource(ctx, targetAudience, co...)
+	if err != nil {
+		return fmt.Errorf("unable to retrieve TokenSource: %v", err)
+	}
+	tok, err = ts.Token()
+	if err != nil {
+		return fmt.Errorf("unable to retrieve Token: %v", err)
+	}
+	idToken = tok.AccessToken
 
 	d.SetId(time.Now().UTC().String())
 	d.Set("id_token", idToken)
