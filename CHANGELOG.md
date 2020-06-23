@@ -1,4 +1,4 @@
-## 3.27.0 (Unreleased)
+## 3.27.0 (June 23, 2020)
 
 IMPROVEMENTS:
 * accesscontextmanager: Added `custom` config to `google_access_context_manager_access_level` ([#6611](https://github.com/terraform-providers/terraform-provider-google/pull/6611))
