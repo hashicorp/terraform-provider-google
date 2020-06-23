@@ -71,3 +71,46 @@ data "google_service_account_id_token" "default" {
 }
 `, targetAudience)
 }
+
+func TestAccDataSourceGoogleServiceAccountIdToken_impersonation(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "data.google_service_account_id_token.default"
+	serviceAccount := getTestServiceAccountFromEnv(t)
+	targetServiceAccountEmail := BootstrapServiceAccount(t, getTestProjectFromEnv(), serviceAccount)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckGoogleServiceAccountIdToken_impersonation_datasource(targetAudience, targetServiceAccountEmail),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "target_audience", targetAudience),
+					testAccCheckServiceAccountIdTokenValue("google_service_account_id_token.default", fakeIdToken),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckGoogleServiceAccountIdToken_impersonation_datasource(targetAudience string, targetServiceAccount string) string {
+
+	return fmt.Sprintf(`
+data "google_service_account_access_token" "default" {
+	target_service_account = "%s"
+	scopes                 = ["userinfo-email", "https://www.googleapis.com/auth/cloud-platform"]
+	lifetime               = "30s"
+}
+
+provider google {
+	alias  = "impersonated"
+	access_token = data.google_service_account_access_token.default.access_token
+}
+
+data "google_service_account_id_token" "default" {
+	provider = google.impersonated
+	target_audience = "%s"
+}
+`, targetServiceAccount, targetAudience)
+}

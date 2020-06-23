@@ -67,7 +67,6 @@ func dataSourceGoogleServiceAccountIdToken() *schema.Resource {
 }
 
 func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta interface{}) error {
-	var idToken string
 
 	config := meta.(*Config)
 	targetAudience := d.Get("target_audience").(string)
@@ -77,10 +76,6 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 	}
 
 	ts := creds.TokenSource
-	tok, err := ts.Token()
-	if err != nil {
-		return fmt.Errorf("unable to get Token() from tokenSource: %v", err)
-	}
 
 	// If the source token is just an access_token, all we can do is use the iamcredentials api to get an id_token
 	if fmt.Sprintf("%s", reflect.TypeOf(ts)) == "oauth2.staticTokenSource" {
@@ -104,6 +99,11 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		return nil
 	}
 
+	tok, err := ts.Token()
+	if err != nil {
+		return fmt.Errorf("unable to get Token() from tokenSource: %v", err)
+	}
+
 	if creds.JSON == nil && tok.RefreshToken != "" {
 		return fmt.Errorf("unsupported Credential Type supplied: got %v", reflect.TypeOf(creds.TokenSource))
 	}
@@ -113,18 +113,17 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		co = append(co, idtoken.WithCredentialsJSON(creds.JSON))
 	}
 
-	ts, err = idtoken.NewTokenSource(ctx, targetAudience, co...)
+	idTokenSource, err := idtoken.NewTokenSource(ctx, targetAudience, co...)
 	if err != nil {
 		return fmt.Errorf("unable to retrieve TokenSource: %v", err)
 	}
-	tok, err = ts.Token()
+	idToken, err := idTokenSource.Token()
 	if err != nil {
 		return fmt.Errorf("unable to retrieve Token: %v", err)
 	}
-	idToken = tok.AccessToken
 
 	d.SetId(time.Now().UTC().String())
-	d.Set("id_token", idToken)
+	d.Set("id_token", idToken.AccessToken)
 
 	return nil
 }

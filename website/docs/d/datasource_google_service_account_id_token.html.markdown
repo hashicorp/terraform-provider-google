@@ -9,13 +9,13 @@ description: |-
 
 # google\_service\_account\id\_token
 
-This data source provides a google OpenID Connect (`oidc`) `id_token`.  Tokens issued using this datasource are typically used to call external services that accept OIDC tokens for authentication (e.g. [Google Cloud Run](https://cloud.google.com/run/docs/authenticating/service-to-service)). 
+This data source provides a Google OpenID Connect (`oidc`) `id_token`.  Tokens issued from this data source are typically used to call external services that accept OIDC tokens for authentication (e.g. [Google Cloud Run](https://cloud.google.com/run/docs/authenticating/service-to-service)). 
 
 For more information see
 [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
 
 ## Example Usage - ServiceAccount JSON credential file.
-  Datasource will the service account provided by `GOOGLE_APPLICATION_CREDENTIALS` or `GOOGLE_CLOUD_KEYFILE_JSON` environment variable. 
+  `google_service_account_id_token` will use the configured [provider credentials](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#credentials-1)
   
   ```hcl
   data "google_service_account_id_token" oidc {
@@ -27,11 +27,8 @@ For more information see
   }
   ```
 
-## Example Usage - `Application Default Credentials`
-  Datasource will automatically use credentials provided by [Application Default Credentials](https://cloud.google.com/docs/authentication/production)
-
 ## Example Usage - Service Account Impersonation.
-  Datasource will use background impersonated credentials provided by [google_service_account_access_token](https://www.terraform.io/docs/providers/google/d/datasource_google_service_account_access_token.html).  
+  `google_service_account_access_token` will use background impersonated credentials provided by [google_service_account_access_token](https://www.terraform.io/docs/providers/google/d/datasource_google_service_account_access_token.html).
 
   Note: to use the following, you must grant `target_service_account` the
   `roles/iam.serviceAccountTokenCreator` role on itself.
@@ -69,20 +66,17 @@ For more information see
 
 ```hcl
 
-data "google_service_account_id_token" oidc {
+data "google_service_account_id_token" "oidc" {
   target_audience = "https://your.cloud.run.app/"
 }
 
-data "http" cloudrun {
+data "http" "cloudrun" {
   url = "https://your.cloud.run.app/"
   request_headers  = {
     Authorization = "Bearer ${data.google_service_account_id_token.oidc.id_token}"
   }
 }
 
-output "oidc_token" {
-  value = data.google_service_account_id_token.oidc.id_token
-}
 
 output "cloud_run_response" {
   value = data.http.cloudrun.body
@@ -94,8 +88,8 @@ output "cloud_run_response" {
 The following arguments are supported:
 
 * `target_audience` (Required) - The audience claim for the `id_token`.
-* `target_service_account` (Optional) - THe email of the service account being impersonated.  Used only when using impersonation mode.
-* `delegates` (Optional) - Delegate chain of approvals needed to perform full impersonation. Specify the fully qualified service account name.  Used only when using impersonation mode.
+* `target_service_account` (Optional) - The email of the service account being impersonated.  Used only when using impersonation mode.
+* `delegates` (Optional) - Delegate chain of approvals needed to perform full impersonation. Specify the fully qualified service account name.   Used only when using impersonation mode.
 * `include_email` (Optional) Include the verified email in the claim. Used only when using impersonation mode.
 
 ## Attributes Reference
