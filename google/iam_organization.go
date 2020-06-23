@@ -9,9 +9,10 @@ import (
 
 var IamOrganizationSchema = map[string]*schema.Schema{
 	"org_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The numeric ID of the organization in which you want to manage the audit logging config.`,
 	},
 }
 
