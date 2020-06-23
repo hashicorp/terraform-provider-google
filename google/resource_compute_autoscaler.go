@@ -170,6 +170,13 @@ Stackdriver Monitoring metric. Possible values: ["GAUGE", "DELTA_PER_SECOND", "D
 								},
 							},
 						},
+						"mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"OFF", "ONLY_UP", "ON", ""}, false),
+							Description:  `Defines operating mode for this policy. Default value: "ON" Possible values: ["OFF", "ONLY_UP", "ON"]`,
+							Default:      "ON",
+						},
 					},
 				},
 			},
@@ -484,6 +491,8 @@ func flattenComputeAutoscalerAutoscalingPolicy(v interface{}, d *schema.Resource
 		flattenComputeAutoscalerAutoscalingPolicyMaxReplicas(original["maxNumReplicas"], d, config)
 	transformed["cooldown_period"] =
 		flattenComputeAutoscalerAutoscalingPolicyCooldownPeriod(original["coolDownPeriodSec"], d, config)
+	transformed["mode"] =
+		flattenComputeAutoscalerAutoscalingPolicyMode(original["mode"], d, config)
 	transformed["cpu_utilization"] =
 		flattenComputeAutoscalerAutoscalingPolicyCpuUtilization(original["cpuUtilization"], d, config)
 	transformed["metric"] =
@@ -541,6 +550,10 @@ func flattenComputeAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d *s
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenComputeAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -661,6 +674,13 @@ func expandComputeAutoscalerAutoscalingPolicy(v interface{}, d TerraformResource
 		transformed["coolDownPeriodSec"] = transformedCooldownPeriod
 	}
 
+	transformedMode, err := expandComputeAutoscalerAutoscalingPolicyMode(original["mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !isEmptyValue(val) {
+		transformed["mode"] = transformedMode
+	}
+
 	transformedCpuUtilization, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilization(original["cpu_utilization"], d, config)
 	if err != nil {
 		return nil, err
@@ -694,6 +714,10 @@ func expandComputeAutoscalerAutoscalingPolicyMaxReplicas(v interface{}, d Terraf
 }
 
 func expandComputeAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
