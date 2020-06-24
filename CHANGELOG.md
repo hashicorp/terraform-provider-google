@@ -8,8 +8,7 @@ FEATURES:
 IMPROVEMENTS:
 * app_engine: added the option to specify `database_type` in `google_app_engine_application` ([#6629](https://github.com/terraform-providers/terraform-provider-google/pull/6629))
 * compute: Added `mode` to `google_compute_autoscaler` `autoscaling_policy` ([#6664](https://github.com/terraform-providers/terraform-provider-google/pull/6664))
-* compute: Added `scale_down_control` for `google_compute_autoscaler` `autoscaling_policy` (beta only) ([#6664](https://github.com/terraform-providers/terraform-provider-google/pull/6664))
-* enable google_dns_policy to accept network id #6577 ([#6624](https://github.com/terraform-providers/terraform-provider-google/pull/6624))
+* dns: enabled google_dns_policy to accept network id #6577 ([#6624](https://github.com/terraform-providers/terraform-provider-google/pull/6624))
 
 BUG FIXES:
 * appengine: Added polling to `google_app_engine_firewall_rule` to prevent issues with eventually consistent creation ([#6633](https://github.com/terraform-providers/terraform-provider-google/pull/6633))
