@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_cloud_identity_group` (TPGB-only)
+```
+```release-note:note
+added the `https://www.googleapis.com/auth/cloud-identity` scope to the provider by default
+```
