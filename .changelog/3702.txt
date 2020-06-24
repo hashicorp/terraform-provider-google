@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_kms_key_ring_import_job`
+```
