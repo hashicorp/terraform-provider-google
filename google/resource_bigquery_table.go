@@ -341,7 +341,7 @@ func resourceBigQueryTable() *schema.Resource {
 						"type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							Description:  `The supported types are DAY and HOUR, which will generate one partition per day or hour based on data loading time`,
+							Description:  `The supported types are DAY and HOUR, which will generate one partition per day or hour based on data loading time.`,
 							ValidateFunc: validation.StringInSlice([]string{"DAY", "HOUR"}, false),
 						},
 
