@@ -9,9 +9,10 @@ import (
 
 var loggingProjectBucketConfigSchema = map[string]*schema.Schema{
 	"project": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The parent project that contains the logging bucket.`,
 	},
 }
 

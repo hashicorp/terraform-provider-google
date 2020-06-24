@@ -9,9 +9,10 @@ import (
 
 var loggingOrganizationBucketConfigSchema = map[string]*schema.Schema{
 	"organization": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The parent resource that contains the logging bucket.`,
 	},
 }
 
