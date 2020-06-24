@@ -161,6 +161,16 @@ The `autoscaling_policy` block supports:
   instance may take to initialize. To do this, create an instance
   and time the startup process.
 
+* `mode` -
+  (Optional)
+  Defines operating mode for this policy.
+
+  Default value: `ON`
+  Possible values are:
+  * `OFF`
+  * `ONLY_UP`
+  * `ON`
+
 * `cpu_utilization` -
   (Optional)
   Defines the CPU utilization policy that allows the autoscaler to
