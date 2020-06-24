@@ -1,4 +1,21 @@
 ## 3.28.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_redis_instance` ([#6649](https://github.com/terraform-providers/terraform-provider-google/pull/6649))
+* **New Resource:** `google_notebook_environment` ([#6639](https://github.com/terraform-providers/terraform-provider-google/pull/6639))
+* **New Resource:** `google_notebook_instance` ([#6639](https://github.com/terraform-providers/terraform-provider-google/pull/6639))
+
+IMPROVEMENTS:
+* app_engine: added the option to specify `database_type` in `google_app_engine_application` ([#6629](https://github.com/terraform-providers/terraform-provider-google/pull/6629))
+* compute: Added `mode` to `google_compute_autoscaler` `autoscaling_policy` ([#6664](https://github.com/terraform-providers/terraform-provider-google/pull/6664))
+* compute: Added `scale_down_control` for `google_compute_autoscaler` `autoscaling_policy` (beta only) ([#6664](https://github.com/terraform-providers/terraform-provider-google/pull/6664))
+* enable google_dns_policy to accept network id #6577 ([#6624](https://github.com/terraform-providers/terraform-provider-google/pull/6624))
+
+BUG FIXES:
+* appengine: Added polling to `google_app_engine_firewall_rule` to prevent issues with eventually consistent creation ([#6633](https://github.com/terraform-providers/terraform-provider-google/pull/6633))
+* compute: Allowed updating `google_compute_network_peering_routes_config ` `import_custom_routes` and  `export_custom_routes` to false ([#6625](https://github.com/terraform-providers/terraform-provider-google/pull/6625))
+* netblock: fixed the google netblock ranges returned by the `google_netblock_ip_ranges` by targeting json on gstatic domain instead of reading SPF dns records (solution provided by network team) ([#6650](https://github.com/terraform-providers/terraform-provider-google/pull/6650))
+
 ## 3.27.0 (June 23, 2020)
 
 IMPROVEMENTS:
