@@ -19,17 +19,19 @@ func resourceLoggingOrganizationSink() *schema.Resource {
 		},
 	}
 	schm.Schema["org_id"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Required: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		Description: `The numeric ID of the organization to be exported to the sink.`,
 		StateFunc: func(v interface{}) string {
 			return strings.Replace(v.(string), "organizations/", "", 1)
 		},
 	}
 	schm.Schema["include_children"] = &schema.Schema{
-		Type:     schema.TypeBool,
-		Optional: true,
-		ForceNew: true,
-		Default:  false,
+		Type:        schema.TypeBool,
+		Optional:    true,
+		ForceNew:    true,
+		Default:     false,
+		Description: `Whether or not to include children organizations in the sink export. If true, logs associated with child projects are also exported; otherwise only logs relating to the provided organization are included.`,
 	}
 
 	return schm

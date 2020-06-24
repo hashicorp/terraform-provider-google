@@ -10,37 +10,43 @@ import (
 func resourceLoggingSinkSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"name": {
-			Type:     schema.TypeString,
-			Required: true,
-			ForceNew: true,
+			Type:        schema.TypeString,
+			Required:    true,
+			ForceNew:    true,
+			Description: `The name of the logging sink.`,
 		},
 
 		"destination": {
-			Type:     schema.TypeString,
-			Required: true,
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: `The destination of the sink (or, in other words, where logs are written to). Can be a Cloud Storage bucket, a PubSub topic, or a BigQuery dataset. Examples: "storage.googleapis.com/[GCS_BUCKET]" "bigquery.googleapis.com/projects/[PROJECT_ID]/datasets/[DATASET]" "pubsub.googleapis.com/projects/[PROJECT_ID]/topics/[TOPIC_ID]" The writer associated with the sink must have access to write to the above resource.`,
 		},
 
 		"filter": {
 			Type:             schema.TypeString,
 			Optional:         true,
 			DiffSuppressFunc: optionalSurroundingSpacesSuppress,
+			Description:      `The filter to apply when exporting logs. Only log entries that match the filter are exported.`,
 		},
 
 		"writer_identity": {
-			Type:     schema.TypeString,
-			Computed: true,
+			Type:        schema.TypeString,
+			Computed:    true,
+			Description: `The identity associated with this sink. This identity must be granted write access to the configured destination.`,
 		},
 
 		"bigquery_options": {
-			Type:     schema.TypeList,
-			Optional: true,
-			Computed: true,
-			MaxItems: 1,
+			Type:        schema.TypeList,
+			Optional:    true,
+			Computed:    true,
+			MaxItems:    1,
+			Description: `Options that affect sinks exporting data to BigQuery.`,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"use_partitioned_tables": {
-						Type:     schema.TypeBool,
-						Required: true,
+						Type:        schema.TypeBool,
+						Required:    true,
+						Description: `Whether to use BigQuery's partition tables. By default, Logging creates dated tables based on the log entries' timestamps, e.g. syslog_20170523. With partitioned tables the date suffix is no longer present and special query syntax has to be used instead. In both cases, tables are sharded based on UTC timezone.`,
 					},
 				},
 			},

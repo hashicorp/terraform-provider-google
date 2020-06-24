@@ -18,9 +18,10 @@ func resourceLoggingBillingAccountSink() *schema.Resource {
 		},
 	}
 	schm.Schema["billing_account"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The billing account exported to the sink.`,
 	}
 	return schm
 }

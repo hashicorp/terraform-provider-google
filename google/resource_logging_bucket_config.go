@@ -11,32 +11,38 @@ import (
 
 var loggingBucketConfigSchema = map[string]*schema.Schema{
 	"name": {
-		Type:     schema.TypeString,
-		Computed: true,
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `The resource name of the bucket`,
 	},
 	"location": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The location of the bucket. The supported locations are: "global" "us-central1"`,
 	},
 	"bucket_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The name of the logging bucket. Logging automatically creates two log buckets: _Required and _Default.`,
 	},
 	"description": {
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
+		Type:        schema.TypeString,
+		Optional:    true,
+		Computed:    true,
+		Description: `An optional description for this bucket.`,
 	},
 	"retention_days": {
-		Type:     schema.TypeInt,
-		Optional: true,
-		Default:  30,
+		Type:        schema.TypeInt,
+		Optional:    true,
+		Default:     30,
+		Description: `Logs will be retained by default for this amount of time, after which they will automatically be deleted. The minimum retention period is 1 day. If this value is set to zero at bucket creation time, the default time of 30 days will be used.`,
 	},
 	"lifecycle_state": {
-		Type:     schema.TypeString,
-		Computed: true,
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `The bucket's lifecycle such as active or deleted.`,
 	},
 }
 
