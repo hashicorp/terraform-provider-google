@@ -68,9 +68,10 @@ func computeInstanceFromTemplateSchema() map[string]*schema.Schema {
 	})
 
 	s["source_instance_template"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `Name or self link of an instance template to create the instance based on.`,
 	}
 
 	return s
