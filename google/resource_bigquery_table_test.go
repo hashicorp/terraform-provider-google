@@ -338,7 +338,7 @@ resource "google_bigquery_table" "test" {
 	dataset_id = "${google_bigquery_dataset.test.dataset_id}"
 
 	time_partitioning {
-		type = "DAY"
+		type = "HOUR"
 		field = "ts"
 	}
 
