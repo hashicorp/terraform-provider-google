@@ -30,9 +30,10 @@ func resourceGoogleProjectOrganizationPolicy() *schema.Resource {
 			schemaOrganizationPolicy,
 			map[string]*schema.Schema{
 				"project": {
-					Type:     schema.TypeString,
-					Required: true,
-					ForceNew: true,
+					Type:        schema.TypeString,
+					Required:    true,
+					ForceNew:    true,
+					Description: `The project ID.`,
 				},
 			},
 		),

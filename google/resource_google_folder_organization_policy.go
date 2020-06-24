@@ -30,9 +30,10 @@ func resourceGoogleFolderOrganizationPolicy() *schema.Resource {
 			schemaOrganizationPolicy,
 			map[string]*schema.Schema{
 				"folder": {
-					Type:     schema.TypeString,
-					Required: true,
-					ForceNew: true,
+					Type:        schema.TypeString,
+					Required:    true,
+					ForceNew:    true,
+					Description: `The resource name of the folder to set the policy for. Its format is folders/{folder_id}.`,
 				},
 			},
 		),
