@@ -336,7 +336,6 @@ func resourceBigQueryTable() *schema.Resource {
 							Description: `Number of milliseconds for which to keep the storage for a partition.`,
 						},
 
-            // TODO: check https://github.com/googleapis/google-cloud-go/commit/8618bf3d044f4da30b144689b870354c0071cfb0
 						// Type: [Required] The supported types are DAY and HOUR, which will generate
 						// one partition per day or hour based on data loading time.
 						"type": {
