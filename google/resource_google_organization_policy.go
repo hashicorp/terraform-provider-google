@@ -19,30 +19,35 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 		Required:         true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareSelfLinkOrResourceName,
+		Description:      `The name of the Constraint the Policy is configuring, for example, serviceuser.services.`,
 	},
 	"boolean_policy": {
-		Type:     schema.TypeList,
-		Optional: true,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: `A boolean policy is a constraint that is either enforced or not.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"enforced": {
-					Type:     schema.TypeBool,
-					Required: true,
+					Type:        schema.TypeBool,
+					Required:    true,
+					Description: `If true, then the Policy is enforced. If false, then any configuration is acceptable.`,
 				},
 			},
 		},
 	},
 	"list_policy": {
-		Type:     schema.TypeList,
-		Optional: true,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: `A policy that can define specific values that are allowed or denied for the given constraint. It can also be used to allow or deny all values. `,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"allow": {
 					Type:         schema.TypeList,
 					Optional:     true,
 					MaxItems:     1,
+					Description:  `One or the other must be set.`,
 					ExactlyOneOf: []string{"list_policy.0.allow", "list_policy.0.deny"},
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
@@ -50,11 +55,13 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 								Type:         schema.TypeBool,
 								Optional:     true,
 								Default:      false,
+								Description:  `The policy allows or denies all values.`,
 								ExactlyOneOf: []string{"list_policy.0.allow.0.all", "list_policy.0.allow.0.values"},
 							},
 							"values": {
 								Type:         schema.TypeSet,
 								Optional:     true,
+								Description:  `The policy can define specific values that are allowed or denied.`,
 								ExactlyOneOf: []string{"list_policy.0.allow.0.all", "list_policy.0.allow.0.values"},
 								Elem:         &schema.Schema{Type: schema.TypeString},
 								Set:          schema.HashString,
@@ -66,6 +73,7 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 					Type:         schema.TypeList,
 					Optional:     true,
 					MaxItems:     1,
+					Description:  `One or the other must be set.`,
 					ExactlyOneOf: []string{"list_policy.0.allow", "list_policy.0.deny"},
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
@@ -73,11 +81,13 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 								Type:         schema.TypeBool,
 								Optional:     true,
 								Default:      false,
+								Description:  `The policy allows or denies all values.`,
 								ExactlyOneOf: []string{"list_policy.0.deny.0.all", "list_policy.0.deny.0.values"},
 							},
 							"values": {
 								Type:         schema.TypeSet,
 								Optional:     true,
+								Description:  `The policy can define specific values that are allowed or denied.`,
 								ExactlyOneOf: []string{"list_policy.0.deny.0.all", "list_policy.0.deny.0.values"},
 								Elem:         &schema.Schema{Type: schema.TypeString},
 								Set:          schema.HashString,
@@ -86,39 +96,46 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 					},
 				},
 				"suggested_value": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Computed: true,
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					Description: `The Google Cloud Console will try to default to a configuration that matches the value specified in this field.`,
 				},
 				"inherit_from_parent": {
-					Type:     schema.TypeBool,
-					Optional: true,
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: `If set to true, the values from the effective Policy of the parent resource are inherited, meaning the values set in this Policy are added to the values inherited up the hierarchy.`,
 				},
 			},
 		},
 	},
 	"version": {
-		Type:     schema.TypeInt,
-		Optional: true,
-		Computed: true,
+		Type:        schema.TypeInt,
+		Optional:    true,
+		Computed:    true,
+		Description: `Version of the Policy. Default version is 0.`,
 	},
 	"etag": {
-		Type:     schema.TypeString,
-		Computed: true,
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `The etag of the organization policy. etag is used for optimistic concurrency control as a way to help prevent simultaneous updates of a policy from overwriting each other.`,
 	},
 	"update_time": {
-		Type:     schema.TypeString,
-		Computed: true,
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `The timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds, representing when the variable was last updated. Example: "2016-10-09T12:33:37.578138407Z".`,
 	},
 	"restore_policy": {
-		Type:     schema.TypeList,
-		Optional: true,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: `A restore policy is a constraint to restore the default policy.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"default": {
-					Type:     schema.TypeBool,
-					Required: true,
+					Type:        schema.TypeBool,
+					Required:    true,
+					Description: `May only be set to true. If set, then the default Policy is restored.`,
 				},
 			},
 		},
