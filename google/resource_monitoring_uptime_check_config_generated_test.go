@@ -57,6 +57,9 @@ resource "google_monitoring_uptime_check_config" "http" {
   http_check {
     path = "/some-path"
     port = "8010"
+    request_method = "POST"
+    content_type = "URL_ENCODED"
+    body = "Zm9vJTI1M0RiYXI="
   }
 
   monitored_resource {

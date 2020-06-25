@@ -90,6 +90,7 @@ resource "google_monitoring_uptime_check_config" "http" {
   http_check {
     path = "/%s"
     port = "8010"
+    request_method = "GET"
     auth_info {
       username = "name"
       password = "%s"
