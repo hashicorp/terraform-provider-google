@@ -147,7 +147,7 @@ on the current needs of the cluster's workload. See the
 [guide to using Node Auto-Provisioning](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
 for more details. Structure is documented below.
 
-* `database_encryption` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
+* `database_encryption` - (Optional)
     Structure is documented below.
 
 * `description` - (Optional) Description of the cluster.

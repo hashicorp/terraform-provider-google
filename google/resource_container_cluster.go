@@ -879,6 +879,32 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"database_encryption": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `Application-layer Secrets Encryption settings. The object format is {state = string, key_name = string}. Valid values of state are: "ENCRYPTED"; "DECRYPTED". key_name is the name of a CloudKMS key.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"state": {
+							Type:         schema.TypeString,
+							ForceNew:     true,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ENCRYPTED", "DECRYPTED"}, false),
+							Description:  `ENCRYPTED or DECRYPTED.`,
+						},
+						"key_name": {
+							Type:        schema.TypeString,
+							ForceNew:    true,
+							Optional:    true,
+							Description: `The key to use to encrypt/decrypt secrets.`,
+						},
+					},
+				},
+			},
+
 			"resource_usage_export_config": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -1112,6 +1138,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.VerticalPodAutoscaling = expandVerticalPodAutoscaling(v)
 	}
 
+	if v, ok := d.GetOk("database_encryption"); ok {
+		cluster.DatabaseEncryption = expandDatabaseEncryption(v)
+	}
+
 	if v, ok := d.GetOk("workload_identity_config"); ok {
 		cluster.WorkloadIdentityConfig = expandWorkloadIdentityConfig(v)
 	}
@@ -1320,6 +1350,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("workload_identity_config", flattenWorkloadIdentityConfig(cluster.WorkloadIdentityConfig)); err != nil {
+		return err
+	}
+
+	if err := d.Set("database_encryption", flattenDatabaseEncryption(cluster.DatabaseEncryption)); err != nil {
 		return err
 	}
 
@@ -2353,6 +2387,18 @@ func expandVerticalPodAutoscaling(configured interface{}) *containerBeta.Vertica
 	}
 }
 
+func expandDatabaseEncryption(configured interface{}) *containerBeta.DatabaseEncryption {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &containerBeta.DatabaseEncryption{
+		State:   config["state"].(string),
+		KeyName: config["key_name"].(string),
+	}
+}
+
 func expandWorkloadIdentityConfig(configured interface{}) *containerBeta.WorkloadIdentityConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -2672,6 +2718,18 @@ func flattenResourceUsageExportConfig(c *containerBeta.ResourceUsageExportConfig
 			"bigquery_destination": []map[string]interface{}{
 				{"dataset_id": c.BigqueryDestination.DatasetId},
 			},
+		},
+	}
+}
+
+func flattenDatabaseEncryption(c *containerBeta.DatabaseEncryption) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"state":    c.State,
+			"key_name": c.KeyName,
 		},
 	}
 }
