@@ -6,9 +6,9 @@ FEATURES:
 * **New Resource:** `google_notebook_instance` ([#6639](https://github.com/terraform-providers/terraform-provider-google/pull/6639))
 
 IMPROVEMENTS:
-* app_engine: added the option to specify `database_type` in `google_app_engine_application` ([#6629](https://github.com/terraform-providers/terraform-provider-google/pull/6629))
+* appengine: Enabled provisioning Firestore on a new project by adding the option to specify `database_type` in `google_app_engine_application` ([#6629](https://github.com/terraform-providers/terraform-provider-google/pull/6629))
 * compute: Added `mode` to `google_compute_autoscaler` `autoscaling_policy` ([#6664](https://github.com/terraform-providers/terraform-provider-google/pull/6664))
-* dns: enabled google_dns_policy to accept network id #6577 ([#6624](https://github.com/terraform-providers/terraform-provider-google/pull/6624))
+* dns: enabled google_dns_policy to accept network id ([#6624](https://github.com/terraform-providers/terraform-provider-google/pull/6624))
 
 BUG FIXES:
 * appengine: Added polling to `google_app_engine_firewall_rule` to prevent issues with eventually consistent creation ([#6633](https://github.com/terraform-providers/terraform-provider-google/pull/6633))
