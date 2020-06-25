@@ -298,21 +298,21 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     branch_name = "master-updated"
     repo_name   = "some-repo-updated"
   }
-  
+
   build {
     images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA"]
-    tags = ["team-a", "service-b", "updated"]
-    
+    tags   = ["team-a", "service-b", "updated"]
+
     step {
       name = "gcr.io/cloud-builders/gsutil"
       args = ["cp", "gs://mybucket/remotefile.zip", "localfile-updated.zip"]
     }
-    
+
     step {
       name = "gcr.io/cloud-builders/go"
       args = ["build", "my_package_updated"]
     }
-    
+
     step {
       name = "gcr.io/cloud-builders/docker"
       args = ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA", "-f", "Dockerfile", "."]
@@ -393,11 +393,11 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_disk" "foobar" {
-  name = "example-disk"
+  name  = "example-disk"
   image = "${data.google_compute_image.my_image.self_link}"
-  size = 50
-  type = "pd-ssd"
-  zone = "us-central1-a"
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
   disk_encryption_key {
     raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
   }
@@ -488,25 +488,25 @@ Use the `snapshot_encryption_key` block instead:
 
 ```hcl
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "my_disk" {
-	name = "my-disk"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 10
-	type = "pd-ssd"
-	zone = "us-central1-a"
+  name  = "my-disk"
+  image = "${data.google_compute_image.my_image.self_link}"
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 }
 
 resource "google_compute_snapshot" "my_snapshot" {
-	name = "my-snapshot"
-	source_disk = "${google_compute_disk.my_disk.name}"
-	zone = "us-central1-a"
-	snapshot_encryption_key {
-		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-	}
+  name        = "my-snapshot"
+  source_disk = "${google_compute_disk.my_disk.name}"
+  zone        = "us-central1-a"
+  snapshot_encryption_key {
+    raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+  }
 }
 ```
 
@@ -516,26 +516,26 @@ Use the `source_disk_encryption_key` block instead:
 
 ```hcl
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 resource "google_compute_disk" "my_disk" {
-	name = "my-disk"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 10
-	type = "pd-ssd"
-	zone = "us-central1-a"
-	disk_encryption_key {
-		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-	}
+  name  = "my-disk"
+  image = "${data.google_compute_image.my_image.self_link}"
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+  disk_encryption_key {
+    raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+  }
 }
 resource "google_compute_snapshot" "my_snapshot" {
-	name = "my-snapshot"
-	source_disk = "${google_compute_disk.my_disk.name}"
-	zone = "us-central1-a"
-	source_disk_encryption_key {
-		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-	}
+  name        = "my-snapshot"
+  source_disk = "${google_compute_disk.my_disk.name}"
+  zone        = "us-central1-a"
+  source_disk_encryption_key {
+    raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+  }
 }
 
 ```
@@ -609,10 +609,10 @@ resource "random_id" "np" {
 }
 
 resource "google_container_node_pool" "example" {
-  name               = "${random_id.np.dec}"
-  zone               = "us-central1-a"
-  cluster            = "${google_container_cluster.example.name}"
-  node_count         = 1
+  name       = "${random_id.np.dec}"
+  zone       = "us-central1-a"
+  cluster    = "${google_container_cluster.example.name}"
+  node_count = 1
 
   node_config {
     machine_type = "${var.machine_type}"
