@@ -50,6 +50,9 @@ resource "google_monitoring_uptime_check_config" "http" {
   http_check {
     path = "/some-path"
     port = "8010"
+    request_method = "POST"
+    content_type = "URL_ENCODED"
+    body = "Zm9vJTI1M0RiYXI="
   }
 
   monitored_resource {
@@ -195,6 +198,24 @@ The `content_matchers` block supports:
 
 The `http_check` block supports:
 
+* `request_method` -
+  (Optional)
+  The HTTP request method to use for the check. If set to METHOD_UNSPECIFIED then requestMethod defaults to GET.
+
+  Default value: `GET`
+  Possible values are:
+  * `METHOD_UNSPECIFIED`
+  * `GET`
+  * `POST`
+
+* `content_type` -
+  (Optional)
+  The content type to use for the check.
+
+  Possible values are:
+  * `TYPE_UNSPECIFIED`
+  * `URL_ENCODED`
+
 * `auth_info` -
   (Optional)
   The authentication information. Optional when creating an HTTP check; defaults to empty.  Structure is documented below.
@@ -222,6 +243,10 @@ The `http_check` block supports:
 * `mask_headers` -
   (Optional)
   Boolean specifying whether to encrypt the header information. Encryption should be specified for any headers related to authentication that you do not wish to be seen when retrieving the configuration. The server will be responsible for encrypting the headers. On Get/List calls, if mask_headers is set to True then the headers will be obscured with ******.
+
+* `body` -
+  (Optional)
+  The request body associated with the HTTP POST request. If contentType is URL_ENCODED, the body passed in must be URL-encoded. Users can provide a Content-Length header via the headers field or the API will do so. If the requestMethod is GET and body is not empty, the API will return an error. The maximum byte size is 1 megabyte. Note - As with all bytes fields JSON representations are base64 encoded. e.g. "foo=bar" in URL-encoded form is "foo%3Dbar" and in base64 encoding is "Zm9vJTI1M0RiYXI=".
 
 
 The `auth_info` block supports:

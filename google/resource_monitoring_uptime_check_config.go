@@ -104,8 +104,20 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							},
 							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
+						"body": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The request body associated with the HTTP POST request. If contentType is URL_ENCODED, the body passed in must be URL-encoded. Users can provide a Content-Length header via the headers field or the API will do so. If the requestMethod is GET and body is not empty, the API will return an error. The maximum byte size is 1 megabyte. Note - As with all bytes fields JSON representations are base64 encoded. e.g. "foo=bar" in URL-encoded form is "foo%3Dbar" and in base64 encoding is "Zm9vJTI1M0RiYXI=".`,
+						},
+						"content_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"TYPE_UNSPECIFIED", "URL_ENCODED", ""}, false),
+							Description:  `The content type to use for the check. Possible values: ["TYPE_UNSPECIFIED", "URL_ENCODED"]`,
+						},
 						"headers": {
 							Type:         schema.TypeMap,
+							Computed:     true,
 							Optional:     true,
 							Description:  `The list of headers to send as part of the uptime check request. If two headers have the same key and different values, they should be entered as a single header, with the value being a comma-separated list of all the desired values as described at https://www.w3.org/Protocols/rfc2616/rfc2616.txt (page 31). Entering two separate headers with the same key in a Create call will cause the first to be overwritten by the second. The maximum number of headers allowed is 100.`,
 							Elem:         &schema.Schema{Type: schema.TypeString},
@@ -130,6 +142,14 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Optional:     true,
 							Description:  `The port to the page to run the check against. Will be combined with host (specified within the MonitoredResource) and path to construct the full URL. Optional (defaults to 80 without SSL, or 443 with SSL).`,
 							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
+						},
+						"request_method": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"METHOD_UNSPECIFIED", "GET", "POST", ""}, false),
+							Description:  `The HTTP request method to use for the check. If set to METHOD_UNSPECIFIED then requestMethod defaults to GET. Default value: "GET" Possible values: ["METHOD_UNSPECIFIED", "GET", "POST"]`,
+							Default:      "GET",
 						},
 						"use_ssl": {
 							Type:         schema.TypeBool,
@@ -670,6 +690,10 @@ func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.Resour
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["request_method"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckRequestMethod(original["requestMethod"], d, config)
+	transformed["content_type"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckContentType(original["contentType"], d, config)
 	transformed["auth_info"] =
 		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(original["authInfo"], d, config)
 	transformed["port"] =
@@ -684,8 +708,18 @@ func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.Resour
 		flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(original["validateSsl"], d, config)
 	transformed["mask_headers"] =
 		flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(original["maskHeaders"], d, config)
+	transformed["body"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckBody(original["body"], d, config)
 	return []interface{}{transformed}
 }
+func flattenMonitoringUptimeCheckConfigHttpCheckRequestMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheckContentType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -743,6 +777,10 @@ func flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(v interface{}, d *sc
 }
 
 func flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheckBody(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -885,6 +923,20 @@ func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d TerraformResour
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedRequestMethod, err := expandMonitoringUptimeCheckConfigHttpCheckRequestMethod(original["request_method"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestMethod); val.IsValid() && !isEmptyValue(val) {
+		transformed["requestMethod"] = transformedRequestMethod
+	}
+
+	transformedContentType, err := expandMonitoringUptimeCheckConfigHttpCheckContentType(original["content_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContentType); val.IsValid() && !isEmptyValue(val) {
+		transformed["contentType"] = transformedContentType
+	}
+
 	transformedAuthInfo, err := expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(original["auth_info"], d, config)
 	if err != nil {
 		return nil, err
@@ -934,7 +986,22 @@ func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d TerraformResour
 		transformed["maskHeaders"] = transformedMaskHeaders
 	}
 
+	transformedBody, err := expandMonitoringUptimeCheckConfigHttpCheckBody(original["body"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBody); val.IsValid() && !isEmptyValue(val) {
+		transformed["body"] = transformedBody
+	}
+
 	return transformed, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckRequestMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckContentType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -999,6 +1066,10 @@ func expandMonitoringUptimeCheckConfigHttpCheckValidateSsl(v interface{}, d Terr
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckBody(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
