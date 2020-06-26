@@ -35,18 +35,21 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateGCPName,
+				Description:  `The name of the security policy.`,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `An optional description of this security policy. Max size is 2048.`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
 			"rule": {
@@ -59,11 +62,13 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"allow", "deny(403)", "deny(404)", "deny(502)"}, false),
+							Description:  `Action to take when match matches the request. Valid values:   "allow" : allow access to target, "deny(status)" : deny access to target, returns the HTTP response code specified (valid values are 403, 404 and 502)`,
 						},
 
 						"priority": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `An unique positive integer indicating the priority of evaluation for a rule. Rules are evaluated from highest priority (lowest numerically) to lowest priority (highest numerically) in order.`,
 						},
 
 						"match": {
@@ -79,20 +84,23 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"src_ip_ranges": {
-													Type:     schema.TypeSet,
-													Required: true,
-													MinItems: 1,
-													MaxItems: 10,
-													Elem:     &schema.Schema{Type: schema.TypeString},
+													Type:        schema.TypeSet,
+													Required:    true,
+													MinItems:    1,
+													MaxItems:    10,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+													Description: `Set of IP addresses or ranges (IPV4 or IPV6) in CIDR notation to match against inbound traffic. There is a limit of 5 IP ranges per rule. A value of '*' matches all IPs (can be used to override the default behavior).`,
 												},
 											},
 										},
+										Description: `The configuration options available when specifying versioned_expr. This field must be specified if versioned_expr is specified and cannot be specified if versioned_expr is not specified.`,
 									},
 
 									"versioned_expr": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"SRC_IPS_V1"}, false),
+										Description:  `Predefined rule expression. If this field is specified, config must also be specified. Available options:   SRC_IPS_V1: Must specify the corresponding src_ip_ranges field in config.`,
 									},
 
 									"expr": {
@@ -102,8 +110,9 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"expression": {
-													Type:     schema.TypeString,
-													Required: true,
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Textual representation of an expression in Common Expression Language syntax. The application context of the containing message determines which well-known feature set of CEL is supported.`,
 												},
 												// These fields are not yet supported (Issue terraform-providers/terraform-provider-google#4497: mbang)
 												// "title": {
@@ -120,32 +129,39 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 												// },
 											},
 										},
+										Description: `User defined CEVAL expression. A CEVAL expression is used to specify match criteria such as origin.ip, source.region_code and contents in the request header.`,
 									},
 								},
 							},
+							Description: `A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding action is enforced.`,
 						},
 
 						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `An optional description of this rule. Max size is 64.`,
 						},
 
 						"preview": {
-							Type:     schema.TypeBool,
-							Optional: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `When set to true, the action specified above is not enforced. Stackdriver logs for requests that trigger a preview action are annotated as such.`,
 						},
 					},
 				},
+				Description: `The set of rules that belong to this policy. There must always be a default rule (rule with priority 2147483647 and match "*"). If no rules are provided when creating a security policy, a default rule with action "allow" will be added.`,
 			},
 
 			"fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Fingerprint of this resource.`,
 			},
 
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The URI of the created resource.`,
 			},
 		},
 	}

@@ -28,14 +28,16 @@ func resourceComputeRouterInterface() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `A unique name for the interface, required by GCE. Changing this forces a new interface to be created.`,
 			},
 			"router": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the router this interface will be attached to. Changing this forces a new interface to be created.`,
 			},
 			"vpn_tunnel": {
 				Type:             schema.TypeString,
@@ -44,6 +46,7 @@ func resourceComputeRouterInterface() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				AtLeastOneOf:     []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
+				Description:      `The name or resource link to the VPN tunnel this interface will be linked to. Changing this forces a new interface to be created. Only one of vpn_tunnel and interconnect_attachment can be specified.`,
 			},
 			"interconnect_attachment": {
 				Type:             schema.TypeString,
@@ -52,25 +55,29 @@ func resourceComputeRouterInterface() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				AtLeastOneOf:     []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
+				Description:      `The name or resource link to the VLAN interconnect for this interface. Changing this forces a new interface to be created. Only one of vpn_tunnel and interconnect_attachment can be specified.`,
 			},
 			"ip_range": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				AtLeastOneOf: []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
+				Description:  `IP address and range of the interface. The IP range must be in the RFC3927 link-local IP space. Changing this forces a new interface to be created.`,
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which this interface's router belongs. If it is not provided, the provider project is used. Changing this forces a new interface to be created.`,
 			},
 
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The region this interface's router sits in. If not specified, the project region will be used. Changing this forces a new interface to be created.`,
 			},
 		},
 	}
