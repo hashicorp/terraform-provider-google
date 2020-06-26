@@ -426,8 +426,8 @@ resource "google_cloud_run_service" "default" {
 
     metadata {
       annotations = {
-        "autoscaling.knative.dev/maxScale"      = "1000"
-        "run.googleapis.com/client-name"        = "terraform"
+        "autoscaling.knative.dev/maxScale" = "1000"
+        "run.googleapis.com/client-name"   = "terraform"
       }
       name = "revision-name"
     }
@@ -660,11 +660,11 @@ directed to that version.
 
 ```hcl
 resource "google_compute_instance_group_manager" "my_igm" {
-    name               = "my-igm"
-    zone               = "us-central1-c"
-    base_instance_name = "igm"
+  name               = "my-igm"
+  zone               = "us-central1-c"
+  base_instance_name = "igm"
 
-    instance_template = google_compute_instance_template.my_tmpl.self_link
+  instance_template = google_compute_instance_template.my_tmpl.self_link
 }
 ```
 
@@ -672,14 +672,14 @@ resource "google_compute_instance_group_manager" "my_igm" {
 
 ```hcl
 resource "google_compute_instance_group_manager" "my_igm" {
-    name               = "my-igm"
-    zone               = "us-central1-c"
-    base_instance_name = "igm"
+  name               = "my-igm"
+  zone               = "us-central1-c"
+  base_instance_name = "igm"
 
-    version {
-        name = "prod"
-        instance_template = google_compute_instance_template.my_tmpl.self_link
-    }
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.my_tmpl.self_link
+  }
 }
 ```
 
@@ -695,13 +695,13 @@ For more details see the
 
 ```hcl
 resource "google_compute_instance_group_manager" "my_igm" {
-    name               = "my-igm"
-    zone               = "us-central1-c"
-    base_instance_name = "igm"
+  name               = "my-igm"
+  zone               = "us-central1-c"
+  base_instance_name = "igm"
 
-    instance_template = "${google_compute_instance_template.my_tmpl.self_link}"
+  instance_template = "${google_compute_instance_template.my_tmpl.self_link}"
 
-    update_strategy   = "NONE"
+  update_strategy = "NONE"
 }
 ```
 
@@ -709,19 +709,19 @@ resource "google_compute_instance_group_manager" "my_igm" {
 
 ```hcl
 resource "google_compute_instance_group_manager" "my_igm" {
-    name               = "my-igm"
-    zone               = "us-central1-c"
-    base_instance_name = "igm"
+  name               = "my-igm"
+  zone               = "us-central1-c"
+  base_instance_name = "igm"
 
-    version {
-        name = "prod"
-        instance_template = "${google_compute_instance_template.my_tmpl.self_link}"
-    }
+  version {
+    name              = "prod"
+    instance_template = "${google_compute_instance_template.my_tmpl.self_link}"
+  }
 
-    update_policy {
-      minimal_action = "RESTART"
-      type           = "OPPORTUNISTIC"
-    }
+  update_policy {
+    minimal_action = "RESTART"
+    type           = "OPPORTUNISTIC"
+  }
 }
 ```
 
@@ -749,10 +749,10 @@ the following is valid:
 
 ```hcl
 disk {
-    auto_delete  = true
-    type         = "SCRATCH"
-    disk_type    = "local-ssd"
-    disk_size_gb = 375
+  auto_delete  = true
+  type         = "SCRATCH"
+  disk_type    = "local-ssd"
+  disk_size_gb = 375
 }
 ```
 
@@ -761,26 +761,26 @@ fail:
 
 ```hcl
 disk {
-    source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
-    auto_delete  = true
-    type         = "SCRATCH"
+  source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+  auto_delete  = true
+  type         = "SCRATCH"
 }
 ```
 
 ```hcl
 disk {
-    source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
-    auto_delete  = true
-    disk_type    = "local-ssd"
+  source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+  auto_delete  = true
+  disk_type    = "local-ssd"
 }
 ```
 
 ```hcl
 disk {
-    auto_delete  = true
-    type         = "SCRATCH"
-    disk_type    = "local-ssd"
-    disk_size_gb = 300
+  auto_delete  = true
+  type         = "SCRATCH"
+  disk_type    = "local-ssd"
+  disk_size_gb = 300
 }
 ```
 
@@ -983,8 +983,8 @@ to `false`.
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  name       = "my-cluster"
-  location   = "us-central1"
+  name     = "my-cluster"
+  location = "us-central1"
 
   initial_node_count = 1
 
@@ -998,8 +998,8 @@ resource "google_container_cluster" "primary" {
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  name       = "my-cluster"
-  location   = "us-central1"
+  name     = "my-cluster"
+  location = "us-central1"
 
   initial_node_count = 1
 }
@@ -1057,9 +1057,9 @@ resource "google_compute_network" "container_network" {
 }
 
 resource "google_container_cluster" "primary" {
-  name       = "my-cluster"
-  location   = "us-central1"
-  network    = google_compute_network.container_network.name
+  name     = "my-cluster"
+  location = "us-central1"
+  network  = google_compute_network.container_network.name
 
   initial_node_count = 1
 
@@ -1528,8 +1528,8 @@ module "project_services" {
   source  = "terraform-google-modules/project-factory/google//modules/project_services"
   version = "3.3.0"
 
-  project_id    = "your-project-id"
-  activate_apis =  [
+  project_id = "your-project-id"
+  activate_apis = [
     "iam.googleapis.com",
     "cloudresourcemanager.googleapis.com",
   ]
@@ -1550,7 +1550,7 @@ resource "google_project_service" "service" {
 
   service = each.key
 
-  project = "your-project-id"
+  project            = "your-project-id"
   disable_on_destroy = false
 }
 ```

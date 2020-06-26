@@ -190,7 +190,7 @@ resource "google_container_cluster" "my-gke-cluster" {
   node_config {
     service_account = "{{service_account}}"
   }
-  
+
   lifecycle {
     ignore_changes = ["node_config"]
   }
