@@ -1026,6 +1026,11 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	clusterName := d.Get("name").(string)
 
+	ipAllocationBlock, err := expandIPAllocationPolicy(d.Get("ip_allocation_policy"))
+	if err != nil {
+		return err
+	}
+
 	cluster := &containerBeta.Cluster{
 		Name:                           clusterName,
 		InitialNodeCount:               int64(d.Get("initial_node_count").(int)),
@@ -1043,7 +1048,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		NetworkPolicy:           expandNetworkPolicy(d.Get("network_policy")),
 		AddonsConfig:            expandClusterAddonsConfig(d.Get("addons_config")),
 		EnableKubernetesAlpha:   d.Get("enable_kubernetes_alpha").(bool),
-		IpAllocationPolicy:      expandIPAllocationPolicy(d.Get("ip_allocation_policy")),
+		IpAllocationPolicy:      ipAllocationBlock,
 		PodSecurityPolicyConfig: expandPodSecurityPolicyConfig(d.Get("pod_security_policy_config")),
 		Autoscaling:             expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
 		BinaryAuthorization: &containerBeta.BinaryAuthorization{
@@ -2138,13 +2143,13 @@ func expandClusterAddonsConfig(configured interface{}) *containerBeta.AddonsConf
 	return ac
 }
 
-func expandIPAllocationPolicy(configured interface{}) *containerBeta.IPAllocationPolicy {
+func expandIPAllocationPolicy(configured interface{}) (*containerBeta.IPAllocationPolicy, error) {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return &containerBeta.IPAllocationPolicy{
 			UseIpAliases:    false,
 			ForceSendFields: []string{"UseIpAliases"},
-		}
+		}, nil
 	}
 
 	config := l[0].(map[string]interface{})
@@ -2156,7 +2161,7 @@ func expandIPAllocationPolicy(configured interface{}) *containerBeta.IPAllocatio
 		ClusterSecondaryRangeName:  config["cluster_secondary_range_name"].(string),
 		ServicesSecondaryRangeName: config["services_secondary_range_name"].(string),
 		ForceSendFields:            []string{"UseIpAliases"},
-	}
+	}, nil
 }
 
 func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containerBeta.MaintenancePolicy {

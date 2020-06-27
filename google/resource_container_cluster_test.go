@@ -2618,6 +2618,7 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
   subnetwork = google_compute_subnetwork.container_subnetwork.name
 
   initial_node_count = 1
+
   ip_allocation_policy {
     cluster_ipv4_cidr_block  = "10.0.0.0/16"
     services_ipv4_cidr_block = "10.1.0.0/16"
@@ -2648,6 +2649,7 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
   subnetwork = google_compute_subnetwork.container_subnetwork.name
 
   initial_node_count = 1
+
   ip_allocation_policy {
     cluster_ipv4_cidr_block  = "/16"
     services_ipv4_cidr_block = "/22"
