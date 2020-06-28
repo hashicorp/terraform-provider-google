@@ -724,7 +724,7 @@ func (c *Config) GetCredentials(clientScopes []string) (googleoauth.Credentials,
 
 		creds, err := googleoauth.CredentialsFromJSON(c.context, []byte(contents), clientScopes...)
 		if err != nil {
-			return nil, fmt.Errorf("Unable to parse credentials: %s", err)
+			return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials from '%s': %s", contents, err)
 		}
 		log.Printf("[INFO] Authenticating using configured Google JSON 'credentials'...")
 		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
@@ -733,11 +733,14 @@ func (c *Config) GetCredentials(clientScopes []string) (googleoauth.Credentials,
 
 	log.Printf("[INFO] Authenticating using DefaultClient...")
 	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-	creds, err := googleoauth.FindDefaultCredentials(c.context, clientScopes...)
+
+	defaultTS, err := googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
 	if err != nil {
-		return googleoauth.Credentials{}, fmt.Errorf("unable FindDefaultCredentials '%s'", err)
+		return googleoauth.Credentials{}, fmt.Errorf("Error loading Default TokenSource: %s", err)
 	}
-	return *creds, err
+	return googleoauth.Credentials{
+		TokenSource: defaultTS,
+	}, err
 
 }
 

@@ -78,7 +78,8 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 	ts := creds.TokenSource
 
 	// If the source token is just an access_token, all we can do is use the iamcredentials api to get an id_token
-	if fmt.Sprintf("%s", reflect.TypeOf(ts)) == "oauth2.staticTokenSource" {
+
+	if reflect.TypeOf(ts).String() == "oauth2.staticTokenSource" {
 		// Use
 		// https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateIdToken
 		service := config.clientIamCredentials
@@ -105,7 +106,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 	}
 
 	if creds.JSON == nil && tok.RefreshToken != "" {
-		return fmt.Errorf("unsupported Credential Type supplied: got %v", reflect.TypeOf(creds.TokenSource))
+		return fmt.Errorf("unsupported Credential Type supplied.  Use serviceAccount credentials")
 	}
 	ctx := context.Background()
 	co := []option.ClientOption{}
