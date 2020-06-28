@@ -16,9 +16,7 @@ import (
 )
 
 const (
-	metadataIdentityDocURL = "http://metadata/computeMetadata/v1/instance/service-accounts/default/identity"
-	userInfoScope          = "https://www.googleapis.com/auth/userinfo.email"
-	tokenEndpoint          = "https://www.googleapis.com/oauth2/v4/token"
+	userInfoScope = "https://www.googleapis.com/auth/userinfo.email"
 )
 
 func dataSourceGoogleServiceAccountIdToken() *schema.Resource {
