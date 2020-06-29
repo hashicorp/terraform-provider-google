@@ -40,6 +40,7 @@ var (
 		"settings.0.backup_configuration.0.enabled",
 		"settings.0.backup_configuration.0.start_time",
 		"settings.0.backup_configuration.0.location",
+		"settings.0.backup_configuration.0.point_in_time_recovery_enabled",
 	}
 
 	ipConfigurationKeys = []string{
@@ -182,6 +183,12 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 										Optional:     true,
 										AtLeastOneOf: backupConfigurationKeys,
 										Description:  `Location of the backup configuration.`,
+									},
+									"point_in_time_recovery_enabled": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: backupConfigurationKeys,
+										Description:  `True if Point-in-time recovery is enabled.`,
 									},
 								},
 							},
@@ -841,11 +848,12 @@ func expandBackupConfiguration(configured []interface{}) *sqladmin.BackupConfigu
 
 	_backupConfiguration := configured[0].(map[string]interface{})
 	return &sqladmin.BackupConfiguration{
-		BinaryLogEnabled: _backupConfiguration["binary_log_enabled"].(bool),
-		Enabled:          _backupConfiguration["enabled"].(bool),
-		StartTime:        _backupConfiguration["start_time"].(string),
-		Location:         _backupConfiguration["location"].(string),
-		ForceSendFields:  []string{"BinaryLogEnabled", "Enabled"},
+		BinaryLogEnabled:           _backupConfiguration["binary_log_enabled"].(bool),
+		Enabled:                    _backupConfiguration["enabled"].(bool),
+		StartTime:                  _backupConfiguration["start_time"].(string),
+		Location:                   _backupConfiguration["location"].(string),
+		PointInTimeRecoveryEnabled: _backupConfiguration["point_in_time_recovery_enabled"].(bool),
+		ForceSendFields:            []string{"BinaryLogEnabled", "Enabled"},
 	}
 }
 
@@ -1050,10 +1058,11 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 
 func flattenBackupConfiguration(backupConfiguration *sqladmin.BackupConfiguration) []map[string]interface{} {
 	data := map[string]interface{}{
-		"binary_log_enabled": backupConfiguration.BinaryLogEnabled,
-		"enabled":            backupConfiguration.Enabled,
-		"start_time":         backupConfiguration.StartTime,
-		"location":           backupConfiguration.Location,
+		"binary_log_enabled":             backupConfiguration.BinaryLogEnabled,
+		"enabled":                        backupConfiguration.Enabled,
+		"start_time":                     backupConfiguration.StartTime,
+		"location":                       backupConfiguration.Location,
+		"point_in_time_recovery_enabled": backupConfiguration.PointInTimeRecoveryEnabled,
 	}
 
 	return []map[string]interface{}{data}
