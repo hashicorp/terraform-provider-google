@@ -24,15 +24,17 @@ func resourceDnsRecordSet() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"managed_zone": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the zone in which this record set will reside.`,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The DNS name this record set will apply to.`,
 			},
 
 			"rrdatas": {
@@ -50,23 +52,27 @@ func resourceDnsRecordSet() *schema.Resource {
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return strings.ToLower(strings.Trim(old, `"`)) == strings.ToLower(strings.Trim(new, `"`))
 				},
+				Description: `The string data for the records in this record set whose meaning depends on the DNS type. For TXT record, if the string data contains spaces, add surrounding \" if you don't want your string to get split on spaces. To specify a single record value longer than 255 characters such as a TXT record for DKIM, add \"\" inside the Terraform configuration string (e.g. "first255characters\"\"morecharacters").`,
 			},
 
 			"ttl": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `The time-to-live of this record set (seconds).`,
 			},
 
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The DNS record set type.`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 		},
 	}

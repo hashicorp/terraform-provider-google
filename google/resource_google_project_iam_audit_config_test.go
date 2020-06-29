@@ -262,7 +262,7 @@ func TestAccProjectIamAuditConfig_removeLastExemptMember(t *testing.T) {
 	})
 }
 
-// test changing service with no exempt members
+// test changing log type with no exempt members
 func TestAccProjectIamAuditConfig_updateNoExemptMembers(t *testing.T) {
 	t.Parallel()
 
@@ -289,7 +289,7 @@ func TestAccProjectIamAuditConfig_updateNoExemptMembers(t *testing.T) {
 			},
 			projectIamAuditConfigImportStep("google_project_iam_audit_config.acceptance", pid, service),
 
-			// Apply IAM audit config with DATA_WRITe
+			// Apply IAM audit config with DATA_WRITE
 			{
 				Config: testAccProjectAssociateAuditConfigLogType(pid, pname, org, service, logType2),
 			},

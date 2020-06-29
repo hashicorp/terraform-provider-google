@@ -147,7 +147,7 @@ on the current needs of the cluster's workload. See the
 [guide to using Node Auto-Provisioning](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)
 for more details. Structure is documented below.
 
-* `database_encryption` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
+* `database_encryption` - (Optional)
     Structure is documented below.
 
 * `description` - (Optional) Description of the cluster.
@@ -185,6 +185,10 @@ set this to a value of at least `1`, alongside setting
 VPC-native clusters. Adding this block enables [IP aliasing](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases),
 making the cluster VPC-native instead of routes-based. Structure is documented
 below.
+
+* `networking_mode` - (Optional, [Beta]) Determines whether alias IPs or routes will be used for pod IPs in the cluster.
+Options are `VPC_NATIVE` or `ROUTES`. `VPC_NATIVE` enables [IP aliasing](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases),
+and requires the `ip_allocation_policy` block to be defined. By default when this field is unspecified, GKE will create a `ROUTES`-based cluster.
 
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com`(Legacy Stackdriver),

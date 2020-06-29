@@ -1283,6 +1283,35 @@ func TestAccContainerCluster_errorNoClusterCreated(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withDatabaseEncryption(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	// Use the bootstrapped KMS key so we can avoid creating keys needlessly
+	// as they will pile up in the project because they can not be completely
+	// deleted.  Also, we need to create the key in the same location as the
+	// cluster as GKE does not support the "global" location for KMS keys.
+	// See https://cloud.google.com/kubernetes-engine/docs/how-to/encrypting-secrets#creating_a_key
+	kmsData := BootstrapKMSKeyInLocation(t, "us-central1")
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withDatabaseEncryption(clusterName, kmsData),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_database_encryption",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withResourceUsageExportConfig(t *testing.T) {
 	t.Parallel()
 
@@ -1620,7 +1649,7 @@ func testAccContainerCluster_updateAddons(projectID string, clusterName string) 
 	return fmt.Sprintf(`
 data "google_project" "project" {
   project_id = "%s"
-}	
+}
 
 resource "google_container_cluster" "primary" {
   name               = "%s"
@@ -2589,6 +2618,7 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
   subnetwork = google_compute_subnetwork.container_subnetwork.name
 
   initial_node_count = 1
+
   ip_allocation_policy {
     cluster_ipv4_cidr_block  = "10.0.0.0/16"
     services_ipv4_cidr_block = "10.1.0.0/16"
@@ -2619,6 +2649,7 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
   subnetwork = google_compute_subnetwork.container_subnetwork.name
 
   initial_node_count = 1
+
   ip_allocation_policy {
     cluster_ipv4_cidr_block  = "/16"
     services_ipv4_cidr_block = "/22"
@@ -2880,6 +2911,39 @@ resource "google_container_cluster" "with_resource_labels" {
   initial_node_count = 1
 }
 `, location)
+}
+
+func testAccContainerCluster_withDatabaseEncryption(clusterName string, kmsData bootstrappedKMS) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+}
+
+data "google_iam_policy" "test_kms_binding" {
+  binding {
+    role = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+    members = [
+      "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
+    ]
+  }
+}
+
+resource "google_kms_key_ring_iam_policy" "test_key_ring_iam_policy" {
+  key_ring_id = "%[1]s"
+  policy_data = data.google_iam_policy.test_kms_binding.policy_data
+}
+
+resource "google_container_cluster" "with_database_encryption" {
+  name               = "%[3]s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  database_encryption {
+    state    = "ENCRYPTED"
+    key_name = "%[2]s"
+  }
+}
+`, kmsData.KeyRing.Name, kmsData.CryptoKey.Name, clusterName)
 }
 
 func testAccContainerCluster_withMasterAuthorizedNetworksDisabled(containerNetName string, clusterName string) string {

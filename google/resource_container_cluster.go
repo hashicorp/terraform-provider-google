@@ -879,6 +879,32 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"database_encryption": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `Application-layer Secrets Encryption settings. The object format is {state = string, key_name = string}. Valid values of state are: "ENCRYPTED"; "DECRYPTED". key_name is the name of a CloudKMS key.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"state": {
+							Type:         schema.TypeString,
+							ForceNew:     true,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ENCRYPTED", "DECRYPTED"}, false),
+							Description:  `ENCRYPTED or DECRYPTED.`,
+						},
+						"key_name": {
+							Type:        schema.TypeString,
+							ForceNew:    true,
+							Optional:    true,
+							Description: `The key to use to encrypt/decrypt secrets.`,
+						},
+					},
+				},
+			},
+
 			"resource_usage_export_config": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -1000,6 +1026,11 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	clusterName := d.Get("name").(string)
 
+	ipAllocationBlock, err := expandIPAllocationPolicy(d.Get("ip_allocation_policy"))
+	if err != nil {
+		return err
+	}
+
 	cluster := &containerBeta.Cluster{
 		Name:                           clusterName,
 		InitialNodeCount:               int64(d.Get("initial_node_count").(int)),
@@ -1017,7 +1048,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		NetworkPolicy:           expandNetworkPolicy(d.Get("network_policy")),
 		AddonsConfig:            expandClusterAddonsConfig(d.Get("addons_config")),
 		EnableKubernetesAlpha:   d.Get("enable_kubernetes_alpha").(bool),
-		IpAllocationPolicy:      expandIPAllocationPolicy(d.Get("ip_allocation_policy")),
+		IpAllocationPolicy:      ipAllocationBlock,
 		PodSecurityPolicyConfig: expandPodSecurityPolicyConfig(d.Get("pod_security_policy_config")),
 		Autoscaling:             expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
 		BinaryAuthorization: &containerBeta.BinaryAuthorization{
@@ -1110,6 +1141,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("vertical_pod_autoscaling"); ok {
 		cluster.VerticalPodAutoscaling = expandVerticalPodAutoscaling(v)
+	}
+
+	if v, ok := d.GetOk("database_encryption"); ok {
+		cluster.DatabaseEncryption = expandDatabaseEncryption(v)
 	}
 
 	if v, ok := d.GetOk("workload_identity_config"); ok {
@@ -1320,6 +1355,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("workload_identity_config", flattenWorkloadIdentityConfig(cluster.WorkloadIdentityConfig)); err != nil {
+		return err
+	}
+
+	if err := d.Set("database_encryption", flattenDatabaseEncryption(cluster.DatabaseEncryption)); err != nil {
 		return err
 	}
 
@@ -2104,13 +2143,13 @@ func expandClusterAddonsConfig(configured interface{}) *containerBeta.AddonsConf
 	return ac
 }
 
-func expandIPAllocationPolicy(configured interface{}) *containerBeta.IPAllocationPolicy {
+func expandIPAllocationPolicy(configured interface{}) (*containerBeta.IPAllocationPolicy, error) {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return &containerBeta.IPAllocationPolicy{
 			UseIpAliases:    false,
 			ForceSendFields: []string{"UseIpAliases"},
-		}
+		}, nil
 	}
 
 	config := l[0].(map[string]interface{})
@@ -2122,7 +2161,7 @@ func expandIPAllocationPolicy(configured interface{}) *containerBeta.IPAllocatio
 		ClusterSecondaryRangeName:  config["cluster_secondary_range_name"].(string),
 		ServicesSecondaryRangeName: config["services_secondary_range_name"].(string),
 		ForceSendFields:            []string{"UseIpAliases"},
-	}
+	}, nil
 }
 
 func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containerBeta.MaintenancePolicy {
@@ -2350,6 +2389,18 @@ func expandVerticalPodAutoscaling(configured interface{}) *containerBeta.Vertica
 	config := l[0].(map[string]interface{})
 	return &containerBeta.VerticalPodAutoscaling{
 		Enabled: config["enabled"].(bool),
+	}
+}
+
+func expandDatabaseEncryption(configured interface{}) *containerBeta.DatabaseEncryption {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &containerBeta.DatabaseEncryption{
+		State:   config["state"].(string),
+		KeyName: config["key_name"].(string),
 	}
 }
 
@@ -2672,6 +2723,18 @@ func flattenResourceUsageExportConfig(c *containerBeta.ResourceUsageExportConfig
 			"bigquery_destination": []map[string]interface{}{
 				{"dataset_id": c.BigqueryDestination.DatasetId},
 			},
+		},
+	}
+}
+
+func flattenDatabaseEncryption(c *containerBeta.DatabaseEncryption) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"state":    c.State,
+			"key_name": c.KeyName,
 		},
 	}
 }

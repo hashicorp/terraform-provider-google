@@ -476,6 +476,174 @@ resource "google_compute_health_check" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=url_map_header_based_routing&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Header Based Routing
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  name        = "urlmap"
+  description = "header-based routing example"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts = ["*"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    route_rules {
+      priority = 1
+      service = google_compute_backend_service.service-a.id
+      match_rules {
+        prefix_match = "/"
+        ignore_case = true
+        header_matches {
+          header_name = "abtest"
+          exact_match = "a"
+        }
+      }
+    }
+    route_rules {
+      priority = 2
+      service = google_compute_backend_service.service-b.id
+      match_rules {
+        ignore_case = true
+        prefix_match = "/"
+        header_matches {
+          header_name = "abtest"
+          exact_match = "b"
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name        = "default"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "service-a" {
+  name        = "service-a"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "service-b" {
+  name        = "service-b"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "health-check"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=url_map_parameter_based_routing&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Parameter Based Routing
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  name        = "urlmap"
+  description = "parameter-based routing example"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts = ["*"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    route_rules {
+      priority = 1
+      service = google_compute_backend_service.service-a.id
+      match_rules {
+        prefix_match = "/"
+        ignore_case = true
+        query_parameter_matches {
+          name = "abtest"
+          exact_match = "a"
+        }
+      }
+    }
+    route_rules {
+      priority = 2
+      service = google_compute_backend_service.service-b.id
+      match_rules {
+        ignore_case = true
+        prefix_match = "/"
+        query_parameter_matches {
+          name = "abtest"
+          exact_match = "b"
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name        = "default"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "service-a" {
+  name        = "service-a"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "service-b" {
+  name        = "service-b"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "health-check"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+```
 
 ## Argument Reference
 

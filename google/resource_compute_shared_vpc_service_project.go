@@ -29,14 +29,16 @@ func resourceComputeSharedVpcServiceProject() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"host_project": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of a host project to associate.`,
 			},
 			"service_project": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of the project that will serve as a Shared VPC service project.`,
 			},
 		},
 	}

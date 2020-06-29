@@ -1,0 +1,6 @@
+```release-note:new-datasource
+`google_cloud_identity_groups`
+```
+```release-note:new-datasource
+`google_cloud_identity_group_memberships`
+```

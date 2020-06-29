@@ -20,7 +20,7 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigQueryTable(datasetID, tableID),
+				Config: testAccBigQueryTableDailyTimePartitioning(datasetID, tableID),
 			},
 			{
 				ResourceName:      "google_bigquery_table.test",
@@ -57,6 +57,37 @@ func TestAccBigQueryTable_Kms(t *testing.T) {
 			},
 			{
 				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccBigQueryTable_HourlyTimePartitioning(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableHourlyTimePartitioning(datasetID, tableID),
+			},
+			{
+				ResourceName:      "google_bigquery_table.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBigQueryTableUpdated(datasetID, tableID),
+			},
+			{
+				ResourceName:      "google_bigquery_table.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -261,7 +292,7 @@ func testAccCheckBigQueryTableDestroyProducer(t *testing.T) func(s *terraform.St
 	}
 }
 
-func testAccBigQueryTable(datasetID, tableID string) string {
+func testAccBigQueryTableDailyTimePartitioning(datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
 	dataset_id = "%s"
@@ -273,6 +304,63 @@ resource "google_bigquery_table" "test" {
 
 	time_partitioning {
 		type                     = "DAY"
+		field                    = "ts"
+		require_partition_filter = true
+	}
+	clustering = ["some_int", "some_string"]
+	schema     = <<EOH
+[
+	{
+		"name": "ts",
+		"type": "TIMESTAMP"
+	},
+	{
+		"name": "some_string",
+		"type": "STRING"
+	},
+	{
+		"name": "some_int",
+		"type": "INTEGER"
+	},
+	{
+		"name": "city",
+		"type": "RECORD",
+		"fields": [
+	{
+		"name": "id",
+		"type": "INTEGER"
+	},
+	{
+		"name": "coord",
+		"type": "RECORD",
+		"fields": [
+		{
+		"name": "lon",
+		"type": "FLOAT"
+		}
+		]
+	}
+		]
+	}
+]
+EOH
+
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTableHourlyTimePartitioning(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+	dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+	table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+
+	time_partitioning {
+		type                     = "HOUR"
 		field                    = "ts"
 		require_partition_filter = true
 	}

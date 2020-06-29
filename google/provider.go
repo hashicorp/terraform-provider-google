@@ -572,9 +572,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 136
+// Generated resources: 137
 // Generated IAM resources: 57
-// Total generated resources: 193
+// Total generated resources: 194
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -729,6 +729,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_identity_platform_tenant":                              resourceIdentityPlatformTenant(),
 			"google_kms_key_ring":                                          resourceKMSKeyRing(),
 			"google_kms_crypto_key":                                        resourceKMSCryptoKey(),
+			"google_kms_key_ring_import_job":                               resourceKMSKeyRingImportJob(),
 			"google_kms_secret_ciphertext":                                 resourceKMSSecretCiphertext(),
 			"google_logging_metric":                                        resourceLoggingMetric(),
 			"google_ml_engine_model":                                       resourceMLEngineModel(),
@@ -828,6 +829,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_folder_iam_binding":                    ResourceIamBinding(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_iam_member":                     ResourceIamMember(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_iam_policy":                     ResourceIamPolicy(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
+			"google_folder_iam_audit_config":               ResourceIamAuditConfig(IamFolderSchema, NewFolderIamUpdater, FolderIdParseFunc),
 			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
 			"google_healthcare_dataset_iam_binding":        ResourceIamBindingWithBatching(IamHealthcareDatasetSchema, NewHealthcareDatasetIamUpdater, DatasetIdParseFunc, IamBatchingEnabled),
 			"google_healthcare_dataset_iam_member":         ResourceIamMemberWithBatching(IamHealthcareDatasetSchema, NewHealthcareDatasetIamUpdater, DatasetIdParseFunc, IamBatchingEnabled),
