@@ -136,7 +136,7 @@ group manager.
 If you're not sure, we recommend deploying the latest image available when Terraform runs,
 because this means all the instances in your group will be based on the same image, always,
 and means that no upgrades or changes to your instances happen outside of a `terraform apply`.
-You can achieve this by using the [`google_compute_image`](../d/datasource_compute_image.html)
+You can achieve this by using the [`google_compute_image`](../d/compute_image.html)
 data source, which will retrieve the latest image on every `terraform apply`, and will update
 the template to use that specific image:
 
