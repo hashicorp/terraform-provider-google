@@ -701,6 +701,11 @@ func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, erro
 	return creds.TokenSource, nil
 }
 
+// staticTokenSource is used to be able to identify static token sources without reflection.
+type staticTokenSource struct {
+	oauth2.TokenSource
+}
+
 func (c *Config) GetCredentials(clientScopes []string) (googleoauth.Credentials, error) {
 	if c.AccessToken != "" {
 		contents, _, err := pathorcontents.Read(c.AccessToken)
@@ -712,7 +717,7 @@ func (c *Config) GetCredentials(clientScopes []string) (googleoauth.Credentials,
 		token := &oauth2.Token{AccessToken: contents}
 
 		return googleoauth.Credentials{
-			TokenSource: oauth2.StaticTokenSource(token),
+			TokenSource: staticTokenSource{oauth2.StaticTokenSource(token)},
 		}, nil
 	}
 

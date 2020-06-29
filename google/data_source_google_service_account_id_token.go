@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"fmt"
-	"reflect"
 	"strings"
 
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
@@ -76,8 +75,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 	ts := creds.TokenSource
 
 	// If the source token is just an access_token, all we can do is use the iamcredentials api to get an id_token
-
-	if reflect.TypeOf(ts).String() == "oauth2.staticTokenSource" {
+	if _, ok := ts.(staticTokenSource); ok {
 		// Use
 		// https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateIdToken
 		service := config.clientIamCredentials
@@ -103,7 +101,8 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("unable to get Token() from tokenSource: %v", err)
 	}
 
-	if creds.JSON == nil && tok.RefreshToken != "" {
+	// only user-credential TokenSources have refreshTokens
+	if tok.RefreshToken != "" {
 		return fmt.Errorf("unsupported Credential Type supplied.  Use serviceAccount credentials")
 	}
 	ctx := context.Background()
