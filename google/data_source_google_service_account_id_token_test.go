@@ -10,24 +10,23 @@ import (
 )
 
 const targetAudience = "https://foo.bar/"
-const fakeIdToken = "eyJhbGciOiJSUzI1NiIsIm..."
 
-func testAccCheckServiceAccountIdTokenValue(name, value string) resource.TestCheckFunc {
+func testAccCheckServiceAccountIdTokenValue(name, audience string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ms := s.RootModule()
 
 		rs, ok := ms.Resources[name]
 		if !ok {
-			return fmt.Errorf("can't find %s in state", value)
+			return fmt.Errorf("can't find %s in state", name)
 		}
 
+		// TODO, validate id_token contains audience
+		//v, ok := rs.Primary.Attributes["id_token"]
 		_, ok = rs.Primary.Attributes["id_token"]
 		if !ok {
 			return fmt.Errorf("id_token not found")
 		}
 
-		// TODO, validate id_token
-		//v, ok := rs.Primary.Attributes["id_token"]
 		return nil
 	}
 }
@@ -45,7 +44,7 @@ func TestAccDataSourceGoogleServiceAccountIdToken_basic(t *testing.T) {
 				Config: testAccCheckGoogleServiceAccountIdToken_basic(targetAudience),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "target_audience", targetAudience),
-					testAccCheckServiceAccountIdTokenValue(resourceName, fakeIdToken),
+					testAccCheckServiceAccountIdTokenValue(resourceName, targetAudience),
 				),
 			},
 		},
@@ -76,7 +75,7 @@ func TestAccDataSourceGoogleServiceAccountIdToken_impersonation(t *testing.T) {
 				Config: testAccCheckGoogleServiceAccountIdToken_impersonation_datasource(targetAudience, targetServiceAccountEmail),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "target_audience", targetAudience),
-					testAccCheckServiceAccountIdTokenValue(resourceName, fakeIdToken),
+					testAccCheckServiceAccountIdTokenValue(resourceName, targetAudience),
 				),
 			},
 		},
