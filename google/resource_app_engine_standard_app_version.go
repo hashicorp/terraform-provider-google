@@ -104,6 +104,12 @@ All files must be readable using the credentials supplied with this call.`,
 				Required:    true,
 				Description: `Desired runtime. Example python27.`,
 			},
+			"service": {
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `AppEngine service resource`,
+			},
 			"automatic_scaling": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -387,12 +393,6 @@ Modules API set_num_instances() you must use 'lifecycle.ignore_changes = ["manua
 				Optional: true,
 				Description: `The version of the API in the given runtime environment.
 Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref`,
-			},
-			"service": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `AppEngine service resource`,
 			},
 			"threadsafe": {
 				Type:        schema.TypeBool,

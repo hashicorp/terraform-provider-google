@@ -149,6 +149,12 @@ replies to a healthcheck until it is ready to serve traffic. Default: "300s"`,
 				Required:    true,
 				Description: `Desired runtime. Example python27.`,
 			},
+			"service": {
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `AppEngine service resource`,
+			},
 			"api_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -793,12 +799,6 @@ Please see the app.yaml reference for valid values at https://cloud.google.com/a
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The path or name of the app's main executable.`,
-			},
-			"service": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `AppEngine service resource`,
 			},
 			"serving_status": {
 				Type:         schema.TypeString,
