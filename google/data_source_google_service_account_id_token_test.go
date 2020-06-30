@@ -15,16 +15,19 @@ const fakeIdToken = "eyJhbGciOiJSUzI1NiIsIm..."
 func testAccCheckServiceAccountIdTokenValue(name, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ms := s.RootModule()
-		rs, ok := ms.Outputs[name]
+
+		rs, ok := ms.Resources[name]
 		if !ok {
-			return fmt.Errorf("Not found: %s", name)
+			return fmt.Errorf("can't find %s in state", value)
 		}
 
-		// TODO: validate the token belongs to the service account
-		if rs.Value == "" {
-			return fmt.Errorf("%s Cannot be empty", name)
+		_, ok = rs.Primary.Attributes["id_token"]
+		if !ok {
+			return fmt.Errorf("id_token not found")
 		}
 
+		// TODO, validate id_token
+		//v, ok := rs.Primary.Attributes["id_token"]
 		return nil
 	}
 }
@@ -39,17 +42,17 @@ func TestAccDataSourceGoogleServiceAccountIdToken_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleServiceAccountIdToken_datasource(targetAudience),
+				Config: testAccCheckGoogleServiceAccountIdToken_basic(targetAudience),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "target_audience", targetAudience),
-					testAccCheckServiceAccountIdTokenValue("google_service_account_id_token.default", fakeIdToken),
+					testAccCheckServiceAccountIdTokenValue(resourceName, fakeIdToken),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckGoogleServiceAccountIdToken_datasource(targetAudience string) string {
+func testAccCheckGoogleServiceAccountIdToken_basic(targetAudience string) string {
 
 	return fmt.Sprintf(`
 data "google_service_account_id_token" "default" {
@@ -73,7 +76,7 @@ func TestAccDataSourceGoogleServiceAccountIdToken_impersonation(t *testing.T) {
 				Config: testAccCheckGoogleServiceAccountIdToken_impersonation_datasource(targetAudience, targetServiceAccountEmail),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "target_audience", targetAudience),
-					testAccCheckServiceAccountIdTokenValue("google_service_account_id_token.default", fakeIdToken),
+					testAccCheckServiceAccountIdTokenValue(resourceName, fakeIdToken),
 				),
 			},
 		},
@@ -96,7 +99,8 @@ provider google {
 
 data "google_service_account_id_token" "default" {
 	provider = google.impersonated
+	target_service_account = "%s"
 	target_audience = "%s"
 }
-`, targetServiceAccount, targetAudience)
+`, targetServiceAccount, targetServiceAccount, targetAudience)
 }
