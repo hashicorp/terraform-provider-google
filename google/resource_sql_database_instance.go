@@ -853,7 +853,7 @@ func expandBackupConfiguration(configured []interface{}) *sqladmin.BackupConfigu
 		StartTime:                  _backupConfiguration["start_time"].(string),
 		Location:                   _backupConfiguration["location"].(string),
 		PointInTimeRecoveryEnabled: _backupConfiguration["point_in_time_recovery_enabled"].(bool),
-		ForceSendFields:            []string{"BinaryLogEnabled", "Enabled"},
+		ForceSendFields:            []string{"BinaryLogEnabled", "Enabled", "PointInTimeRecoveryEnabled"},
 	}
 }
 
