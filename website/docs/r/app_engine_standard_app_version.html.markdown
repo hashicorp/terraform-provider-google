@@ -129,6 +129,10 @@ The following arguments are supported:
   (Required)
   Code and application artifacts that make up this version.  Structure is documented below.
 
+* `service` -
+  (Required)
+  AppEngine service resource
+
 
 The `deployment` block supports:
 
@@ -219,10 +223,6 @@ The `files` block supports:
 * `manual_scaling` -
   (Optional)
   A service with manual scaling runs continuously, allowing you to perform complex initialization and rely on the state of its memory over time.  Structure is documented below.
-
-* `service` -
-  (Optional)
-  AppEngine service resource
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

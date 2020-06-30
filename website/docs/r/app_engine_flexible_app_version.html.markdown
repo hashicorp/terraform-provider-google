@@ -150,6 +150,10 @@ The following arguments are supported:
   (Required)
   Health checking configuration for VM instances. Unhealthy instances are killed and replaced with new instances.  Structure is documented below.
 
+* `service` -
+  (Required)
+  AppEngine service resource
+
 
 The `readiness_check` block supports:
 
@@ -310,10 +314,6 @@ The `liveness_check` block supports:
 * `manual_scaling` -
   (Optional)
   A service with manual scaling runs continuously, allowing you to perform complex initialization and rely on the state of its memory over time.  Structure is documented below.
-
-* `service` -
-  (Optional)
-  AppEngine service resource
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
