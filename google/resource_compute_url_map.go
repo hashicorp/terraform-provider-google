@@ -1124,7 +1124,6 @@ The value must be between 0 and 1000`,
 							Optional:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 							Description:      `The backend service or backend bucket to use when none of the given paths match.`,
-							ConflictsWith:    []string{"default_url_redirect"},
 						},
 						"default_url_redirect": {
 							Type:     schema.TypeList,
@@ -1191,7 +1190,7 @@ the request method will be retained. Possible values: ["FOUND", "MOVED_PERMANENT
 									},
 								},
 							},
-							ConflictsWith: []string{"default_service", "default_route_action"},
+							ConflictsWith: []string{"default_route_action"},
 						},
 						"description": {
 							Type:     schema.TypeString,
