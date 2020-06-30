@@ -4,7 +4,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -141,7 +145,32 @@ func resourceEndpointsService() *schema.Resource {
 				},
 			},
 		},
+		CustomizeDiff: predictServiceId,
 	}
+}
+
+func predictServiceId(d *schema.ResourceDiff, meta interface{}) error {
+	if !d.HasChange("openapi_config") && !d.HasChange("grpc_config") && !d.HasChange("protoc_output_base64") {
+		return nil
+	}
+	loc, _ := time.LoadLocation("America/Los_Angeles")
+	baseDate := time.Now().In(loc).Format("2006-01-02")
+	oldConfigId := d.Get("config_id").(string)
+	if match, err := regexp.MatchString(`\d\d\d\d-\d\d-\d\dr\d*`, oldConfigId); !match || err != nil {
+		// If we do not match the expected format, we will guess
+		// wrong and that is worse than not guessing.
+		return nil
+	}
+	if strings.HasPrefix(oldConfigId, baseDate) {
+		n, err := strconv.Atoi(strings.Split(oldConfigId, "r")[1])
+		if err != nil {
+			return err
+		}
+		d.SetNew("config_id", fmt.Sprintf("%sr%d", baseDate, n+1))
+	} else {
+		d.SetNew("config_id", baseDate+"r0")
+	}
+	return nil
 }
 
 func getEndpointServiceOpenAPIConfigSource(configText string) *servicemanagement.ConfigSource {
