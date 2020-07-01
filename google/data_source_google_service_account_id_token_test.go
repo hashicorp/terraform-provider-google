@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"fmt"
+
 	"google.golang.org/api/idtoken"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -22,18 +23,14 @@ func testAccCheckServiceAccountIdTokenValue(name, audience string) resource.Test
 			return fmt.Errorf("can't find %s in state", name)
 		}
 
-		// TODO, validate id_token contains audience
 		v, ok := rs.Primary.Attributes["id_token"]
 		if !ok {
 			return fmt.Errorf("id_token not found")
 		}
 
-		validTok, err := idtoken.Validate(context.Background(), v, audience)
+		_, err := idtoken.Validate(context.Background(), v, audience)
 		if err != nil {
 			return fmt.Errorf("token validation failed: %v", err)
-		}
-		if validTok.Audience != audience {
-			return fmt.Errorf("got %q, want %q", validTok.Audience, audience)
 		}
 
 		return nil
