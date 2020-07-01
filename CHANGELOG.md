@@ -1,4 +1,26 @@
 ## 3.29.0 (Unreleased)
+NOTES:
+* added the `https://www.googleapis.com/auth/cloud-identity` scope to the provider by default ([#6681](https://github.com/terraform-providers/terraform-provider-google/pull/6681))
+* `google_app_engine_*_version`'s `service` field is required; previously it would have passed validation but failed on apply if it were absent. ([#6720](https://github.com/terraform-providers/terraform-provider-google/pull/6720))
+
+FEATURES:
+* **New Data Source:** `google_cloud_identity_group_memberships` ([#6712](https://github.com/terraform-providers/terraform-provider-google/pull/6712))
+* **New Data Source:** `google_cloud_identity_groups` ([#6712](https://github.com/terraform-providers/terraform-provider-google/pull/6712))
+* **New Resource:** `google_kms_key_ring_import_job` ([#6682](https://github.com/terraform-providers/terraform-provider-google/pull/6682))
+* **New Resource:** `google_folder_iam_audit_config` ([#6708](https://github.com/terraform-providers/terraform-provider-google/pull/6708))
+
+IMPROVEMENTS:
+* bigquery: Added `"HOUR"` option for `google_bigquery_table` time partitioning (`type`) ([#6702](https://github.com/terraform-providers/terraform-provider-google/pull/6702))
+* bigquery: Add support for BigQuery hourly time partitioning  ([#6675](https://github.com/terraform-providers/terraform-provider-google/pull/6675))
+* compute: Added `mode` to `google_compute_region_autoscaler` `autoscaling_policy` ([#6685](https://github.com/terraform-providers/terraform-provider-google/pull/6685))
+* compute: Added `scale_down_control ` to `google_compute_region_autoscaler` `autoscaling_policy` (beta only) ([#6685](https://github.com/terraform-providers/terraform-provider-google/pull/6685))
+* container: Promoted `google_container_cluster` `database_encryption` to GA. ([#6701](https://github.com/terraform-providers/terraform-provider-google/pull/6701))
+* endpoints: `google_endpoints_service` now allows dependent resources to plan based on the `config_id` value. ([#6722](https://github.com/terraform-providers/terraform-provider-google/pull/6722))
+* monitoring: added `request_method`, `content_type`, and `body` fields within the `http_check` object to `google_monitoring_uptime_check_config` resource ([#6700](https://github.com/terraform-providers/terraform-provider-google/pull/6700))
+
+BUG FIXES:
+* compute: fixed an issue in `compute_url_map` where `path_matcher` sub-fields would conflict with `default_service` ([#6721](https://github.com/terraform-providers/terraform-provider-google/pull/6721))
+
 ## 3.28.0 (June 29, 2020)
 
 FEATURES:
