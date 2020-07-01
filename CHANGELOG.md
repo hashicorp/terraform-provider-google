@@ -4,8 +4,6 @@ NOTES:
 * `google_app_engine_*_version`'s `service` field is required; previously it would have passed validation but failed on apply if it were absent. ([#6720](https://github.com/terraform-providers/terraform-provider-google/pull/6720))
 
 FEATURES:
-* **New Data Source:** `google_cloud_identity_group_memberships` ([#6712](https://github.com/terraform-providers/terraform-provider-google/pull/6712))
-* **New Data Source:** `google_cloud_identity_groups` ([#6712](https://github.com/terraform-providers/terraform-provider-google/pull/6712))
 * **New Resource:** `google_kms_key_ring_import_job` ([#6682](https://github.com/terraform-providers/terraform-provider-google/pull/6682))
 * **New Resource:** `google_folder_iam_audit_config` ([#6708](https://github.com/terraform-providers/terraform-provider-google/pull/6708))
 
