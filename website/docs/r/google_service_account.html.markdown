@@ -72,5 +72,5 @@ This resource provides the following
 Service accounts can be imported using their URI, e.g.
 
 ```
-$ terraform import google_service_account.my_sa projects/my-project/serviceAccounts/my-sa@my-project.iam.gserviceaccount.com
+$ terraform import google_service_account.my_sa my-project/my-sa@my-project.iam.gserviceaccount.com
 ```
