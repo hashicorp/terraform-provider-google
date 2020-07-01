@@ -217,6 +217,9 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 	p, err := readGoogleProject(d, config)
 	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 403 && strings.Contains(gerr.Message, "caller does not have permission") {
+			return fmt.Errorf("the user does not have permission to access Project %q or it may not exist", pid)
+		}
 		return handleNotFoundError(err, d, fmt.Sprintf("Project %q", pid))
 	}
 
