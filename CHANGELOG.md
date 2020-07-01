@@ -11,7 +11,7 @@ FEATURES:
 
 IMPROVEMENTS:
 * bigquery: Added `"HOUR"` option for `google_bigquery_table` time partitioning (`type`) ([#6702](https://github.com/terraform-providers/terraform-provider-google/pull/6702))
-* bigquery: Add support for BigQuery hourly time partitioning  ([#6675](https://github.com/terraform-providers/terraform-provider-google/pull/6675))
+* bigquery: Added support for BigQuery hourly time partitioning  ([#6675](https://github.com/terraform-providers/terraform-provider-google/pull/6675))
 * compute: Added `mode` to `google_compute_region_autoscaler` `autoscaling_policy` ([#6685](https://github.com/terraform-providers/terraform-provider-google/pull/6685))
 * compute: Added `scale_down_control ` to `google_compute_region_autoscaler` `autoscaling_policy` (beta only) ([#6685](https://github.com/terraform-providers/terraform-provider-google/pull/6685))
 * container: Promoted `google_container_cluster` `database_encryption` to GA. ([#6701](https://github.com/terraform-providers/terraform-provider-google/pull/6701))
