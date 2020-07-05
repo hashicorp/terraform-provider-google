@@ -71,7 +71,7 @@ resource "google_secret_manager_secret_iam_binding" "binding" {
 resource "google_secret_manager_secret_iam_member" "member" {
   project = google_secret_manager_secret.secret-basic.project
   secret_id = google_secret_manager_secret.secret-basic.secret_id
-  role = "roles/viewer"
+  role = "roles/secretmanager.secretAccessor"
   member = "user:jane@example.com"
 }
 ```
