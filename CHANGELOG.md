@@ -1,4 +1,4 @@
-## 3.29.0 (Unreleased)
+## 3.29.0 (July 06, 2020)
 NOTES:
 * added the `https://www.googleapis.com/auth/cloud-identity` scope to the provider by default ([#6681](https://github.com/terraform-providers/terraform-provider-google/pull/6681))
 * `google_app_engine_*_version`'s `service` field is required; previously it would have passed validation but failed on apply if it were absent. ([#6720](https://github.com/terraform-providers/terraform-provider-google/pull/6720))
