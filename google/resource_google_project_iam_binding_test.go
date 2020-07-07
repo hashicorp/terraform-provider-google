@@ -216,6 +216,38 @@ func TestAccProjectIamBinding_noMembers(t *testing.T) {
 	})
 }
 
+func TestAccProjectIamBinding_withCondition(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	role := "roles/compute.instanceAdmin"
+	conditionTitle := "expires_after_2019_12_31"
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			// Create a new project
+			{
+				Config: testAccProject_create(pid, pname, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccProjectExistingPolicy(t, pid),
+				),
+			},
+			// Apply an IAM binding
+			{
+				Config: testAccProjectAssociateBinding_withCondition(pid, pname, org, role, conditionTitle),
+			},
+			{
+				ResourceName:      "google_project_iam_binding.acceptance",
+				ImportStateId:     fmt.Sprintf("%s %s %s", pid, role, conditionTitle),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccProjectAssociateBindingBasic(pid, name, org, role string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
@@ -300,4 +332,25 @@ resource "google_project_iam_binding" "acceptance" {
   role    = "%s"
 }
 `, pid, name, org, role)
+}
+
+func testAccProjectAssociateBinding_withCondition(pid, name, org, role, conditionTitle string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id     = "%s"
+}
+
+resource "google_project_iam_binding" "acceptance" {
+  project = google_project.acceptance.project_id
+  members = ["user:admin@hashicorptest.com"]
+  role    = "%s"
+  condition {
+    title       = "%s"
+    description = "Expiring at midnight of 2019-12-31"
+    expression  = "request.time < timestamp(\"2020-01-01T00:00:00Z\")"
+  }
+}
+`, pid, name, org, role, conditionTitle)
 }

@@ -87,6 +87,15 @@ each accept the following arguments:
     * `log_type` (Required) Defines the logging level. `DATA_READ`, `DATA_WRITE` and `ADMIN_READ` capture different types of events. See [the audit configuration documentation](https://cloud.google.com/resource-manager/reference/rest/Shared.Types/AuditConfig) for more details.
     * `exempted_members` (Optional) Specifies the identities that are exempt from these types of logging operations. Follows the same format of the `members` array for `binding`.
 
+* `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding. Structure is documented below.
+
+The `condition` block supports:
+
+* `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
+
+* `title` - (Required) A title for the expression, i.e. a short string describing its purpose.
+
+* `description` - (Optional) An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
 
 ## Attributes Reference
 
