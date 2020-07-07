@@ -38,7 +38,7 @@ Three different resources help you manage your IAM policy for Secret Manager Sec
 ```hcl
 data "google_iam_policy" "admin" {
   binding {
-    role = "roles/viewer"
+    role = "roles/secretmanager.secretAccessor"
     members = [
       "user:jane@example.com",
     ]
@@ -58,7 +58,7 @@ resource "google_secret_manager_secret_iam_policy" "policy" {
 resource "google_secret_manager_secret_iam_binding" "binding" {
   project = google_secret_manager_secret.secret-basic.project
   secret_id = google_secret_manager_secret.secret-basic.secret_id
-  role = "roles/viewer"
+  role = "roles/secretmanager.secretAccessor"
   members = [
     "user:jane@example.com",
   ]
@@ -121,12 +121,12 @@ Secret Manager secret IAM resources can be imported using the resource identifie
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_secret_manager_secret_iam_member.editor "projects/{{project}}/secrets/{{secret_id}} roles/viewer jane@example.com"
+$ terraform import google_secret_manager_secret_iam_member.editor "projects/{{project}}/secrets/{{secret_id}} roles/secretmanager.secretAccessor jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
 ```
-$ terraform import google_secret_manager_secret_iam_binding.editor "projects/{{project}}/secrets/{{secret_id}} roles/viewer"
+$ terraform import google_secret_manager_secret_iam_binding.editor "projects/{{project}}/secrets/{{secret_id}} roles/secretmanager.secretAccessor"
 ```
 
 IAM policy imports use the identifier of the resource in question, e.g.

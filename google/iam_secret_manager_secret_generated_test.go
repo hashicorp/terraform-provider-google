@@ -26,7 +26,7 @@ func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
+		"role":          "roles/secretmanager.secretAccessor",
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -38,7 +38,7 @@ func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor", getTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,7 +48,7 @@ func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor", getTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -61,7 +61,7 @@ func TestAccSecretManagerSecretIamMemberGenerated(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
+		"role":          "roles/secretmanager.secretAccessor",
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -74,7 +74,7 @@ func TestAccSecretManagerSecretIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -87,7 +87,7 @@ func TestAccSecretManagerSecretIamPolicyGenerated(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": randString(t, 10),
-		"role":          "roles/viewer",
+		"role":          "roles/secretmanager.secretAccessor",
 	}
 
 	vcrTest(t, resource.TestCase{
