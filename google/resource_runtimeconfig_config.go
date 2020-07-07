@@ -81,7 +81,7 @@ func resourceRuntimeconfigConfigRead(d *schema.ResourceData, meta interface{}) e
 	fullName := d.Id()
 	runConfig, err := config.clientRuntimeconfig.Projects.Configs.Get(fullName).Do()
 	if err != nil {
-		return err
+		return handleNotFoundError(err, d, fmt.Sprintf("RuntimeConfig %q", d.Id()))
 	}
 
 	project, name, err := resourceRuntimeconfigParseFullName(runConfig.Name)
