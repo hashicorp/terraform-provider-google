@@ -883,21 +883,18 @@ func resourceContainerCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: `Application-layer Secrets Encryption settings. The object format is {state = string, key_name = string}. Valid values of state are: "ENCRYPTED"; "DECRYPTED". key_name is the name of a CloudKMS key.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"state": {
 							Type:         schema.TypeString,
-							ForceNew:     true,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ENCRYPTED", "DECRYPTED"}, false),
 							Description:  `ENCRYPTED or DECRYPTED.`,
 						},
 						"key_name": {
 							Type:        schema.TypeString,
-							ForceNew:    true,
 							Optional:    true,
 							Description: `The key to use to encrypt/decrypt secrets.`,
 						},
@@ -1840,6 +1837,31 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 			d.SetPartial("vertical_pod_autoscaling")
 		}
+	}
+
+	if d.HasChange("database_encryption") {
+		c := d.Get("database_encryption")
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredDatabaseEncryption: expandDatabaseEncryption(c),
+			},
+		}
+
+		updateF := func() error {
+			name := containerClusterFullName(project, location, clusterName)
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(name, req).Do()
+			if err != nil {
+				return err
+			}
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, location, "updating GKE cluster database encryption config", d.Timeout(schema.TimeoutUpdate))
+		}
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+		log.Printf("[INFO] GKE cluster %s database encryption config has been updated", d.Id())
+
+		d.SetPartial("database_encryption")
 	}
 
 	if d.HasChange("workload_identity_config") {
