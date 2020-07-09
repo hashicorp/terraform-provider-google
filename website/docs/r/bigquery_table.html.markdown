@@ -112,11 +112,7 @@ The following arguments are supported:
 
 * `labels` - (Optional) A mapping of labels to assign to the resource.
 
-* `schema` - (Optional) A JSON schema for the table. Schema is required
-    for CSV and JSON formats and is disallowed for Google Cloud
-    Bigtable, Cloud Datastore backups, and Avro formats when using
-    external tables. For more information see the
-    [BigQuery API documentation](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#resource).
+* `schema` - (Optional) A JSON schema for the table.
     ~>**NOTE**: Because this field expects a JSON string, any changes to the
     string will create a diff, even if the JSON itself hasn't changed.
     If the API returns a different value for the same schema, e.g. it
@@ -166,6 +162,18 @@ The `external_data_configuration` block supports:
 
 * `max_bad_records` (Optional) - The maximum number of bad records that
     BigQuery can ignore when reading data.
+
+* `schema` - (Optional) A JSON schema for the external table. Schema is required
+    for CSV and JSON formats if autodetect is not on. Schema is disallowed
+    for Google Cloud Bigtable, Cloud Datastore backups, Avro, ORC and Parquet formats.
+    ~>**NOTE**: Because this field expects a JSON string, any changes to the
+    string will create a diff, even if the JSON itself hasn't changed.
+    Furthermore drift for this field cannot not be detected because BigQuery
+    only uses this schema to compute the effective schema for the table, therefore
+    any changes on the configured value will force the table to be recreated.
+    This schema is effectively only applied when creating a table from an external
+    datasource, after creation the computed schema will be stored in
+    `google_bigquery_table.schema`
 
 * `source_format` (Required) - The data format. Supported values are:
     "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "PARQUET",
