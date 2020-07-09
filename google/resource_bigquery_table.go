@@ -109,6 +109,21 @@ func resourceBigQueryTable() *schema.Resource {
 							Default:      "NONE",
 							Description:  `The compression type of the data source. Valid values are "NONE" or "GZIP".`,
 						},
+						// Schema: Optional] The schema for the  data.
+						// Schema is required for CSV and JSON formats if autodetect is not on.
+						// Schema is disallowed for Google Cloud Bigtable, Cloud Datastore backups, Avro, ORC and Parquet formats.
+						"schema": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.ValidateJsonString,
+							StateFunc: func(v interface{}) string {
+								json, _ := structure.NormalizeJsonString(v)
+								return json
+							},
+							Description: `A JSON schema for the external table. Schema is required for CSV and JSON formats and is disallowed for Google Cloud Bigtable, Cloud Datastore backups, and Avro formats when using external tables.`,
+						},
 						// CsvOptions: [Optional] Additional properties to set if
 						// sourceFormat is set to CSV.
 						"csv_options": {
@@ -275,9 +290,6 @@ func resourceBigQueryTable() *schema.Resource {
 			},
 
 			// Schema: [Optional] Describes the schema of this table.
-			// Schema is required for external tables in CSV and JSON formats
-			// and disallowed for Google Cloud Bigtable, Cloud Datastore backups,
-			// and Avro formats.
 			"schema": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -287,7 +299,7 @@ func resourceBigQueryTable() *schema.Resource {
 					json, _ := structure.NormalizeJsonString(v)
 					return json
 				},
-				Description: `A JSON schema for the table. Schema is required for CSV and JSON formats and is disallowed for Google Cloud Bigtable, Cloud Datastore backups, and Avro formats when using external tables.`,
+				Description: `A JSON schema for the table.`,
 			},
 
 			// View: [Optional] If specified, configures this table as a view.
@@ -636,7 +648,6 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[INFO] BigQuery table %s has been created", res.Id)
-
 	d.SetId(fmt.Sprintf("projects/%s/datasets/%s/tables/%s", res.TableReference.ProjectId, res.TableReference.DatasetId, res.TableReference.TableId))
 
 	return resourceBigQueryTableRead(d, meta)
@@ -681,6 +692,24 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		externalDataConfiguration, err := flattenExternalDataConfiguration(res.ExternalDataConfiguration)
 		if err != nil {
 			return err
+		}
+
+		if v, ok := d.GetOk("external_data_configuration"); ok {
+			// The API response doesn't return the `external_data_configuration.schema`
+			// used when creating the table and it cannot be queried.
+			// After creation, a computed schema is stored in the toplevel `schema`,
+			// which combines `external_data_configuration.schema`
+			// with any hive partioning fields found in the `source_uri_prefix`.
+			// So just assume the configured schema has been applied after successful
+			// creation, by copying the configured value back into the resource schema.
+			// This avoids that reading back this field will be identified as a change.
+			// The `ForceNew=true` on `external_data_configuration.schema` will ensure
+			// the users' expectation that changing the configured  input schema will
+			// recreate the resource.
+			edc := v.([]interface{})[0].(map[string]interface{})
+			if edc["schema"] != nil {
+				externalDataConfiguration[0]["schema"] = edc["schema"]
+			}
 		}
 
 		d.Set("external_data_configuration", externalDataConfiguration)
@@ -803,6 +832,13 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 	}
 	if v, ok := raw["max_bad_records"]; ok {
 		edc.MaxBadRecords = int64(v.(int))
+	}
+	if v, ok := raw["schema"]; ok {
+		schema, err := expandSchema(v)
+		if err != nil {
+			return nil, err
+		}
+		edc.Schema = schema
 	}
 	if v, ok := raw["source_format"]; ok {
 		edc.SourceFormat = v.(string)
