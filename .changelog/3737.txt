@@ -1,0 +1,4 @@
+```release-note:none
+Added an import example to show how to import Cloud Functions from other projects/regions.
+Originally commited as https://github.com/terraform-providers/terraform-provider-google/pull/6735 but it was requested by @c2thorn I propose the change here instead.
+```
