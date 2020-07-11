@@ -167,8 +167,7 @@ The following arguments are supported:
     `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
 * `policy_data` - (Required only by `google_project_iam_policy`) The `google_iam_policy` data source that represents
-    the IAM policy that will be applied to the project. The policy will be
-    merged with any existing policy applied to the project.
+    the IAM policy that will be applied to the project. 
 
     Changing this updates the policy.
 
