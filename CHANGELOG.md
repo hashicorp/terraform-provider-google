@@ -1,4 +1,4 @@
-## 3.30.0 (Unreleased)
+## 3.30.0 (July 13, 2020)
 FEATURES:
 * **New Resource:** `google_os_config_patch_deployment` ([#6741](https://github.com/terraform-providers/terraform-provider-google/pull/6741))
 
