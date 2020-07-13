@@ -1,4 +1,16 @@
-## 3.30.0 (Unreleased)
+## 3.31.0 (Unreleased)
+## 3.30.0 (July 13, 2020)
+FEATURES:
+* **New Resource:** `google_os_config_patch_deployment` ([#6741](https://github.com/terraform-providers/terraform-provider-google/pull/6741))
+
+IMPROVEMENTS:
+* iam: made the `condition` block GA for all IAM resource and datasource types. ([#6748](https://github.com/terraform-providers/terraform-provider-google/pull/6748))
+
+BUG FIXES:
+* container: added the ability to update `database_encryption` without recreating the cluster. ([#6757](https://github.com/terraform-providers/terraform-provider-google/pull/6757))
+* endpoints: fixed `google_endpoints_service` to allow dependent resources to plan based on the `config_id` value. ([#6722](https://github.com/terraform-providers/terraform-provider-google/pull/6722))
+* runtimeconfig: fixed `Requested entity was not found.` error when config was deleted outside of terraform. ([#6753](https://github.com/terraform-providers/terraform-provider-google/pull/6753))
+
 ## 3.29.0 (July 06, 2020)
 NOTES:
 * added the `https://www.googleapis.com/auth/cloud-identity` scope to the provider by default ([#6681](https://github.com/terraform-providers/terraform-provider-google/pull/6681))
