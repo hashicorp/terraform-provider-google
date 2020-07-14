@@ -697,37 +697,60 @@ func (c *Config) synchronousTimeout() time.Duration {
 }
 
 func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, error) {
+	creds, err := c.GetCredentials(clientScopes)
+	if err != nil {
+		return nil, fmt.Errorf("%s", err)
+	}
+	return creds.TokenSource, nil
+}
+
+// staticTokenSource is used to be able to identify static token sources without reflection.
+type staticTokenSource struct {
+	oauth2.TokenSource
+}
+
+func (c *Config) GetCredentials(clientScopes []string) (googleoauth.Credentials, error) {
 	if c.AccessToken != "" {
 		contents, _, err := pathorcontents.Read(c.AccessToken)
 		if err != nil {
-			return nil, fmt.Errorf("Error loading access token: %s", err)
+			return googleoauth.Credentials{}, fmt.Errorf("Error loading access token: %s", err)
 		}
 
 		log.Printf("[INFO] Authenticating using configured Google JSON 'access_token'...")
 		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
 		token := &oauth2.Token{AccessToken: contents}
-		return oauth2.StaticTokenSource(token), nil
+
+		return googleoauth.Credentials{
+			TokenSource: staticTokenSource{oauth2.StaticTokenSource(token)},
+		}, nil
 	}
 
 	if c.Credentials != "" {
 		contents, _, err := pathorcontents.Read(c.Credentials)
 		if err != nil {
-			return nil, fmt.Errorf("Error loading credentials: %s", err)
+			return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
 		}
 
-		creds, err := googleoauth.CredentialsFromJSON(context.Background(), []byte(contents), clientScopes...)
+		creds, err := googleoauth.CredentialsFromJSON(c.context, []byte(contents), clientScopes...)
 		if err != nil {
-			return nil, fmt.Errorf("Unable to parse credentials: %s", err)
+			return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials from '%s': %s", contents, err)
 		}
 
 		log.Printf("[INFO] Authenticating using configured Google JSON 'credentials'...")
 		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-		return creds.TokenSource, nil
+		return *creds, nil
 	}
 
 	log.Printf("[INFO] Authenticating using DefaultClient...")
 	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-	return googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
+
+	defaultTS, err := googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
+	if err != nil {
+		return googleoauth.Credentials{}, fmt.Errorf("Error loading Default TokenSource: %s", err)
+	}
+	return googleoauth.Credentials{
+		TokenSource: defaultTS,
+	}, err
 }
 
 // Remove the `/{{version}}/` from a base path if present.
