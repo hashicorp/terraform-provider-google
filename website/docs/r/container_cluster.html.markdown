@@ -51,7 +51,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 
   node_config {
     preemptible  = true
-    machine_type = "n1-standard-1"
+    machine_type = "e2-medium"
 
     metadata = {
       disable-legacy-endpoints = "true"
@@ -564,7 +564,7 @@ The `node_config` block supports:
     attached to each cluster node. Defaults to 0.
 
 * `machine_type` - (Optional) The name of a Google Compute Engine machine type.
-    Defaults to `n1-standard-1`. To create a custom machine type, value should be set as specified
+    Defaults to `e2-medium`. To create a custom machine type, value should be set as specified
     [here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType).
 
 * `metadata` - (Optional) The metadata key/value pairs assigned to instances in
