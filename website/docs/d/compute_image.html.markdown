@@ -51,6 +51,7 @@ that is part of an image family and is not deprecated.
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the data source  with format `projects/{{project}}/global/images/{{name}}`
 * `self_link` - The URI of the image.
 * `name` - The name of the image.
 * `family` - The family name of the image.

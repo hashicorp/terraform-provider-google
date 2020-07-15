@@ -96,7 +96,7 @@ resource "google_compute_instance" "vm1" {
 	machine_type = "n1-standard-1"
 	boot_disk {
 	  initialize_params {
-	    image = data.google_compute_image.debian_9.self_link
+	    image = data.google_compute_image.debian_9.id
 	  }
 	}	
 	network_interface {
@@ -110,7 +110,7 @@ resource "google_compute_instance" "vm2" {
   
 	boot_disk {
 	  initialize_params {
-		image = data.google_compute_image.debian_9.self_link
+		image = data.google_compute_image.debian_9.id
 	  }
 	}
   
