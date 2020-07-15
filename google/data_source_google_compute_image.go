@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	compute "google.golang.org/api/compute/v1"
@@ -113,15 +112,12 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	params := []string{project}
 	var image *compute.Image
 	if v, ok := d.GetOk("name"); ok {
-		params = append(params, v.(string))
 		log.Printf("[DEBUG] Fetching image %s", v.(string))
 		image, err = config.clientCompute.Images.Get(project, v.(string)).Do()
 		log.Printf("[DEBUG] Fetched image %s", v.(string))
 	} else if v, ok := d.GetOk("family"); ok {
-		params = append(params, "family", v.(string))
 		log.Printf("[DEBUG] Fetching latest non-deprecated image from family %s", v.(string))
 		image, err = config.clientCompute.Images.GetFromFamily(project, v.(string)).Do()
 		log.Printf("[DEBUG] Fetched latest non-deprecated image from family %s", v.(string))
@@ -162,7 +158,11 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("source_image_id", image.SourceImageId)
 	d.Set("status", image.Status)
 
-	d.SetId(strings.Join(params, "/"))
+	id, err := replaceVars(d, config, "projects/{{project}}/global/images/{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	return nil
 }

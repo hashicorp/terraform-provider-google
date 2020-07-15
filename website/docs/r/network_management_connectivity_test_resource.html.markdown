@@ -63,7 +63,7 @@ resource "google_compute_instance" "source" {
 
   boot_disk {
     initialize_params {
-      image = data.google_compute_image.debian_9.self_link
+      image = data.google_compute_image.debian_9.id
     }
   }
 
@@ -80,7 +80,7 @@ resource "google_compute_instance" "destination" {
 
   boot_disk {
     initialize_params {
-      image = data.google_compute_image.debian_9.self_link
+      image = data.google_compute_image.debian_9.id
     }
   }
 
