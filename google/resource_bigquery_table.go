@@ -5,12 +5,48 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/api/bigquery/v2"
 )
+
+// JSONBytesEqual compares the JSON in two byte slices.
+// Reference: https://stackoverflow.com/questions/32408890/how-to-compare-two-json-requests
+func JSONBytesEqual(a, b []byte) (bool, error) {
+	var j, j2 interface{}
+	if err := json.Unmarshal(a, &j); err != nil {
+		return false, err
+	}
+	jList := j.([]interface{})
+	sort.Slice(jList, func(i, k int) bool {
+		return jList[i].(map[string]interface{})["name"].(string) < jList[k].(map[string]interface{})["name"].(string)
+	})
+	if err := json.Unmarshal(b, &j2); err != nil {
+		return false, err
+	}
+	j2List := j2.([]interface{})
+	sort.Slice(j2List, func(i, k int) bool {
+		return j2List[i].(map[string]interface{})["name"].(string) < j2List[k].(map[string]interface{})["name"].(string)
+	})
+	return reflect.DeepEqual(j2List, jList), nil
+}
+
+// Compare the JSON strings are equal
+func bigQueryTableSchemaDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	oldBytes := []byte(old)
+	newBytes := []byte(new)
+
+	eq, err := JSONBytesEqual(oldBytes, newBytes)
+	if err != nil {
+		log.Printf("[DEBUG] Error comparing JSON bytes: %v, %v", old, new)
+	}
+
+	return eq
+}
 
 func resourceBigQueryTable() *schema.Resource {
 	return &schema.Resource{
@@ -299,7 +335,8 @@ func resourceBigQueryTable() *schema.Resource {
 					json, _ := structure.NormalizeJsonString(v)
 					return json
 				},
-				Description: `A JSON schema for the table.`,
+				DiffSuppressFunc: bigQueryTableSchemaDiffSuppress,
+				Description:      `A JSON schema for the table.`,
 			},
 
 			// View: [Optional] If specified, configures this table as a view.
