@@ -107,7 +107,7 @@ The following arguments are supported:
 * `name` - (Required) A user-defined name of the function. Function names must be unique globally.
 
 * `runtime` - (Required) The runtime in which the function is going to run.
-Eg. `"nodejs8"`, `"nodejs10"`, `"python37"`, `"go111"`.
+Eg. `"nodejs8"`, `"nodejs10"`, `"python37"`, `"go111"`, `"go113"`.
 
 - - -
 
