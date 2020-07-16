@@ -1390,11 +1390,22 @@ resource "google_kms_crypto_key" "crypto_key" {
   rotation_period = "1000000s"
 }
 
+data "google_storage_project_service_account" "gcs_account" {
+}
+
+resource "google_kms_crypto_key_iam_member" "iam" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"
+}
+
 resource "google_storage_bucket" "bucket" {
   name = "tf-test-crypto-bucket-%{random_int}"
   encryption {
     default_kms_key_name = google_kms_crypto_key.crypto_key.self_link
   }
+
+  depends_on = [google_kms_crypto_key_iam_member.iam]
 }
 `, context)
 }
