@@ -9,10 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"google.golang.org/api/storage/v1"
 )
 
 const testComposerEnvironmentPrefix = "tf-test-composer-env"

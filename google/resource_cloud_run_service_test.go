@@ -54,6 +54,9 @@ resource "google_cloud_run_service" "default" {
       containers {
         image = "gcr.io/cloudrun/hello"
         args  = ["arrgs"]
+        ports {
+          container_port = 8080
+        }
       }
 	  container_concurrency = %s
 	  timeout_seconds = %s

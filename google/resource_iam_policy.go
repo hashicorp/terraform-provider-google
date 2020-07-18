@@ -2,12 +2,11 @@ package google
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 
 	"encoding/json"
 	"errors"
 	"fmt"
-
-	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
 var IamPolicyBaseSchema = map[string]*schema.Schema{

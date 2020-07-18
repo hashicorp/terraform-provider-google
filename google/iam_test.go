@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"google.golang.org/api/cloudresourcemanager/v1"
+	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 )
 
 func TestIamMergeBindings(t *testing.T) {
