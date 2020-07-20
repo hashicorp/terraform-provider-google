@@ -746,7 +746,7 @@ func (c *Config) GetCredentials(clientScopes []string) (googleoauth.Credentials,
 
 	defaultTS, err := googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
 	if err != nil {
-		return googleoauth.Credentials{}, fmt.Errorf("Error loading Default TokenSource: %s", err)
+		return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
 	}
 	return googleoauth.Credentials{
 		TokenSource: defaultTS,
