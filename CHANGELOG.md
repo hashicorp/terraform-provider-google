@@ -1,4 +1,13 @@
-## 3.31.0 (Unreleased)
+## 3.32.0 (Unreleased)
+## 3.31.0 (July 20, 2020)
+
+FEATURES:
+* **New Data Source:** `google_service_account_id_token` ([#6791](https://github.com/terraform-providers/terraform-provider-google/pull/6791))
+* **New Resource:** `google_cloudiot_device` ([#6785](https://github.com/terraform-providers/terraform-provider-google/pull/6785))
+
+IMPROVEMENTS:
+* bigquery: added support for BigQuery custom schemas for external data using CSV / NDJSON ([#6772](https://github.com/terraform-providers/terraform-provider-google/pull/6772))
+
 ## 3.30.0 (July 13, 2020)
 FEATURES:
 * **New Resource:** `google_os_config_patch_deployment` ([#6741](https://github.com/terraform-providers/terraform-provider-google/pull/6741))
