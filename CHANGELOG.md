@@ -1,4 +1,4 @@
-## 3.31.0 (Unreleased)
+## 3.31.0 (July 20, 2020)
 
 FEATURES:
 * **New Data Source:** `google_service_account_id_token` ([#6791](https://github.com/terraform-providers/terraform-provider-google/pull/6791))
