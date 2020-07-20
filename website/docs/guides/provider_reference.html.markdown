@@ -74,7 +74,12 @@ same configuration.
 
 * `credentials` - (Optional) Either the path to or the contents of a
 [service account key file] in JSON format. You can
-[manage key files using the Cloud Console].
+[manage key files using the Cloud Console].  If not provided, the
+application default credentials will be used.  You can configure
+Application Default Credentials on your personal machine by
+running `gcloud auth application-default login`. If
+terraform is running on a GCP machine, and this value is unset,
+it will automatically use that machine's configured service account.
 
 * `project` - (Optional) The default project to manage resources in. If another
 project is specified on a resource, it will take precedence.

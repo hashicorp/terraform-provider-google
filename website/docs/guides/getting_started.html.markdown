@@ -20,7 +20,15 @@ provider.
 
 ## Configuring the Provider
 
-First create a Terraform config file named `"main.tf"`. Inside, you'll
+First, authenticate with GCP.  The easiest way to do this is to run
+`gcloud auth application-default login`, if you already have gcloud
+installed.  If you don't already have it, gcloud can be installed with
+`apt-get install google-cloud-sdk` on Debian-based machines.  For a
+production use-case, you will want to use service account authentication,
+which you can learn about further down in this doc, but for experimenting,
+gcloud authentication will work fine.
+
+Next, create a Terraform config file named `"main.tf"`. Inside, you'll
 want to include the following configuration:
 
 ```hcl
@@ -45,7 +53,7 @@ Not all resources require a location. Some GCP resources are global and are
 automatically spread across all of GCP.
 
 -> Want to try out another location? Check out the [list of available regions and zones](https://cloud.google.com/compute/docs/regions-zones/#available).
-Instances created in zones outside the US are not part of the always free tier
+Instances created in zones outside the US are not necessarily part of the always free tier
 and could incur charges.
 
 ## Creating a VM instance
@@ -167,6 +175,11 @@ You supply the key to Terraform using the environment variable
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS={{path}}
 ```
+
+If you choose to use `gcloud`-generated credentials, and you encounter
+quota or billing issues which don't seem to apply to you, you may want to set
+`user_project_override` to `true` in the provider block - see the
+[provider reference](/docs/providers/google/guides/provider_reference.html) for more information.
 
 -> Remember to add this line to a startup file such as `bash_profile` or
 `bashrc` to store your credentials across sessions!
