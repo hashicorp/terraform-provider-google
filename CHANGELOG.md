@@ -8,9 +8,6 @@ FEATURES:
 IMPROVEMENTS:
 * bigquery: added support for BigQuery custom schemas for external data using CSV / NDJSON ([#6772](https://github.com/terraform-providers/terraform-provider-google/pull/6772))
 
-BUG FIXES:
-* container: added the ability to update `database_encryption` without recreating the cluster. ([#6757](https://github.com/terraform-providers/terraform-provider-google/pull/6757))
-
 ## 3.30.0 (July 13, 2020)
 FEATURES:
 * **New Resource:** `google_os_config_patch_deployment` ([#6741](https://github.com/terraform-providers/terraform-provider-google/pull/6741))
