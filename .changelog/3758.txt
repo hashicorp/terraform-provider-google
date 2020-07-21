@@ -1,0 +1,4 @@
+```release-note:enhancement
+Cluster: added default_snat_status for `google_container_cluster` resource
+
+```
