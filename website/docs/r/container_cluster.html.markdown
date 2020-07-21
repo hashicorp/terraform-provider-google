@@ -316,8 +316,13 @@ subnetwork in which the cluster's instances are launched.
 * `enable_intranode_visibility` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
     Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.
 
-The `cluster_telemetry` blocks supports
+* `default_snat_status` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  [GKE SNAT](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-masquerade-agent#how_ipmasq_works) DefaultSnatStatus contains the desired state of whether default sNAT should be disabled on the cluster, [API doc](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#networkconfig).
 
+The `default_snat_status` block supports
+*  `disabled` - Whether the cluster disables default in-node sNAT rules. In-node sNAT rules will be disabled when defaultSnatStatus is disabled.When disabled is set to false, default IP masquerade rules will be applied to the nodes to prevent sNAT on cluster internal traffic
+
+The `cluster_telemetry` block supports
 * `type` - Telemetry integration for the cluster. Supported values (`ENABLE, DISABLE, SYSTEM_ONLY`);
    `SYSTEM_ONLY` (Only system components are monitored and logged) is only available in GKE versions 1.15 and later.
 

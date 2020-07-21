@@ -2742,6 +2742,9 @@ resource "google_container_cluster" "with_private_cluster" {
     enable_private_endpoint = true
     enable_private_nodes    = true
   }
+  default_snat_status{
+    disabled = false	  
+  }
   master_authorized_networks_config {
   }
   ip_allocation_policy {

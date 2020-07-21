@@ -902,6 +902,14 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"enable_intranode_visibility": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.`,
+				Removed:     "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
+				Computed:    true,
+			},
+
 			"resource_usage_export_config": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -938,14 +946,6 @@ func resourceContainerCluster() *schema.Resource {
 						},
 					},
 				},
-			},
-
-			"enable_intranode_visibility": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: `Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.`,
-				Removed:     "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
-				Computed:    true,
 			},
 		},
 	}
@@ -1056,6 +1056,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         d.Get("enable_shielded_nodes").(bool),
 			ForceSendFields: []string{"Enabled"},
 		},
+
 		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
 		ResourceLabels: expandStringMap(d, "resource_labels"),
 	}
@@ -1310,6 +1311,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if cluster.ShieldedNodes != nil {
 		d.Set("enable_shielded_nodes", cluster.ShieldedNodes.Enabled)
 	}
+
 	if err := d.Set("authenticator_groups_config", flattenAuthenticatorGroupsConfig(cluster.AuthenticatorGroupsConfig)); err != nil {
 		return err
 	}
@@ -1504,6 +1506,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		d.SetPartial("enable_shielded_nodes")
 	}
+
 	if d.HasChange("maintenance_policy") {
 		req := &containerBeta.SetMaintenancePolicyRequest{
 			MaintenancePolicy: expandMaintenancePolicy(d, meta),
