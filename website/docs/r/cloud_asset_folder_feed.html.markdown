@@ -44,7 +44,7 @@ To get more information about FolderFeed, see:
 # particular folder.
 resource "google_cloud_asset_folder_feed" "folder_feed" {
   billing_project  = "my-project-name"
-  folder           = google_folder.my_folder.name
+  folder           = google_folder.my_folder.folder_id
   feed_id          = "network-updates"
   content_type     = "RESOURCE"
 

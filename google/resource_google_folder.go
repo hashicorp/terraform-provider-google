@@ -41,7 +41,11 @@ func resourceGoogleFolder() *schema.Resource {
 				Required:    true,
 				Description: `The folder's display name. A folder's display name must be unique amongst its siblings, e.g. no two folders with the same parent can share the same display name. The display name must start and end with a letter or digit, may contain letters, digits, spaces, hyphens and underscores and can be no longer than 30 characters.`,
 			},
-
+			"folder_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The folder id from the name "folders/{folder_id}"`,
+			},
 			// Format is 'folders/{folder_id}.
 			// The terraform id holds the same value.
 			"name": {
@@ -119,6 +123,8 @@ func resourceGoogleFolderRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("name", folder.Name)
+	folderId := strings.TrimPrefix(folder.Name, "folders/")
+	d.Set("folder_id", folderId)
 	d.Set("parent", folder.Parent)
 	d.Set("display_name", folder.DisplayName)
 	d.Set("lifecycle_state", folder.LifecycleState)
