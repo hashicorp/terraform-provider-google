@@ -85,6 +85,7 @@ type Config struct {
 	BigqueryDataTransferBasePath string
 	BigtableBasePath             string
 	BinaryAuthorizationBasePath  string
+	CloudAssetBasePath           string
 	CloudBuildBasePath           string
 	CloudFunctionsBasePath       string
 	CloudIotBasePath             string
@@ -228,6 +229,7 @@ var BigQueryDefaultBasePath = "https://www.googleapis.com/bigquery/v2/"
 var BigqueryDataTransferDefaultBasePath = "https://bigquerydatatransfer.googleapis.com/v1/"
 var BigtableDefaultBasePath = "https://bigtableadmin.googleapis.com/v2/"
 var BinaryAuthorizationDefaultBasePath = "https://binaryauthorization.googleapis.com/v1/"
+var CloudAssetDefaultBasePath = "https://cloudasset.googleapis.com/v1/"
 var CloudBuildDefaultBasePath = "https://cloudbuild.googleapis.com/v1/"
 var CloudFunctionsDefaultBasePath = "https://cloudfunctions.googleapis.com/v1/"
 var CloudIotDefaultBasePath = "https://cloudiot.googleapis.com/v1/"
@@ -770,6 +772,7 @@ func ConfigureBasePaths(c *Config) {
 	c.BigqueryDataTransferBasePath = BigqueryDataTransferDefaultBasePath
 	c.BigtableBasePath = BigtableDefaultBasePath
 	c.BinaryAuthorizationBasePath = BinaryAuthorizationDefaultBasePath
+	c.CloudAssetBasePath = CloudAssetDefaultBasePath
 	c.CloudBuildBasePath = CloudBuildDefaultBasePath
 	c.CloudFunctionsBasePath = CloudFunctionsDefaultBasePath
 	c.CloudIotBasePath = CloudIotDefaultBasePath

@@ -157,6 +157,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_BINARY_AUTHORIZATION_CUSTOM_ENDPOINT",
 				}, BinaryAuthorizationDefaultBasePath),
 			},
+			"cloud_asset_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CLOUD_ASSET_CUSTOM_ENDPOINT",
+				}, CloudAssetDefaultBasePath),
+			},
 			"cloud_build_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -582,9 +590,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 139
+// Generated resources: 142
 // Generated IAM resources: 57
-// Total generated resources: 196
+// Total generated resources: 199
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -613,6 +621,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_binary_authorization_attestor_iam_member":              ResourceIamMember(BinaryAuthorizationAttestorIamSchema, BinaryAuthorizationAttestorIamUpdaterProducer, BinaryAuthorizationAttestorIdParseFunc),
 			"google_binary_authorization_attestor_iam_policy":              ResourceIamPolicy(BinaryAuthorizationAttestorIamSchema, BinaryAuthorizationAttestorIamUpdaterProducer, BinaryAuthorizationAttestorIdParseFunc),
 			"google_binary_authorization_policy":                           resourceBinaryAuthorizationPolicy(),
+			"google_cloud_asset_project_feed":                              resourceCloudAssetProjectFeed(),
+			"google_cloud_asset_folder_feed":                               resourceCloudAssetFolderFeed(),
+			"google_cloud_asset_organization_feed":                         resourceCloudAssetOrganizationFeed(),
 			"google_cloudbuild_trigger":                                    resourceCloudBuildTrigger(),
 			"google_cloudfunctions_function_iam_binding":                   ResourceIamBinding(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloudfunctions_function_iam_member":                    ResourceIamMember(CloudFunctionsCloudFunctionIamSchema, CloudFunctionsCloudFunctionIamUpdaterProducer, CloudFunctionsCloudFunctionIdParseFunc),
@@ -964,6 +975,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 	config.BigqueryDataTransferBasePath = d.Get("bigquery_data_transfer_custom_endpoint").(string)
 	config.BigtableBasePath = d.Get("bigtable_custom_endpoint").(string)
 	config.BinaryAuthorizationBasePath = d.Get("binary_authorization_custom_endpoint").(string)
+	config.CloudAssetBasePath = d.Get("cloud_asset_custom_endpoint").(string)
 	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
 	config.CloudFunctionsBasePath = d.Get("cloud_functions_custom_endpoint").(string)
 	config.CloudIotBasePath = d.Get("cloud_iot_custom_endpoint").(string)
