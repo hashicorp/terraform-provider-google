@@ -56,7 +56,7 @@ func testAccCloudAssetFolderFeed_cloudAssetFolderFeedExample(context map[string]
 # particular folder.
 resource "google_cloud_asset_folder_feed" "folder_feed" {
   billing_project  = "%{project}"
-  folder           = google_folder.my_folder.name
+  folder           = google_folder.my_folder.folder_id
   feed_id          = "tf-test-network-updates%{random_suffix}"
   content_type     = "RESOURCE"
 
