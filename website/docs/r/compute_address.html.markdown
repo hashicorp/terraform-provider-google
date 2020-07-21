@@ -165,9 +165,10 @@ The following arguments are supported:
 
 * `address_type` -
   (Optional)
-  The type of address to reserve.
-
-  Default value: `EXTERNAL`
+  The type of address to reserve.  
+  
+  Default value: `EXTERNAL`  
+  
   Possible values are:
   * `INTERNAL`
   * `EXTERNAL`
@@ -182,7 +183,7 @@ The following arguments are supported:
   - GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
   This should only be set when using an Internal address.
 
-  Possible values are:
+  Possible values are:  
   * `GCE_ENDPOINT`
 
 * `network_tier` -
