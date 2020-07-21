@@ -1,0 +1,9 @@
+```release-note:new-resource
+`google_cloud_asset_organization_feed`
+```
+```release-note:new-resource
+`google_cloud_asset_folder_feed`
+```
+```release-note:new-resource
+`google_cloud_asset_project_feed`
+```
