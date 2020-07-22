@@ -102,7 +102,7 @@ resource "google_compute_router_nat" "nat_manual" {
   region = google_compute_router.router.region
 
   nat_ip_allocate_option = "MANUAL_ONLY"
-  nat_ips                = google_compute_address.address.*.id
+  nat_ips                = google_compute_address.address.*.self_link
 
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
   subnetwork {
