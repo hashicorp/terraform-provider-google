@@ -58,6 +58,45 @@ resource "google_filestore_instance" "instance" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=filestore_instance_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Filestore Instance Full
+
+
+```hcl
+resource "google_filestore_instance" "instance" {
+  name = "test-instance"
+  zone = "us-central1-b"
+  tier = "BASIC_SSD"
+
+  file_shares {
+    capacity_gb = 2660
+    name        = "share1"
+
+    nfs_export_options {
+      ip_ranges = ["10.0.0.0/24"]
+      access_mode = "READ_WRITE"
+      squash_mode = "NO_ROOT_SQUASH"
+   }
+
+   nfs_export_options {
+      ip_ranges = ["10.10.0.0/24"]
+      access_mode = "READ_ONLY"
+      squash_mode = "ROOT_SQUASH"
+      anon_uid = 123
+      anon_gid = 456
+   }
+  }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -76,6 +115,9 @@ The following arguments are supported:
   * `TIER_UNSPECIFIED`
   * `STANDARD`
   * `PREMIUM`
+  * `BASIC_HDD`
+  * `BASIC_SSD`
+  * `HIGH_SCALE_SSD`
 
 * `file_shares` -
   (Required)

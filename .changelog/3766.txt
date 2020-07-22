@@ -1,0 +1,6 @@
+```release-note:enhancement
+filestore: added support for filestore high scale tier.
+```
+```release-note:enhancement
+filestore: added `nfs_export_options` field on `google_filestore_instance.file_shares`. (beta-only)
+```
