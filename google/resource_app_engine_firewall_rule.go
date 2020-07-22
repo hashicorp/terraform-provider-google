@@ -138,7 +138,7 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	err = PollingWaitTime(resourceAppEngineFirewallRulePollRead(d, meta), PollCheckForExistence, "Creating FirewallRule", d.Timeout(schema.TimeoutCreate))
+	err = PollingWaitTime(resourceAppEngineFirewallRulePollRead(d, meta), PollCheckForExistence, "Creating FirewallRule", d.Timeout(schema.TimeoutCreate), 1)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create FirewallRule: %s", err)
 	}

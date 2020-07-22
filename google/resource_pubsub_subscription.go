@@ -372,7 +372,7 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
-	err = PollingWaitTime(resourcePubsubSubscriptionPollRead(d, meta), PollCheckForExistence, "Creating Subscription", d.Timeout(schema.TimeoutCreate))
+	err = PollingWaitTime(resourcePubsubSubscriptionPollRead(d, meta), PollCheckForExistence, "Creating Subscription", d.Timeout(schema.TimeoutCreate), 1)
 	if err != nil {
 		log.Printf("[ERROR] Unable to confirm eventually consistent Subscription %q finished updating: %q", d.Id(), err)
 	}

@@ -643,7 +643,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	err = PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatus, "Creating Service", d.Timeout(schema.TimeoutCreate))
+	err = PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatus, "Creating Service", d.Timeout(schema.TimeoutCreate), 1)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create Service: %s", err)
 	}
@@ -785,7 +785,7 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error updating Service %q: %s", d.Id(), err)
 	}
 
-	err = PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatus, "Updating Service", d.Timeout(schema.TimeoutUpdate))
+	err = PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatus, "Updating Service", d.Timeout(schema.TimeoutUpdate), 1)
 	if err != nil {
 		return err
 	}

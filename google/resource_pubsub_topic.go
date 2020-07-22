@@ -157,7 +157,7 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	err = PollingWaitTime(resourcePubsubTopicPollRead(d, meta), PollCheckForExistence, "Creating Topic", d.Timeout(schema.TimeoutCreate))
+	err = PollingWaitTime(resourcePubsubTopicPollRead(d, meta), PollCheckForExistence, "Creating Topic", d.Timeout(schema.TimeoutCreate), 1)
 	if err != nil {
 		log.Printf("[ERROR] Unable to confirm eventually consistent Topic %q finished updating: %q", d.Id(), err)
 	}
