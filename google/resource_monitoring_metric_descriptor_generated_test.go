@@ -52,8 +52,8 @@ func testAccMonitoringMetricDescriptor_monitoringMetricDescriptorBasicExample(co
 	return Nprintf(`
 resource "google_monitoring_metric_descriptor" "basic" {
   description = "Daily sales records from all branch stores."
-  display_name = "Daily sales"
-  type = "custom.googleapis.com/stores/daily_sales"
+  display_name = "tf-test-metric-descriptor%{random_suffix}"
+  type = "custom.googleapis.com/stores/tf_test_daily_sales%{random_suffix}"
   metric_kind = "GAUGE"
   value_type = "DOUBLE"
   unit = "{USD}"
@@ -100,15 +100,15 @@ func testAccMonitoringMetricDescriptor_monitoringMetricDescriptorAlertExample(co
 	return Nprintf(`
 resource "google_monitoring_metric_descriptor" "with_alert" {
   description = "Daily sales records from all branch stores."
-  display_name = "Daily sales"
-  type = "custom.googleapis.com/stores/daily_sales"
+  display_name = "tf-test-metric-descriptor%{random_suffix}"
+  type = "custom.googleapis.com/stores/tf_test_daily_sales%{random_suffix}"
   metric_kind = "GAUGE"
   value_type = "DOUBLE"
   unit = "{USD}"
 }
 
 resource "google_monitoring_alert_policy" "alert_policy" {
-  display_name = "Alert on daily sales"
+  display_name = "tf-test-metric-descriptor%{random_suffix}"
   combiner     = "OR"
   conditions {
     display_name = "test condition"

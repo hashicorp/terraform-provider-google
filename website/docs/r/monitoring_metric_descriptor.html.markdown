@@ -42,7 +42,7 @@ To get more information about MetricDescriptor, see:
 ```hcl
 resource "google_monitoring_metric_descriptor" "basic" {
   description = "Daily sales records from all branch stores."
-  display_name = "Daily sales"
+  display_name = "metric-descriptor"
   type = "custom.googleapis.com/stores/daily_sales"
   metric_kind = "GAUGE"
   value_type = "DOUBLE"
@@ -70,7 +70,7 @@ resource "google_monitoring_metric_descriptor" "basic" {
 ```hcl
 resource "google_monitoring_metric_descriptor" "with_alert" {
   description = "Daily sales records from all branch stores."
-  display_name = "Daily sales"
+  display_name = "metric-descriptor"
   type = "custom.googleapis.com/stores/daily_sales"
   metric_kind = "GAUGE"
   value_type = "DOUBLE"
@@ -78,7 +78,7 @@ resource "google_monitoring_metric_descriptor" "with_alert" {
 }
 
 resource "google_monitoring_alert_policy" "alert_policy" {
-  display_name = "Alert on daily sales"
+  display_name = "metric-descriptor"
   combiner     = "OR"
   conditions {
     display_name = "test condition"
