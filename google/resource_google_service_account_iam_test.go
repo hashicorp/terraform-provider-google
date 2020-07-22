@@ -57,6 +57,8 @@ func TestAccServiceAccountIamBinding_withCondition(t *testing.T) {
 }
 
 func TestAccServiceAccountIamBinding_withAndWithoutCondition(t *testing.T) {
+	// Resource creation race condition
+	skipIfVcr(t)
 	t.Parallel()
 
 	account := fmt.Sprintf("tf-test-%d", randInt(t))
@@ -137,6 +139,8 @@ func TestAccServiceAccountIamMember_withCondition(t *testing.T) {
 }
 
 func TestAccServiceAccountIamMember_withAndWithoutCondition(t *testing.T) {
+	// Resource creation race condition
+	skipIfVcr(t)
 	t.Parallel()
 
 	account := fmt.Sprintf("tf-test-%d", randInt(t))
