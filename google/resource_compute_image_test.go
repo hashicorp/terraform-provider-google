@@ -48,7 +48,6 @@ func TestAccComputeImage_update(t *testing.T) {
 						t, "google_compute_image.foobar", &image),
 					testAccCheckComputeImageContainsLabel(&image, "my-label", "my-label-value"),
 					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
-					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
 				),
 			},
 			{
@@ -59,7 +58,6 @@ func TestAccComputeImage_update(t *testing.T) {
 					testAccCheckComputeImageDoesNotContainLabel(&image, "my-label"),
 					testAccCheckComputeImageContainsLabel(&image, "empty-label", "oh-look-theres-a-label-now"),
 					testAccCheckComputeImageContainsLabel(&image, "new-field", "only-shows-up-when-updated"),
-					testAccCheckComputeImageHasComputedFingerprint(&image, "google_compute_image.foobar"),
 				),
 			},
 			{
@@ -232,28 +230,6 @@ func testAccCheckComputeImageDoesNotContainLabel(image *compute.Image, key strin
 	return func(s *terraform.State) error {
 		if v, ok := image.Labels[key]; ok {
 			return fmt.Errorf("Expected no label for key '%s' but found one with value '%s'", key, v)
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeImageHasComputedFingerprint(image *compute.Image, resource string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		// First ensure we actually have a fingerprint
-		if image.LabelFingerprint == "" {
-			return fmt.Errorf("No fingerprint set in API read result")
-		}
-
-		state := s.RootModule().Resources[resource]
-		if state == nil {
-			return fmt.Errorf("Unable to find resource named %s in resources", resource)
-		}
-
-		storedFingerprint := state.Primary.Attributes["label_fingerprint"]
-		if storedFingerprint != image.LabelFingerprint {
-			return fmt.Errorf("Stored fingerprint doesn't match fingerprint found on server; stored '%s', server '%s'",
-				storedFingerprint, image.LabelFingerprint)
 		}
 
 		return nil
