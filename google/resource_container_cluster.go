@@ -2472,8 +2472,9 @@ func expandResourceUsageExportConfig(configured interface{}) *containerBeta.Reso
 		ForceSendFields: []string{"EnableNetworkEgressMetering"},
 	}
 	if _, ok := resourceUsageConfig["bigquery_destination"]; ok {
-		if len(resourceUsageConfig["bigquery_destination"].([]interface{})) > 0 {
-			bigqueryDestination := resourceUsageConfig["bigquery_destination"].([]interface{})[0].(map[string]interface{})
+		destinationArr := resourceUsageConfig["bigquery_destination"].([]interface{})
+		if len(destinationArr) > 0 && destinationArr[0] != nil {
+			bigqueryDestination := destinationArr[0].(map[string]interface{})
 			if _, ok := bigqueryDestination["dataset_id"]; ok {
 				result.BigqueryDestination = &containerBeta.BigQueryDestination{
 					DatasetId: bigqueryDestination["dataset_id"].(string),
