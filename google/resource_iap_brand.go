@@ -121,7 +121,7 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	err = PollingWaitTime(resourceIapBrandPollRead(d, meta), PollCheckForExistence, "Creating Brand", d.Timeout(schema.TimeoutCreate))
+	err = PollingWaitTime(resourceIapBrandPollRead(d, meta), PollCheckForExistence, "Creating Brand", d.Timeout(schema.TimeoutCreate), 1)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create Brand: %s", err)
 	}

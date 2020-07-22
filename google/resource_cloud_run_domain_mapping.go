@@ -293,7 +293,7 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	err = PollingWaitTime(resourceCloudRunDomainMappingPollRead(d, meta), PollCheckKnativeStatus, "Creating DomainMapping", d.Timeout(schema.TimeoutCreate))
+	err = PollingWaitTime(resourceCloudRunDomainMappingPollRead(d, meta), PollCheckKnativeStatus, "Creating DomainMapping", d.Timeout(schema.TimeoutCreate), 1)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create DomainMapping: %s", err)
 	}

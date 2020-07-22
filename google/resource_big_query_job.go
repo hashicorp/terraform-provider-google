@@ -900,7 +900,7 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	err = PollingWaitTime(resourceBigQueryJobPollRead(d, meta), PollCheckForExistence, "Creating Job", d.Timeout(schema.TimeoutCreate))
+	err = PollingWaitTime(resourceBigQueryJobPollRead(d, meta), PollCheckForExistence, "Creating Job", d.Timeout(schema.TimeoutCreate), 1)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create Job: %s", err)
 	}
