@@ -41,19 +41,14 @@ resource "google_compute_global_network_endpoint" "default-endpoint" {
   global_network_endpoint_group = google_compute_global_network_endpoint_group.neg.name
 
   fqdn       = "www.example.com"
-  port       = google_compute_global_network_endpoint_group.neg.default_port
-  ip_address = google_compute_instance.endpoint-instance.network_interface[0].network_ip
+  port       = 90
+  ip_address = "8.8.8.8"
 }
 
 resource "google_compute_global_network_endpoint_group" "neg" {
-  name         = "my-lb-neg"
-  default_port = "90"
+  name                  = "my-lb-neg"
+  default_port          = "90"
   network_endpoint_type = "INTERNET_IP_PORT"
-}
-
-resource "google_compute_network" "default" {
-  name                    = ""
-  auto_create_subnetworks = false
 }
 ```
 
