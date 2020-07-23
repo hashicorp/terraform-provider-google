@@ -98,6 +98,7 @@ The following arguments are supported:
   Valid values of this enum field are: `DEFAULT`, `CUSTOM`
 
   Default value: `DEFAULT`
+
   Possible values are:
   * `DEFAULT`
   * `CUSTOM`

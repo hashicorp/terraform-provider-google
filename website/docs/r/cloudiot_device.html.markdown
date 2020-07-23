@@ -165,6 +165,7 @@ The `gateway_config` block supports:
   Indicates whether the device is a gateway.
 
   Default value: `NON_GATEWAY`
+
   Possible values are:
   * `GATEWAY`
   * `NON_GATEWAY`

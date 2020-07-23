@@ -112,6 +112,7 @@ The following arguments are supported:
   for possible inputs.
 
   Default value: `ENCRYPT_DECRYPT`
+
   Possible values are:
   * `ENCRYPT_DECRYPT`
   * `ASYMMETRIC_SIGN`
@@ -141,6 +142,7 @@ The `version_template` block supports:
   The protection level to use when creating a version based on this template.
 
   Default value: `SOFTWARE`
+
   Possible values are:
   * `SOFTWARE`
   * `HSM`

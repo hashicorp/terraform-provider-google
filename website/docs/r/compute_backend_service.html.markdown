@@ -219,6 +219,7 @@ The following arguments are supported:
   load balancing cannot be used with the other.
 
   Default value: `EXTERNAL`
+
   Possible values are:
   * `EXTERNAL`
   * `INTERNAL_SELF_MANAGED`
@@ -323,6 +324,7 @@ The `backend` block supports:
   and CONNECTION (for TCP/SSL).
 
   Default value: `UTILIZATION`
+
   Possible values are:
   * `UTILIZATION`
   * `RATE`

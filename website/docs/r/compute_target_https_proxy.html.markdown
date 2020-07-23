@@ -136,6 +136,7 @@ The following arguments are supported:
   equivalent to DISABLE.
 
   Default value: `NONE`
+
   Possible values are:
   * `NONE`
   * `ENABLE`

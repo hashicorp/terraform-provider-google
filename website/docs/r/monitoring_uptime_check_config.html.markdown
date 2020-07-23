@@ -190,6 +190,7 @@ The `content_matchers` block supports:
   The type of content matcher that will be applied to the server output, compared to the content string when the check is run.
 
   Default value: `CONTAINS_STRING`
+
   Possible values are:
   * `CONTAINS_STRING`
   * `NOT_CONTAINS_STRING`
@@ -203,6 +204,7 @@ The `http_check` block supports:
   The HTTP request method to use for the check. If set to METHOD_UNSPECIFIED then requestMethod defaults to GET.
 
   Default value: `GET`
+
   Possible values are:
   * `METHOD_UNSPECIFIED`
   * `GET`

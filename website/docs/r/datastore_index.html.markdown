@@ -71,6 +71,7 @@ The following arguments are supported:
   Policy for including ancestors in the index.
 
   Default value: `NONE`
+
   Possible values are:
   * `NONE`
   * `ALL_ANCESTORS`

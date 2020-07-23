@@ -94,6 +94,7 @@ The following arguments are supported:
   `CUSTOM` is used, the `custom_features` attribute **must be set**.
 
   Default value: `COMPATIBLE`
+
   Possible values are:
   * `COMPATIBLE`
   * `MODERN`
@@ -106,6 +107,7 @@ The following arguments are supported:
   to establish a connection with the load balancer.
 
   Default value: `TLS_1_0`
+
   Possible values are:
   * `TLS_1_0`
   * `TLS_1_1`

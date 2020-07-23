@@ -118,6 +118,7 @@ The `fields` block supports:
   The scope at which a query is run.
 
   Default value: `COLLECTION`
+
   Possible values are:
   * `COLLECTION`
   * `COLLECTION_GROUP`

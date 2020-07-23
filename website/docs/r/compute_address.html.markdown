@@ -168,6 +168,7 @@ The following arguments are supported:
   The type of address to reserve.
 
   Default value: `EXTERNAL`
+
   Possible values are:
   * `INTERNAL`
   * `EXTERNAL`

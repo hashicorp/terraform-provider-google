@@ -229,6 +229,7 @@ The `retention_policy` block supports:
   the source disk is deleted.
 
   Default value: `KEEP_AUTO_SNAPSHOTS`
+
   Possible values are:
   * `KEEP_AUTO_SNAPSHOTS`
   * `APPLY_RETENTION_POLICY`

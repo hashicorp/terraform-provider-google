@@ -101,6 +101,7 @@ The following arguments are supported:
   the backend.
 
   Default value: `NONE`
+
   Possible values are:
   * `NONE`
   * `PROXY_V1`

@@ -230,6 +230,7 @@ The `log_config` block supports:
   INTERVAL_5_MIN, INTERVAL_10_MIN, INTERVAL_15_MIN
 
   Default value: `INTERVAL_5_SEC`
+
   Possible values are:
   * `INTERVAL_5_SEC`
   * `INTERVAL_30_SEC`
@@ -253,6 +254,7 @@ The `log_config` block supports:
   flow logs.
 
   Default value: `INCLUDE_ALL_METADATA`
+
   Possible values are:
   * `EXCLUDE_ALL_METADATA`
   * `INCLUDE_ALL_METADATA`

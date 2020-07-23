@@ -422,6 +422,7 @@ The following arguments are supported:
   INTERNAL_MANAGED is used for internal HTTP(S) load balancers.
 
   Default value: `EXTERNAL`
+
   Possible values are:
   * `EXTERNAL`
   * `INTERNAL`

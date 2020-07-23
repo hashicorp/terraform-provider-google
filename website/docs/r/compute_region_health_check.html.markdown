@@ -415,6 +415,7 @@ The `http_health_check` block supports:
   backend.
 
   Default value: `NONE`
+
   Possible values are:
   * `NONE`
   * `PROXY_V1`
@@ -472,6 +473,7 @@ The `https_health_check` block supports:
   backend.
 
   Default value: `NONE`
+
   Possible values are:
   * `NONE`
   * `PROXY_V1`
@@ -525,6 +527,7 @@ The `tcp_health_check` block supports:
   backend.
 
   Default value: `NONE`
+
   Possible values are:
   * `NONE`
   * `PROXY_V1`
@@ -578,6 +581,7 @@ The `ssl_health_check` block supports:
   backend.
 
   Default value: `NONE`
+
   Possible values are:
   * `NONE`
   * `PROXY_V1`
@@ -635,6 +639,7 @@ The `http2_health_check` block supports:
   backend.
 
   Default value: `NONE`
+
   Possible values are:
   * `NONE`
   * `PROXY_V1`

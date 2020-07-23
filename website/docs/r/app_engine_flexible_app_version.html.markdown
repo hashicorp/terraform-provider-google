@@ -256,6 +256,7 @@ The `liveness_check` block supports:
   Current serving status of this version. Only the versions with a SERVING status create instances and can be billed.
 
   Default value: `SERVING`
+
   Possible values are:
   * `SERVING`
   * `STOPPED`
@@ -485,6 +486,7 @@ The `api_config` block supports:
   Action to take when users access resources that require authentication.
 
   Default value: `AUTH_FAIL_ACTION_REDIRECT`
+
   Possible values are:
   * `AUTH_FAIL_ACTION_REDIRECT`
   * `AUTH_FAIL_ACTION_UNAUTHORIZED`
@@ -494,6 +496,7 @@ The `api_config` block supports:
   Level of login required to access this resource.
 
   Default value: `LOGIN_OPTIONAL`
+
   Possible values are:
   * `LOGIN_OPTIONAL`
   * `LOGIN_ADMIN`
@@ -598,6 +601,7 @@ The `endpoints_api_service` block supports:
   Endpoints rollout strategy. If FIXED, configId must be specified. If MANAGED, configId must be omitted.
 
   Default value: `FIXED`
+
   Possible values are:
   * `FIXED`
   * `MANAGED`

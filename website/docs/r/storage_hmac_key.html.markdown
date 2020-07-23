@@ -76,6 +76,7 @@ The following arguments are supported:
   The state of the key. Can be set to one of ACTIVE, INACTIVE.
 
   Default value: `ACTIVE`
+
   Possible values are:
   * `ACTIVE`
   * `INACTIVE`

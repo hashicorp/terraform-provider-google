@@ -72,6 +72,7 @@ The following arguments are supported:
   By default, overrides are rejected.
 
   Default value: `STRICT`
+
   Possible values are:
   * `STRICT`
   * `OVERRIDE`
