@@ -38,17 +38,17 @@ To get more information about GlobalNetworkEndpoint, see:
 
 ```hcl
 resource "google_compute_global_network_endpoint" "default-endpoint" {
-  global_network_endpoint_group = google_compute_network_endpoint_group.neg.name
+  global_network_endpoint_group = google_compute_global_network_endpoint_group.neg.name
 
   fqdn       = "www.example.com"
-  port       = google_compute_network_endpoint_group.neg.default_port
+  port       = google_compute_global_network_endpoint_group.neg.default_port
   ip_address = google_compute_instance.endpoint-instance.network_interface[0].network_ip
 }
 
-resource "google_compute_global_network_endpoint_group" "group" {
+resource "google_compute_global_network_endpoint_group" "neg" {
   name         = "my-lb-neg"
-  network      = google_compute_network.default.id
   default_port = "90"
+  network_endpoint_type = "INTERNET_IP_PORT"
 }
 
 resource "google_compute_network" "default" {
