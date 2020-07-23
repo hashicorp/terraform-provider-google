@@ -68,6 +68,7 @@ resource "google_filestore_instance" "instance" {
 
 ```hcl
 resource "google_filestore_instance" "instance" {
+  provider = google-beta
   name = "test-instance"
   zone = "us-central1-b"
   tier = "BASIC_SSD"
