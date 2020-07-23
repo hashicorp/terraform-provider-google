@@ -151,6 +151,7 @@ The following arguments are supported:
   will also enable ERROR logging.
 
   Default value: `NONE`
+
   Possible values are:
   * `NONE`
   * `ERROR`

@@ -113,6 +113,7 @@ The `basic` block supports:
   for the AccessLevel to be applied.
 
   Default value: `AND`
+
   Possible values are:
   * `AND`
   * `OR`

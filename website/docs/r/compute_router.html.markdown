@@ -114,6 +114,7 @@ The `bgp` block supports:
   User-specified flag to indicate which mode to use for advertisement.
 
   Default value: `DEFAULT`
+
   Possible values are:
   * `DEFAULT`
   * `CUSTOM`

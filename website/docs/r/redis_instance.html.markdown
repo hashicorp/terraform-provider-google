@@ -167,6 +167,7 @@ The following arguments are supported:
   The connection mode of the Redis instance.
 
   Default value: `DIRECT_PEERING`
+
   Possible values are:
   * `DIRECT_PEERING`
   * `PRIVATE_SERVICE_ACCESS`
@@ -215,6 +216,7 @@ The following arguments are supported:
   - STANDARD_HA: highly available primary/replica instances
 
   Default value: `BASIC`
+
   Possible values are:
   * `BASIC`
   * `STANDARD_HA`

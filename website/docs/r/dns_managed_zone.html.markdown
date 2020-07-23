@@ -253,6 +253,7 @@ The following arguments are supported:
   while private zones are visible only to Virtual Private Cloud resources.
 
   Default value: `public`
+
   Possible values are:
   * `private`
   * `public`

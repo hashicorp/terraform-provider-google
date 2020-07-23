@@ -1258,20 +1258,13 @@ The `url_redirect` block supports:
 * `redirect_response_code` -
   (Optional)
   The HTTP Status code to use for this RedirectAction. Supported values are:
-  - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
-  - FOUND, which corresponds to 302.
-  - SEE_OTHER which corresponds to 303.
-  - TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method
+  * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
+  * FOUND, which corresponds to 302.
+  * SEE_OTHER which corresponds to 303.
+  * TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method
   will be retained.
-  - PERMANENT_REDIRECT, which corresponds to 308. In this case,
+  * PERMANENT_REDIRECT, which corresponds to 308. In this case,
   the request method will be retained.
-
-  Possible values are:
-  * `FOUND`
-  * `MOVED_PERMANENTLY_DEFAULT`
-  * `PERMANENT_REDIRECT`
-  * `SEE_OTHER`
-  * `TEMPORARY_REDIRECT`
 
 * `strip_query` -
   (Required)
@@ -1904,19 +1897,12 @@ The `url_redirect` block supports:
 
 * `redirect_response_code` -
   (Optional)
-  The HTTP Status code to use for this RedirectAction. Supported values are:   -
-  MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.  -
-  FOUND, which corresponds to 302.  - SEE_OTHER which corresponds to 303.  -
-  TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method
-  will be retained.  - PERMANENT_REDIRECT, which corresponds to 308. In this case,
-  the request method will be retained.
-
-  Possible values are:
-  * `FOUND`
-  * `MOVED_PERMANENTLY_DEFAULT`
-  * `PERMANENT_REDIRECT`
-  * `SEE_OTHER`
-  * `TEMPORARY_REDIRECT`
+  The HTTP Status code to use for this RedirectAction. Supported values are:
+  * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
+  * FOUND, which corresponds to 302.
+  * SEE_OTHER which corresponds to 303.
+  * TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method will be retained.
+  * PERMANENT_REDIRECT, which corresponds to 308. In this case, the request method will be retained.
 
 * `strip_query` -
   (Optional)
@@ -1957,20 +1943,13 @@ The `default_url_redirect` block supports:
 * `redirect_response_code` -
   (Optional)
   The HTTP Status code to use for this RedirectAction. Supported values are:
-  - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
-  - FOUND, which corresponds to 302.
-  - SEE_OTHER which corresponds to 303.
-  - TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method
+  * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
+  * FOUND, which corresponds to 302.
+  * SEE_OTHER which corresponds to 303.
+  * TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method
   will be retained.
-  - PERMANENT_REDIRECT, which corresponds to 308. In this case,
+  * PERMANENT_REDIRECT, which corresponds to 308. In this case,
   the request method will be retained.
-
-  Possible values are:
-  * `FOUND`
-  * `MOVED_PERMANENTLY_DEFAULT`
-  * `PERMANENT_REDIRECT`
-  * `SEE_OTHER`
-  * `TEMPORARY_REDIRECT`
 
 * `strip_query` -
   (Required)
@@ -2313,20 +2292,13 @@ The `default_url_redirect` block supports:
 * `redirect_response_code` -
   (Optional)
   The HTTP Status code to use for this RedirectAction. Supported values are:
-  - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
-  - FOUND, which corresponds to 302.
-  - SEE_OTHER which corresponds to 303.
-  - TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method
+  * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to 301.
+  * FOUND, which corresponds to 302.
+  * SEE_OTHER which corresponds to 303.
+  * TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request method
   will be retained.
-  - PERMANENT_REDIRECT, which corresponds to 308. In this case,
+  * PERMANENT_REDIRECT, which corresponds to 308. In this case,
   the request method will be retained.
-
-  Possible values are:
-  * `FOUND`
-  * `MOVED_PERMANENTLY_DEFAULT`
-  * `PERMANENT_REDIRECT`
-  * `SEE_OTHER`
-  * `TEMPORARY_REDIRECT`
 
 * `strip_query` -
   (Required)

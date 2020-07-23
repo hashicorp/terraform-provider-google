@@ -400,6 +400,7 @@ The `query` block supports:
   Creation, truncation and append actions occur as one atomic update upon job completion
 
   Default value: `CREATE_IF_NEEDED`
+
   Possible values are:
   * `CREATE_IF_NEEDED`
   * `CREATE_NEVER`
@@ -414,6 +415,7 @@ The `query` block supports:
   Creation, truncation and append actions occur as one atomic update upon job completion.
 
   Default value: `WRITE_EMPTY`
+
   Possible values are:
   * `WRITE_TRUNCATE`
   * `WRITE_APPEND`
@@ -428,6 +430,7 @@ The `query` block supports:
   Specifies a priority for the query.
 
   Default value: `INTERACTIVE`
+
   Possible values are:
   * `INTERACTIVE`
   * `BATCH`
@@ -573,6 +576,7 @@ The `load` block supports:
   Creation, truncation and append actions occur as one atomic update upon job completion
 
   Default value: `CREATE_IF_NEEDED`
+
   Possible values are:
   * `CREATE_IF_NEEDED`
   * `CREATE_NEVER`
@@ -587,6 +591,7 @@ The `load` block supports:
   Creation, truncation and append actions occur as one atomic update upon job completion.
 
   Default value: `WRITE_EMPTY`
+
   Possible values are:
   * `WRITE_TRUNCATE`
   * `WRITE_APPEND`
@@ -747,6 +752,7 @@ The `copy` block supports:
   Creation, truncation and append actions occur as one atomic update upon job completion
 
   Default value: `CREATE_IF_NEEDED`
+
   Possible values are:
   * `CREATE_IF_NEEDED`
   * `CREATE_NEVER`
@@ -761,6 +767,7 @@ The `copy` block supports:
   Creation, truncation and append actions occur as one atomic update upon job completion.
 
   Default value: `WRITE_EMPTY`
+
   Possible values are:
   * `WRITE_TRUNCATE`
   * `WRITE_APPEND`

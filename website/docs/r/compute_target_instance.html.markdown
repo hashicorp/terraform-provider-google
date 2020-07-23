@@ -111,6 +111,7 @@ The following arguments are supported:
   Currently only NO_NAT (default value) is supported.
 
   Default value: `NO_NAT`
+
   Possible values are:
   * `NO_NAT`
 

@@ -284,6 +284,7 @@ The following arguments are supported:
   balancing cannot be used with the other(s).
 
   Default value: `INTERNAL`
+
   Possible values are:
   * `INTERNAL`
   * `INTERNAL_MANAGED`
@@ -396,6 +397,7 @@ The `backend` block supports:
   Specifies the balancing mode for this backend.
 
   Default value: `CONNECTION`
+
   Possible values are:
   * `UTILIZATION`
   * `RATE`

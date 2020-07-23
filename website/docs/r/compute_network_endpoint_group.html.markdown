@@ -106,6 +106,7 @@ The following arguments are supported:
   Type of network endpoints in this network endpoint group.
 
   Default value: `GCE_VM_IP_PORT`
+
   Possible values are:
   * `GCE_VM_IP_PORT`
 

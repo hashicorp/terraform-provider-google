@@ -190,6 +190,7 @@ The `labels` block supports:
   The type of data that can be assigned to the label.
 
   Default value: `STRING`
+
   Possible values are:
   * `STRING`
   * `BOOL`

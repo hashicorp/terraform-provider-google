@@ -113,6 +113,7 @@ The `spec` block supports:
   The mode of the certificate.
 
   Default value: `AUTOMATIC`
+
   Possible values are:
   * `NONE`
   * `AUTOMATIC`

@@ -156,6 +156,7 @@ The following arguments are supported:
   themselves.
 
   Default value: `PERIMETER_TYPE_REGULAR`
+
   Possible values are:
   * `PERIMETER_TYPE_REGULAR`
   * `PERIMETER_TYPE_BRIDGE`

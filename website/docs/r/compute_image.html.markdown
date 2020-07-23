@@ -175,6 +175,7 @@ The `raw_disk` block supports:
   image is created.
 
   Default value: `TAR`
+
   Possible values are:
   * `TAR`
 

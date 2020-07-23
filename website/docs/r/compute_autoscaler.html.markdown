@@ -254,6 +254,7 @@ The `autoscaling_policy` block supports:
   Defines operating mode for this policy.
 
   Default value: `ON`
+
   Possible values are:
   * `OFF`
   * `ONLY_UP`

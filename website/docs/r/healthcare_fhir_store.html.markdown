@@ -258,6 +258,7 @@ The `schema_config` block supports:
     See https://github.com/FHIR/sql-on-fhir/blob/master/sql-on-fhir.md.
 
   Default value: `ANALYTICS`
+
   Possible values are:
   * `ANALYTICS`
 
