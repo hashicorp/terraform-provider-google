@@ -20,6 +20,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/errwrap"
@@ -163,21 +164,6 @@ func resourceComputeBackendService() *schema.Resource {
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
-			"health_checks": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Description: `The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource
-for health checking this BackendService. Currently at most one health
-check can be specified, and a health check is required.
-
-For internal load balancing, a URL to a HealthCheck resource must be specified instead.`,
-				MinItems: 1,
-				MaxItems: 1,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Set: selfLinkRelativePathHash,
-			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -465,6 +451,23 @@ requests.`,
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: `If true, enable Cloud CDN for this BackendService.`,
+			},
+			"health_checks": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Description: `The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource
+for health checking this BackendService. Currently at most one health
+check can be specified.
+
+A health check must be specified unless the backend service uses an internet NEG as a backend.
+
+For internal load balancing, a URL to a HealthCheck resource must be specified instead.`,
+				MinItems: 1,
+				MaxItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: selfLinkRelativePathHash,
 			},
 			"iap": {
 				Type:        schema.TypeList,
@@ -3126,6 +3129,24 @@ func resourceComputeBackendServiceEncoder(d *schema.ResourceData, meta interface
 		iap := iapVal.(map[string]interface{})
 		iap["enabled"] = true
 		obj["iap"] = iap
+	}
+
+	backendsRaw, ok := obj["backends"]
+	if !ok {
+		return obj, nil
+	}
+	backends := backendsRaw.([]interface{})
+	for _, backendRaw := range backends {
+		backend := backendRaw.(map[string]interface{})
+		backendGroup, ok := backend["group"]
+		if !ok {
+			continue
+		}
+		if strings.Contains(backendGroup.(string), "global/networkEndpointGroups") {
+			// Remove `max_utilization` from any backend that belongs to a global NEG. This field
+			// has a default value and causes API validation errors
+			backend["maxUtilization"] = nil
+		}
 	}
 
 	return obj, nil
