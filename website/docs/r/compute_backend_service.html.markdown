@@ -131,18 +131,45 @@ resource "google_compute_health_check" "health_check" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_network_endpoint&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Network Endpoint
+
+
+```hcl
+resource "google_compute_global_network_endpoint_group" "external_proxy" {
+  name                  = "network-endpoint"
+  network_endpoint_type = "INTERNET_FQDN_PORT"
+  default_port          = "443"
+}
+
+resource "google_compute_global_network_endpoint" "proxy" {
+  global_network_endpoint_group = google_compute_global_network_endpoint_group.external_proxy.id
+  fqdn                          = "test.example.com"
+  port                          = google_compute_global_network_endpoint_group.external_proxy.default_port
+}
+
+resource "google_compute_backend_service" "default" {
+  name                            = "backend-service"
+  enable_cdn                      = true
+  timeout_sec                     = 10
+  connection_draining_timeout_sec = 10
+ 
+  custom_request_headers          = ["host: ${google_compute_global_network_endpoint.proxy.fqdn}"]
+
+  backend {
+    group = google_compute_global_network_endpoint_group.external_proxy.id
+  }
+}
+```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-
-* `health_checks` -
-  (Required)
-  The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource
-  for health checking this BackendService. Currently at most one health
-  check can be specified, and a health check is required.
-  For internal load balancing, a URL to a HealthCheck resource must be specified instead.
 
 * `name` -
   (Required)
@@ -207,6 +234,14 @@ The following arguments are supported:
 * `enable_cdn` -
   (Optional)
   If true, enable Cloud CDN for this BackendService.
+
+* `health_checks` -
+  (Optional)
+  The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource
+  for health checking this BackendService. Currently at most one health
+  check can be specified.
+  A health check must be specified unless the backend service uses an internet NEG as a backend.
+  For internal load balancing, a URL to a HealthCheck resource must be specified instead.
 
 * `iap` -
   (Optional)
