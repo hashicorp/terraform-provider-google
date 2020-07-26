@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -122,35 +122,6 @@ func TestAccProjectIamPolicy_expandedAuditConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectIamPolicyExists("google_project_iam_policy.acceptance", "data.google_iam_policy.expanded", pid),
 				),
-			},
-		},
-	})
-}
-
-func TestAccProjectIamPolicy_withCondition(t *testing.T) {
-	t.Parallel()
-
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			// Create a new project
-			{
-				Config: testAccProject_create(pid, pname, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(t, pid),
-				),
-			},
-			// Apply an IAM policy from a data source. The application
-			// merges policies, so we validate the expected state.
-			{
-				Config: testAccProjectAssociatePolicy_withCondition(pid, pname, org),
-			},
-			{
-				ResourceName: "google_project_iam_policy.acceptance",
-				ImportState:  true,
 			},
 		},
 	})
@@ -422,42 +393,6 @@ data "google_iam_policy" "expanded" {
 
     audit_log_configs {
       log_type = "DATA_WRITE"
-    }
-  }
-}
-`, pid, name, org)
-}
-
-func testAccProjectAssociatePolicy_withCondition(pid, name, org string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-  project_id = "%s"
-  name       = "%s"
-  org_id     = "%s"
-}
-
-resource "google_project_iam_policy" "acceptance" {
-    project     = google_project.acceptance.id
-    policy_data = data.google_iam_policy.admin.policy_data
-}
-
-data "google_iam_policy" "admin" {
-  binding {
-    role = "roles/storage.objectViewer"
-    members = [
-      "user:evanbrown@google.com",
-    ]
-  }
-  binding {
-    role = "roles/compute.instanceAdmin"
-    members = [
-      "user:evanbrown@google.com",
-      "user:evandbrown@gmail.com",
-    ]
-    condition {
-      title       = "expires_after_2019_12_31"
-      description = "Expiring at midnight of 2019-12-31"
-      expression  = "request.time < timestamp(\"2020-01-01T00:00:00Z\")"
     }
   }
 }

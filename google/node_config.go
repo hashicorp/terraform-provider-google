@@ -1,8 +1,8 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
 )
 
@@ -200,7 +200,6 @@ func schemaNodeConfig() *schema.Schema {
 						},
 					},
 				},
-
 				"workload_metadata_config": {
 					Computed: true,
 					Type:     schema.TypeList,

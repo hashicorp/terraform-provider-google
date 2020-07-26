@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceMonitoringAlertPolicy() *schema.Resource {
@@ -680,7 +680,6 @@ must begin with a letter.`,
 				Description: `A read-only record of the creation of the alerting policy.
 If provided in a call to create or update, this field will
 be ignored.`,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mutate_time": {
@@ -701,15 +700,6 @@ be ignored.`,
 				Computed: true,
 				Description: `The unique resource name for this policy.
 Its syntax is: projects/[PROJECT_ID]/alertPolicies/[ALERT_POLICY_ID]`,
-			},
-			"labels": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Removed:  "labels is removed as it was never used. See user_labels for the correct field",
-				Computed: true,
 			},
 			"project": {
 				Type:     schema.TypeString,

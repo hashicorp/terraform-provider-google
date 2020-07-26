@@ -3,8 +3,8 @@ package google
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -160,8 +160,6 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 		if err != nil {
 			return fmt.Errorf("Error undeleting the custom organization role %s: %s", d.Get("title").(string), err)
 		}
-
-		d.SetPartial("deleted")
 	}
 
 	if d.HasChange("title") || d.HasChange("description") || d.HasChange("stage") || d.HasChange("permissions") {
@@ -175,11 +173,6 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 		if err != nil {
 			return fmt.Errorf("Error updating the custom organization role %s: %s", d.Get("title").(string), err)
 		}
-
-		d.SetPartial("title")
-		d.SetPartial("description")
-		d.SetPartial("stage")
-		d.SetPartial("permissions")
 	}
 
 	d.Partial(false)

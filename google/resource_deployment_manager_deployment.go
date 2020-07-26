@@ -15,16 +15,17 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func customDiffDeploymentManagerDeployment(d *schema.ResourceDiff, meta interface{}) error {
+func customDiffDeploymentManagerDeployment(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	if preview := d.Get("preview").(bool); preview {
 		log.Printf("[WARN] Deployment preview set to true - Terraform will treat Deployment as recreate-only")
 
@@ -394,8 +395,6 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("preview")
 	}
 	if d.HasChange("description") || d.HasChange("labels") || d.HasChange("target") {
 		obj := make(map[string]interface{})
@@ -459,10 +458,6 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("description")
-		d.SetPartial("labels")
-		d.SetPartial("target")
 	}
 
 	d.Partial(false)

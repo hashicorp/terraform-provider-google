@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -25,31 +25,6 @@ var IamMemberBaseSchema = map[string]*schema.Schema{
 		DiffSuppressFunc: caseDiffSuppress,
 		ValidateFunc:     validation.StringDoesNotMatch(regexp.MustCompile("^deleted:"), "Terraform does not support IAM members for deleted principals"),
 	},
-	"condition": {
-		Type:     schema.TypeList,
-		Optional: true,
-		MaxItems: 1,
-		ForceNew: true,
-		Elem: &schema.Resource{
-			Schema: map[string]*schema.Schema{
-				"expression": {
-					Type:     schema.TypeString,
-					Required: true,
-					ForceNew: true,
-				},
-				"title": {
-					Type:     schema.TypeString,
-					Required: true,
-					ForceNew: true,
-				},
-				"description": {
-					Type:     schema.TypeString,
-					Optional: true,
-					ForceNew: true,
-				},
-			},
-		},
-	},
 	"etag": {
 		Type:     schema.TypeString,
 		Computed: true,
@@ -64,18 +39,11 @@ func iamMemberImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser 
 		config := m.(*Config)
 		s := strings.Fields(d.Id())
 		var id, role, member string
-		if len(s) < 3 {
+		if len(s) != 3 {
 			d.SetId("")
-			return nil, fmt.Errorf("Wrong number of parts to Member id %s; expected 'resource_name role member [condition_title]'.", s)
+			return nil, fmt.Errorf("Wrong number of parts to Member id %s; expected 'resource_name role member'.", s)
 		}
-
-		var conditionTitle string
-		if len(s) == 3 {
-			id, role, member = s[0], s[1], s[2]
-		} else {
-			// condition titles can have any characters in them, so re-join the split string
-			id, role, member, conditionTitle = s[0], s[1], s[2], strings.Join(s[3:], " ")
-		}
+		id, role, member = s[0], s[1], s[2]
 
 		// Set the ID only to the first part so all IAM types can share the same resourceIdParserFunc.
 		d.SetId(id)
@@ -90,43 +58,6 @@ func iamMemberImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser 
 		// Set the ID again so that the ID matches the ID it would have if it had been created via TF.
 		// Use the current ID in case it changed in the resourceIdParserFunc.
 		d.SetId(d.Id() + "/" + role + "/" + strings.ToLower(member))
-
-		// Read the upstream policy so we can set the full condition.
-		updater, err := newUpdaterFunc(d, config)
-		if err != nil {
-			return nil, err
-		}
-		p, err := iamPolicyReadWithRetry(updater)
-		if err != nil {
-			return nil, err
-		}
-		var binding *cloudresourcemanager.Binding
-		for _, b := range p.Bindings {
-			if b.Role == role && conditionKeyFromCondition(b.Condition).Title == conditionTitle {
-				containsMember := false
-				for _, m := range b.Members {
-					if strings.ToLower(m) == strings.ToLower(member) {
-						containsMember = true
-					}
-				}
-				if !containsMember {
-					continue
-				}
-
-				if binding != nil {
-					return nil, fmt.Errorf("Cannot import IAM member with condition title %q, it matches multiple conditions", conditionTitle)
-				}
-				binding = b
-			}
-		}
-		if binding == nil {
-			return nil, fmt.Errorf("Cannot find binding for %q with role %q, member %q, and condition title %q", updater.DescribeResource(), role, member, conditionTitle)
-		}
-
-		d.Set("condition", flattenIamCondition(binding.Condition))
-		if k := conditionKeyFromCondition(binding.Condition); !k.Empty() {
-			d.SetId(d.Id() + "/" + k.String())
-		}
 
 		return []*schema.ResourceData{d}, nil
 	}
@@ -152,9 +83,6 @@ func getResourceIamMember(d *schema.ResourceData) *cloudresourcemanager.Binding 
 	b := &cloudresourcemanager.Binding{
 		Members: []string{d.Get("member").(string)},
 		Role:    d.Get("role").(string),
-	}
-	if c := expandIamCondition(d.Get("condition")); c != nil {
-		b.Condition = c
 	}
 	return b
 }
@@ -184,9 +112,6 @@ func resourceIamMemberCreate(newUpdaterFunc newResourceIamUpdaterFunc, enableBat
 			return err
 		}
 		d.SetId(updater.GetResourceId() + "/" + memberBind.Role + "/" + strings.ToLower(memberBind.Members[0]))
-		if k := conditionKeyFromCondition(memberBind.Condition); !k.Empty() {
-			d.SetId(d.Id() + "/" + k.String())
-		}
 		return resourceIamMemberRead(newUpdaterFunc)(d, meta)
 	}
 }
@@ -239,7 +164,6 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 		d.Set("etag", p.Etag)
 		d.Set("member", member)
 		d.Set("role", binding.Role)
-		d.Set("condition", flattenIamCondition(binding.Condition))
 		return nil
 	}
 }

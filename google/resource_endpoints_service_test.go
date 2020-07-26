@@ -7,8 +7,8 @@ import (
 
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccEndpointsService_basic(t *testing.T) {
@@ -23,15 +23,7 @@ func TestAccEndpointsService_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv(), "1"),
-				Check:  testAccCheckEndpointExistsByName(t, serviceId),
-			},
-			{
-				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv(), "2"),
-				Check:  testAccCheckEndpointExistsByName(t, serviceId),
-			},
-			{
-				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv(), "3"),
+				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv()),
 				Check:  testAccCheckEndpointExistsByName(t, serviceId),
 			},
 		},
@@ -107,7 +99,7 @@ func TestEndpointsService_grpcMigrateState(t *testing.T) {
 	}
 }
 
-func testAccEndpointsService_basic(serviceId, project, rev string) string {
+func testAccEndpointsService_basic(serviceId, project string) string {
 	return fmt.Sprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name   = "%[1]s.endpoints.%[2]s.cloud.goog"
@@ -116,7 +108,7 @@ resource "google_endpoints_service" "endpoints_service" {
 swagger: "2.0"
 info:
   description: "A simple Google Cloud Endpoints API example."
-  title: "Endpoints Example, rev. %[3]s"
+  title: "Endpoints Example"
   version: "1.0.0"
 host: "%[1]s.endpoints.%[2]s.cloud.goog"
 basePath: "/"
@@ -155,14 +147,7 @@ definitions:
 EOF
 
 }
-
-resource "random_id" "foo" {
-  keepers = {
-    config_id = google_endpoints_service.endpoints_service.config_id
-  }
-  byte_length = 8
-}
-`, serviceId, project, rev)
+`, serviceId, project)
 }
 
 func testAccEndpointsService_grpc(serviceId, project string) string {

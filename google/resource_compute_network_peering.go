@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -94,13 +94,6 @@ func resourceComputeNetworkPeering() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Details about the current state of the peering.`,
-			},
-
-			"auto_create_routes": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Removed:  "auto_create_routes has been removed because it's redundant and not user-configurable. It can safely be removed from your config",
-				Computed: true,
 			},
 		},
 	}

@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceStorageDefaultObjectAccessControl() *schema.Resource {
@@ -97,7 +97,6 @@ func resourceStorageDefaultObjectAccessControl() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The project team associated with the entity`,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"project_number": {

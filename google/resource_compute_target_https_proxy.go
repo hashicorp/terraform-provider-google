@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeTargetHttpsProxy() *schema.Resource {
@@ -316,8 +316,6 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("quic_override")
 	}
 	if d.HasChange("ssl_certificates") {
 		obj := make(map[string]interface{})
@@ -352,8 +350,6 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("ssl_certificates")
 	}
 	if d.HasChange("ssl_policy") {
 		obj := make(map[string]interface{})
@@ -388,8 +384,6 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("ssl_policy")
 	}
 	if d.HasChange("url_map") {
 		obj := make(map[string]interface{})
@@ -424,8 +418,6 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("url_map")
 	}
 
 	d.Partial(false)

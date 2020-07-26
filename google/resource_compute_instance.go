@@ -2,6 +2,7 @@
 package google
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
@@ -11,10 +12,10 @@ import (
 	"time"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mitchellh/hashstructure"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
@@ -682,7 +683,7 @@ func resourceComputeInstance() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			customdiff.If(
-				func(d *schema.ResourceDiff, meta interface{}) bool {
+				func(_ context.Context, d *schema.ResourceDiff, meta interface{}) bool {
 					return d.HasChange("guest_accelerator")
 				},
 				suppressEmptyGuestAcceleratorDiff,
@@ -1171,8 +1172,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("metadata")
 	}
 
 	if d.HasChange("tags") {
@@ -1191,8 +1190,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if opErr != nil {
 			return opErr
 		}
-
-		d.SetPartial("tags")
 	}
 
 	if d.HasChange("labels") {
@@ -1209,8 +1206,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if opErr != nil {
 			return opErr
 		}
-
-		d.SetPartial("labels")
 	}
 
 	if schedulingHasChange(d) {
@@ -1231,8 +1226,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if opErr != nil {
 			return opErr
 		}
-
-		d.SetPartial("scheduling")
 	}
 
 	networkInterfacesCount := d.Get("network_interface.#").(int)
@@ -1340,7 +1333,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				}
 			}
 		}
-		d.SetPartial("network_interface")
 	}
 
 	if d.HasChange("attached_disk") {
@@ -1433,8 +1425,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 			log.Printf("[DEBUG] Successfully attached disk %s", disk.Source)
 		}
-
-		d.SetPartial("attached_disk")
 	}
 
 	// d.HasChange("service_account") is oversensitive: see https://github.com/hashicorp/terraform/issues/17411
@@ -1465,8 +1455,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if opErr != nil {
 			return opErr
 		}
-
-		d.SetPartial("deletion_protection")
 	}
 
 	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") || d.HasChange("shielded_instance_config")
@@ -1495,7 +1483,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return opErr
 			}
 		}
-		d.SetPartial("desired_status")
 	}
 
 	// Attributes which can only be changed if the instance is stopped
@@ -1537,7 +1524,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if opErr != nil {
 				return opErr
 			}
-			d.SetPartial("machine_type")
 		}
 
 		if d.HasChange("min_cpu_platform") {
@@ -1559,7 +1545,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if opErr != nil {
 				return opErr
 			}
-			d.SetPartial("min_cpu_platform")
 		}
 
 		if d.HasChange("service_account.0.email") || scopesChange {
@@ -1578,7 +1563,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if opErr != nil {
 				return opErr
 			}
-			d.SetPartial("service_account")
 		}
 
 		if d.HasChange("enable_display") {
@@ -1594,7 +1578,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if opErr != nil {
 				return opErr
 			}
-			d.SetPartial("enable_display")
 		}
 
 		if d.HasChange("shielded_instance_config") {
@@ -1772,7 +1755,7 @@ func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([
 // After reconciling the desired and actual state, we would otherwise see a
 // perpetual resembling:
 // 		[] != [{"count":0, "type": "nvidia-tesla-k80"}]
-func suppressEmptyGuestAcceleratorDiff(d *schema.ResourceDiff, meta interface{}) error {
+func suppressEmptyGuestAcceleratorDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	oldi, newi := d.GetChange("guest_accelerator")
 
 	old, ok := oldi.([]interface{})
@@ -1804,7 +1787,7 @@ func suppressEmptyGuestAcceleratorDiff(d *schema.ResourceDiff, meta interface{})
 }
 
 // return an error if the desired_status field is set to a value other than RUNNING on Create.
-func desiredStatusDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func desiredStatusDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	// when creating an instance, name is not set
 	oldName, _ := diff.GetChange("name")
 

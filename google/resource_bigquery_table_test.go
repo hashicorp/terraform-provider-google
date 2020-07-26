@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccBigQueryTable_Basic(t *testing.T) {
@@ -114,31 +114,6 @@ func TestAccBigQueryTable_HivePartitioning(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccBigQueryTable_HivePartitioningCustomSchema(t *testing.T) {
-	t.Parallel()
-	bucketName := testBucketName(t)
-	resourceName := "google_bigquery_table.test"
-	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
-	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccBigQueryTableHivePartitioningCustomSchema(bucketName, datasetID, tableID),
-			},
-			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"external_data_configuration.0.schema"},
 			},
 		},
 	})
@@ -505,7 +480,7 @@ resource "google_storage_bucket_object" "test" {
 }
 
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
+        dataset_id = "%s"
 }
 
 resource "google_bigquery_table" "test" {
@@ -513,64 +488,15 @@ resource "google_bigquery_table" "test" {
 	dataset_id = google_bigquery_dataset.test.dataset_id
 
 	external_data_configuration {
-		source_format = "CSV"
-		autodetect = true
-		source_uris= ["gs://${google_storage_bucket.test.name}/*"]
+            source_format = "CSV"
+            autodetect = true
+            source_uris= ["gs://${google_storage_bucket.test.name}/*"]
 
-		hive_partitioning_options {
-			mode = "AUTO"
-			source_uri_prefix = "gs://${google_storage_bucket.test.name}/"
-		}
+            hive_partitioning_options {
+                mode = "AUTO"
+                source_uri_prefix = "gs://${google_storage_bucket.test.name}/"
+	    }
 
-	}
-	depends_on = ["google_storage_bucket_object.test"]
-}
-`, bucketName, datasetID, tableID)
-}
-
-func testAccBigQueryTableHivePartitioningCustomSchema(bucketName, datasetID, tableID string) string {
-	return fmt.Sprintf(`
-resource "google_storage_bucket" "test" {
-	name          = "%s"
-	force_destroy = true
-}
-
-resource "google_storage_bucket_object" "test" {
-	name    = "key1=20200330/data.json"
-	content = "{\"name\":\"test\", \"last_modification\":\"2020-04-01\"}"
-	bucket  = google_storage_bucket.test.name
-}
-
-resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
-}
-
-resource "google_bigquery_table" "test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
-
-	external_data_configuration {
-		source_format = "NEWLINE_DELIMITED_JSON"
-		autodetect = false
-		source_uris= ["gs://${google_storage_bucket.test.name}/*"]
-
-		hive_partitioning_options {
-			mode = "CUSTOM"
-			source_uri_prefix = "gs://${google_storage_bucket.test.name}/{key1:STRING}"
-		}
-
-		schema = <<EOH
-[
-	{
-		"name": "name",
-		"type": "STRING"
-	},
-	{
-		"name": "last_modification",
-		"type": "DATE"
-	}
-]
-EOH
         }
 	depends_on = ["google_storage_bucket_object.test"]
 }

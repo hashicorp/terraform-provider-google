@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleContainerEngineVersions() *schema.Resource {
@@ -23,18 +23,6 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
-			},
-			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Removed:  "Use location instead",
-				Computed: true,
-			},
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Removed:  "Use location instead",
-				Computed: true,
 			},
 			"default_cluster_version": {
 				Type:     schema.TypeString,

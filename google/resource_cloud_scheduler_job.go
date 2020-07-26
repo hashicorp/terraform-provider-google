@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -23,11 +24,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Both oidc and oauth headers cannot be set
-func validateAuthHeaders(diff *schema.ResourceDiff, v interface{}) error {
+func validateAuthHeaders(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	httpBlock := diff.Get("http_target.0").(map[string]interface{})
 
 	if httpBlock != nil {

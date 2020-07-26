@@ -24,9 +24,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDataCatalogEntry() *schema.Resource {
@@ -132,7 +132,7 @@ this field is optional and defaults to an empty string.`,
 			"schema": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.ValidateJsonString,
+				ValidateFunc: validation.StringIsJSON,
 				StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 				Description: `Schema of the entry (e.g. BigQuery, GoogleSQL, Avro schema), as a json string. An entry might not have any schema
 attached to it. See
@@ -172,7 +172,6 @@ numbers, and underscores; are case insensitive; must be at least 1 character and
 				Computed: true,
 				Description: `Specification for a group of BigQuery tables with name pattern [prefix]YYYYMMDD.
 Context: https://cloud.google.com/bigquery/docs/partitioned-tables#partitioning_versus_sharding.`,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"dataset": {
@@ -199,7 +198,6 @@ for example, for shard MyTable20180101, the tablePrefix is MyTable.`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `Specification that applies to a BigQuery table. This is only valid on entries of type TABLE.`,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"table_source_type": {
@@ -211,7 +209,6 @@ for example, for shard MyTable20180101, the tablePrefix is MyTable.`,
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: `Spec of a BigQuery table. This field should only be populated if tableSourceType is BIGQUERY_TABLE.`,
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"grouped_entry": {
@@ -229,7 +226,6 @@ Otherwise, groupedEntry is empty.`,
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: `Table view specification. This field should only be populated if tableSourceType is BIGQUERY_VIEW.`,
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"view_query": {

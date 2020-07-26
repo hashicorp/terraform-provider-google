@@ -21,9 +21,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // waitForAttachmentToBeProvisioned waits for an attachment to leave the
@@ -211,7 +211,6 @@ they configured BGP on behalf of the customer.`,
 				Computed: true,
 				Description: `Information specific to an InterconnectAttachment. This property
 is populated if the interconnect that this is attached to is of type DEDICATED.`,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"tag8021q": {

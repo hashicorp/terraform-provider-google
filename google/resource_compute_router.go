@@ -15,18 +15,19 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // customizeDiff func for additional checks on google_compute_router properties:
-func resourceComputeRouterCustomDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceComputeRouterCustomDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 
 	block := diff.Get("bgp.0").(map[string]interface{})
 	advertiseMode := block["advertise_mode"]

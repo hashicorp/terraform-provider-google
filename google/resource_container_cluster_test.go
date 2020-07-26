@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func init() {
@@ -1406,15 +1406,7 @@ func TestAccContainerCluster_withDatabaseEncryption(t *testing.T) {
 				Config: testAccContainerCluster_withDatabaseEncryption(clusterName, kmsData),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccContainerCluster_basic(clusterName),
-			},
-			{
-				ResourceName:      "google_container_cluster.primary",
+				ResourceName:      "google_container_cluster.with_database_encryption",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -3107,7 +3099,7 @@ resource "google_kms_key_ring_iam_policy" "test_key_ring_iam_policy" {
   policy_data = data.google_iam_policy.test_kms_binding.policy_data
 }
 
-resource "google_container_cluster" "primary" {
+resource "google_container_cluster" "with_database_encryption" {
   name               = "%[3]s"
   location           = "us-central1-a"
   initial_node_count = 1

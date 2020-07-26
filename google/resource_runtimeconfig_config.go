@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	runtimeconfig "google.golang.org/api/runtimeconfig/v1beta1"
 )
 
@@ -81,7 +81,7 @@ func resourceRuntimeconfigConfigRead(d *schema.ResourceData, meta interface{}) e
 	fullName := d.Id()
 	runConfig, err := config.clientRuntimeconfig.Projects.Configs.Get(fullName).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("RuntimeConfig %q", d.Id()))
+		return err
 	}
 
 	project, name, err := resourceRuntimeconfigParseFullName(runConfig.Name)

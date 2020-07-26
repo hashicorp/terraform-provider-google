@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func projectIamMemberImportStep(resourceName, pid, role, member string) resource.TestStep {
@@ -133,40 +133,6 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 	})
 }
 
-func TestAccProjectIamMember_withCondition(t *testing.T) {
-	t.Parallel()
-
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
-	resourceName := "google_project_iam_member.acceptance"
-	role := "roles/compute.instanceAdmin"
-	member := "user:admin@hashicorptest.com"
-	conditionTitle := "expires_after_2019_12_31"
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			// Create a new project
-			{
-				Config: testAccProject_create(pid, pname, org),
-				Check: resource.ComposeTestCheckFunc(
-					testAccProjectExistingPolicy(t, pid),
-				),
-			},
-			// Apply an IAM binding
-			{
-				Config: testAccProjectAssociateMember_withCondition(pid, pname, org, role, member, conditionTitle),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportStateId:     fmt.Sprintf("%s %s %s %s", pid, role, member, conditionTitle),
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func testAccProjectAssociateMemberBasic(pid, name, org, role, member string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
@@ -203,25 +169,4 @@ resource "google_project_iam_member" "multiple" {
   member  = "%s"
 }
 `, pid, name, org, role, member, role2, member2)
-}
-
-func testAccProjectAssociateMember_withCondition(pid, name, org, role, member, conditionTitle string) string {
-	return fmt.Sprintf(`
-resource "google_project" "acceptance" {
-  project_id = "%s"
-  name       = "%s"
-  org_id     = "%s"
-}
-
-resource "google_project_iam_member" "acceptance" {
-  project = google_project.acceptance.project_id
-  role    = "%s"
-  member  = "%s"
-  condition {
-    title       = "%s"
-    description = "Expiring at midnight of 2019-12-31"
-    expression  = "request.time < timestamp(\"2020-01-01T00:00:00Z\")"
-  }
-}
-`, pid, name, org, role, member, conditionTitle)
 }

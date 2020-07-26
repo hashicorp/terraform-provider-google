@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // compareTpuNodeSchedulingConfig diff suppresses for the default
@@ -471,8 +471,6 @@ func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("tensorflow_version")
 	}
 
 	d.Partial(false)

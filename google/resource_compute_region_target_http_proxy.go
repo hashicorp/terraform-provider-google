@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceComputeRegionTargetHttpProxy() *schema.Resource {
@@ -276,8 +276,6 @@ func resourceComputeRegionTargetHttpProxyUpdate(d *schema.ResourceData, meta int
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("url_map")
 	}
 
 	d.Partial(false)

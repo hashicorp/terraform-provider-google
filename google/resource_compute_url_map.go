@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeUrlMap() *schema.Resource {
@@ -1128,6 +1128,7 @@ The value must be between 0 and 1000`,
 							Optional:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 							Description:      `The backend service or backend bucket to use when none of the given paths match.`,
+							ConflictsWith:    []string{"default_url_redirect"},
 						},
 						"default_url_redirect": {
 							Type:     schema.TypeList,

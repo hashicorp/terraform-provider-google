@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -31,12 +31,6 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"KEY_ALG_UNSPECIFIED", "KEY_ALG_RSA_1024", "KEY_ALG_RSA_2048"}, false),
 				Description:  `The algorithm used to generate the key, used only on create. KEY_ALG_RSA_2048 is the default algorithm. Valid values are: "KEY_ALG_RSA_1024", "KEY_ALG_RSA_2048".`,
-			},
-			"pgp_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Removed:  "The pgp_key field has been removed. See https://www.terraform.io/docs/extend/best-practices/sensitive-state.html for more information.",
-				Computed: true,
 			},
 			"private_key_type": {
 				Type:         schema.TypeString,
@@ -87,16 +81,6 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The key can be used before this timestamp. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".`,
-			},
-			"private_key_encrypted": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Removed:  "The private_key_encrypted field has been removed. See https://www.terraform.io/docs/extend/best-practices/sensitive-state.html for more information.",
-			},
-			"private_key_fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Removed:  "The private_key_fingerprint field has been removed. See https://www.terraform.io/docs/extend/best-practices/sensitive-state.html for more information.",
 			},
 		},
 	}

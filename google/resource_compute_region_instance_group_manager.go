@@ -7,10 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 )
@@ -36,13 +35,6 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `The base instance name to use for instances in this group. The value must be a valid RFC1035 name. Supported characters are lowercase letters, numbers, and hyphens (-). Instances are named by appending a hyphen and a random four-character string to the base instance name.`,
-			},
-
-			"instance_template": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Removed:     "This field has been replaced by `version.instance_template` in 3.0.0",
-				Description: `The full URL to an instance template from which all new instances of this version will be created.`,
 			},
 
 			"version": {
@@ -156,13 +148,6 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The URL of the created resource.`,
-			},
-
-			"update_strategy": {
-				Type:     schema.TypeString,
-				Removed:  "This field is removed.",
-				Optional: true,
-				Computed: true,
 			},
 
 			"target_pools": {
@@ -522,7 +507,6 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 		if err != nil {
 			return err
 		}
-		d.SetPartial("named_port")
 	}
 
 	// target size should use resize
@@ -540,7 +524,6 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 		if err != nil {
 			return err
 		}
-		d.SetPartial("target_size")
 	}
 
 	d.Partial(false)
@@ -687,7 +670,7 @@ func hashZoneFromSelfLinkOrResourceName(value interface{}) int {
 	parts := strings.Split(value.(string), "/")
 	resource := parts[len(parts)-1]
 
-	return hashcode.String(resource)
+	return hashcode(resource)
 }
 
 func resourceRegionInstanceGroupManagerStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

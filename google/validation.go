@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const (
@@ -114,7 +114,7 @@ func validateRegexp(re string) schema.SchemaValidateFunc {
 func validateRFC1918Network(min, max int) schema.SchemaValidateFunc {
 	return func(i interface{}, k string) (s []string, es []error) {
 
-		s, es = validation.CIDRNetwork(min, max)(i, k)
+		s, es = validation.IsCIDRNetwork(min, max)(i, k)
 		if len(es) > 0 {
 			return
 		}

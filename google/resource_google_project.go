@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/googleapi"
@@ -217,9 +217,6 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 	p, err := readGoogleProject(d, config)
 	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 403 && strings.Contains(gerr.Message, "caller does not have permission") {
-			return fmt.Errorf("the user does not have permission to access Project %q or it may not exist", pid)
-		}
 		return handleNotFoundError(err, d, fmt.Sprintf("Project %q", pid))
 	}
 
@@ -336,8 +333,6 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		if p, err = updateProject(config, d, project_name, p); err != nil {
 			return err
 		}
-
-		d.SetPartial("name")
 	}
 
 	// Project parent has changed
@@ -350,8 +345,6 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		if p, err = updateProject(config, d, project_name, p); err != nil {
 			return err
 		}
-		d.SetPartial("org_id")
-		d.SetPartial("folder_id")
 	}
 
 	// Billing account has changed
@@ -370,7 +363,6 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		if p, err = updateProject(config, d, project_name, p); err != nil {
 			return err
 		}
-		d.SetPartial("labels")
 	}
 
 	d.Partial(false)

@@ -20,16 +20,14 @@ import (
 
 	"github.com/dnaeon/go-vcr/cassette"
 	"github.com/dnaeon/go-vcr/recorder"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/terraform-providers/terraform-provider-random/random"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-var testAccProviders map[string]terraform.ResourceProvider
+var testAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
-var testAccRandomProvider *schema.Provider
 
 var credsEnvVars = []string{
 	"GOOGLE_CREDENTIALS",
@@ -93,11 +91,9 @@ var sources map[string]VcrSource
 func init() {
 	configs = make(map[string]*Config)
 	sources = make(map[string]VcrSource)
-	testAccProvider = Provider().(*schema.Provider)
-	testAccRandomProvider = random.Provider().(*schema.Provider)
-	testAccProviders = map[string]terraform.ResourceProvider{
+	testAccProvider = Provider()
+	testAccProviders = map[string]*schema.Provider{
 		"google": testAccProvider,
-		"random": testAccRandomProvider,
 	}
 }
 
@@ -221,9 +217,8 @@ func googleProviderConfig(t *testing.T) *Config {
 	return testAccProvider.Meta().(*Config)
 }
 
-func getTestAccProviders(testName string) map[string]terraform.ResourceProvider {
-	prov := Provider().(*schema.Provider)
-	provRand := random.Provider().(*schema.Provider)
+func getTestAccProviders(testName string) map[string]*schema.Provider {
+	prov := Provider()
 	if isVcrEnabled() {
 		old := prov.ConfigureFunc
 		prov.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
@@ -232,10 +227,9 @@ func getTestAccProviders(testName string) map[string]terraform.ResourceProvider 
 	} else {
 		log.Print("[DEBUG] VCR_PATH or VCR_MODE not set, skipping VCR")
 	}
-	return map[string]terraform.ResourceProvider{
+	return map[string]*schema.Provider{
 		"google":      prov,
 		"google-beta": prov,
-		"random":      provRand,
 	}
 }
 
@@ -364,13 +358,13 @@ func randInt(t *testing.T) int {
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
+	if err := Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProvider_impl(t *testing.T) {
-	var _ terraform.ResourceProvider = Provider()
+	var _ *schema.Provider = Provider()
 }
 
 func TestProvider_noDuplicatesInResourceMap(t *testing.T) {

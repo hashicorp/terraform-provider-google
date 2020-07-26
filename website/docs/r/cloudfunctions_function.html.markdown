@@ -193,9 +193,8 @@ This resource provides the following
 
 ## Import
 
-Functions can be imported using the `name` or `{{project}}/{{region}}/name`, e.g.
+Functions can be imported using the `name`, e.g.
 
 ```
 $ terraform import google_cloudfunctions_function.default function-test
-$ terraform import google_cloudfunctions_function.default {{project}}/{{region}}/function-test
 ```

@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -537,9 +537,6 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("label_fingerprint")
-		d.SetPartial("labels")
 	}
 	if d.HasChange("size") {
 		obj := make(map[string]interface{})
@@ -574,8 +571,6 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("size")
 	}
 
 	d.Partial(false)

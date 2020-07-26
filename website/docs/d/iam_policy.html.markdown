@@ -97,6 +97,7 @@ The `condition` block supports:
 
 * `description` - (Optional) An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
 
+
 ## Attributes Reference
 
 The following attribute is exported:

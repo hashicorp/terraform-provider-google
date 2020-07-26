@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceComputeRegionTargetHttpsProxy() *schema.Resource {
@@ -296,8 +296,6 @@ func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta in
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("ssl_certificates")
 	}
 	if d.HasChange("url_map") {
 		obj := make(map[string]interface{})
@@ -332,8 +330,6 @@ func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta in
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("url_map")
 	}
 
 	d.Partial(false)

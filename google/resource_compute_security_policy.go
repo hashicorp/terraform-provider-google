@@ -1,14 +1,15 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"time"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	compute "google.golang.org/api/compute/v0.beta"
 )
 
@@ -167,7 +168,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 	}
 }
 
-func rulesCustomizeDiff(diff *schema.ResourceDiff, _ interface{}) error {
+func rulesCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {
 	_, n := diff.GetChange("rule")
 	nSet := n.(*schema.Set)
 
