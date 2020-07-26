@@ -1,6 +1,7 @@
 package google
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -127,7 +128,7 @@ func checkDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 		}
 
 		if errMsg != "" {
-			return fmt.Errorf(errMsg)
+			return errors.New(errMsg)
 		}
 
 		return nil
