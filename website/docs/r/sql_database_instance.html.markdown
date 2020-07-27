@@ -363,6 +363,10 @@ to work, cannot be updated, and supports:
 * `verify_server_certificate` - (Optional) True if the master's common name
     value is checked during the SSL handshake.
 
+The optional `clone` supports:
+* `source_instance_name` - Name of the source instance which will be cloned
+* `pitr_timestamp_ms` - Timestamp of the point in time that should be restored, requires the instance to have point in time recovery enabled (Optional) 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
