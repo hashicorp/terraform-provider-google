@@ -107,6 +107,12 @@ func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.Resour
 	if v, ok := configs[testName]; ok {
 		return v, nil
 	}
+	if configureFunc == nil {
+		return nil, errors.New("nil configureFunc")
+	}
+	if d == nil {
+		return nil, errors.New("nil resourcedata")
+	}
 	c, err := configureFunc(d)
 	if err != nil {
 		return nil, err
