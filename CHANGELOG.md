@@ -1,4 +1,20 @@
-## 3.32.0 (Unreleased)
+## 3.33.0 (Unreleased)
+## 3.32.0 (July 21, 2020)
+FEATURES:
+* **New Data Source:** `google_sql_database_instance`  #2841 ([#6797](https://github.com/terraform-providers/terraform-provider-google/pull/6797))
+* **New Resource:** `google_cloud_asset_folder_feed` ([#6821](https://github.com/terraform-providers/terraform-provider-google/pull/6821))
+* **New Resource:** `google_cloud_asset_organization_feed` ([#6821](https://github.com/terraform-providers/terraform-provider-google/pull/6821))
+* **New Resource:** `google_cloud_asset_project_feed` ([#6821](https://github.com/terraform-providers/terraform-provider-google/pull/6821))
+* **New Resource:** `google_monitoring_metric_descriptor` ([#6829](https://github.com/terraform-providers/terraform-provider-google/pull/6829))
+
+IMPROVEMENTS:
+* filestore: Added support for filestore high scale tier. ([#6828](https://github.com/terraform-providers/terraform-provider-google/pull/6828))
+* resourcemanager: Added `folder_id` as computed attribute to `google_folder` resource and datasource. ([#6823](https://github.com/terraform-providers/terraform-provider-google/pull/6823))
+
+BUG FIXES:
+* container: Fixed a crash in `google_container_cluster` when `""` was specified for `resource_usage_export_config.bigquery_destination.dataset_id`. ([#6839](https://github.com/terraform-providers/terraform-provider-google/pull/6839))
+* bigquery: Fixed bug where a permadiff would show up when adding a column to the middle of a `bigquery_table.schema` ([#6803](https://github.com/terraform-providers/terraform-provider-google/pull/6803))
+
 ## 3.31.0 (July 20, 2020)
 
 FEATURES:
