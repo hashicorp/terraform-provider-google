@@ -640,8 +640,17 @@ func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabled(t *testing.T) {
 		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(
-					testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled, masterID),
+				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, true),
+				Check:  resource.TestCheckResourceAttr("google_sql_database_instance.instance", "point_in_time_recovery", "true"),
+			},
+			{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, false),
+				Check:  resource.TestCheckResourceAttr("google_sql_database_instance.instance", "point_in_time_recovery", "false"),
 			},
 			{
 				ResourceName:      "google_sql_database_instance.instance",
@@ -982,7 +991,9 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `
-var testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled = `
+
+func testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID int, PointInTimeRecoveryEnabled bool) string {
+	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
   name             = "tf-test-%d"
   region           = "us-central1"
@@ -994,8 +1005,9 @@ resource "google_sql_database_instance" "instance" {
     backup_configuration {
       enabled                = true
       start_time             = "00:00"
-      point_in_time_recovery = true
+      point_in_time_recovery = %t
     }
   }
 }
-`
+`, masterID, PointInTimeRecoveryEnabled)
+}
