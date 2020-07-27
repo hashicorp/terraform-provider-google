@@ -271,7 +271,7 @@ var StorageDefaultBasePath = "https://www.googleapis.com/storage/v1/"
 var TPUDefaultBasePath = "https://tpu.googleapis.com/v1/"
 var VPCAccessDefaultBasePath = "https://vpcaccess.googleapis.com/v1/"
 
-var defaultClientScopes = []string{
+var DefaultClientScopes = []string{
 	"https://www.googleapis.com/auth/compute",
 	"https://www.googleapis.com/auth/cloud-platform",
 	"https://www.googleapis.com/auth/cloud-identity",
@@ -282,7 +282,7 @@ var defaultClientScopes = []string{
 
 func (c *Config) LoadAndValidate(ctx context.Context) error {
 	if len(c.Scopes) == 0 {
-		c.Scopes = defaultClientScopes
+		c.Scopes = DefaultClientScopes
 	}
 
 	tokenSource, err := c.getTokenSource(c.Scopes)
