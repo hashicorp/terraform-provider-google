@@ -2,6 +2,7 @@ package google
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,6 +21,7 @@ import (
 
 	"github.com/dnaeon/go-vcr/cassette"
 	"github.com/dnaeon/go-vcr/recorder"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -103,19 +105,13 @@ func init() {
 // ConfigureFunc on our provider creates a new HTTP client and sets base paths (config.go LoadAndValidate)
 // VCR requires a single HTTP client to handle all interactions so it can record and replay responses so
 // this caches HTTP clients per test by replacing ConfigureFunc
-func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.ResourceData) (interface{}, error), testName string) (*Config, error) {
+func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc schema.ConfigureContextFunc, testName string) (*Config, diag.Diagnostics) {
 	if v, ok := configs[testName]; ok {
 		return v, nil
 	}
-	if configureFunc == nil {
-		return nil, errors.New("nil configureFunc")
-	}
-	if d == nil {
-		return nil, errors.New("nil resourcedata")
-	}
-	c, err := configureFunc(d)
-	if err != nil {
-		return nil, err
+	c, diags := configureFunc(ctx, d)
+	if diags.HasError() {
+		return nil, diags
 	}
 	config := c.(*Config)
 	var vcrMode recorder.Mode
@@ -140,7 +136,7 @@ func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.Resour
 
 	rec, err := recorder.NewAsMode(path, vcrMode, config.client.Transport)
 	if err != nil {
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 	// Defines how VCR will match requests to responses.
 	rec.SetMatcher(func(r *http.Request, i cassette.Request) bool {
@@ -188,7 +184,7 @@ func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.Resour
 	config.wrappedPubsubClient.Transport = rec
 	config.wrappedBigQueryClient.Transport = rec
 	configs[testName] = config
-	return config, err
+	return config, diag.FromErr(err)
 }
 
 // We need to explicitly close the VCR recorder to save the cassette
@@ -226,9 +222,9 @@ func googleProviderConfig(t *testing.T) *Config {
 func getTestAccProviders(testName, providerName string) map[string]*schema.Provider {
 	prov := Provider()
 	if isVcrEnabled() {
-		old := prov.ConfigureFunc
-		prov.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
-			return getCachedConfig(d, old, testName)
+		old := prov.ConfigureContextFunc
+		prov.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+			return getCachedConfig(ctx, d, old, testName)
 		}
 	} else {
 		log.Print("[DEBUG] VCR_PATH or VCR_MODE not set, skipping VCR")
