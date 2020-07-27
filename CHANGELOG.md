@@ -1,5 +1,5 @@
 ## 3.33.0 (Unreleased)
-## 3.32.0 (July 21, 2020)
+## 3.32.0 (Unreleased)
 FEATURES:
 * **New Data Source:** `google_sql_database_instance`  #2841 ([#6797](https://github.com/terraform-providers/terraform-provider-google/pull/6797))
 * **New Resource:** `google_cloud_asset_folder_feed` ([#6821](https://github.com/terraform-providers/terraform-provider-google/pull/6821))
@@ -10,6 +10,7 @@ FEATURES:
 IMPROVEMENTS:
 * filestore: Added support for filestore high scale tier. ([#6828](https://github.com/terraform-providers/terraform-provider-google/pull/6828))
 * resourcemanager: Added `folder_id` as computed attribute to `google_folder` resource and datasource. ([#6823](https://github.com/terraform-providers/terraform-provider-google/pull/6823))
+* compute: Added support to `google_compute_backend_service` for setting a network endpoint group as `backend.group`. ([#6853](https://github.com/terraform-providers/terraform-provider-google/pull/6853))
 
 BUG FIXES:
 * container: Fixed a crash in `google_container_cluster` when `""` was specified for `resource_usage_export_config.bigquery_destination.dataset_id`. ([#6839](https://github.com/terraform-providers/terraform-provider-google/pull/6839))
