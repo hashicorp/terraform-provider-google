@@ -207,7 +207,7 @@ func TestAccComputeFirewall_enableLogging(t *testing.T) {
 		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeFirewall_enableLogging(networkName, firewallName, false),
+				Config: testAccComputeFirewall_enableLogging(networkName, firewallName, ""),
 			},
 			{
 				ResourceName:      "google_compute_firewall.foobar",
@@ -215,7 +215,7 @@ func TestAccComputeFirewall_enableLogging(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeFirewall_enableLogging(networkName, firewallName, true),
+				Config: testAccComputeFirewall_enableLogging(networkName, firewallName, "INCLUDE_ALL_METADATA"),
 			},
 			{
 				ResourceName:      "google_compute_firewall.foobar",
@@ -223,7 +223,15 @@ func TestAccComputeFirewall_enableLogging(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeFirewall_enableLogging(networkName, firewallName, false),
+				Config: testAccComputeFirewall_enableLogging(networkName, firewallName, "EXCLUDE_ALL_METADATA"),
+			},
+			{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeFirewall_enableLogging(networkName, firewallName, ""),
 			},
 			{
 				ResourceName:      "google_compute_firewall.foobar",
@@ -411,10 +419,13 @@ resource "google_compute_firewall" "foobar" {
 `, network, firewall)
 }
 
-func testAccComputeFirewall_enableLogging(network, firewall string, enableLogging bool) string {
+func testAccComputeFirewall_enableLogging(network, firewall, logging string) string {
 	enableLoggingCfg := ""
-	if enableLogging {
-		enableLoggingCfg = "enable_logging= true"
+	if logging != "" {
+		enableLoggingCfg = fmt.Sprintf(`log_config {
+		  metadata = "%s"
+		}
+		`, logging)
 	}
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {

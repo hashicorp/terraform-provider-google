@@ -136,11 +136,10 @@ The following arguments are supported:
   not enforced and the network behaves as if it did not exist. If this
   is unspecified, the firewall rule will be enabled.
 
-* `enable_logging` -
+* `log_config` -
   (Optional)
-  This field denotes whether to enable logging for a particular
-  firewall rule. If logging is enabled, logs will be exported to
-  Stackdriver.
+  This field denotes the logging options for a particular firewall rule.
+  If defined, logging is enabled, and logs will be exported to Cloud Logging.  Structure is documented below.
 
 * `priority` -
   (Optional)
@@ -208,6 +207,9 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+* `enable_logging` - (Optional, Deprecated) This field denotes whether to enable logging for a particular firewall rule.
+If logging is enabled, logs will be exported to Stackdriver. Deprecated in favor of `log_config`
+
 The `allow` block supports:
 
 * `protocol` -
@@ -243,6 +245,16 @@ The `deny` block supports:
   applies to connections through any port.
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
+
+The `log_config` block supports:
+
+* `metadata` -
+  (Required)
+  This field denotes whether to include or exclude metadata for firewall logs.
+
+  Possible values are:
+  * `EXCLUDE_ALL_METADATA`
+  * `INCLUDE_ALL_METADATA`
 
 ## Attributes Reference
 
