@@ -30,6 +30,9 @@ const (
 
 	// https://cloud.google.com/iam/docs/understanding-custom-roles#naming_the_role
 	IAMCustomRoleIDRegex = "^[a-zA-Z0-9_\\.]{3,64}$"
+
+	// https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains/create#query-parameters
+	ADDomainNameRegex = "^[a-z][a-z0-9-]{0,14}\\.[a-z0-9-\\.]*[a-z]+[a-z0-9]*$"
 )
 
 var (
@@ -310,4 +313,16 @@ func validateRFC3339Date(v interface{}, k string) (warnings []string, errors []e
 		errors = append(errors, err)
 	}
 	return
+}
+
+func validateADDomainName() schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(string)
+
+		if len(value) > 64 || !regexp.MustCompile(ADDomainNameRegex).MatchString(value) {
+			errors = append(errors, fmt.Errorf(
+				"%q (%q) doesn't match regexp %q, domain_name must be 2 to 64 with lowercase letters, digits, hyphens, dots and start with a letter", k, value, ADDomainNameRegex))
+		}
+		return
+	}
 }
