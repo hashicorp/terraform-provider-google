@@ -252,6 +252,33 @@ https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names`,
 														},
 													},
 												},
+												"ports": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Optional: true,
+													Description: `List of open ports in the container.
+More Info: 
+https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"container_port": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: `Port number.`,
+															},
+															"name": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Name of the port.`,
+															},
+															"protocol": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Protocol used on port. Defaults to TCP.`,
+															},
+														},
+													},
+												},
 												"resources": {
 													Type:     schema.TypeList,
 													Computed: true,
@@ -1028,6 +1055,7 @@ func flattenCloudRunServiceSpecTemplateSpecContainers(v interface{}, d *schema.R
 			"image":       flattenCloudRunServiceSpecTemplateSpecContainersImage(original["image"], d, config),
 			"command":     flattenCloudRunServiceSpecTemplateSpecContainersCommand(original["command"], d, config),
 			"env":         flattenCloudRunServiceSpecTemplateSpecContainersEnv(original["env"], d, config),
+			"ports":       flattenCloudRunServiceSpecTemplateSpecContainersPorts(original["ports"], d, config),
 			"resources":   flattenCloudRunServiceSpecTemplateSpecContainersResources(original["resources"], d, config),
 		})
 	}
@@ -1170,6 +1198,51 @@ func flattenCloudRunServiceSpecTemplateSpecContainersEnvName(v interface{}, d *s
 
 func flattenCloudRunServiceSpecTemplateSpecContainersEnvValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersPorts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":           flattenCloudRunServiceSpecTemplateSpecContainersPortsName(original["name"], d, config),
+			"protocol":       flattenCloudRunServiceSpecTemplateSpecContainersPortsProtocol(original["protocol"], d, config),
+			"container_port": flattenCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(original["containerPort"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudRunServiceSpecTemplateSpecContainersPortsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersPortsProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenCloudRunServiceSpecTemplateSpecContainersResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1706,6 +1779,13 @@ func expandCloudRunServiceSpecTemplateSpecContainers(v interface{}, d TerraformR
 			transformed["env"] = transformedEnv
 		}
 
+		transformedPorts, err := expandCloudRunServiceSpecTemplateSpecContainersPorts(original["ports"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPorts); val.IsValid() && !isEmptyValue(val) {
+			transformed["ports"] = transformedPorts
+		}
+
 		transformedResources, err := expandCloudRunServiceSpecTemplateSpecContainersResources(original["resources"], d, config)
 		if err != nil {
 			return nil, err
@@ -1914,6 +1994,54 @@ func expandCloudRunServiceSpecTemplateSpecContainersEnvName(v interface{}, d Ter
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersEnvValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersPorts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandCloudRunServiceSpecTemplateSpecContainersPortsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedProtocol, err := expandCloudRunServiceSpecTemplateSpecContainersPortsProtocol(original["protocol"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedProtocol); val.IsValid() && !isEmptyValue(val) {
+			transformed["protocol"] = transformedProtocol
+		}
+
+		transformedContainerPort, err := expandCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(original["container_port"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedContainerPort); val.IsValid() && !isEmptyValue(val) {
+			transformed["containerPort"] = transformedContainerPort
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersPortsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersPortsProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

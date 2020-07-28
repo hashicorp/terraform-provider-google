@@ -403,6 +403,12 @@ The `containers` block supports:
   (Optional)
   List of environment variables to set in the container.  Structure is documented below.
 
+* `ports` -
+  (Optional)
+  List of open ports in the container.
+  More Info: 
+  https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort  Structure is documented below.
+
 * `resources` -
   (Optional)
   Compute Resources required by this container. Used to set values such as max memory
@@ -479,6 +485,20 @@ The `env` block supports:
   references will never be expanded, regardless of whether the variable
   exists or not.
   Defaults to "".
+
+The `ports` block supports:
+
+* `name` -
+  (Optional)
+  Name of the port.
+
+* `protocol` -
+  (Optional)
+  Protocol used on port. Defaults to TCP.
+
+* `container_port` -
+  (Required)
+  Port number.
 
 The `resources` block supports:
 
