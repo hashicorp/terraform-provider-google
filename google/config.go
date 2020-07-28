@@ -80,6 +80,7 @@ type Config struct {
 	tokenSource oauth2.TokenSource
 
 	AccessContextManagerBasePath string
+	ActiveDirectoryBasePath      string
 	AppEngineBasePath            string
 	BigQueryBasePath             string
 	BigqueryDataTransferBasePath string
@@ -224,6 +225,7 @@ type Config struct {
 
 // Generated product base paths
 var AccessContextManagerDefaultBasePath = "https://accesscontextmanager.googleapis.com/v1/"
+var ActiveDirectoryDefaultBasePath = "https://managedidentities.googleapis.com/v1/"
 var AppEngineDefaultBasePath = "https://appengine.googleapis.com/v1/"
 var BigQueryDefaultBasePath = "https://www.googleapis.com/bigquery/v2/"
 var BigqueryDataTransferDefaultBasePath = "https://bigquerydatatransfer.googleapis.com/v1/"
@@ -767,6 +769,7 @@ func removeBasePathVersion(url string) string {
 func ConfigureBasePaths(c *Config) {
 	// Generated Products
 	c.AccessContextManagerBasePath = AccessContextManagerDefaultBasePath
+	c.ActiveDirectoryBasePath = ActiveDirectoryDefaultBasePath
 	c.AppEngineBasePath = AppEngineDefaultBasePath
 	c.BigQueryBasePath = BigQueryDefaultBasePath
 	c.BigqueryDataTransferBasePath = BigqueryDataTransferDefaultBasePath
