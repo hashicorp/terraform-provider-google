@@ -7,10 +7,9 @@ description: |-
   Allows management of a Google Cloud Platform service account Key Pair
 ---
 
-# google\_service\_account\_key
+# google_service_account_key
 
 Creates and manages service account key-pairs, which allow the user to establish identity of a service account outside of GCP. For more information, see [the official documentation](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and [API](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys).
-
 
 ## Example Usage, creating a new Key Pair
 
@@ -61,7 +60,7 @@ Valid values are listed at
 [ServiceAccountPrivateKeyType](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys#ServiceAccountKeyAlgorithm)
 (only used on create)
 
-* `public_key_type` (Optional) The output format of the public key requested. X509_PEM is the default output format.
+* `public_key_type` (Optional) The output format of the public key requested. TYPE_X509_PEM_FILE is the default output format.
 
 * `private_key_type` (Optional) The output format of the private key. TYPE_GOOGLE_CREDENTIALS_FILE is the default output format.
 
@@ -82,4 +81,3 @@ service account keys through the CLI or web console. This is only populated when
 
 * `valid_before` - The key can be used before this timestamp.
 A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
-
