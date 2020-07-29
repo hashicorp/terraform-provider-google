@@ -3,8 +3,10 @@ package google
 import (
 	"errors"
 	"fmt"
+	"log"
 	"reflect"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
@@ -128,6 +130,8 @@ func checkDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 		}
 
 		if errMsg != "" {
+			log.Println("[DEBUG] data source:", spew.Sdump(ds.Primary.Attributes))
+			log.Println("[DEBUG] resource:", spew.Sdump(rs.Primary.Attributes))
 			return errors.New(errMsg)
 		}
 
