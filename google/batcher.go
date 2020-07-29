@@ -3,10 +3,11 @@ package google
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/errwrap"
 	"log"
 	"sync"
 	"time"
+
+	"github.com/hashicorp/errwrap"
 )
 
 const defaultBatchSendIntervalSec = 3
@@ -184,7 +185,14 @@ func (b *RequestBatcher) SendRequestWithTimeout(batchKey string, request *BatchR
 	case <-ctx.Done():
 		break
 	}
-	return nil, fmt.Errorf("Request %s timed out after %v", batchKey, timeout)
+	switch ctx.Err() {
+	case context.Canceled:
+		return nil, fmt.Errorf("Request %s canceled", batchKey)
+	case context.DeadlineExceeded:
+		return nil, fmt.Errorf("Request %s timed out after %v", batchKey, timeout)
+	default:
+		return nil, fmt.Errorf("Error making request %s: %v", ctx.Err())
+	}
 }
 
 // registerBatchRequest safely sees if an existing batch has been started
