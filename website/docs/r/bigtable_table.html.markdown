@@ -13,7 +13,7 @@ Creates a Google Cloud Bigtable table inside an instance. For more information s
 [the official documentation](https://cloud.google.com/bigtable/) and
 [API](https://cloud.google.com/bigtable/docs/go/reference).
 
--> **Note**: It is strongly recommended to set `lifecycle { prevent_destroy = true }`
+-> **Note:** It is strongly recommended to set `lifecycle { prevent_destroy = true }`
 on tables in order to prevent accidental data loss. See
 [Terraform docs](https://www.terraform.io/docs/configuration/resources.html#prevent_destroy)
 for more information on lifecycle parameters.

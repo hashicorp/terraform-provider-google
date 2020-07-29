@@ -288,7 +288,7 @@ The `pubsub_target` block supports:
 * `topic_name` -
   (Required)
   The full resource name for the Cloud Pub/Sub topic to which
-  messages will be published when a job is delivered. ~>**NOTE**:
+  messages will be published when a job is delivered. ~>**NOTE:**
   The topic name must be in the same format as required by PubSub's
   PublishRequest.name, e.g. `projects/my-project/topics/my-topic`.
 
