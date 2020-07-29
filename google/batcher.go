@@ -185,6 +185,16 @@ func (b *RequestBatcher) SendRequestWithTimeout(batchKey string, request *BatchR
 	case <-ctx.Done():
 		break
 	}
+	if b.parentCtx.Err() != nil {
+		switch b.parentCtx.Err() {
+		case context.Canceled:
+			return nil, fmt.Errorf("Parent context of request %s canceled", batchKey)
+		case context.DeadlineExceeded:
+			return nil, fmt.Errorf("Parent context of request %s timed out", batchKey)
+		default:
+			return nil, fmt.Errorf("Parent context of request %s encountered an error: %v", ctx.Err())
+		}
+	}
 	switch ctx.Err() {
 	case context.Canceled:
 		return nil, fmt.Errorf("Request %s canceled", batchKey)
