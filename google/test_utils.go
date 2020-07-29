@@ -3,10 +3,8 @@ package google
 import (
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
@@ -120,6 +118,9 @@ func checkDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 			if _, ok := ignoreFields[k]; ok {
 				continue
 			}
+			if k == "%" {
+				continue
+			}
 			if dsAttr[k] != rsAttr[k] {
 				// ignore data sources where an empty list is being compared against a null list.
 				if k[len(k)-1:] == "#" && (dsAttr[k] == "" || dsAttr[k] == "0") && (rsAttr[k] == "" || rsAttr[k] == "0") {
@@ -130,8 +131,6 @@ func checkDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 		}
 
 		if errMsg != "" {
-			log.Println("[DEBUG] data source:", spew.Sdump(ds.Primary.Attributes))
-			log.Println("[DEBUG] resource:", spew.Sdump(rs.Primary.Attributes))
 			return errors.New(errMsg)
 		}
 
