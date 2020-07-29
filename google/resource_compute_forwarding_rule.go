@@ -80,7 +80,7 @@ forwarding rule. By default, if this field is empty, an ephemeral
 internal IP address will be automatically allocated from the IP range
 of the subnet or network configured for this forwarding rule.
 
-An address must be specified by a literal IP address. ~> **NOTE**: While
+An address must be specified by a literal IP address. ~> **NOTE:** While
 the API allows you to specify various resource paths for an address resource
 instead, Terraform requires this to specifically be an IP address to
 avoid needing to fetching the IP address from resource paths on refresh

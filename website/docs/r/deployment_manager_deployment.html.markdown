@@ -186,7 +186,7 @@ The `imports` block supports:
   that are not actually instantiated. This allows you to preview a
   deployment. It can be updated to false to actually deploy
   with real resources.
-   ~>**NOTE**: Deployment Manager does not allow update
+   ~>**NOTE:** Deployment Manager does not allow update
   of a deployment in preview (unless updating to preview=false). Thus,
   Terraform will force-recreate deployments if either preview is updated
   to true or if other fields are updated while preview is true.
