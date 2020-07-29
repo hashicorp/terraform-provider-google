@@ -192,7 +192,7 @@ func (b *RequestBatcher) SendRequestWithTimeout(batchKey string, request *BatchR
 		case context.DeadlineExceeded:
 			return nil, fmt.Errorf("Parent context of request %s timed out", batchKey)
 		default:
-			return nil, fmt.Errorf("Parent context of request %s encountered an error: %v", ctx.Err())
+			return nil, fmt.Errorf("Parent context of request %s encountered an error: %v", batchKey, ctx.Err())
 		}
 	}
 	switch ctx.Err() {
@@ -201,7 +201,7 @@ func (b *RequestBatcher) SendRequestWithTimeout(batchKey string, request *BatchR
 	case context.DeadlineExceeded:
 		return nil, fmt.Errorf("Request %s timed out after %v", batchKey, timeout)
 	default:
-		return nil, fmt.Errorf("Error making request %s: %v", ctx.Err())
+		return nil, fmt.Errorf("Error making request %s: %v", batchKey, ctx.Err())
 	}
 }
 
