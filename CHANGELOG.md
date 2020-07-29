@@ -13,7 +13,7 @@ IMPROVEMENTS:
 * compute: added `logConfig.metadata` to `google_compute_firewall`, defining this will enable logging. ([#6871](https://github.com/terraform-providers/terraform-provider-google/pull/6871))
 
 BUG FIXES:
-* `container`: Fixed a crash in `google_container_cluster` when `""` was specified for `resource_usage_export_config.bigquery_destination.dataset_id`. ([#6839](https://github.com/terraform-providers/terraform-provider-google/pull/6839))
+* container: Fixed a crash in `google_container_cluster` when `""` was specified for `resource_usage_export_config.bigquery_destination.dataset_id`. ([#6839](https://github.com/terraform-providers/terraform-provider-google/pull/6839))
 * endpoints: Fixed a crash when `google_endpoints_service` is used on a machine without timezone data ([#6849](https://github.com/terraform-providers/terraform-provider-google/pull/6849))
 * resourcemanager: bumped `google_project` timeout defaults to 10 minutes (from 4) ([#6859](https://github.com/terraform-providers/terraform-provider-google/pull/6859))
 
