@@ -63,7 +63,8 @@ The following arguments are supported:
 
 * `name` - (Required) The name (also called Instance Id in the Cloud Console) of the Cloud Bigtable instance.
 
-* `cluster` - (Required) A block of cluster configuration options. This can be specified 1 or 2 times. See structure below.
+* `cluster` - (Required) A block of cluster configuration options. This can be specified at least once, and up to 4 times.
+See structure below.
 
 -----
 
