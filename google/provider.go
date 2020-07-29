@@ -1101,7 +1101,11 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.StorageTransferBasePath = d.Get(StorageTransferCustomEndpointEntryKey).(string)
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
 
-	if err := config.LoadAndValidate(ctx); err != nil {
+	stopCtx, ok := schema.StopContext(ctx)
+	if !ok {
+		stopCtx = ctx
+	}
+	if err := config.LoadAndValidate(stopCtx); err != nil {
 		return nil, diag.FromErr(err)
 	}
 
