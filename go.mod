@@ -1,7 +1,7 @@
 module github.com/terraform-providers/terraform-provider-google
 
 require (
-	cloud.google.com/go/bigtable v1.1.0
+	cloud.google.com/go/bigtable v1.5.0
 	github.com/apparentlymart/go-cidr v1.0.1
 	github.com/client9/misspell v0.3.4
 	github.com/davecgh/go-spew v1.1.1
