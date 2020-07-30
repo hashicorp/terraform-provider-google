@@ -34,13 +34,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"google.golang.org/api/googleapi"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"google.golang.org/api/googleapi"
 )
 
 const defaultRetryTransportTimeoutSec = 30
@@ -202,6 +203,9 @@ func (t *retryTransport) checkForRetryableError(resp *http.Response, respErr err
 		errToCheck = googleapi.CheckResponse(&respToCheck)
 	}
 
+	if errToCheck == nil {
+		return nil
+	}
 	if isRetryableError(errToCheck, t.retryPredicates...) {
 		return resource.RetryableError(errToCheck)
 	}
