@@ -992,7 +992,7 @@ resource "google_sql_database_instance" "instance" {
 }
 `
 
-func testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID int, PointInTimeRecoveryEnabled bool) string {
+func testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID int, pointInTimeRecoveryEnabled bool) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
   name             = "tf-test-%d"
@@ -1005,9 +1005,9 @@ resource "google_sql_database_instance" "instance" {
     backup_configuration {
       enabled                = true
       start_time             = "00:00"
-      point_in_time_recovery = %t
+      point_in_time_recovery_enabled = %t
     }
   }
 }
-`, masterID, PointInTimeRecoveryEnabled)
+`, masterID, pointInTimeRecoveryEnabled)
 }
