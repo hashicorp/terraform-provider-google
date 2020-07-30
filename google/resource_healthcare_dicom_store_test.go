@@ -101,15 +101,14 @@ func TestAccHealthcareDicomStore_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			// TODO(b/148536607): Uncomment once b/148536607 is fixed.
-			// {
-			// 	Config: testGoogleHealthcareDicomStore_basic(dicomStoreName, datasetName),
-			// },
-			// {
-			// 	ResourceName:      resourceName,
-			// 	ImportState:       true,
-			// 	ImportStateVerify: true,
-			// },
+			{
+				Config: testGoogleHealthcareDicomStore_basic(dicomStoreName, datasetName),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
