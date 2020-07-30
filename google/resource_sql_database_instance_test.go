@@ -641,7 +641,6 @@ func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabled(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, true),
-				Check:  resource.TestCheckResourceAttr("google_sql_database_instance.instance", "point_in_time_recovery", "true"),
 			},
 			{
 				ResourceName:      "google_sql_database_instance.instance",
@@ -650,7 +649,6 @@ func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabled(t *testing.T) {
 			},
 			{
 				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, false),
-				Check:  resource.TestCheckResourceAttr("google_sql_database_instance.instance", "point_in_time_recovery", "false"),
 			},
 			{
 				ResourceName:      "google_sql_database_instance.instance",
@@ -1003,8 +1001,8 @@ resource "google_sql_database_instance" "instance" {
     tier = "db-f1-micro"
 
     backup_configuration {
-      enabled                = true
-      start_time             = "00:00"
+      enabled                        = true
+      start_time                     = "00:00"
       point_in_time_recovery_enabled = %t
     }
   }
