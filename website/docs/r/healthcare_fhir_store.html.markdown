@@ -225,7 +225,7 @@ The `stream_configs` block supports:
 
 * `resource_types` -
   (Optional)
-  Supply a FHIR resource type (such as "Patient" or "Observation"). See 
+  Supply a FHIR resource type (such as "Patient" or "Observation"). See
   https://www.hl7.org/fhir/valueset-resource-types.html for a list of all FHIR resource types. The server treats
   an empty list as an intent to stream all the supported resource types in this FHIR store.
 
