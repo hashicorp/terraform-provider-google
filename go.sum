@@ -304,6 +304,10 @@ github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.0-rc.2.0.20200730133901-ce665c
 github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.0-rc.2.0.20200730133901-ce665caf6cc4/go.mod h1:xOf85UtHJ0/9/EF3eKgZFlJ6feN8sDtjQRWRHhimCUw=
 github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.0-rc.2.0.20200730140652-e5690c16295c h1:0zdCJmFs7yzbXFf5LRyPwfC5ZlvQJyezVbZ5yILn7dc=
 github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.0-rc.2.0.20200730140652-e5690c16295c/go.mod h1:xOf85UtHJ0/9/EF3eKgZFlJ6feN8sDtjQRWRHhimCUw=
+github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.0-rc.2.0.20200730141750-c648aeab758d h1:724hJ7XqqIXqknnN+VkE3isvvWhAwoLiX51ycZ+mgZc=
+github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.0-rc.2.0.20200730141750-c648aeab758d/go.mod h1:xOf85UtHJ0/9/EF3eKgZFlJ6feN8sDtjQRWRHhimCUw=
+github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.0-rc.2.0.20200730141854-12ac83349bb1 h1:VftTfqlUU9Z702+B3bxFCaHI50s5IZruMB05znKEECA=
+github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.0-rc.2.0.20200730141854-12ac83349bb1/go.mod h1:xOf85UtHJ0/9/EF3eKgZFlJ6feN8sDtjQRWRHhimCUw=
 github.com/hashicorp/terraform-plugin-test/v2 v2.0.0-20200724200815-faa9931ac59e h1:Q8lNGrk3SVdXEbLuUJD03jghIjykJT9pu1aReKgb858=
 github.com/hashicorp/terraform-plugin-test/v2 v2.0.0-20200724200815-faa9931ac59e/go.mod h1:C6VALgUlvaif+PnHyRGKWPTdQkMJK4NQ20VJolxZLI0=
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb h1:b5rjCoWHc7eqmAS4/qyk21ZsHyb6Mxv/jykxvNTkU4M=
