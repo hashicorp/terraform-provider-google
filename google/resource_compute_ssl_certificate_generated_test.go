@@ -73,10 +73,12 @@ func TestAccComputeSslCertificate_sslCertificateRandomProviderExample(t *testing
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		Providers:         testAccProviders,
-		ExternalProviders: []string{"random"},
-		CheckDestroy:      testAccCheckComputeSslCertificateDestroyProducer(t),
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckComputeSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSslCertificate_sslCertificateRandomProviderExample(context),
