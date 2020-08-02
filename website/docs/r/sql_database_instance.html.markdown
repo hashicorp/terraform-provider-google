@@ -226,7 +226,7 @@ includes an up-to-date reference of supported versions.
     That service account needs the `Cloud KMS > Cloud KMS CryptoKey Encrypter/Decrypter` role on your
     key - please see [this step](https://cloud.google.com/sql/docs/mysql/configure-cmek#grantkey).
 
-The required `settings` block supports:
+The `settings` block supports and is required if the clone block is not set:
 
 * `tier` - (Required) The machine type to use. See [tiers](https://cloud.google.com/sql/docs/admin-api/v1beta4/tiers)
     for more details and supported versions. Postgres supports only shared-core machine types such as `db-f1-micro`,
@@ -363,9 +363,9 @@ to work, cannot be updated, and supports:
 * `verify_server_certificate` - (Optional) True if the master's common name
     value is checked during the SSL handshake.
 
-The optional `clone` supports:
-* `source_instance_name` - Name of the source instance which will be cloned
-* `pitr_timestamp_ms` - Timestamp of the point in time that should be restored, requires the instance to have point in time recovery enabled (Optional) 
+The optional `clone` supports and is required if the settings block is not set:
+* `source_instance_name` - (Required) Name of the source instance which will be cloned.
+* `pitr_timestamp_ms` -  (Optional) Timestamp of the point in time that should be restored, requires the instance to have point in time recovery enabled.
 
 ## Attributes Reference
 

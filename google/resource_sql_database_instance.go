@@ -78,8 +78,8 @@ var (
 	}
 
 	pointInTimeRestoreConfigurationKeys = []string{
-		"settings.0.pitr_configuration.0.pitr_timestamp_ms",
-		"settings.0.pitr_configuration.0.source_instance_name",
+		"clone.0.pitr_timestamp_ms",
+		"clone.0.source_instance_name",
 	}
 )
 
@@ -112,9 +112,10 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 			},
 
 			"settings": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Type:         schema.TypeList,
+				Optional:     true,
+				AtLeastOneOf: []string{"settings", "clone"},
+				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"version": {
@@ -584,7 +585,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 					Schema: map[string]*schema.Schema{
 						"source_instance_name": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Required:    true,
 							Description: `The name of the instance from which the point in time should be restored.`,
 						},
 						"pitr_timestamp_ms": {
@@ -644,16 +645,24 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	d.Set("name", name)
 
+	cloneContext, cloneSource := expandCloneContext(d.Get("clone").([]interface{}))
+
 	instance := &sqladmin.DatabaseInstance{
-		Name:                 name,
-		Region:               region,
-		Settings:             expandSqlDatabaseInstanceSettings(d.Get("settings").([]interface{}), !isFirstGen(d)),
-		DatabaseVersion:      d.Get("database_version").(string),
-		MasterInstanceName:   d.Get("master_instance_name").(string),
-		ReplicaConfiguration: expandReplicaConfiguration(d.Get("replica_configuration").([]interface{})),
+		Name:               name,
+		Region:             region,
+		DatabaseVersion:    d.Get("database_version").(string),
+		MasterInstanceName: d.Get("master_instance_name").(string),
 	}
 
-	cloneContext, cloneSource := expandCloneContext(d.Get("clone").([]interface{}))
+	desiredSettings := expandSqlDatabaseInstanceSettings(d.Get("settings").([]interface{}), !isFirstGen(d))
+
+	if len(d.Get("settings").([]interface{})) != 0 {
+		instance.Settings = desiredSettings
+	}
+
+	if len(d.Get("replica_configuration").([]interface{})) != 0 {
+		instance.ReplicaConfiguration = expandReplicaConfiguration(d.Get("replica_configuration").([]interface{}))
+	}
 
 	// MSSQL Server require rootPassword to be set
 	if strings.Contains(instance.DatabaseVersion, "SQLSERVER") {
@@ -698,6 +707,30 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	err = resourceSqlDatabaseInstanceRead(d, meta)
 	if err != nil {
 		return err
+	}
+
+	// If we've created an instance as a clone, we need to update it to set the correct settings
+	if cloneContext != nil && len(d.Get("settings").([]interface{})) != 0 {
+		// Update only updates the settings, so they are all we need to set.
+		instance := &sqladmin.DatabaseInstance{
+			Settings: desiredSettings,
+		}
+		_settings := d.Get("settings").([]interface{})[0].(map[string]interface{})
+		instance.Settings.SettingsVersion = int64(_settings["version"].(int))
+		var op *sqladmin.Operation
+		err = retryTimeDuration(func() (rerr error) {
+			op, rerr = config.clientSqlAdmin.Instances.Update(project, name, instance).Do()
+			return rerr
+		}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
+		if err != nil {
+			return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
+		}
+
+		err = sqlAdminOperationWaitTime(config, op, project, "Update Instance", d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
 	}
 
 	// If a default root user was created with a wildcard ('%') hostname, delete it.
