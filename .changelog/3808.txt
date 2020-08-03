@@ -1,0 +1,3 @@
+```release-note:none
+This only updates the description and website documentation. The functionality was already implemented and added to the release notes. No further mention in the release notes is necessary.
+```
