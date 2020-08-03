@@ -106,6 +106,13 @@ func resourceBigtableInstance() *schema.Resource {
 				Description: `Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.`,
 			},
 
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A mapping of labels to assign to the resource.`,
+			},
+
 			"project": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -135,6 +142,10 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		displayName = conf.InstanceID
 	}
 	conf.DisplayName = displayName.(string)
+
+	if _, ok := d.GetOk("labels"); ok {
+		conf.Labels = expandLabels(d)
+	}
 
 	switch d.Get("instance_type").(string) {
 	case "DEVELOPMENT":
@@ -211,6 +222,7 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("name", instance.Name)
 	d.Set("display_name", instance.DisplayName)
+	d.Set("labels", instance.Labels)
 	// Don't set instance_type: we don't want to detect drift on it because it can
 	// change under-the-hood.
 
@@ -241,6 +253,10 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 		displayName = conf.InstanceID
 	}
 	conf.DisplayName = displayName.(string)
+
+	if d.HasChange("labels") {
+		conf.Labels = expandLabels(d)
+	}
 
 	switch d.Get("instance_type").(string) {
 	case "DEVELOPMENT":
