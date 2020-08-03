@@ -200,6 +200,10 @@ resource "google_bigtable_instance" "instance" {
   }
 
   deletion_protection = false
+
+  labels = {
+    env = "default"
+  }
 }
 `, instanceName, instanceName, numNodes)
 }
@@ -344,6 +348,10 @@ resource "google_bigtable_instance" "instance" {
   }
 
   deletion_protection = false
+
+  labels = {
+    env = "default"
+  }
 }
 `, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
 }

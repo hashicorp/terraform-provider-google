@@ -39,6 +39,10 @@ resource "google_bigtable_instance" "production-instance" {
   lifecycle {
     prevent_destroy = true
   }
+
+  labels = {
+    my-label = "prod-label"
+  }
 }
 ```
 
@@ -53,6 +57,10 @@ resource "google_bigtable_instance" "development-instance" {
     cluster_id   = "tf-instance-cluster"
     zone         = "us-central1-b"
     storage_type = "HDD"
+  }
+
+  labels = {
+    my-label = "dev-label"
   }
 }
 ```
@@ -77,6 +85,8 @@ See structure below.
 
 * `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
 in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
+
+* `labels` - (Optional) A set of key/value label pairs to assign to the resource. Label keys must follow the requirements at https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements.
 
 
 -----
