@@ -1,0 +1,6 @@
+```release-note:enhancement
+redis: added `persistence_iam_identity` output field to `google_redis_instance`
+```
+```release-note:note
+redis: explicitly noted in `google_redis_instance` documentation that `"REDIS_5_0"` is supported
+```

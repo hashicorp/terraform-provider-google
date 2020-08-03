@@ -122,6 +122,7 @@ https://cloud.google.com/memorystore/docs/redis/reference/rest/v1/projects.locat
 				Description: `The version of Redis software. If not provided, latest supported
 version will be used. Currently, the supported values are:
 
+- REDIS_5_0 for Redis 5.0 compatibility
 - REDIS_4_0 for Redis 4.0 compatibility
 - REDIS_3_2 for Redis 3.2 compatibility`,
 			},
@@ -174,6 +175,14 @@ and can change after a failover event.`,
 				Computed: true,
 				Description: `Hostname or IP address of the exposed Redis endpoint used by clients
 to connect to the service.`,
+			},
+			"persistence_iam_identity": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Output only. Cloud IAM identity used by import / export operations
+to transfer data to/from Cloud Storage. Format is "serviceAccount:".
+The value may change over time for a given instance so should be
+checked before each import/export operation.`,
 			},
 			"port": {
 				Type:        schema.TypeInt,
@@ -388,6 +397,9 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("port", flattenRedisInstancePort(res["port"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("persistence_iam_identity", flattenRedisInstancePersistenceIamIdentity(res["persistenceIamIdentity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("redis_version", flattenRedisInstanceRedisVersion(res["redisVersion"], d, config)); err != nil {
@@ -621,6 +633,10 @@ func flattenRedisInstancePort(v interface{}, d *schema.ResourceData, config *Con
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenRedisInstancePersistenceIamIdentity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenRedisInstanceRedisVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
