@@ -15,6 +15,7 @@
 package google
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"reflect"
@@ -910,6 +911,16 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 	return resourceBigQueryJobRead(d, meta)
 }
 
+func resourceBigQueryJobCheckCreateResponseForError(res map[string]interface{}) (map[string]interface{}, error) {
+	status := res["status"].(map[string]interface{})
+	errorResult := status["errorResult"].(map[string]interface{})
+	if errorResult != nil {
+		message := errorResult["message"].(string)
+		return res, errors.New(message)
+	}
+	return res, nil
+}
+
 func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
@@ -924,6 +935,10 @@ func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollR
 			return nil, err
 		}
 		res, err := sendRequest(config, "GET", project, url, nil)
+		if err != nil {
+			return res, err
+		}
+		res, err = resourceBigQueryJobCheckCreateResponseForError(res)
 		if err != nil {
 			return res, err
 		}
