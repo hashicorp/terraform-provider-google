@@ -241,7 +241,8 @@ The following arguments are supported:
 
 * `dnssec_config` -
   (Optional)
-  DNSSEC configuration  Structure is documented below.
+  DNSSEC configuration
+  Structure is documented below.
 
 * `labels` -
   (Optional)
@@ -251,28 +252,27 @@ The following arguments are supported:
   (Optional)
   The zone's visibility: public zones are exposed to the Internet,
   while private zones are visible only to Virtual Private Cloud resources.
-
-  Default value: `public`
-
-  Possible values are:
-  * `private`
-  * `public`
+  Default value is `public`.
+  Possible values are `private` and `public`.
 
 * `private_visibility_config` -
   (Optional)
   For privately visible zones, the set of Virtual Private Cloud
-  resources that the zone is visible from.  Structure is documented below.
+  resources that the zone is visible from.
+  Structure is documented below.
 
 * `forwarding_config` -
   (Optional)
   The presence for this field indicates that outbound forwarding is enabled
   for this zone. The value of this field contains the set of destinations
-  to forward to.  Structure is documented below.
+  to forward to.
+  Structure is documented below.
 
 * `peering_config` -
   (Optional)
   The presence of this field indicates that DNS Peering is enabled for this
-  zone. The value of this field contains the network to peer with.  Structure is documented below.
+  zone. The value of this field contains the network to peer with.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -288,26 +288,20 @@ The `dnssec_config` block supports:
   (Optional)
   Specifies the mechanism used to provide authenticated denial-of-existence responses.
   non_existence can only be updated when the state is `off`.
-
-  Possible values are:
-  * `nsec`
-  * `nsec3`
+  Possible values are `nsec` and `nsec3`.
 
 * `state` -
   (Optional)
   Specifies whether DNSSEC is enabled, and what mode it is in
-
-  Possible values are:
-  * `off`
-  * `on`
-  * `transfer`
+  Possible values are `off`, `on`, and `transfer`.
 
 * `default_key_specs` -
   (Optional)
   Specifies parameters that will be used for generating initial DnsKeys
   for this ManagedZone. If you provide a spec for keySigning or zoneSigning,
   you must also provide one for the other.
-  default_key_specs can only be updated when the state is `off`.  Structure is documented below.
+  default_key_specs can only be updated when the state is `off`.
+  Structure is documented below.
 
 
 The `default_key_specs` block supports:
@@ -315,13 +309,7 @@ The `default_key_specs` block supports:
 * `algorithm` -
   (Optional)
   String mnemonic specifying the DNSSEC algorithm of this key
-
-  Possible values are:
-  * `ecdsap256sha256`
-  * `ecdsap384sha384`
-  * `rsasha1`
-  * `rsasha256`
-  * `rsasha512`
+  Possible values are `ecdsap256sha256`, `ecdsap384sha384`, `rsasha1`, `rsasha256`, and `rsasha512`.
 
 * `key_length` -
   (Optional)
@@ -335,10 +323,7 @@ The `default_key_specs` block supports:
   resource record sets of type DNSKEY. Zone signing keys do
   not have the Secure Entry Point flag set and will be used
   to sign all other types of resource record sets.
-
-  Possible values are:
-  * `keySigning`
-  * `zoneSigning`
+  Possible values are `keySigning` and `zoneSigning`.
 
 * `kind` -
   (Optional)
@@ -352,7 +337,8 @@ The `private_visibility_config` block supports:
   may experience issues with this resource while updating. If you've defined a `networks` block and
   add another `networks` block while keeping the old block, Terraform will see an incorrect diff
   and apply an incorrect update to the resource. If you encounter this issue, remove all `networks`
-  blocks in an update and then apply another update adding all of them back simultaneously.  Structure is documented below.
+  blocks in an update and then apply another update adding all of them back simultaneously.
+  Structure is documented below.
 
 
 The `networks` block supports:
@@ -369,7 +355,8 @@ The `forwarding_config` block supports:
   (Required)
   List of target name servers to forward to. Cloud DNS will
   select the best available name server if more than
-  one target is given.  Structure is documented below.
+  one target is given.
+  Structure is documented below.
 
 
 The `target_name_servers` block supports:
@@ -383,16 +370,14 @@ The `target_name_servers` block supports:
   Forwarding path for this TargetNameServer. If unset or `default` Cloud DNS will make forwarding
   decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
   to the Internet. When set to `private`, Cloud DNS will always send queries through VPC for this target
-
-  Possible values are:
-  * `default`
-  * `private`
+  Possible values are `default` and `private`.
 
 The `peering_config` block supports:
 
 * `target_network` -
   (Required)
-  The network with which to peer.  Structure is documented below.
+  The network with which to peer.
+  Structure is documented below.
 
 
 The `target_network` block supports:

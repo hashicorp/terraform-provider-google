@@ -148,7 +148,8 @@ The following arguments are supported:
   executed against that view will have read access to tables in
   this dataset. The role field is not required when this field is
   set. If that view is updated by any user, access to the view
-  needs to be granted again via an update operation.  Structure is documented below.
+  needs to be granted again via an update operation.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

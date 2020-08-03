@@ -92,7 +92,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{brand}}/identityAwareProxyClients/{{client_id}}`
 
 * `secret` -
-  Output only. Client secret of the OAuth client.  **Note**: This property is sensitive and will not be displayed in the plan.
+  Output only. Client secret of the OAuth client.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `client_id` -
   Output only. Unique identifier of the OAuth client.

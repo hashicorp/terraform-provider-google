@@ -85,7 +85,8 @@ The following arguments are supported:
 * `default_version` -
   (Optional)
   The default version of the model. This version will be used to handle
-  prediction requests that do not specify a version.  Structure is documented below.
+  prediction requests that do not specify a version.
+  Structure is documented below.
 
 * `regions` -
   (Optional)

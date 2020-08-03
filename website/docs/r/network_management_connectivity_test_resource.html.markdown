@@ -183,7 +183,8 @@ The following arguments are supported:
   address or VPC network.
   A reachability analysis proceeds even if the source location is
   ambiguous. However, the test result may include endpoints that
-  you don't intend to test.  Structure is documented below.
+  you don't intend to test.
+  Structure is documented below.
 
 * `destination` -
   (Required)
@@ -200,7 +201,8 @@ The following arguments are supported:
   interface.
   A reachability analysis proceeds even if the destination location
   is ambiguous. However, the result can include endpoints that you
-  don't intend to test.  Structure is documented below.
+  don't intend to test.
+  Structure is documented below.
 
 
 The `source` block supports:
@@ -227,10 +229,7 @@ The `source` block supports:
 * `network_type` -
   (Optional)
   Type of the network where the endpoint is located.
-
-  Possible values are:
-  * `GCP_NETWORK`
-  * `NON_GCP_NETWORK`
+  Possible values are `GCP_NETWORK` and `NON_GCP_NETWORK`.
 
 * `project_id` -
   (Optional)

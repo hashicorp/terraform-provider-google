@@ -78,10 +78,7 @@ The following arguments are supported:
 * `ip_version` -
   (Optional)
   The IP Version that will be used by this address. The default value is `IPV4`.
-
-  Possible values are:
-  * `IPV4`
-  * `IPV6`
+  Possible values are `IPV4` and `IPV6`.
 
 * `prefix_length` -
   (Optional)
@@ -94,21 +91,15 @@ The following arguments are supported:
   The type of the address to reserve.
   * EXTERNAL indicates public/external single IP address.
   * INTERNAL indicates internal IP ranges belonging to some network.
-
-  Default value: `EXTERNAL`
-
-  Possible values are:
-  * `EXTERNAL`
-  * `INTERNAL`
+  Default value is `EXTERNAL`.
+  Possible values are `EXTERNAL` and `INTERNAL`.
 
 * `purpose` -
   (Optional)
   The purpose of the resource. For global internal addresses it can be
   * VPC_PEERING - for peer networks
   This should only be set when using an Internal address.
-
-  Possible values are:
-  * `VPC_PEERING`
+  Possible values are `VPC_PEERING`.
 
 * `network` -
   (Optional)

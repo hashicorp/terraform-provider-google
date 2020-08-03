@@ -96,12 +96,8 @@ The following arguments are supported:
   (Optional)
   User-specified flag to indicate which mode to use for advertisement.
   Valid values of this enum field are: `DEFAULT`, `CUSTOM`
-
-  Default value: `DEFAULT`
-
-  Possible values are:
-  * `DEFAULT`
-  * `CUSTOM`
+  Default value is `DEFAULT`.
+  Possible values are `DEFAULT` and `CUSTOM`.
 
 * `advertised_groups` -
   (Optional)
@@ -122,7 +118,8 @@ The following arguments are supported:
   custom mode. This field can only be populated if advertiseMode
   is `CUSTOM` and is advertised to all peers of the router. These IP
   ranges will be advertised in addition to any specified groups.
-  Leave this field blank to advertise no custom IP ranges.  Structure is documented below.
+  Leave this field blank to advertise no custom IP ranges.
+  Structure is documented below.
 
 * `region` -
   (Optional)

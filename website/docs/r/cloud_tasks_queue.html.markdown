@@ -61,7 +61,8 @@ The following arguments are supported:
 * `app_engine_routing_override` -
   (Optional)
   Overrides for task-level appEngineRouting. These settings apply only
-  to App Engine tasks in this queue  Structure is documented below.
+  to App Engine tasks in this queue
+  Structure is documented below.
 
 * `rate_limits` -
   (Optional)
@@ -71,11 +72,13 @@ The following arguments are supported:
   * User-specified throttling: rateLimits, retryConfig, and the queue's state.
   * System throttling due to 429 (Too Many Requests) or 503 (Service
     Unavailable) responses from the worker, high error rates, or to
-    smooth sudden large traffic spikes.  Structure is documented below.
+    smooth sudden large traffic spikes.
+  Structure is documented below.
 
 * `retry_config` -
   (Optional)
-  Settings that determine the retry behavior.  Structure is documented below.
+  Settings that determine the retry behavior.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

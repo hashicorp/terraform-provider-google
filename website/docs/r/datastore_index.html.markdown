@@ -69,16 +69,13 @@ The following arguments are supported:
 * `ancestor` -
   (Optional)
   Policy for including ancestors in the index.
-
-  Default value: `NONE`
-
-  Possible values are:
-  * `NONE`
-  * `ALL_ANCESTORS`
+  Default value is `NONE`.
+  Possible values are `NONE` and `ALL_ANCESTORS`.
 
 * `properties` -
   (Optional)
-  An ordered list of properties to index on.  Structure is documented below.
+  An ordered list of properties to index on.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -93,10 +90,7 @@ The `properties` block supports:
 * `direction` -
   (Required)
   The direction the index should optimize for sorting.
-
-  Possible values are:
-  * `ASCENDING`
-  * `DESCENDING`
+  Possible values are `ASCENDING` and `DESCENDING`.
 
 ## Attributes Reference
 

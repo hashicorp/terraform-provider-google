@@ -110,7 +110,8 @@ The following arguments are supported:
 
 * `access` -
   (Optional)
-  An array of objects that define dataset access for one or more entities.  Structure is documented below.
+  An array of objects that define dataset access for one or more entities.
+  Structure is documented below.
 
 * `default_table_expiration_ms` -
   (Optional)
@@ -180,7 +181,8 @@ The following arguments are supported:
   (Optional)
   The default encryption key for all tables in the dataset. Once this property is set,
   all newly-created partitioned tables in the dataset will have encryption key set to
-  this value, unless table creation request (or query) overrides the key.  Structure is documented below.
+  this value, unless table creation request (or query) overrides the key.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -232,7 +234,8 @@ The `access` block supports:
   executed against that view will have read access to tables in
   this dataset. The role field is not required when this field is
   set. If that view is updated by any user, access to the view
-  needs to be granted again via an update operation.  Structure is documented below.
+  needs to be granted again via an update operation.
+  Structure is documented below.
 
 
 The `view` block supports:

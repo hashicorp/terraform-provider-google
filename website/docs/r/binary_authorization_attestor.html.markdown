@@ -138,7 +138,8 @@ The following arguments are supported:
 
 * `attestation_authority_note` -
   (Required)
-  A Container Analysis ATTESTATION_AUTHORITY Note, created by the user.  Structure is documented below.
+  A Container Analysis ATTESTATION_AUTHORITY Note, created by the user.
+  Structure is documented below.
 
 
 The `attestation_authority_note` block supports:
@@ -161,7 +162,8 @@ The `attestation_authority_note` block supports:
   verify that an attestation was signed by this attestor for the
   image specified in the admission request.
   If this field is empty, this attestor always returns that no valid
-  attestations exist.  Structure is documented below.
+  attestations exist.
+  Structure is documented below.
 
 * `delegation_service_account_email` -
   This field will contain the service account email address that
@@ -208,7 +210,8 @@ The `public_keys` block supports:
   NOTE: id may be explicitly provided by the caller when using this
   type of public key, but it MUST be a valid RFC3986 URI. If id is left
   blank, a default one will be computed based on the digest of the DER
-  encoding of the public key.  Structure is documented below.
+  encoding of the public key.
+  Structure is documented below.
 
 
 The `pkix_public_key` block supports:

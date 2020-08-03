@@ -154,25 +154,23 @@ The following arguments are supported:
   topologies with many independent perimeters that need to share some data
   with a common perimeter, but should not be able to share data among
   themselves.
-
-  Default value: `PERIMETER_TYPE_REGULAR`
-
-  Possible values are:
-  * `PERIMETER_TYPE_REGULAR`
-  * `PERIMETER_TYPE_BRIDGE`
+  Default value is `PERIMETER_TYPE_REGULAR`.
+  Possible values are `PERIMETER_TYPE_REGULAR` and `PERIMETER_TYPE_BRIDGE`.
 
 * `status` -
   (Optional)
   ServicePerimeter configuration. Specifies sets of resources,
   restricted services and access levels that determine
-  perimeter content and boundaries.  Structure is documented below.
+  perimeter content and boundaries.
+  Structure is documented below.
 
 * `spec` -
   (Optional)
   Proposed (or dry run) ServicePerimeter configuration.
   This configuration allows to specify and test ServicePerimeter configuration
   without enforcing actual access restrictions. Only allowed to be set when
-  the `useExplicitDryRunSpec` flag is set.  Structure is documented below.
+  the `useExplicitDryRunSpec` flag is set.
+  Structure is documented below.
 
 * `use_explicit_dry_run_spec` -
   (Optional)
@@ -218,7 +216,8 @@ The `status` block supports:
 * `vpc_accessible_services` -
   (Optional)
   Specifies how APIs are allowed to communicate within the Service
-  Perimeter.  Structure is documented below.
+  Perimeter.
+  Structure is documented below.
 
 
 The `vpc_accessible_services` block supports:
@@ -264,7 +263,8 @@ The `spec` block supports:
 * `vpc_accessible_services` -
   (Optional)
   Specifies how APIs are allowed to communicate within the Service
-  Perimeter.  Structure is documented below.
+  Perimeter.
+  Structure is documented below.
 
 
 The `vpc_accessible_services` block supports:

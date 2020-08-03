@@ -92,7 +92,8 @@ The following arguments are supported:
 
 * `dispatch_rules` -
   (Required)
-  Rules to match an HTTP request and dispatch that request to a service.  Structure is documented below.
+  Rules to match an HTTP request and dispatch that request to a service.
+  Structure is documented below.
 
 
 The `dispatch_rules` block supports:

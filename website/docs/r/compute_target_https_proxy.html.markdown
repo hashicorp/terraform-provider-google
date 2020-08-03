@@ -134,13 +134,8 @@ The following arguments are supported:
   or not. Can specify one of NONE, ENABLE, or DISABLE. If NONE is
   specified, uses the QUIC policy with no user overrides, which is
   equivalent to DISABLE.
-
-  Default value: `NONE`
-
-  Possible values are:
-  * `NONE`
-  * `ENABLE`
-  * `DISABLE`
+  Default value is `NONE`.
+  Possible values are `NONE`, `ENABLE`, and `DISABLE`.
 
 * `ssl_policy` -
   (Optional)

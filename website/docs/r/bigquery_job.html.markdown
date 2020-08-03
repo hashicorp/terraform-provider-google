@@ -386,11 +386,13 @@ The `query` block supports:
   (Optional)
   Describes the table where the query results should be stored.
   This property must be set for large results that exceed the maximum response size.
-  For queries that produce anonymous (cached) results, this field will be populated by BigQuery.  Structure is documented below.
+  For queries that produce anonymous (cached) results, this field will be populated by BigQuery.
+  Structure is documented below.
 
 * `user_defined_function_resources` -
   (Optional)
-  Describes user-defined function resources used in the query.  Structure is documented below.
+  Describes user-defined function resources used in the query.
+  Structure is documented below.
 
 * `create_disposition` -
   (Optional)
@@ -398,12 +400,8 @@ The `query` block supports:
   CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
   CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
   Creation, truncation and append actions occur as one atomic update upon job completion
-
-  Default value: `CREATE_IF_NEEDED`
-
-  Possible values are:
-  * `CREATE_IF_NEEDED`
-  * `CREATE_NEVER`
+  Default value is `CREATE_IF_NEEDED`.
+  Possible values are `CREATE_IF_NEEDED` and `CREATE_NEVER`.
 
 * `write_disposition` -
   (Optional)
@@ -413,27 +411,19 @@ The `query` block supports:
   WRITE_EMPTY: If the table already exists and contains data, a 'duplicate' error is returned in the job result.
   Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
   Creation, truncation and append actions occur as one atomic update upon job completion.
-
-  Default value: `WRITE_EMPTY`
-
-  Possible values are:
-  * `WRITE_TRUNCATE`
-  * `WRITE_APPEND`
-  * `WRITE_EMPTY`
+  Default value is `WRITE_EMPTY`.
+  Possible values are `WRITE_TRUNCATE`, `WRITE_APPEND`, and `WRITE_EMPTY`.
 
 * `default_dataset` -
   (Optional)
-  Specifies the default dataset to use for unqualified table names in the query. Note that this does not alter behavior of unqualified dataset names.  Structure is documented below.
+  Specifies the default dataset to use for unqualified table names in the query. Note that this does not alter behavior of unqualified dataset names.
+  Structure is documented below.
 
 * `priority` -
   (Optional)
   Specifies a priority for the query.
-
-  Default value: `INTERACTIVE`
-
-  Possible values are:
-  * `INTERACTIVE`
-  * `BATCH`
+  Default value is `INTERACTIVE`.
+  Possible values are `INTERACTIVE` and `BATCH`.
 
 * `allow_large_results` -
   (Optional)
@@ -483,11 +473,13 @@ The `query` block supports:
 
 * `destination_encryption_configuration` -
   (Optional)
-  Custom encryption configuration (e.g., Cloud KMS keys)  Structure is documented below.
+  Custom encryption configuration (e.g., Cloud KMS keys)
+  Structure is documented below.
 
 * `script_options` -
   (Optional)
-  Options controlling the execution of scripts.  Structure is documented below.
+  Options controlling the execution of scripts.
+  Structure is documented below.
 
 
 The `destination_table` block supports:
@@ -548,10 +540,7 @@ The `script_options` block supports:
   (Optional)
   Determines which statement in the script represents the "key result",
   used to populate the schema and query results of the script job.
-
-  Possible values are:
-  * `LAST`
-  * `FIRST_SELECT`
+  Possible values are `LAST` and `FIRST_SELECT`.
 
 The `load` block supports:
 
@@ -566,7 +555,8 @@ The `load` block supports:
 
 * `destination_table` -
   (Required)
-  The destination table to load the data into.  Structure is documented below.
+  The destination table to load the data into.
+  Structure is documented below.
 
 * `create_disposition` -
   (Optional)
@@ -574,12 +564,8 @@ The `load` block supports:
   CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
   CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
   Creation, truncation and append actions occur as one atomic update upon job completion
-
-  Default value: `CREATE_IF_NEEDED`
-
-  Possible values are:
-  * `CREATE_IF_NEEDED`
-  * `CREATE_NEVER`
+  Default value is `CREATE_IF_NEEDED`.
+  Possible values are `CREATE_IF_NEEDED` and `CREATE_NEVER`.
 
 * `write_disposition` -
   (Optional)
@@ -589,13 +575,8 @@ The `load` block supports:
   WRITE_EMPTY: If the table already exists and contains data, a 'duplicate' error is returned in the job result.
   Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
   Creation, truncation and append actions occur as one atomic update upon job completion.
-
-  Default value: `WRITE_EMPTY`
-
-  Possible values are:
-  * `WRITE_TRUNCATE`
-  * `WRITE_APPEND`
-  * `WRITE_EMPTY`
+  Default value is `WRITE_EMPTY`.
+  Possible values are `WRITE_TRUNCATE`, `WRITE_APPEND`, and `WRITE_EMPTY`.
 
 * `null_marker` -
   (Optional)
@@ -688,11 +669,13 @@ The `load` block supports:
 
 * `time_partitioning` -
   (Optional)
-  Time-based partitioning specification for the destination table.  Structure is documented below.
+  Time-based partitioning specification for the destination table.
+  Structure is documented below.
 
 * `destination_encryption_configuration` -
   (Optional)
-  Custom encryption configuration (e.g., Cloud KMS keys)  Structure is documented below.
+  Custom encryption configuration (e.g., Cloud KMS keys)
+  Structure is documented below.
 
 
 The `destination_table` block supports:
@@ -738,11 +721,13 @@ The `copy` block supports:
 
 * `source_tables` -
   (Required)
-  Source tables to copy.  Structure is documented below.
+  Source tables to copy.
+  Structure is documented below.
 
 * `destination_table` -
   (Optional)
-  The destination table.  Structure is documented below.
+  The destination table.
+  Structure is documented below.
 
 * `create_disposition` -
   (Optional)
@@ -750,12 +735,8 @@ The `copy` block supports:
   CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
   CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
   Creation, truncation and append actions occur as one atomic update upon job completion
-
-  Default value: `CREATE_IF_NEEDED`
-
-  Possible values are:
-  * `CREATE_IF_NEEDED`
-  * `CREATE_NEVER`
+  Default value is `CREATE_IF_NEEDED`.
+  Possible values are `CREATE_IF_NEEDED` and `CREATE_NEVER`.
 
 * `write_disposition` -
   (Optional)
@@ -765,17 +746,13 @@ The `copy` block supports:
   WRITE_EMPTY: If the table already exists and contains data, a 'duplicate' error is returned in the job result.
   Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
   Creation, truncation and append actions occur as one atomic update upon job completion.
-
-  Default value: `WRITE_EMPTY`
-
-  Possible values are:
-  * `WRITE_TRUNCATE`
-  * `WRITE_APPEND`
-  * `WRITE_EMPTY`
+  Default value is `WRITE_EMPTY`.
+  Possible values are `WRITE_TRUNCATE`, `WRITE_APPEND`, and `WRITE_EMPTY`.
 
 * `destination_encryption_configuration` -
   (Optional)
-  Custom encryption configuration (e.g., Cloud KMS keys)  Structure is documented below.
+  Custom encryption configuration (e.g., Cloud KMS keys)
+  Structure is documented below.
 
 
 The `source_tables` block supports:
@@ -847,11 +824,13 @@ The `extract` block supports:
 
 * `source_table` -
   (Optional)
-  A reference to the table being exported.  Structure is documented below.
+  A reference to the table being exported.
+  Structure is documented below.
 
 * `source_model` -
   (Optional)
-  A reference to the model being exported.  Structure is documented below.
+  A reference to the model being exported.
+  Structure is documented below.
 
 
 The `source_table` block supports:
@@ -896,19 +875,23 @@ The `source_model` block supports:
 
 * `query` -
   (Optional)
-  Configures a query job.  Structure is documented below.
+  Configures a query job.
+  Structure is documented below.
 
 * `load` -
   (Optional)
-  Configures a load job.  Structure is documented below.
+  Configures a load job.
+  Structure is documented below.
 
 * `copy` -
   (Optional)
-  Copies a table.  Structure is documented below.
+  Copies a table.
+  Structure is documented below.
 
 * `extract` -
   (Optional)
-  Configures an extract job.  Structure is documented below.
+  Configures an extract job.
+  Structure is documented below.
 
 * `location` -
   (Optional)

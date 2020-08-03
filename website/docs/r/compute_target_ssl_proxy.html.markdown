@@ -109,12 +109,8 @@ The following arguments are supported:
   (Optional)
   Specifies the type of proxy header to append before sending data to
   the backend.
-
-  Default value: `NONE`
-
-  Possible values are:
-  * `NONE`
-  * `PROXY_V1`
+  Default value is `NONE`.
+  Possible values are `NONE` and `PROXY_V1`.
 
 * `ssl_policy` -
   (Optional)

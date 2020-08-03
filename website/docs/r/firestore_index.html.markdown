@@ -80,7 +80,8 @@ The following arguments are supported:
   specified as the last field, it will be added automatically with the
   same direction as that of the last field defined. If the final field
   in a composite index is not directional, the `__name__` will be
-  ordered `"ASCENDING"` (unless explicitly specified otherwise).  Structure is documented below.
+  ordered `"ASCENDING"` (unless explicitly specified otherwise).
+  Structure is documented below.
 
 
 The `fields` block supports:
@@ -93,18 +94,13 @@ The `fields` block supports:
   (Optional)
   Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
   Only one of `order` and `arrayConfig` can be specified.
-
-  Possible values are:
-  * `ASCENDING`
-  * `DESCENDING`
+  Possible values are `ASCENDING` and `DESCENDING`.
 
 * `array_config` -
   (Optional)
   Indicates that this field supports operations on arrayValues. Only one of `order` and `arrayConfig` can
   be specified.
-
-  Possible values are:
-  * `CONTAINS`
+  Possible values are `CONTAINS`.
 
 - - -
 
@@ -116,12 +112,8 @@ The `fields` block supports:
 * `query_scope` -
   (Optional)
   The scope at which a query is run.
-
-  Default value: `COLLECTION`
-
-  Possible values are:
-  * `COLLECTION`
-  * `COLLECTION_GROUP`
+  Default value is `COLLECTION`.
+  Possible values are `COLLECTION` and `COLLECTION_GROUP`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

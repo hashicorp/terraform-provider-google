@@ -66,20 +66,13 @@ The following arguments are supported:
 * `import_method` -
   (Required)
   The wrapping method to be used for incoming key material.
-
-  Possible values are:
-  * `RSA_OAEP_3072_SHA1_AES_256`
-  * `RSA_OAEP_4096_SHA1_AES_256`
+  Possible values are `RSA_OAEP_3072_SHA1_AES_256` and `RSA_OAEP_4096_SHA1_AES_256`.
 
 * `protection_level` -
   (Required)
   The protection level of the ImportJob. This must match the protectionLevel of the
   versionTemplate on the CryptoKey you attempt to import into.
-
-  Possible values are:
-  * `SOFTWARE`
-  * `HSM`
-  * `EXTERNAL`
+  Possible values are `SOFTWARE`, `HSM`, and `EXTERNAL`.
 
 * `key_ring` -
   (Required)
@@ -112,12 +105,14 @@ In addition to the arguments listed above, the following computed attributes are
   The current state of the ImportJob, indicating if it can be used.
 
 * `public_key` -
-  The public key with which to wrap key material prior to import. Only returned if state is `ACTIVE`.  Structure is documented below.
+  The public key with which to wrap key material prior to import. Only returned if state is `ACTIVE`.
+  Structure is documented below.
 
 * `attestation` -
   Statement that was generated and signed by the key creator (for example, an HSM) at key creation time.
   Use this statement to verify attributes of the key as stored on the HSM, independently of Google.
-  Only present if the chosen ImportMethod is one with a protection level of HSM.  Structure is documented below.
+  Only present if the chosen ImportMethod is one with a protection level of HSM.
+  Structure is documented below.
 
 
 The `public_key` block contains:

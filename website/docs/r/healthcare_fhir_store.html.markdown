@@ -134,11 +134,7 @@ The following arguments are supported:
 * `version` -
   (Required)
   The FHIR specification version.
-
-  Possible values are:
-  * `DSTU2`
-  * `STU3`
-  * `R4`
+  Possible values are `DSTU2`, `STU3`, and `R4`.
 
 * `dataset` -
   (Required)
@@ -198,7 +194,8 @@ The following arguments are supported:
 
 * `notification_config` -
   (Optional)
-  A nested object resource  Structure is documented below.
+  A nested object resource
+  Structure is documented below.
 
 * `stream_configs` -
   (Optional)
@@ -207,7 +204,8 @@ The following arguments are supported:
   resource mutation is streamed to the new location in addition to the existing ones. When a location is removed
   from the list, the server stops streaming to that location. Before adding a new config, you must add the required
   bigquery.dataEditor role to your project's Cloud Healthcare Service Agent service account. Some lag (typically on
-  the order of dozens of seconds) is expected before the results show up in the streaming destination.  Structure is documented below.
+  the order of dozens of seconds) is expected before the results show up in the streaming destination.
+  Structure is documented below.
 
 
 The `notification_config` block supports:
@@ -235,7 +233,8 @@ The `stream_configs` block supports:
   The output is organized in one table per resource type. The server reuses the existing tables (if any) that
   are named after the resource types, e.g. "Patient", "Observation". When there is no existing table for a given
   resource type, the server attempts to create one.
-  See the [streaming config reference](https://cloud.google.com/healthcare/docs/reference/rest/v1beta1/projects.locations.datasets.fhirStores#streamconfig) for more details.  Structure is documented below.
+  See the [streaming config reference](https://cloud.google.com/healthcare/docs/reference/rest/v1beta1/projects.locations.datasets.fhirStores#streamconfig) for more details.
+  Structure is documented below.
 
 
 The `bigquery_destination` block supports:
@@ -246,7 +245,8 @@ The `bigquery_destination` block supports:
 
 * `schema_config` -
   (Required)
-  The configuration for the exported BigQuery schema.  Structure is documented below.
+  The configuration for the exported BigQuery schema.
+  Structure is documented below.
 
 
 The `schema_config` block supports:
@@ -256,11 +256,8 @@ The `schema_config` block supports:
   Specifies the output schema type. Only ANALYTICS is supported at this time.
    * ANALYTICS: Analytics schema defined by the FHIR community.
     See https://github.com/FHIR/sql-on-fhir/blob/master/sql-on-fhir.md.
-
-  Default value: `ANALYTICS`
-
-  Possible values are:
-  * `ANALYTICS`
+  Default value is `ANALYTICS`.
+  Possible values are `ANALYTICS`.
 
 * `recursive_structure_depth` -
   (Required)

@@ -77,7 +77,8 @@ The following arguments are supported:
 
 * `secret_data` -
   (Optional)
-  The secret data. Must be no larger than 64KiB.  **Note**: This property is sensitive and will not be displayed in the plan.
+  The secret data. Must be no larger than 64KiB.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 
 ## Attributes Reference

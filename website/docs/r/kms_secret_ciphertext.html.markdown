@@ -95,7 +95,8 @@ The following arguments are supported:
 
 * `plaintext` -
   (Required)
-  The plaintext to be encrypted.  **Note**: This property is sensitive and will not be displayed in the plan.
+  The plaintext to be encrypted.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `crypto_key` -
   (Required)
@@ -108,7 +109,8 @@ The following arguments are supported:
 
 * `additional_authenticated_data` -
   (Optional)
-  The additional authenticated data used for integrity checks during encryption and decryption.  **Note**: This property is sensitive and will not be displayed in the plan.
+  The additional authenticated data used for integrity checks during encryption and decryption.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 
 ## Attributes Reference

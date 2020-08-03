@@ -207,7 +207,8 @@ The following arguments are supported:
 * `shared_secret` -
   (Required)
   Shared secret used to set the secure session between the Cloud VPN
-  gateway and the peer VPN gateway.  **Note**: This property is sensitive and will not be displayed in the plan.
+  gateway and the peer VPN gateway.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 
 - - -

@@ -108,7 +108,8 @@ The following arguments are supported:
 * `default_admission_rule` -
   (Required)
   Default admission rule for a cluster without a per-cluster admission
-  rule.  Structure is documented below.
+  rule.
+  Structure is documented below.
 
 
 The `default_admission_rule` block supports:
@@ -116,11 +117,7 @@ The `default_admission_rule` block supports:
 * `evaluation_mode` -
   (Required)
   How this admission rule will be evaluated.
-
-  Possible values are:
-  * `ALWAYS_ALLOW`
-  * `REQUIRE_ATTESTATION`
-  * `ALWAYS_DENY`
+  Possible values are `ALWAYS_ALLOW`, `REQUIRE_ATTESTATION`, and `ALWAYS_DENY`.
 
 * `require_attestations_by` -
   (Optional)
@@ -136,10 +133,7 @@ The `default_admission_rule` block supports:
 * `enforcement_mode` -
   (Required)
   The action when a pod creation is denied by the admission rule.
-
-  Possible values are:
-  * `ENFORCED_BLOCK_AND_AUDIT_LOG`
-  * `DRYRUN_AUDIT_LOG_ONLY`
+  Possible values are `ENFORCED_BLOCK_AND_AUDIT_LOG` and `DRYRUN_AUDIT_LOG_ONLY`.
 
 - - -
 
@@ -153,16 +147,14 @@ The `default_admission_rule` block supports:
   Controls the evaluation of a Google-maintained global admission policy
   for common system-level images. Images not covered by the global
   policy will be subject to the project admission policy.
-
-  Possible values are:
-  * `ENABLE`
-  * `DISABLE`
+  Possible values are `ENABLE` and `DISABLE`.
 
 * `admission_whitelist_patterns` -
   (Optional)
   A whitelist of image patterns to exclude from admission rules. If an
   image's name matches a whitelist pattern, the image's admission
-  requests will always be permitted regardless of your admission rules.  Structure is documented below.
+  requests will always be permitted regardless of your admission rules.
+  Structure is documented below.
 
 * `cluster_admission_rules` -
   (Optional)
@@ -174,7 +166,8 @@ The `default_admission_rule` block supports:
 
   Identifier format: `{{location}}.{{clusterId}}`.
   A location is either a compute zone (e.g. `us-central1-a`) or a region
-  (e.g. `us-central1`).  Structure is documented below.
+  (e.g. `us-central1`).
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -196,11 +189,7 @@ The `cluster_admission_rules` block supports:
 * `evaluation_mode` -
   (Required)
   How this admission rule will be evaluated.
-
-  Possible values are:
-  * `ALWAYS_ALLOW`
-  * `REQUIRE_ATTESTATION`
-  * `ALWAYS_DENY`
+  Possible values are `ALWAYS_ALLOW`, `REQUIRE_ATTESTATION`, and `ALWAYS_DENY`.
 
 * `require_attestations_by` -
   (Optional)
@@ -216,10 +205,7 @@ The `cluster_admission_rules` block supports:
 * `enforcement_mode` -
   (Required)
   The action when a pod creation is denied by the admission rule.
-
-  Possible values are:
-  * `ENFORCED_BLOCK_AND_AUDIT_LOG`
-  * `DRYRUN_AUDIT_LOG_ONLY`
+  Possible values are `ENFORCED_BLOCK_AND_AUDIT_LOG` and `DRYRUN_AUDIT_LOG_ONLY`.
 
 ## Attributes Reference
 

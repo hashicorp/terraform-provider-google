@@ -266,22 +266,12 @@ The following arguments are supported:
   (Optional)
   The IP protocol to which this rule applies. When the load balancing scheme is
   INTERNAL_SELF_MANAGED, only TCP is valid.
-
-  Possible values are:
-  * `TCP`
-  * `UDP`
-  * `ESP`
-  * `AH`
-  * `SCTP`
-  * `ICMP`
+  Possible values are `TCP`, `UDP`, `ESP`, `AH`, `SCTP`, and `ICMP`.
 
 * `ip_version` -
   (Optional)
   The IP Version that will be used by this global forwarding rule.
-
-  Possible values are:
-  * `IPV4`
-  * `IPV6`
+  Possible values are `IPV4` and `IPV6`.
 
 * `load_balancing_scheme` -
   (Optional)
@@ -292,12 +282,8 @@ The following arguments are supported:
   External TCP/UDP LB, SSL Proxy)
   NOTE: Currently global forwarding rules cannot be used for INTERNAL
   load balancing.
-
-  Default value: `EXTERNAL`
-
-  Possible values are:
-  * `EXTERNAL`
-  * `INTERNAL_SELF_MANAGED`
+  Default value is `EXTERNAL`.
+  Possible values are `EXTERNAL` and `INTERNAL_SELF_MANAGED`.
 
 * `metadata_filters` -
   (Optional)
@@ -314,7 +300,8 @@ The following arguments are supported:
   metadataFilters specified here can be overridden by those specified in
   the UrlMap that this ForwardingRule references.
   metadataFilters only applies to Loadbalancers that have their
-  loadBalancingScheme set to INTERNAL_SELF_MANAGED.  Structure is documented below.
+  loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+  Structure is documented below.
 
 * `port_range` -
   (Optional)
@@ -349,16 +336,14 @@ The `metadata_filters` block supports:
   label in the provided metadata.
   MATCH_ALL - All filterLabels must have matching labels in the
   provided metadata.
-
-  Possible values are:
-  * `MATCH_ANY`
-  * `MATCH_ALL`
+  Possible values are `MATCH_ANY` and `MATCH_ALL`.
 
 * `filter_labels` -
   (Required)
   The list of label value pairs that must match labels in the
   provided metadata based on filterMatchCriteria
-  This list must not be empty and can have at the most 64 entries.  Structure is documented below.
+  This list must not be empty and can have at the most 64 entries.
+  Structure is documented below.
 
 
 The `filter_labels` block supports:

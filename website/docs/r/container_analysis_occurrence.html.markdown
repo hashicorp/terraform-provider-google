@@ -116,7 +116,8 @@ The following arguments are supported:
   the authority to which this attestation is attached is primarily
   useful for lookup (how to find this attestation if you already
   know the authority and artifact to be verified) and intent (for
-  which authority this attestation was intended to sign.  Structure is documented below.
+  which authority this attestation was intended to sign.
+  Structure is documented below.
 
 
 The `attestation` block supports:
@@ -132,7 +133,8 @@ The `attestation` block supports:
   Verifier implementations should consider this attestation
   message verified if at least one signature verifies
   serializedPayload. See Signature in common.proto for more
-  details on signature structure and verification.  Structure is documented below.
+  details on signature structure and verification.
+  Structure is documented below.
 
 
 The `signatures` block supports:

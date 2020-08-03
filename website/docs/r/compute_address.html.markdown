@@ -166,12 +166,8 @@ The following arguments are supported:
 * `address_type` -
   (Optional)
   The type of address to reserve.
-
-  Default value: `EXTERNAL`
-
-  Possible values are:
-  * `INTERNAL`
-  * `EXTERNAL`
+  Default value is `EXTERNAL`.
+  Possible values are `INTERNAL` and `EXTERNAL`.
 
 * `description` -
   (Optional)
@@ -182,18 +178,13 @@ The following arguments are supported:
   The purpose of this resource, which can be one of the following values:
   - GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
   This should only be set when using an Internal address.
-
-  Possible values are:
-  * `GCE_ENDPOINT`
+  Possible values are `GCE_ENDPOINT`.
 
 * `network_tier` -
   (Optional)
   The networking tier used for configuring this address. If this field is not
   specified, it is assumed to be PREMIUM.
-
-  Possible values are:
-  * `PREMIUM`
-  * `STANDARD`
+  Possible values are `PREMIUM` and `STANDARD`.
 
 * `subnetwork` -
   (Optional)

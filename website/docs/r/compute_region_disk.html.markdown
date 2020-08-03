@@ -152,7 +152,8 @@ The following arguments are supported:
   the disk.
   If you do not provide an encryption key when creating the disk, then
   the disk will be encrypted using an automatically generated key and
-  you do not need to provide a key to use the disk later.  Structure is documented below.
+  you do not need to provide a key to use the disk later.
+  Structure is documented below.
 
 * `snapshot` -
   (Optional)
@@ -168,7 +169,8 @@ The following arguments are supported:
   (Optional)
   The customer-supplied encryption key of the source snapshot. Required
   if the source snapshot is protected by a customer-supplied encryption
-  key.  Structure is documented below.
+  key.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -179,7 +181,8 @@ The `disk_encryption_key` block supports:
 * `raw_key` -
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
-  RFC 4648 base64 to either encrypt or decrypt this resource.  **Note**: This property is sensitive and will not be displayed in the plan.
+  RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied

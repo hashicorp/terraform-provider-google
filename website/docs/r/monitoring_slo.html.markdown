@@ -282,12 +282,7 @@ The following arguments are supported:
   (Optional)
   A calendar period, semantically "since the start of the current
   <calendarPeriod>".
-
-  Possible values are:
-  * `DAY`
-  * `WEEK`
-  * `FORTNIGHT`
-  * `MONTH`
+  Possible values are `DAY`, `WEEK`, `FORTNIGHT`, and `MONTH`.
 
 * `basic_sli` -
   (Optional)
@@ -296,7 +291,8 @@ The following arguments are supported:
   SLIs are used to measure and calculate the quality of the Service's
   performance with respect to a single aspect of service quality.
   Exactly one of the following must be set:
-  `basic_sli`, `request_based_sli`, `windows_based_sli`  Structure is documented below.
+  `basic_sli`, `request_based_sli`, `windows_based_sli`
+  Structure is documented below.
 
 * `request_based_sli` -
   (Optional)
@@ -306,7 +302,8 @@ The following arguments are supported:
   It is used to measure and calculate the quality of the Service's
   performance with respect to a single aspect of service quality.
   Exactly one of the following must be set:
-  `basic_sli`, `request_based_sli`, `windows_based_sli`  Structure is documented below.
+  `basic_sli`, `request_based_sli`, `windows_based_sli`
+  Structure is documented below.
 
 * `windows_based_sli` -
   (Optional)
@@ -317,7 +314,8 @@ The following arguments are supported:
   the quality of the Service's performance with respect to a single
   aspect of service quality.
   Exactly one of the following must be set:
-  `basic_sli`, `request_based_sli`, `windows_based_sli`  Structure is documented below.
+  `basic_sli`, `request_based_sli`, `windows_based_sli`
+  Structure is documented below.
 
 * `slo_id` -
   (Optional)
@@ -359,7 +357,8 @@ The `basic_sli` block supports:
 
 * `latency` -
   (Required)
-  Parameters for a latency threshold SLI.  Structure is documented below.
+  Parameters for a latency threshold SLI.
+  Structure is documented below.
 
 
 The `latency` block supports:
@@ -379,7 +378,8 @@ The `request_based_sli` block supports:
   Must specify exactly two of good, bad, and total service filters.
   The relationship good_service + bad_service = total_service
   will be assumed.
-  Exactly one of `distribution_cut` or `good_total_ratio` can be set.  Structure is documented below.
+  Exactly one of `distribution_cut` or `good_total_ratio` can be set.
+  Structure is documented below.
 
 * `distribution_cut` -
   (Optional)
@@ -388,7 +388,8 @@ The `request_based_sli` block supports:
   total count of all values aggregated in the Distribution.
   Defines a distribution TimeSeries filter and thresholds used for
   measuring good service and total service.
-  Exactly one of `distribution_cut` or `good_total_ratio` can be set.  Structure is documented below.
+  Exactly one of `distribution_cut` or `good_total_ratio` can be set.
+  Structure is documented below.
 
 
 The `good_total_ratio` block supports:
@@ -437,7 +438,8 @@ The `distribution_cut` block supports:
   will be the count of values x in the Distribution such
   that range.min <= x < range.max. inclusive of min and
   exclusive of max. Open ranges can be defined by setting
-  just one of min or max.  Structure is documented below.
+  just one of min or max.
+  Structure is documented below.
 
 
 The `range` block supports:
@@ -475,7 +477,8 @@ The `windows_based_sli` block supports:
   Criterion that describes a window as good if its performance is
   high enough. One of `good_bad_metric_filter`,
   `good_total_ratio_threshold`, `metric_mean_in_range`,
-  `metric_sum_in_range` must be set for `windows_based_sli`.  Structure is documented below.
+  `metric_sum_in_range` must be set for `windows_based_sli`.
+  Structure is documented below.
 
 * `metric_mean_in_range` -
   (Optional)
@@ -485,7 +488,8 @@ The `windows_based_sli` block supports:
   `good_total_ratio_threshold`, `metric_mean_in_range`,
   `metric_sum_in_range` must be set for `windows_based_sli`.
   Average value X of `time_series` should satisfy
-  `range.min <= X < range.max` for a good window.  Structure is documented below.
+  `range.min <= X < range.max` for a good window.
+  Structure is documented below.
 
 * `metric_sum_in_range` -
   (Optional)
@@ -495,7 +499,8 @@ The `windows_based_sli` block supports:
   `range.min <= X < range.max` for a good window.
   One of `good_bad_metric_filter`,
   `good_total_ratio_threshold`, `metric_mean_in_range`,
-  `metric_sum_in_range` must be set for `windows_based_sli`.  Structure is documented below.
+  `metric_sum_in_range` must be set for `windows_based_sli`.
+  Structure is documented below.
 
 
 The `good_total_ratio_threshold` block supports:
@@ -507,11 +512,13 @@ The `good_total_ratio_threshold` block supports:
 
 * `performance` -
   (Optional)
-  Request-based SLI to evaluate to judge window quality.  Structure is documented below.
+  Request-based SLI to evaluate to judge window quality.
+  Structure is documented below.
 
 * `basic_sli_performance` -
   (Optional)
-  Basic SLI to evaluate to judge window quality.  Structure is documented below.
+  Basic SLI to evaluate to judge window quality.
+  Structure is documented below.
 
 
 The `performance` block supports:
@@ -522,7 +529,8 @@ The `performance` block supports:
   Defines computing this ratio with two TimeSeries [monitoring filters](https://cloud.google.com/monitoring/api/v3/filters)
   Must specify exactly two of good, bad, and total service filters.
   The relationship good_service + bad_service = total_service
-  will be assumed.  Structure is documented below.
+  will be assumed.
+  Structure is documented below.
 
 * `distribution_cut` -
   (Optional)
@@ -530,7 +538,8 @@ The `performance` block supports:
   Distribution that fall into a good range. The total_service is the
   total count of all values aggregated in the Distribution.
   Defines a distribution TimeSeries filter and thresholds used for
-  measuring good service and total service.  Structure is documented below.
+  measuring good service and total service.
+  Structure is documented below.
 
 
 The `good_total_ratio` block supports:
@@ -579,7 +588,8 @@ The `distribution_cut` block supports:
   will be the count of values x in the Distribution such
   that range.min <= x < range.max. inclusive of min and
   exclusive of max. Open ranges can be defined by setting
-  just one of min or max.  Structure is documented below.
+  just one of min or max.
+  Structure is documented below.
 
 
 The `range` block supports:
@@ -627,7 +637,8 @@ The `basic_sli_performance` block supports:
 
 * `latency` -
   (Required)
-  Parameters for a latency threshold SLI.  Structure is documented below.
+  Parameters for a latency threshold SLI.
+  Structure is documented below.
 
 
 The `latency` block supports:
@@ -657,7 +668,8 @@ The `metric_mean_in_range` block supports:
   exclusive of max. Open ranges can be defined by setting
   just one of min or max. Mean value `X` of `time_series`
   values should satisfy `range.min <= X < range.max` for a
-  good service.  Structure is documented below.
+  good service.
+  Structure is documented below.
 
 
 The `range` block supports:
@@ -693,7 +705,8 @@ The `metric_sum_in_range` block supports:
   that range.min <= x < range.max. inclusive of min and
   exclusive of max. Open ranges can be defined by setting
   just one of min or max. Summed value `X` should satisfy
-  `range.min <= X < range.max` for a good window.  Structure is documented below.
+  `range.min <= X < range.max` for a good window.
+  Structure is documented below.
 
 
 The `range` block supports:

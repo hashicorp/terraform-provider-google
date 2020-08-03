@@ -113,7 +113,8 @@ The following arguments are supported:
   sensitive and hidden from plan output. The name of the field, eg: password, will be the key
   in the `labels` map in the api request.
   Credentials may not be specified in both locations and will cause an error. Changing from one location
-  to a different credential configuration in the config will require an apply to update state.  Structure is documented below.
+  to a different credential configuration in the config will require an apply to update state.
+  Structure is documented below.
 
 * `user_labels` -
   (Optional)
@@ -139,15 +140,18 @@ The `sensitive_labels` block supports:
 
 * `auth_token` -
   (Optional)
-  An authorization token for a notification channel. Channel types that support this field include: slack  **Note**: This property is sensitive and will not be displayed in the plan.
+  An authorization token for a notification channel. Channel types that support this field include: slack
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `password` -
   (Optional)
-  An password for a notification channel. Channel types that support this field include: webhook_basicauth  **Note**: This property is sensitive and will not be displayed in the plan.
+  An password for a notification channel. Channel types that support this field include: webhook_basicauth
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `service_key` -
   (Optional)
-  An servicekey token for a notification channel. Channel types that support this field include: pagerduty  **Note**: This property is sensitive and will not be displayed in the plan.
+  An servicekey token for a notification channel. Channel types that support this field include: pagerduty
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 ## Attributes Reference
 

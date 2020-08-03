@@ -96,14 +96,16 @@ The following arguments are supported:
 
 * `feed_output_config` -
   (Required)
-  Output configuration for asset feed destination.  Structure is documented below.
+  Output configuration for asset feed destination.
+  Structure is documented below.
 
 
 The `feed_output_config` block supports:
 
 * `pubsub_destination` -
   (Required)
-  Destination on Cloud Pubsub.  Structure is documented below.
+  Destination on Cloud Pubsub.
+  Structure is documented below.
 
 
 The `pubsub_destination` block supports:
@@ -140,13 +142,7 @@ The `pubsub_destination` block supports:
 * `content_type` -
   (Optional)
   Asset content type. If not specified, no content but the asset name and type will be returned.
-
-  Possible values are:
-  * `CONTENT_TYPE_UNSPECIFIED`
-  * `RESOURCE`
-  * `IAM_POLICY`
-  * `ORG_POLICY`
-  * `ACCESS_POLICY`
+  Possible values are `CONTENT_TYPE_UNSPECIFIED`, `RESOURCE`, `IAM_POLICY`, `ORG_POLICY`, and `ACCESS_POLICY`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
