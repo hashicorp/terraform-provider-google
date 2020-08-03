@@ -1,0 +1,3 @@
+```release-note:none
+healthcare: added tests for pubsub topic removal in `google_healthcare_dicom_store`
+```

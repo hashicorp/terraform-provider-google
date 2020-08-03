@@ -115,7 +115,7 @@ Values are expected to include the version of the service, such as
 `https://www.googleapis.com/compute/v1/`.
 
 * `batching` - (Optional) This block controls batching GCP calls for groups of specific resource types. Structure is documented below.
-~>**NOTE**: Batching is not implemented for the majority or resources/request types and is bounded by two values. If you are running into issues with slow batches
+~>**NOTE:** Batching is not implemented for the majority or resources/request types and is bounded by two values. If you are running into issues with slow batches
 resources, you may need to adjust one or both of 1) the core [`-parallelism`](https://www.terraform.io/docs/commands/apply.html#parallelism-n) flag, which controls how many concurrent resources are being operated on and 2) `send_after`, the time interval after which a batch is sent.
 
 * `request_timeout` - (Optional) A duration string controlling the amount of time

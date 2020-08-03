@@ -122,7 +122,7 @@ resource "google_sql_database_instance" "postgres" {
 ```
 
 ### Private IP Instance
-~> **NOTE**: For private IP instance setup, note that the `google_sql_database_instance` does not actually interpolate values from `google_service_networking_connection`. You must explicitly add a `depends_on`reference as shown below.
+~> **NOTE:** For private IP instance setup, note that the `google_sql_database_instance` does not actually interpolate values from `google_service_networking_connection`. You must explicitly add a `depends_on`reference as shown below.
 
 ```hcl
 resource "google_compute_network" "private_network" {

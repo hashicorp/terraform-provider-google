@@ -113,7 +113,7 @@ The following arguments are supported:
 * `labels` - (Optional) A mapping of labels to assign to the resource.
 
 * `schema` - (Optional) A JSON schema for the table.
-    ~>**NOTE**: Because this field expects a JSON string, any changes to the
+    ~>**NOTE:** Because this field expects a JSON string, any changes to the
     string will create a diff, even if the JSON itself hasn't changed.
     If the API returns a different value for the same schema, e.g. it
     switched the order of values or replaced `STRUCT` field type with `RECORD`
@@ -166,7 +166,7 @@ The `external_data_configuration` block supports:
 * `schema` - (Optional) A JSON schema for the external table. Schema is required
     for CSV and JSON formats if autodetect is not on. Schema is disallowed
     for Google Cloud Bigtable, Cloud Datastore backups, Avro, ORC and Parquet formats.
-    ~>**NOTE**: Because this field expects a JSON string, any changes to the
+    ~>**NOTE:** Because this field expects a JSON string, any changes to the
     string will create a diff, even if the JSON itself hasn't changed.
     Furthermore drift for this field cannot not be detected because BigQuery
     only uses this schema to compute the effective schema for the table, therefore
