@@ -112,11 +112,13 @@ The following arguments are supported:
   Branch and tag names in trigger templates are interpreted as regular
   expressions. Any branch or tag change that matches that regular
   expression will trigger a build.
-  One of `trigger_template` or `github` must be provided.  Structure is documented below.
+  One of `trigger_template` or `github` must be provided.
+  Structure is documented below.
 
 * `build` -
   (Optional)
-  Contents of the build template. Either a filename or build template must be provided.  Structure is documented below.
+  Contents of the build template. Either a filename or build template must be provided.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -181,7 +183,8 @@ The `build` block supports:
 
 * `step` -
   (Required)
-  The operations to be performed on the workspace.  Structure is documented below.
+  The operations to be performed on the workspace.
+  Structure is documented below.
 
 
 The `step` block supports:
@@ -265,7 +268,8 @@ The `step` block supports:
   build step. Upon completion of the build, volumes and their contents
   are discarded.
   Using a named volume in only one step is not valid as it is
-  indicative of a build request with an incorrect configuration.  Structure is documented below.
+  indicative of a build request with an incorrect configuration.
+  Structure is documented below.
 
 * `wait_for` -
   (Optional)

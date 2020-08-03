@@ -214,7 +214,8 @@ The following arguments are supported:
   define one or more of the policies for an autoscaler: cpuUtilization,
   customMetricUtilizations, and loadBalancingUtilization.
   If none of these are specified, the default will be to autoscale based
-  on cpuUtilization to 0.6 or 60%.  Structure is documented below.
+  on cpuUtilization to 0.6 or 60%.
+  Structure is documented below.
 
 * `target` -
   (Required)
@@ -252,27 +253,25 @@ The `autoscaling_policy` block supports:
 * `mode` -
   (Optional)
   Defines operating mode for this policy.
-
-  Default value: `ON`
-
-  Possible values are:
-  * `OFF`
-  * `ONLY_UP`
-  * `ON`
+  Default value is `ON`.
+  Possible values are `OFF`, `ONLY_UP`, and `ON`.
 
 * `cpu_utilization` -
   (Optional)
   Defines the CPU utilization policy that allows the autoscaler to
   scale based on the average CPU utilization of a managed instance
-  group.  Structure is documented below.
+  group.
+  Structure is documented below.
 
 * `metric` -
   (Optional)
-  Configuration parameters of autoscaling based on a custom metric.  Structure is documented below.
+  Configuration parameters of autoscaling based on a custom metric.
+  Structure is documented below.
 
 * `load_balancing_utilization` -
   (Optional)
-  Configuration parameters of autoscaling based on a load balancer.  Structure is documented below.
+  Configuration parameters of autoscaling based on a load balancer.
+  Structure is documented below.
 
 
 The `cpu_utilization` block supports:
@@ -314,11 +313,7 @@ The `metric` block supports:
   (Optional)
   Defines how target utilization value is expressed for a
   Stackdriver Monitoring metric.
-
-  Possible values are:
-  * `GAUGE`
-  * `DELTA_PER_SECOND`
-  * `DELTA_PER_MINUTE`
+  Possible values are `GAUGE`, `DELTA_PER_SECOND`, and `DELTA_PER_MINUTE`.
 
 The `load_balancing_utilization` block supports:
 

@@ -111,7 +111,8 @@ The following arguments are supported:
 
 * `split` -
   (Required)
-  Mapping that defines fractional HTTP traffic diversion to different versions within the service.  Structure is documented below.
+  Mapping that defines fractional HTTP traffic diversion to different versions within the service.
+  Structure is documented below.
 
 
 The `split` block supports:
@@ -119,12 +120,7 @@ The `split` block supports:
 * `shard_by` -
   (Optional)
   Mechanism used to determine which version a request is sent to. The traffic selection algorithm will be stable for either type until allocations are changed.
-
-  Possible values are:
-  * `UNSPECIFIED`
-  * `COOKIE`
-  * `IP`
-  * `RANDOM`
+  Possible values are `UNSPECIFIED`, `COOKIE`, `IP`, and `RANDOM`.
 
 * `allocations` -
   (Required)

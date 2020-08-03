@@ -104,7 +104,8 @@ The following arguments are supported:
   gate the ability for a principle to attach an Occurrence to a given
   Note. It also provides a single point of lookup to find all attached
   Attestation Occurrences, even if they don't all live in the same
-  project.  Structure is documented below.
+  project.
+  Structure is documented below.
 
 
 The `attestation_authority` block supports:
@@ -118,7 +119,8 @@ The `attestation_authority` block supports:
   from "readable" names more suitable for debug output. Note that
   these hints should NOT be used to look up AttestationAuthorities
   in security sensitive contexts, such as when looking up
-  Attestations to verify.  Structure is documented below.
+  Attestations to verify.
+  Structure is documented below.
 
 
 The `hint` block supports:
@@ -141,7 +143,8 @@ The `hint` block supports:
 
 * `related_url` -
   (Optional)
-  URLs associated with this note and related metadata.  Structure is documented below.
+  URLs associated with this note and related metadata.
+  Structure is documented below.
 
 * `expiration_time` -
   (Optional)

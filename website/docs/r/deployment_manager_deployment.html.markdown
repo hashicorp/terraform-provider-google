@@ -107,20 +107,23 @@ The following arguments are supported:
 * `target` -
   (Required)
   Parameters that define your deployment, including the deployment
-  configuration and relevant templates.  Structure is documented below.
+  configuration and relevant templates.
+  Structure is documented below.
 
 
 The `target` block supports:
 
 * `config` -
   (Required)
-  The root configuration file to use for this deployment.  Structure is documented below.
+  The root configuration file to use for this deployment.
+  Structure is documented below.
 
 * `imports` -
   (Optional)
   Specifies import files for this configuration. This can be
   used to import templates or other files. For example, you might
-  import a text file in order to use the file in a template.  Structure is documented below.
+  import a text file in order to use the file in a template.
+  Structure is documented below.
 
 
 The `config` block supports:
@@ -149,7 +152,8 @@ The `imports` block supports:
 
 * `labels` -
   (Optional)
-  Key-value pairs to apply to this labels.  Structure is documented below.
+  Key-value pairs to apply to this labels.
+  Structure is documented below.
 
 * `create_policy` -
   (Optional)
@@ -158,12 +162,8 @@ The `imports` block supports:
   `ACQUIRE`. If set to `ACQUIRE` and resources do not already exist,
   the deployment will fail. Note that updating this field does not
   actually affect the deployment, just how it is updated.
-
-  Default value: `CREATE_OR_ACQUIRE`
-
-  Possible values are:
-  * `ACQUIRE`
-  * `CREATE_OR_ACQUIRE`
+  Default value is `CREATE_OR_ACQUIRE`.
+  Possible values are `ACQUIRE` and `CREATE_OR_ACQUIRE`.
 
 * `delete_policy` -
   (Optional)
@@ -173,12 +173,8 @@ The `imports` block supports:
   `ABANDON`, the resource is only removed from Deployment Manager
   and is not actually deleted. Note that updating this field does not
   actually change the deployment, just how it is updated.
-
-  Default value: `DELETE`
-
-  Possible values are:
-  * `ABANDON`
-  * `DELETE`
+  Default value is `DELETE`.
+  Possible values are `ABANDON` and `DELETE`.
 
 * `preview` -
   (Optional)

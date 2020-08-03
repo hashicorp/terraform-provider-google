@@ -78,7 +78,8 @@ The following arguments are supported:
 
 * `specific_reservation` -
   (Required)
-  Reservation for instances with specific machine shapes.  Structure is documented below.
+  Reservation for instances with specific machine shapes.
+  Structure is documented below.
 
 * `zone` -
   (Required)
@@ -96,7 +97,8 @@ The `specific_reservation` block supports:
 
 * `instance_properties` -
   (Required)
-  The instance properties for the reservation.  Structure is documented below.
+  The instance properties for the reservation.
+  Structure is documented below.
 
 
 The `instance_properties` block supports:
@@ -114,12 +116,14 @@ The `instance_properties` block supports:
 
 * `guest_accelerators` -
   (Optional)
-  Guest accelerator type and count.  Structure is documented below.
+  Guest accelerator type and count.
+  Structure is documented below.
 
 * `local_ssds` -
   (Optional)
   The amount of local ssd to reserve with each instance. This
-  reserves disks of type `local-ssd`.  Structure is documented below.
+  reserves disks of type `local-ssd`.
+  Structure is documented below.
 
 
 The `guest_accelerators` block supports:
@@ -141,12 +145,8 @@ The `local_ssds` block supports:
 * `interface` -
   (Optional)
   The disk interface to use for attaching this disk.
-
-  Default value: `SCSI`
-
-  Possible values are:
-  * `SCSI`
-  * `NVME`
+  Default value is `SCSI`.
+  Possible values are `SCSI` and `NVME`.
 
 * `disk_size_gb` -
   (Required)

@@ -195,12 +195,14 @@ The following arguments are supported:
 
 * `backend` -
   (Optional)
-  The set of backends that serve this BackendService.  Structure is documented below.
+  The set of backends that serve this BackendService.
+  Structure is documented below.
 
 * `circuit_breakers` -
   (Optional)
   Settings controlling the volume of connections to a backend service. This field
-  is applicable only when the load_balancing_scheme is set to INTERNAL_SELF_MANAGED.  Structure is documented below.
+  is applicable only when the load_balancing_scheme is set to INTERNAL_SELF_MANAGED.
+  Structure is documented below.
 
 * `consistent_hash` -
   (Optional)
@@ -211,11 +213,13 @@ The following arguments are supported:
   destination service. This field specifies parameters that control consistent
   hashing. This field only applies if the load_balancing_scheme is set to
   INTERNAL_SELF_MANAGED. This field is only applicable when locality_lb_policy is
-  set to MAGLEV or RING_HASH.  Structure is documented below.
+  set to MAGLEV or RING_HASH.
+  Structure is documented below.
 
 * `cdn_policy` -
   (Optional)
-  Cloud CDN configuration for this BackendService.  Structure is documented below.
+  Cloud CDN configuration for this BackendService.
+  Structure is documented below.
 
 * `connection_draining_timeout_sec` -
   (Optional)
@@ -245,19 +249,16 @@ The following arguments are supported:
 
 * `iap` -
   (Optional)
-  Settings for enabling Cloud Identity Aware Proxy  Structure is documented below.
+  Settings for enabling Cloud Identity Aware Proxy
+  Structure is documented below.
 
 * `load_balancing_scheme` -
   (Optional)
   Indicates whether the backend service will be used with internal or
   external load balancing. A backend service created for one type of
   load balancing cannot be used with the other.
-
-  Default value: `EXTERNAL`
-
-  Possible values are:
-  * `EXTERNAL`
-  * `INTERNAL_SELF_MANAGED`
+  Default value is `EXTERNAL`.
+  Possible values are `EXTERNAL` and `INTERNAL_SELF_MANAGED`.
 
 * `locality_lb_policy` -
   (Optional)
@@ -283,20 +284,14 @@ The following arguments are supported:
            Maglev, refer to https://ai.google/research/pubs/pub44824
   This field is applicable only when the load_balancing_scheme is set to
   INTERNAL_SELF_MANAGED.
-
-  Possible values are:
-  * `ROUND_ROBIN`
-  * `LEAST_REQUEST`
-  * `RING_HASH`
-  * `RANDOM`
-  * `ORIGINAL_DESTINATION`
-  * `MAGLEV`
+  Possible values are `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, and `MAGLEV`.
 
 * `outlier_detection` -
   (Optional)
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
   This field is applicable only when the load_balancing_scheme is set
-  to INTERNAL_SELF_MANAGED.  Structure is documented below.
+  to INTERNAL_SELF_MANAGED.
+  Structure is documented below.
 
 * `port_name` -
   (Optional)
@@ -309,13 +304,7 @@ The following arguments are supported:
   The protocol this BackendService uses to communicate with backends.
   The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
   types and may result in errors if used with the GA API.
-
-  Possible values are:
-  * `HTTP`
-  * `HTTPS`
-  * `HTTP2`
-  * `TCP`
-  * `SSL`
+  Possible values are `HTTP`, `HTTPS`, `HTTP2`, `TCP`, and `SSL`.
 
 * `security_policy` -
   (Optional)
@@ -325,15 +314,7 @@ The following arguments are supported:
   (Optional)
   Type of session affinity to use. The default is NONE. Session affinity is
   not applicable if the protocol is UDP.
-
-  Possible values are:
-  * `NONE`
-  * `CLIENT_IP`
-  * `CLIENT_IP_PORT_PROTO`
-  * `CLIENT_IP_PROTO`
-  * `GENERATED_COOKIE`
-  * `HEADER_FIELD`
-  * `HTTP_COOKIE`
+  Possible values are `NONE`, `CLIENT_IP`, `CLIENT_IP_PORT_PROTO`, `CLIENT_IP_PROTO`, `GENERATED_COOKIE`, `HEADER_FIELD`, and `HTTP_COOKIE`.
 
 * `timeout_sec` -
   (Optional)
@@ -343,7 +324,8 @@ The following arguments are supported:
 * `log_config` -
   (Optional)
   This field denotes the logging options for the load balancer traffic served by this backend service.
-  If logging is enabled, logs will be exported to Stackdriver.  Structure is documented below.
+  If logging is enabled, logs will be exported to Stackdriver.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -357,13 +339,8 @@ The `backend` block supports:
   For global HTTP(S) or TCP/SSL load balancing, the default is
   UTILIZATION. Valid values are UTILIZATION, RATE (for HTTP(S))
   and CONNECTION (for TCP/SSL).
-
-  Default value: `UTILIZATION`
-
-  Possible values are:
-  * `UTILIZATION`
-  * `RATE`
-  * `CONNECTION`
+  Default value is `UTILIZATION`.
+  Possible values are `UTILIZATION`, `RATE`, and `CONNECTION`.
 
 * `capacity_scaler` -
   (Optional)
@@ -486,7 +463,8 @@ The `consistent_hash` block supports:
   Hash is based on HTTP Cookie. This field describes a HTTP cookie
   that will be used as the hash key for the consistent hash load
   balancer. If the cookie is not present, it will be generated.
-  This field is applicable if the sessionAffinity is set to HTTP_COOKIE.  Structure is documented below.
+  This field is applicable if the sessionAffinity is set to HTTP_COOKIE.
+  Structure is documented below.
 
 * `http_header_name` -
   (Optional)
@@ -507,7 +485,8 @@ The `http_cookie` block supports:
 
 * `ttl` -
   (Optional)
-  Lifetime of the cookie.  Structure is documented below.
+  Lifetime of the cookie.
+  Structure is documented below.
 
 * `name` -
   (Optional)
@@ -536,7 +515,8 @@ The `cdn_policy` block supports:
 
 * `cache_key_policy` -
   (Optional)
-  The CacheKeyPolicy for this CdnPolicy.  Structure is documented below.
+  The CacheKeyPolicy for this CdnPolicy.
+  Structure is documented below.
 
 * `signed_url_cache_max_age_sec` -
   (Optional)
@@ -594,10 +574,12 @@ The `iap` block supports:
 
 * `oauth2_client_secret` -
   (Required)
-  OAuth2 Client Secret for IAP  **Note**: This property is sensitive and will not be displayed in the plan.
+  OAuth2 Client Secret for IAP
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `oauth2_client_secret_sha256` -
-  OAuth2 Client Secret SHA-256 for IAP  **Note**: This property is sensitive and will not be displayed in the plan.
+  OAuth2 Client Secret SHA-256 for IAP
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 The `outlier_detection` block supports:
 
@@ -605,7 +587,8 @@ The `outlier_detection` block supports:
   (Optional)
   The base time that a host is ejected for. The real time is equal to the base
   time multiplied by the number of times the host has been ejected. Defaults to
-  30000ms or 30s.  Structure is documented below.
+  30000ms or 30s.
+  Structure is documented below.
 
 * `consecutive_errors` -
   (Optional)
@@ -640,7 +623,8 @@ The `outlier_detection` block supports:
 * `interval` -
   (Optional)
   Time interval between ejection sweep analysis. This can result in both new
-  ejections as well as hosts being returned to service. Defaults to 10 seconds.  Structure is documented below.
+  ejections as well as hosts being returned to service. Defaults to 10 seconds.
+  Structure is documented below.
 
 * `max_ejection_percent` -
   (Optional)

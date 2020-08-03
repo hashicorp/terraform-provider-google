@@ -90,20 +90,7 @@ The following arguments are supported:
   For attachments of type PARTNER, the Google Partner that is operating the interconnect must set the bandwidth.
   Output only for PARTNER type, mutable for PARTNER_PROVIDER and DEDICATED,
   Defaults to BPS_10G
-
-  Possible values are:
-  * `BPS_50M`
-  * `BPS_100M`
-  * `BPS_200M`
-  * `BPS_300M`
-  * `BPS_400M`
-  * `BPS_500M`
-  * `BPS_1G`
-  * `BPS_2G`
-  * `BPS_5G`
-  * `BPS_10G`
-  * `BPS_20G`
-  * `BPS_50G`
+  Possible values are `BPS_50M`, `BPS_100M`, `BPS_200M`, `BPS_300M`, `BPS_400M`, `BPS_500M`, `BPS_1G`, `BPS_2G`, `BPS_5G`, `BPS_10G`, `BPS_20G`, and `BPS_50G`.
 
 * `edge_availability_domain` -
   (Optional)
@@ -118,11 +105,7 @@ The following arguments are supported:
   (Optional)
   The type of InterconnectAttachment you wish to create. Defaults to
   DEDICATED.
-
-  Possible values are:
-  * `DEDICATED`
-  * `PARTNER`
-  * `PARTNER_PROVIDER`
+  Possible values are `DEDICATED`, `PARTNER`, and `PARTNER_PROVIDER`.
 
 * `candidate_subnets` -
   (Optional)
@@ -173,7 +156,8 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `private_interconnect_info` -
   Information specific to an InterconnectAttachment. This property
-  is populated if the interconnect that this is attached to is of type DEDICATED.  Structure is documented below.
+  is populated if the interconnect that this is attached to is of type DEDICATED.
+  Structure is documented below.
 
 * `state` -
   [Output Only] The current state of this attachment's functionality.

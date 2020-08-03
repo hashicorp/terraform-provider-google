@@ -116,7 +116,8 @@ The following arguments are supported:
   Flexible properties for the desired node type. Node groups that
   use this node template will create nodes of a type that matches
   these properties. Only one of nodeTypeFlexibility and nodeType can
-  be specified.  Structure is documented below.
+  be specified.
+  Structure is documented below.
 
 * `region` -
   (Optional)

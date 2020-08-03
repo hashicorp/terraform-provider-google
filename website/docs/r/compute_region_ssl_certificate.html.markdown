@@ -179,11 +179,13 @@ The following arguments are supported:
   (Required)
   The certificate in PEM format.
   The certificate chain must be no greater than 5 certs long.
-  The chain must include at least one intermediate cert.  **Note**: This property is sensitive and will not be displayed in the plan.
+  The chain must include at least one intermediate cert.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `private_key` -
   (Required)
-  The write-only private key in PEM format.  **Note**: This property is sensitive and will not be displayed in the plan.
+  The write-only private key in PEM format.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 
 - - -

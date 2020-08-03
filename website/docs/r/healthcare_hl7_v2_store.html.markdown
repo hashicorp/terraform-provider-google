@@ -191,7 +191,8 @@ The following arguments are supported:
 
 * `parser_config` -
   (Optional)
-  A nested object resource  Structure is documented below.
+  A nested object resource
+  Structure is documented below.
 
 * `labels` -
   (Optional)
@@ -208,7 +209,8 @@ The following arguments are supported:
   (Optional)
   A list of notification configs. Each configuration uses a filter to determine whether to publish a
   message (both Ingest & Create) on the corresponding notification destination. Only the message name
-  is sent as part of the notification. Supplied by the client.  Structure is documented below.
+  is sent as part of the notification. Supplied by the client.
+  Structure is documented below.
 
 
 The `parser_config` block supports:

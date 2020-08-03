@@ -66,7 +66,8 @@ The following arguments are supported:
 * `replication` -
   (Required)
   The replication policy of the secret data attached to the Secret. It cannot be changed
-  after the Secret has been created.  Structure is documented below.
+  after the Secret has been created.
+  Structure is documented below.
 
 * `secret_id` -
   (Required)
@@ -81,14 +82,16 @@ The `replication` block supports:
 
 * `user_managed` -
   (Optional)
-  The Secret will automatically be replicated without any restrictions.  Structure is documented below.
+  The Secret will automatically be replicated without any restrictions.
+  Structure is documented below.
 
 
 The `user_managed` block supports:
 
 * `replicas` -
   (Required)
-  The list of Replicas for this Secret. Cannot be empty.  Structure is documented below.
+  The list of Replicas for this Secret. Cannot be empty.
+  Structure is documented below.
 
 
 The `replicas` block supports:

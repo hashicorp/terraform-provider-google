@@ -74,12 +74,8 @@ The following arguments are supported:
 * `state` -
   (Optional)
   The state of the key. Can be set to one of ACTIVE, INACTIVE.
-
-  Default value: `ACTIVE`
-
-  Possible values are:
-  * `ACTIVE`
-  * `INACTIVE`
+  Default value is `ACTIVE`.
+  Possible values are `ACTIVE` and `INACTIVE`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -92,7 +88,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/hmacKeys/{{access_id}}`
 
 * `secret` -
-  HMAC secret key material.  **Note**: This property is sensitive and will not be displayed in the plan.
+  HMAC secret key material.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `access_id` -
   The access ID of the HMAC Key.

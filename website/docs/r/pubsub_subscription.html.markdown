@@ -160,7 +160,8 @@ The following arguments are supported:
   (Optional)
   If push delivery is used with this subscription, this field is used to
   configure it. An empty pushConfig signifies that the subscriber will
-  pull and ack messages using API methods.  Structure is documented below.
+  pull and ack messages using API methods.
+  Structure is documented below.
 
 * `ack_deadline_seconds` -
   (Optional)
@@ -206,7 +207,8 @@ The following arguments are supported:
   operations on the subscription. If expirationPolicy is not set, a default
   policy with ttl of 31 days will be used.  If it is set but ttl is "", the
   resource never expires.  The minimum allowed value for expirationPolicy.ttl
-  is 1 day.  Structure is documented below.
+  is 1 day.
+  Structure is documented below.
 
 * `dead_letter_policy` -
   (Optional)
@@ -216,7 +218,8 @@ The following arguments are supported:
   The Cloud Pub/Sub service account associated with this subscriptions's
   parent project (i.e.,
   service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
-  permission to Acknowledge() messages on this subscription.  Structure is documented below.
+  permission to Acknowledge() messages on this subscription.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -227,7 +230,8 @@ The `push_config` block supports:
 * `oidc_token` -
   (Optional)
   If specified, Pub/Sub will generate and attach an OIDC JWT token as
-  an Authorization header in the HTTP request for every pushed message.  Structure is documented below.
+  an Authorization header in the HTTP request for every pushed message.
+  Structure is documented below.
 
 * `push_endpoint` -
   (Required)

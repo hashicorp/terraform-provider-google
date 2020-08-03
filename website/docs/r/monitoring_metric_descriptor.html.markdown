@@ -103,23 +103,12 @@ The following arguments are supported:
 * `metric_kind` -
   (Required)
   Whether the metric records instantaneous values, changes to a value, etc. Some combinations of metricKind and valueType might not be supported.
-
-  Possible values are:
-  * `METRIC_KIND_UNSPECIFIED`
-  * `GAUGE`
-  * `DELTA`
-  * `CUMULATIVE`
+  Possible values are `METRIC_KIND_UNSPECIFIED`, `GAUGE`, `DELTA`, and `CUMULATIVE`.
 
 * `value_type` -
   (Required)
   Whether the measurement is an integer, a floating-point number, etc. Some combinations of metricKind and valueType might not be supported.
-
-  Possible values are:
-  * `BOOL`
-  * `INT64`
-  * `DOUBLE`
-  * `STRING`
-  * `DISTRIBUTION`
+  Possible values are `BOOL`, `INT64`, `DOUBLE`, `STRING`, and `DISTRIBUTION`.
 
 * `description` -
   (Required)
@@ -135,7 +124,8 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  The set of labels that can be used to describe a specific instance of this metric type. In order to delete a label, the entire resource must be deleted, then created with the desired labels.  Structure is documented below.
+  The set of labels that can be used to describe a specific instance of this metric type. In order to delete a label, the entire resource must be deleted, then created with the desired labels.
+  Structure is documented below.
 
 * `unit` -
   (Optional)
@@ -159,21 +149,13 @@ The following arguments are supported:
 
 * `metadata` -
   (Optional)
-  Metadata which can be used to guide usage of the metric.  Structure is documented below.
+  Metadata which can be used to guide usage of the metric.
+  Structure is documented below.
 
 * `launch_stage` -
   (Optional)
   The launch stage of the metric definition.
-
-  Possible values are:
-  * `LAUNCH_STAGE_UNSPECIFIED`
-  * `UNIMPLEMENTED`
-  * `PRELAUNCH`
-  * `EARLY_ACCESS`
-  * `ALPHA`
-  * `BETA`
-  * `GA`
-  * `DEPRECATED`
+  Possible values are `LAUNCH_STAGE_UNSPECIFIED`, `UNIMPLEMENTED`, `PRELAUNCH`, `EARLY_ACCESS`, `ALPHA`, `BETA`, `GA`, and `DEPRECATED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -188,13 +170,8 @@ The `labels` block supports:
 * `value_type` -
   (Optional)
   The type of data that can be assigned to the label.
-
-  Default value: `STRING`
-
-  Possible values are:
-  * `STRING`
-  * `BOOL`
-  * `INT64`
+  Default value is `STRING`.
+  Possible values are `STRING`, `BOOL`, and `INT64`.
 
 * `description` -
   (Optional)

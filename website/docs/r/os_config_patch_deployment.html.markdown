@@ -247,7 +247,8 @@ The following arguments are supported:
 
 * `instance_filter` -
   (Required)
-  VM instances to patch.  Structure is documented below.
+  VM instances to patch.
+  Structure is documented below.
 
 * `patch_deployment_id` -
   (Required)
@@ -267,7 +268,8 @@ The `instance_filter` block supports:
 
 * `group_labels` -
   (Optional)
-  Targets VM instances matching ANY of these GroupLabels. This allows targeting of disparate groups of VM instances.  Structure is documented below.
+  Targets VM instances matching ANY of these GroupLabels. This allows targeting of disparate groups of VM instances.
+  Structure is documented below.
 
 * `zones` -
   (Optional)
@@ -300,7 +302,8 @@ The `group_labels` block supports:
 
 * `patch_config` -
   (Optional)
-  Patch configuration that is applied.  Structure is documented below.
+  Patch configuration that is applied.
+  Structure is documented below.
 
 * `duration` -
   (Optional)
@@ -309,11 +312,13 @@ The `group_labels` block supports:
 
 * `one_time_schedule` -
   (Optional)
-  Schedule a one-time execution.  Structure is documented below.
+  Schedule a one-time execution.
+  Structure is documented below.
 
 * `recurring_schedule` -
   (Optional)
-  Schedule recurring executions.  Structure is documented below.
+  Schedule recurring executions.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -324,39 +329,42 @@ The `patch_config` block supports:
 * `reboot_config` -
   (Optional)
   Post-patch reboot settings.
-
-  Possible values are:
-  * `DEFAULT`
-  * `ALWAYS`
-  * `NEVER`
+  Possible values are `DEFAULT`, `ALWAYS`, and `NEVER`.
 
 * `apt` -
   (Optional)
-  Apt update settings. Use this setting to override the default apt patch rules.  Structure is documented below.
+  Apt update settings. Use this setting to override the default apt patch rules.
+  Structure is documented below.
 
 * `yum` -
   (Optional)
-  Yum update settings. Use this setting to override the default yum patch rules.  Structure is documented below.
+  Yum update settings. Use this setting to override the default yum patch rules.
+  Structure is documented below.
 
 * `goo` -
   (Optional)
-  goo update settings. Use this setting to override the default goo patch rules.  Structure is documented below.
+  goo update settings. Use this setting to override the default goo patch rules.
+  Structure is documented below.
 
 * `zypper` -
   (Optional)
-  zypper update settings. Use this setting to override the default zypper patch rules.  Structure is documented below.
+  zypper update settings. Use this setting to override the default zypper patch rules.
+  Structure is documented below.
 
 * `windows_update` -
   (Optional)
-  Windows update settings. Use this setting to override the default Windows patch rules.  Structure is documented below.
+  Windows update settings. Use this setting to override the default Windows patch rules.
+  Structure is documented below.
 
 * `pre_step` -
   (Optional)
-  The ExecStep to run before the patch update.  Structure is documented below.
+  The ExecStep to run before the patch update.
+  Structure is documented below.
 
 * `post_step` -
   (Optional)
-  The ExecStep to run after the patch update.  Structure is documented below.
+  The ExecStep to run after the patch update.
+  Structure is documented below.
 
 
 The `apt` block supports:
@@ -364,10 +372,7 @@ The `apt` block supports:
 * `type` -
   (Optional)
   By changing the type to DIST, the patching is performed using apt-get dist-upgrade instead.
-
-  Possible values are:
-  * `DIST`
-  * `UPGRADE`
+  Possible values are `DIST` and `UPGRADE`.
 
 * `excludes` -
   (Optional)
@@ -437,17 +442,7 @@ The `windows_update` block supports:
 * `classifications` -
   (Optional)
   Only apply updates of these windows update classifications. If empty, all updates are applied.
-
-  Possible values are:
-  * `CRITICAL`
-  * `SECURITY`
-  * `DEFINITION`
-  * `DRIVER`
-  * `FEATURE_PACK`
-  * `SERVICE_PACK`
-  * `TOOL`
-  * `UPDATE_ROLLUP`
-  * `UPDATE`
+  Possible values are `CRITICAL`, `SECURITY`, `DEFINITION`, `DRIVER`, `FEATURE_PACK`, `SERVICE_PACK`, `TOOL`, `UPDATE_ROLLUP`, and `UPDATE`.
 
 * `excludes` -
   (Optional)
@@ -462,11 +457,13 @@ The `pre_step` block supports:
 
 * `linux_exec_step_config` -
   (Optional)
-  The ExecStepConfig for all Linux VMs targeted by the PatchJob.  Structure is documented below.
+  The ExecStepConfig for all Linux VMs targeted by the PatchJob.
+  Structure is documented below.
 
 * `windows_exec_step_config` -
   (Optional)
-  The ExecStepConfig for all Windows VMs targeted by the PatchJob.  Structure is documented below.
+  The ExecStepConfig for all Windows VMs targeted by the PatchJob.
+  Structure is documented below.
 
 
 The `linux_exec_step_config` block supports:
@@ -479,10 +476,7 @@ The `linux_exec_step_config` block supports:
   (Optional)
   The script interpreter to use to run the script. If no interpreter is specified the script will
   be executed directly, which will likely only succeed for scripts with shebang lines.
-
-  Possible values are:
-  * `SHELL`
-  * `POWERSHELL`
+  Possible values are `SHELL` and `POWERSHELL`.
 
 * `local_path` -
   (Optional)
@@ -490,7 +484,8 @@ The `linux_exec_step_config` block supports:
 
 * `gcs_object` -
   (Optional)
-  A Cloud Storage object containing the executable.  Structure is documented below.
+  A Cloud Storage object containing the executable.
+  Structure is documented below.
 
 
 The `gcs_object` block supports:
@@ -517,10 +512,7 @@ The `windows_exec_step_config` block supports:
   (Optional)
   The script interpreter to use to run the script. If no interpreter is specified the script will
   be executed directly, which will likely only succeed for scripts with shebang lines.
-
-  Possible values are:
-  * `SHELL`
-  * `POWERSHELL`
+  Possible values are `SHELL` and `POWERSHELL`.
 
 * `local_path` -
   (Optional)
@@ -528,7 +520,8 @@ The `windows_exec_step_config` block supports:
 
 * `gcs_object` -
   (Optional)
-  A Cloud Storage object containing the executable.  Structure is documented below.
+  A Cloud Storage object containing the executable.
+  Structure is documented below.
 
 
 The `gcs_object` block supports:
@@ -549,11 +542,13 @@ The `post_step` block supports:
 
 * `linux_exec_step_config` -
   (Optional)
-  The ExecStepConfig for all Linux VMs targeted by the PatchJob.  Structure is documented below.
+  The ExecStepConfig for all Linux VMs targeted by the PatchJob.
+  Structure is documented below.
 
 * `windows_exec_step_config` -
   (Optional)
-  The ExecStepConfig for all Windows VMs targeted by the PatchJob.  Structure is documented below.
+  The ExecStepConfig for all Windows VMs targeted by the PatchJob.
+  Structure is documented below.
 
 
 The `linux_exec_step_config` block supports:
@@ -566,10 +561,7 @@ The `linux_exec_step_config` block supports:
   (Optional)
   The script interpreter to use to run the script. If no interpreter is specified the script will
   be executed directly, which will likely only succeed for scripts with shebang lines.
-
-  Possible values are:
-  * `SHELL`
-  * `POWERSHELL`
+  Possible values are `SHELL` and `POWERSHELL`.
 
 * `local_path` -
   (Optional)
@@ -577,7 +569,8 @@ The `linux_exec_step_config` block supports:
 
 * `gcs_object` -
   (Optional)
-  A Cloud Storage object containing the executable.  Structure is documented below.
+  A Cloud Storage object containing the executable.
+  Structure is documented below.
 
 
 The `gcs_object` block supports:
@@ -604,10 +597,7 @@ The `windows_exec_step_config` block supports:
   (Optional)
   The script interpreter to use to run the script. If no interpreter is specified the script will
   be executed directly, which will likely only succeed for scripts with shebang lines.
-
-  Possible values are:
-  * `SHELL`
-  * `POWERSHELL`
+  Possible values are `SHELL` and `POWERSHELL`.
 
 * `local_path` -
   (Optional)
@@ -615,7 +605,8 @@ The `windows_exec_step_config` block supports:
 
 * `gcs_object` -
   (Optional)
-  A Cloud Storage object containing the executable.  Structure is documented below.
+  A Cloud Storage object containing the executable.
+  Structure is documented below.
 
 
 The `gcs_object` block supports:
@@ -644,7 +635,8 @@ The `recurring_schedule` block supports:
 * `time_zone` -
   (Required)
   Defines the time zone that timeOfDay is relative to. The rules for daylight saving time are
-  determined by the chosen time zone.  Structure is documented below.
+  determined by the chosen time zone.
+  Structure is documented below.
 
 * `start_time` -
   (Optional)
@@ -658,7 +650,8 @@ The `recurring_schedule` block supports:
 
 * `time_of_day` -
   (Required)
-  Time of the day to run a recurring deployment.  Structure is documented below.
+  Time of the day to run a recurring deployment.
+  Structure is documented below.
 
 * `last_execute_time` -
   The time the last patch job ran successfully.
@@ -670,11 +663,13 @@ The `recurring_schedule` block supports:
 
 * `weekly` -
   (Optional)
-  Schedule with weekly executions.  Structure is documented below.
+  Schedule with weekly executions.
+  Structure is documented below.
 
 * `monthly` -
   (Optional)
-  Schedule with monthly executions.  Structure is documented below.
+  Schedule with monthly executions.
+  Structure is documented below.
 
 
 The `time_zone` block supports:
@@ -711,21 +706,14 @@ The `weekly` block supports:
 * `day_of_week` -
   (Required)
   IANA Time Zone Database time zone, e.g. "America/New_York".
-
-  Possible values are:
-  * `MONDAY`
-  * `TUESDAY`
-  * `WEDNESDAY`
-  * `THURSDAY`
-  * `FRIDAY`
-  * `SATURDAY`
-  * `SUNDAY`
+  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
 
 The `monthly` block supports:
 
 * `week_day_of_month` -
   (Optional)
-  Week day in a month.  Structure is documented below.
+  Week day in a month.
+  Structure is documented below.
 
 * `month_day` -
   (Optional)
@@ -743,15 +731,7 @@ The `week_day_of_month` block supports:
 * `day_of_week` -
   (Required)
   A day of the week.
-
-  Possible values are:
-  * `MONDAY`
-  * `TUESDAY`
-  * `WEDNESDAY`
-  * `THURSDAY`
-  * `FRIDAY`
-  * `SATURDAY`
-  * `SUNDAY`
+  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
 
 ## Attributes Reference
 

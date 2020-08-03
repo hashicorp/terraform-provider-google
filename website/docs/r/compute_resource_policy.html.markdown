@@ -121,11 +121,13 @@ The following arguments are supported:
 
 * `snapshot_schedule_policy` -
   (Optional)
-  Policy for creating snapshots of persistent disks.  Structure is documented below.
+  Policy for creating snapshots of persistent disks.
+  Structure is documented below.
 
 * `group_placement_policy` -
   (Optional)
-  Policy for creating snapshots of persistent disks.  Structure is documented below.
+  Policy for creating snapshots of persistent disks.
+  Structure is documented below.
 
 * `region` -
   (Optional)
@@ -139,30 +141,36 @@ The `snapshot_schedule_policy` block supports:
 
 * `schedule` -
   (Required)
-  Contains one of an `hourlySchedule`, `dailySchedule`, or `weeklySchedule`.  Structure is documented below.
+  Contains one of an `hourlySchedule`, `dailySchedule`, or `weeklySchedule`.
+  Structure is documented below.
 
 * `retention_policy` -
   (Optional)
-  Retention policy applied to snapshots created by this resource policy.  Structure is documented below.
+  Retention policy applied to snapshots created by this resource policy.
+  Structure is documented below.
 
 * `snapshot_properties` -
   (Optional)
-  Properties with which the snapshots are created, such as labels.  Structure is documented below.
+  Properties with which the snapshots are created, such as labels.
+  Structure is documented below.
 
 
 The `schedule` block supports:
 
 * `hourly_schedule` -
   (Optional)
-  The policy will execute every nth hour starting at the specified time.  Structure is documented below.
+  The policy will execute every nth hour starting at the specified time.
+  Structure is documented below.
 
 * `daily_schedule` -
   (Optional)
-  The policy will execute every nth day at the specified time.  Structure is documented below.
+  The policy will execute every nth day at the specified time.
+  Structure is documented below.
 
 * `weekly_schedule` -
   (Optional)
-  Allows specifying a snapshot time for each day of the week.  Structure is documented below.
+  Allows specifying a snapshot time for each day of the week.
+  Structure is documented below.
 
 
 The `hourly_schedule` block supports:
@@ -194,7 +202,8 @@ The `weekly_schedule` block supports:
 
 * `day_of_weeks` -
   (Required)
-  May contain up to seven (one for each day of the week) snapshot times.  Structure is documented below.
+  May contain up to seven (one for each day of the week) snapshot times.
+  Structure is documented below.
 
 
 The `day_of_weeks` block supports:
@@ -207,15 +216,7 @@ The `day_of_weeks` block supports:
 * `day` -
   (Required)
   The day of the week to create the snapshot. e.g. MONDAY
-
-  Possible values are:
-  * `MONDAY`
-  * `TUESDAY`
-  * `WEDNESDAY`
-  * `THURSDAY`
-  * `FRIDAY`
-  * `SATURDAY`
-  * `SUNDAY`
+  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
 
 The `retention_policy` block supports:
 
@@ -227,12 +228,8 @@ The `retention_policy` block supports:
   (Optional)
   Specifies the behavior to apply to scheduled snapshots when
   the source disk is deleted.
-
-  Default value: `KEEP_AUTO_SNAPSHOTS`
-
-  Possible values are:
-  * `KEEP_AUTO_SNAPSHOTS`
-  * `APPLY_RETENTION_POLICY`
+  Default value is `KEEP_AUTO_SNAPSHOTS`.
+  Possible values are `KEEP_AUTO_SNAPSHOTS` and `APPLY_RETENTION_POLICY`.
 
 The `snapshot_properties` block supports:
 
@@ -266,9 +263,7 @@ The `group_placement_policy` block supports:
   Specify `COLLOCATED` to enable collocation. Can only be specified with `vm_count`. If compute instances are created
   with a COLLOCATED policy, then exactly `vm_count` instances must be created at the same time with the resource policy
   attached.
-
-  Possible values are:
-  * `COLLOCATED`
+  Possible values are `COLLOCATED`.
 
 ## Attributes Reference
 

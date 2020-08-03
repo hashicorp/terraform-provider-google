@@ -262,11 +262,13 @@ The `template` block supports:
   key. To set maximum instances for this revision, use the
   "autoscaling.knative.dev/maxScale" annotation key. To set Cloud SQL
   connections for the revision, use the "run.googleapis.com/cloudsql-instances"
-  annotation key.  Structure is documented below.
+  annotation key.
+  Structure is documented below.
 
 * `spec` -
   (Required)
-  RevisionSpec holds the desired state of the Revision (from the client).  Structure is documented below.
+  RevisionSpec holds the desired state of the Revision (from the client).
+  Structure is documented below.
 
 
 The `metadata` block supports:
@@ -324,7 +326,8 @@ The `spec` block supports:
   In the context of a Revision, we disallow a number of the fields of
   this Container, including: name, ports, and volumeMounts.
   The runtime contract is documented here:
-  https://github.com/knative/serving/blob/master/docs/runtime-contract.md  Structure is documented below.
+  https://github.com/knative/serving/blob/master/docs/runtime-contract.md
+  Structure is documented below.
 
 * `container_concurrency` -
   (Optional)
@@ -379,7 +382,8 @@ The `containers` block supports:
   All invalid keys will be reported as an event when the container is starting.
   When a key exists in multiple sources, the value associated with the last source will
   take precedence. Values defined by an Env with a duplicate key will take
-  precedence.  Structure is documented below.
+  precedence.
+  Structure is documented below.
 
 * `image` -
   (Required)
@@ -401,19 +405,22 @@ The `containers` block supports:
 
 * `env` -
   (Optional)
-  List of environment variables to set in the container.  Structure is documented below.
+  List of environment variables to set in the container.
+  Structure is documented below.
 
 * `ports` -
   (Optional)
   List of open ports in the container.
   More Info: 
-  https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort  Structure is documented below.
+  https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort
+  Structure is documented below.
 
 * `resources` -
   (Optional)
   Compute Resources required by this container. Used to set values such as max memory
   More info:
-  https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources  Structure is documented below.
+  https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+  Structure is documented below.
 
 
 The `env_from` block supports:
@@ -424,11 +431,13 @@ The `env_from` block supports:
 
 * `config_map_ref` -
   (Optional)
-  The ConfigMap to select from.  Structure is documented below.
+  The ConfigMap to select from.
+  Structure is documented below.
 
 * `secret_ref` -
   (Optional)
-  The Secret to select from.  Structure is documented below.
+  The Secret to select from.
+  Structure is documented below.
 
 
 The `config_map_ref` block supports:
@@ -439,7 +448,8 @@ The `config_map_ref` block supports:
 
 * `local_object_reference` -
   (Optional)
-  The ConfigMap to select from.  Structure is documented below.
+  The ConfigMap to select from.
+  Structure is documented below.
 
 
 The `local_object_reference` block supports:
@@ -454,7 +464,8 @@ The `secret_ref` block supports:
 
 * `local_object_reference` -
   (Optional)
-  The Secret to select from.  Structure is documented below.
+  The Secret to select from.
+  Structure is documented below.
 
 * `optional` -
   (Optional)
@@ -522,7 +533,8 @@ The `resources` block supports:
 * `traffic` -
   (Optional)
   Traffic specifies how to distribute traffic over a collection of Knative Revisions
-  and Configurations  Structure is documented below.
+  and Configurations
+  Structure is documented below.
 
 * `template` -
   (Optional)
@@ -534,12 +546,14 @@ The `resources` block supports:
   template metadata. For more details, see:
   https://github.com/knative/serving/blob/master/docs/client-conventions.md#associate-modifications-with-revisions
   Cloud Run does not currently support referencing a build that is
-  responsible for materializing the container image from source.  Structure is documented below.
+  responsible for materializing the container image from source.
+  Structure is documented below.
 
 * `metadata` -
   (Optional)
   Metadata associated with this Service, including name, namespace, labels,
-  and annotations.  Structure is documented below.
+  and annotations.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -597,13 +611,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `locations/{{location}}/namespaces/{{project}}/services/{{name}}`
 
 * `status` -
-  The current status of the Service.  Structure is documented below.
+  The current status of the Service.
+  Structure is documented below.
 
 
 The `status` block contains:
 
 * `conditions` -
-  Array of observed Service Conditions, indicating the current ready state of the service.  Structure is documented below.
+  Array of observed Service Conditions, indicating the current ready state of the service.
+  Structure is documented below.
 
 * `url` -
   From RouteStatus. URL holds the url that will distribute traffic over the provided traffic

@@ -490,22 +490,26 @@ The following arguments are supported:
 
 * `host_rule` -
   (Optional)
-  The list of HostRules to use against the URL.  Structure is documented below.
+  The list of HostRules to use against the URL.
+  Structure is documented below.
 
 * `path_matcher` -
   (Optional)
-  The list of named PathMatchers to use against the URL.  Structure is documented below.
+  The list of named PathMatchers to use against the URL.
+  Structure is documented below.
 
 * `test` -
   (Optional)
   The list of expected URL mappings. Requests to update this UrlMap will
-  succeed only if all of the test cases pass.  Structure is documented below.
+  succeed only if all of the test cases pass.
+  Structure is documented below.
 
 * `default_url_redirect` -
   (Optional)
   When none of the specified hostRules match, the request is redirected to a URL specified
   by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService or
-  defaultRouteAction must not be set.  Structure is documented below.
+  defaultRouteAction must not be set.
+  Structure is documented below.
 
 * `region` -
   (Optional)
@@ -558,7 +562,8 @@ The `path_matcher` block supports:
   routeRules matters: the first rule that matches will cause its specified routing
   action to take effect. Within a given pathMatcher, only one of pathRules or
   routeRules must be set. routeRules are not supported in UrlMaps intended for
-  External load balancers.  Structure is documented below.
+  External load balancers.
+  Structure is documented below.
 
 * `path_rule` -
   (Optional)
@@ -567,13 +572,15 @@ The `path_matcher` block supports:
   are specified does not matter. Matches are always done on the longest-path-first
   basis. For example: a pathRule with a path /a/b/c/* will match before /a/b/*
   irrespective of the order in which those paths appear in this list. Within a
-  given pathMatcher, only one of pathRules or routeRules must be set.  Structure is documented below.
+  given pathMatcher, only one of pathRules or routeRules must be set.
+  Structure is documented below.
 
 * `default_url_redirect` -
   (Optional)
   When none of the specified hostRules match, the request is redirected to a URL specified
   by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService or
-  defaultRouteAction must not be set.  Structure is documented below.
+  defaultRouteAction must not be set.
+  Structure is documented below.
 
 
 The `route_rules` block supports:
@@ -609,11 +616,13 @@ The `route_rules` block supports:
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. The headerAction specified here are applied before
   the matching pathMatchers[].headerAction and after pathMatchers[].routeRules[].r
-  outeAction.weightedBackendService.backendServiceWeightAction[].headerAction  Structure is documented below.
+  outeAction.weightedBackendService.backendServiceWeightAction[].headerAction
+  Structure is documented below.
 
 * `match_rules` -
   (Optional)
-  The rules for determining a match.  Structure is documented below.
+  The rules for determining a match.
+  Structure is documented below.
 
 * `route_action` -
   (Optional)
@@ -622,13 +631,15 @@ The `route_rules` block supports:
   request to the selected backend. If  routeAction specifies any
   weightedBackendServices, service must not be set. Conversely if service is set,
   routeAction cannot contain any  weightedBackendServices. Only one of routeAction
-  or urlRedirect must be set.  Structure is documented below.
+  or urlRedirect must be set.
+  Structure is documented below.
 
 * `url_redirect` -
   (Optional)
   When this rule is matched, the request is redirected to a URL specified by
   urlRedirect. If urlRedirect is specified, service or routeAction must not be
-  set.  Structure is documented below.
+  set.
+  Structure is documented below.
 
 
 The `header_action` block supports:
@@ -636,7 +647,8 @@ The `header_action` block supports:
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
-  backendService.  Structure is documented below.
+  backendService.
+  Structure is documented below.
 
 * `request_headers_to_remove` -
   (Optional)
@@ -645,7 +657,8 @@ The `header_action` block supports:
 
 * `response_headers_to_add` -
   (Optional)
-  Headers to add the response prior to sending the response back to the client.  Structure is documented below.
+  Headers to add the response prior to sending the response back to the client.
+  Structure is documented below.
 
 * `response_headers_to_remove` -
   (Optional)
@@ -698,7 +711,8 @@ The `match_rules` block supports:
 * `header_matches` -
   (Optional)
   Specifies a list of header match criteria, all of which must match corresponding
-  headers in the request.  Structure is documented below.
+  headers in the request.
+  Structure is documented below.
 
 * `ignore_case` -
   (Optional)
@@ -717,7 +731,8 @@ The `match_rules` block supports:
   with corresponding labels in the provided metadata. metadataFilters specified
   here can be overrides those specified in ForwardingRule that refers to this
   UrlMap. metadataFilters only applies to Loadbalancers that have their
-  loadBalancingScheme set to INTERNAL_SELF_MANAGED.  Structure is documented below.
+  loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+  Structure is documented below.
 
 * `prefix_match` -
   (Optional)
@@ -729,7 +744,8 @@ The `match_rules` block supports:
 * `query_parameter_matches` -
   (Optional)
   Specifies a list of query parameter match criteria, all of which must match
-  corresponding query parameters in the request.  Structure is documented below.
+  corresponding query parameters in the request.
+  Structure is documented below.
 
 * `regex_match` -
   (Optional)
@@ -778,7 +794,8 @@ The `header_matches` block supports:
   the match fails. For example for a range [-5, 0]   - -3 will match.  - 0 will
   not match.  - 0.25 will not match.  - -3someString will not match.   Only one of
   exactMatch, prefixMatch, suffixMatch, regexMatch, presentMatch or rangeMatch
-  must be set.  Structure is documented below.
+  must be set.
+  Structure is documented below.
 
 * `regex_match` -
   (Optional)
@@ -813,7 +830,8 @@ The `metadata_filters` block supports:
   (Required)
   The list of label value pairs that must match labels in the provided metadata
   based on filterMatchCriteria  This list must not be empty and can have at the
-  most 64 entries.  Structure is documented below.
+  most 64 entries.
+  Structure is documented below.
 
 * `filter_match_criteria` -
   (Required)
@@ -823,10 +841,7 @@ The `metadata_filters` block supports:
   provided metadata.
     - MATCH_ALL: All filterLabels must have matching labels in
   the provided metadata.
-
-  Possible values are:
-  * `MATCH_ALL`
-  * `MATCH_ANY`
+  Possible values are `MATCH_ALL` and `MATCH_ANY`.
 
 
 The `filter_labels` block supports:
@@ -872,7 +887,8 @@ The `route_action` block supports:
 * `cors_policy` -
   (Optional)
   The specification for allowing client side cross-origin requests. Please see W3C
-  Recommendation for Cross Origin Resource Sharing  Structure is documented below.
+  Recommendation for Cross Origin Resource Sharing
+  Structure is documented below.
 
 * `fault_injection_policy` -
   (Optional)
@@ -882,30 +898,35 @@ The `route_action` block supports:
   Loadbalancer on a percentage of requests before sending those request to the
   backend service. Similarly requests from clients can be aborted by the
   Loadbalancer for a percentage of requests. timeout and retry_policy will be
-  ignored by clients that are configured with a fault_injection_policy.  Structure is documented below.
+  ignored by clients that are configured with a fault_injection_policy.
+  Structure is documented below.
 
 * `request_mirror_policy` -
   (Optional)
   Specifies the policy on how requests intended for the route's backends are
   shadowed to a separate mirrored backend service. Loadbalancer does not wait for
   responses from the shadow service. Prior to sending traffic to the shadow
-  service, the host / authority header is suffixed with -shadow.  Structure is documented below.
+  service, the host / authority header is suffixed with -shadow.
+  Structure is documented below.
 
 * `retry_policy` -
   (Optional)
-  Specifies the retry policy associated with this route.  Structure is documented below.
+  Specifies the retry policy associated with this route.
+  Structure is documented below.
 
 * `timeout` -
   (Optional)
   Specifies the timeout for the selected route. Timeout is computed from the time
   the request is has been fully processed (i.e. end-of-stream) up until the
   response has been completely processed. Timeout includes all retries. If not
-  specified, the default value is 15 seconds.  Structure is documented below.
+  specified, the default value is 15 seconds.
+  Structure is documented below.
 
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to
-  the matched service  Structure is documented below.
+  the matched service
+  Structure is documented below.
 
 * `weighted_backend_services` -
   (Optional)
@@ -916,7 +937,8 @@ The `route_action` block supports:
   number. Once a backendService is identified and before forwarding the request to
   the backend service, advanced routing actions like Url rewrites and header
   transformations are applied depending on additional settings specified in this
-  HttpRouteAction.  Structure is documented below.
+  HttpRouteAction.
+  Structure is documented below.
 
 
 The `cors_policy` block supports:
@@ -965,12 +987,14 @@ The `fault_injection_policy` block supports:
 * `abort` -
   (Optional)
   The specification for how client requests are aborted as part of fault
-  injection.  Structure is documented below.
+  injection.
+  Structure is documented below.
 
 * `delay` -
   (Optional)
   The specification for how client requests are delayed as part of fault
-  injection, before being sent to a backend service.  Structure is documented below.
+  injection, before being sent to a backend service.
+  Structure is documented below.
 
 
 The `abort` block supports:
@@ -990,7 +1014,8 @@ The `delay` block supports:
 
 * `fixed_delay` -
   (Optional)
-  Specifies the value of the fixed delay interval.  Structure is documented below.
+  Specifies the value of the fixed delay interval.
+  Structure is documented below.
 
 * `percentage` -
   (Optional)
@@ -1026,7 +1051,8 @@ The `retry_policy` block supports:
 
 * `per_try_timeout` -
   (Optional)
-  Specifies a non-zero timeout per retry attempt.  Structure is documented below.
+  Specifies a non-zero timeout per retry attempt.
+  Structure is documented below.
 
 * `retry_conditions` -
   (Optional)
@@ -1105,7 +1131,8 @@ The `weighted_backend_services` block supports:
   (Optional)
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. headerAction specified here take effect before
-  headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.  Structure is documented below.
+  headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.
+  Structure is documented below.
 
 * `weight` -
   (Required)
@@ -1122,7 +1149,8 @@ The `header_action` block supports:
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
-  backendService.  Structure is documented below.
+  backendService.
+  Structure is documented below.
 
 * `request_headers_to_remove` -
   (Optional)
@@ -1131,7 +1159,8 @@ The `header_action` block supports:
 
 * `response_headers_to_add` -
   (Optional)
-  Headers to add the response prior to sending the response back to the client.  Structure is documented below.
+  Headers to add the response prior to sending the response back to the client.
+  Structure is documented below.
 
 * `response_headers_to_remove` -
   (Optional)
@@ -1247,13 +1276,15 @@ The `path_rule` block supports:
   request to the selected backend. If routeAction specifies any
   weightedBackendServices, service must not be set. Conversely if service is set,
   routeAction cannot contain any  weightedBackendServices. Only one of routeAction
-  or urlRedirect must be set.  Structure is documented below.
+  or urlRedirect must be set.
+  Structure is documented below.
 
 * `url_redirect` -
   (Optional)
   When a path pattern is matched, the request is redirected to a URL specified
   by urlRedirect. If urlRedirect is specified, service or routeAction must not
-  be set.  Structure is documented below.
+  be set.
+  Structure is documented below.
 
 
 The `route_action` block supports:
@@ -1261,7 +1292,8 @@ The `route_action` block supports:
 * `cors_policy` -
   (Optional)
   The specification for allowing client side cross-origin requests. Please see W3C
-  Recommendation for Cross Origin Resource Sharing  Structure is documented below.
+  Recommendation for Cross Origin Resource Sharing
+  Structure is documented below.
 
 * `fault_injection_policy` -
   (Optional)
@@ -1271,30 +1303,35 @@ The `route_action` block supports:
   Loadbalancer on a percentage of requests before sending those request to the
   backend service. Similarly requests from clients can be aborted by the
   Loadbalancer for a percentage of requests. timeout and retry_policy will be
-  ignored by clients that are configured with a fault_injection_policy.  Structure is documented below.
+  ignored by clients that are configured with a fault_injection_policy.
+  Structure is documented below.
 
 * `request_mirror_policy` -
   (Optional)
   Specifies the policy on how requests intended for the route's backends are
   shadowed to a separate mirrored backend service. Loadbalancer does not wait for
   responses from the shadow service. Prior to sending traffic to the shadow
-  service, the host / authority header is suffixed with -shadow.  Structure is documented below.
+  service, the host / authority header is suffixed with -shadow.
+  Structure is documented below.
 
 * `retry_policy` -
   (Optional)
-  Specifies the retry policy associated with this route.  Structure is documented below.
+  Specifies the retry policy associated with this route.
+  Structure is documented below.
 
 * `timeout` -
   (Optional)
   Specifies the timeout for the selected route. Timeout is computed from the time
   the request is has been fully processed (i.e. end-of-stream) up until the
   response has been completely processed. Timeout includes all retries. If not
-  specified, the default value is 15 seconds.  Structure is documented below.
+  specified, the default value is 15 seconds.
+  Structure is documented below.
 
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to
-  the matched service  Structure is documented below.
+  the matched service
+  Structure is documented below.
 
 * `weighted_backend_services` -
   (Optional)
@@ -1305,7 +1342,8 @@ The `route_action` block supports:
   number. Once a backendService is identified and before forwarding the request to
   the backend service, advanced routing actions like Url rewrites and header
   transformations are applied depending on additional settings specified in this
-  HttpRouteAction.  Structure is documented below.
+  HttpRouteAction.
+  Structure is documented below.
 
 
 The `cors_policy` block supports:
@@ -1353,12 +1391,14 @@ The `fault_injection_policy` block supports:
 * `abort` -
   (Optional)
   The specification for how client requests are aborted as part of fault
-  injection.  Structure is documented below.
+  injection.
+  Structure is documented below.
 
 * `delay` -
   (Optional)
   The specification for how client requests are delayed as part of fault
-  injection, before being sent to a backend service.  Structure is documented below.
+  injection, before being sent to a backend service.
+  Structure is documented below.
 
 
 The `abort` block supports:
@@ -1378,7 +1418,8 @@ The `delay` block supports:
 
 * `fixed_delay` -
   (Required)
-  Specifies the value of the fixed delay interval.  Structure is documented below.
+  Specifies the value of the fixed delay interval.
+  Structure is documented below.
 
 * `percentage` -
   (Required)
@@ -1414,7 +1455,8 @@ The `retry_policy` block supports:
 
 * `per_try_timeout` -
   (Optional)
-  Specifies a non-zero timeout per retry attempt.  Structure is documented below.
+  Specifies a non-zero timeout per retry attempt.
+  Structure is documented below.
 
 * `retry_conditions` -
   (Optional)
@@ -1493,7 +1535,8 @@ The `weighted_backend_services` block supports:
   (Optional)
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. headerAction specified here take effect before
-  headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.  Structure is documented below.
+  headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.
+  Structure is documented below.
 
 * `weight` -
   (Required)
@@ -1510,7 +1553,8 @@ The `header_action` block supports:
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
-  backendService.  Structure is documented below.
+  backendService.
+  Structure is documented below.
 
 * `request_headers_to_remove` -
   (Optional)
@@ -1519,7 +1563,8 @@ The `header_action` block supports:
 
 * `response_headers_to_add` -
   (Optional)
-  Headers to add the response prior to sending the response back to the client.  Structure is documented below.
+  Headers to add the response prior to sending the response back to the client.
+  Structure is documented below.
 
 * `response_headers_to_remove` -
   (Optional)

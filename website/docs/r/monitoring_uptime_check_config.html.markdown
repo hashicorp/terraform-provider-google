@@ -153,7 +153,8 @@ The following arguments are supported:
 
 * `content_matchers` -
   (Optional)
-  The expected content on the page the check is run against. Currently, only the first entry in the list is supported, and other entries will be ignored. The server will look for an exact match of the string in the page response's content. This field is optional and should only be specified if a content match is required.  Structure is documented below.
+  The expected content on the page the check is run against. Currently, only the first entry in the list is supported, and other entries will be ignored. The server will look for an exact match of the string in the page response's content. This field is optional and should only be specified if a content match is required.
+  Structure is documented below.
 
 * `selected_regions` -
   (Optional)
@@ -161,19 +162,23 @@ The following arguments are supported:
 
 * `http_check` -
   (Optional)
-  Contains information needed to make an HTTP or HTTPS check.  Structure is documented below.
+  Contains information needed to make an HTTP or HTTPS check.
+  Structure is documented below.
 
 * `tcp_check` -
   (Optional)
-  Contains information needed to make a TCP check.  Structure is documented below.
+  Contains information needed to make a TCP check.
+  Structure is documented below.
 
 * `resource_group` -
   (Optional)
-  The group resource associated with the configuration.  Structure is documented below.
+  The group resource associated with the configuration.
+  Structure is documented below.
 
 * `monitored_resource` -
   (Optional)
-  The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance  aws_elb_load_balancer  Structure is documented below.
+  The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance  aws_elb_load_balancer
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -188,39 +193,26 @@ The `content_matchers` block supports:
 * `matcher` -
   (Optional)
   The type of content matcher that will be applied to the server output, compared to the content string when the check is run.
-
-  Default value: `CONTAINS_STRING`
-
-  Possible values are:
-  * `CONTAINS_STRING`
-  * `NOT_CONTAINS_STRING`
-  * `MATCHES_REGEX`
-  * `NON_MATCHES_REGEX`
+  Default value is `CONTAINS_STRING`.
+  Possible values are `CONTAINS_STRING`, `NOT_CONTAINS_STRING`, `MATCHES_REGEX`, and `NON_MATCHES_REGEX`.
 
 The `http_check` block supports:
 
 * `request_method` -
   (Optional)
   The HTTP request method to use for the check. If set to METHOD_UNSPECIFIED then requestMethod defaults to GET.
-
-  Default value: `GET`
-
-  Possible values are:
-  * `METHOD_UNSPECIFIED`
-  * `GET`
-  * `POST`
+  Default value is `GET`.
+  Possible values are `METHOD_UNSPECIFIED`, `GET`, and `POST`.
 
 * `content_type` -
   (Optional)
   The content type to use for the check.
-
-  Possible values are:
-  * `TYPE_UNSPECIFIED`
-  * `URL_ENCODED`
+  Possible values are `TYPE_UNSPECIFIED` and `URL_ENCODED`.
 
 * `auth_info` -
   (Optional)
-  The authentication information. Optional when creating an HTTP check; defaults to empty.  Structure is documented below.
+  The authentication information. Optional when creating an HTTP check; defaults to empty.
+  Structure is documented below.
 
 * `port` -
   (Optional)
@@ -255,7 +247,8 @@ The `auth_info` block supports:
 
 * `password` -
   (Required)
-  The password to authenticate.  **Note**: This property is sensitive and will not be displayed in the plan.
+  The password to authenticate.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `username` -
   (Required)
@@ -272,11 +265,7 @@ The `resource_group` block supports:
 * `resource_type` -
   (Optional)
   The resource type of the group members.
-
-  Possible values are:
-  * `RESOURCE_TYPE_UNSPECIFIED`
-  * `INSTANCE`
-  * `AWS_ELB_LOAD_BALANCER`
+  Possible values are `RESOURCE_TYPE_UNSPECIFIED`, `INSTANCE`, and `AWS_ELB_LOAD_BALANCER`.
 
 * `group_id` -
   (Optional)

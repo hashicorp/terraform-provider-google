@@ -82,15 +82,18 @@ The following arguments are supported:
 
 * `worker_config` -
   (Optional)
-  Describes how the autoscaler will operate for primary workers.  Structure is documented below.
+  Describes how the autoscaler will operate for primary workers.
+  Structure is documented below.
 
 * `secondary_worker_config` -
   (Optional)
-  Describes how the autoscaler will operate for secondary workers.  Structure is documented below.
+  Describes how the autoscaler will operate for secondary workers.
+  Structure is documented below.
 
 * `basic_algorithm` -
   (Optional)
-  Basic algorithm for autoscaling.  Structure is documented below.
+  Basic algorithm for autoscaling.
+  Structure is documented below.
 
 * `location` -
   (Optional)
@@ -163,7 +166,8 @@ The `basic_algorithm` block supports:
 
 * `yarn_config` -
   (Required)
-  YARN autoscaling configuration.  Structure is documented below.
+  YARN autoscaling configuration.
+  Structure is documented below.
 
 
 The `yarn_config` block supports:

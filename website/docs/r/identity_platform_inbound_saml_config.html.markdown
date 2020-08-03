@@ -75,12 +75,14 @@ The following arguments are supported:
 
 * `idp_config` -
   (Required)
-  SAML IdP configuration when the project acts as the relying party  Structure is documented below.
+  SAML IdP configuration when the project acts as the relying party
+  Structure is documented below.
 
 * `sp_config` -
   (Required)
   SAML SP (Service Provider) configuration when the project acts as the relying party to receive
-  and accept an authentication assertion issued by a SAML identity provider.  Structure is documented below.
+  and accept an authentication assertion issued by a SAML identity provider.
+  Structure is documented below.
 
 
 The `idp_config` block supports:
@@ -99,7 +101,8 @@ The `idp_config` block supports:
 
 * `idp_certificates` -
   (Required)
-  The IdP's certificate data to verify the signature in the SAMLResponse issued by the IDP.  Structure is documented below.
+  The IdP's certificate data to verify the signature in the SAMLResponse issued by the IDP.
+  Structure is documented below.
 
 
 The `idp_certificates` block supports:
@@ -119,7 +122,8 @@ The `sp_config` block supports:
   Callback URI where responses from IDP are handled. Must start with `https://`.
 
 * `sp_certificates` -
-  The IDP's certificate data to verify the signature in the SAMLResponse issued by the IDP.  Structure is documented below.
+  The IDP's certificate data to verify the signature in the SAMLResponse issued by the IDP.
+  Structure is documented below.
 
 
 The `sp_certificates` block contains:

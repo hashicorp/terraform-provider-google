@@ -100,12 +100,14 @@ The following arguments are supported:
   (Optional)
   The list of ALLOW rules specified by this firewall. Each rule
   specifies a protocol and port-range tuple that describes a permitted
-  connection.  Structure is documented below.
+  connection.
+  Structure is documented below.
 
 * `deny` -
   (Optional)
   The list of DENY rules specified by this firewall. Each rule specifies
-  a protocol and port-range tuple that describes a denied connection.  Structure is documented below.
+  a protocol and port-range tuple that describes a denied connection.
+  Structure is documented below.
 
 * `description` -
   (Optional)
@@ -124,10 +126,7 @@ The following arguments are supported:
   INGRESS. Note: For INGRESS traffic, it is NOT supported to specify
   destinationRanges; For EGRESS traffic, it is NOT supported to specify
   sourceRanges OR sourceTags.
-
-  Possible values are:
-  * `INGRESS`
-  * `EGRESS`
+  Possible values are `INGRESS` and `EGRESS`.
 
 * `disabled` -
   (Optional)
@@ -139,7 +138,8 @@ The following arguments are supported:
 * `log_config` -
   (Optional)
   This field denotes the logging options for a particular firewall rule.
-  If defined, logging is enabled, and logs will be exported to Cloud Logging.  Structure is documented below.
+  If defined, logging is enabled, and logs will be exported to Cloud Logging.
+  Structure is documented below.
 
 * `priority` -
   (Optional)
@@ -251,10 +251,7 @@ The `log_config` block supports:
 * `metadata` -
   (Required)
   This field denotes whether to include or exclude metadata for firewall logs.
-
-  Possible values are:
-  * `EXCLUDE_ALL_METADATA`
-  * `INCLUDE_ALL_METADATA`
+  Possible values are `EXCLUDE_ALL_METADATA` and `INCLUDE_ALL_METADATA`.
 
 ## Attributes Reference
 

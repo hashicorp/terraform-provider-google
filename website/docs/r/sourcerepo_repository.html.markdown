@@ -89,7 +89,8 @@ The following arguments are supported:
 * `pubsub_configs` -
   (Optional)
   How this repository publishes a change in the repository through Cloud Pub/Sub. 
-  Keyed by the topic names.  Structure is documented below.
+  Keyed by the topic names.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -104,10 +105,7 @@ The `pubsub_configs` block supports:
   The format of the Cloud Pub/Sub messages. 
   - PROTOBUF: The message payload is a serialized protocol buffer of SourceRepoEvent.
   - JSON: The message payload is a JSON string of SourceRepoEvent.
-
-  Possible values are:
-  * `PROTOBUF`
-  * `JSON`
+  Possible values are `PROTOBUF` and `JSON`.
 
 * `service_account_email` -
   (Optional)

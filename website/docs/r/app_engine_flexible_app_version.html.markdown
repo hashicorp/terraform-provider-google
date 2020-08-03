@@ -144,11 +144,13 @@ The following arguments are supported:
 
 * `readiness_check` -
   (Required)
-  Configures readiness health checking for instances. Unhealthy instances are not put into the backend traffic rotation.  Structure is documented below.
+  Configures readiness health checking for instances. Unhealthy instances are not put into the backend traffic rotation.
+  Structure is documented below.
 
 * `liveness_check` -
   (Required)
-  Health checking configuration for VM instances. Unhealthy instances are killed and replaced with new instances.  Structure is documented below.
+  Health checking configuration for VM instances. Unhealthy instances are killed and replaced with new instances.
+  Structure is documented below.
 
 * `service` -
   (Required)
@@ -237,11 +239,13 @@ The `liveness_check` block supports:
 
 * `network` -
   (Optional)
-  Extra network settings  Structure is documented below.
+  Extra network settings
+  Structure is documented below.
 
 * `resources` -
   (Optional)
-  Machine resources for a version.  Structure is documented below.
+  Machine resources for a version.
+  Structure is documented below.
 
 * `runtime_channel` -
   (Optional)
@@ -254,12 +258,8 @@ The `liveness_check` block supports:
 * `serving_status` -
   (Optional)
   Current serving status of this version. Only the versions with a SERVING status create instances and can be billed.
-
-  Default value: `SERVING`
-
-  Possible values are:
-  * `SERVING`
-  * `STOPPED`
+  Default value is `SERVING`.
+  Possible values are `SERVING` and `STOPPED`.
 
 * `runtime_api_version` -
   (Optional)
@@ -269,7 +269,8 @@ The `liveness_check` block supports:
 * `handlers` -
   (Optional)
   An ordered list of URL-matching patterns that should be applied to incoming requests.
-  The first matching URL handles the request and other request handlers are not attempted.  Structure is documented below.
+  The first matching URL handles the request and other request handlers are not attempted.
+  Structure is documented below.
 
 * `runtime_main_executable_path` -
   (Optional)
@@ -277,7 +278,8 @@ The `liveness_check` block supports:
 
 * `api_config` -
   (Optional)
-  Serving configuration for Google Cloud Endpoints.  Structure is documented below.
+  Serving configuration for Google Cloud Endpoints.
+  Structure is documented below.
 
 * `env_variables` -
   (Optional)
@@ -294,27 +296,33 @@ The `liveness_check` block supports:
 
 * `deployment` -
   (Optional)
-  Code and application artifacts that make up this version.  Structure is documented below.
+  Code and application artifacts that make up this version.
+  Structure is documented below.
 
 * `endpoints_api_service` -
   (Optional)
-  Code and application artifacts that make up this version.  Structure is documented below.
+  Code and application artifacts that make up this version.
+  Structure is documented below.
 
 * `entrypoint` -
   (Optional)
-  The entrypoint for the application.  Structure is documented below.
+  The entrypoint for the application.
+  Structure is documented below.
 
 * `vpc_access_connector` -
   (Optional)
-  Enables VPC connectivity for standard apps.  Structure is documented below.
+  Enables VPC connectivity for standard apps.
+  Structure is documented below.
 
 * `automatic_scaling` -
   (Optional)
-  Automatic scaling is based on request rate, response latencies, and other application metrics.  Structure is documented below.
+  Automatic scaling is based on request rate, response latencies, and other application metrics.
+  Structure is documented below.
 
 * `manual_scaling` -
   (Optional)
-  A service with manual scaling runs continuously, allowing you to perform complex initialization and rely on the state of its memory over time.  Structure is documented below.
+  A service with manual scaling runs continuously, allowing you to perform complex initialization and rely on the state of its memory over time.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -364,7 +372,8 @@ The `resources` block supports:
 
 * `volumes` -
   (Optional)
-  List of ports, or port pairs, to forward from the virtual machine to the application container.  Structure is documented below.
+  List of ports, or port pairs, to forward from the virtual machine to the application container.
+  Structure is documented below.
 
 
 The `volumes` block supports:
@@ -391,49 +400,34 @@ The `handlers` block supports:
 * `security_level` -
   (Optional)
   Security (HTTPS) enforcement for this URL.
-
-  Possible values are:
-  * `SECURE_DEFAULT`
-  * `SECURE_NEVER`
-  * `SECURE_OPTIONAL`
-  * `SECURE_ALWAYS`
+  Possible values are `SECURE_DEFAULT`, `SECURE_NEVER`, `SECURE_OPTIONAL`, and `SECURE_ALWAYS`.
 
 * `login` -
   (Optional)
   Methods to restrict access to a URL based on login status.
-
-  Possible values are:
-  * `LOGIN_OPTIONAL`
-  * `LOGIN_ADMIN`
-  * `LOGIN_REQUIRED`
+  Possible values are `LOGIN_OPTIONAL`, `LOGIN_ADMIN`, and `LOGIN_REQUIRED`.
 
 * `auth_fail_action` -
   (Optional)
   Actions to take when the user is not logged in.
-
-  Possible values are:
-  * `AUTH_FAIL_ACTION_REDIRECT`
-  * `AUTH_FAIL_ACTION_UNAUTHORIZED`
+  Possible values are `AUTH_FAIL_ACTION_REDIRECT` and `AUTH_FAIL_ACTION_UNAUTHORIZED`.
 
 * `redirect_http_response_code` -
   (Optional)
   30x code to use when performing redirects for the secure field.
-
-  Possible values are:
-  * `REDIRECT_HTTP_RESPONSE_CODE_301`
-  * `REDIRECT_HTTP_RESPONSE_CODE_302`
-  * `REDIRECT_HTTP_RESPONSE_CODE_303`
-  * `REDIRECT_HTTP_RESPONSE_CODE_307`
+  Possible values are `REDIRECT_HTTP_RESPONSE_CODE_301`, `REDIRECT_HTTP_RESPONSE_CODE_302`, `REDIRECT_HTTP_RESPONSE_CODE_303`, and `REDIRECT_HTTP_RESPONSE_CODE_307`.
 
 * `script` -
   (Optional)
   Executes a script to handle the requests that match this URL pattern.
-  Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".  Structure is documented below.
+  Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".
+  Structure is documented below.
 
 * `static_files` -
   (Optional)
   Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files.
-  Static file handlers describe which files in the application directory are static files, and which URLs serve them.  Structure is documented below.
+  Static file handlers describe which files in the application directory are static files, and which URLs serve them.
+  Structure is documented below.
 
 
 The `script` block supports:
@@ -484,23 +478,14 @@ The `api_config` block supports:
 * `auth_fail_action` -
   (Optional)
   Action to take when users access resources that require authentication.
-
-  Default value: `AUTH_FAIL_ACTION_REDIRECT`
-
-  Possible values are:
-  * `AUTH_FAIL_ACTION_REDIRECT`
-  * `AUTH_FAIL_ACTION_UNAUTHORIZED`
+  Default value is `AUTH_FAIL_ACTION_REDIRECT`.
+  Possible values are `AUTH_FAIL_ACTION_REDIRECT` and `AUTH_FAIL_ACTION_UNAUTHORIZED`.
 
 * `login` -
   (Optional)
   Level of login required to access this resource.
-
-  Default value: `LOGIN_OPTIONAL`
-
-  Possible values are:
-  * `LOGIN_OPTIONAL`
-  * `LOGIN_ADMIN`
-  * `LOGIN_REQUIRED`
+  Default value is `LOGIN_OPTIONAL`.
+  Possible values are `LOGIN_OPTIONAL`, `LOGIN_ADMIN`, and `LOGIN_REQUIRED`.
 
 * `script` -
   (Required)
@@ -509,12 +494,7 @@ The `api_config` block supports:
 * `security_level` -
   (Optional)
   Security (HTTPS) enforcement for this URL.
-
-  Possible values are:
-  * `SECURE_DEFAULT`
-  * `SECURE_NEVER`
-  * `SECURE_OPTIONAL`
-  * `SECURE_ALWAYS`
+  Possible values are `SECURE_DEFAULT`, `SECURE_NEVER`, `SECURE_OPTIONAL`, and `SECURE_ALWAYS`.
 
 * `url` -
   (Optional)
@@ -524,20 +504,24 @@ The `deployment` block supports:
 
 * `zip` -
   (Optional)
-  Zip File  Structure is documented below.
+  Zip File
+  Structure is documented below.
 
 * `files` -
   (Optional)
   Manifest of the files stored in Google Cloud Storage that are included as part of this version.
-  All files must be readable using the credentials supplied with this call.  Structure is documented below.
+  All files must be readable using the credentials supplied with this call.
+  Structure is documented below.
 
 * `container` -
   (Optional)
-  The Docker image for the container that runs the version.  Structure is documented below.
+  The Docker image for the container that runs the version.
+  Structure is documented below.
 
 * `cloud_build_options` -
   (Optional)
-  Options for the build operations performed as a part of the version deployment. Only applicable when creating a version using source code directly.  Structure is documented below.
+  Options for the build operations performed as a part of the version deployment. Only applicable when creating a version using source code directly.
+  Structure is documented below.
 
 
 The `zip` block supports:
@@ -599,12 +583,8 @@ The `endpoints_api_service` block supports:
 * `rollout_strategy` -
   (Optional)
   Endpoints rollout strategy. If FIXED, configId must be specified. If MANAGED, configId must be omitted.
-
-  Default value: `FIXED`
-
-  Possible values are:
-  * `FIXED`
-  * `MANAGED`
+  Default value is `FIXED`.
+  Possible values are `FIXED` and `MANAGED`.
 
 * `disable_trace_sampling` -
   (Optional)
@@ -632,7 +612,8 @@ The `automatic_scaling` block supports:
 
 * `cpu_utilization` -
   (Required)
-  Target scaling by CPU usage.  Structure is documented below.
+  Target scaling by CPU usage.
+  Structure is documented below.
 
 * `max_concurrent_requests` -
   (Optional)
@@ -665,15 +646,18 @@ The `automatic_scaling` block supports:
 
 * `request_utilization` -
   (Optional)
-  Target scaling by request utilization.  Structure is documented below.
+  Target scaling by request utilization.
+  Structure is documented below.
 
 * `disk_utilization` -
   (Optional)
-  Target scaling by disk usage.  Structure is documented below.
+  Target scaling by disk usage.
+  Structure is documented below.
 
 * `network_utilization` -
   (Optional)
-  Target scaling by network usage.  Structure is documented below.
+  Target scaling by network usage.
+  Structure is documented below.
 
 
 The `cpu_utilization` block supports:

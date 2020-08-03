@@ -127,7 +127,8 @@ The following arguments are supported:
 
 * `deployment` -
   (Required)
-  Code and application artifacts that make up this version.  Structure is documented below.
+  Code and application artifacts that make up this version.
+  Structure is documented below.
 
 * `service` -
   (Required)
@@ -138,12 +139,14 @@ The `deployment` block supports:
 
 * `zip` -
   (Optional)
-  Zip File  Structure is documented below.
+  Zip File
+  Structure is documented below.
 
 * `files` -
   (Optional)
   Manifest of the files stored in Google Cloud Storage that are included as part of this version.
-  All files must be readable using the credentials supplied with this call.  Structure is documented below.
+  All files must be readable using the credentials supplied with this call.
+  Structure is documented below.
 
 
 The `zip` block supports:
@@ -187,11 +190,13 @@ The `files` block supports:
 * `handlers` -
   (Optional)
   An ordered list of URL-matching patterns that should be applied to incoming requests.
-  The first matching URL handles the request and other request handlers are not attempted.  Structure is documented below.
+  The first matching URL handles the request and other request handlers are not attempted.
+  Structure is documented below.
 
 * `libraries` -
   (Optional)
-  Configuration for third-party Python runtime libraries that are required by the application.  Structure is documented below.
+  Configuration for third-party Python runtime libraries that are required by the application.
+  Structure is documented below.
 
 * `env_variables` -
   (Optional)
@@ -199,7 +204,8 @@ The `files` block supports:
 
 * `entrypoint` -
   (Optional)
-  The entrypoint for the application.  Structure is documented below.
+  The entrypoint for the application.
+  Structure is documented below.
 
 * `inbound_services` -
   (Optional)
@@ -214,15 +220,18 @@ The `files` block supports:
 
 * `automatic_scaling` -
   (Optional)
-  Automatic scaling is based on request rate, response latencies, and other application metrics.  Structure is documented below.
+  Automatic scaling is based on request rate, response latencies, and other application metrics.
+  Structure is documented below.
 
 * `basic_scaling` -
   (Optional)
-  Basic scaling creates instances when your application receives requests. Each instance will be shut down when the application becomes idle. Basic scaling is ideal for work that is intermittent or driven by user activity.  Structure is documented below.
+  Basic scaling creates instances when your application receives requests. Each instance will be shut down when the application becomes idle. Basic scaling is ideal for work that is intermittent or driven by user activity.
+  Structure is documented below.
 
 * `manual_scaling` -
   (Optional)
-  A service with manual scaling runs continuously, allowing you to perform complex initialization and rely on the state of its memory over time.  Structure is documented below.
+  A service with manual scaling runs continuously, allowing you to perform complex initialization and rely on the state of its memory over time.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -240,48 +249,33 @@ The `handlers` block supports:
 * `security_level` -
   (Optional)
   Security (HTTPS) enforcement for this URL.
-
-  Possible values are:
-  * `SECURE_DEFAULT`
-  * `SECURE_NEVER`
-  * `SECURE_OPTIONAL`
-  * `SECURE_ALWAYS`
+  Possible values are `SECURE_DEFAULT`, `SECURE_NEVER`, `SECURE_OPTIONAL`, and `SECURE_ALWAYS`.
 
 * `login` -
   (Optional)
   Methods to restrict access to a URL based on login status.
-
-  Possible values are:
-  * `LOGIN_OPTIONAL`
-  * `LOGIN_ADMIN`
-  * `LOGIN_REQUIRED`
+  Possible values are `LOGIN_OPTIONAL`, `LOGIN_ADMIN`, and `LOGIN_REQUIRED`.
 
 * `auth_fail_action` -
   (Optional)
   Actions to take when the user is not logged in.
-
-  Possible values are:
-  * `AUTH_FAIL_ACTION_REDIRECT`
-  * `AUTH_FAIL_ACTION_UNAUTHORIZED`
+  Possible values are `AUTH_FAIL_ACTION_REDIRECT` and `AUTH_FAIL_ACTION_UNAUTHORIZED`.
 
 * `redirect_http_response_code` -
   (Optional)
   30x code to use when performing redirects for the secure field.
-
-  Possible values are:
-  * `REDIRECT_HTTP_RESPONSE_CODE_301`
-  * `REDIRECT_HTTP_RESPONSE_CODE_302`
-  * `REDIRECT_HTTP_RESPONSE_CODE_303`
-  * `REDIRECT_HTTP_RESPONSE_CODE_307`
+  Possible values are `REDIRECT_HTTP_RESPONSE_CODE_301`, `REDIRECT_HTTP_RESPONSE_CODE_302`, `REDIRECT_HTTP_RESPONSE_CODE_303`, and `REDIRECT_HTTP_RESPONSE_CODE_307`.
 
 * `script` -
   (Optional)
   Executes a script to handle the requests that match this URL pattern.
-  Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".  Structure is documented below.
+  Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".
+  Structure is documented below.
 
 * `static_files` -
   (Optional)
-  Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files. Static file handlers describe which files in the application directory are static files, and which URLs serve them.  Structure is documented below.
+  Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files. Static file handlers describe which files in the application directory are static files, and which URLs serve them.
+  Structure is documented below.
 
 
 The `script` block supports:
@@ -368,7 +362,8 @@ The `automatic_scaling` block supports:
 
 * `standard_scheduler_settings` -
   (Optional)
-  Scheduler settings for standard environment.  Structure is documented below.
+  Scheduler settings for standard environment.
+  Structure is documented below.
 
 
 The `standard_scheduler_settings` block supports:

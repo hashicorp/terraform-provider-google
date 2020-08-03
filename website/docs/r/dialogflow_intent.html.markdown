@@ -120,10 +120,7 @@ The following arguments are supported:
   * WEBHOOK_STATE_ENABLED: Webhook is enabled in the agent and in the intent.
   * WEBHOOK_STATE_ENABLED_FOR_SLOT_FILLING: Webhook is enabled in the agent and in the intent. Also, each slot
   filling prompt is forwarded to the webhook.
-
-  Possible values are:
-  * `WEBHOOK_STATE_ENABLED`
-  * `WEBHOOK_STATE_ENABLED_FOR_SLOT_FILLING`
+  Possible values are `WEBHOOK_STATE_ENABLED` and `WEBHOOK_STATE_ENABLED_FOR_SLOT_FILLING`.
 
 * `priority` -
   (Optional)
@@ -193,7 +190,8 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `followup_intent_info` -
   Information about all followup intents that have this intent as a direct or indirect parent. We populate this field
-  only in the output.  Structure is documented below.
+  only in the output.
+  Structure is documented below.
 
 
 The `followup_intent_info` block contains:

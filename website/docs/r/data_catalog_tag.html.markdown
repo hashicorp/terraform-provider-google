@@ -346,7 +346,8 @@ The following arguments are supported:
 * `fields` -
   (Required)
   This maps the ID of a tag field to the value of and additional information about that field.
-  Valid field IDs are defined by the tag's template. A tag must have at least 1 field and at most 500 fields.  Structure is documented below.
+  Valid field IDs are defined by the tag's template. A tag must have at least 1 field and at most 500 fields.
+  Structure is documented below.
 
 
 The `fields` block supports:
@@ -379,7 +380,8 @@ The `fields` block supports:
 
 * `enum_value` -
   (Optional)
-  Holds the value for a tag field with enum type. This value must be one of the allowed values in the definition of this enum.  Structure is documented below.
+  Holds the value for a tag field with enum type. This value must be one of the allowed values in the definition of this enum.
+  Structure is documented below.
 
 - - -
 

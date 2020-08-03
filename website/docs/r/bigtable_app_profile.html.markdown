@@ -114,7 +114,8 @@ The following arguments are supported:
 
 * `single_cluster_routing` -
   (Optional)
-  Use a single-cluster routing policy.  Structure is documented below.
+  Use a single-cluster routing policy.
+  Structure is documented below.
 
 * `instance` -
   (Optional)

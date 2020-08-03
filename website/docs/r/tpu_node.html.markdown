@@ -137,7 +137,8 @@ The following arguments are supported:
 
 * `scheduling_config` -
   (Optional)
-  Sets the scheduling options for this TPU instance.  Structure is documented below.
+  Sets the scheduling options for this TPU instance.
+  Structure is documented below.
 
 * `labels` -
   (Optional)
@@ -168,7 +169,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `network_endpoints` -
   The network endpoints where TPU workers can be accessed and sent work.
   It is recommended that Tensorflow clients of the node first reach out
-  to the first (index 0) entry.  Structure is documented below.
+  to the first (index 0) entry.
+  Structure is documented below.
 
 
 The `network_endpoints` block contains:

@@ -111,24 +111,19 @@ The following arguments are supported:
 * `tier` -
   (Required)
   The service tier of the instance.
-
-  Possible values are:
-  * `TIER_UNSPECIFIED`
-  * `STANDARD`
-  * `PREMIUM`
-  * `BASIC_HDD`
-  * `BASIC_SSD`
-  * `HIGH_SCALE_SSD`
+  Possible values are `TIER_UNSPECIFIED`, `STANDARD`, `PREMIUM`, `BASIC_HDD`, `BASIC_SSD`, and `HIGH_SCALE_SSD`.
 
 * `file_shares` -
   (Required)
   File system shares on the instance. For this version, only a
-  single file share is supported.  Structure is documented below.
+  single file share is supported.
+  Structure is documented below.
 
 * `networks` -
   (Required)
   VPC networks to which the instance is connected. For this version,
-  only a single network is supported.  Structure is documented below.
+  only a single network is supported.
+  Structure is documented below.
 
 * `zone` -
   (Required)

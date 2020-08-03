@@ -109,11 +109,8 @@ The following arguments are supported:
   (Optional)
   NAT option controlling how IPs are NAT'ed to the instance.
   Currently only NO_NAT (default value) is supported.
-
-  Default value: `NO_NAT`
-
-  Possible values are:
-  * `NO_NAT`
+  Default value is `NO_NAT`.
+  Possible values are `NO_NAT`.
 
 * `zone` -
   (Optional)

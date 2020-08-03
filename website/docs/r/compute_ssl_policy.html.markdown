@@ -92,26 +92,15 @@ The following arguments are supported:
   See the [official documentation](https://cloud.google.com/compute/docs/load-balancing/ssl-policies#profilefeaturesupport)
   for information on what cipher suites each profile provides. If
   `CUSTOM` is used, the `custom_features` attribute **must be set**.
-
-  Default value: `COMPATIBLE`
-
-  Possible values are:
-  * `COMPATIBLE`
-  * `MODERN`
-  * `RESTRICTED`
-  * `CUSTOM`
+  Default value is `COMPATIBLE`.
+  Possible values are `COMPATIBLE`, `MODERN`, `RESTRICTED`, and `CUSTOM`.
 
 * `min_tls_version` -
   (Optional)
   The minimum version of SSL protocol that can be used by the clients
   to establish a connection with the load balancer.
-
-  Default value: `TLS_1_0`
-
-  Possible values are:
-  * `TLS_1_0`
-  * `TLS_1_1`
-  * `TLS_1_2`
+  Default value is `TLS_1_0`.
+  Possible values are `TLS_1_0`, `TLS_1_1`, and `TLS_1_2`.
 
 * `custom_features` -
   (Optional)

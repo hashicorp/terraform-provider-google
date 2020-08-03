@@ -192,9 +192,7 @@ The following arguments are supported:
   (Optional)
   The type of the entry. Only used for Entries with types in the EntryType enum.
   Currently, only FILESET enum value is allowed. All other entries created through Data Catalog must use userSpecifiedType.
-
-  Possible values are:
-  * `FILESET`
+  Possible values are `FILESET`.
 
 * `user_specified_type` -
   (Optional)
@@ -212,7 +210,8 @@ The following arguments are supported:
 
 * `gcs_fileset_spec` -
   (Optional)
-  Specification that applies to a Cloud Storage fileset. This is only valid on entries of type FILESET.  Structure is documented below.
+  Specification that applies to a Cloud Storage fileset. This is only valid on entries of type FILESET.
+  Structure is documented below.
 
 
 The `gcs_fileset_spec` block supports:
@@ -232,7 +231,8 @@ The `gcs_fileset_spec` block supports:
   * gs://another_bucket/a.txt: matches gs://another_bucket/a.txt
 
 * `sample_gcs_file_specs` -
-  Sample files contained in this fileset, not all files contained in this fileset are represented here.  Structure is documented below.
+  Sample files contained in this fileset, not all files contained in this fileset are represented here.
+  Structure is documented below.
 
 
 The `sample_gcs_file_specs` block contains:
@@ -258,11 +258,13 @@ In addition to the arguments listed above, the following computed attributes are
   This field indicates the entry's source system that Data Catalog integrates with, such as BigQuery or Pub/Sub.
 
 * `bigquery_table_spec` -
-  Specification that applies to a BigQuery table. This is only valid on entries of type TABLE.  Structure is documented below.
+  Specification that applies to a BigQuery table. This is only valid on entries of type TABLE.
+  Structure is documented below.
 
 * `bigquery_date_sharded_spec` -
   Specification for a group of BigQuery tables with name pattern [prefix]YYYYMMDD.
-  Context: https://cloud.google.com/bigquery/docs/partitioned-tables#partitioning_versus_sharding.  Structure is documented below.
+  Context: https://cloud.google.com/bigquery/docs/partitioned-tables#partitioning_versus_sharding.
+  Structure is documented below.
 
 
 The `bigquery_table_spec` block contains:
@@ -271,10 +273,12 @@ The `bigquery_table_spec` block contains:
   The table source type.
 
 * `view_spec` -
-  Table view specification. This field should only be populated if tableSourceType is BIGQUERY_VIEW.  Structure is documented below.
+  Table view specification. This field should only be populated if tableSourceType is BIGQUERY_VIEW.
+  Structure is documented below.
 
 * `table_spec` -
-  Spec of a BigQuery table. This field should only be populated if tableSourceType is BIGQUERY_TABLE.  Structure is documented below.
+  Spec of a BigQuery table. This field should only be populated if tableSourceType is BIGQUERY_TABLE.
+  Structure is documented below.
 
 
 The `view_spec` block contains:

@@ -93,7 +93,8 @@ The following arguments are supported:
   (Optional)
   Sets an alternative name server for the associated networks.
   When specified, all DNS queries are forwarded to a name server that you choose.
-  Names such as .internal are not available when an alternative name server is specified.  Structure is documented below.
+  Names such as .internal are not available when an alternative name server is specified.
+  Structure is documented below.
 
 * `description` -
   (Optional)
@@ -113,7 +114,8 @@ The following arguments are supported:
 
 * `networks` -
   (Optional)
-  List of network names specifying networks to which this policy is applied.  Structure is documented below.
+  List of network names specifying networks to which this policy is applied.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -125,7 +127,8 @@ The `alternative_name_server_config` block supports:
   (Required)
   Sets an alternative name server for the associated networks. When specified,
   all DNS queries are forwarded to a name server that you choose. Names such as .internal
-  are not available when an alternative name server is specified.  Structure is documented below.
+  are not available when an alternative name server is specified.
+  Structure is documented below.
 
 
 The `target_name_servers` block supports:

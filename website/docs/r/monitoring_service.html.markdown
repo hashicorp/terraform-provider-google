@@ -70,7 +70,8 @@ The following arguments are supported:
 
 * `telemetry` -
   (Optional)
-  Configuration for how to query telemetry on a Service.  Structure is documented below.
+  Configuration for how to query telemetry on a Service.
+  Structure is documented below.
 
 * `service_id` -
   (Optional)

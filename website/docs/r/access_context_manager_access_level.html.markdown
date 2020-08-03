@@ -94,12 +94,14 @@ The following arguments are supported:
 
 * `basic` -
   (Optional)
-  A set of predefined conditions for the access level and a combining function.  Structure is documented below.
+  A set of predefined conditions for the access level and a combining function.
+  Structure is documented below.
 
 * `custom` -
   (Optional)
   Custom access level conditions are set using the Cloud Common Expression Language to represent the necessary conditions for the level to apply to a request. 
-  See CEL spec at: https://github.com/google/cel-spec.  Structure is documented below.
+  See CEL spec at: https://github.com/google/cel-spec.
+  Structure is documented below.
 
 
 The `basic` block supports:
@@ -111,16 +113,13 @@ The `basic` block supports:
   conditions must be satisfied for the AccessLevel to be applied. If
   OR is used, at least one Condition in conditions must be satisfied
   for the AccessLevel to be applied.
-
-  Default value: `AND`
-
-  Possible values are:
-  * `AND`
-  * `OR`
+  Default value is `AND`.
+  Possible values are `AND` and `OR`.
 
 * `conditions` -
   (Required)
-  A set of requirements for the AccessLevel to be granted.  Structure is documented below.
+  A set of requirements for the AccessLevel to be granted.
+  Structure is documented below.
 
 
 The `conditions` block supports:
@@ -166,7 +165,8 @@ The `conditions` block supports:
   (Optional)
   Device specific restrictions, all restrictions must hold for
   the Condition to be true. If not specified, all devices are
-  allowed.  Structure is documented below.
+  allowed.
+  Structure is documented below.
 
 * `regions` -
   (Optional)
@@ -195,7 +195,8 @@ The `device_policy` block supports:
 * `os_constraints` -
   (Optional)
   A list of allowed OS versions.
-  An empty list allows all types and all versions.  Structure is documented below.
+  An empty list allows all types and all versions.
+  Structure is documented below.
 
 * `require_admin_approval` -
   (Optional)
@@ -217,13 +218,7 @@ The `os_constraints` block supports:
 * `os_type` -
   (Required)
   The operating system type of the device.
-
-  Possible values are:
-  * `OS_UNSPECIFIED`
-  * `DESKTOP_MAC`
-  * `DESKTOP_WINDOWS`
-  * `DESKTOP_LINUX`
-  * `DESKTOP_CHROME_OS`
+  Possible values are `OS_UNSPECIFIED`, `DESKTOP_MAC`, `DESKTOP_WINDOWS`, `DESKTOP_LINUX`, and `DESKTOP_CHROME_OS`.
 
 The `custom` block supports:
 
@@ -231,7 +226,8 @@ The `custom` block supports:
   (Required)
   Represents a textual expression in the Common Expression Language (CEL) syntax. CEL is a C-like expression language.
   This page details the objects and attributes that are used to the build the CEL expressions for 
-  custom access levels - https://cloud.google.com/access-context-manager/docs/custom-access-level-spec.  Structure is documented below.
+  custom access levels - https://cloud.google.com/access-context-manager/docs/custom-access-level-spec.
+  Structure is documented below.
 
 
 The `expr` block supports:

@@ -140,7 +140,8 @@ The following arguments are supported:
 * `event_notification_configs` -
   (Optional)
   List of configurations for event notifications, such as PubSub topics
-  to publish device events to.  Structure is documented below.
+  to publish device events to.
+  Structure is documented below.
 
 * `log_level` -
   (Optional)
@@ -149,14 +150,8 @@ The following arguments are supported:
   example, if the LogLevel is ERROR, only events that terminate in
   errors will be logged. LogLevel is inclusive; enabling INFO logging
   will also enable ERROR logging.
-
-  Default value: `NONE`
-
-  Possible values are:
-  * `NONE`
-  * `ERROR`
-  * `INFO`
-  * `DEBUG`
+  Default value is `NONE`.
+  Possible values are `NONE`, `ERROR`, `INFO`, and `DEBUG`.
 
 * `region` -
   (Optional)

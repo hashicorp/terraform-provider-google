@@ -92,7 +92,8 @@ The following arguments are supported:
 
 * `fields` -
   (Required)
-  Set of tag template field IDs and the settings for the field. This set is an exhaustive list of the allowed fields. This set must contain at least one field and at most 500 fields.  Structure is documented below.
+  Set of tag template field IDs and the settings for the field. This set is an exhaustive list of the allowed fields. This set must contain at least one field and at most 500 fields.
+  Structure is documented below.
 
 * `tag_template_id` -
   (Required)
@@ -112,7 +113,8 @@ The `fields` block supports:
 
 * `type` -
   (Required)
-  The type of value this tag field can contain.  Structure is documented below.
+  The type of value this tag field can contain.
+  Structure is documented below.
 
 * `is_required` -
   (Optional)
@@ -131,17 +133,13 @@ The `type` block supports:
   (Optional)
   Represents primitive types - string, bool etc.
    Exactly one of `primitive_type` or `enum_type` must be set
-
-  Possible values are:
-  * `DOUBLE`
-  * `STRING`
-  * `BOOL`
-  * `TIMESTAMP`
+  Possible values are `DOUBLE`, `STRING`, `BOOL`, and `TIMESTAMP`.
 
 * `enum_type` -
   (Optional)
   Represents an enum type.
-   Exactly one of `primitive_type` or `enum_type` must be set  Structure is documented below.
+   Exactly one of `primitive_type` or `enum_type` must be set
+  Structure is documented below.
 
 
 The `enum_type` block supports:
@@ -152,7 +150,8 @@ The `enum_type` block supports:
   values must be case-insensitively unique within this set. Currently,
   enum values can only be added to the list of allowed values. Deletion
   and renaming of enum values are not supported.
-  Can have up to 500 allowed values.  Structure is documented below.
+  Can have up to 500 allowed values.
+  Structure is documented below.
 
 
 The `allowed_values` block supports:

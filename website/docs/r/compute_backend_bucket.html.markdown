@@ -85,7 +85,8 @@ The following arguments are supported:
 
 * `cdn_policy` -
   (Optional)
-  Cloud CDN configuration for this Backend Bucket.  Structure is documented below.
+  Cloud CDN configuration for this Backend Bucket.
+  Structure is documented below.
 
 * `description` -
   (Optional)

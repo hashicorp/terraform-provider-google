@@ -115,13 +115,15 @@ The following arguments are supported:
 * `snapshot_encryption_key` -
   (Optional)
   The customer-supplied encryption key of the snapshot. Required if the
-  source snapshot is protected by a customer-supplied encryption key.  Structure is documented below.
+  source snapshot is protected by a customer-supplied encryption key.
+  Structure is documented below.
 
 * `source_disk_encryption_key` -
   (Optional)
   The customer-supplied encryption key of the source snapshot. Required
   if the source snapshot is protected by a customer-supplied encryption
-  key.  Structure is documented below.
+  key.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -132,7 +134,8 @@ The `snapshot_encryption_key` block supports:
 * `raw_key` -
   (Required)
   Specifies a 256-bit customer-supplied encryption key, encoded in
-  RFC 4648 base64 to either encrypt or decrypt this resource.  **Note**: This property is sensitive and will not be displayed in the plan.
+  RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
@@ -143,7 +146,8 @@ The `source_disk_encryption_key` block supports:
 * `raw_key` -
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
-  RFC 4648 base64 to either encrypt or decrypt this resource.  **Note**: This property is sensitive and will not be displayed in the plan.
+  RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 ## Attributes Reference
 
