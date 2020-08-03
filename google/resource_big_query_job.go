@@ -1801,7 +1801,7 @@ func expandBigQueryJobConfigurationQuery(v interface{}, d TerraformResourceData,
 	transformedCreateDisposition, err := expandBigQueryJobConfigurationQueryCreateDisposition(original["create_disposition"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCreateDisposition); val.IsValid() && !isEmptyValue(val) && !queryContainsDML(transformedQuery, d, config){
+	} else if val := reflect.ValueOf(transformedCreateDisposition); val.IsValid() && !isEmptyValue(val) {
 		transformed["createDisposition"] = transformedCreateDisposition
 	}
 
@@ -1897,10 +1897,6 @@ func expandBigQueryJobConfigurationQuery(v interface{}, d TerraformResourceData,
 	}
 
 	return transformed, nil
-}
-
-func queryContainsDML(query interface{}, d TerraformResourceData, config *Config) bool {
-	
 }
 
 func expandBigQueryJobConfigurationQueryQuery(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
