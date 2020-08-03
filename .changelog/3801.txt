@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed issue where the `project` field in `data.google_compute_network_endpoint_group` was returning an error when specified
+```

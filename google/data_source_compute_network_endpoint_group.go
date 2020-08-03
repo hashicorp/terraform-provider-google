@@ -14,6 +14,7 @@ func dataSourceGoogleComputeNetworkEndpointGroup() *schema.Resource {
 	// Set 'Optional' schema elements
 	addOptionalFieldsToSchema(dsSchema, "name")
 	addOptionalFieldsToSchema(dsSchema, "zone")
+	addOptionalFieldsToSchema(dsSchema, "project")
 	addOptionalFieldsToSchema(dsSchema, "self_link")
 
 	return &schema.Resource{
