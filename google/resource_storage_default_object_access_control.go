@@ -260,10 +260,12 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Updating DefaultObjectAccessControl %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PUT", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PUT", "", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating DefaultObjectAccessControl %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating DefaultObjectAccessControl %q: %#v", d.Id(), res)
 	}
 
 	return resourceStorageDefaultObjectAccessControlRead(d, meta)

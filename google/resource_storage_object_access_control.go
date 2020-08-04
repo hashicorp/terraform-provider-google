@@ -263,10 +263,12 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Updating ObjectAccessControl %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PUT", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PUT", "", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ObjectAccessControl %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating ObjectAccessControl %q: %#v", d.Id(), res)
 	}
 
 	return resourceStorageObjectAccessControlRead(d, meta)

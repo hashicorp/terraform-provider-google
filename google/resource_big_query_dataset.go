@@ -538,10 +538,12 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Dataset %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Dataset %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Dataset %q: %#v", d.Id(), res)
 	}
 
 	return resourceBigQueryDatasetRead(d, meta)

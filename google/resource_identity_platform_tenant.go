@@ -254,10 +254,12 @@ func resourceIdentityPlatformTenantUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Tenant %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Tenant %q: %#v", d.Id(), res)
 	}
 
 	return resourceIdentityPlatformTenantRead(d, meta)

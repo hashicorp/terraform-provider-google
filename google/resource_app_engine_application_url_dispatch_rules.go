@@ -195,6 +195,8 @@ func resourceAppEngineApplicationUrlDispatchRulesUpdate(d *schema.ResourceData, 
 
 	if err != nil {
 		return fmt.Errorf("Error updating ApplicationUrlDispatchRules %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating ApplicationUrlDispatchRules %q: %#v", d.Id(), res)
 	}
 
 	err = appEngineOperationWaitTime(

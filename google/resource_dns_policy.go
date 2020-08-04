@@ -310,9 +310,11 @@ func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Policy %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Policy %q: %#v", d.Id(), res)
 		}
 
 		d.SetPartial("alternative_name_server_config")

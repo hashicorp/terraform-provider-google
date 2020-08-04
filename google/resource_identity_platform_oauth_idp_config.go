@@ -267,10 +267,12 @@ func resourceIdentityPlatformOauthIdpConfigUpdate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating OauthIdpConfig %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating OauthIdpConfig %q: %#v", d.Id(), res)
 	}
 
 	return resourceIdentityPlatformOauthIdpConfigRead(d, meta)

@@ -469,6 +469,8 @@ func resourceAccessContextManagerAccessLevelUpdate(d *schema.ResourceData, meta 
 
 	if err != nil {
 		return fmt.Errorf("Error updating AccessLevel %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating AccessLevel %q: %#v", d.Id(), res)
 	}
 
 	err = accessContextManagerOperationWaitTime(

@@ -309,10 +309,12 @@ func resourceIdentityPlatformInboundSamlConfigUpdate(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating InboundSamlConfig %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating InboundSamlConfig %q: %#v", d.Id(), res)
 	}
 
 	return resourceIdentityPlatformInboundSamlConfigRead(d, meta)

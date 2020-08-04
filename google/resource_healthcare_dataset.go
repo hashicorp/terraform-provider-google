@@ -197,10 +197,12 @@ func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Dataset %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Dataset %q: %#v", d.Id(), res)
 	}
 
 	return resourceHealthcareDatasetRead(d, meta)

@@ -238,6 +238,8 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating NodeGroup %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating NodeGroup %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(

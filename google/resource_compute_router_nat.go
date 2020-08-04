@@ -596,6 +596,8 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if err != nil {
 		return fmt.Errorf("Error updating RouterNat %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating RouterNat %q: %#v", d.Id(), res)
 	}
 
 	err = computeOperationWaitTime(

@@ -1323,6 +1323,8 @@ func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta inte
 
 	if err != nil {
 		return fmt.Errorf("Error updating FlexibleAppVersion %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating FlexibleAppVersion %q: %#v", d.Id(), res)
 	}
 
 	err = appEngineOperationWaitTime(

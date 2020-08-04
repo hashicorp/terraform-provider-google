@@ -228,6 +228,8 @@ func resourceAppEngineServiceSplitTrafficUpdate(d *schema.ResourceData, meta int
 
 	if err != nil {
 		return fmt.Errorf("Error updating ServiceSplitTraffic %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating ServiceSplitTraffic %q: %#v", d.Id(), res)
 	}
 
 	err = appEngineOperationWaitTime(

@@ -521,6 +521,8 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 
 	if err != nil {
 		return fmt.Errorf("Error updating ServicePerimeter %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating ServicePerimeter %q: %#v", d.Id(), res)
 	}
 
 	err = accessContextManagerOperationWaitTime(

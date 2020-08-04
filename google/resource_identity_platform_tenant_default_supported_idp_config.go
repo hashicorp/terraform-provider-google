@@ -247,10 +247,12 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigUpdate(d *schema.Res
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating TenantDefaultSupportedIdpConfig %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating TenantDefaultSupportedIdpConfig %q: %#v", d.Id(), res)
 	}
 
 	return resourceIdentityPlatformTenantDefaultSupportedIdpConfigRead(d, meta)

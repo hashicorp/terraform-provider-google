@@ -464,6 +464,8 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 
 	if err != nil {
 		return fmt.Errorf("Error updating ConnectivityTest %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating ConnectivityTest %q: %#v", d.Id(), res)
 	}
 
 	err = networkManagementOperationWaitTime(

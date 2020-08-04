@@ -382,6 +382,8 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Snapshot %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Snapshot %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(

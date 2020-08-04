@@ -221,6 +221,8 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating TargetHttpProxy %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating TargetHttpProxy %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(

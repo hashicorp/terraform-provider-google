@@ -577,10 +577,12 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Subscription %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Subscription %q: %#v", d.Id(), res)
 	}
 
 	return resourcePubsubSubscriptionRead(d, meta)

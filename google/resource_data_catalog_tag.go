@@ -267,10 +267,12 @@ func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Tag %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Tag %q: %#v", d.Id(), res)
 	}
 
 	return resourceDataCatalogTagRead(d, meta)

@@ -378,10 +378,12 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Updating NotificationChannel %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating NotificationChannel %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating NotificationChannel %q: %#v", d.Id(), res)
 	}
 
 	return resourceMonitoringNotificationChannelRead(d, meta)

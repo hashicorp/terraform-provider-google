@@ -253,6 +253,8 @@ func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if err != nil {
 		return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Database %q: %#v", d.Id(), res)
 	}
 
 	err = sqlAdminOperationWaitTime(

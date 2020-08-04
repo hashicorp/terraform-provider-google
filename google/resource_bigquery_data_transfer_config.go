@@ -342,10 +342,12 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), iamMemberMissing)
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), iamMemberMissing)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Config %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Config %q: %#v", d.Id(), res)
 	}
 
 	return resourceBigqueryDataTransferConfigRead(d, meta)
