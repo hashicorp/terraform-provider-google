@@ -621,7 +621,7 @@ just one of min or max. Summed value 'X' should satisfy
 													Description: `max value for the range (inclusive). If not given,
 will be set to "infinity", defining an open range
 ">= range.min"`,
-													AtLeastOneOf: []string{"windows_based_sli.0.metric_mean_in_range.0.range.0.min", "windows_based_sli.0.metric_mean_in_range.0.range.0.max"},
+													AtLeastOneOf: []string{"windows_based_sli.0.metric_sum_in_range.0.range.0.min", "windows_based_sli.0.metric_sum_in_range.0.range.0.max"},
 												},
 												"min": {
 													Type:     schema.TypeInt,
