@@ -76,3 +76,5 @@ exported:
 
 * `output_name` - (Computed) The name of the object. Use this field in interpolations with `google_storage_object_acl` to recreate
 `google_storage_object_acl` resources when your `google_storage_bucket_object` is recreated.
+
+* `media_link` - (Computed) A url reference to download this object.
