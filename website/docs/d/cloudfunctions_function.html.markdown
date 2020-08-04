@@ -56,6 +56,8 @@ exported:
 * `service_account_email` - The service account email to be assumed by the cloud function.
 * `vpc_connector` - The VPC Network Connector that this cloud function can connect to. 
 * `vpc_connector_egress_settings` - The egress settings for the connector, controlling what traffic is diverted through it.
+* `max_instances` - The limit on the maximum number of function instances that may coexist at a given time.
+* `source_repository` - The URL of the Cloud Source Repository that the function is deployed from. Structure is documented below.
 
 The `event_trigger` block contains:
 
@@ -70,3 +72,8 @@ for a full reference of accepted triggers.
 The `failure_policy` block supports:
 
 * `retry` - Whether the function should be retried on failure.
+
+
+The `source_repository` block contains:
+
+* `url` - The URL pointing to the hosted repository where the function is defined.
