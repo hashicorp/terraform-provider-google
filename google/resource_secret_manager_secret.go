@@ -247,10 +247,12 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Secret %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Secret %q: %#v", d.Id(), res)
 	}
 
 	return resourceSecretManagerSecretRead(d, meta)

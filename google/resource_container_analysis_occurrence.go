@@ -349,10 +349,12 @@ func resourceContainerAnalysisOccurrenceUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Occurrence %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Occurrence %q: %#v", d.Id(), res)
 	}
 
 	return resourceContainerAnalysisOccurrenceRead(d, meta)

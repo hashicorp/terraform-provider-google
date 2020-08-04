@@ -682,6 +682,8 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if err != nil {
 		return fmt.Errorf("Error updating Firewall %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Firewall %q: %#v", d.Id(), res)
 	}
 
 	err = computeOperationWaitTime(

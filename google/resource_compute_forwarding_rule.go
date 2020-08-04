@@ -534,6 +534,8 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating ForwardingRule %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(
@@ -562,6 +564,8 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating ForwardingRule %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(

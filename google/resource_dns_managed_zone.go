@@ -494,10 +494,12 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Updating ManagedZone %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ManagedZone %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating ManagedZone %q: %#v", d.Id(), res)
 	}
 
 	return resourceDNSManagedZoneRead(d, meta)

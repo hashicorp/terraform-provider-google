@@ -295,6 +295,8 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Network %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Network %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(

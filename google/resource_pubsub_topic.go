@@ -273,10 +273,12 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), pubsubTopicProjectNotReady)
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), pubsubTopicProjectNotReady)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Topic %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Topic %q: %#v", d.Id(), res)
 	}
 
 	return resourcePubsubTopicRead(d, meta)

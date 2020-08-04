@@ -460,6 +460,8 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Subnetwork %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(
@@ -488,6 +490,8 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Subnetwork %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(
@@ -527,6 +531,8 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Subnetwork %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(
@@ -566,6 +572,8 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Subnetwork %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(

@@ -345,6 +345,8 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if err != nil {
 		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
 	}
 
 	err = filestoreOperationWaitTime(

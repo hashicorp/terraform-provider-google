@@ -792,6 +792,8 @@ func resourceComputeRegionHealthCheckUpdate(d *schema.ResourceData, meta interfa
 
 	if err != nil {
 		return fmt.Errorf("Error updating RegionHealthCheck %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating RegionHealthCheck %q: %#v", d.Id(), res)
 	}
 
 	err = computeOperationWaitTime(

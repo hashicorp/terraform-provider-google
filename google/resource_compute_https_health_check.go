@@ -357,6 +357,8 @@ func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interfac
 
 	if err != nil {
 		return fmt.Errorf("Error updating HttpsHealthCheck %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating HttpsHealthCheck %q: %#v", d.Id(), res)
 	}
 
 	err = computeOperationWaitTime(

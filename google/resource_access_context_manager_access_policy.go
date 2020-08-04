@@ -210,6 +210,8 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 
 	if err != nil {
 		return fmt.Errorf("Error updating AccessPolicy %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating AccessPolicy %q: %#v", d.Id(), res)
 	}
 
 	err = accessContextManagerOperationWaitTime(

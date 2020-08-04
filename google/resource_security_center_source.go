@@ -199,10 +199,12 @@ func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Source %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Source %q: %#v", d.Id(), res)
 	}
 
 	return resourceSecurityCenterSourceRead(d, meta)

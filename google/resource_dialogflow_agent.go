@@ -380,10 +380,12 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Agent %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Agent %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Agent %q: %#v", d.Id(), res)
 	}
 
 	return resourceDialogflowAgentRead(d, meta)

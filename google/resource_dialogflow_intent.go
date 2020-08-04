@@ -436,10 +436,12 @@ func resourceDialogflowIntentUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Updating Intent %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Intent %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Intent %q: %#v", d.Id(), res)
 	}
 
 	return resourceDialogflowIntentRead(d, meta)

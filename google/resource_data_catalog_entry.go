@@ -491,10 +491,12 @@ func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) er
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
 		project = parts[1]
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Entry %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Entry %q: %#v", d.Id(), res)
 	}
 
 	return resourceDataCatalogEntryRead(d, meta)

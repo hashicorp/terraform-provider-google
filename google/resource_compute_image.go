@@ -393,6 +393,8 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Image %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Image %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(

@@ -240,6 +240,8 @@ func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, met
 
 	if err != nil {
 		return fmt.Errorf("Error updating NetworkPeeringRoutesConfig %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating NetworkPeeringRoutesConfig %q: %#v", d.Id(), res)
 	}
 
 	err = computeOperationWaitTime(

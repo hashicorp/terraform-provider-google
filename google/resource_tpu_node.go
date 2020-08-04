@@ -380,6 +380,8 @@ func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Node %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Node %q: %#v", d.Id(), res)
 		}
 
 		err = tpuOperationWaitTime(

@@ -281,6 +281,8 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 
 	if err != nil {
 		return fmt.Errorf("Error updating BackendBucket %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating BackendBucket %q: %#v", d.Id(), res)
 	}
 
 	err = computeOperationWaitTime(

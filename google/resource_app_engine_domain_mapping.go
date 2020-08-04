@@ -306,6 +306,8 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 
 	if err != nil {
 		return fmt.Errorf("Error updating DomainMapping %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating DomainMapping %q: %#v", d.Id(), res)
 	}
 
 	err = appEngineOperationWaitTime(

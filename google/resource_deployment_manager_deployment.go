@@ -351,6 +351,8 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Deployment %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Deployment %q: %#v", d.Id(), res)
 		}
 
 		err = deploymentManagerOperationWaitTime(
@@ -402,6 +404,8 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Deployment %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Deployment %q: %#v", d.Id(), res)
 		}
 
 		err = deploymentManagerOperationWaitTime(

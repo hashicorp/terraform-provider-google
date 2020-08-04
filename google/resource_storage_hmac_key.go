@@ -241,9 +241,11 @@ func resourceStorageHmacKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 		if err != nil {
 			return err
 		}
-		_, err = sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating HmacKey %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating HmacKey %q: %#v", d.Id(), res)
 		}
 
 		d.SetPartial("state")

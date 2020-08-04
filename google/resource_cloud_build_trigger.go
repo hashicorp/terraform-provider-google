@@ -647,10 +647,12 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Updating Trigger %q: %#v", d.Id(), obj)
 	obj["id"] = d.Get("trigger_id")
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Trigger %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Trigger %q: %#v", d.Id(), res)
 	}
 
 	return resourceCloudBuildTriggerRead(d, meta)

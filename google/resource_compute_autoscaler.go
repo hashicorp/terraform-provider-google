@@ -397,6 +397,8 @@ func resourceComputeAutoscalerUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if err != nil {
 		return fmt.Errorf("Error updating Autoscaler %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Autoscaler %q: %#v", d.Id(), res)
 	}
 
 	err = computeOperationWaitTime(

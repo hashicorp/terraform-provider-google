@@ -299,6 +299,8 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 
 	if err != nil {
 		return fmt.Errorf("Error updating Domain %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Domain %q: %#v", d.Id(), res)
 	}
 
 	err = activeDirectoryOperationWaitTime(

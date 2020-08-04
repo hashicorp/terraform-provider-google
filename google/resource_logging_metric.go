@@ -467,10 +467,12 @@ func resourceLoggingMetricUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Updating Metric %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Metric %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Metric %q: %#v", d.Id(), res)
 	}
 
 	return resourceLoggingMetricRead(d, meta)

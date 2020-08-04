@@ -420,10 +420,12 @@ func resourceMonitoringMetricDescriptorUpdate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Updating MetricDescriptor %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating MetricDescriptor %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating MetricDescriptor %q: %#v", d.Id(), res)
 	}
 
 	err = PollingWaitTime(resourceMonitoringMetricDescriptorPollRead(d, meta), PollCheckForExistence, "Updating MetricDescriptor", d.Timeout(schema.TimeoutUpdate), 20)

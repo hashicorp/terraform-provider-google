@@ -358,10 +358,12 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Queue %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Queue %q: %#v", d.Id(), res)
 	}
 
 	return resourceCloudTasksQueueRead(d, meta)

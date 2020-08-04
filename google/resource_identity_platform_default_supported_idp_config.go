@@ -241,10 +241,12 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigUpdate(d *schema.ResourceD
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating DefaultSupportedIdpConfig %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating DefaultSupportedIdpConfig %q: %#v", d.Id(), res)
 	}
 
 	return resourceIdentityPlatformDefaultSupportedIdpConfigRead(d, meta)
