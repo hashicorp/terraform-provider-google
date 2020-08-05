@@ -152,6 +152,7 @@ The `networks` block supports:
   (Required)
   IP versions for which the instance has
   IP addresses assigned.
+  Each value may be one of `ADDRESS_MODE_UNSPECIFIED`, `MODE_IPV4`, and `MODE_IPV6`.
 
 * `reserved_ip_range` -
   (Optional)

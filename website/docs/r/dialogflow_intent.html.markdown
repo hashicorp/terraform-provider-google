@@ -163,6 +163,7 @@ The following arguments are supported:
   (Optional)
   The list of platforms for which the first responses will be copied from the messages in PLATFORM_UNSPECIFIED
   (i.e. default platform).
+  Each value may be one of `FACEBOOK`, `SLACK`, `TELEGRAM`, `KIK`, `SKYPE`, `LINE`, `VIBER`, `ACTIONS_ON_GOOGLE`, and `GOOGLE_HANGOUTS`.
 
 * `parent_followup_intent_name` -
   (Optional)

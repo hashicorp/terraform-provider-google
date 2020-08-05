@@ -186,11 +186,13 @@ The `device_policy` block supports:
   (Optional)
   A list of allowed encryptions statuses.
   An empty list allows all statuses.
+  Each value may be one of `ENCRYPTION_UNSPECIFIED`, `ENCRYPTION_UNSUPPORTED`, `UNENCRYPTED`, and `ENCRYPTED`.
 
 * `allowed_device_management_levels` -
   (Optional)
   A list of allowed device management levels.
   An empty list allows all management levels.
+  Each value may be one of `MANAGEMENT_UNSPECIFIED`, `NONE`, `BASIC`, and `COMPLETE`.
 
 * `os_constraints` -
   (Optional)
