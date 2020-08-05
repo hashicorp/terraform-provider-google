@@ -812,19 +812,19 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	}
 
 	instanceProperties := &computeBeta.InstanceProperties{
-		CanIpForward:      d.Get("can_ip_forward").(bool),
-		Description:       d.Get("instance_description").(string),
-		GuestAccelerators: expandInstanceTemplateGuestAccelerators(d, config),
-		MachineType:       d.Get("machine_type").(string),
-		MinCpuPlatform:    d.Get("min_cpu_platform").(string),
-		Disks:             disks,
-		Metadata:          metadata,
-		NetworkInterfaces: networks,
-		Scheduling:        scheduling,
-		ServiceAccounts:   expandServiceAccounts(d.Get("service_account").([]interface{})),
-		Tags:              resourceInstanceTags(d),
-		ShieldedVmConfig:  expandShieldedVmConfigs(d),
-		DisplayDevice:     expandDisplayDevice(d),
+		CanIpForward:           d.Get("can_ip_forward").(bool),
+		Description:            d.Get("instance_description").(string),
+		GuestAccelerators:      expandInstanceTemplateGuestAccelerators(d, config),
+		MachineType:            d.Get("machine_type").(string),
+		MinCpuPlatform:         d.Get("min_cpu_platform").(string),
+		Disks:                  disks,
+		Metadata:               metadata,
+		NetworkInterfaces:      networks,
+		Scheduling:             scheduling,
+		ServiceAccounts:        expandServiceAccounts(d.Get("service_account").([]interface{})),
+		Tags:                   resourceInstanceTags(d),
+		ShieldedInstanceConfig: expandShieldedVmConfigs(d),
+		DisplayDevice:          expandDisplayDevice(d),
 	}
 
 	if _, ok := d.GetOk("labels"); ok {
@@ -1187,7 +1187,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	if instanceTemplate.Properties.ShieldedVmConfig != nil {
-		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instanceTemplate.Properties.ShieldedVmConfig)); err != nil {
+		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instanceTemplate.Properties.ShieldedInstanceConfig)); err != nil {
 			return fmt.Errorf("Error setting shielded_instance_config: %s", err)
 		}
 	}

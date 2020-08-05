@@ -305,13 +305,13 @@ func resourceInstanceTags(d TerraformResourceData) *computeBeta.Tags {
 	return tags
 }
 
-func expandShieldedVmConfigs(d TerraformResourceData) *computeBeta.ShieldedVmConfig {
+func expandShieldedVmConfigs(d TerraformResourceData) *computeBeta.ShieldedInstanceConfig {
 	if _, ok := d.GetOk("shielded_instance_config"); !ok {
 		return nil
 	}
 
 	prefix := "shielded_instance_config.0"
-	return &computeBeta.ShieldedVmConfig{
+	return &computeBeta.ShieldedInstanceConfig{
 		EnableSecureBoot:          d.Get(prefix + ".enable_secure_boot").(bool),
 		EnableVtpm:                d.Get(prefix + ".enable_vtpm").(bool),
 		EnableIntegrityMonitoring: d.Get(prefix + ".enable_integrity_monitoring").(bool),
@@ -319,7 +319,7 @@ func expandShieldedVmConfigs(d TerraformResourceData) *computeBeta.ShieldedVmCon
 	}
 }
 
-func flattenShieldedVmConfig(shieldedVmConfig *computeBeta.ShieldedVmConfig) []map[string]bool {
+func flattenShieldedVmConfig(shieldedVmConfig *computeBeta.ShieldedInstanceConfig) []map[string]bool {
 	if shieldedVmConfig == nil {
 		return nil
 	}
