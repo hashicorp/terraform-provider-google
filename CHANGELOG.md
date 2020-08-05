@@ -1,4 +1,18 @@
 ## 3.34.0 (Unreleased)
+NOTES:
+* redis: explicitly noted in `google_redis_instance` documentation that `"REDIS_5_0"` is supported ([#6917](https://github.com/terraform-providers/terraform-provider-google/pull/6917))
+
+IMPROVEMENTS:
+* bigtable: added support for labels in `google_bigtable_instance` ([#6921](https://github.com/terraform-providers/terraform-provider-google/pull/6921))
+* cloudfunctions: updated `google_cloudfunctions_function` datasource to include new fields. ([#6935](https://github.com/terraform-providers/terraform-provider-google/pull/6935))
+* redis: added `persistence_iam_identity` output field to `google_redis_instance` ([#6917](https://github.com/terraform-providers/terraform-provider-google/pull/6917))
+* storage: added google_storage_bucket_object.media_link. ([#6897](https://github.com/terraform-providers/terraform-provider-google/pull/6897))
+
+BUG FIXES:
+* all: fixed markdown for enum values ([#6924](https://github.com/terraform-providers/terraform-provider-google/pull/6924))
+* all: fixed crash due to nil context when loading credentials ([#6903](https://github.com/terraform-providers/terraform-provider-google/pull/6903))
+* compute: fixed issue where the `project` field in `data.google_compute_network_endpoint_group` was returning an error when specified ([#6918](https://github.com/terraform-providers/terraform-provider-google/pull/6918))
+* sourcerepo: fixed perma-diff in `google_sourcerepo_repository` ([#6886](https://github.com/terraform-providers/terraform-provider-google/pull/6886))
 
 ## 3.33.0 (August 04, 2020)
 
