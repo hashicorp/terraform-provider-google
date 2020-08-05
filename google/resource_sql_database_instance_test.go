@@ -996,10 +996,8 @@ resource "google_sql_database_instance" "instance" {
   name             = "tf-test-%d"
   region           = "us-central1"
   database_version = "POSTGRES_9_6"
-
   settings {
     tier = "db-f1-micro"
-
     backup_configuration {
       enabled                        = true
       start_time                     = "00:00"
