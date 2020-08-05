@@ -629,6 +629,36 @@ func testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(t *testing.T, instance st
 	}
 }
 
+func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabled(t *testing.T) {
+	t.Parallel()
+
+	masterID := randInt(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, true),
+			},
+			{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, false),
+			},
+			{
+				ResourceName:      "google_sql_database_instance.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 var testGoogleSqlDatabaseInstance_basic2 = `
 resource "google_sql_database_instance" "instance" {
   region = "us-central1"
@@ -959,3 +989,23 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `
+
+func testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID int, pointInTimeRecoveryEnabled bool) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%d"
+  region           = "us-central1"
+  database_version = "POSTGRES_9_6"
+
+  settings {
+    tier = "db-f1-micro"
+
+    backup_configuration {
+      enabled                        = true
+      start_time                     = "00:00"
+      point_in_time_recovery_enabled = %t
+    }
+  }
+}
+`, masterID, pointInTimeRecoveryEnabled)
+}
