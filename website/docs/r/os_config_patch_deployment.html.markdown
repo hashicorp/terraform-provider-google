@@ -180,7 +180,7 @@ resource "google_os_config_patch_deployment" "patch" {
     }
 
     windows_update {
-      exclusive_patches = ["KB4339284"]
+      classifications = ["CRITICAL", "SECURITY", "UPDATE"]
     }
 
     pre_step {
@@ -442,7 +442,7 @@ The `windows_update` block supports:
 * `classifications` -
   (Optional)
   Only apply updates of these windows update classifications. If empty, all updates are applied.
-  Possible values are `CRITICAL`, `SECURITY`, `DEFINITION`, `DRIVER`, `FEATURE_PACK`, `SERVICE_PACK`, `TOOL`, `UPDATE_ROLLUP`, and `UPDATE`.
+  Each value may be one of `CRITICAL`, `SECURITY`, `DEFINITION`, `DRIVER`, `FEATURE_PACK`, `SERVICE_PACK`, `TOOL`, `UPDATE_ROLLUP`, and `UPDATE`.
 
 * `excludes` -
   (Optional)

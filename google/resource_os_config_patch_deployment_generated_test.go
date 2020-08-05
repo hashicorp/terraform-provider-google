@@ -229,7 +229,7 @@ resource "google_os_config_patch_deployment" "patch" {
     }
 
     windows_update {
-      exclusive_patches = ["KB4339284"]
+      classifications = ["CRITICAL", "SECURITY", "UPDATE"]
     }
 
     pre_step {

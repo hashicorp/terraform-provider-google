@@ -86,7 +86,7 @@ only a single network is supported.`,
 							Required: true,
 							ForceNew: true,
 							Description: `IP versions for which the instance has
-IP addresses assigned.`,
+IP addresses assigned. Possible values: ["ADDRESS_MODE_UNSPECIFIED", "MODE_IPV4", "MODE_IPV6"]`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
