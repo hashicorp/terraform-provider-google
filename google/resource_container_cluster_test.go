@@ -1571,9 +1571,6 @@ resource "google_container_cluster" "primary" {
 
   enable_legacy_abac      = true
 
-  logging_service    = "logging.googleapis.com"
-  monitoring_service = "monitoring.googleapis.com"
-
   resource_labels = {
     created-by = "terraform"
   }
@@ -1601,9 +1598,6 @@ resource "google_container_cluster" "primary" {
   ]
 
   enable_legacy_abac      = false
-
-  logging_service    = "none"
-  monitoring_service = "none"
 
   resource_labels = {
     created-by = "terraform-update"
