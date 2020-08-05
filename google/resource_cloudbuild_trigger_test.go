@@ -248,6 +248,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
       args = ["test"]
       timeout = "300s"
     }
+    logs_bucket = "gs://mybucket/logs"
   }
 }
   `, name)

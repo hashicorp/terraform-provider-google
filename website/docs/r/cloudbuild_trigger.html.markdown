@@ -54,6 +54,50 @@ resource "google_cloudbuild_trigger" "filename-trigger" {
   filename = "cloudbuild.yaml"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_build&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Build
+
+
+```hcl
+resource "google_cloudbuild_trigger" "build-trigger" {
+  trigger_template {
+    branch_name = "master"
+    repo_name   = "my-repo"
+  }
+  
+  build {
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "120s"
+    }
+
+    source {
+      storage_source {
+        bucket = "mybucket"
+        object = "source_code.tar.gz"
+      }
+    }
+    tags = ["build", "newFeature"]
+    substitutions = {
+      _FOO = "bar"
+      _BAZ = "qux"
+    }
+    queue_ttl = "20s"
+    logs_bucket = "gs://mybucket/logs"
+    secret {
+      kms_key_name = "projects/myProject/locations/global/keyRings/keyring-name/cryptoKeys/key-name"
+      secret_env = {
+        PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
+      }
+    }
+  }  
+}
+```
 
 ## Argument Reference
 
@@ -71,6 +115,10 @@ The following arguments are supported:
 * `description` -
   (Optional)
   Human-readable description of the trigger.
+
+* `tags` -
+  (Optional)
+  Tags for annotation of a BuildTrigger
 
 * `disabled` -
   (Optional)
@@ -162,6 +210,12 @@ The `trigger_template` block supports:
 
 The `build` block supports:
 
+* `source` -
+  (Optional)
+  The location of the source files to build.
+  One of `storageSource` or `repoSource` must be provided.
+  Structure is documented below.
+
 * `tags` -
   (Optional)
   Tags for annotation of a Build. These are not docker tags.
@@ -173,6 +227,22 @@ The `build` block supports:
   The digests of the pushed images will be stored in the Build resource's results field.
   If any of the images fail to be pushed, the build status is marked FAILURE.
 
+* `substitutions` -
+  (Optional)
+  Substitutions data for Build resource.
+
+* `queue_ttl` -
+  (Optional)
+  TTL in queue for this build. If provided and the build is enqueued longer than this value, 
+  the build will expire and the build status will be EXPIRED.
+  The TTL starts ticking from createTime.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+
+* `logs_bucket` -
+  (Optional)
+  Google Cloud Storage bucket where logs should be written. 
+  Logs file names will be of the format ${logsBucket}/log-${build_id}.txt.
+
 * `timeout` -
   (Optional)
   Amount of time that this build should be allowed to run, to second granularity.
@@ -181,11 +251,99 @@ The `build` block supports:
   The expected format is the number of seconds followed by s.
   Default time is ten minutes (600s).
 
+* `secret` -
+  (Optional)
+  Secrets to decrypt using Cloud Key Management Service.
+  Structure is documented below.
+
 * `step` -
   (Required)
   The operations to be performed on the workspace.
   Structure is documented below.
 
+
+The `source` block supports:
+
+* `storage_source` -
+  (Optional)
+  Location of the source in an archive file in Google Cloud Storage.
+  Structure is documented below.
+
+* `repo_source` -
+  (Optional)
+  Location of the source in a Google Cloud Source Repository.
+  Structure is documented below.
+
+
+The `storage_source` block supports:
+
+* `bucket` -
+  (Required)
+  Google Cloud Storage bucket containing the source.
+
+* `object` -
+  (Required)
+  Google Cloud Storage object containing the source.
+  This object must be a gzipped archive file (.tar.gz) containing source to build.
+
+* `generation` -
+  (Optional)
+  Google Cloud Storage generation for the object. 
+  If the generation is omitted, the latest generation will be used
+
+The `repo_source` block supports:
+
+* `project_id` -
+  (Optional)
+  ID of the project that owns the Cloud Source Repository. 
+  If omitted, the project ID requesting the build is assumed.
+
+* `repo_name` -
+  (Required)
+  Name of the Cloud Source Repository.
+
+* `dir` -
+  (Optional)
+  Directory, relative to the source root, in which to run the build.
+  This must be a relative path. If a step's dir is specified and is an absolute path, 
+  this value is ignored for that step's execution.
+
+* `invert_regex` -
+  (Optional)
+  Only trigger a build if the revision regex does NOT match the revision regex.
+
+* `substitutions` -
+  (Optional)
+  Substitutions to use in a triggered build. Should only be used with triggers.run
+
+* `branch_name` -
+  (Optional)
+  Regex matching branches to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+  The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+  described at https://github.com/google/re2/wiki/Syntax
+
+* `tag_name` -
+  (Optional)
+  Regex matching tags to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+  The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+  described at https://github.com/google/re2/wiki/Syntax
+
+* `commit_sha` -
+  (Optional)
+  Explicit commit SHA to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+
+The `secret` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Cloud KMS key name to use to decrypt these envs.
+
+* `secret_env` -
+  (Optional)
+  Map of environment variable name to its encrypted value.
+  Secret environment variables must be unique across all of a build's secrets, 
+  and must be used by at least one build step. Values can be at most 64 KB in size. 
+  There can be at most 100 secret values across all of a build's secrets.
 
 The `step` block supports:
 
