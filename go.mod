@@ -9,17 +9,16 @@ require (
 	github.com/dustinkirkland/golang-petname v0.0.0-20170921220637-d3c2ba80e75e // indirect
 	github.com/gammazero/deque v0.0.0-20180920172122-f6adf94963e4 // indirect
 	github.com/gammazero/workerpool v0.0.0-20181230203049-86a96b5d5d92
-	github.com/gogo/protobuf v1.2.0 // indirect
 	github.com/golangci/golangci-lint v1.18.0
 	github.com/hashicorp/errwrap v1.0.0
 	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hashicorp/go-version v1.2.0
+	github.com/hashicorp/terraform v0.12.29 // indirect
 	github.com/hashicorp/terraform-plugin-sdk v1.11.0
+	github.com/hashicorp/terraform-provider-random v1.3.1
 	github.com/mitchellh/hashstructure v1.0.0
-	github.com/sirupsen/logrus v1.2.0 // indirect
 	github.com/stoewer/go-strcase v1.0.2
-	github.com/hashicorp/terraform-provider-random v0.0.0-20190925200408-30dac3233094
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	google.golang.org/api v0.29.0
