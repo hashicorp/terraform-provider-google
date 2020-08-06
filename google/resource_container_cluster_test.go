@@ -338,6 +338,96 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withReleaseChannelEnabled(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "STABLE"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_release_channel",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "UNSPECIFIED"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_release_channel",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withReleaseChannelEnabledDefaultVersion(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withReleaseChannelEnabledDefaultVersion(clusterName, "REGULAR"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_release_channel",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "REGULAR"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_release_channel",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "UNSPECIFIED"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_release_channel",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withInvalidReleaseChannel(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccContainerCluster_withReleaseChannelEnabled(clusterName, "CANARY"),
+				ExpectError: regexp.MustCompile(`config is invalid: expected release_channel\.0\.channel to be one of \[UNSPECIFIED RAPID REGULAR STABLE\], got CANARY`),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 	t.Parallel()
 
@@ -1765,6 +1855,36 @@ resource "google_container_cluster" "with_network_policy_enabled" {
   }
 }
 `, clusterName)
+}
+
+func testAccContainerCluster_withReleaseChannelEnabled(clusterName string, channel string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_release_channel" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  release_channel {
+    channel = "%s"
+  }
+}
+`, clusterName, channel)
+}
+
+func testAccContainerCluster_withReleaseChannelEnabledDefaultVersion(clusterName string, channel string) string {
+	return fmt.Sprintf(`
+
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_release_channel" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.release_channel_default_version["%s"]
+}
+`, clusterName, channel)
 }
 
 func testAccContainerCluster_removeNetworkPolicy(clusterName string) string {

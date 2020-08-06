@@ -1056,6 +1056,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         d.Get("enable_shielded_nodes").(bool),
 			ForceSendFields: []string{"Enabled"},
 		},
+		ReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
 
 		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
 		ResourceLabels: expandStringMap(d, "resource_labels"),
@@ -1311,6 +1312,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if cluster.ShieldedNodes != nil {
 		d.Set("enable_shielded_nodes", cluster.ShieldedNodes.Enabled)
 	}
+	if err := d.Set("release_channel", flattenReleaseChannel(cluster.ReleaseChannel)); err != nil {
+		return err
+	}
 
 	if err := d.Set("authenticator_groups_config", flattenAuthenticatorGroupsConfig(cluster.AuthenticatorGroupsConfig)); err != nil {
 		return err
@@ -1505,6 +1509,36 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s's shielded nodes has been updated to %v", d.Id(), enabled)
 
 		d.SetPartial("enable_shielded_nodes")
+	}
+
+	if d.HasChange("release_channel") {
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
+			},
+		}
+		updateF := func() error {
+			log.Println("[DEBUG] updating release_channel")
+			name := containerClusterFullName(project, location, clusterName)
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(name, req).Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = containerOperationWait(config, op, project, location, "updating Release Channel", d.Timeout(schema.TimeoutUpdate))
+			log.Println("[DEBUG] done updating release_channel")
+			return err
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s Release Channel has been updated to %#v", d.Id(), req.Update.DesiredReleaseChannel)
+
+		d.SetPartial("release_channel")
 	}
 
 	if d.HasChange("maintenance_policy") {
@@ -2429,6 +2463,17 @@ func expandDatabaseEncryption(configured interface{}) *containerBeta.DatabaseEnc
 	}
 }
 
+func expandReleaseChannel(configured interface{}) *containerBeta.ReleaseChannel {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &containerBeta.ReleaseChannel{
+		Channel: config["channel"].(string),
+	}
+}
+
 func expandWorkloadIdentityConfig(configured interface{}) *containerBeta.WorkloadIdentityConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -2590,6 +2635,21 @@ func flattenVerticalPodAutoscaling(c *containerBeta.VerticalPodAutoscaling) []ma
 			"enabled": c.Enabled,
 		},
 	}
+}
+
+func flattenReleaseChannel(c *containerBeta.ReleaseChannel) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"channel": c.Channel,
+		})
+	} else {
+		// Explicitly set the release channel to the default.
+		result = append(result, map[string]interface{}{
+			"channel": "UNSPECIFIED",
+		})
+	}
+	return result
 }
 
 func flattenWorkloadIdentityConfig(c *containerBeta.WorkloadIdentityConfig) []map[string]interface{} {
