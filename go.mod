@@ -1,4 +1,4 @@
-module github.com/terraform-providers/terraform-provider-google
+module github.com/hashicorp/terraform-provider-google
 
 require (
 	cloud.google.com/go/bigtable v1.5.0
@@ -19,7 +19,7 @@ require (
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/sirupsen/logrus v1.2.0 // indirect
 	github.com/stoewer/go-strcase v1.0.2
-	github.com/terraform-providers/terraform-provider-random v0.0.0-20190925200408-30dac3233094
+	github.com/hashicorp/terraform-provider-random v0.0.0-20190925200408-30dac3233094
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	google.golang.org/api v0.29.0
