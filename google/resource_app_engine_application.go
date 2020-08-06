@@ -119,6 +119,7 @@ func resourceAppEngineApplication() *schema.Resource {
 			"iap": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				MaxItems:    1,
 				Description: `Settings for enabling Cloud Identity Aware Proxy`,
 				Elem: &schema.Resource{
