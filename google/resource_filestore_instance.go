@@ -88,7 +88,8 @@ only a single network is supported.`,
 							Description: `IP versions for which the instance has
 IP addresses assigned. Possible values: ["ADDRESS_MODE_UNSPECIFIED", "MODE_IPV4", "MODE_IPV6"]`,
 							Elem: &schema.Schema{
-								Type: schema.TypeString,
+								Type:         schema.TypeString,
+								ValidateFunc: validation.StringInSlice([]string{"ADDRESS_MODE_UNSPECIFIED", "MODE_IPV4", "MODE_IPV6"}, false),
 							},
 						},
 						"network": {
