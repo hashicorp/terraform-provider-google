@@ -1,0 +1,3 @@
+```release-note:bug
+`appengine`: Set `iap` to computed in `google_app_engine_application`
+```
