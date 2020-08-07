@@ -152,6 +152,34 @@ This is provided by the client when the disk image is created.`,
 You must provide either this property or the
 rawDisk.source property but not both to create an image.`,
 			},
+			"source_image": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `URL of the source image used to create this image. In order to create an image, you must provide the full or partial
+URL of one of the following:
+
+The selfLink URL
+This property
+The rawDisk.source URL
+The sourceDisk URL`,
+			},
+			"source_snapshot": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `URL of the source snapshot used to create this image.
+
+In order to create an image, you must provide the full or partial URL of one of the following:
+
+The selfLink URL
+This property
+The sourceImage URL
+The rawDisk.source URL
+The sourceDisk URL`,
+			},
 			"archive_size_bytes": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -261,6 +289,18 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("source_disk"); !isEmptyValue(reflect.ValueOf(sourceDiskProp)) && (ok || !reflect.DeepEqual(v, sourceDiskProp)) {
 		obj["sourceDisk"] = sourceDiskProp
 	}
+	sourceImageProp, err := expandComputeImageSourceImage(d.Get("source_image"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_image"); !isEmptyValue(reflect.ValueOf(sourceImageProp)) && (ok || !reflect.DeepEqual(v, sourceImageProp)) {
+		obj["sourceImage"] = sourceImageProp
+	}
+	sourceSnapshotProp, err := expandComputeImageSourceSnapshot(d.Get("source_snapshot"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_snapshot"); !isEmptyValue(reflect.ValueOf(sourceSnapshotProp)) && (ok || !reflect.DeepEqual(v, sourceSnapshotProp)) {
+		obj["sourceSnapshot"] = sourceSnapshotProp
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images")
 	if err != nil {
@@ -351,6 +391,12 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("source_disk", flattenComputeImageSourceDisk(res["sourceDisk"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err := d.Set("source_image", flattenComputeImageSourceImage(res["sourceImage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err := d.Set("source_snapshot", flattenComputeImageSourceSnapshot(res["sourceSnapshot"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -560,6 +606,20 @@ func flattenComputeImageSourceDisk(v interface{}, d *schema.ResourceData, config
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeImageSourceImage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeImageSourceSnapshot(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
 func expandComputeImageDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -683,6 +743,22 @@ func expandComputeImageSourceDisk(v interface{}, d TerraformResourceData, config
 	f, err := parseZonalFieldValue("disks", v.(string), "project", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for source_disk: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeImageSourceImage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseGlobalFieldValue("images", v.(string), "project", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for source_image: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeImageSourceSnapshot(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseGlobalFieldValue("snapshots", v.(string), "project", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for source_snapshot: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
