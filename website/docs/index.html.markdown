@@ -43,8 +43,8 @@ If you have configuration questions, or general questions about using the provid
 ## Releases
 
 Interested in the provider's latest features, or want to make sure you're up to date?
-Check out the [`google` provider changelog](https://github.com/terraform-providers/terraform-provider-google/blob/master/CHANGELOG.md)
-and the [`google-beta` provider changelog](https://github.com/terraform-providers/terraform-provider-google-beta/blob/master/CHANGELOG.md))
+Check out the [`google` provider changelog](https://github.com/hashicorp/terraform-provider-google/blob/master/CHANGELOG.md)
+and the [`google-beta` provider changelog](https://github.com/hashicorp/terraform-provider-google-beta/blob/master/CHANGELOG.md))
 for release notes and additional information.
 
 Per [Terraform Provider Versioning](https://www.hashicorp.com/blog/hashicorp-terraform-provider-versioning),
@@ -75,7 +75,7 @@ lifecycle to give users plenty of time to safely update their configs.
 
 ## Features and Bug Requests
 
-The Google provider's bugs and feature requests can be found in the [GitHub repo issues](https://github.com/terraform-providers/terraform-provider-google/issues).
+The Google provider's bugs and feature requests can be found in the [GitHub repo issues](https://github.com/hashicorp/terraform-provider-google/issues).
 Please avoid "me too" or "+1" comments. Instead, use a thumbs up [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/)
 on enhancement requests. Provider maintainers will often prioritize work based on the
 number of thumbs on an issue.
@@ -86,9 +86,9 @@ experience for you using the Google provider.
 
 If you have a bug or feature request without an existing issue
 
-* and an existing resource or field is working in an unexpected way, [file a bug](https://github.com/terraform-providers/terraform-provider-google/issues/new?template=bug.md).
+* and an existing resource or field is working in an unexpected way, [file a bug](https://github.com/hashicorp/terraform-provider-google/issues/new?template=bug.md).
 
-* and you'd like the provider to support a new resource or field, [file an enhancement/feature request](https://github.com/terraform-providers/terraform-provider-google/issues/new?template=enhancement.md).
+* and you'd like the provider to support a new resource or field, [file an enhancement/feature request](https://github.com/hashicorp/terraform-provider-google/issues/new?template=enhancement.md).
 
 The provider maintainers will often use the assignee field on an issue to mark
 who is working on it.
@@ -104,7 +104,7 @@ the issue!
 ## Contributing
 
 If you'd like to help extend the Google provider, we gladly accept community
-contributions! Our full contribution guide is available at [CONTRIBUTING.md](https://github.com/terraform-providers/terraform-provider-google/blob/master/.github/CONTRIBUTING.md)
+contributions! Our full contribution guide is available at [CONTRIBUTING.md](https://github.com/hashicorp/terraform-provider-google/blob/master/.github/CONTRIBUTING.md)
 
 Pull requests can be made against either provider repo where a maintainer will
 apply them to both `google` and `google-beta`, or against [Magic Modules](https://github.com/GoogleCloudPlatform/magic-modules)

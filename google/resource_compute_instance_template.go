@@ -587,7 +587,7 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.Resour
 			}
 			// project must be retrieved once we know there is a diff to resolve, otherwise it will
 			// attempt to retrieve project during `plan` before all calculated fields are ready
-			// see https://github.com/terraform-providers/terraform-provider-google/issues/2878
+			// see https://github.com/hashicorp/terraform-provider-google/issues/2878
 			project, err := getProjectFromDiff(diff, config)
 			if err != nil {
 				return err

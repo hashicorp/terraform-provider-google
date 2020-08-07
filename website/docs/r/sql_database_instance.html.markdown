@@ -391,7 +391,7 @@ instance.
   * A `PRIVATE` address is an address for an instance which has been configured to use private networking see: [Private IP](https://cloud.google.com/sql/docs/mysql/private-ip).
 
 * `first_ip_address` - The first IPv4 address of any type assigned. This is to
-support accessing the [first address in the list in a terraform output](https://github.com/terraform-providers/terraform-provider-google/issues/912)
+support accessing the [first address in the list in a terraform output](https://github.com/hashicorp/terraform-provider-google/issues/912)
 when the resource is configured with a `count`.
 
 * `public_ip_address` - The first public (`PRIMARY`) IPv4 address assigned. This is
