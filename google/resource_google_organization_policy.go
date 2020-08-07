@@ -13,7 +13,7 @@ var schemaOrganizationPolicy = map[string]*schema.Schema{
 	// Although the API suggests that boolean_policy, list_policy, or restore_policy must be set,
 	// Organization policies can be "inherited from parent" in the UI, and this is the default
 	// state of the resource without any policy set.
-	// See https://github.com/terraform-providers/terraform-provider-google/issues/3607
+	// See https://github.com/hashicorp/terraform-provider-google/issues/3607
 	"constraint": {
 		Type:             schema.TypeString,
 		Required:         true,
@@ -257,7 +257,7 @@ func resourceGoogleOrganizationPolicyImportState(d *schema.ResourceData, meta in
 // state of the resource without any policy set. In order to revert to this state the current
 // resource cannot be updated it must instead be Deleted. This allows Terraform to assert that
 // no policy has been set even if previously one had.
-// See https://github.com/terraform-providers/terraform-provider-google/issues/3607
+// See https://github.com/hashicorp/terraform-provider-google/issues/3607
 func isOrganizationPolicyUnset(d *schema.ResourceData) bool {
 	listPolicy := d.Get("list_policy").([]interface{})
 	booleanPolicy := d.Get("boolean_policy").([]interface{})

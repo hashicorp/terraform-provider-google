@@ -114,7 +114,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 													Required:    true,
 													Description: `Textual representation of an expression in Common Expression Language syntax. The application context of the containing message determines which well-known feature set of CEL is supported.`,
 												},
-												// These fields are not yet supported (Issue terraform-providers/terraform-provider-google#4497: mbang)
+												// These fields are not yet supported (Issue hashicorp/terraform-provider-google#4497: mbang)
 												// "title": {
 												// 	Type:     schema.TypeString,
 												// 	Optional: true,
@@ -413,7 +413,7 @@ func expandSecurityPolicyMatchExpr(expr []interface{}) *compute.Expr {
 	data := expr[0].(map[string]interface{})
 	return &compute.Expr{
 		Expression: data["expression"].(string),
-		// These fields are not yet supported  (Issue terraform-providers/terraform-provider-google#4497: mbang)
+		// These fields are not yet supported  (Issue hashicorp/terraform-provider-google#4497: mbang)
 		// Title:       data["title"].(string),
 		// Description: data["description"].(string),
 		// Location:    data["location"].(string),
@@ -469,7 +469,7 @@ func flattenMatchExpr(match *compute.SecurityPolicyRuleMatcher) []map[string]int
 
 	data := map[string]interface{}{
 		"expression": match.Expr.Expression,
-		// These fields are not yet supported (Issue terraform-providers/terraform-provider-google#4497: mbang)
+		// These fields are not yet supported (Issue hashicorp/terraform-provider-google#4497: mbang)
 		// "title":       match.Expr.Title,
 		// "description": match.Expr.Description,
 		// "location":    match.Expr.Location,

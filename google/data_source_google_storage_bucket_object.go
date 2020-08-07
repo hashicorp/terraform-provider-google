@@ -28,7 +28,7 @@ func dataSourceGoogleStorageBucketObjectRead(d *schema.ResourceData, meta interf
 
 	// URL encode folder names, but to ensure backward compatibility don't url encode
 	// them if they were already encoded manually in config.
-	// see https://github.com/terraform-providers/terraform-provider-google/issues/3176
+	// see https://github.com/hashicorp/terraform-provider-google/issues/3176
 	if strings.Contains(name, "/") {
 		name = url.QueryEscape(name)
 	}
