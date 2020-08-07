@@ -902,6 +902,25 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"release_channel": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `Configuration options for the Release channel feature, which provide more control over automatic upgrades of your GKE clusters.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"channel": {
+							Type:             schema.TypeString,
+							Required:         true,
+							ValidateFunc:     validation.StringInSlice([]string{"UNSPECIFIED", "RAPID", "REGULAR", "STABLE"}, false),
+							DiffSuppressFunc: emptyOrDefaultStringSuppress("UNSPECIFIED"),
+							Description:      `The selected release channel.`,
+						},
+					},
+				},
+			},
+
 			"enable_intranode_visibility": {
 				Type:        schema.TypeBool,
 				Optional:    true,
