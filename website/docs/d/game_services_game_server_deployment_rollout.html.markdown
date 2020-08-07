@@ -18,7 +18,6 @@ https://cloud.google.com/game-servers/docs/reference/rest/v1beta/GameServerDeplo
 
 ```hcl
 data "google_game_services_game_server_deployment_rollout" "qa" {
-    provider = google-beta
     deployment_id = "tf-test-deployment-s8sn12jt2c"
 }
 ```
