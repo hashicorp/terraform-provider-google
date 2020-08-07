@@ -85,7 +85,66 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
 						t, "google_compute_image.foobar", &image),
-					testAccCheckComputeImageHasSourceDisk(&image),
+					testAccCheckComputeImageHasSourceType(&image),
+				),
+			},
+			{
+				ResourceName:      "google_compute_image.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeImage_sourceImage(t *testing.T) {
+	t.Parallel()
+
+	var image compute.Image
+	imageName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeImage_sourceImage(imageName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeImageExists(
+						t, "google_compute_image.foobar", &image),
+					testAccCheckComputeImageHasSourceType(&image),
+				),
+			},
+			{
+				ResourceName:      "google_compute_image.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeImage_sourceSnapshot(t *testing.T) {
+	t.Parallel()
+
+	var image compute.Image
+
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	snapshotName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	imageName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeImage_sourceSnapshot(diskName, snapshotName, imageName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeImageExists(
+						t, "google_compute_image.foobar", &image),
+					testAccCheckComputeImageHasSourceType(&image),
 				),
 			},
 			{
@@ -236,7 +295,7 @@ func testAccCheckComputeImageDoesNotContainLabel(image *compute.Image, key strin
 	}
 }
 
-func testAccCheckComputeImageHasSourceDisk(image *compute.Image) resource.TestCheckFunc {
+func testAccCheckComputeImageHasSourceType(image *compute.Image) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if image.SourceType == "" {
 			return fmt.Errorf("No source disk")
@@ -347,4 +406,46 @@ resource "google_compute_image" "foobar" {
   source_disk = google_compute_disk.foobar.self_link
 }
 `, diskName, imageName)
+}
+
+func testAccComputeImage_sourceImage(imageName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_image" "foobar" {
+  name         = "%s"
+  source_image = data.google_compute_image.my_image.self_link
+}
+`, imageName)
+}
+
+func testAccComputeImage_sourceSnapshot(diskName, snapshotName, imageName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "foobar" {
+  name        = "%s"
+  source_disk = google_compute_disk.foobar.name
+  zone        = "us-central1-a"
+}
+
+resource "google_compute_image" "foobar" {
+  name            = "%s"
+  source_snapshot = google_compute_snapshot.foobar.self_link
+}
+`, diskName, snapshotName, imageName)
 }
