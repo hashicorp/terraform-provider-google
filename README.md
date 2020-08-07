@@ -45,17 +45,17 @@ for more information on provider upgrades, and how to set version constraints on
 Building the provider
 ---------------------
 
-Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-google`
+Clone repository to: `$GOPATH/src/github.com/hashicorp/terraform-provider-google`
 
 ```sh
 $ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-$ git clone git@github.com:terraform-providers/terraform-provider-google
+$ git clone git@github.com:hashicorp/terraform-provider-google
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-google
+$ cd $GOPATH/src/github.com/hashicorp/terraform-provider-google
 $ make build
 ```
 
@@ -79,5 +79,5 @@ $ $GOPATH/bin/terraform-provider-google
 ```
 
 For guidance on common development practices such as testing changes or
-vendoring libraries, see the [contribution guidelines](https://github.com/terraform-providers/terraform-provider-google/blob/master/.github/CONTRIBUTING.md).
+vendoring libraries, see the [contribution guidelines](https://github.com/hashicorp/terraform-provider-google/blob/master/.github/CONTRIBUTING.md).
 If you have other development questions we don't cover, please file an issue!
