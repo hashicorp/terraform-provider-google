@@ -53,6 +53,7 @@ The following arguments are supported:
 * `on_delete` - (Optional) One of "drain" or "cancel".  Specifies behavior of deletion during `terraform destroy`.  See above note.
 * `project` - (Optional) The project in which the resource belongs. If it is not provided, the provider project is used.
 * `zone` - (Optional) The zone in which the created job should run. If it is not provided, the provider zone is used.
+* `region` - (Optional) The region in which the created job should run.
 * `service_account_email` - (Optional) The Service Account email used to create the job.
 * `network` - (Optional) The network to which VMs will be assigned. If it is not provided, "default" will be used.
 * `subnetwork` - (Optional) The subnetwork to which VMs will be assigned. Should be of the form "regions/REGION/subnetworks/SUBNETWORK".
