@@ -99,13 +99,6 @@ func resourceCloudSchedulerJob() *schema.Resource {
 				ForceNew:    true,
 				Description: `The name of the job.`,
 			},
-			"region": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Region where the scheduler job resides`,
-			},
 			"app_engine_http_target": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -344,6 +337,13 @@ Pubsub message must contain either non-empty data, or at least one attribute.`,
 					},
 				},
 				ExactlyOneOf: []string{"pubsub_target", "http_target", "app_engine_http_target"},
+			},
+			"region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Region where the scheduler job resides. If it is not provided, Terraform will use the provider default.`,
 			},
 			"retry_config": {
 				Type:     schema.TypeList,

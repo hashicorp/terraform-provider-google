@@ -192,10 +192,6 @@ The following arguments are supported:
   (Required)
   The name of the job.
 
-* `region` -
-  (Required)
-  Region where the scheduler job resides
-
 
 - - -
 
@@ -251,6 +247,10 @@ The following arguments are supported:
   If the job providers a http_target the cron will 
   send a request to the targeted url
   Structure is documented below.
+
+* `region` -
+  (Optional)
+  Region where the scheduler job resides. If it is not provided, Terraform will use the provider default.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
