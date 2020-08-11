@@ -168,6 +168,15 @@ Example - "3.5s".`,
 					},
 				},
 			},
+			"filter": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The subscription only delivers the messages that match the filter. 
+Pub/Sub automatically acknowledges the messages that don't match the filter. You can filter messages
+by their attributes. The maximum length of a filter is 256 bytes. After creating the subscription, 
+you can't modify the filter.`,
+			},
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -338,6 +347,12 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("expiration_policy"); ok || !reflect.DeepEqual(v, expirationPolicyProp) {
 		obj["expirationPolicy"] = expirationPolicyProp
 	}
+	filterProp, err := expandPubsubSubscriptionFilter(d.Get("filter"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("filter"); !isEmptyValue(reflect.ValueOf(filterProp)) && (ok || !reflect.DeepEqual(v, filterProp)) {
+		obj["filter"] = filterProp
+	}
 	deadLetterPolicyProp, err := expandPubsubSubscriptionDeadLetterPolicy(d.Get("dead_letter_policy"), d, config)
 	if err != nil {
 		return err
@@ -470,6 +485,9 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
 	if err := d.Set("expiration_policy", flattenPubsubSubscriptionExpirationPolicy(res["expirationPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
+	if err := d.Set("filter", flattenPubsubSubscriptionFilter(res["filter"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
 	if err := d.Set("dead_letter_policy", flattenPubsubSubscriptionDeadLetterPolicy(res["deadLetterPolicy"], d, config)); err != nil {
@@ -738,6 +756,10 @@ func flattenPubsubSubscriptionExpirationPolicyTtl(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenPubsubSubscriptionFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenPubsubSubscriptionDeadLetterPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -928,6 +950,10 @@ func expandPubsubSubscriptionExpirationPolicy(v interface{}, d TerraformResource
 }
 
 func expandPubsubSubscriptionExpirationPolicyTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
