@@ -219,8 +219,9 @@ resource "google_pubsub_topic" "foo" {
 }
 
 resource "google_pubsub_subscription" "foo" {
-  name  = "%s"
-  topic = google_pubsub_topic.foo.id
+  name   = "%s"
+  topic  = google_pubsub_topic.foo.id
+  filter = "attributes.foo = \"bar\""
   labels = {
     foo = "%s"
   }
