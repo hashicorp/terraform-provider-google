@@ -64,6 +64,8 @@ Valid values are listed at
 
 * `private_key_type` (Optional) The output format of the private key. TYPE_GOOGLE_CREDENTIALS_FILE is the default output format.
 
+* `public_key_data` (Optional) Public key data to create a service account key for given service account. The expected format for this field is a base64 encoded X509_PEM and it conflicts with `public_key_type` and `private_key_type`.
+
 ## Attributes Reference
 
 The following attributes are exported in addition to the arguments listed above:
