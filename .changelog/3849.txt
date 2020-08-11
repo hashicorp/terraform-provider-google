@@ -1,0 +1,3 @@
+```release-note:enhancement
+iam: Added `public_key_type` field to `google_service_account_key `
+```

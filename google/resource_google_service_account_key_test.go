@@ -57,6 +57,30 @@ func TestAccServiceAccountKey_fromEmail(t *testing.T) {
 	})
 }
 
+func TestAccServiceAccountKey_fromCertificate(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "google_service_account_key.acceptance"
+	accountID := "a" + randString(t, 10)
+	displayName := "Terraform Test"
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccServiceAccountKey_fromCertificate(accountID, displayName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleServiceAccountKeyExists(t, resourceName),
+					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
+					resource.TestCheckResourceAttrSet(resourceName, "valid_after"),
+					resource.TestCheckResourceAttrSet(resourceName, "valid_before"),
+					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleServiceAccountKeyExists(t *testing.T, r string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
@@ -103,6 +127,20 @@ resource "google_service_account" "acceptance" {
 resource "google_service_account_key" "acceptance" {
   service_account_id = google_service_account.acceptance.email
   public_key_type    = "TYPE_X509_PEM_FILE"
+}
+`, account, name)
+}
+
+func testAccServiceAccountKey_fromCertificate(account, name string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "acceptance" {
+  account_id   = "%s"
+  display_name = "%s"
+}
+
+resource "google_service_account_key" "acceptance" {
+  service_account_id = google_service_account.acceptance.email
+  public_key_data    = filebase64("test-fixtures/serviceaccount/public_key.pem")
 }
 `, account, name)
 }

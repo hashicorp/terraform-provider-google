@@ -52,6 +52,13 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"TYPE_NONE", "TYPE_X509_PEM_FILE", "TYPE_RAW_PUBLIC_KEY"}, false),
 			},
+			"public_key_data": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"key_algorithm", "private_key_type"},
+				Description:   `A field that allows clients to upload their own public key. If set, use this public key data to create a service account key for given service account. Please note, the expected format for this field is a base64 encoded X509_PEM.`,
+			},
 			// Computed
 			"name": {
 				Type:        schema.TypeString,
@@ -103,14 +110,25 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	r := &iam.CreateServiceAccountKeyRequest{
-		KeyAlgorithm:   d.Get("key_algorithm").(string),
-		PrivateKeyType: d.Get("private_key_type").(string),
-	}
+	var sak *iam.ServiceAccountKey
 
-	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccountName, r).Do()
-	if err != nil {
-		return fmt.Errorf("Error creating service account key: %s", err)
+	if d.Get("public_key_data").(string) != "" {
+		ru := &iam.UploadServiceAccountKeyRequest{
+			PublicKeyData: d.Get("public_key_data").(string),
+		}
+		sak, err = config.clientIAM.Projects.ServiceAccounts.Keys.Upload(serviceAccountName, ru).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating service account key: %s", err)
+		}
+	} else {
+		rc := &iam.CreateServiceAccountKeyRequest{
+			KeyAlgorithm:   d.Get("key_algorithm").(string),
+			PrivateKeyType: d.Get("private_key_type").(string),
+		}
+		sak, err = config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccountName, rc).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating service account key: %s", err)
+		}
 	}
 
 	d.SetId(sak.Name)
