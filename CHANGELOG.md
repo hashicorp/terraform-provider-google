@@ -1,4 +1,4 @@
-## 3.34.0 (Unreleased)
+## 3.34.0 (August 11, 2020)
 NOTES:
 * redis: explicitly noted in `google_redis_instance` documentation that `"REDIS_5_0"` is supported ([#6917](https://github.com/terraform-providers/terraform-provider-google/pull/6917))
 * all: fix markdown formatting while showing enum values in documentation ([#6924](https://github.com/terraform-providers/terraform-provider-google/pull/6924)).
