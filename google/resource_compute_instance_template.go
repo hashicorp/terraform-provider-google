@@ -514,7 +514,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 					},
 				},
 			},
-
 			"guest_accelerator": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -1191,6 +1190,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting shielded_instance_config: %s", err)
 		}
 	}
+
 	if instanceTemplate.Properties.DisplayDevice != nil {
 		if err = d.Set("enable_display", flattenEnableDisplay(instanceTemplate.Properties.DisplayDevice)); err != nil {
 			return fmt.Errorf("Error setting enable_display: %s", err)
