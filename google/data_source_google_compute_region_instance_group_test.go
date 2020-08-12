@@ -11,13 +11,13 @@ func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
 	// Randomness in instance template
 	skipIfVcr(t)
 	t.Parallel()
-	name := "acctest-" + randString(t, 6)
+	name := "tf-test-" + randString(t, 6)
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceRegionInstanceGroup_basic(fmt.Sprintf("test-rigm--%d", randInt(t)), name),
+				Config: testAccDataSourceRegionInstanceGroup_basic(fmt.Sprintf("tf-test-rigm--%d", randInt(t)), name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "name", name),
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "project", getTestProjectFromEnv()),

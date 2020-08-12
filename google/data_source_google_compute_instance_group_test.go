@@ -54,7 +54,7 @@ func TestAccDataSourceGoogleComputeInstanceGroup_fromIGM(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM(fmt.Sprintf("test-igm-%d", randInt(t)), fmt.Sprintf("test-igm-%d", randInt(t))),
+				Config: testAccCheckDataSourceGoogleComputeInstanceGroup_fromIGM(fmt.Sprintf("tf-test-igm-%d", randInt(t)), fmt.Sprintf("tf-test-igm-%d", randInt(t))),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_compute_instance_group.test", "instances.#", "10"),
 				),

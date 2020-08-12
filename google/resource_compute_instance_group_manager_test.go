@@ -1,12 +1,71 @@
 package google
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
+
+func init() {
+	resource.AddTestSweepers("ComputeInstanceGroupManager", &resource.Sweeper{
+		Name: "ComputeInstanceGroupManager",
+		F:    testSweepComputeInstanceGroupManager,
+	})
+}
+
+// At the time of writing, the CI only passes us-central1 as the region.
+// Since we can read all instances across zones, we don't really use this param.
+func testSweepComputeInstanceGroupManager(region string) error {
+	resourceName := "ComputeInstanceGroupManager"
+	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
+
+	config, err := sharedConfigForRegion(region)
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
+		return err
+	}
+
+	err = config.LoadAndValidate(context.Background())
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] error loading: %s", err)
+		return err
+	}
+
+	found, err := config.clientCompute.InstanceGroupManagers.AggregatedList(config.Project).Do()
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] Error in response from request: %s", err)
+		return nil
+	}
+
+	// Keep count of items that aren't sweepable for logging.
+	nonPrefixCount := 0
+	for zone, itemList := range found.Items {
+		for _, igm := range itemList.InstanceGroupManagers {
+			if !isSweepableTestResource(igm.Name) {
+				nonPrefixCount++
+				continue
+			}
+
+			// Don't wait on operations as we may have a lot to delete
+			_, err := config.clientCompute.InstanceGroupManagers.Delete(config.Project, GetResourceNameFromSelfLink(zone), igm.Name).Do()
+			if err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, igm.Name, err)
+			} else {
+				log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, igm.Name)
+			}
+		}
+	}
+
+	if nonPrefixCount > 0 {
+		log.Printf("[INFO][SWEEPER_LOG] %d items were non-sweepable and skipped.", nonPrefixCount)
+	}
+
+	return nil
+}
 
 func TestAccInstanceGroupManager_basic(t *testing.T) {
 	t.Parallel()
