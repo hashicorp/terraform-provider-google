@@ -109,6 +109,14 @@ func Provider() terraform.ResourceProvider {
 			},
 
 			// Generated Products
+			"access_approval_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_ACCESS_APPROVAL_CUSTOM_ENDPOINT",
+				}, AccessApprovalDefaultBasePath),
+			},
 			"access_context_manager_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -607,9 +615,9 @@ func Provider() terraform.ResourceProvider {
 	return provider
 }
 
-// Generated resources: 149
+// Generated resources: 152
 // Generated IAM resources: 57
-// Total generated resources: 206
+// Total generated resources: 209
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -618,6 +626,9 @@ func ResourceMap() map[string]*schema.Resource {
 func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	return mergeResourceMaps(
 		map[string]*schema.Resource{
+			"google_folder_access_approval_settings":                       resourceAccessApprovalFolderSettings(),
+			"google_project_access_approval_settings":                      resourceAccessApprovalProjectSettings(),
+			"google_organization_access_approval_settings":                 resourceAccessApprovalOrganizationSettings(),
 			"google_access_context_manager_access_policy":                  resourceAccessContextManagerAccessPolicy(),
 			"google_access_context_manager_access_level":                   resourceAccessContextManagerAccessLevel(),
 			"google_access_context_manager_service_perimeter":              resourceAccessContextManagerServicePerimeter(),
@@ -993,6 +1004,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 	config.BatchingConfig = batchCfg
 
 	// Generated products
+	config.AccessApprovalBasePath = d.Get("access_approval_custom_endpoint").(string)
 	config.AccessContextManagerBasePath = d.Get("access_context_manager_custom_endpoint").(string)
 	config.ActiveDirectoryBasePath = d.Get("active_directory_custom_endpoint").(string)
 	config.AppEngineBasePath = d.Get("app_engine_custom_endpoint").(string)
