@@ -10,10 +10,10 @@ import (
 func TestAccComputeAutoscaler_update(t *testing.T) {
 	t.Parallel()
 
-	var it_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
-	var tp_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
-	var igm_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
-	var autoscaler_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
+	var it_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var tp_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var igm_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var autoscaler_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -43,10 +43,10 @@ func TestAccComputeAutoscaler_update(t *testing.T) {
 func TestAccComputeAutoscaler_multicondition(t *testing.T) {
 	t.Parallel()
 
-	var it_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
-	var tp_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
-	var igm_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
-	var autoscaler_name = fmt.Sprintf("autoscaler-test-%s", randString(t, 10))
+	var it_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var tp_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var igm_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var autoscaler_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

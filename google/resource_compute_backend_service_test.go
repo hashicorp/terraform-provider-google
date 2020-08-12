@@ -1328,7 +1328,7 @@ data "google_compute_image" "debian_image" {
 }
 
 resource "google_compute_instance_group_manager" "foobar" {
-  name = "igm-internal"
+  name = "tf-test-igm-internal"
   version {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
