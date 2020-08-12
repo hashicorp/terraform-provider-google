@@ -79,6 +79,7 @@ type Config struct {
 
 	tokenSource oauth2.TokenSource
 
+	AccessApprovalBasePath       string
 	AccessContextManagerBasePath string
 	ActiveDirectoryBasePath      string
 	AppEngineBasePath            string
@@ -225,6 +226,7 @@ type Config struct {
 }
 
 // Generated product base paths
+var AccessApprovalDefaultBasePath = "https://accessapproval.googleapis.com/v1/"
 var AccessContextManagerDefaultBasePath = "https://accesscontextmanager.googleapis.com/v1/"
 var ActiveDirectoryDefaultBasePath = "https://managedidentities.googleapis.com/v1/"
 var AppEngineDefaultBasePath = "https://appengine.googleapis.com/v1/"
@@ -771,6 +773,7 @@ func removeBasePathVersion(url string) string {
 // values to a default. After using this, you should call config.LoadAndValidate.
 func ConfigureBasePaths(c *Config) {
 	// Generated Products
+	c.AccessApprovalBasePath = AccessApprovalDefaultBasePath
 	c.AccessContextManagerBasePath = AccessContextManagerDefaultBasePath
 	c.ActiveDirectoryBasePath = ActiveDirectoryDefaultBasePath
 	c.AppEngineBasePath = AppEngineDefaultBasePath
