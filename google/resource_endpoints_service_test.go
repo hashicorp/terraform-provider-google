@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccEndpointsService_basic(t *testing.T) {
+	// Uses random provider
+	skipIfVcr(t)
 	t.Parallel()
 	serviceId := "tf-test" + randString(t, 10)
 
