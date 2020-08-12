@@ -285,7 +285,7 @@ https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort`,
 													Optional: true,
 													Description: `Compute Resources required by this container. Used to set values such as max memory
 More info:
-https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources`,
+https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits`,
 													MaxItems: 1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
