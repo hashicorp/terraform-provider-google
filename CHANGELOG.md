@@ -1,4 +1,36 @@
 ## 3.35.0 (Unreleased)
+NOTES:
+* all: Lists of enums now display the enum options in the documentation pages. ([#6946](https://github.com/hashicorp/terraform-provider-google/pull/6946))
+
+FEATURES:
+* **New Resource:** `google_compute_region_network_endpoint_group` (supports serverless NEGs) ([#6960](https://github.com/hashicorp/terraform-provider-google/pull/6960))
+* **New Resource:** `google_game_services_game_server_cluster` ([#6983](https://github.com/hashicorp/terraform-provider-google/pull/6983))
+* **New Resource:** `google_game_services_game_server_config` ([#6983](https://github.com/hashicorp/terraform-provider-google/pull/6983))
+* **New Resource:** `google_game_services_game_server_deployment_rollout` ([#6983](https://github.com/hashicorp/terraform-provider-google/pull/6983))
+* **New Resource:** `google_game_services_game_server_deployment` ([#6983](https://github.com/hashicorp/terraform-provider-google/pull/6983))
+* **New Resource:** `google_game_services_realm` ([#6983](https://github.com/hashicorp/terraform-provider-google/pull/6983))
+
+IMPROVEMENTS:
+* appengine: converted `google_app_engine_standard_app_version`'s `inbound_services` to an enum array, which enhances docs and provides some client-side validation. ([#6956](https://github.com/hashicorp/terraform-provider-google/pull/6956))
+* cloudbuild: added tags, source, queue_ttl, logs_bucket, substitutions, and secrets to `google_cloudbuild_trigger` ([#6942](https://github.com/hashicorp/terraform-provider-google/pull/6942))
+* cloudfunctions: Updated the `google_cloudfunctions_function` datasource to include new fields available in the API. ([#6935](https://github.com/hashicorp/terraform-provider-google/pull/6935))
+* compute: added `source_image` and `source_snapshot` to `google_compute_image` ([#6980](https://github.com/hashicorp/terraform-provider-google/pull/6980))
+* compute: added confidential_instance_config block to google_compute_instance ([#7000](https://github.com/hashicorp/terraform-provider-google/pull/7000))
+* compute: added confidential_instance_config block to google_compute_instance_template ([#7000](https://github.com/hashicorp/terraform-provider-google/pull/7000))
+* container: added `release_channel_default_version` field to `data.google_container_engine_versions` (GA) ([#6963](https://github.com/hashicorp/terraform-provider-google/pull/6963))
+* container: added `release_channel` to `google_container-cluster` (GA) ([#6955](https://github.com/hashicorp/terraform-provider-google/pull/6955))
+* iam: Added `public_key_type` field to `google_service_account_key ` ([#6999](https://github.com/hashicorp/terraform-provider-google/pull/6999))
+* pubsub: added `filter` field to `google_pubsub_subscription` resource ([#6997](https://github.com/hashicorp/terraform-provider-google/pull/6997))
+* resource-manager: updated documentation for `folder_iam_*` and `organization_iam_*` resources. ([#6991](https://github.com/hashicorp/terraform-provider-google/pull/6991))
+* sql: added support for point_in_time_recovery for `google_sql_database_instance` ([#6944](https://github.com/hashicorp/terraform-provider-google/pull/6944))
+
+BUG FIXES:
+* appengine: Set `iap` to computed in `google_app_engine_application` ([#6951](https://github.com/hashicorp/terraform-provider-google/pull/6951))
+* artifactrepository: Fixed import failure of `google_artifact_registry_repository`. ([#6957](https://github.com/hashicorp/terraform-provider-google/pull/6957))
+* compute: fixed shielded instance config, which had been failing to apply due to a field rename on the GCP side. ([#6943](https://github.com/hashicorp/terraform-provider-google/pull/6943))
+* monitoring: fixed validation rules for `google_monitoring_slo` `windows_based_sli.metric_sum_in_range.max` field ([#6974](https://github.com/hashicorp/terraform-provider-google/pull/6974))
+* osconfig: fixed `google_os_config_patch_deployment` `windows_update.classifications` field to work correctly, accepting multiple values. ([#6946](https://github.com/hashicorp/terraform-provider-google/pull/6946))
+
 ## 3.34.0 (August 11, 2020)
 NOTES:
 * redis: explicitly noted in `google_redis_instance` documentation that `"REDIS_5_0"` is supported ([#6917](https://github.com/terraform-providers/terraform-provider-google/pull/6917))
