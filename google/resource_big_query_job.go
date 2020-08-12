@@ -577,10 +577,12 @@ Creation, truncation and append actions occur as one atomic update upon job comp
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"query": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `SQL query text to execute. The useLegacySql field can be used to indicate whether the query uses legacy SQL or standard SQL.`,
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `SQL query text to execute. The useLegacySql field can be used to indicate whether the query uses legacy SQL or standard SQL.
+*NOTE*: queries containing [DML language](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-manipulation-language)
+('DELETE', 'UPDATE', 'MERGE', 'INSERT') must specify 'create_disposition = ""' and 'write_disposition = ""'.`,
 						},
 						"allow_large_results": {
 							Type:     schema.TypeBool,
@@ -770,7 +772,6 @@ used to populate the schema and query results of the script job. Possible values
 							ForceNew: true,
 							Description: `Specifies whether to use BigQuery's legacy SQL dialect for this query. The default value is true.
 If set to false, the query will use BigQuery's standard SQL.`,
-							Default: true,
 						},
 						"use_query_cache": {
 							Type:     schema.TypeBool,
@@ -1864,7 +1865,7 @@ func expandBigQueryJobConfigurationQuery(v interface{}, d TerraformResourceData,
 	transformedUseLegacySql, err := expandBigQueryJobConfigurationQueryUseLegacySql(original["use_legacy_sql"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUseLegacySql); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["useLegacySql"] = transformedUseLegacySql
 	}
 
