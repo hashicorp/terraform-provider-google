@@ -8,6 +8,7 @@ func dataSourceSqlDatabaseInstance() *schema.Resource {
 
 	dsSchema := datasourceSchemaFromResourceSchema(resourceSqlDatabaseInstance().Schema)
 	addRequiredFieldsToSchema(dsSchema, "name")
+	addOptionalFieldsToSchema(dsSchema, "project")
 
 	return &schema.Resource{
 		Read:   dataSourceSqlDatabaseInstanceRead,
