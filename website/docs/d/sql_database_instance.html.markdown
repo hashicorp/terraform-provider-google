@@ -28,8 +28,6 @@ The following arguments are supported:
 
 * `project` - (optional) The ID of the project in which the resource belongs.
 
-* `region` -  (optional) The region the instance exists in.
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following attributes are exported:
