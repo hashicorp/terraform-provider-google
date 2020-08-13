@@ -1,0 +1,3 @@
+```release-note:bug
+dns: fixed an issue where `google_dns_managed_zone` would not remove `private_visibility_config` on updates
+```
