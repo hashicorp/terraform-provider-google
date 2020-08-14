@@ -337,7 +337,7 @@ The `node_affinities` block supports:
 * `operator` (Required) - The operator. Can be `IN` for node-affinities
     or `NOT_IN` for anti-affinities.
 
-* `value` (Required) - The values for the node affinity label.
+* `values` (Required) - The values for the node affinity label.
 
 The `shielded_instance_config` block supports:
 
