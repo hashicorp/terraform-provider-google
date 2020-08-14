@@ -51,7 +51,7 @@ func TestAccActiveDirectoryDomain_activeDirectoryDomainBasicExample(t *testing.T
 func testAccActiveDirectoryDomain_activeDirectoryDomainBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_active_directory_domain" "ad-domain" {
-  domain_name       = "mydomain.org.com"
+  domain_name       = "mydomain%{random_suffix}.org.com"
   locations         = ["us-central1"]
   reserved_ip_range = "192.168.255.0/24" 
 }

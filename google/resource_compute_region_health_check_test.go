@@ -141,6 +141,8 @@ func TestAccComputeRegionHealthCheck_typeTransition(t *testing.T) {
 }
 
 func TestAccComputeRegionHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
+	// This is essentially a unit test, no interactions
+	skipIfVcr(t)
 	t.Parallel()
 
 	hckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
