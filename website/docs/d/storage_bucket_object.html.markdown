@@ -57,7 +57,7 @@ The following attributes are exported:
 * `self_link` - (Computed) A url reference to this object.
 
 * `storage_class` - (Computed) The [StorageClass](https://cloud.google.com/storage/docs/storage-classes) of the new bucket object.
-    Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`. If not provided, this defaults to the bucket's default
+    Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`. If not provided, this defaults to the bucket's default
     storage class or to a [standard](https://cloud.google.com/storage/docs/storage-classes#standard) class.
 
 * `media_link` - (Computed) A url reference to download this object.

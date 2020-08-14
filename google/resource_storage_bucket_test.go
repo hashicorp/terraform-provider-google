@@ -1269,6 +1269,15 @@ resource "google_storage_bucket" "bucket" {
       num_newer_versions = 10
     }
   }
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "ARCHIVE"
+    }
+    condition {
+      with_state = "ARCHIVED"
+    }
+  }
 }
 `, bucketName)
 }

@@ -114,7 +114,7 @@ func resourceStorageBucket() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "STANDARD",
-				Description: `The Storage Class of the new bucket. Supported values include: STANDARD, MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE.`,
+				Description: `The Storage Class of the new bucket. Supported values include: STANDARD, MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE.`,
 			},
 
 			"lifecycle_rule": {
@@ -139,7 +139,7 @@ func resourceStorageBucket() *schema.Resource {
 									"storage_class": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: `The target Storage Class of objects affected by this Lifecycle Rule. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE.`,
+										Description: `The target Storage Class of objects affected by this Lifecycle Rule. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE.`,
 									},
 								},
 							},
@@ -181,7 +181,7 @@ func resourceStorageBucket() *schema.Resource {
 										Optional:    true,
 										MinItems:    1,
 										Elem:        &schema.Schema{Type: schema.TypeString},
-										Description: `Storage Class of objects to satisfy this condition. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, STANDARD, DURABLE_REDUCED_AVAILABILITY.`,
+										Description: `Storage Class of objects to satisfy this condition. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE, STANDARD, DURABLE_REDUCED_AVAILABILITY.`,
 									},
 									"num_newer_versions": {
 										Type:        schema.TypeInt,
