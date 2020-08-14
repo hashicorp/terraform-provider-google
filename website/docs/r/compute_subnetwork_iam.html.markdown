@@ -130,7 +130,7 @@ Compute Engine subnetwork IAM resources can be imported using the resource ident
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_compute_subnetwork_iam_member.editor "projects/{{project}}/regions/{{region}}/subnetworks/{{subnetwork}} roles/compute.networkUser jane@example.com"
+$ terraform import google_compute_subnetwork_iam_member.editor "projects/{{project}}/regions/{{region}}/subnetworks/{{subnetwork}} roles/compute.networkUser user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.

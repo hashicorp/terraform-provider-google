@@ -122,7 +122,7 @@ Binary Authorization attestor IAM resources can be imported using the resource i
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_binary_authorization_attestor_iam_member.editor "projects/{{project}}/attestors/{{attestor}} roles/viewer jane@example.com"
+$ terraform import google_binary_authorization_attestor_iam_member.editor "projects/{{project}}/attestors/{{attestor}} roles/viewer user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.

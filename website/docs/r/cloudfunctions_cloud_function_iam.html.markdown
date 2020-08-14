@@ -129,7 +129,7 @@ Cloud Functions cloudfunction IAM resources can be imported using the resource i
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_cloudfunctions_function_iam_member.editor "projects/{{project}}/locations/{{region}}/functions/{{cloud_function}} roles/viewer jane@example.com"
+$ terraform import google_cloudfunctions_function_iam_member.editor "projects/{{project}}/locations/{{region}}/functions/{{cloud_function}} roles/viewer user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.

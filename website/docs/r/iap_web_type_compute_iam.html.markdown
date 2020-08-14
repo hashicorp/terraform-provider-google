@@ -117,7 +117,7 @@ Identity-Aware Proxy webtypecompute IAM resources can be imported using the reso
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_iap_web_type_compute_iam_member.editor "projects/{{project}}/iap_web/compute roles/iap.httpsResourceAccessor jane@example.com"
+$ terraform import google_iap_web_type_compute_iam_member.editor "projects/{{project}}/iap_web/compute roles/iap.httpsResourceAccessor user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.

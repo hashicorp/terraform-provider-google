@@ -127,7 +127,7 @@ Identity-Aware Proxy tunnelinstance IAM resources can be imported using the reso
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_iap_tunnel_instance_iam_member.editor "projects/{{project}}/iap_tunnel/zones/{{zone}}/instances/{{tunnel_instance}} roles/iap.tunnelResourceAccessor jane@example.com"
+$ terraform import google_iap_tunnel_instance_iam_member.editor "projects/{{project}}/iap_tunnel/zones/{{zone}}/instances/{{tunnel_instance}} roles/iap.tunnelResourceAccessor user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
