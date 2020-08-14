@@ -127,6 +127,8 @@ func TestAccStorageBucket_customAttributes(t *testing.T) {
 }
 
 func TestAccStorageBucket_lifecycleRulesMultiple(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 	t.Parallel()
 
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", randInt(t))

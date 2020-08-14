@@ -413,6 +413,8 @@ func TestAccContainerCluster_withReleaseChannelEnabledDefaultVersion(t *testing.
 }
 
 func TestAccContainerCluster_withInvalidReleaseChannel(t *testing.T) {
+	// This is essentially a unit test, no interactions
+	skipIfVcr(t)
 	t.Parallel()
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
 	vcrTest(t, resource.TestCase{
