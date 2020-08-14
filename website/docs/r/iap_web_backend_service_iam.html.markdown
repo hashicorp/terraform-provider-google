@@ -122,7 +122,7 @@ Identity-Aware Proxy webbackendservice IAM resources can be imported using the r
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_iap_web_backend_service_iam_member.editor "projects/{{project}}/iap_web/compute/services/{{web_backend_service}} roles/iap.httpsResourceAccessor jane@example.com"
+$ terraform import google_iap_web_backend_service_iam_member.editor "projects/{{project}}/iap_web/compute/services/{{web_backend_service}} roles/iap.httpsResourceAccessor user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.

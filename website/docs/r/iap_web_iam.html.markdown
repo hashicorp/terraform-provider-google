@@ -117,7 +117,7 @@ Identity-Aware Proxy web IAM resources can be imported using the resource identi
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_iap_web_iam_member.editor "projects/{{project}}/iap_web roles/iap.httpsResourceAccessor jane@example.com"
+$ terraform import google_iap_web_iam_member.editor "projects/{{project}}/iap_web roles/iap.httpsResourceAccessor user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.

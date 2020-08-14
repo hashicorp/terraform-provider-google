@@ -115,7 +115,7 @@ Cloud Endpoints service IAM resources can be imported using the resource identif
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_endpoints_service_iam_member.editor "services/{{serviceName}} roles/viewer jane@example.com"
+$ terraform import google_endpoints_service_iam_member.editor "services/{{serviceName}} roles/viewer user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
