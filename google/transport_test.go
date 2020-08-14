@@ -20,11 +20,11 @@ func replaceVarsForTest(config *Config, rs *terraform.ResourceState, linkTmpl st
 	}
 
 	if strings.Contains(linkTmpl, "{{region}}") {
-		region = rs.Primary.Attributes["region"]
+		region = GetResourceNameFromSelfLink(rs.Primary.Attributes["region"])
 	}
 
 	if strings.Contains(linkTmpl, "{{zone}}") {
-		zone = rs.Primary.Attributes["zone"]
+		zone = GetResourceNameFromSelfLink(rs.Primary.Attributes["zone"])
 	}
 
 	replaceFunc := func(s string) string {
