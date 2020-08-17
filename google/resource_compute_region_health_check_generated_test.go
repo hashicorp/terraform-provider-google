@@ -451,6 +451,86 @@ resource "google_compute_region_health_check" "http2-region-health-check" {
 `, context)
 }
 
+func TestAccComputeRegionHealthCheck_regionHealthCheckGrpcExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionHealthCheck_regionHealthCheckGrpcExample(context),
+			},
+			{
+				ResourceName:      "google_compute_region_health_check.grpc-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionHealthCheck_regionHealthCheckGrpcExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_region_health_check" "grpc-health-check" {
+  name = "tf-test-grpc-region-health-check%{random_suffix}"
+
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  grpc_health_check {
+    port = "443"
+  }
+}
+`, context)
+}
+
+func TestAccComputeRegionHealthCheck_regionHealthCheckGrpcFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionHealthCheckDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionHealthCheck_regionHealthCheckGrpcFullExample(context),
+			},
+			{
+				ResourceName:      "google_compute_region_health_check.grpc-region-health-check",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionHealthCheck_regionHealthCheckGrpcFullExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_region_health_check" "grpc-health-check" {
+  name = "tf-test-grpc-region-health-check%{random_suffix}"
+
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  grpc_health_check {
+    port_name          = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    grpc_service_name  = "testservice"
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeRegionHealthCheckDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

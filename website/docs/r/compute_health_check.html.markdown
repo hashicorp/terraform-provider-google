@@ -280,6 +280,48 @@ resource "google_compute_health_check" "http2-health-check" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_grpc&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Grpc
+
+
+```hcl
+resource "google_compute_health_check" "grpc-health-check" {
+  name = "grpc-health-check"
+
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  grpc_health_check {
+    port = "443"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_grpc_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Grpc Full
+
+
+```hcl
+resource "google_compute_health_check" "grpc-health-check" {
+  name = "grpc-health-check"
+
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  grpc_health_check {
+    port_name          = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    grpc_service_name  = "testservice"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_with_logging&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -372,6 +414,11 @@ The following arguments are supported:
   Structure is documented below.
 
 * `http2_health_check` -
+  (Optional)
+  A nested object resource
+  Structure is documented below.
+
+* `grpc_health_check` -
   (Optional)
   A nested object resource
   Structure is documented below.
@@ -621,6 +668,41 @@ The `http2_health_check` block supports:
   If not specified, HTTP2 health check follows behavior specified in `port` and
   `portName` fields.
   Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
+
+The `grpc_health_check` block supports:
+
+* `port` -
+  (Optional)
+  The port number for the health check request. 
+  Must be specified if portName and portSpecification are not set 
+  or if port_specification is USE_FIXED_PORT. Valid values are 1 through 65535.
+
+* `port_name` -
+  (Optional)
+  Port name as defined in InstanceGroup#NamedPort#name. If both port and
+  port_name are defined, port takes precedence.
+
+* `port_specification` -
+  (Optional)
+  Specifies how port is selected for health checking, can be one of the
+  following values:
+    * `USE_FIXED_PORT`: The port number in `port` is used for health checking.
+    * `USE_NAMED_PORT`: The `portName` is used for health checking.
+    * `USE_SERVING_PORT`: For NetworkEndpointGroup, the port specified for each
+    network endpoint is used for health checking. For other backends, the
+    port or named port specified in the Backend Service is used for health
+    checking.
+  If not specified, gRPC health check follows behavior specified in `port` and
+  `portName` fields.
+  Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
+
+* `grpc_service_name` -
+  (Optional)
+  The gRPC service name for the health check. 
+  The value of grpcServiceName has the following meanings by convention:
+    - Empty serviceName means the overall status of all services at the backend.
+    - Non-empty serviceName means the health of that gRPC service, as defined by the owner of the service.
+  The grpcServiceName can only be ASCII.
 
 ## Attributes Reference
 
