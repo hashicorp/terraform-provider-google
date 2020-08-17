@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added grpc_health_check block to compute_health_check
+```
+```release-note:enhancement
+compute: added grpc_health_check block to compute_region_health_check
+```
