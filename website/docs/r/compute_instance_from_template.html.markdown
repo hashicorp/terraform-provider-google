@@ -87,6 +87,12 @@ are marked [Attributes as Blocks](/docs/configuration/attr-as-blocks.html):
 * `network_interface.alias_ip_range`
 * `network_interface.access_config`
 
+## Attributes Reference
+
+All exported attributes from `google_compute_instance` are exported here.
+See https://www.terraform.io/docs/providers/google/r/compute_instance.html#attributes-reference
+for details.
+
 ## Timeouts
 
 This resource provides the following
