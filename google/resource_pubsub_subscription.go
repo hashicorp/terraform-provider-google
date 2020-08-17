@@ -141,6 +141,13 @@ If this parameter is 0, a default value of 5 is used.`,
 					},
 				},
 			},
+			"enable_message_ordering": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `If 'true', messages published with the same orderingKey in PubsubMessage will be delivered to
+the subscribers in the order in which they are received by the Pub/Sub system. Otherwise, they
+may be delivered in any order.`,
+			},
 			"expiration_policy": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -359,6 +366,12 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
 		obj["deadLetterPolicy"] = deadLetterPolicyProp
 	}
+	enableMessageOrderingProp, err := expandPubsubSubscriptionEnableMessageOrdering(d.Get("enable_message_ordering"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_message_ordering"); !isEmptyValue(reflect.ValueOf(enableMessageOrderingProp)) && (ok || !reflect.DeepEqual(v, enableMessageOrderingProp)) {
+		obj["enableMessageOrdering"] = enableMessageOrderingProp
+	}
 
 	obj, err = resourcePubsubSubscriptionEncoder(d, meta, obj)
 	if err != nil {
@@ -493,6 +506,9 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("dead_letter_policy", flattenPubsubSubscriptionDeadLetterPolicy(res["deadLetterPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
+	if err := d.Set("enable_message_ordering", flattenPubsubSubscriptionEnableMessageOrdering(res["enableMessageOrdering"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
 
 	return nil
 }
@@ -548,6 +564,12 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
 		obj["deadLetterPolicy"] = deadLetterPolicyProp
 	}
+	enableMessageOrderingProp, err := expandPubsubSubscriptionEnableMessageOrdering(d.Get("enable_message_ordering"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_message_ordering"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableMessageOrderingProp)) {
+		obj["enableMessageOrdering"] = enableMessageOrderingProp
+	}
 
 	obj, err = resourcePubsubSubscriptionUpdateEncoder(d, meta, obj)
 	if err != nil {
@@ -588,6 +610,10 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("dead_letter_policy") {
 		updateMask = append(updateMask, "deadLetterPolicy")
+	}
+
+	if d.HasChange("enable_message_ordering") {
+		updateMask = append(updateMask, "enableMessageOrdering")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -796,6 +822,10 @@ func flattenPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{},
 	return v // let terraform core handle it otherwise
 }
 
+func flattenPubsubSubscriptionEnableMessageOrdering(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandPubsubSubscriptionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return replaceVars(d, config, "projects/{{project}}/subscriptions/{{name}}")
 }
@@ -988,6 +1018,10 @@ func expandPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(v interface{}, d Te
 }
 
 func expandPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionEnableMessageOrdering(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
