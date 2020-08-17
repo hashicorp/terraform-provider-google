@@ -70,6 +70,8 @@ resource "google_pubsub_subscription" "example" {
   expiration_policy {
     ttl = "300000.5s"
   }
+
+  enable_message_ordering    = false
 }
 `, context)
 }

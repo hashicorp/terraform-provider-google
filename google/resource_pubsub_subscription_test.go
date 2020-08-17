@@ -172,6 +172,7 @@ resource "google_pubsub_subscription" "foo" {
   expiration_policy {
     ttl = ""
   }
+  enable_message_ordering    = false
 }
 `, topic, subscription)
 }

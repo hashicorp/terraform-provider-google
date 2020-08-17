@@ -90,6 +90,8 @@ resource "google_pubsub_subscription" "example" {
   expiration_policy {
     ttl = "300000.5s"
   }
+
+  enable_message_ordering    = false
 }
 ```
 ## Example Usage - Pubsub Subscription Different Project
@@ -227,6 +229,12 @@ The following arguments are supported:
   service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
   permission to Acknowledge() messages on this subscription.
   Structure is documented below.
+
+* `enable_message_ordering` -
+  (Optional)
+  If `true`, messages published with the same orderingKey in PubsubMessage will be delivered to
+  the subscribers in the order in which they are received by the Pub/Sub system. Otherwise, they
+  may be delivered in any order.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
