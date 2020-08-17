@@ -228,8 +228,6 @@ The `log_config` block supports:
   Toggles the aggregation interval for collecting flow logs. Increasing the
   interval time will reduce the amount of generated flow logs for long
   lasting connections. Default is an interval of 5 seconds per connection.
-  Possible values are INTERVAL_5_SEC, INTERVAL_30_SEC, INTERVAL_1_MIN,
-  INTERVAL_5_MIN, INTERVAL_10_MIN, INTERVAL_15_MIN
   Default value is `INTERVAL_5_SEC`.
   Possible values are `INTERVAL_5_SEC`, `INTERVAL_30_SEC`, `INTERVAL_1_MIN`, `INTERVAL_5_MIN`, `INTERVAL_10_MIN`, and `INTERVAL_15_MIN`.
 
