@@ -33,6 +33,9 @@ To get more information about SslCertificate, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/load-balancing/docs/ssl-certificates)
 
+~> **Warning:** All arguments including `certificate` and `private_key` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=ssl_certificate_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -117,15 +120,15 @@ resource "google_compute_ssl_certificate" "default" {
 
 resource "google_compute_target_https_proxy" "default" {
   name             = "test-proxy"
-  url_map          = google_compute_url_map.default.self_link
-  ssl_certificates = [google_compute_ssl_certificate.default.self_link]
+  url_map          = google_compute_url_map.default.id
+  ssl_certificates = [google_compute_ssl_certificate.default.id]
 }
 
 resource "google_compute_url_map" "default" {
   name        = "url-map"
   description = "a description"
 
-  default_service = google_compute_backend_service.default.self_link
+  default_service = google_compute_backend_service.default.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -134,11 +137,11 @@ resource "google_compute_url_map" "default" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = google_compute_backend_service.default.self_link
+    default_service = google_compute_backend_service.default.id
 
     path_rule {
       paths   = ["/*"]
-      service = google_compute_backend_service.default.self_link
+      service = google_compute_backend_service.default.id
     }
   }
 }
@@ -149,7 +152,7 @@ resource "google_compute_backend_service" "default" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_http_health_check.default.self_link]
+  health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
@@ -170,10 +173,12 @@ The following arguments are supported:
   The certificate in PEM format.
   The certificate chain must be no greater than 5 certs long.
   The chain must include at least one intermediate cert.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `private_key` -
   (Required)
   The write-only private key in PEM format.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 
 - - -
@@ -206,6 +211,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/sslCertificates/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.

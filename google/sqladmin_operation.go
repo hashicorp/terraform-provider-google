@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"time"
 
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
@@ -99,11 +100,7 @@ func (w *SqlAdminOperationWaiter) TargetStates() []string {
 	return []string{"DONE"}
 }
 
-func sqlAdminOperationWait(config *Config, res interface{}, project, activity string) error {
-	return sqlAdminOperationWaitTime(config, res, project, activity, 10)
-}
-
-func sqlAdminOperationWaitTime(config *Config, res interface{}, project, activity string, timeoutMinutes int) error {
+func sqlAdminOperationWaitTime(config *Config, res interface{}, project, activity string, timeout time.Duration) error {
 	op := &sqladmin.Operation{}
 	err := Convert(res, op)
 	if err != nil {
@@ -118,7 +115,7 @@ func sqlAdminOperationWaitTime(config *Config, res interface{}, project, activit
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }
 
 // SqlAdminOperationError wraps sqladmin.OperationError and implements the

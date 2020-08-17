@@ -46,8 +46,8 @@ To get more information about TargetSslProxy, see:
 ```hcl
 resource "google_compute_target_ssl_proxy" "default" {
   name             = "test-proxy"
-  backend_service  = google_compute_backend_service.default.self_link
-  ssl_certificates = [google_compute_ssl_certificate.default.self_link]
+  backend_service  = google_compute_backend_service.default.id
+  ssl_certificates = [google_compute_ssl_certificate.default.id]
 }
 
 resource "google_compute_ssl_certificate" "default" {
@@ -59,7 +59,7 @@ resource "google_compute_ssl_certificate" "default" {
 resource "google_compute_backend_service" "default" {
   name          = "backend-service"
   protocol      = "SSL"
-  health_checks = [google_compute_health_check.default.self_link]
+  health_checks = [google_compute_health_check.default.id]
 }
 
 resource "google_compute_health_check" "default" {
@@ -108,7 +108,9 @@ The following arguments are supported:
 * `proxy_header` -
   (Optional)
   Specifies the type of proxy header to append before sending data to
-  the backend, either NONE or PROXY_V1. The default is NONE.
+  the backend.
+  Default value is `NONE`.
+  Possible values are `NONE` and `PROXY_V1`.
 
 * `ssl_policy` -
   (Optional)
@@ -124,6 +126,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/targetSslProxies/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.

@@ -28,11 +28,13 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Removed:  "Use location instead",
+				Computed: true,
 			},
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Removed:  "Use location instead",
+				Computed: true,
 			},
 			"default_cluster_version": {
 				Type:     schema.TypeString,
@@ -53,6 +55,11 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 			},
 			"valid_node_versions": {
 				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"release_channel_default_version": {
+				Type:     schema.TypeMap,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
@@ -107,6 +114,12 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 	}
 
 	d.Set("default_cluster_version", resp.DefaultClusterVersion)
+
+	m := map[string]string{}
+	for _, v := range resp.Channels {
+		m[v.Channel] = v.DefaultVersion
+	}
+	d.Set("release_channel_default_version", m)
 
 	d.SetId(time.Now().UTC().String())
 	return nil

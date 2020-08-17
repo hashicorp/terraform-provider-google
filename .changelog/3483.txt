@@ -1,0 +1,4 @@
+```release-note:enhancement
+dataproc: Updated `google_dataproc_cluster.software_config.optional_components` to include new options.
+
+```

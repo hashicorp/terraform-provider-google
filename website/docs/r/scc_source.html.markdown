@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Security Command Center"
+subcategory: "Security Command Center (SCC)"
 layout: "google"
 page_title: "Google: google_scc_source"
 sidebar_current: "docs-google-scc-source"
@@ -76,6 +76,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   The resource name of this source, in the format

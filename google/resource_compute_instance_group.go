@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
@@ -21,50 +22,63 @@ func resourceComputeInstanceGroup() *schema.Resource {
 			State: resourceComputeInstanceGroupImportState,
 		},
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(6 * time.Minute),
+			Update: schema.DefaultTimeout(6 * time.Minute),
+			Delete: schema.DefaultTimeout(6 * time.Minute),
+		},
+
 		SchemaVersion: 2,
 		MigrateState:  resourceComputeInstanceGroupMigrateState,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the instance group. Must be 1-63 characters long and comply with RFC1035. Supported characters include lowercase letters, numbers, and hyphens.`,
 			},
 
 			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The zone that this instance group should be created in.`,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional textual description of the instance group.`,
 			},
 
 			"instances": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      selfLinkRelativePathHash,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         selfLinkRelativePathHash,
+				Description: `List of instances in the group. They should be given as self_link URLs. When adding instances they must all be in the same network and zone as the instance group.`,
 			},
 
 			"named_port": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The named port configuration.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name which the port will be mapped to.`,
 						},
 
 						"port": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `The port number to map the name to.`,
 						},
 					},
 				},
@@ -76,23 +90,27 @@ func resourceComputeInstanceGroup() *schema.Resource {
 				Computed:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				ForceNew:         true,
+				Description:      `The URL of the network the instance group is in. If this is different from the network where the instances are in, the creation fails. Defaults to the network where the instances are in (if neither network nor instances is specified, this field will be blank).`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The URI of the created resource.`,
 			},
 
 			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The number of instances in the group.`,
 			},
 		},
 	}
@@ -159,16 +177,26 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instanceGroups/%s", project, zone, name))
 
 	// Wait for the operation to complete
-	err = computeOperationWait(config, op, project, "Creating InstanceGroup")
+	err = computeOperationWaitTime(config, op, project, "Creating InstanceGroup", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return err
 	}
 
 	if v, ok := d.GetOk("instances"); ok {
-		instanceUrls := convertStringArr(v.(*schema.Set).List())
-		if !validInstanceURLs(instanceUrls) {
-			return fmt.Errorf("Error invalid instance URLs: %v", instanceUrls)
+		tmpUrls := convertStringArr(v.(*schema.Set).List())
+
+		var instanceUrls []string
+		for _, v := range tmpUrls {
+			if strings.HasPrefix(v, "https://") {
+				instanceUrls = append(instanceUrls, v)
+			} else {
+				url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v)
+				if err != nil {
+					return err
+				}
+				instanceUrls = append(instanceUrls, url)
+			}
 		}
 
 		addInstanceReq := &compute.InstanceGroupsAddInstancesRequest{
@@ -183,7 +211,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 		}
 
 		// Wait for the operation to complete
-		err = computeOperationWait(config, op, project, "Adding instances to InstanceGroup")
+		err = computeOperationWaitTime(config, op, project, "Adding instances to InstanceGroup", d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
 		}
@@ -295,7 +323,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 				}
 			} else {
 				// Wait for the operation to complete
-				err = computeOperationWait(config, removeOp, project, "Updating InstanceGroup")
+				err = computeOperationWaitTime(config, removeOp, project, "Updating InstanceGroup", d.Timeout(schema.TimeoutUpdate))
 				if err != nil {
 					return err
 				}
@@ -316,7 +344,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			}
 
 			// Wait for the operation to complete
-			err = computeOperationWait(config, addOp, project, "Updating InstanceGroup")
+			err = computeOperationWaitTime(config, addOp, project, "Updating InstanceGroup", d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return err
 			}
@@ -339,7 +367,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			return fmt.Errorf("Error updating named ports for InstanceGroup: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating InstanceGroup")
+		err = computeOperationWaitTime(config, op, project, "Updating InstanceGroup", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -369,7 +397,7 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error deleting InstanceGroup: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting InstanceGroup")
+	err = computeOperationWaitTime(config, op, project, "Deleting InstanceGroup", d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

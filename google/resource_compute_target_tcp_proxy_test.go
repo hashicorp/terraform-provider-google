@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -12,34 +11,34 @@ import (
 func TestAccComputeTargetTcpProxy_update(t *testing.T) {
 	t.Parallel()
 
-	target := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))
-	backend := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))
-	hc := fmt.Sprintf("ttcp-test-%s", acctest.RandString(10))
+	target := fmt.Sprintf("ttcp-test-%s", randString(t, 10))
+	backend := fmt.Sprintf("ttcp-test-%s", randString(t, 10))
+	hc := fmt.Sprintf("ttcp-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeTargetTcpProxyDestroy,
+		CheckDestroy: testAccCheckComputeTargetTcpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetTcpProxy_basic1(target, backend, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetTcpProxyExists(
-						"google_compute_target_tcp_proxy.foobar"),
+						t, "google_compute_target_tcp_proxy.foobar"),
 				),
 			},
 			{
 				Config: testAccComputeTargetTcpProxy_basic2(target, backend, hc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetTcpProxyExists(
-						"google_compute_target_tcp_proxy.foobar"),
+						t, "google_compute_target_tcp_proxy.foobar"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckComputeTargetTcpProxyExists(n string) resource.TestCheckFunc {
+func testAccCheckComputeTargetTcpProxyExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -50,7 +49,7 @@ func testAccCheckComputeTargetTcpProxyExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
 		found, err := config.clientCompute.TargetTcpProxies.Get(

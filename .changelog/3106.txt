@@ -1,0 +1,3 @@
+```release-note:bug
+container: Removed restriction on `auto_provisioning_defaults` to allow both `oauth_scopes` and `service_account` to be set
+```

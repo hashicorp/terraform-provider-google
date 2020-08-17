@@ -1,0 +1,3 @@
+```release-note:new-resource
+appengine: added new resource `google_appengine_flexible_app_version"
+```

@@ -1,0 +1,3 @@
+```release-note:bug
+appengine: Changed `google_app_engine_application` to respect updates in `iap`
+```

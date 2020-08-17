@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -23,29 +24,39 @@ func resourceComputeTargetPool() *schema.Resource {
 			State: resourceTargetPoolStateImporter,
 		},
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `A unique name for the resource, required by GCE. Changing this forces a new resource to be created.`,
 			},
 
 			"backup_pool": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    false,
+				Description: `URL to the backup target pool. Must also set failover_ratio.`,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Textual description field.`,
 			},
 
 			"failover_ratio": {
-				Type:     schema.TypeFloat,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeFloat,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Ratio (0 to 1) of failed nodes before using the backup pool (which must also be set).`,
 			},
 
 			"health_checks": {
@@ -57,6 +68,7 @@ func resourceComputeTargetPool() *schema.Resource {
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
 				},
+				Description: `List of zero or one health check name or self_link. Only legacy google_compute_http_health_check is supported.`,
 			},
 
 			"instances": {
@@ -73,32 +85,37 @@ func resourceComputeTargetPool() *schema.Resource {
 				Set: func(v interface{}) int {
 					return schema.HashString(canonicalizeInstanceRef(v.(string)))
 				},
+				Description: `List of instances in the pool. They can be given as URLs, or in the form of "zone/name". Note that the instances need not exist at the time of target pool creation, so there is no need to use the Terraform interpolators to create a dependency on the instances from the target pool.`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `Where the target pool resides. Defaults to project region.`,
 			},
 
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The URI of the created resource.`,
 			},
 
 			"session_affinity": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "NONE",
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Default:     "NONE",
+				Description: `How to distribute load. Options are "NONE" (no affinity). "CLIENT_IP" (hash of the source/dest addresses / ports), and "CLIENT_IP_PROTO" also includes the protocol (default "NONE").`,
 			},
 		},
 	}
@@ -213,7 +230,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
-	err = computeOperationWait(config, op, project, "Creating Target Pool")
+	err = computeOperationWaitTime(config, op, project, "Creating Target Pool", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -262,7 +279,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error updating health_check: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target Pool")
+		err = computeOperationWaitTime(config, op, project, "Updating Target Pool", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -278,7 +295,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error updating health_check: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target Pool")
+		err = computeOperationWaitTime(config, op, project, "Updating Target Pool", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -312,7 +329,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error updating instances: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target Pool")
+		err = computeOperationWaitTime(config, op, project, "Updating Target Pool", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -327,7 +344,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return fmt.Errorf("Error updating instances: %s", err)
 		}
-		err = computeOperationWait(config, op, project, "Updating Target Pool")
+		err = computeOperationWaitTime(config, op, project, "Updating Target Pool", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -345,7 +362,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error updating backup_pool: %s", err)
 		}
 
-		err = computeOperationWait(config, op, project, "Updating Target Pool")
+		err = computeOperationWaitTime(config, op, project, "Updating Target Pool", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -423,7 +440,7 @@ func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error deleting TargetPool: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Target Pool")
+	err = computeOperationWaitTime(config, op, project, "Deleting Target Pool", d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_dataflow_flex_template_job`
+```

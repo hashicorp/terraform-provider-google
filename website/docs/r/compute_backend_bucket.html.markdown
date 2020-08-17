@@ -85,7 +85,8 @@ The following arguments are supported:
 
 * `cdn_policy` -
   (Optional)
-  Cloud CDN configuration for this Backend Bucket.  Structure is documented below.
+  Cloud CDN configuration for this Backend Bucket.
+  Structure is documented below.
 
 * `description` -
   (Optional)
@@ -117,6 +118,7 @@ The `cdn_policy` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/backendBuckets/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.

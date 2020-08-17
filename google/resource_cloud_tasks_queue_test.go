@@ -4,16 +4,15 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccCloudTasksQueue_update(t *testing.T) {
 	t.Parallel()
 
-	name := "cloudtasksqueuetest-" + acctest.RandString(10)
+	name := "cloudtasksqueuetest-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -42,9 +41,9 @@ func TestAccCloudTasksQueue_update(t *testing.T) {
 func TestAccCloudTasksQueue_update2Basic(t *testing.T) {
 	t.Parallel()
 
-	name := "cloudtasksqueuetest-" + acctest.RandString(10)
+	name := "cloudtasksqueuetest-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

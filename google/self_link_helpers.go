@@ -11,6 +11,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
+// Compare only the resource name of two self links/paths.
+func compareResourceNames(_, old, new string, _ *schema.ResourceData) bool {
+	return GetResourceNameFromSelfLink(old) == GetResourceNameFromSelfLink(new)
+}
+
 // Compare only the relative path of two self links.
 func compareSelfLinkRelativePaths(_, old, new string, _ *schema.ResourceData) bool {
 	oldStripped, err := getRelativePath(old)

@@ -43,20 +43,20 @@ https://cloud.google.com/compute/docs/load-balancing/http/
 ```hcl
 resource "google_compute_global_forwarding_rule" "default" {
   name       = "global-rule"
-  target     = google_compute_target_http_proxy.default.self_link
+  target     = google_compute_target_http_proxy.default.id
   port_range = "80"
 }
 
 resource "google_compute_target_http_proxy" "default" {
   name        = "target-proxy"
   description = "a description"
-  url_map     = google_compute_url_map.default.self_link
+  url_map     = google_compute_url_map.default.id
 }
 
 resource "google_compute_url_map" "default" {
   name            = "url-map-target-proxy"
   description     = "a description"
-  default_service = google_compute_backend_service.default.self_link
+  default_service = google_compute_backend_service.default.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -65,11 +65,11 @@ resource "google_compute_url_map" "default" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = google_compute_backend_service.default.self_link
+    default_service = google_compute_backend_service.default.id
 
     path_rule {
       paths   = ["/*"]
-      service = google_compute_backend_service.default.self_link
+      service = google_compute_backend_service.default.id
     }
   }
 }
@@ -80,7 +80,7 @@ resource "google_compute_backend_service" "default" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_http_health_check.default.self_link]
+  health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
@@ -102,7 +102,7 @@ resource "google_compute_http_health_check" "default" {
 resource "google_compute_global_forwarding_rule" "default" {
   provider              = google-beta
   name                  = "global-rule"
-  target                = google_compute_target_http_proxy.default.self_link
+  target                = google_compute_target_http_proxy.default.id
   port_range            = "80"
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
   ip_address            = "0.0.0.0"
@@ -119,14 +119,14 @@ resource "google_compute_target_http_proxy" "default" {
   provider    = google-beta
   name        = "target-proxy"
   description = "a description"
-  url_map     = google_compute_url_map.default.self_link
+  url_map     = google_compute_url_map.default.id
 }
 
 resource "google_compute_url_map" "default" {
   provider        = google-beta
   name            = "url-map-target-proxy"
   description     = "a description"
-  default_service = google_compute_backend_service.default.self_link
+  default_service = google_compute_backend_service.default.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -135,11 +135,11 @@ resource "google_compute_url_map" "default" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = google_compute_backend_service.default.self_link
+    default_service = google_compute_backend_service.default.id
 
     path_rule {
       paths   = ["/*"]
-      service = google_compute_backend_service.default.self_link
+      service = google_compute_backend_service.default.id
     }
   }
 }
@@ -159,7 +159,7 @@ resource "google_compute_backend_service" "default" {
     max_rate_per_instance = 50
   }
 
-  health_checks = [google_compute_health_check.default.self_link]
+  health_checks = [google_compute_health_check.default.id]
 }
 
 data "google_compute_image" "debian_image" {
@@ -172,7 +172,7 @@ resource "google_compute_instance_group_manager" "igm" {
   provider = google-beta
   name     = "igm-internal"
   version {
-    instance_template = google_compute_instance_template.instance_template.self_link
+    instance_template = google_compute_instance_template.instance_template.id
     name              = "primary"
   }
   base_instance_name = "internal-glb"
@@ -264,14 +264,14 @@ The following arguments are supported:
 
 * `ip_protocol` -
   (Optional)
-  The IP protocol to which this rule applies. Valid options are TCP,
-  UDP, ESP, AH, SCTP or ICMP. When the load balancing scheme is
+  The IP protocol to which this rule applies. When the load balancing scheme is
   INTERNAL_SELF_MANAGED, only TCP is valid.
+  Possible values are `TCP`, `UDP`, `ESP`, `AH`, `SCTP`, and `ICMP`.
 
 * `ip_version` -
   (Optional)
   The IP Version that will be used by this global forwarding rule.
-  Valid options are IPV4 or IPV6.
+  Possible values are `IPV4` and `IPV6`.
 
 * `load_balancing_scheme` -
   (Optional)
@@ -282,6 +282,8 @@ The following arguments are supported:
   External TCP/UDP LB, SSL Proxy)
   NOTE: Currently global forwarding rules cannot be used for INTERNAL
   load balancing.
+  Default value is `EXTERNAL`.
+  Possible values are `EXTERNAL` and `INTERNAL_SELF_MANAGED`.
 
 * `metadata_filters` -
   (Optional)
@@ -298,7 +300,8 @@ The following arguments are supported:
   metadataFilters specified here can be overridden by those specified in
   the UrlMap that this ForwardingRule references.
   metadataFilters only applies to Loadbalancers that have their
-  loadBalancingScheme set to INTERNAL_SELF_MANAGED.  Structure is documented below.
+  loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+  Structure is documented below.
 
 * `port_range` -
   (Optional)
@@ -333,12 +336,14 @@ The `metadata_filters` block supports:
   label in the provided metadata.
   MATCH_ALL - All filterLabels must have matching labels in the
   provided metadata.
+  Possible values are `MATCH_ANY` and `MATCH_ALL`.
 
 * `filter_labels` -
   (Required)
   The list of label value pairs that must match labels in the
   provided metadata based on filterMatchCriteria
-  This list must not be empty and can have at the most 64 entries.  Structure is documented below.
+  This list must not be empty and can have at the most 64 entries.
+  Structure is documented below.
 
 
 The `filter_labels` block supports:
@@ -352,6 +357,13 @@ The `filter_labels` block supports:
   (Required)
   The value that the label must match. The value has a maximum
   length of 1024 characters.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/global/forwardingRules/{{name}}`
+* `self_link` - The URI of the created resource.
 
 
 ## Timeouts

@@ -3,13 +3,20 @@ package google
 import (
 	"fmt"
 	"log"
-	"net/url"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
-	"google.golang.org/api/googleapi"
 )
+
+// Wraps Op.Error in an implementation of built-in Error
+type CommonOpError struct {
+	*cloudresourcemanager.Status
+}
+
+func (e *CommonOpError) Error() string {
+	return fmt.Sprintf("Error code %v, message: %s", e.Code, e.Message)
+}
 
 type Waiter interface {
 	// State returns the current status of the operation.
@@ -58,7 +65,7 @@ func (w *CommonOperationWaiter) State() string {
 
 func (w *CommonOperationWaiter) Error() error {
 	if w != nil && w.Op.Error != nil {
-		return fmt.Errorf("Error code %v, message: %s", w.Op.Error.Code, w.Op.Error.Message)
+		return &CommonOpError{w.Op.Error}
 	}
 	return nil
 }
@@ -103,24 +110,11 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		op, err := w.QueryOp()
 		if err != nil {
-			// Importantly, this error is in the GET to the operation, and isn't an error
-			// with the resource CRUD request itself.
-			notFoundRetryPredicate := func(e error) (bool, string) {
-				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
-					return true, "should retry 404s on a GET of an Operation"
-				}
-				return false, ""
+			// Retry 404 when getting operation (not resource state)
+			if isRetryableError(err, isNotFoundRetryableError("GET operation")) {
+				log.Printf("[DEBUG] Dismissed retryable error on GET operation %q: %s", w.OpName(), err)
+				return nil, "done: false", nil
 			}
-			predicates := []func(e error) (bool, string){
-				notFoundRetryPredicate,
-			}
-			for _, e := range getAllTypes(err, &googleapi.Error{}, &url.Error{}) {
-				if isRetryableError(e, predicates) {
-					log.Printf("[DEBUG] Dismissed error on GET of operation '%v' retryable: %s", w.OpName(), err)
-					return op, "done: false", nil
-				}
-			}
-
 			return nil, "", fmt.Errorf("error while retrieving operation: %s", err)
 		}
 
@@ -131,7 +125,7 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 		if err = w.Error(); err != nil {
 			if w.IsRetryable(err) {
 				log.Printf("[DEBUG] Retrying operation GET based on retryable err: %s", err)
-				return op, w.State(), nil
+				return nil, w.State(), nil
 			}
 			return nil, "", err
 		}
@@ -141,7 +135,7 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 	}
 }
 
-func OperationWait(w Waiter, activity string, timeoutMinutes int) error {
+func OperationWait(w Waiter, activity string, timeout time.Duration, pollInterval time.Duration) error {
 	if OperationDone(w) {
 		if w.Error() != nil {
 			return w.Error()
@@ -150,11 +144,12 @@ func OperationWait(w Waiter, activity string, timeoutMinutes int) error {
 	}
 
 	c := &resource.StateChangeConf{
-		Pending:    w.PendingStates(),
-		Target:     w.TargetStates(),
-		Refresh:    CommonRefreshFunc(w),
-		Timeout:    time.Duration(timeoutMinutes) * time.Minute,
-		MinTimeout: 2 * time.Second,
+		Pending:      w.PendingStates(),
+		Target:       w.TargetStates(),
+		Refresh:      CommonRefreshFunc(w),
+		Timeout:      timeout,
+		MinTimeout:   2 * time.Second,
+		PollInterval: pollInterval,
 	}
 	opRaw, err := c.WaitForState()
 	if err != nil {

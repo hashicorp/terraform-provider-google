@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,13 +27,13 @@ func TestAccComputeBackendService_backendServiceBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendServiceDestroy,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendService_backendServiceBasicExample(context),
@@ -51,12 +50,12 @@ func TestAccComputeBackendService_backendServiceBasicExample(t *testing.T) {
 func testAccComputeBackendService_backendServiceBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_backend_service" "default" {
-  name          = "backend-service%{random_suffix}"
-  health_checks = [google_compute_http_health_check.default.self_link]
+  name          = "tf-test-backend-service%{random_suffix}"
+  health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -64,27 +63,82 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
-func testAccCheckComputeBackendServiceDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_backend_service" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
-		}
+func TestAccComputeBackendService_backendServiceNetworkEndpointExample(t *testing.T) {
+	t.Parallel()
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeBackendService still exists at %s", url)
-		}
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
 	}
 
-	return nil
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_backendServiceNetworkEndpointExample(context),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendService_backendServiceNetworkEndpointExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_global_network_endpoint_group" "external_proxy" {
+  name                  = "tf-test-network-endpoint%{random_suffix}"
+  network_endpoint_type = "INTERNET_FQDN_PORT"
+  default_port          = "443"
+}
+
+resource "google_compute_global_network_endpoint" "proxy" {
+  global_network_endpoint_group = google_compute_global_network_endpoint_group.external_proxy.id
+  fqdn                          = "test.example.com"
+  port                          = google_compute_global_network_endpoint_group.external_proxy.default_port
+}
+
+resource "google_compute_backend_service" "default" {
+  name                            = "tf-test-backend-service%{random_suffix}"
+  enable_cdn                      = true
+  timeout_sec                     = 10
+  connection_draining_timeout_sec = 10
+ 
+  custom_request_headers          = ["host: ${google_compute_global_network_endpoint.proxy.fqdn}"]
+
+  backend {
+    group = google_compute_global_network_endpoint_group.external_proxy.id
+  }
+}
+`, context)
+}
+
+func testAccCheckComputeBackendServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_backend_service" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("ComputeBackendService still exists at %s", url)
+			}
+		}
+
+		return nil
+	}
 }

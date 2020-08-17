@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 )
 
 const maxBackoffSeconds = 30
+const iamPolicyVersion = 3
 
 // These types are implemented per GCP resource type and specify how to do per-resource IAM operations.
 // They are used in the generic Terraform IAM resource definitions
@@ -116,7 +118,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 				}
 				log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
 				if new_p == nil {
-					// https://github.com/terraform-providers/terraform-provider-google/issues/2625
+					// https://github.com/hashicorp/terraform-provider-google/issues/2625
 					fetchBackoff = fetchBackoff * 2
 					continue
 				}
@@ -232,10 +234,21 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindi
 			// <type> is case sensitive
 			// <value> isn't
 			// so let's lowercase the value and leave the type alone
-			pieces := strings.SplitN(m, ":", 2)
-			if len(pieces) > 1 {
-				pieces[1] = strings.ToLower(pieces[1])
+			// since Dec '19 members can be prefixed with "deleted:" to indicate the principal
+			// has been deleted
+			var pieces []string
+			if strings.HasPrefix(m, "deleted:") {
+				pieces = strings.SplitN(m, ":", 3)
+				if len(pieces) > 2 {
+					pieces[2] = strings.ToLower(pieces[2])
+				}
+			} else {
+				pieces = strings.SplitN(m, ":", 2)
+				if len(pieces) > 1 {
+					pieces[1] = strings.ToLower(pieces[1])
+				}
 			}
+
 			m = strings.Join(pieces, ":")
 
 			// Add the member
@@ -253,13 +266,30 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindi
 // Return list of Bindings for a map of role to member sets
 func listFromIamBindingMap(bm map[iamBindingKey]map[string]struct{}) []*cloudresourcemanager.Binding {
 	rb := make([]*cloudresourcemanager.Binding, 0, len(bm))
-	for key, members := range bm {
+	var keys []iamBindingKey
+	for k := range bm {
+		keys = append(keys, k)
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		keyI := keys[i]
+		keyJ := keys[j]
+		return fmt.Sprintf("%s%s", keyI.Role, keyI.Condition.String()) < fmt.Sprintf("%s%s", keyJ.Role, keyJ.Condition.String())
+	})
+	for _, key := range keys {
+		members := bm[key]
 		if len(members) == 0 {
 			continue
 		}
 		b := &cloudresourcemanager.Binding{
 			Role:    key.Role,
 			Members: stringSliceFromGolangSet(members),
+		}
+		if !key.Condition.Empty() {
+			b.Condition = &cloudresourcemanager.Expr{
+				Description: key.Condition.Description,
+				Expression:  key.Condition.Expression,
+				Title:       key.Condition.Title,
+			}
 		}
 		rb = append(rb, b)
 	}

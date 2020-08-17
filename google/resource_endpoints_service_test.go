@@ -2,27 +2,37 @@ package google
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"google.golang.org/api/servicemanagement/v1"
 )
 
 func TestAccEndpointsService_basic(t *testing.T) {
+	// Uses random provider
+	skipIfVcr(t)
 	t.Parallel()
-	random_name := "t-" + acctest.RandString(10)
+	serviceId := "tf-test" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		CheckDestroy: testAccCheckEndpointServiceDestroyProducer(t),
+		Providers:    testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEndpointsService_basic(random_name),
-				Check:  testAccCheckEndpointExistsByName(random_name),
+				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv(), "1"),
+				Check:  testAccCheckEndpointExistsByName(t, serviceId),
+			},
+			{
+				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv(), "2"),
+				Check:  testAccCheckEndpointExistsByName(t, serviceId),
+			},
+			{
+				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv(), "3"),
+				Check:  testAccCheckEndpointExistsByName(t, serviceId),
 			},
 		},
 	})
@@ -30,15 +40,16 @@ func TestAccEndpointsService_basic(t *testing.T) {
 
 func TestAccEndpointsService_grpc(t *testing.T) {
 	t.Parallel()
-	random_name := "t-" + acctest.RandString(10)
+	serviceId := "tf-test" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckEndpointServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEndpointsService_grpc(random_name),
-				Check:  testAccCheckEndpointExistsByName(random_name),
+				Config: testAccEndpointsService_grpc(serviceId, getTestProjectFromEnv()),
+				Check:  testAccCheckEndpointExistsByName(t, serviceId),
 			},
 		},
 	})
@@ -96,18 +107,18 @@ func TestEndpointsService_grpcMigrateState(t *testing.T) {
 	}
 }
 
-func testAccEndpointsService_basic(random_name string) string {
+func testAccEndpointsService_basic(serviceId, project, rev string) string {
 	return fmt.Sprintf(`
 resource "google_endpoints_service" "endpoints_service" {
-  service_name   = "%s.endpoints.%s.cloud.goog"
-  project        = "%s"
+  service_name   = "%[1]s.endpoints.%[2]s.cloud.goog"
+  project        = "%[2]s"
   openapi_config = <<EOF
 swagger: "2.0"
 info:
   description: "A simple Google Cloud Endpoints API example."
-  title: "Endpoints Example"
+  title: "Endpoints Example, rev. %[3]s"
   version: "1.0.0"
-host: "%s.endpoints.%s.cloud.goog"
+host: "%[1]s.endpoints.%[2]s.cloud.goog"
 basePath: "/"
 consumes:
 - "application/json"
@@ -144,18 +155,25 @@ definitions:
 EOF
 
 }
-`, random_name, getTestProjectFromEnv(), getTestProjectFromEnv(), random_name, getTestProjectFromEnv())
+
+resource "random_id" "foo" {
+  keepers = {
+    config_id = google_endpoints_service.endpoints_service.config_id
+  }
+  byte_length = 8
+}
+`, serviceId, project, rev)
 }
 
-func testAccEndpointsService_grpc(random_name string) string {
+func testAccEndpointsService_grpc(serviceId, project string) string {
 	return fmt.Sprintf(`
 resource "google_endpoints_service" "endpoints_service" {
-  service_name = "%s.endpoints.%s.cloud.goog"
-  project      = "%s"
+  service_name = "%[1]s.endpoints.%[2]s.cloud.goog"
+  project      = "%[2]s"
   grpc_config  = <<EOF
 type: google.api.Service
 config_version: 3
-name: %s.endpoints.%s.cloud.goog
+name: %[1]s.endpoints.%[2]s.cloud.goog
 usage:
   rules:
   - selector: endpoints.examples.bookstore.Bookstore.ListShelves
@@ -164,21 +182,49 @@ EOF
 
   protoc_output_base64 = filebase64("test-fixtures/test_api_descriptor.pb")
 }
-`, random_name, getTestProjectFromEnv(), getTestProjectFromEnv(), random_name, getTestProjectFromEnv())
+`, serviceId, project)
 }
 
-func testAccCheckEndpointExistsByName(random_name string) resource.TestCheckFunc {
+func testAccCheckEndpointExistsByName(t *testing.T, serviceId string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
-		servicesService := servicemanagement.NewServicesService(config.clientServiceMan)
-		service, err := servicesService.GetConfig(fmt.Sprintf("%s.endpoints.%s.cloud.goog", random_name, config.Project)).Do()
+		config := googleProviderConfig(t)
+		service, err := config.clientServiceMan.Services.GetConfig(
+			fmt.Sprintf("%s.endpoints.%s.cloud.goog", serviceId, config.Project)).Do()
 		if err != nil {
 			return err
 		}
 		if service != nil {
 			return nil
 		} else {
-			return fmt.Errorf("Service %s.endpoints.%s.cloud.goog does not seem to exist.", random_name, config.Project)
+			return fmt.Errorf("Service %s.endpoints.%s.cloud.goog does not seem to exist.", serviceId, config.Project)
 		}
+	}
+}
+
+func testAccCheckEndpointServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
+
+		for name, rs := range s.RootModule().Resources {
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+			if rs.Type != "google_endpoints_service" {
+				continue
+			}
+
+			serviceName := rs.Primary.Attributes["service_name"]
+			service, err := config.clientServiceMan.Services.GetConfig(serviceName).Do()
+			if err != nil {
+				// ServiceManagement returns 403 if service doesn't exist.
+				if !isGoogleApiErrorWithCode(err, 403) {
+					return err
+				}
+			}
+			if service != nil {
+				return fmt.Errorf("expected service %q to have been destroyed, got %+v", service.Name, service)
+			}
+		}
+		return nil
 	}
 }

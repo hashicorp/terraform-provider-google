@@ -1,0 +1,3 @@
+```release-note:bug
+Fix markdown for enum values
+```

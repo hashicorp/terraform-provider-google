@@ -1,0 +1,9 @@
+```release-note:enhancement
+container: added update support to `google_container_cluster`'s `release_channel` field (`google-beta` only)
+```
+```release-note:enhancement
+container: added the ability to unspecify `google_container_cluster`'s `min_master_version` field
+```
+```release-note:enhancement
+container: added `release_channel_default_version` to `data.google_container_engine_versions`, allowing you to find the default version for a release channel (`google-beta` only)
+```

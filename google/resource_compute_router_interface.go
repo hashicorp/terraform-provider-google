@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"strings"
 
@@ -20,18 +21,23 @@ func resourceComputeRouterInterface() *schema.Resource {
 			State: resourceComputeRouterInterfaceImportState,
 		},
 
-		CustomizeDiff: routerInterfaceDiffOneOfCheck,
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `A unique name for the interface, required by GCE. Changing this forces a new interface to be created.`,
 			},
 			"router": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the router this interface will be attached to. Changing this forces a new interface to be created.`,
 			},
 			"vpn_tunnel": {
 				Type:             schema.TypeString,
@@ -39,6 +45,8 @@ func resourceComputeRouterInterface() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				AtLeastOneOf:     []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
+				Description:      `The name or resource link to the VPN tunnel this interface will be linked to. Changing this forces a new interface to be created. Only one of vpn_tunnel and interconnect_attachment can be specified.`,
 			},
 			"interconnect_attachment": {
 				Type:             schema.TypeString,
@@ -46,24 +54,30 @@ func resourceComputeRouterInterface() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				AtLeastOneOf:     []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
+				Description:      `The name or resource link to the VLAN interconnect for this interface. Changing this forces a new interface to be created. Only one of vpn_tunnel and interconnect_attachment can be specified.`,
 			},
 			"ip_range": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				AtLeastOneOf: []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
+				Description:  `IP address and range of the interface. The IP range must be in the RFC3927 link-local IP space. Changing this forces a new interface to be created.`,
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which this interface's router belongs. If it is not provided, the provider project is used. Changing this forces a new interface to be created.`,
 			},
 
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The region this interface's router sits in. If not specified, the project region will be used. Changing this forces a new interface to be created.`,
 			},
 		},
 	}
@@ -145,7 +159,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
-	err = computeOperationWait(config, op, project, "Patching router")
+	err = computeOperationWaitTime(config, op, project, "Patching router", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
@@ -270,7 +284,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 
-	err = computeOperationWait(config, op, project, "Patching router")
+	err = computeOperationWaitTime(config, op, project, "Patching router", d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
 	}
@@ -290,14 +304,4 @@ func resourceComputeRouterInterfaceImportState(d *schema.ResourceData, meta inte
 	d.Set("name", parts[2])
 
 	return []*schema.ResourceData{d}, nil
-}
-
-func routerInterfaceDiffOneOfCheck(d *schema.ResourceDiff, meta interface{}) error {
-	_, ipOk := d.GetOk("ip_range")
-	_, vpnOk := d.GetOk("vpn_tunnel")
-	_, icOk := d.GetOk("interconnect_attachment")
-	if !(ipOk || vpnOk || icOk) {
-		return fmt.Errorf("Each interface requires one linked resource or an ip range, or both.")
-	}
-	return nil
 }

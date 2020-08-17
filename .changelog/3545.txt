@@ -1,0 +1,3 @@
+```release-note:enhancement
+appengine: added `handlers` to `google_flexible_app_version`
+```

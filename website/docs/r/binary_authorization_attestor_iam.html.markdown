@@ -17,11 +17,11 @@ layout: "google"
 page_title: "Google: google_binary_authorization_attestor_iam"
 sidebar_current: "docs-google-binary-authorization-attestor-iam"
 description: |-
-  Collection of resources to manage IAM policy for BinaryAuthorizationAttestor
+  Collection of resources to manage IAM policy for Binary Authorization Attestor
 ---
 
-# IAM policy for BinaryAuthorizationAttestor
-Three different resources help you manage your IAM policy for BinaryAuthorization Attestor. Each of these resources serves a different use case:
+# IAM policy for Binary Authorization Attestor
+Three different resources help you manage your IAM policy for Binary Authorization Attestor. Each of these resources serves a different use case:
 
 * `google_binary_authorization_attestor_iam_policy`: Authoritative. Sets the IAM policy for the attestor and replaces any existing policy already attached.
 * `google_binary_authorization_attestor_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the attestor are preserved.
@@ -37,42 +37,42 @@ Three different resources help you manage your IAM policy for BinaryAuthorizatio
 
 ```hcl
 data "google_iam_policy" "admin" {
-	binding {
-		role = "roles/viewer"
-		members = [
-			"user:jane@example.com",
-		]
-	}
+  binding {
+    role = "roles/viewer"
+    members = [
+      "user:jane@example.com",
+    ]
+  }
 }
 
-resource "google_binary_authorization_attestor_iam_policy" "editor" {
-	project = "${google_binary_authorization_attestor.attestor.project}"
-	attestor = "${google_binary_authorization_attestor.attestor.name}"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+resource "google_binary_authorization_attestor_iam_policy" "policy" {
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
 ## google\_binary\_authorization\_attestor\_iam\_binding
 
 ```hcl
-resource "google_binary_authorization_attestor_iam_binding" "editor" {
-	project = "${google_binary_authorization_attestor.attestor.project}"
-	attestor = "${google_binary_authorization_attestor.attestor.name}"
-	role = "roles/viewer"
-	members = [
-		"user:jane@example.com",
-	]
+resource "google_binary_authorization_attestor_iam_binding" "binding" {
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
+  role = "roles/viewer"
+  members = [
+    "user:jane@example.com",
+  ]
 }
 ```
 
 ## google\_binary\_authorization\_attestor\_iam\_member
 
 ```hcl
-resource "google_binary_authorization_attestor_iam_member" "editor" {
-	project = "${google_binary_authorization_attestor.attestor.project}"
-	attestor = "${google_binary_authorization_attestor.attestor.name}"
-	role = "roles/viewer"
-	member = "user:jane@example.com"
+resource "google_binary_authorization_attestor_iam_member" "member" {
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
+  role = "roles/viewer"
+  member = "user:jane@example.com"
 }
 ```
 
@@ -118,11 +118,11 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-BinaryAuthorization attestor IAM resources can be imported using the resource identifiers, role, and member.
+Binary Authorization attestor IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_binary_authorization_attestor_iam_member.editor "projects/{{project}}/attestors/{{attestor}} roles/viewer jane@example.com"
+$ terraform import google_binary_authorization_attestor_iam_member.editor "projects/{{project}}/attestors/{{attestor}} roles/viewer user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
@@ -137,6 +137,9 @@ $ terraform import google_binary_authorization_attestor_iam_policy.editor projec
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
 
 ## User Project Overrides
 

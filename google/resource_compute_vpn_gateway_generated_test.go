@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,13 +27,13 @@ func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeVpnGatewayDestroy,
+		CheckDestroy: testAccCheckComputeVpnGatewayDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeVpnGateway_targetVpnGatewayBasicExample(context),
@@ -52,7 +51,7 @@ func testAccComputeVpnGateway_targetVpnGatewayBasicExample(context map[string]in
 	return Nprintf(`
 resource "google_compute_vpn_gateway" "target_gateway" {
   name    = "vpn1%{random_suffix}"
-  network = google_compute_network.network1.self_link
+  network = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
@@ -60,30 +59,30 @@ resource "google_compute_network" "network1" {
 }
 
 resource "google_compute_address" "vpn_static_ip" {
-  name = "vpn-static-ip%{random_suffix}"
+  name = "tf-test-vpn-static-ip%{random_suffix}"
 }
 
 resource "google_compute_forwarding_rule" "fr_esp" {
-  name        = "fr-esp%{random_suffix}"
+  name        = "tf-test-fr-esp%{random_suffix}"
   ip_protocol = "ESP"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
-  name        = "fr-udp500%{random_suffix}"
+  name        = "tf-test-fr-udp500%{random_suffix}"
   ip_protocol = "UDP"
   port_range  = "500"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
-  name        = "fr-udp4500%{random_suffix}"
+  name        = "tf-test-fr-udp4500%{random_suffix}"
   ip_protocol = "UDP"
   port_range  = "4500"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_vpn_tunnel" "tunnel1" {
@@ -91,7 +90,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
-  target_vpn_gateway = google_compute_vpn_gateway.target_gateway.self_link
+  target_vpn_gateway = google_compute_vpn_gateway.target_gateway.id
 
   depends_on = [
     google_compute_forwarding_rule.fr_esp,
@@ -106,32 +105,34 @@ resource "google_compute_route" "route1" {
   dest_range = "15.0.0.0/24"
   priority   = 1000
 
-  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.self_link
+  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.id
 }
 `, context)
 }
 
-func testAccCheckComputeVpnGatewayDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_vpn_gateway" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckComputeVpnGatewayDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_vpn_gateway" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("ComputeVpnGateway still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeVpnGateway still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

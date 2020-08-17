@@ -49,7 +49,7 @@ resource "google_compute_autoscaler" "default" {
 
   name   = "my-autoscaler"
   zone   = "us-central1-f"
-  target = google_compute_instance_group_manager.default.self_link
+  target = google_compute_instance_group_manager.default.id
 
   autoscaling_policy {
     max_replicas    = 5
@@ -74,7 +74,7 @@ resource "google_compute_instance_template" "default" {
   tags = ["foo", "bar"]
 
   disk {
-    source_image = data.google_compute_image.debian_9.self_link
+    source_image = data.google_compute_image.debian_9.id
   }
 
   network_interface {
@@ -103,11 +103,11 @@ resource "google_compute_instance_group_manager" "default" {
   zone = "us-central1-f"
 
   version {
-    instance_template = google_compute_instance_template.default.self_link
+    instance_template = google_compute_instance_template.default.id
     name              = "primary"
   }
 
-  target_pools       = [google_compute_target_pool.default.self_link]
+  target_pools       = [google_compute_target_pool.default.id]
   base_instance_name = "autoscaler-sample"
 }
 
@@ -135,7 +135,7 @@ provider "google-beta" {
 resource "google_compute_autoscaler" "foobar" {
   name   = "my-autoscaler"
   zone   = "us-central1-f"
-  target = google_compute_instance_group_manager.foobar.self_link
+  target = google_compute_instance_group_manager.foobar.id
 
   autoscaling_policy {
     max_replicas    = 5
@@ -156,7 +156,7 @@ resource "google_compute_instance_template" "foobar" {
   tags = ["foo", "bar"]
 
   disk {
-    source_image = data.google_compute_image.debian_9.self_link
+    source_image = data.google_compute_image.debian_9.id
   }
 
   network_interface {
@@ -181,11 +181,11 @@ resource "google_compute_instance_group_manager" "foobar" {
   zone = "us-central1-f"
 
   version {
-    instance_template  = google_compute_instance_template.foobar.self_link
+    instance_template  = google_compute_instance_template.foobar.id
     name               = "primary"
   }
 
-  target_pools       = [google_compute_target_pool.foobar.self_link]
+  target_pools       = [google_compute_target_pool.foobar.id]
   base_instance_name = "foobar"
 }
 
@@ -214,7 +214,8 @@ The following arguments are supported:
   define one or more of the policies for an autoscaler: cpuUtilization,
   customMetricUtilizations, and loadBalancingUtilization.
   If none of these are specified, the default will be to autoscale based
-  on cpuUtilization to 0.6 or 60%.  Structure is documented below.
+  on cpuUtilization to 0.6 or 60%.
+  Structure is documented below.
 
 * `target` -
   (Required)
@@ -249,21 +250,28 @@ The `autoscaling_policy` block supports:
   instance may take to initialize. To do this, create an instance
   and time the startup process.
 
+* `mode` -
+  (Optional)
+  Defines operating mode for this policy.
+  Default value is `ON`.
+  Possible values are `OFF`, `ONLY_UP`, and `ON`.
+
 * `cpu_utilization` -
   (Optional)
   Defines the CPU utilization policy that allows the autoscaler to
   scale based on the average CPU utilization of a managed instance
-  group.  Structure is documented below.
+  group.
+  Structure is documented below.
 
 * `metric` -
   (Optional)
-  Defines the CPU utilization policy that allows the autoscaler to
-  scale based on the average CPU utilization of a managed instance
-  group.  Structure is documented below.
+  Configuration parameters of autoscaling based on a custom metric.
+  Structure is documented below.
 
 * `load_balancing_utilization` -
   (Optional)
-  Configuration parameters of autoscaling based on a load balancer.  Structure is documented below.
+  Configuration parameters of autoscaling based on a load balancer.
+  Structure is documented below.
 
 
 The `cpu_utilization` block supports:
@@ -304,8 +312,8 @@ The `metric` block supports:
 * `type` -
   (Optional)
   Defines how target utilization value is expressed for a
-  Stackdriver Monitoring metric. Either GAUGE, DELTA_PER_SECOND,
-  or DELTA_PER_MINUTE.
+  Stackdriver Monitoring metric.
+  Possible values are `GAUGE`, `DELTA_PER_SECOND`, and `DELTA_PER_MINUTE`.
 
 The `load_balancing_utilization` block supports:
 
@@ -334,6 +342,7 @@ The `load_balancing_utilization` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.

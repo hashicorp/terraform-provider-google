@@ -194,7 +194,7 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating NodeTemplate",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -228,25 +228,25 @@ func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeNodeTemplateCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeNodeTemplateCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("description", flattenComputeNodeTemplateDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeNodeTemplateDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("name", flattenComputeNodeTemplateName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeNodeTemplateName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("node_affinity_labels", flattenComputeNodeTemplateNodeAffinityLabels(res["nodeAffinityLabels"], d)); err != nil {
+	if err := d.Set("node_affinity_labels", flattenComputeNodeTemplateNodeAffinityLabels(res["nodeAffinityLabels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("node_type", flattenComputeNodeTemplateNodeType(res["nodeType"], d)); err != nil {
+	if err := d.Set("node_type", flattenComputeNodeTemplateNodeType(res["nodeType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("node_type_flexibility", flattenComputeNodeTemplateNodeTypeFlexibility(res["nodeTypeFlexibility"], d)); err != nil {
+	if err := d.Set("node_type_flexibility", flattenComputeNodeTemplateNodeTypeFlexibility(res["nodeTypeFlexibility"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("region", flattenComputeNodeTemplateRegion(res["region"], d)); err != nil {
+	if err := d.Set("region", flattenComputeNodeTemplateRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -279,7 +279,7 @@ func resourceComputeNodeTemplateDelete(d *schema.ResourceData, meta interface{})
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting NodeTemplate",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -310,27 +310,27 @@ func resourceComputeNodeTemplateImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNodeTemplateCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateNodeAffinityLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeAffinityLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateNodeType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateNodeTypeFlexibility(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeTypeFlexibility(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -340,26 +340,26 @@ func flattenComputeNodeTemplateNodeTypeFlexibility(v interface{}, d *schema.Reso
 	}
 	transformed := make(map[string]interface{})
 	transformed["cpus"] =
-		flattenComputeNodeTemplateNodeTypeFlexibilityCpus(original["cpus"], d)
+		flattenComputeNodeTemplateNodeTypeFlexibilityCpus(original["cpus"], d, config)
 	transformed["memory"] =
-		flattenComputeNodeTemplateNodeTypeFlexibilityMemory(original["memory"], d)
+		flattenComputeNodeTemplateNodeTypeFlexibilityMemory(original["memory"], d, config)
 	transformed["local_ssd"] =
-		flattenComputeNodeTemplateNodeTypeFlexibilityLocalSsd(original["localSsd"], d)
+		flattenComputeNodeTemplateNodeTypeFlexibilityLocalSsd(original["localSsd"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeNodeTemplateNodeTypeFlexibilityCpus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeTypeFlexibilityCpus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateNodeTypeFlexibilityMemory(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeTypeFlexibilityMemory(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateNodeTypeFlexibilityLocalSsd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeTypeFlexibilityLocalSsd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateRegion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

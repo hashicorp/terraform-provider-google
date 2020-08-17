@@ -12,7 +12,7 @@ description: |-
 Creates a new bucket in Google cloud storage service (GCS).
 Once a bucket has been created, its location can't be changed.
 [ACLs](https://cloud.google.com/storage/docs/access-control/lists) can be applied
-using the [`google_storage_bucket_acl` resource](/docs/providers/google/r/storage_bucket_acl.html).
+using the [`google_storage_bucket_acl`](/docs/providers/google/r/storage_bucket_acl.html) resource.
 
 For more information see
 [the official documentation](https://cloud.google.com/storage/docs/overview)
@@ -23,22 +23,47 @@ and
 determined which will require enabling the compute api.
 
 
-## Example Usage
-
-Example creating a private bucket in standard storage, in the EU region.
+## Example Usage - creating a private bucket in standard storage, in the EU region. Bucket configured as static website and CORS configurations
 
 ```hcl
-resource "google_storage_bucket" "image-store" {
-  name     = "image-store-bucket"
-  location = "EU"
+resource "google_storage_bucket" "static-site" {
+  name          = "image-store.com"
+  location      = "EU"
+  force_destroy = true
+
+  bucket_policy_only = true
 
   website {
     main_page_suffix = "index.html"
     not_found_page   = "404.html"
   }
+  cors {
+    origin          = ["http://image-store.com"]
+    method          = ["GET", "HEAD", "PUT", "POST", "DELETE"]
+    response_header = ["*"]
+    max_age_seconds = 3600
+  }
 }
 ```
 
+## Example Usage - Life cycle settings for storage bucket objects
+
+```hcl
+resource "google_storage_bucket" "auto-expire" {
+  name          = "auto-expiring-bucket"
+  location      = "US"
+  force_destroy = true
+
+  lifecycle_rule {
+    condition {
+      age = "3"
+    }
+    action {
+      type = "Delete"
+    }
+  }
+}
+```
 ## Argument Reference
 
 The following arguments are supported:
@@ -56,7 +81,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `storage_class` - (Optional, Default: 'STANDARD') The [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of the new bucket. Supported values include: `STANDARD`, `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`.
+* `storage_class` - (Optional, Default: 'STANDARD') The [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of the new bucket. Supported values include: `STANDARD`, `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`.
 
 * `lifecycle_rule` - (Optional) The bucket's [Lifecycle Rules](https://cloud.google.com/storage/docs/lifecycle#configuration) configuration. Multiple blocks of this type are permitted. Structure is documented below.
 
@@ -88,9 +113,9 @@ The `action` block supports:
 
 * `type` - The type of the action of this Lifecycle Rule. Supported values include: `Delete` and `SetStorageClass`.
 
-* `storage_class` - (Required if action type is `SetStorageClass`) The target [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects affected by this Lifecycle Rule. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`.
+* `storage_class` - (Required if action type is `SetStorageClass`) The target [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects affected by this Lifecycle Rule. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`.
 
-The `condition` block supports the following elements, and requires at least one to be defined:
+The `condition` block supports the following elements, and requires at least one to be defined. If you specify multiple conditions in a rule, an object has to match all of the conditions for the action to be taken:
 
 * `age` - (Optional) Minimum age of an object in days to satisfy this condition.
 
@@ -98,7 +123,7 @@ The `condition` block supports the following elements, and requires at least one
 
 * `with_state` - (Optional) Match to live and/or archived objects. Unversioned buckets have only live objects. Supported values include: `"LIVE"`, `"ARCHIVED"`, `"ANY"`.
 
-* `matches_storage_class` - (Optional) [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects to satisfy this condition. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `STANDARD`, `DURABLE_REDUCED_AVAILABILITY`.
+* `matches_storage_class` - (Optional) [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects to satisfy this condition. Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`, `STANDARD`, `DURABLE_REDUCED_AVAILABILITY`.
 
 * `num_newer_versions` - (Optional) Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition.
 
@@ -106,7 +131,7 @@ The `versioning` block supports:
 
 * `enabled` - (Required) While set to `true`, versioning is fully enabled for this bucket.
 
-The `website` block supports:
+The `website` block supports the following elements, and requires at least one to be defined:
 
 * `main_page_suffix` - (Optional) Behaves as the bucket's directory index where
     missing objects are treated as potential directories.
@@ -128,7 +153,7 @@ The `retention_policy` block supports:
 
 * `is_locked` - (Optional) If set to `true`, the bucket will be [locked](https://cloud.google.com/storage/docs/using-bucket-lock#lock-bucket) and permanently restrict edits to the bucket's retention policy.  Caution: Locking a bucket is an irreversible action.
 
-* `retention_period` - (Optional) The period of time, in seconds, that objects in the bucket must be retained and cannot be deleted, overwritten, or archived. The value must be less than 3,155,760,000 seconds.
+* `retention_period` - (Optional) The period of time, in seconds, that objects in the bucket must be retained and cannot be deleted, overwritten, or archived. The value must be less than 2,147,483,647 seconds.
 
 The `logging` block supports:
 
@@ -170,4 +195,3 @@ $ terraform import google_storage_bucket.image-store tf-test-project/image-store
 `false` in state. If you've set it to `true` in config, run `terraform apply` to
 update the value set in state. If you delete this resource before updating the
 value, objects in the bucket will not be destroyed.
-

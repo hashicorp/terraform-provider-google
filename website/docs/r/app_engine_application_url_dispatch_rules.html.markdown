@@ -92,7 +92,8 @@ The following arguments are supported:
 
 * `dispatch_rules` -
   (Required)
-  Rules to match an HTTP request and dispatch that request to a service.  Structure is documented below.
+  Rules to match an HTTP request and dispatch that request to a service.
+  Structure is documented below.
 
 
 The `dispatch_rules` block supports:
@@ -118,6 +119,12 @@ The `dispatch_rules` block supports:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}`
 
 
 ## Timeouts

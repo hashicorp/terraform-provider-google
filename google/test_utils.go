@@ -112,6 +112,10 @@ func checkDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 				continue
 			}
 			if dsAttr[k] != rsAttr[k] {
+				// ignore data sources where an empty list is being compared against a null list.
+				if k[len(k)-1:] == "#" && (dsAttr[k] == "" || dsAttr[k] == "0") && (rsAttr[k] == "" || rsAttr[k] == "0") {
+					continue
+				}
 				errMsg += fmt.Sprintf("%s is %s; want %s\n", k, dsAttr[k], rsAttr[k])
 			}
 		}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -33,12 +32,12 @@ func TestAccLoggingProjectExclusion(t *testing.T) {
 }
 
 func testAccLoggingProjectExclusion_basic(t *testing.T) {
-	exclusionName := "tf-test-exclusion-" + acctest.RandString(10)
+	exclusionName := "tf-test-exclusion-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectExclusionDestroy,
+		CheckDestroy: testAccCheckLoggingProjectExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectExclusion_basicCfg(exclusionName),
@@ -53,12 +52,12 @@ func testAccLoggingProjectExclusion_basic(t *testing.T) {
 }
 
 func testAccLoggingProjectExclusion_disablePreservesFilter(t *testing.T) {
-	exclusionName := "tf-test-exclusion-" + acctest.RandString(10)
+	exclusionName := "tf-test-exclusion-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectExclusionDestroy,
+		CheckDestroy: testAccCheckLoggingProjectExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectExclusion_basicCfg(exclusionName),
@@ -81,12 +80,12 @@ func testAccLoggingProjectExclusion_disablePreservesFilter(t *testing.T) {
 }
 
 func testAccLoggingProjectExclusion_update(t *testing.T) {
-	exclusionName := "tf-test-exclusion-" + acctest.RandString(10)
+	exclusionName := "tf-test-exclusion-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectExclusionDestroy,
+		CheckDestroy: testAccCheckLoggingProjectExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectExclusion_basicCfg(exclusionName),
@@ -109,13 +108,13 @@ func testAccLoggingProjectExclusion_update(t *testing.T) {
 }
 
 func testAccLoggingProjectExclusion_multiple(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectExclusionDestroy,
+		CheckDestroy: testAccCheckLoggingProjectExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingProjectExclusion_multipleCfg(),
+				Config: testAccLoggingProjectExclusion_multipleCfg("tf-test-exclusion-" + randString(t, 10)),
 			},
 			{
 				ResourceName:      "google_logging_project_exclusion.basic0",
@@ -136,23 +135,25 @@ func testAccLoggingProjectExclusion_multiple(t *testing.T) {
 	})
 }
 
-func testAccCheckLoggingProjectExclusionDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckLoggingProjectExclusionDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_logging_project_exclusion" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_logging_project_exclusion" {
+				continue
+			}
+
+			attributes := rs.Primary.Attributes
+
+			_, err := config.clientLogging.Projects.Exclusions.Get(attributes["id"]).Do()
+			if err == nil {
+				return fmt.Errorf("project exclusion %s still exists", attributes["id"])
+			}
 		}
 
-		attributes := rs.Primary.Attributes
-
-		_, err := config.clientLogging.Projects.Exclusions.Get(attributes["id"]).Do()
-		if err == nil {
-			return fmt.Errorf("project exclusion %s still exists", attributes["id"])
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccLoggingProjectExclusion_basicCfg(name string) string {
@@ -186,16 +187,16 @@ resource "google_logging_project_exclusion" "basic" {
 `, name, getTestProjectFromEnv())
 }
 
-func testAccLoggingProjectExclusion_multipleCfg() string {
+func testAccLoggingProjectExclusion_multipleCfg(exclusionName string) string {
 	s := ""
 	for i := 0; i < 3; i++ {
 		s += fmt.Sprintf(`
 resource "google_logging_project_exclusion" "basic%d" {
-	name = "%s"
+	name = "%s%d"
 	description = "Basic Project Logging Exclusion"
 	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
-`, i, "tf-test-exclusion-"+acctest.RandString(10), getTestProjectFromEnv())
+`, i, exclusionName, i, getTestProjectFromEnv())
 	}
 	return s
 }

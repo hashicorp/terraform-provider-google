@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1"
 )
 
@@ -120,14 +121,28 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	srv := d.Get("service").(string)
-	err = BatchRequestEnableServices(map[string]struct{}{srv: {}}, project, d, config)
-	if err != nil {
-		return err
-	}
-
 	id, err := replaceVars(d, config, "{{project}}/{{service}}")
 	if err != nil {
 		return fmt.Errorf("unable to construct ID: %s", err)
+	}
+
+	// Check if the service has already been enabled
+	servicesRaw, err := BatchRequestReadServices(project, d, config)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Project Service %s", d.Id()))
+	}
+	servicesList := servicesRaw.(map[string]struct{})
+	if _, ok := servicesList[srv]; ok {
+		log.Printf("[DEBUG] service %s was already found to be enabled in project %s", srv, project)
+		d.SetId(id)
+		d.Set("project", project)
+		d.Set("service", srv)
+		return nil
+	}
+
+	err = BatchRequestEnableService(srv, project, d, config)
+	if err != nil {
+		return err
 	}
 	d.SetId(id)
 	return resourceGoogleProjectServiceRead(d, meta)
@@ -140,7 +155,19 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	srv := d.Get("service").(string)
+
+	// Verify project for services still exists
+	p, err := config.clientResourceManager.Projects.Get(project).Do()
+	if err == nil && p.LifecycleState == "DELETE_REQUESTED" {
+		// Construct a 404 error for handleNotFoundError
+		err = &googleapi.Error{
+			Code:    404,
+			Message: "Project deletion was requested",
+		}
+	}
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Project Service %s", d.Id()))
+	}
 
 	servicesRaw, err := BatchRequestReadServices(project, d, config)
 	if err != nil {
@@ -148,6 +175,7 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 	}
 	servicesList := servicesRaw.(map[string]struct{})
 
+	srv := d.Get("service").(string)
 	if _, ok := servicesList[srv]; ok {
 		d.Set("project", project)
 		d.Set("service", srv)
@@ -201,7 +229,7 @@ func disableServiceUsageProjectService(service, project string, d *schema.Resour
 			return err
 		}
 		// Wait for the operation to complete
-		waitErr := serviceUsageOperationWait(config, sop, "api to disable")
+		waitErr := serviceUsageOperationWait(config, sop, project, "api to disable", d.Timeout(schema.TimeoutDelete))
 		if waitErr != nil {
 			return waitErr
 		}

@@ -135,7 +135,7 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instance.ShieldedVmConfig))
+	err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instance.ShieldedInstanceConfig))
 	if err != nil {
 		return err
 	}
@@ -153,6 +153,7 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 	d.Set("instance_id", fmt.Sprintf("%d", instance.Id))
 	d.Set("project", project)
 	d.Set("zone", GetResourceNameFromSelfLink(instance.Zone))
+	d.Set("current_status", instance.Status)
 	d.Set("name", instance.Name)
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, instance.Zone, instance.Name))
 	return nil

@@ -84,6 +84,7 @@ The following arguments are supported:
   of this network in the same region as the router. If set to `GLOBAL`,
   this network's cloud routers will advertise routes with all
   subnetworks of this network, across regions.
+  Possible values are `REGIONAL` and `GLOBAL`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -95,6 +96,7 @@ immediately after network creation. Defaults to `false`.
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/networks/{{name}}`
 
 * `gateway_ipv4` -
   The gateway address for default routing out of the network. This value

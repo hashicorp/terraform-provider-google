@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/storage/v1"
@@ -22,20 +21,20 @@ func TestAccStorageNotification_basic(t *testing.T) {
 	skipIfEnvNotSet(t, "GOOGLE_PROJECT")
 
 	var notification storage.Notification
-	bucketName := testBucketName()
-	topicName := fmt.Sprintf("tf-pstopic-test-%d", acctest.RandInt())
+	bucketName := testBucketName(t)
+	topicName := fmt.Sprintf("tf-pstopic-test-%d", randInt(t))
 	topic := fmt.Sprintf("//pubsub.googleapis.com/projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccStorageNotificationDestroy,
+		CheckDestroy: testAccStorageNotificationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageNotificationBasic(bucketName, topicName, topic),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageNotificationExists(
-						"google_storage_notification.notification", &notification),
+						t, "google_storage_notification.notification", &notification),
 					resource.TestCheckResourceAttr(
 						"google_storage_notification.notification", "bucket", bucketName),
 					resource.TestCheckResourceAttr(
@@ -66,22 +65,22 @@ func TestAccStorageNotification_withEventsAndAttributes(t *testing.T) {
 	skipIfEnvNotSet(t, "GOOGLE_PROJECT")
 
 	var notification storage.Notification
-	bucketName := testBucketName()
-	topicName := fmt.Sprintf("tf-pstopic-test-%d", acctest.RandInt())
+	bucketName := testBucketName(t)
+	topicName := fmt.Sprintf("tf-pstopic-test-%d", randInt(t))
 	topic := fmt.Sprintf("//pubsub.googleapis.com/projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
 	eventType1 := "OBJECT_FINALIZE"
 	eventType2 := "OBJECT_ARCHIVE"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccStorageNotificationDestroy,
+		CheckDestroy: testAccStorageNotificationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageNotificationOptionalEventsAttributes(bucketName, topicName, topic, eventType1, eventType2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageNotificationExists(
-						"google_storage_notification.notification", &notification),
+						t, "google_storage_notification.notification", &notification),
 					resource.TestCheckResourceAttr(
 						"google_storage_notification.notification", "bucket", bucketName),
 					resource.TestCheckResourceAttr(
@@ -103,26 +102,28 @@ func TestAccStorageNotification_withEventsAndAttributes(t *testing.T) {
 	})
 }
 
-func testAccStorageNotificationDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccStorageNotificationDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_storage_notification" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_storage_notification" {
+				continue
+			}
+
+			bucket, notificationID := resourceStorageNotificationParseID(rs.Primary.ID)
+
+			_, err := config.clientStorage.Notifications.Get(bucket, notificationID).Do()
+			if err == nil {
+				return fmt.Errorf("Notification configuration still exists")
+			}
 		}
 
-		bucket, notificationID := resourceStorageNotificationParseID(rs.Primary.ID)
-
-		_, err := config.clientStorage.Notifications.Get(bucket, notificationID).Do()
-		if err == nil {
-			return fmt.Errorf("Notification configuration still exists")
-		}
+		return nil
 	}
-
-	return nil
 }
 
-func testAccCheckStorageNotificationExists(resource string, notification *storage.Notification) resource.TestCheckFunc {
+func testAccCheckStorageNotificationExists(t *testing.T, resource string, notification *storage.Notification) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource]
 		if !ok {
@@ -133,7 +134,7 @@ func testAccCheckStorageNotificationExists(resource string, notification *storag
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		bucket, notificationID := resourceStorageNotificationParseID(rs.Primary.ID)
 

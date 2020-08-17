@@ -1,0 +1,4 @@
+```release-note:bug
+bigquery: fixed issue with `use_legacy_sql` not being set to `false`.
+
+```

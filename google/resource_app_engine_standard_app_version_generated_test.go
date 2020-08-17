@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -29,13 +28,13 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 
 	context := map[string]interface{}{
 		"org_id":        getTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAppEngineStandardAppVersionDestroy,
+		CheckDestroy: testAccCheckAppEngineStandardAppVersionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(context),
@@ -44,7 +43,7 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 				ResourceName:            "google_app_engine_standard_app_version.myapp_v1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"threadsafe", "env_variables", "deployment", "entrypoint", "instance_class", "delete_service_on_destroy"},
+				ImportStateVerifyIgnore: []string{"threadsafe", "env_variables", "deployment", "entrypoint", "service", "delete_service_on_destroy"},
 			},
 		},
 	})
@@ -71,6 +70,20 @@ resource "google_app_engine_standard_app_version" "myapp_v1" {
     port = "8080"
   }
 
+  automatic_scaling {
+    max_concurrent_requests = 10
+    min_idle_instances = 1
+    max_idle_instances = 3
+    min_pending_latency = "1s"
+    max_pending_latency = "5s"
+    standard_scheduler_settings {
+      target_cpu_utilization = 0.5
+      target_throughput_utilization = 0.75
+      min_instances = 2
+      max_instances = 10
+    }
+  }
+
   delete_service_on_destroy = true
 }
 
@@ -93,11 +106,15 @@ resource "google_app_engine_standard_app_version" "myapp_v2" {
     port = "8080"
   }
 
+  basic_scaling {
+    max_instances = 5
+  }
+
   noop_on_destroy = true
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "appengine-static-content%{random_suffix}"
+  name = "tf-test-appengine-static-content%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -108,17 +125,19 @@ resource "google_storage_bucket_object" "object" {
 `, context)
 }
 
-func testAccCheckAppEngineStandardAppVersionDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_app_engine_standard_app_version" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckAppEngineStandardAppVersionDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_app_engine_standard_app_version" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			log.Printf("[DEBUG] Ignoring destroy during test")
 		}
 
-		log.Printf("[DEBUG] Ignoring destroy during test")
+		return nil
 	}
-
-	return nil
 }

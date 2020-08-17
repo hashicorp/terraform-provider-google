@@ -1,0 +1,9 @@
+```release-note:new-resource
+firebase: `google_firebase_web_app`
+```
+```release-note:new-datasource
+firebase: `google_firebase_web_app`
+```
+```release-note:new-datasource
+firebase: `google_firebase_web_app_config`
+```

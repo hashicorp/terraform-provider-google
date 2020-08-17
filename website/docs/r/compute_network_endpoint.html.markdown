@@ -64,7 +64,7 @@ resource "google_compute_instance" "endpoint-instance" {
   }
 
   network_interface {
-    subnetwork = google_compute_subnetwork.default.self_link
+    subnetwork = google_compute_subnetwork.default.id
     access_config {
     }
   }
@@ -72,8 +72,8 @@ resource "google_compute_instance" "endpoint-instance" {
 
 resource "google_compute_network_endpoint_group" "group" {
   name         = "my-lb-neg"
-  network      = google_compute_network.default.self_link
-  subnetwork   = google_compute_subnetwork.default.self_link
+  network      = google_compute_network.default.id
+  subnetwork   = google_compute_subnetwork.default.id
   default_port = "90"
   zone         = "us-central1-a"
 }
@@ -87,7 +87,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "neg-subnetwork"
   ip_cidr_range = "10.0.0.1/16"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 ```
 
@@ -127,6 +127,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}/{{zone}}/{{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}`
 
 
 ## Timeouts

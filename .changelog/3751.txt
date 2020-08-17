@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed bug where a permadiff would show up when adding a column to the middle of a `bigquery_table.schema`
+```

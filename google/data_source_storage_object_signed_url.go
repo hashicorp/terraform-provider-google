@@ -51,8 +51,9 @@ func dataSourceGoogleSignedUrl() *schema.Resource {
 				Default:  "",
 			},
 			"credentials": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
 			},
 			"duration": {
 				Type:     schema.TypeString,

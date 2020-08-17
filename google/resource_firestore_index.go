@@ -66,7 +66,7 @@ ordered '"ASCENDING"' (unless explicitly specified otherwise).`,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"CONTAINS", ""}, false),
 							Description: `Indicates that this field supports operations on arrayValues. Only one of 'order' and 'arrayConfig' can
-be specified.`,
+be specified. Possible values: ["CONTAINS"]`,
 						},
 						"field_path": {
 							Type:        schema.TypeString,
@@ -80,7 +80,7 @@ be specified.`,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ASCENDING", "DESCENDING", ""}, false),
 							Description: `Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
-Only one of 'order' and 'arrayConfig' can be specified.`,
+Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCENDING", "DESCENDING"]`,
 						},
 					},
 				},
@@ -97,9 +97,8 @@ Only one of 'order' and 'arrayConfig' can be specified.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"COLLECTION", "COLLECTION_GROUP", ""}, false),
-				Description: `The scope at which a query is run. One of '"COLLECTION"' or
-'"COLLECTION_GROUP"'. Defaults to '"COLLECTION"'.`,
-				Default: "COLLECTION",
+				Description:  `The scope at which a query is run. Default value: "COLLECTION" Possible values: ["COLLECTION", "COLLECTION_GROUP"]`,
+				Default:      "COLLECTION",
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -173,15 +172,28 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	err = firestoreOperationWaitTime(
-		config, res, project, "Creating Index",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
+	// Use the resource in the operation response to populate
+	// identity fields and d.Id() before read
+	var opRes map[string]interface{}
+	err = firestoreOperationWaitTimeWithResponse(
+		config, res, &opRes, project, "Creating Index",
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create Index: %s", err)
 	}
+
+	if err := d.Set("name", flattenFirestoreIndexName(opRes["name"], d, config)); err != nil {
+		return err
+	}
+
+	// This may have caused the ID to update - update it if so.
+	id, err = replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Index %q: %#v", d.Id(), res)
 
@@ -217,13 +229,13 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 
-	if err := d.Set("name", flattenFirestoreIndexName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenFirestoreIndexName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
-	if err := d.Set("query_scope", flattenFirestoreIndexQueryScope(res["queryScope"], d)); err != nil {
+	if err := d.Set("query_scope", flattenFirestoreIndexQueryScope(res["queryScope"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
-	if err := d.Set("fields", flattenFirestoreIndexFields(res["fields"], d)); err != nil {
+	if err := d.Set("fields", flattenFirestoreIndexFields(res["fields"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 
@@ -253,7 +265,7 @@ func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 
 	err = firestoreOperationWaitTime(
 		config, res, project, "Deleting Index",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -282,18 +294,20 @@ func resourceFirestoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	d.Set("project", stringParts[1])
+	d.Set("database", stringParts[3])
+	d.Set("collection", stringParts[5])
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenFirestoreIndexName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexQueryScope(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexQueryScope(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -306,22 +320,22 @@ func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData) interfac
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"field_path":   flattenFirestoreIndexFieldsFieldPath(original["fieldPath"], d),
-			"order":        flattenFirestoreIndexFieldsOrder(original["order"], d),
-			"array_config": flattenFirestoreIndexFieldsArrayConfig(original["arrayConfig"], d),
+			"field_path":   flattenFirestoreIndexFieldsFieldPath(original["fieldPath"], d, config),
+			"order":        flattenFirestoreIndexFieldsOrder(original["order"], d, config),
+			"array_config": flattenFirestoreIndexFieldsArrayConfig(original["arrayConfig"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenFirestoreIndexFieldsFieldPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFieldsFieldPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexFieldsOrder(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFieldsOrder(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexFieldsArrayConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFieldsArrayConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

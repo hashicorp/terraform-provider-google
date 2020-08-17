@@ -77,8 +77,8 @@ The following arguments are supported:
 
 * `ip_version` -
   (Optional)
-  The IP Version that will be used by this address. Valid options are
-  `IPV4` or `IPV6`. The default value is `IPV4`.
+  The IP Version that will be used by this address. The default value is `IPV4`.
+  Possible values are `IPV4` and `IPV6`.
 
 * `prefix_length` -
   (Optional)
@@ -88,15 +88,18 @@ The following arguments are supported:
 
 * `address_type` -
   (Optional)
-  The type of the address to reserve, default is EXTERNAL.
+  The type of the address to reserve.
   * EXTERNAL indicates public/external single IP address.
   * INTERNAL indicates internal IP ranges belonging to some network.
+  Default value is `EXTERNAL`.
+  Possible values are `EXTERNAL` and `INTERNAL`.
 
 * `purpose` -
   (Optional)
   The purpose of the resource. For global internal addresses it can be
   * VPC_PEERING - for peer networks
   This should only be set when using an Internal address.
+  Possible values are `VPC_PEERING`.
 
 * `network` -
   (Optional)
@@ -113,6 +116,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/addresses/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.

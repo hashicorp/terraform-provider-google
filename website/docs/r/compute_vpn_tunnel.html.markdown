@@ -32,9 +32,8 @@ To get more information about VpnTunnel, see:
     * [Cloud VPN Overview](https://cloud.google.com/vpn/docs/concepts/overview)
     * [Networks and Tunnel Routing](https://cloud.google.com/vpn/docs/concepts/choosing-networks-routing)
 
-~> **Warning:** All arguments including the shared secret will be stored in the raw
-state as plain-text.
-[Read more about sensitive data in state](/docs/state/sensitive-data.html).
+~> **Warning:** All arguments including `shared_secret` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vpn_tunnel_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -50,7 +49,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
-  target_vpn_gateway = google_compute_vpn_gateway.target_gateway.self_link
+  target_vpn_gateway = google_compute_vpn_gateway.target_gateway.id
 
   depends_on = [
     google_compute_forwarding_rule.fr_esp,
@@ -61,7 +60,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 
 resource "google_compute_vpn_gateway" "target_gateway" {
   name    = "vpn1"
-  network = google_compute_network.network1.self_link
+  network = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
@@ -76,7 +75,7 @@ resource "google_compute_forwarding_rule" "fr_esp" {
   name        = "fr-esp"
   ip_protocol = "ESP"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
@@ -84,7 +83,7 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
   ip_protocol = "UDP"
   port_range  = "500"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
@@ -92,7 +91,7 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
   ip_protocol = "UDP"
   port_range  = "4500"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_route" "route1" {
@@ -101,7 +100,7 @@ resource "google_compute_route" "route1" {
   dest_range = "15.0.0.0/24"
   priority   = 1000
 
-  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.self_link
+  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.id
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -119,7 +118,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
-  target_vpn_gateway = google_compute_vpn_gateway.target_gateway.self_link
+  target_vpn_gateway = google_compute_vpn_gateway.target_gateway.id
 
   depends_on = [
     google_compute_forwarding_rule.fr_esp,
@@ -135,7 +134,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 resource "google_compute_vpn_gateway" "target_gateway" {
   provider = google-beta
   name     = "vpn1"
-  network  = google_compute_network.network1.self_link
+  network  = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
@@ -153,7 +152,7 @@ resource "google_compute_forwarding_rule" "fr_esp" {
   name        = "fr-esp"
   ip_protocol = "ESP"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
@@ -162,7 +161,7 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
   ip_protocol = "UDP"
   port_range  = "500"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
@@ -171,7 +170,7 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
   ip_protocol = "UDP"
   port_range  = "4500"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_route" "route1" {
@@ -181,7 +180,7 @@ resource "google_compute_route" "route1" {
   dest_range = "15.0.0.0/24"
   priority   = 1000
 
-  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.self_link
+  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.id
 }
 
 provider "google-beta" {
@@ -209,6 +208,7 @@ The following arguments are supported:
   (Required)
   Shared secret used to set the secure session between the Cloud VPN
   gateway and the peer VPN gateway.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 
 - - -
@@ -263,6 +263,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}`
 
 * `tunnel_id` -
   The unique identifier for the resource. This identifier is defined by the server.

@@ -1,0 +1,4 @@
+```release-note:enhancement
+access_context_manager: custom access level added to `google_access_context_manager_access_level`
+
+```

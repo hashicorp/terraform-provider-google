@@ -54,12 +54,8 @@ To get more information about Service, see:
 
 ```hcl
 resource "google_cloud_run_service" "default" {
-  name     = "tftest-cloudrun"
+  name     = "cloudrun-srv"
   location = "us-central1"
-
-  metadata {
-    namespace = "my-project-name"
-  }
 
   template {
     spec {
@@ -75,6 +71,151 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_sql&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloud Run Service Sql
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  name     = "cloudrun-srv"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/maxScale"      = "1000"
+        "run.googleapis.com/cloudsql-instances" = "my-project-name:us-central1:${google_sql_database_instance.instance.name}"
+        "run.googleapis.com/client-name"        = "terraform"
+      }
+    }
+  }
+  autogenerate_revision_name = true
+}
+
+resource "google_sql_database_instance" "instance" {
+  name   = "cloudrun-sql"
+  region = "us-east1"
+  settings {
+    tier = "db-f1-micro"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_noauth&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloud Run Service Noauth
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  name     = "cloudrun-srv"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+  }
+}
+
+data "google_iam_policy" "noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
+}
+
+resource "google_cloud_run_service_iam_policy" "noauth" {
+  location    = google_cloud_run_service.default.location
+  project     = google_cloud_run_service.default.project
+  service     = google_cloud_run_service.default.name
+
+  policy_data = data.google_iam_policy.noauth.policy_data
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_multiple_environment_variables&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloud Run Service Multiple Environment Variables
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  name     = "cloudrun-srv"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        env {
+          name = "SOURCE"
+          value = "remote"
+        }
+        env {
+          name = "TARGET"
+          value = "home"
+        }
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+  autogenerate_revision_name = true
+}
+```
+## Example Usage - Cloud Run Service Traffic Split
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  name     = "cloudrun-srv"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+    metadata {
+      name = "cloudrun-srv-green"
+    }
+  }
+
+  traffic {
+    percent       = 25
+    revision_name = "cloudrun-srv-green"
+  }
+
+  traffic {
+    percent       = 75
+    # This revision needs to already exist
+    revision_name = "cloudrun-srv-blue"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -87,11 +228,6 @@ The following arguments are supported:
   Is required when creating resources. Name is primarily intended
   for creation idempotence and configuration definition. Cannot be updated.
   More info: http://kubernetes.io/docs/user-guide/identifiers#names
-
-* `metadata` -
-  (Required)
-  Metadata associated with this Service, including name, namespace, labels,
-  and annotations.  Structure is documented below.
 
 * `location` -
   (Required)
@@ -126,11 +262,13 @@ The `template` block supports:
   key. To set maximum instances for this revision, use the
   "autoscaling.knative.dev/maxScale" annotation key. To set Cloud SQL
   connections for the revision, use the "run.googleapis.com/cloudsql-instances"
-  annotation key.  Structure is documented below.
+  annotation key.
+  Structure is documented below.
 
 * `spec` -
   (Required)
-  RevisionSpec holds the desired state of the Revision (from the client).  Structure is documented below.
+  RevisionSpec holds the desired state of the Revision (from the client).
+  Structure is documented below.
 
 
 The `metadata` block supports:
@@ -165,7 +303,7 @@ The `metadata` block supports:
 * `namespace` -
   (Optional)
   In Cloud Run the namespace must be equal to either the
-  project ID or project number.
+  project ID or project number. It will default to the resource's project.
 
 * `annotations` -
   (Optional)
@@ -188,7 +326,8 @@ The `spec` block supports:
   In the context of a Revision, we disallow a number of the fields of
   this Container, including: name, ports, and volumeMounts.
   The runtime contract is documented here:
-  https://github.com/knative/serving/blob/master/docs/runtime-contract.md  Structure is documented below.
+  https://github.com/knative/serving/blob/master/docs/runtime-contract.md
+  Structure is documented below.
 
 * `container_concurrency` -
   (Optional)
@@ -198,6 +337,10 @@ The `spec` block supports:
       the default value.
   - `1` not-thread-safe. Single concurrency
   - `2-N` thread-safe, max concurrency of N
+
+* `timeout_seconds` -
+  (Optional)
+  TimeoutSeconds holds the max duration the instance is allowed for responding to a request.
 
 * `service_account_name` -
   (Optional)
@@ -239,7 +382,8 @@ The `containers` block supports:
   All invalid keys will be reported as an event when the container is starting.
   When a key exists in multiple sources, the value associated with the last source will
   take precedence. Values defined by an Env with a duplicate key will take
-  precedence.  Structure is documented below.
+  precedence.
+  Structure is documented below.
 
 * `image` -
   (Required)
@@ -261,13 +405,22 @@ The `containers` block supports:
 
 * `env` -
   (Optional)
-  List of environment variables to set in the container.  Structure is documented below.
+  List of environment variables to set in the container.
+  Structure is documented below.
+
+* `ports` -
+  (Optional)
+  List of open ports in the container.
+  More Info: 
+  https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort
+  Structure is documented below.
 
 * `resources` -
   (Optional)
   Compute Resources required by this container. Used to set values such as max memory
   More info:
-  https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources  Structure is documented below.
+  https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits
+  Structure is documented below.
 
 
 The `env_from` block supports:
@@ -278,11 +431,13 @@ The `env_from` block supports:
 
 * `config_map_ref` -
   (Optional)
-  The ConfigMap to select from.  Structure is documented below.
+  The ConfigMap to select from.
+  Structure is documented below.
 
 * `secret_ref` -
   (Optional)
-  The Secret to select from.  Structure is documented below.
+  The Secret to select from.
+  Structure is documented below.
 
 
 The `config_map_ref` block supports:
@@ -293,7 +448,8 @@ The `config_map_ref` block supports:
 
 * `local_object_reference` -
   (Optional)
-  The ConfigMap to select from.  Structure is documented below.
+  The ConfigMap to select from.
+  Structure is documented below.
 
 
 The `local_object_reference` block supports:
@@ -308,7 +464,8 @@ The `secret_ref` block supports:
 
 * `local_object_reference` -
   (Optional)
-  The Secret to select from.  Structure is documented below.
+  The Secret to select from.
+  Structure is documented below.
 
 * `optional` -
   (Optional)
@@ -340,6 +497,20 @@ The `env` block supports:
   exists or not.
   Defaults to "".
 
+The `ports` block supports:
+
+* `name` -
+  (Optional)
+  Name of the port.
+
+* `protocol` -
+  (Optional)
+  Protocol used on port. Defaults to TCP.
+
+* `container_port` -
+  (Required)
+  Port number.
+
 The `resources` block supports:
 
 * `limits` -
@@ -355,6 +526,43 @@ The `resources` block supports:
   explicitly specified, otherwise to an implementation-defined value.
   The values of the map is string form of the 'quantity' k8s type:
   https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
+
+- - -
+
+
+* `traffic` -
+  (Optional)
+  Traffic specifies how to distribute traffic over a collection of Knative Revisions
+  and Configurations
+  Structure is documented below.
+
+* `template` -
+  (Optional)
+  template holds the latest specification for the Revision to
+  be stamped out. The template references the container image, and may also
+  include labels and annotations that should be attached to the Revision.
+  To correlate a Revision, and/or to force a Revision to be created when the
+  spec doesn't otherwise change, a nonce label may be provided in the
+  template metadata. For more details, see:
+  https://github.com/knative/serving/blob/master/docs/client-conventions.md#associate-modifications-with-revisions
+  Cloud Run does not currently support referencing a build that is
+  responsible for materializing the container image from source.
+  Structure is documented below.
+
+* `metadata` -
+  (Optional)
+  Metadata associated with this Service, including name, namespace, labels,
+  and annotations.
+  Structure is documented below.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+* `autogenerate_revision_name` - (Optional) If set to `true`, the revision name (template.metadata.name) will be omitted and 
+autogenerated by Cloud Run. This cannot be set to `true` while `template.metadata.name` 
+is also set. 
+(For legacy support, if `template.metadata.name` is unset in state while
+this field is set to false, the revision name will still autogenerate.)
 
 The `metadata` block supports:
 
@@ -396,43 +604,22 @@ The `metadata` block supports:
   may be set by external tools to store and retrieve arbitrary metadata. More
   info: http://kubernetes.io/docs/user-guide/annotations
 
-- - -
-
-
-* `traffic` -
-  (Optional)
-  Traffic specifies how to distribute traffic over a collection of Knative Revisions
-  and Configurations  Structure is documented below.
-
-* `template` -
-  (Optional)
-  template holds the latest specification for the Revision to
-  be stamped out. The template references the container image, and may also
-  include labels and annotations that should be attached to the Revision.
-  To correlate a Revision, and/or to force a Revision to be created when the
-  spec doesn't otherwise change, a nonce label may be provided in the
-  template metadata. For more details, see:
-  https://github.com/knative/serving/blob/master/docs/client-conventions.md#associate-modifications-with-revisions
-  Cloud Run does not currently support referencing a build that is
-  responsible for materializing the container image from source.  Structure is documented below.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `locations/{{location}}/namespaces/{{project}}/services/{{name}}`
 
 * `status` -
-  The current status of the Service.  Structure is documented below.
+  The current status of the Service.
+  Structure is documented below.
 
 
 The `status` block contains:
 
 * `conditions` -
-  Array of observed Service Conditions, indicating the current ready state of the service.  Structure is documented below.
+  Array of observed Service Conditions, indicating the current ready state of the service.
+  Structure is documented below.
 
 * `url` -
   From RouteStatus. URL holds the url that will distribute traffic over the provided traffic
@@ -476,7 +663,7 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 6 minutes.
-- `update` - Default is 6 minutes.
+- `update` - Default is 15 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import

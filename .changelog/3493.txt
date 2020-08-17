@@ -1,0 +1,4 @@
+```release-note:bug
+compute: Fixed permadiff in `google_compute_instance_template`'s `network_tier`.
+
+```

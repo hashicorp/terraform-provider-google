@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Memorystore"
+subcategory: "Memorystore (Redis)"
 layout: "google"
 page_title: "Google: google_redis_instance"
 sidebar_current: "docs-google-redis-instance"
@@ -62,9 +62,9 @@ resource "google_redis_instance" "cache" {
   location_id             = "us-central1-a"
   alternative_location_id = "us-central1-f"
 
-  authorized_network = google_compute_network.auto-network.self_link
+  authorized_network = data.google_compute_network.redis-network.id
 
-  redis_version     = "REDIS_3_2"
+  redis_version     = "REDIS_4_0"
   display_name      = "Terraform Test Instance"
   reserved_ip_range = "192.168.0.0/29"
 
@@ -74,8 +74,61 @@ resource "google_redis_instance" "cache" {
   }
 }
 
-resource "google_compute_network" "auto-network" {
-  name = "authorized-network"
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Redis instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "redis-network" {
+  name = "redis-test-network"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=redis_instance_private_service&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Instance Private Service
+
+
+```hcl
+resource "google_compute_network" "network" {
+  name = "tf-test%{random_suffix}"
+}
+
+resource "google_compute_global_address" "service_range" {
+  name          = "tf-test%{random_suffix}"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.network.id
+}
+
+resource "google_service_networking_connection" "private_service_connection" {
+  network                 = google_compute_network.network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.service_range.name]
+}
+
+resource "google_redis_instance" "cache" {
+  name           = "tf-test%{random_suffix}"
+  tier           = "STANDARD_HA"
+  memory_size_gb = 1
+
+  location_id             = "us-central1-a"
+  alternative_location_id = "us-central1-f"
+
+  authorized_network = google_compute_network.network.id
+  connect_mode       = "PRIVATE_SERVICE_ACCESS"
+
+  redis_version     = "REDIS_4_0"
+  display_name      = "Terraform Test Instance"
+
+  depends_on = [google_service_networking_connection.private_service_connection]
+
 }
 ```
 
@@ -109,6 +162,12 @@ The following arguments are supported:
   instance is connected. If left unspecified, the default network
   will be used.
 
+* `connect_mode` -
+  (Optional)
+  The connection mode of the Redis instance.
+  Default value is `DIRECT_PEERING`.
+  Possible values are `DIRECT_PEERING` and `PRIVATE_SERVICE_ACCESS`.
+
 * `display_name` -
   (Optional)
   An arbitrary and optional user-provided name for the instance.
@@ -135,6 +194,7 @@ The following arguments are supported:
   (Optional)
   The version of Redis software. If not provided, latest supported
   version will be used. Currently, the supported values are:
+  - REDIS_5_0 for Redis 5.0 compatibility
   - REDIS_4_0 for Redis 4.0 compatibility
   - REDIS_3_2 for Redis 3.2 compatibility
 
@@ -151,6 +211,8 @@ The following arguments are supported:
   The service tier of the instance. Must be one of these values:
   - BASIC: standalone instance
   - STANDARD_HA: highly available primary/replica instances
+  Default value is `BASIC`.
+  Possible values are `BASIC` and `STANDARD_HA`.
 
 * `region` -
   (Optional)
@@ -164,6 +226,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{region}}/instances/{{name}}`
 
 * `create_time` -
   The time the instance was created in RFC3339 UTC "Zulu" format,
@@ -182,6 +245,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `port` -
   The port number of the exposed Redis endpoint.
+
+* `persistence_iam_identity` -
+  Output only. Cloud IAM identity used by import / export operations
+  to transfer data to/from Cloud Storage. Format is "serviceAccount:".
+  The value may change over time for a given instance so should be
+  checked before each import/export operation.
 
 
 ## Timeouts

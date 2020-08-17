@@ -33,7 +33,7 @@ func (w *ServiceAccountKeyWaiter) RefreshFunc() resource.StateRefreshFunc {
 	}
 }
 
-func serviceAccountKeyWaitTime(client *iam.ProjectsServiceAccountsKeysService, keyName, publicKeyType, activity string, timeoutMinutes int) error {
+func serviceAccountKeyWaitTime(client *iam.ProjectsServiceAccountsKeysService, keyName, publicKeyType, activity string, timeout time.Duration) error {
 	w := &ServiceAccountKeyWaiter{
 		Service:       client,
 		PublicKeyType: publicKeyType,
@@ -44,7 +44,7 @@ func serviceAccountKeyWaitTime(client *iam.ProjectsServiceAccountsKeysService, k
 		Pending:    []string{"PENDING"},
 		Target:     []string{"DONE"},
 		Refresh:    w.RefreshFunc(),
-		Timeout:    time.Duration(timeoutMinutes) * time.Minute,
+		Timeout:    timeout,
 		MinTimeout: 2 * time.Second,
 	}
 	_, err := c.WaitForState()

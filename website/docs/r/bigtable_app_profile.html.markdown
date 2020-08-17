@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Bigtable"
+subcategory: "Cloud Bigtable"
 layout: "google"
 page_title: "Google: google_bigtable_app_profile"
 sidebar_current: "docs-google-bigtable-app-profile"
@@ -36,18 +36,20 @@ App profile is a configuration object describing how Cloud Bigtable should treat
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
-  name = "tf-test-instance-"
+  name = "bt-instance"
   cluster {
-    cluster_id   = "tf-test-instance-"
+    cluster_id   = "bt-instance"
     zone         = "us-central1-b"
     num_nodes    = 3
     storage_type = "HDD"
   }
+
+  deletion_protection  = "true"
 }
 
 resource "google_bigtable_app_profile" "ap" {
   instance       = google_bigtable_instance.instance.name
-  app_profile_id = "tf-test-profile-"
+  app_profile_id = "bt-profile"
 
   multi_cluster_routing_use_any = true
   ignore_warnings               = true
@@ -63,21 +65,23 @@ resource "google_bigtable_app_profile" "ap" {
 
 ```hcl
 resource "google_bigtable_instance" "instance" {
-  name = "tf-test-instance-"
+  name = "bt-instance"
   cluster {
-    cluster_id   = "tf-test-instance-"
+    cluster_id   = "bt-instance"
     zone         = "us-central1-b"
     num_nodes    = 3
     storage_type = "HDD"
   }
+
+  deletion_protection  = "true"
 }
 
 resource "google_bigtable_app_profile" "ap" {
   instance       = google_bigtable_instance.instance.name
-  app_profile_id = "tf-test-profile-"
+  app_profile_id = "bt-profile"
 
   single_cluster_routing {
-    cluster_id                 = "tf-test-instance-"
+    cluster_id                 = "bt-instance"
     allow_transactional_writes = true
   }
 
@@ -110,7 +114,8 @@ The following arguments are supported:
 
 * `single_cluster_routing` -
   (Optional)
-  Use a single-cluster routing policy.  Structure is documented below.
+  Use a single-cluster routing policy.
+  Structure is documented below.
 
 * `instance` -
   (Optional)
@@ -139,6 +144,7 @@ The `single_cluster_routing` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}`
 
 * `name` -
   The unique name of the requested app profile. Values are of the form `projects/<project>/instances/<instance>/appProfiles/<appProfileId>`.

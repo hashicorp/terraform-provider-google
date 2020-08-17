@@ -1,0 +1,3 @@
+```release-note:enhancement
+`healthcare`: Added support for `streaming_configs` to `google_healthcare_fhir_store`
+```

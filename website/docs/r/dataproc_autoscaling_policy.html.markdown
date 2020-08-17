@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Dataproc"
+subcategory: "Dataproc"
 layout: "google"
 page_title: "Google: google_dataproc_autoscaling_policy"
 sidebar_current: "docs-google-dataproc-autoscaling-policy"
@@ -36,7 +36,7 @@ Describes an autoscaling policy for Dataproc cluster autoscaler.
 
 ```hcl
 resource "google_dataproc_cluster" "basic" {
-  name     = "tf-dataproc-test-"
+  name     = "dataproc-policy"
   region   = "us-central1"
 
   cluster_config {
@@ -47,7 +47,7 @@ resource "google_dataproc_cluster" "basic" {
 }
 
 resource "google_dataproc_autoscaling_policy" "asp" {
-  policy_id = "tf-dataproc-test-"
+  policy_id = "dataproc-policy"
   location  = "us-central1"
 
   worker_config {
@@ -82,15 +82,18 @@ The following arguments are supported:
 
 * `worker_config` -
   (Optional)
-  Describes how the autoscaler will operate for primary workers.  Structure is documented below.
+  Describes how the autoscaler will operate for primary workers.
+  Structure is documented below.
 
 * `secondary_worker_config` -
   (Optional)
-  Describes how the autoscaler will operate for secondary workers.  Structure is documented below.
+  Describes how the autoscaler will operate for secondary workers.
+  Structure is documented below.
 
 * `basic_algorithm` -
   (Optional)
-  Basic algorithm for autoscaling.  Structure is documented below.
+  Basic algorithm for autoscaling.
+  Structure is documented below.
 
 * `location` -
   (Optional)
@@ -163,7 +166,8 @@ The `basic_algorithm` block supports:
 
 * `yarn_config` -
   (Required)
-  YARN autoscaling configuration.  Structure is documented below.
+  YARN autoscaling configuration.
+  Structure is documented below.
 
 
 The `yarn_config` block supports:
@@ -213,6 +217,7 @@ The `yarn_config` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/autoscalingPolicies/{{policy_id}}`
 
 * `name` -
   The "resource name" of the autoscaling policy.

@@ -25,6 +25,11 @@ description: |-
 Datasets allow you to organize and control access to your tables.
 
 
+To get more information about Dataset, see:
+
+* [API documentation](https://cloud.google.com/bigquery/docs/reference/rest/v2/datasets)
+* How-to Guides
+    * [Datasets Intro](https://cloud.google.com/bigquery/docs/datasets-intro)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_dataset_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -48,12 +53,17 @@ resource "google_bigquery_dataset" "dataset" {
 
   access {
     role          = "OWNER"
-    user_by_email = "Joe@example.com"
+    user_by_email = google_service_account.bqowner.email
   }
+
   access {
     role   = "READER"
-    domain = "example.com"
+    domain = "hashicorp.com"
   }
+}
+
+resource "google_service_account" "bqowner" {
+  account_id = "bqowner"
 }
 ```
 ## Example Usage - Bigquery Dataset Cmek
@@ -68,13 +78,13 @@ resource "google_bigquery_dataset" "dataset" {
   default_table_expiration_ms = 3600000
 
   default_encryption_configuration {
-    kms_key_name = google_kms_crypto_key.crypto_key.self_link
+    kms_key_name = google_kms_crypto_key.crypto_key.id
   }
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "example-key"
-  key_ring = google_kms_key_ring.key_ring.self_link
+  key_ring = google_kms_key_ring.key_ring.id
 }
 
 resource "google_kms_key_ring" "key_ring" {
@@ -100,7 +110,8 @@ The following arguments are supported:
 
 * `access` -
   (Optional)
-  An array of objects that define dataset access for one or more entities.  Structure is documented below.
+  An array of objects that define dataset access for one or more entities.
+  Structure is documented below.
 
 * `default_table_expiration_ms` -
   (Optional)
@@ -170,7 +181,8 @@ The following arguments are supported:
   (Optional)
   The default encryption key for all tables in the dataset. Once this property is set,
   all newly-created partitioned tables in the dataset will have encryption key set to
-  this value, unless table creation request (or query) overrides the key.  Structure is documented below.
+  this value, unless table creation request (or query) overrides the key.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -196,7 +208,7 @@ The `access` block supports:
   member of the access object. Primitive, Predefined and custom
   roles are supported. Predefined roles that have equivalent
   primitive roles are swapped by the API to their Primitive
-  counterparts, and will show a diff post-create. See
+  counterparts. See
   [official docs](https://cloud.google.com/bigquery/docs/access-control).
 
 * `special_group` -
@@ -222,7 +234,8 @@ The `access` block supports:
   executed against that view will have read access to tables in
   this dataset. The role field is not required when this field is
   set. If that view is updated by any user, access to the view
-  needs to be granted again via an update operation.  Structure is documented below.
+  needs to be granted again via an update operation.
+  Structure is documented below.
 
 
 The `view` block supports:
@@ -253,6 +266,7 @@ The `default_encryption_configuration` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/datasets/{{dataset_id}}`
 
 * `creation_time` -
   The time when this dataset was created, in milliseconds since the

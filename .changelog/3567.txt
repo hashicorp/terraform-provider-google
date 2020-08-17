@@ -1,0 +1,6 @@
+```release-note:bug
+`dataflow`: fixed an issue where `google_dataflow_job` would try to update `max_workers`
+```
+```release-note:bug
+`dataflow`: fixed an issue where updating `on_delete` in `google_dataflow_job` would cause the job to be replaced
+```

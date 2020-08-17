@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeSnapshot_encryption(t *testing.T) {
 	t.Parallel()
 
-	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	snapshotName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSnapshotDestroy,
+		CheckDestroy: testAccCheckComputeSnapshotDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSnapshot_encryption(snapshotName, diskName),

@@ -17,11 +17,11 @@ layout: "google"
 page_title: "Google: google_iap_web_backend_service_iam"
 sidebar_current: "docs-google-iap-web-backend-service-iam"
 description: |-
-  Collection of resources to manage IAM policy for IapWebBackendService
+  Collection of resources to manage IAM policy for Identity-Aware Proxy WebBackendService
 ---
 
-# IAM policy for IapWebBackendService
-Three different resources help you manage your IAM policy for Iap WebBackendService. Each of these resources serves a different use case:
+# IAM policy for Identity-Aware Proxy WebBackendService
+Three different resources help you manage your IAM policy for Identity-Aware Proxy WebBackendService. Each of these resources serves a different use case:
 
 * `google_iap_web_backend_service_iam_policy`: Authoritative. Sets the IAM policy for the webbackendservice and replaces any existing policy already attached.
 * `google_iap_web_backend_service_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the webbackendservice are preserved.
@@ -37,42 +37,42 @@ Three different resources help you manage your IAM policy for Iap WebBackendServ
 
 ```hcl
 data "google_iam_policy" "admin" {
-	binding {
-		role = "roles/iap.httpsResourceAccessor"
-		members = [
-			"user:jane@example.com",
-		]
-	}
+  binding {
+    role = "roles/iap.httpsResourceAccessor"
+    members = [
+      "user:jane@example.com",
+    ]
+  }
 }
 
-resource "google_iap_web_backend_service_iam_policy" "editor" {
-	project = "${google_compute_backend_service.default.project}"
-	web_backend_service = "${google_compute_backend_service.default.name}"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+resource "google_iap_web_backend_service_iam_policy" "policy" {
+  project = google_compute_backend_service.default.project
+  web_backend_service = google_compute_backend_service.default.name
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
 ## google\_iap\_web\_backend\_service\_iam\_binding
 
 ```hcl
-resource "google_iap_web_backend_service_iam_binding" "editor" {
-	project = "${google_compute_backend_service.default.project}"
-	web_backend_service = "${google_compute_backend_service.default.name}"
-	role = "roles/iap.httpsResourceAccessor"
-	members = [
-		"user:jane@example.com",
-	]
+resource "google_iap_web_backend_service_iam_binding" "binding" {
+  project = google_compute_backend_service.default.project
+  web_backend_service = google_compute_backend_service.default.name
+  role = "roles/iap.httpsResourceAccessor"
+  members = [
+    "user:jane@example.com",
+  ]
 }
 ```
 
 ## google\_iap\_web\_backend\_service\_iam\_member
 
 ```hcl
-resource "google_iap_web_backend_service_iam_member" "editor" {
-	project = "${google_compute_backend_service.default.project}"
-	web_backend_service = "${google_compute_backend_service.default.name}"
-	role = "roles/iap.httpsResourceAccessor"
-	member = "user:jane@example.com"
+resource "google_iap_web_backend_service_iam_member" "member" {
+  project = google_compute_backend_service.default.project
+  web_backend_service = google_compute_backend_service.default.name
+  role = "roles/iap.httpsResourceAccessor"
+  member = "user:jane@example.com"
 }
 ```
 
@@ -118,11 +118,11 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Iap webbackendservice IAM resources can be imported using the resource identifiers, role, and member.
+Identity-Aware Proxy webbackendservice IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_iap_web_backend_service_iam_member.editor "projects/{{project}}/iap_web/compute/services/{{web_backend_service}} roles/iap.httpsResourceAccessor jane@example.com"
+$ terraform import google_iap_web_backend_service_iam_member.editor "projects/{{project}}/iap_web/compute/services/{{web_backend_service}} roles/iap.httpsResourceAccessor user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
@@ -137,6 +137,9 @@ $ terraform import google_iap_web_backend_service_iam_policy.editor projects/{{p
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
 
 ## User Project Overrides
 

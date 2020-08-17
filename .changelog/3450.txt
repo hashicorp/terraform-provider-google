@@ -1,0 +1,6 @@
+```release-note:enhancement
+* bigtable: added `deletion_protection` field to `google_bigtable_instance` to make deleting them require an explicit intent.
+```
+```release-note:note
+* `google_bigtable_instance` resources now cannot be destroyed unless `deletion_protection = false` is set in state for the resource.
+```

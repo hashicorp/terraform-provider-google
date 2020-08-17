@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/api/compute/v1"
@@ -17,22 +18,30 @@ func resourceProjectUsageBucket() *schema.Resource {
 			State: resourceProjectUsageBucketImportState,
 		},
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"bucket_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The bucket to store reports in.`,
 			},
 			"prefix": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `A prefix for the reports, for instance, the project name.`,
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The project to set the export bucket on. If it is not provided, the provider project is used.`,
 			},
 		},
 	}
@@ -54,6 +63,7 @@ func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) er
 	if p.UsageExportLocation == nil {
 		log.Printf("[WARN] Removing usage export location resource %s because it's not enabled server-side.", project)
 		d.SetId("")
+		return nil
 	}
 
 	d.Set("project", project)
@@ -78,7 +88,7 @@ func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 	d.SetId(project)
-	err = computeOperationWait(config, op, project, "Setting usage export bucket.")
+	err = computeOperationWaitTime(config, op, project, "Setting usage export bucket.", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return err
@@ -102,8 +112,8 @@ func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	err = computeOperationWait(config, op, project,
-		"Setting usage export bucket to nil, automatically disabling usage export.")
+	err = computeOperationWaitTime(config, op, project,
+		"Setting usage export bucket to nil, automatically disabling usage export.", d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

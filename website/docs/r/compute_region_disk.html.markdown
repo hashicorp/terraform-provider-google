@@ -42,13 +42,12 @@ affordable storage with consistent performance characteristics.
 
 To get more information about RegionDisk, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/regionDisks)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/regionDisks)
 * How-to Guides
     * [Adding or Resizing Regional Persistent Disks](https://cloud.google.com/compute/docs/disks/regional-persistent-disk)
 
-~> **Warning:** All arguments including the disk encryption key will be stored in the raw
-state as plain-text.
-[Read more about sensitive data in state](/docs/state/sensitive-data.html).
+~> **Warning:** All arguments including `disk_encryption_key.raw_key` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_disk_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -61,7 +60,7 @@ state as plain-text.
 ```hcl
 resource "google_compute_region_disk" "regiondisk" {
   name                      = "my-region-disk"
-  snapshot                  = google_compute_snapshot.snapdisk.self_link
+  snapshot                  = google_compute_snapshot.snapdisk.id
   type                      = "pd-ssd"
   region                    = "us-central1"
   physical_block_size_bytes = 4096
@@ -153,7 +152,8 @@ The following arguments are supported:
   the disk.
   If you do not provide an encryption key when creating the disk, then
   the disk will be encrypted using an automatically generated key and
-  you do not need to provide a key to use the disk later.  Structure is documented below.
+  you do not need to provide a key to use the disk later.
+  Structure is documented below.
 
 * `snapshot` -
   (Optional)
@@ -169,7 +169,8 @@ The following arguments are supported:
   (Optional)
   The customer-supplied encryption key of the source snapshot. Required
   if the source snapshot is protected by a customer-supplied encryption
-  key.  Structure is documented below.
+  key.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -181,6 +182,7 @@ The `disk_encryption_key` block supports:
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
@@ -201,6 +203,7 @@ The `source_snapshot_encryption_key` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/disks/{{name}}`
 
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used

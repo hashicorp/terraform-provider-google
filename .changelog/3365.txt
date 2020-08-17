@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: made `display_name` optional on `google_monitoring_notification_channel `
+```

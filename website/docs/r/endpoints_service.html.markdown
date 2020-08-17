@@ -76,3 +76,12 @@ In addition to the arguments, the following attributes are available:
 ### Endpoint Object Structure
 * `name`: The simple name of the endpoint as described in the config.
 * `address`: The FQDN of the endpoint as described in the config.
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 10 minutes.
+- `update` - Default is 10 minutes.
+- `delete` - Default is 10 minutes.

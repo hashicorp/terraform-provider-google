@@ -24,7 +24,7 @@ resource "google_compute_instance_group" "test" {
   name        = "terraform-test"
   description = "Terraform test instance group"
   zone        = "us-central1-a"
-  network     = google_compute_network.default.self_link
+  network     = google_compute_network.default.id
 }
 ```
 
@@ -36,8 +36,8 @@ resource "google_compute_instance_group" "webservers" {
   description = "Terraform test instance group"
 
   instances = [
-    google_compute_instance.test.self_link,
-    google_compute_instance.test2.self_link,
+    google_compute_instance.test.id,
+    google_compute_instance.test2.id,
   ]
 
   named_port {
@@ -63,7 +63,7 @@ as shown in this example to avoid this type of error.
 resource "google_compute_instance_group" "staging_group" {
   name      = "staging-instance-group"
   zone      = "us-central1-c"
-  instances = [google_compute_instance.staging_vm.self_link]
+  instances = [google_compute_instance.staging_vm.id]
   named_port {
     name = "http"
     port = "8080"
@@ -105,11 +105,11 @@ resource "google_compute_backend_service" "staging_service" {
   protocol  = "HTTPS"
 
   backend {
-    group = google_compute_instance_group.staging_group.self_link
+    group = google_compute_instance_group.staging_group.id
   }
 
   health_checks = [
-    google_compute_https_health_check.staging_health.self_link,
+    google_compute_https_health_check.staging_health.id,
   ]
 }
 
@@ -136,7 +136,7 @@ The following arguments are supported:
     group.
 
 * `instances` - (Optional) List of instances in the group. They should be given
-    as self_link URLs. When adding instances they must all be in the same
+    as either self_link or id. When adding instances they must all be in the same
     network and zone as the instance group.
 
 * `named_port` - (Optional) The named port configuration. See the section below
@@ -160,6 +160,8 @@ The `named_port` block supports:
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}/zones/{{zone}}/instanceGroups/{{name}}`
 
 * `self_link` - The URI of the created resource.
 

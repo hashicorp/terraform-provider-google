@@ -1,0 +1,3 @@
+```release-note:bug
+compute: Fixed an issue where `port` could not be removed from health checks
+```

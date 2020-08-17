@@ -19,18 +19,20 @@ func resourceLoggingFolderSink() *schema.Resource {
 		},
 	}
 	schm.Schema["folder"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The folder to be exported to the sink. Note that either [FOLDER_ID] or "folders/[FOLDER_ID]" is accepted.`,
 		StateFunc: func(v interface{}) string {
 			return strings.Replace(v.(string), "folders/", "", 1)
 		},
 	}
 	schm.Schema["include_children"] = &schema.Schema{
-		Type:     schema.TypeBool,
-		Optional: true,
-		ForceNew: true,
-		Default:  false,
+		Type:        schema.TypeBool,
+		Optional:    true,
+		ForceNew:    true,
+		Default:     false,
+		Description: `Whether or not to include children folders in the sink export. If true, logs associated with child projects are also exported; otherwise only logs relating to the provided folder are included.`,
 	}
 
 	return schm
@@ -70,7 +72,7 @@ func resourceLoggingFolderSinkRead(d *schema.ResourceData, meta interface{}) err
 func resourceLoggingFolderSinkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	sink := expandResourceLoggingSinkForUpdate(d)
+	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
 	// It seems the API might actually accept an update for include_children; this is not in the list of updatable
 	// properties though and might break in the future. Always include the value to prevent it changing.
 	sink.IncludeChildren = d.Get("include_children").(bool)
@@ -78,7 +80,7 @@ func resourceLoggingFolderSinkUpdate(d *schema.ResourceData, meta interface{}) e
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
 	_, err := config.clientLogging.Folders.Sinks.Patch(d.Id(), sink).
-		UpdateMask(defaultLogSinkUpdateMask).UniqueWriterIdentity(true).Do()
+		UpdateMask(updateMask).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
 	}

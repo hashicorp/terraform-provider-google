@@ -27,15 +27,19 @@ func dataSourceDnsManagedZone() *schema.Resource {
 			},
 
 			"name_servers": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 
-			// Google Cloud DNS ManagedZone resources do not have a SelfLink attribute.
+			"visibility": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 
+			// Google Cloud DNS ManagedZone resources do not have a SelfLink attribute.
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -65,6 +69,8 @@ func dataSourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("name", zone.Name)
 	d.Set("dns_name", zone.DnsName)
 	d.Set("description", zone.Description)
+	d.Set("visibility", zone.Visibility)
+	d.Set("project", project)
 
 	return nil
 }

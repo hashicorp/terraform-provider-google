@@ -37,9 +37,10 @@ func resourceStorageBucket() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the bucket.`,
 			},
 
 			"encryption": {
@@ -49,28 +50,33 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"default_kms_key_name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `A Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no encryption method is specified. You must pay attention to whether the crypto key is available in the location that this bucket is created in. See the docs for more details.`,
 						},
 					},
 				},
+				Description: `The bucket's encryption configuration.`,
 			},
 
 			"requester_pays": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Enables Requester Pays on a storage bucket.`,
 			},
 
 			"force_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `When deleting a bucket, this boolean option will delete all contained objects. If you try to delete a bucket that contains objects, Terraform will fail that run.`,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A set of key/value label pairs to assign to the bucket.`,
 			},
 
 			"location": {
@@ -81,29 +87,34 @@ func resourceStorageBucket() *schema.Resource {
 				StateFunc: func(s interface{}) string {
 					return strings.ToUpper(s.(string))
 				},
+				Description: `The GCS location`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The URI of the created resource.`,
 			},
 
 			"url": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The base URL of the bucket, in the format gs://<bucket-name>.`,
 			},
 
 			"storage_class": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "STANDARD",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "STANDARD",
+				Description: `The Storage Class of the new bucket. Supported values include: STANDARD, MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE.`,
 			},
 
 			"lifecycle_rule": {
@@ -121,15 +132,18 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"type": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The type of the action of this Lifecycle Rule. Supported values include: Delete and SetStorageClass.`,
 									},
 									"storage_class": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The target Storage Class of objects affected by this Lifecycle Rule. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE.`,
 									},
 								},
 							},
+							Description: `The Lifecycle Rule's action configuration. A single block of this type is supported.`,
 						},
 						"condition": {
 							Type:     schema.TypeSet,
@@ -140,39 +154,47 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"age": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Minimum age of an object in days to satisfy this condition.`,
 									},
 									"created_before": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
 									},
 									"is_live": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Removed:  "Please use `with_state` instead",
+										Computed: true,
 									},
 									"with_state": {
 										Type:         schema.TypeString,
 										Computed:     true,
 										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"LIVE", "ARCHIVED", "ANY", ""}, false),
+										Description:  `Match to live and/or archived objects. Unversioned buckets have only live objects. Supported values include: "LIVE", "ARCHIVED", "ANY".`,
 									},
 									"matches_storage_class": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MinItems: 1,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Type:        schema.TypeList,
+										Optional:    true,
+										MinItems:    1,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: `Storage Class of objects to satisfy this condition. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE, STANDARD, DURABLE_REDUCED_AVAILABILITY.`,
 									},
 									"num_newer_versions": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition.`,
 									},
 								},
 							},
+							Description: `The Lifecycle Rule's condition configuration.`,
 						},
 					},
 				},
+				Description: `The bucket's Lifecycle Rules configuration.`,
 			},
 
 			"versioning": {
@@ -182,11 +204,13 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `While set to true, versioning is fully enabled for this bucket.`,
 						},
 					},
 				},
+				Description: `The bucket's Versioning configuration.`,
 			},
 
 			"website": {
@@ -199,14 +223,17 @@ func resourceStorageBucket() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							AtLeastOneOf: []string{"website.0.not_found_page", "website.0.main_page_suffix"},
+							Description:  `Behaves as the bucket's directory index where missing objects are treated as potential directories.`,
 						},
 						"not_found_page": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							AtLeastOneOf: []string{"website.0.main_page_suffix", "website.0.not_found_page"},
+							Description:  `The custom object to return when a requested resource is not found.`,
 						},
 					},
 				},
+				Description: `Configuration if the bucket acts as a website.`,
 			},
 
 			"retention_policy": {
@@ -216,17 +243,20 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"is_locked": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: `If set to true, the bucket will be locked and permanently restrict edits to the bucket's retention policy.  Caution: Locking a bucket is an irreversible action.`,
 						},
 						"retention_period": {
 							Type:         schema.TypeInt,
 							Required:     true,
 							ValidateFunc: validation.IntBetween(1, math.MaxInt32),
+							Description:  `The period of time, in seconds, that objects in the bucket must be retained and cannot be deleted, overwritten, or archived. The value must be less than 3,155,760,000 seconds.`,
 						},
 					},
 				},
+				Description: `Configuration of the bucket's data retention policy for how long objects in the bucket should be retained.`,
 			},
 
 			"cors": {
@@ -240,6 +270,7 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: `The list of Origins eligible to receive CORS response headers. Note: "*" is permitted in the list of origins, and means "any Origin".`,
 						},
 						"method": {
 							Type:     schema.TypeList,
@@ -247,6 +278,7 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: `The list of HTTP methods on which to include CORS response headers, (GET, OPTIONS, POST, etc) Note: "*" is permitted in the list of methods, and means "any method".`,
 						},
 						"response_header": {
 							Type:     schema.TypeList,
@@ -254,14 +286,23 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: `The list of HTTP headers other than the simple response headers to give permission for the user-agent to share across domains.`,
 						},
 						"max_age_seconds": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `The value, in seconds, to return in the Access-Control-Max-Age header used in preflight responses.`,
 						},
 					},
 				},
+				Description: `The bucket's Cross-Origin Resource Sharing (CORS) configuration.`,
 			},
+
+			"default_event_based_hold": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			"logging": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -269,21 +310,25 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"log_bucket": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The bucket that will receive log objects.`,
 						},
 						"log_object_prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `The object prefix for log objects. If it's not provided, by default GCS sets this to this bucket's name.`,
 						},
 					},
 				},
+				Description: `The bucket's Access & Storage Logs configuration.`,
 			},
 			"bucket_policy_only": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: `Enables Bucket Policy Only access to a bucket.`,
 			},
 		},
 	}
@@ -342,15 +387,22 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if v, ok := d.GetOk("retention_policy"); ok {
+		// Not using expandBucketRetentionPolicy() here because `is_locked` cannot be set on creation.
 		retention_policies := v.([]interface{})
 
-		sb.RetentionPolicy = &storage.BucketRetentionPolicy{}
+		if len(retention_policies) > 0 {
+			sb.RetentionPolicy = &storage.BucketRetentionPolicy{}
 
-		retentionPolicy := retention_policies[0].(map[string]interface{})
+			retentionPolicy := retention_policies[0].(map[string]interface{})
 
-		if v, ok := retentionPolicy["retention_period"]; ok {
-			sb.RetentionPolicy.RetentionPeriod = int64(v.(int))
+			if v, ok := retentionPolicy["retention_period"]; ok {
+				sb.RetentionPolicy.RetentionPeriod = int64(v.(int))
+			}
 		}
+	}
+
+	if v, ok := d.GetOk("default_event_based_hold"); ok {
+		sb.DefaultEventBasedHold = v.(bool)
 	}
 
 	if v, ok := d.GetOk("cors"); ok {
@@ -449,6 +501,12 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if v, ok := d.GetOk("cors"); ok {
 		sb.Cors = expandCors(v.([]interface{}))
+	}
+
+	if d.HasChange("default_event_based_hold") {
+		v := d.Get("default_event_based_hold")
+		sb.DefaultEventBasedHold = v.(bool)
+		sb.ForceSendFields = append(sb.ForceSendFields, "DefaultEventBasedHold")
 	}
 
 	if d.HasChange("logging") {
@@ -566,6 +624,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("encryption", flattenBucketEncryption(res.Encryption))
 	d.Set("location", res.Location)
 	d.Set("cors", flattenCors(res.Cors))
+	d.Set("default_event_based_hold", res.DefaultEventBasedHold)
 	d.Set("logging", flattenBucketLogging(res.Logging))
 	d.Set("versioning", flattenBucketVersioning(res.Versioning))
 	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
@@ -595,73 +654,72 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	// Get the bucket
 	bucket := d.Get("name").(string)
 
-	for {
+	var listError, deleteObjectError error
+	for deleteObjectError == nil {
 		res, err := config.clientStorage.Objects.List(bucket).Versions(true).Do()
 		if err != nil {
-			fmt.Printf("Error Objects.List failed: %v", err)
-			return err
+			log.Printf("Error listing contents of bucket %s: %v", bucket, err)
+			// If we can't list the contents, try deleting the bucket anyway in case it's empty
+			listError = err
+			break
 		}
 
-		if len(res.Items) != 0 {
-			if d.Get("retention_policy.0.is_locked").(bool) {
-				for _, item := range res.Items {
-					expiration, err := time.Parse(time.RFC3339, item.RetentionExpirationTime)
-					if err != nil {
-						return err
-					}
-					if expiration.After(time.Now()) {
-						deleteErr := errors.New("Bucket '" + d.Get("name").(string) + "' contains objects that have not met the retention period yet and cannot be deleted.")
-						log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
-						return deleteErr
-					}
-				}
-			}
-
-			if d.Get("force_destroy").(bool) {
-				// GCS requires that a bucket be empty (have no objects or object
-				// versions) before it can be deleted.
-				log.Printf("[DEBUG] GCS Bucket attempting to forceDestroy\n\n")
-
-				// Create a workerpool for parallel deletion of resources. In the
-				// future, it would be great to expose Terraform's global parallelism
-				// flag here, but that's currently reserved for core use. Testing
-				// shows that NumCPUs-1 is the most performant on average networks.
-				//
-				// The challenge with making this user-configurable is that the
-				// configuration would reside in the Terraform configuration file,
-				// decreasing its portability. Ideally we'd want this to connect to
-				// Terraform's top-level -parallelism flag, but that's not plumbed nor
-				// is it scheduled to be plumbed to individual providers.
-				wp := workerpool.New(runtime.NumCPU() - 1)
-
-				for _, object := range res.Items {
-					log.Printf("[DEBUG] Found %s", object.Name)
-					object := object
-
-					wp.Submit(func() {
-						log.Printf("[TRACE] Attempting to delete %s", object.Name)
-						if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
-							// We should really return an error here, but it doesn't really
-							// matter since the following step (bucket deletion) will fail
-							// with an error indicating objects are still present, and this
-							// log line will point to that object.
-							log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
-						} else {
-							log.Printf("[TRACE] Successfully deleted %s", object.Name)
-						}
-					})
-				}
-
-				// Wait for everything to finish.
-				wp.StopWait()
-			} else {
-				deleteErr := errors.New("Error trying to delete a bucket containing objects without `force_destroy` set to true")
-				log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
-				return deleteErr
-			}
-		} else {
+		if len(res.Items) == 0 {
 			break // 0 items, bucket empty
 		}
+
+		if d.Get("retention_policy.0.is_locked").(bool) {
+			for _, item := range res.Items {
+				expiration, err := time.Parse(time.RFC3339, item.RetentionExpirationTime)
+				if err != nil {
+					return err
+				}
+				if expiration.After(time.Now()) {
+					deleteErr := errors.New("Bucket '" + d.Get("name").(string) + "' contains objects that have not met the retention period yet and cannot be deleted.")
+					log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
+					return deleteErr
+				}
+			}
+		}
+
+		if !d.Get("force_destroy").(bool) {
+			deleteErr := fmt.Errorf("Error trying to delete bucket %s containing objects without `force_destroy` set to true", bucket)
+			log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
+			return deleteErr
+		}
+		// GCS requires that a bucket be empty (have no objects or object
+		// versions) before it can be deleted.
+		log.Printf("[DEBUG] GCS Bucket attempting to forceDestroy\n\n")
+
+		// Create a workerpool for parallel deletion of resources. In the
+		// future, it would be great to expose Terraform's global parallelism
+		// flag here, but that's currently reserved for core use. Testing
+		// shows that NumCPUs-1 is the most performant on average networks.
+		//
+		// The challenge with making this user-configurable is that the
+		// configuration would reside in the Terraform configuration file,
+		// decreasing its portability. Ideally we'd want this to connect to
+		// Terraform's top-level -parallelism flag, but that's not plumbed nor
+		// is it scheduled to be plumbed to individual providers.
+		wp := workerpool.New(runtime.NumCPU() - 1)
+
+		for _, object := range res.Items {
+			log.Printf("[DEBUG] Found %s", object.Name)
+			object := object
+
+			wp.Submit(func() {
+				log.Printf("[TRACE] Attempting to delete %s", object.Name)
+				if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
+					deleteObjectError = err
+					log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
+				} else {
+					log.Printf("[TRACE] Successfully deleted %s", object.Name)
+				}
+			})
+		}
+
+		// Wait for everything to finish.
+		wp.StopWait()
 	}
 
 	// remove empty bucket
@@ -675,8 +733,14 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		}
 		return resource.NonRetryableError(err)
 	})
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && listError != nil {
+		return fmt.Errorf("could not delete non-empty bucket due to error when listing contents: %v", listError)
+	}
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && deleteObjectError != nil {
+		return fmt.Errorf("could not delete non-empty bucket due to error when deleting contents: %v", deleteObjectError)
+	}
 	if err != nil {
-		fmt.Printf("Error deleting bucket %s: %v\n\n", bucket, err)
+		log.Printf("Error deleting bucket %s: %v", bucket, err)
 		return err
 	}
 	log.Printf("[DEBUG] Deleted bucket %v\n\n", bucket)
@@ -796,6 +860,9 @@ func flattenBucketLogging(bucketLogging *storage.BucketLogging) []map[string]int
 
 func expandBucketRetentionPolicy(configured interface{}) *storage.BucketRetentionPolicy {
 	retentionPolicies := configured.([]interface{})
+	if len(retentionPolicies) == 0 {
+		return nil
+	}
 	retentionPolicy := retentionPolicies[0].(map[string]interface{})
 
 	bucketRetentionPolicy := &storage.BucketRetentionPolicy{

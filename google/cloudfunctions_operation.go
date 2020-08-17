@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"time"
 
 	"google.golang.org/api/cloudfunctions/v1"
 )
@@ -18,12 +19,12 @@ func (w *CloudFunctionsOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 
-func cloudFunctionsOperationWait(service *cloudfunctions.Service, op *cloudfunctions.Operation, activity string, timeoutMin int) error {
+func cloudFunctionsOperationWait(config *Config, op *cloudfunctions.Operation, activity string, timeout time.Duration) error {
 	w := &CloudFunctionsOperationWaiter{
-		Service: service,
+		Service: config.clientCloudFunctions,
 	}
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeoutMin)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }

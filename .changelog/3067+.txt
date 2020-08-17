@@ -1,0 +1,15 @@
+```changelog:enhancement
+sql: add `encryption_key_name` to `google_sql_database_instance`
+```
+```changelog:new-resource
+google_container_registry
+```
+```changelog:bug
+cloud run: fix permadiff.
+```
+```changelog:enhancement
+all: improve error handling of 404s.
+```
+```changelog:enhancement
+dialogflow: improve error handling by increasing retry count
+```

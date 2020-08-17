@@ -43,20 +43,24 @@ their GA launch.
 
 ## Using the `google-beta` provider
 
-To use the `google-beta` provider, explicitly define a `google-beta` provider
-block, and state on the resource which provider you wish to use.
+To use the `google-beta` provider, simply set the `provider` field on each
+resource where you want to use `google-beta`.
+
+```hcl
+resource "google_compute_instance" "beta-instance" {
+  provider = google-beta
+  # ...
+}
+```
+
+To customize the behavior of the beta provider, you can define a `google-beta`
+provider block, which accepts the same arguments as the `google` provider block.
 
 ```hcl
 provider "google-beta" {
   credentials = "${file("account.json")}"
   project     = "my-project-id"
   region      = "us-central1"
-}
-
-resource "google_compute_instance" "beta-instance" {
-  provider = "google-beta"
-
-  # ...
 }
 ```
 
@@ -65,7 +69,27 @@ resource "google_compute_instance" "beta-instance" {
 
 ## Using both provider versions together
 
-To have resources at different API versions, set up provider blocks for each version:
+It is safe to use both provider versions in the same configuration.
+
+In each resource, state which provider that resource should be used with.
+We recommend that you set `provider = google` even though it is the default,
+for clarity.
+
+```hcl
+resource "google_compute_instance" "ga-instance" {
+  provider = google
+
+  # ...
+}
+
+resource "google_compute_instance" "beta-instance" {
+  provider = google-beta
+
+  # ...
+}
+```
+
+You can define parallel provider blocks - they will not interfere with each other.
 
 ```hcl
 provider "google" {
@@ -78,22 +102,6 @@ provider "google-beta" {
   credentials = "${file("account.json")}"
   project     = "my-project-id"
   region      = "us-central1"
-}
-```
-
-In each resource, state which provider that resource should be used with:
-
-```hcl
-resource "google_compute_instance" "ga-instance" {
-  provider = "google"
-
-  # ...
-}
-
-resource "google_compute_instance" "beta-instance" {
-  provider = "google-beta"
-
-  # ...
 }
 ```
 

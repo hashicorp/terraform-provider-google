@@ -1,0 +1,3 @@
+```release-note:bug
+* all: fixed bug where timeouts specified in units other than minutes were getting incorrectly rounded. Also fixed several instances of timeout values being used from the wrong method.
+```

@@ -46,9 +46,8 @@ To get more information about Disk, see:
 * How-to Guides
     * [Adding a persistent disk](https://cloud.google.com/compute/docs/disks/add-persistent-disk)
 
-~> **Warning:** All arguments including the disk encryption key will be stored in the raw
-state as plain-text.
-[Read more about sensitive data in state](/docs/state/sensitive-data.html).
+~> **Warning:** All arguments including `disk_encryption_key.raw_key` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=disk_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -130,7 +129,7 @@ The following arguments are supported:
   `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
   `{project}/{image}`, `{family}`, or `{image}`. If referred by family, the
   images names must include the family name. If they don't, use the
-  [google_compute_image data source](/docs/providers/google/d/datasource_compute_image.html).
+  [google_compute_image data source](/docs/providers/google/d/compute_image.html).
   For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
   These images can be referred by family name here.
 
@@ -141,7 +140,8 @@ The following arguments are supported:
 * `source_image_encryption_key` -
   (Optional)
   The customer-supplied encryption key of the source image. Required if
-  the source image is protected by a customer-supplied encryption key.  Structure is documented below.
+  the source image is protected by a customer-supplied encryption key.
+  Structure is documented below.
 
 * `disk_encryption_key` -
   (Optional)
@@ -153,7 +153,8 @@ The following arguments are supported:
   the disk.
   If you do not provide an encryption key when creating the disk, then
   the disk will be encrypted using an automatically generated key and
-  you do not need to provide a key to use the disk later.  Structure is documented below.
+  you do not need to provide a key to use the disk later.
+  Structure is documented below.
 
 * `snapshot` -
   (Optional)
@@ -170,7 +171,8 @@ The following arguments are supported:
   (Optional)
   The customer-supplied encryption key of the source snapshot. Required
   if the source snapshot is protected by a customer-supplied encryption
-  key.  Structure is documented below.
+  key.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -190,9 +192,10 @@ The `source_image_encryption_key` block supports:
 * `kms_key_self_link` -
   (Optional)
   The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-  in the cloud console. In order to use this additional
-  IAM permissions need to be set on the Compute Engine Service Agent. See
-  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
 The `disk_encryption_key` block supports:
 
@@ -200,6 +203,7 @@ The `disk_encryption_key` block supports:
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
@@ -208,9 +212,10 @@ The `disk_encryption_key` block supports:
 * `kms_key_self_link` -
   (Optional)
   The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-  in the cloud console. In order to use this additional
-  IAM permissions need to be set on the Compute Engine Service Agent. See
-  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
 The `source_snapshot_encryption_key` block supports:
 
@@ -222,9 +227,10 @@ The `source_snapshot_encryption_key` block supports:
 * `kms_key_self_link` -
   (Optional)
   The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
-  in the cloud console. In order to use this additional
-  IAM permissions need to be set on the Compute Engine Service Agent. See
-  https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+  in the cloud console. Your project's Compute Engine System service account
+  (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
+  `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+  See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
@@ -234,6 +240,7 @@ The `source_snapshot_encryption_key` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/disks/{{name}}`
 
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used

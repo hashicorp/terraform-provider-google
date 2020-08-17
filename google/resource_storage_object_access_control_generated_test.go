@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,13 +27,13 @@ func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExa
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageObjectAccessControlDestroy,
+		CheckDestroy: testAccCheckStorageObjectAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(context),
@@ -58,38 +57,40 @@ resource "google_storage_object_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "static-content-bucket%{random_suffix}"
+  name = "tf-test-static-content-bucket%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
-  name   = "public-object%{random_suffix}"
+  name   = "tf-test-public-object%{random_suffix}"
   bucket = google_storage_bucket.bucket.name
   source = "test-fixtures/header-logo.png"
 }
 `, context)
 }
 
-func testAccCheckStorageObjectAccessControlDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_storage_object_access_control" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckStorageObjectAccessControlDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_storage_object_access_control" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("StorageObjectAccessControl still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("StorageObjectAccessControl still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

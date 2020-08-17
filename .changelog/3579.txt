@@ -1,0 +1,3 @@
+```release-note:bug
+`bigquery`: Fixed an issue where `google_bigquery_job` would return "was present, but now absent" error after job creation
+```

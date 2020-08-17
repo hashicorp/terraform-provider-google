@@ -1,5 +1,5 @@
 ---
-subcategory: "Stackdriver Logging"
+subcategory: "Cloud (Stackdriver) Logging"
 layout: "google"
 page_title: "Google: google_logging_billing_account_sink"
 sidebar_current: "docs-google-logging-billing-account-sink"
@@ -63,10 +63,21 @@ The following arguments are supported:
     See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced_filters) for information on how to
     write a filter.
 
+* `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure documented below.
+
+The `bigquery_options` block supports:
+
+* `use_partitioned_tables` - (Required) Whether to use [BigQuery's partition tables](https://cloud.google.com/bigquery/docs/partitioned-tables).
+    By default, Logging creates dated tables based on the log entries' timestamps, e.g. syslog_20170523. With partitioned
+    tables the date suffix is no longer present and [special query syntax](https://cloud.google.com/bigquery/docs/querying-partitioned-tables)
+    has to be used instead. In both cases, tables are sharded based on UTC timezone.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
+
+* `id` - an identifier for the resource with format `billingAccounts/{{billing_account_id}}/sinks/{{sink_id}}`
 
 * `writer_identity` - The identity associated with this sink. This identity must be granted write access to the
     configured `destination`.

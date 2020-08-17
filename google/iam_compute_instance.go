@@ -53,14 +53,14 @@ type ComputeInstanceIamUpdater struct {
 func ComputeInstanceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		d.Set("project", project)
 	}
 	values["project"] = project
-	zone, err := getZone(d, config)
-	if err != nil {
-		return nil, err
+	zone, _ := getZone(d, config)
+	if zone != "" {
+		d.Set("zone", zone)
 	}
 	values["zone"] = zone
 	if v, ok := d.GetOk("instance_name"); ok {
@@ -95,16 +95,15 @@ func ComputeInstanceIamUpdaterProducer(d *schema.ResourceData, config *Config) (
 func ComputeInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
-	zone, err := getZone(d, config)
-	if err != nil {
-		return err
+
+	zone, _ := getZone(d, config)
+	if zone != "" {
+		values["zone"] = zone
 	}
-	values["zone"] = zone
 
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance_name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<instance_name>[^/]+)"}, d, config, d.Id())
 	if err != nil {
@@ -128,13 +127,20 @@ func ComputeInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 }
 
 func (u *ComputeInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyInstanceUrl("getIamPolicy")
+	url, err := u.qualifyInstanceUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
 	var obj map[string]interface{}
+	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", iamPolicyVersion)})
+	if err != nil {
+		return nil, err
+	}
 
 	policy, err := sendRequest(u.Config, "GET", project, url, obj)
 	if err != nil {
@@ -159,8 +165,10 @@ func (u *ComputeInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyInstanceUrl("setIamPolicy")
-
+	url, err := u.qualifyInstanceUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
@@ -174,8 +182,13 @@ func (u *ComputeInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 	return nil
 }
 
-func (u *ComputeInstanceIamUpdater) qualifyInstanceUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://www.googleapis.com/compute/v1/%s/%s", fmt.Sprintf("projects/%s/zones/%s/instances/%s", u.project, u.zone, u.instanceName), methodIdentifier)
+func (u *ComputeInstanceIamUpdater) qualifyInstanceUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/zones/%s/instances/%s", u.project, u.zone, u.instanceName), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *ComputeInstanceIamUpdater) GetResourceId() string {

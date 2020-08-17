@@ -4,22 +4,23 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccBigtableInstanceIamBinding(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
 	t.Parallel()
 
-	instance := "tf-bigtable-iam-" + acctest.RandString(10)
-	cluster := "c-" + acctest.RandString(10)
-	account := "tf-bigtable-iam-" + acctest.RandString(10)
+	instance := "tf-bigtable-iam-" + randString(t, 10)
+	cluster := "c-" + randString(t, 10)
+	account := "tf-bigtable-iam-" + randString(t, 10)
 	role := "roles/bigtable.user"
 
 	importId := fmt.Sprintf("projects/%s/instances/%s %s",
 		getTestProjectFromEnv(), instance, role)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -52,11 +53,13 @@ func TestAccBigtableInstanceIamBinding(t *testing.T) {
 }
 
 func TestAccBigtableInstanceIamMember(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
 	t.Parallel()
 
-	instance := "tf-bigtable-iam-" + acctest.RandString(10)
-	cluster := "c-" + acctest.RandString(10)
-	account := "tf-bigtable-iam-" + acctest.RandString(10)
+	instance := "tf-bigtable-iam-" + randString(t, 10)
+	cluster := "c-" + randString(t, 10)
+	account := "tf-bigtable-iam-" + randString(t, 10)
 	role := "roles/bigtable.user"
 
 	importId := fmt.Sprintf("projects/%s/instances/%s %s serviceAccount:%s",
@@ -65,7 +68,7 @@ func TestAccBigtableInstanceIamMember(t *testing.T) {
 		role,
 		serviceAccountCanonicalEmail(account))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -90,17 +93,19 @@ func TestAccBigtableInstanceIamMember(t *testing.T) {
 }
 
 func TestAccBigtableInstanceIamPolicy(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
 	t.Parallel()
 
-	instance := "tf-bigtable-iam-" + acctest.RandString(10)
-	cluster := "c-" + acctest.RandString(10)
-	account := "tf-bigtable-iam-" + acctest.RandString(10)
+	instance := "tf-bigtable-iam-" + randString(t, 10)
+	cluster := "c-" + randString(t, 10)
+	account := "tf-bigtable-iam-" + randString(t, 10)
 	role := "roles/bigtable.user"
 
 	importId := fmt.Sprintf("projects/%s/instances/%s",
 		getTestProjectFromEnv(), instance)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -210,5 +215,7 @@ resource "google_bigtable_instance" "instance" {
       zone         = "us-central1-b"
       storage_type = "HDD"
     }
+
+    deletion_protection = false
 }
 `

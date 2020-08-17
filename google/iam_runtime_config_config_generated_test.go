@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -26,11 +25,11 @@ func TestAccRuntimeConfigConfigIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -39,7 +38,7 @@ func TestAccRuntimeConfigConfigIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_runtimeconfig_config_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("my-config%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("tf-test-my-config%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +48,7 @@ func TestAccRuntimeConfigConfigIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_runtimeconfig_config_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("my-config%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("tf-test-my-config%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -61,11 +60,11 @@ func TestAccRuntimeConfigConfigIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -75,7 +74,7 @@ func TestAccRuntimeConfigConfigIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_runtimeconfig_config_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("my-config%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("tf-test-my-config%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -87,11 +86,11 @@ func TestAccRuntimeConfigConfigIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -100,7 +99,16 @@ func TestAccRuntimeConfigConfigIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_runtimeconfig_config_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s", getTestProjectFromEnv(), fmt.Sprintf("my-config%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s", getTestProjectFromEnv(), fmt.Sprintf("tf-test-my-config%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccRuntimeConfigConfigIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_runtimeconfig_config_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/configs/%s", getTestProjectFromEnv(), fmt.Sprintf("tf-test-my-config%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -111,15 +119,15 @@ func TestAccRuntimeConfigConfigIamPolicyGenerated(t *testing.T) {
 func testAccRuntimeConfigConfigIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_runtimeconfig_config" "config" {
-  name        = "my-config%{random_suffix}"
+  name        = "tf-test-my-config%{random_suffix}"
   description = "Runtime configuration values for my service"
 }
 
 resource "google_runtimeconfig_config_iam_member" "foo" {
-	project = "${google_runtimeconfig_config.config.project}"
-	config = "${google_runtimeconfig_config.config.name}"
-	role = "%{role}"
-	member = "user:admin@hashicorptest.com"
+  project = google_runtimeconfig_config.config.project
+  config = google_runtimeconfig_config.config.name
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -127,21 +135,39 @@ resource "google_runtimeconfig_config_iam_member" "foo" {
 func testAccRuntimeConfigConfigIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_runtimeconfig_config" "config" {
-  name        = "my-config%{random_suffix}"
+  name        = "tf-test-my-config%{random_suffix}"
   description = "Runtime configuration values for my service"
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%{role}"
-		members = ["user:admin@hashicorptest.com"]
-	}
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+  }
 }
 
 resource "google_runtimeconfig_config_iam_policy" "foo" {
-	project = "${google_runtimeconfig_config.config.project}"
-	config = "${google_runtimeconfig_config.config.name}"
-	policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_runtimeconfig_config.config.project
+  config = google_runtimeconfig_config.config.name
+  policy_data = data.google_iam_policy.foo.policy_data
+}
+`, context)
+}
+
+func testAccRuntimeConfigConfigIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_runtimeconfig_config" "config" {
+  name        = "tf-test-my-config%{random_suffix}"
+  description = "Runtime configuration values for my service"
+}
+
+data "google_iam_policy" "foo" {
+}
+
+resource "google_runtimeconfig_config_iam_policy" "foo" {
+  project = google_runtimeconfig_config.config.project
+  config = google_runtimeconfig_config.config.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -149,15 +175,15 @@ resource "google_runtimeconfig_config_iam_policy" "foo" {
 func testAccRuntimeConfigConfigIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_runtimeconfig_config" "config" {
-  name        = "my-config%{random_suffix}"
+  name        = "tf-test-my-config%{random_suffix}"
   description = "Runtime configuration values for my service"
 }
 
 resource "google_runtimeconfig_config_iam_binding" "foo" {
-	project = "${google_runtimeconfig_config.config.project}"
-	config = "${google_runtimeconfig_config.config.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com"]
+  project = google_runtimeconfig_config.config.project
+  config = google_runtimeconfig_config.config.name
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -165,15 +191,15 @@ resource "google_runtimeconfig_config_iam_binding" "foo" {
 func testAccRuntimeConfigConfigIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_runtimeconfig_config" "config" {
-  name        = "my-config%{random_suffix}"
+  name        = "tf-test-my-config%{random_suffix}"
   description = "Runtime configuration values for my service"
 }
 
 resource "google_runtimeconfig_config_iam_binding" "foo" {
-	project = "${google_runtimeconfig_config.config.project}"
-	config = "${google_runtimeconfig_config.config.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  project = google_runtimeconfig_config.config.project
+  config = google_runtimeconfig_config.config.name
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

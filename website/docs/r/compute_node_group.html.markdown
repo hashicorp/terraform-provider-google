@@ -45,14 +45,10 @@ Terraform to delete and recreate the node group.
 
 
 ```hcl
-data "google_compute_node_types" "central1a" {
-  zone = "us-central1-a"
-}
-
 resource "google_compute_node_template" "soletenant-tmpl" {
   name      = "soletenant-tmpl"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_group" "nodes" {
@@ -61,7 +57,38 @@ resource "google_compute_node_group" "nodes" {
   description = "example google_compute_node_group for Terraform Google Provider"
 
   size          = 1
-  node_template = google_compute_node_template.soletenant-tmpl.self_link
+  node_template = google_compute_node_template.soletenant-tmpl.id
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=node_group_autoscaling_policy&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Node Group Autoscaling Policy
+
+
+```hcl
+resource "google_compute_node_template" "soletenant-tmpl" {
+  provider = google-beta
+  name      = "soletenant-tmpl"
+  region    = "us-central1"
+  node_type = "n1-node-96-624"
+}
+
+resource "google_compute_node_group" "nodes" {
+  provider = google-beta
+  name        = "soletenant-group"
+  zone        = "us-central1-a"
+  description = "example google_compute_node_group for Terraform Google Provider"
+
+  size          = 1
+  node_template = google_compute_node_template.soletenant-tmpl.id
+  autoscaling_policy {
+    mode = "ON"
+    min_nodes = 1
+    max_nodes = 10
+  }
 }
 ```
 
@@ -102,6 +129,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.

@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: Fixed an issue with `google_bigquery_dataset_access` failing for primitive role `roles/bigquery.dataViewer`
+```

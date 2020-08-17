@@ -1,0 +1,6 @@
+```release-note:note
+dns: Promoted `google_dns_policy` to GA.
+```
+```release-note:note
+dns: Promoted the following `google_dns_managed_zone ` fields to GA: `forwarding_config`, `peering_config`
+```

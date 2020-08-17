@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `min_node_cpus` to the `scheduling` blocks on `compute_instance` and `compute_instance_template`
+```

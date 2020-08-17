@@ -3,6 +3,8 @@ package google
 import (
 	"errors"
 	"fmt"
+	"log"
+	"sort"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
@@ -21,14 +23,14 @@ func MetadataRetryWrapper(update func() error) error {
 			return nil
 		}
 
-		if !isFingerprintError(err) {
+		if ok, _ := isFingerprintError(err); !ok {
 			// Something else went wrong, don't retry
 			return err
 		}
 
+		log.Printf("[DEBUG] Dismissed an error as retryable as a fingerprint mismatch: %s", err)
 		attempt++
 	}
-
 	return fmt.Errorf("Failed to update metadata after %d retries", attempt)
 }
 
@@ -100,9 +102,14 @@ func BetaMetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]int
 
 func expandComputeMetadata(m map[string]interface{}) []*compute.MetadataItems {
 	metadata := make([]*compute.MetadataItems, len(m))
+	var keys []string
+	for key := range m {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
 	// Append new metadata to existing metadata
-	for key, val := range m {
-		v := val.(string)
+	for _, key := range keys {
+		v := m[key].(string)
 		metadata = append(metadata, &compute.MetadataItems{
 			Key:   key,
 			Value: &v,
@@ -143,10 +150,15 @@ func resourceInstanceMetadata(d TerraformResourceData) (*computeBeta.Metadata, e
 	}
 	if len(mdMap) > 0 {
 		m.Items = make([]*computeBeta.MetadataItems, 0, len(mdMap))
-		for key, val := range mdMap {
-			v := val.(string)
+		var keys []string
+		for k := range mdMap {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			v := mdMap[k].(string)
 			m.Items = append(m.Items, &computeBeta.MetadataItems{
-				Key:   key,
+				Key:   k,
 				Value: &v,
 			})
 		}

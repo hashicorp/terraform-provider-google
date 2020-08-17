@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `logConfig.metadata` to `google_compute_firewall`, defining this will enable logging.
+```
+```release-note:deprecation
+compute: deprecated `enableLogging` on `google_compute_firewall`, define `logConfig.metadata` to enable logging instead.
+```

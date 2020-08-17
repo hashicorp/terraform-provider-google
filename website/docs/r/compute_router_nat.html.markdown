@@ -41,7 +41,7 @@ resource "google_compute_network" "net" {
 
 resource "google_compute_subnetwork" "subnet" {
   name          = "my-subnetwork"
-  network       = google_compute_network.net.self_link
+  network       = google_compute_network.net.id
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
@@ -49,7 +49,7 @@ resource "google_compute_subnetwork" "subnet" {
 resource "google_compute_router" "router" {
   name    = "my-router"
   region  = google_compute_subnetwork.subnet.region
-  network = google_compute_network.net.self_link
+  network = google_compute_network.net.id
 
   bgp {
     asn = 64514
@@ -79,7 +79,7 @@ resource "google_compute_network" "net" {
 
 resource "google_compute_subnetwork" "subnet" {
   name          = "my-subnetwork"
-  network       = google_compute_network.net.self_link
+  network       = google_compute_network.net.id
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
@@ -87,7 +87,7 @@ resource "google_compute_subnetwork" "subnet" {
 resource "google_compute_router" "router" {
   name    = "my-router"
   region  = google_compute_subnetwork.subnet.region
-  network = google_compute_network.net.self_link
+  network = google_compute_network.net.id
 }
 
 resource "google_compute_address" "address" {
@@ -106,7 +106,7 @@ resource "google_compute_router_nat" "nat_manual" {
 
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
   subnetwork {
-    name                    = google_compute_subnetwork.default.self_link
+    name                    = google_compute_subnetwork.subnet.id
     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
   }
 }
@@ -127,6 +127,7 @@ The following arguments are supported:
   How external IPs should be allocated for this NAT. Valid values are
   `AUTO_ONLY` for only allowing NAT IPs allocated by Google Cloud
   Platform, or `MANUAL_ONLY` for only user-allocated NAT IP addresses.
+  Possible values are `MANUAL_ONLY` and `AUTO_ONLY`.
 
 * `source_subnetwork_ip_ranges_to_nat` -
   (Required)
@@ -140,6 +141,7 @@ The following arguments are supported:
   contains ALL_SUBNETWORKS_ALL_IP_RANGES or
   ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES, then there should not be any
   other RouterNat section in any Router for this network in this region.
+  Possible values are `ALL_SUBNETWORKS_ALL_IP_RANGES`, `ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES`, and `LIST_OF_SUBNETWORKS`.
 
 * `router` -
   (Required)
@@ -154,10 +156,16 @@ The following arguments are supported:
   Self-links of NAT IPs. Only valid if natIpAllocateOption
   is set to MANUAL_ONLY.
 
+* `drain_nat_ips` -
+  (Optional)
+  A list of URLs of the IP resources to be drained. These IPs must be
+  valid static external IPs that have been assigned to the NAT.
+
 * `subnetwork` -
   (Optional)
   One or more subnetwork NAT configurations. Only used if
-  `source_subnetwork_ip_ranges_to_nat` is set to `LIST_OF_SUBNETWORKS`  Structure is documented below.
+  `source_subnetwork_ip_ranges_to_nat` is set to `LIST_OF_SUBNETWORKS`
+  Structure is documented below.
 
 * `min_ports_per_vm` -
   (Optional)
@@ -183,7 +191,8 @@ The following arguments are supported:
 
 * `log_config` -
   (Optional)
-  Configuration for logging on NAT  Structure is documented below.
+  Configuration for logging on NAT
+  Structure is documented below.
 
 * `region` -
   (Optional)
@@ -221,8 +230,14 @@ The `log_config` block supports:
 
 * `filter` -
   (Required)
-  Specifies the desired filtering of logs on this NAT. Valid
-  values are: `"ERRORS_ONLY"`, `"TRANSLATIONS_ONLY"`, `"ALL"`
+  Specifies the desired filtering of logs on this NAT.
+  Possible values are `ERRORS_ONLY`, `TRANSLATIONS_ONLY`, and `ALL`.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}/{{region}}/{{router}}/{{name}}`
 
 
 ## Timeouts

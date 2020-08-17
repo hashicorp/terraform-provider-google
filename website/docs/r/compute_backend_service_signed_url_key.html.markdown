@@ -31,10 +31,8 @@ To get more information about BackendServiceSignedUrlKey, see:
 * How-to Guides
     * [Using Signed URLs](https://cloud.google.com/cdn/docs/using-signed-urls/)
 
-~> **Warning:** All arguments including the key's value will be stored in the raw
+~> **Warning:** All arguments including `key_value` will be stored in the raw
 state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
-Because the API does not return the sensitive key value,
-we cannot confirm or reverse changes to a key outside of Terraform.
 
 ## Example Usage - Backend Service Signed Url Key
 
@@ -58,14 +56,14 @@ resource "google_compute_backend_service" "example_backend" {
     group = google_compute_instance_group_manager.webservers.instance_group
   }
 
-  health_checks = [google_compute_http_health_check.default.self_link]
+  health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_instance_group_manager" "webservers" {
   name               = "my-webservers"
 
   version {
-    instance_template  = google_compute_instance_template.webserver.self_link
+    instance_template  = google_compute_instance_template.webserver.id
     name               = "primary"
   }
 
@@ -110,6 +108,7 @@ The following arguments are supported:
   (Required)
   128-bit key value used for signing the URL. The key value must be a
   valid RFC 4648 Section 5 base64url encoded string.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `backend_service` -
   (Required)
@@ -123,6 +122,12 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/global/backendServices/{{backend_service}}`
+
 
 ## Timeouts
 
@@ -131,19 +136,6 @@ This resource provides the following
 
 - `create` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
-
-## Import
-
-BackendServiceSignedUrlKey can be imported using any of these accepted formats:
-
-```
-$ terraform import google_compute_backend_service_signed_url_key.default projects/{{project}}/global/backendServices/{{backend_service}}/{{name}}
-$ terraform import google_compute_backend_service_signed_url_key.default {{project}}/{{backend_service}}/{{name}}
-$ terraform import google_compute_backend_service_signed_url_key.default {{backend_service}}/{{name}}
-```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

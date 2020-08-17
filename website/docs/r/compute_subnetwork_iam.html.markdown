@@ -17,11 +17,11 @@ layout: "google"
 page_title: "Google: google_compute_subnetwork_iam"
 sidebar_current: "docs-google-compute-subnetwork-iam"
 description: |-
-  Collection of resources to manage IAM policy for ComputeSubnetwork
+  Collection of resources to manage IAM policy for Compute Engine Subnetwork
 ---
 
-# IAM policy for ComputeSubnetwork
-Three different resources help you manage your IAM policy for Compute Subnetwork. Each of these resources serves a different use case:
+# IAM policy for Compute Engine Subnetwork
+Three different resources help you manage your IAM policy for Compute Engine Subnetwork. Each of these resources serves a different use case:
 
 * `google_compute_subnetwork_iam_policy`: Authoritative. Sets the IAM policy for the subnetwork and replaces any existing policy already attached.
 * `google_compute_subnetwork_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the subnetwork are preserved.
@@ -37,45 +37,45 @@ Three different resources help you manage your IAM policy for Compute Subnetwork
 
 ```hcl
 data "google_iam_policy" "admin" {
-	binding {
-		role = "roles/compute.networkUser"
-		members = [
-			"user:jane@example.com",
-		]
-	}
+  binding {
+    role = "roles/compute.networkUser"
+    members = [
+      "user:jane@example.com",
+    ]
+  }
 }
 
-resource "google_compute_subnetwork_iam_policy" "editor" {
-	project = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.project}"
-	region = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.region}"
-	subnetwork = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.name}"
-	policy_data = "${data.google_iam_policy.admin.policy_data}"
+resource "google_compute_subnetwork_iam_policy" "policy" {
+  project = google_compute_subnetwork.network-with-private-secondary-ip-ranges.project
+  region = google_compute_subnetwork.network-with-private-secondary-ip-ranges.region
+  subnetwork = google_compute_subnetwork.network-with-private-secondary-ip-ranges.name
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
 ## google\_compute\_subnetwork\_iam\_binding
 
 ```hcl
-resource "google_compute_subnetwork_iam_binding" "editor" {
-	project = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.project}"
-	region = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.region}"
-	subnetwork = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.name}"
-	role = "roles/compute.networkUser"
-	members = [
-		"user:jane@example.com",
-	]
+resource "google_compute_subnetwork_iam_binding" "binding" {
+  project = google_compute_subnetwork.network-with-private-secondary-ip-ranges.project
+  region = google_compute_subnetwork.network-with-private-secondary-ip-ranges.region
+  subnetwork = google_compute_subnetwork.network-with-private-secondary-ip-ranges.name
+  role = "roles/compute.networkUser"
+  members = [
+    "user:jane@example.com",
+  ]
 }
 ```
 
 ## google\_compute\_subnetwork\_iam\_member
 
 ```hcl
-resource "google_compute_subnetwork_iam_member" "editor" {
-	project = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.project}"
-	region = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.region}"
-	subnetwork = "${google_compute_subnetwork.network-with-private-secondary-ip-ranges.name}"
-	role = "roles/compute.networkUser"
-	member = "user:jane@example.com"
+resource "google_compute_subnetwork_iam_member" "member" {
+  project = google_compute_subnetwork.network-with-private-secondary-ip-ranges.project
+  region = google_compute_subnetwork.network-with-private-secondary-ip-ranges.region
+  subnetwork = google_compute_subnetwork.network-with-private-secondary-ip-ranges.name
+  role = "roles/compute.networkUser"
+  member = "user:jane@example.com"
 }
 ```
 
@@ -84,7 +84,7 @@ resource "google_compute_subnetwork_iam_member" "editor" {
 The following arguments are supported:
 
 * `subnetwork` - (Required) Used to find the parent resource to bind the IAM policy to
-* `region` - (Optional) URL of the GCP region for this subnetwork.
+* `region` - (Optional) The GCP region for this subnetwork.
  Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no region is provided in the parent identifier and no
   region is specified, it is taken from the provider configuration.
@@ -126,11 +126,11 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Compute subnetwork IAM resources can be imported using the resource identifiers, role, and member.
+Compute Engine subnetwork IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_compute_subnetwork_iam_member.editor "projects/{{project}}/regions/{{region}}/subnetworks/{{subnetwork}} roles/compute.networkUser jane@example.com"
+$ terraform import google_compute_subnetwork_iam_member.editor "projects/{{project}}/regions/{{region}}/subnetworks/{{subnetwork}} roles/compute.networkUser user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
@@ -145,6 +145,9 @@ $ terraform import google_compute_subnetwork_iam_policy.editor projects/{{projec
 
 -> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
 as an argument so that Terraform uses the correct provider to import your resource.
+
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
 
 ## User Project Overrides
 

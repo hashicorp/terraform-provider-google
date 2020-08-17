@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,13 +27,13 @@ func TestAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatch
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAppEngineApplicationUrlDispatchRulesDestroy,
+		CheckDestroy: testAccCheckAppEngineApplicationUrlDispatchRulesDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatchRulesBasicExample(context),
@@ -87,7 +86,7 @@ resource "google_app_engine_standard_app_version" "admin_v3" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "appengine-test-bucket%{random_suffix}"
+  name = "tf-test-appengine-test-bucket%{random_suffix}"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -98,17 +97,19 @@ resource "google_storage_bucket_object" "object" {
 `, context)
 }
 
-func testAccCheckAppEngineApplicationUrlDispatchRulesDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_app_engine_application_url_dispatch_rules" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckAppEngineApplicationUrlDispatchRulesDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_app_engine_application_url_dispatch_rules" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			log.Printf("[DEBUG] Ignoring destroy during test")
 		}
 
-		log.Printf("[DEBUG] Ignoring destroy during test")
+		return nil
 	}
-
-	return nil
 }

@@ -137,7 +137,8 @@ The following arguments are supported:
 
 * `scheduling_config` -
   (Optional)
-  Sets the scheduling options for this TPU instance.  Structure is documented below.
+  Sets the scheduling options for this TPU instance.
+  Structure is documented below.
 
 * `labels` -
   (Optional)
@@ -157,6 +158,7 @@ The `scheduling_config` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{zone}}/nodes/{{name}}`
 
 * `service_account` -
   The service account used to run the tensor flow services within the
@@ -167,7 +169,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `network_endpoints` -
   The network endpoints where TPU workers can be accessed and sent work.
   It is recommended that Tensorflow clients of the node first reach out
-  to the first (index 0) entry.  Structure is documented below.
+  to the first (index 0) entry.
+  Structure is documented below.
 
 
 The `network_endpoints` block contains:

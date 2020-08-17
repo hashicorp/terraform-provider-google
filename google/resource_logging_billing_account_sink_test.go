@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/logging/v2"
@@ -13,21 +12,21 @@ import (
 func TestAccLoggingBillingAccountSink_basic(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
 	billingAccount := getTestBillingAccountFromEnv(t)
 
 	var sink logging.LogSink
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroy,
+		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountSink_basic(sinkName, bucketName, billingAccount),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingBillingAccountSinkExists("google_logging_billing_account_sink.basic", &sink),
+					testAccCheckLoggingBillingAccountSinkExists(t, "google_logging_billing_account_sink.basic", &sink),
 					testAccCheckLoggingBillingAccountSink(&sink, "google_logging_billing_account_sink.basic"),
 				),
 			}, {
@@ -42,28 +41,28 @@ func TestAccLoggingBillingAccountSink_basic(t *testing.T) {
 func TestAccLoggingBillingAccountSink_update(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
-	updatedBucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	updatedBucketName := "tf-test-sink-bucket-" + randString(t, 10)
 	billingAccount := getTestBillingAccountFromEnv(t)
 
 	var sinkBefore, sinkAfter logging.LogSink
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroy,
+		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountSink_update(sinkName, bucketName, billingAccount),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingBillingAccountSinkExists("google_logging_billing_account_sink.update", &sinkBefore),
+					testAccCheckLoggingBillingAccountSinkExists(t, "google_logging_billing_account_sink.update", &sinkBefore),
 					testAccCheckLoggingBillingAccountSink(&sinkBefore, "google_logging_billing_account_sink.update"),
 				),
 			}, {
 				Config: testAccLoggingBillingAccountSink_update(sinkName, updatedBucketName, billingAccount),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingBillingAccountSinkExists("google_logging_billing_account_sink.update", &sinkAfter),
+					testAccCheckLoggingBillingAccountSinkExists(t, "google_logging_billing_account_sink.update", &sinkAfter),
 					testAccCheckLoggingBillingAccountSink(&sinkAfter, "google_logging_billing_account_sink.update"),
 				),
 			}, {
@@ -84,24 +83,56 @@ func TestAccLoggingBillingAccountSink_update(t *testing.T) {
 	}
 }
 
+func TestAccLoggingBillingAccountSink_updateBigquerySink(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bqDatasetID := "tf_test_sink_" + randString(t, 10)
+	billingAccount := getTestBillingAccountFromEnv(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingBillingAccountSink_bigquery_before(sinkName, bqDatasetID, billingAccount),
+			},
+			{
+				ResourceName:      "google_logging_billing_account_sink.bigquery",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingBillingAccountSink_bigquery_after(sinkName, bqDatasetID, billingAccount),
+			},
+			{
+				ResourceName:      "google_logging_billing_account_sink.bigquery",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccLoggingBillingAccountSink_heredoc(t *testing.T) {
 	t.Parallel()
 
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
 	billingAccount := getTestBillingAccountFromEnv(t)
 
 	var sink logging.LogSink
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroy,
+		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountSink_heredoc(sinkName, bucketName, billingAccount),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingBillingAccountSinkExists("google_logging_billing_account_sink.heredoc", &sink),
+					testAccCheckLoggingBillingAccountSinkExists(t, "google_logging_billing_account_sink.heredoc", &sink),
 					testAccCheckLoggingBillingAccountSink(&sink, "google_logging_billing_account_sink.heredoc"),
 				),
 			}, {
@@ -113,32 +144,34 @@ func TestAccLoggingBillingAccountSink_heredoc(t *testing.T) {
 	})
 }
 
-func testAccCheckLoggingBillingAccountSinkDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckLoggingBillingAccountSinkDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_logging_billing_account_sink" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_logging_billing_account_sink" {
+				continue
+			}
+
+			attributes := rs.Primary.Attributes
+
+			_, err := config.clientLogging.BillingAccounts.Sinks.Get(attributes["id"]).Do()
+			if err == nil {
+				return fmt.Errorf("billing sink still exists")
+			}
 		}
 
-		attributes := rs.Primary.Attributes
-
-		_, err := config.clientLogging.BillingAccounts.Sinks.Get(attributes["id"]).Do()
-		if err == nil {
-			return fmt.Errorf("billing sink still exists")
-		}
+		return nil
 	}
-
-	return nil
 }
 
-func testAccCheckLoggingBillingAccountSinkExists(n string, sink *logging.LogSink) resource.TestCheckFunc {
+func testAccCheckLoggingBillingAccountSinkExists(t *testing.T, n string, sink *logging.LogSink) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		attributes, err := getResourceAttributes(n, s)
 		if err != nil {
 			return err
 		}
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		si, err := config.clientLogging.BillingAccounts.Sinks.Get(attributes["id"]).Do()
 		if err != nil {
@@ -223,4 +256,38 @@ resource "google_storage_bucket" "log-bucket" {
   name = "%s"
 }
 `, name, billingAccount, getTestProjectFromEnv(), bucketName)
+}
+
+func testAccLoggingBillingAccountSink_bigquery_before(sinkName, bqDatasetID, billingAccount string) string {
+	return fmt.Sprintf(`
+resource "google_logging_billing_account_sink" "bigquery" {
+  name             = "%s"
+  billing_account  = "%s"
+  destination      = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.logging_sink.dataset_id}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+
+  bigquery_options {
+    use_partitioned_tables = true
+  }
+}
+
+resource "google_bigquery_dataset" "logging_sink" {
+  dataset_id  = "%s"
+  description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
+}`, sinkName, billingAccount, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
+}
+
+func testAccLoggingBillingAccountSink_bigquery_after(sinkName, bqDatasetID, billingAccount string) string {
+	return fmt.Sprintf(`
+resource "google_logging_billing_account_sink" "bigquery" {
+  name             = "%s"
+  billing_account  = "%s"
+  destination      = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.logging_sink.dataset_id}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
+}
+
+resource "google_bigquery_dataset" "logging_sink" {
+  dataset_id  = "%s"
+  description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
+}`, sinkName, billingAccount, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
 }

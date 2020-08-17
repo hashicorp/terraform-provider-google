@@ -24,6 +24,10 @@ func dataSourceGoogleOrganization() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"domain"},
 			},
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -50,9 +54,13 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 	var organization *cloudresourcemanager.Organization
 	if v, ok := d.GetOk("domain"); ok {
 		filter := fmt.Sprintf("domain=%s", v.(string))
-		resp, err := config.clientResourceManager.Organizations.Search(&cloudresourcemanager.SearchOrganizationsRequest{
-			Filter: filter,
-		}).Do()
+		var resp *cloudresourcemanager.SearchOrganizationsResponse
+		err := retryTimeDuration(func() (err error) {
+			resp, err = config.clientResourceManager.Organizations.Search(&cloudresourcemanager.SearchOrganizationsRequest{
+				Filter: filter,
+			}).Do()
+			return err
+		}, d.Timeout(schema.TimeoutRead))
 		if err != nil {
 			return fmt.Errorf("Error reading organization: %s", err)
 		}
@@ -60,13 +68,28 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 		if len(resp.Organizations) == 0 {
 			return fmt.Errorf("Organization not found: %s", v)
 		}
+
 		if len(resp.Organizations) > 1 {
-			return fmt.Errorf("More than one matching organization found")
+			// Attempt to find an exact domain match
+			for _, org := range resp.Organizations {
+				if org.DisplayName == v.(string) {
+					organization = org
+					break
+				}
+			}
+			if organization == nil {
+				return fmt.Errorf("Received multiple organizations in the response, but could not find an exact domain match.")
+			}
+		} else {
+			organization = resp.Organizations[0]
 		}
 
-		organization = resp.Organizations[0]
 	} else if v, ok := d.GetOk("organization"); ok {
-		resp, err := config.clientResourceManager.Organizations.Get(canonicalOrganizationName(v.(string))).Do()
+		var resp *cloudresourcemanager.Organization
+		err := retryTimeDuration(func() (err error) {
+			resp, err = config.clientResourceManager.Organizations.Get(canonicalOrganizationName(v.(string))).Do()
+			return err
+		}, d.Timeout(schema.TimeoutRead))
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("Organization Not Found : %s", v))
 		}
@@ -78,6 +101,7 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 
 	d.SetId(organization.Name)
 	d.Set("name", organization.Name)
+	d.Set("org_id", GetResourceNameFromSelfLink(organization.Name))
 	d.Set("domain", organization.DisplayName)
 	d.Set("create_time", organization.CreationTime)
 	d.Set("lifecycle_state", organization.LifecycleState)

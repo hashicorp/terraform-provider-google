@@ -42,7 +42,7 @@ To get more information about DomainMapping, see:
 ```hcl
 
 resource "google_cloud_run_service" "default" {
-  name     = "tftest-cloudrun"
+  name     = "cloudrun-srv"
   location = "us-central1"
 
   metadata {
@@ -83,11 +83,13 @@ The following arguments are supported:
 
 * `spec` -
   (Required)
-  The spec for this DomainMapping.  Structure is documented below.
+  The spec for this DomainMapping.
+  Structure is documented below.
 
 * `metadata` -
   (Required)
-  Metadata associated with this DomainMapping.  Structure is documented below.
+  Metadata associated with this DomainMapping.
+  Structure is documented below.
 
 * `location` -
   (Required)
@@ -111,6 +113,8 @@ The `spec` block supports:
 * `certificate_mode` -
   (Optional)
   The mode of the certificate.
+  Default value is `AUTOMATIC`.
+  Possible values are `NONE` and `AUTOMATIC`.
 
 The `metadata` block supports:
 
@@ -163,16 +167,19 @@ The `metadata` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `locations/{{location}}/namespaces/{{project}}/domainmappings/{{name}}`
 
 * `status` -
-  The current status of the DomainMapping.  Structure is documented below.
+  The current status of the DomainMapping.
+  Structure is documented below.
 
 
 The `status` block contains:
 
 * `conditions` -
   Array of observed DomainMappingConditions, indicating the current state
-  of the DomainMapping.  Structure is documented below.
+  of the DomainMapping.
+  Structure is documented below.
 
 * `observed_generation` -
   ObservedGeneration is the 'Generation' of the DomainMapping that
@@ -182,7 +189,8 @@ The `status` block contains:
   (Optional)
   The resource records required to configure this domain mapping. These
   records must be added to the domain's DNS configuration in order to
-  serve the application via this domain mapping.  Structure is documented below.
+  serve the application via this domain mapping.
+  Structure is documented below.
 
 * `mapped_route_name` -
   The name of the route that the mapping currently points to.
@@ -207,6 +215,7 @@ The `resource_records` block supports:
 * `type` -
   (Optional)
   Resource record type. Example: `AAAA`.
+  Possible values are `A`, `AAAA`, and `CNAME`.
 
 * `rrdata` -
   Data for this record. Values vary by record type, as defined in RFC 1035
@@ -221,8 +230,7 @@ The `resource_records` block supports:
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
+- `create` - Default is 6 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import

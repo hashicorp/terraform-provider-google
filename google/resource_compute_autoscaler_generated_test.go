@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,13 +27,13 @@ func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAutoscalerDestroy,
+		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAutoscaler_autoscalerBasicExample(context),
@@ -51,9 +50,9 @@ func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
 func testAccComputeAutoscaler_autoscalerBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_autoscaler" "foobar" {
-  name   = "my-autoscaler%{random_suffix}"
+  name   = "tf-test-my-autoscaler%{random_suffix}"
   zone   = "us-central1-f"
-  target = google_compute_instance_group_manager.foobar.self_link
+  target = google_compute_instance_group_manager.foobar.id
 
   autoscaling_policy {
     max_replicas    = 5
@@ -67,14 +66,14 @@ resource "google_compute_autoscaler" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "my-instance-template%{random_suffix}"
+  name           = "tf-test-my-instance-template%{random_suffix}"
   machine_type   = "n1-standard-1"
   can_ip_forward = false
 
   tags = ["foo", "bar"]
 
   disk {
-    source_image = data.google_compute_image.debian_9.self_link
+    source_image = data.google_compute_image.debian_9.id
   }
 
   network_interface {
@@ -91,19 +90,19 @@ resource "google_compute_instance_template" "foobar" {
 }
 
 resource "google_compute_target_pool" "foobar" {
-  name = "my-target-pool%{random_suffix}"
+  name = "tf-test-my-target-pool%{random_suffix}"
 }
 
 resource "google_compute_instance_group_manager" "foobar" {
-  name = "my-igm%{random_suffix}"
+  name = "tf-test-my-igm%{random_suffix}"
   zone = "us-central1-f"
 
   version {
-    instance_template  = google_compute_instance_template.foobar.self_link
+    instance_template  = google_compute_instance_template.foobar.id
     name               = "primary"
   }
 
-  target_pools       = [google_compute_target_pool.foobar.self_link]
+  target_pools       = [google_compute_target_pool.foobar.id]
   base_instance_name = "foobar"
 }
 
@@ -114,27 +113,29 @@ data "google_compute_image" "debian_9" {
 `, context)
 }
 
-func testAccCheckComputeAutoscalerDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_autoscaler" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckComputeAutoscalerDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_autoscaler" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("ComputeAutoscaler still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeAutoscaler still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

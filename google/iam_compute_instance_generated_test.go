@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -26,11 +25,11 @@ func TestAccComputeInstanceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/compute.osLogin",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -39,7 +38,7 @@ func TestAccComputeInstanceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instance_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +48,7 @@ func TestAccComputeInstanceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instance_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -61,11 +60,11 @@ func TestAccComputeInstanceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/compute.osLogin",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -75,7 +74,7 @@ func TestAccComputeInstanceIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instance_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s roles/compute.osLogin user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -87,11 +86,11 @@ func TestAccComputeInstanceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/compute.osLogin",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -100,7 +99,16 @@ func TestAccComputeInstanceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_instance_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeInstanceIamPolicy_emptyBinding(context),
+			},
+			{
+				ResourceName:      "google_compute_instance_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/instances/%s", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -111,7 +119,7 @@ func TestAccComputeInstanceIamPolicyGenerated(t *testing.T) {
 func testAccComputeInstanceIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_instance" "default" {
-  name         = "my-instance%{random_suffix}"
+  name         = "tf-test-my-instance%{random_suffix}"
   zone         = ""
   machine_type = "n1-standard-1"
 
@@ -127,11 +135,11 @@ resource "google_compute_instance" "default" {
 }
 
 resource "google_compute_instance_iam_member" "foo" {
-	project = "${google_compute_instance.default.project}"
-	zone = "${google_compute_instance.default.zone}"
-	instance_name = "${google_compute_instance.default.name}"
-	role = "%{role}"
-	member = "user:admin@hashicorptest.com"
+  project = google_compute_instance.default.project
+  zone = google_compute_instance.default.zone
+  instance_name = google_compute_instance.default.name
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -139,7 +147,7 @@ resource "google_compute_instance_iam_member" "foo" {
 func testAccComputeInstanceIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_instance" "default" {
-  name         = "my-instance%{random_suffix}"
+  name         = "tf-test-my-instance%{random_suffix}"
   zone         = ""
   machine_type = "n1-standard-1"
 
@@ -155,17 +163,47 @@ resource "google_compute_instance" "default" {
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%{role}"
-		members = ["user:admin@hashicorptest.com"]
-	}
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+  }
 }
 
 resource "google_compute_instance_iam_policy" "foo" {
-	project = "${google_compute_instance.default.project}"
-	zone = "${google_compute_instance.default.zone}"
-	instance_name = "${google_compute_instance.default.name}"
-	policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_compute_instance.default.project
+  zone = google_compute_instance.default.zone
+  instance_name = google_compute_instance.default.name
+  policy_data = data.google_iam_policy.foo.policy_data
+}
+`, context)
+}
+
+func testAccComputeInstanceIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_instance" "default" {
+  name         = "tf-test-my-instance%{random_suffix}"
+  zone         = ""
+  machine_type = "n1-standard-1"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+data "google_iam_policy" "foo" {
+}
+
+resource "google_compute_instance_iam_policy" "foo" {
+  project = google_compute_instance.default.project
+  zone = google_compute_instance.default.zone
+  instance_name = google_compute_instance.default.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -173,7 +211,7 @@ resource "google_compute_instance_iam_policy" "foo" {
 func testAccComputeInstanceIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_instance" "default" {
-  name         = "my-instance%{random_suffix}"
+  name         = "tf-test-my-instance%{random_suffix}"
   zone         = ""
   machine_type = "n1-standard-1"
 
@@ -189,11 +227,11 @@ resource "google_compute_instance" "default" {
 }
 
 resource "google_compute_instance_iam_binding" "foo" {
-	project = "${google_compute_instance.default.project}"
-	zone = "${google_compute_instance.default.zone}"
-	instance_name = "${google_compute_instance.default.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com"]
+  project = google_compute_instance.default.project
+  zone = google_compute_instance.default.zone
+  instance_name = google_compute_instance.default.name
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -201,7 +239,7 @@ resource "google_compute_instance_iam_binding" "foo" {
 func testAccComputeInstanceIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_instance" "default" {
-  name         = "my-instance%{random_suffix}"
+  name         = "tf-test-my-instance%{random_suffix}"
   zone         = ""
   machine_type = "n1-standard-1"
 
@@ -217,11 +255,11 @@ resource "google_compute_instance" "default" {
 }
 
 resource "google_compute_instance_iam_binding" "foo" {
-	project = "${google_compute_instance.default.project}"
-	zone = "${google_compute_instance.default.zone}"
-	instance_name = "${google_compute_instance.default.name}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  project = google_compute_instance.default.project
+  zone = google_compute_instance.default.zone
+  instance_name = google_compute_instance.default.name
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

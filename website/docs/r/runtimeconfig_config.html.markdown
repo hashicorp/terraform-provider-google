@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Runtime Configuration"
+subcategory: "Runtime Configurator"
 layout: "google"
 page_title: "Google: google_runtimeconfig_config"
 sidebar_current: "docs-google-runtimeconfig-config"
@@ -38,6 +38,12 @@ is not provided, the provider project is used.
 
 * `description` - (Optional) The description to associate with the runtime
 config.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/configs/{{name}}`
 
 ## Import
 

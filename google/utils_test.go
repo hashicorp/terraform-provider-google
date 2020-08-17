@@ -506,8 +506,17 @@ func TestRetryTimeDuration_wrapped(t *testing.T) {
 		}
 		return errwrap.Wrapf("nested error: {{err}}", err)
 	}
-	if err := retryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil || err.(*googleapi.Error).Code != 500 {
-		t.Errorf("unexpected error retrying: %v", err)
+	if err := retryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil {
+		t.Errorf("unexpected nil error, expected an error")
+	} else {
+		innerErr := errwrap.GetType(err, &googleapi.Error{})
+		if innerErr == nil {
+			t.Errorf("unexpected error %v does not have a google api error", err)
+		}
+		gerr := innerErr.(*googleapi.Error)
+		if gerr.Code != 500 {
+			t.Errorf("unexpected googleapi error expected code 500, error: %v", gerr)
+		}
 	}
 	if i < 2 {
 		t.Errorf("expected error function to be called at least twice, but was called %d times", i)

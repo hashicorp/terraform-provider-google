@@ -61,21 +61,24 @@ The following arguments are supported:
 * `app_engine_routing_override` -
   (Optional)
   Overrides for task-level appEngineRouting. These settings apply only
-  to App Engine tasks in this queue  Structure is documented below.
+  to App Engine tasks in this queue
+  Structure is documented below.
 
 * `rate_limits` -
   (Optional)
-  Rate limits for task dispatches. 
+  Rate limits for task dispatches.
   The queue's actual dispatch rate is the result of:
   * Number of tasks in the queue
   * User-specified throttling: rateLimits, retryConfig, and the queue's state.
   * System throttling due to 429 (Too Many Requests) or 503 (Service
     Unavailable) responses from the worker, high error rates, or to
-    smooth sudden large traffic spikes.  Structure is documented below.
+    smooth sudden large traffic spikes.
+  Structure is documented below.
 
 * `retry_config` -
   (Optional)
-  Settings that determine the retry behavior.  Structure is documented below.
+  Settings that determine the retry behavior.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -161,6 +164,12 @@ The `retry_config` block supports:
   A task's retry interval starts at minBackoff, then doubles maxDoublings times,
   then increases linearly, and finally retries retries at intervals of maxBackoff
   up to maxAttempts times.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/queues/{{name}}`
 
 
 ## Timeouts

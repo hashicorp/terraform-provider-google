@@ -2,1173 +2,2166 @@
   <% content_for :sidebar do %>
   <div class="docs-sidebar hidden-print affix-top" role="complementary">
   <ul class="nav docs-sidenav">
-    <li<%= sidebar_current("docs-home") %>>
+    <li>
     <a class="back" href="/docs/providers/index.html">All Providers</a>
     </li>
 
-    <li<%= sidebar_current("docs-google-provider") %>>
+    <li>
       <a href="/docs/providers/google/index.html">Google Provider</a>
-      <ul class="nav nav-visible">
-        <li<%= sidebar_current("docs-google-provider-x") %>>
+      <ul class="nav">
+        <li>
           <a href="/docs/providers/google/index.html">Provider Info</a>
         </li>
-        <li<%= sidebar_current("docs-google-provider-reference") %>>
+        <li>
           <a href="/docs/providers/google/guides/provider_reference.html">Provider Configuration Reference</a>
         </li>
-        <li<%= sidebar_current("docs-google-provider-versions") %>>
+        <li>
           <a href="/docs/providers/google/guides/provider_versions.html">Google Provider Versions</a>
         </li>
-        <li<%= sidebar_current("docs-google-provider-getting-started") %>>
+      </ul>
+    </li>
+
+    <li>
+      <a href="#">Google Provider Guides</a>
+      <ul class="nav">
+        <li>
           <a href="/docs/providers/google/guides/getting_started.html">Getting Started Guide</a>
         </li>
-        <li<%= sidebar_current("docs-google-provider-version-2-upgrade") %>>
+        <li>
+          <a href="/docs/providers/google/guides/using_gke_with_terraform.html">Using GKE with Terraform</a>
+        </li>
+        <li>
           <a href="/docs/providers/google/guides/version_2_upgrade.html">2.0.0 Upgrade Guide</a>
         </li>
-        <li<%= sidebar_current("docs-google-provider-version-3-upgrade") %>>
+        <li>
           <a href="/docs/providers/google/guides/version_3_upgrade.html">3.0.0 Upgrade Guide</a>
         </li>
       </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-datasource") %>>
-    <a href="#">Google Cloud Platform Data Sources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-datasource-active-folder") %>>
-      <a href="/docs/providers/google/d/google_active_folder.html">google_active_folder</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-billing-account") %>>
-        <a href="/docs/providers/google/d/google_billing_account.html">google_billing_account</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-client-config") %>>
-        <a href="/docs/providers/google/d/datasource_client_config.html">google_client_config</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-google-client-openid-userinfo") %>>
-        <a href="/docs/providers/google/d/datasource_google_client_openid_userinfo.html">google_client_openid_userinfo</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-cloudfunctions-function") %>>
-        <a href="/docs/providers/google/d/datasource_cloudfunctions_function.html">google_cloudfunctions_function</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-composer-image-versions") %>>
-        <a href="/docs/providers/google/d/datasource_google_composer_image_versions.html">google_composer_image_versions</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-address") %>>
-        <a href="/docs/providers/google/d/datasource_compute_address.html">google_compute_address</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-backend-service") %>>
-      <a href="/docs/providers/google/d/datasource_google_compute_backend_service.html">google_compute_backend_service</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-default-service-account") %>>
-        <a href="/docs/providers/google/d/google_compute_default_service_account.html">google_compute_default_service_account</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-forwarding-rule") %>>
-        <a href="/docs/providers/google/d/datasource_compute_forwarding_rule.html">google_compute_forwarding_rule</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-global-address") %>>
-        <a href="/docs/providers/google/d/datasource_compute_global_address.html">google_compute_global_address</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-image") %>>
-        <a href="/docs/providers/google/d/datasource_compute_image.html">google_compute_image</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-instance-x") %>>
-      <a href="/docs/providers/google/d/datasource_compute_instance.html">google_compute_instance</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-instance-group") %>>
-      <a href="/docs/providers/google/d/google_compute_instance_group.html">google_compute_instance_group</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-lb-ip-ranges") %>>
-      <a href="/docs/providers/google/d/datasource_compute_lb_ip_ranges.html">google_compute_lb_ip_ranges</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-network") %>>
-        <a href="/docs/providers/google/d/datasource_compute_network.html">google_compute_network</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-network-endpoint-group") %>>
-        <a href="/docs/providers/google/d/datasource_google_compute_network_endpoint_group.html">google_compute_network_endpoint_group</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-node-types") %>>
-      <a href="/docs/providers/google/d/google_compute_node_types.html">google_compute_node_types</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-regions") %>>
-      <a href="/docs/providers/google/d/google_compute_regions.html">google_compute_regions</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-region-instance-group") %>>
-      <a href="/docs/providers/google/d/datasource_compute_region_instance_group.html">google_compute_region_instance_group</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-router") %>>
-        <a href="/docs/providers/google/d/datasource_compute_router.html">google_compute_router</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-ssl-certificate") %>>
-        <a href="/docs/providers/google/d/datasource_compute_ssl_certificate.html">google_compute_ssl_certificate</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-ssl-policy") %>>
-        <a href="/docs/providers/google/d/datasource_compute_ssl_policy.html">google_compute_ssl_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-subnetwork") %>>
-        <a href="/docs/providers/google/d/datasource_compute_subnetwork.html">google_compute_subnetwork</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-vpn-gateway") %>>
-        <a href="/docs/providers/google/d/datasource_compute_vpn_gateway.html">google_compute_vpn_gateway</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-compute-zones") %>>
-      <a href="/docs/providers/google/d/google_compute_zones.html">google_compute_zones</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-container-cluster") %>>
-      <a href="/docs/providers/google/d/google_container_cluster.html">google_container_cluster</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-container-versions") %>>
-      <a href="/docs/providers/google/d/google_container_engine_versions.html">google_container_engine_versions</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-container-image") %>>
-      <a href="/docs/providers/google/d/google_container_registry_image.html">google_container_registry_image</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-container-repo") %>>
-      <a href="/docs/providers/google/d/google_container_registry_repository.html">google_container_registry_repository</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-dns-managed-zone") %>>
-      <a href="/docs/providers/google/d/dns_managed_zone.html">google_dns_managed_zone</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-iam-policy") %>>
-        <a href="/docs/providers/google/d/google_iam_policy.html">google_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-iam-role") %>>
-      <a href="/docs/providers/google/d/datasource_google_iam_role.html">google_iam_role</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-kms-crypto-key") %>>
-        <a href="/docs/providers/google/d/google_kms_crypto_key.html">google_kms_crypto_key</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-kms-crypto-key-version") %>>
-        <a href="/docs/providers/google/d/google_kms_crypto_key_version.html">google_kms_crypto_key_version</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-kms-key-ring") %>>
-        <a href="/docs/providers/google/d/google_kms_key_ring.html">google_kms_key_ring</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-secret") %>>
-        <a href="/docs/providers/google/d/google_kms_secret.html">google_kms_secret</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-secret-ciphertext") %>>
-        <a href="/docs/providers/google/d/google_kms_secret_ciphertext.html">google_kms_secret_ciphertext</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-folder") %>>
-      <a href="/docs/providers/google/d/google_folder.html">google_folder</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-folder-organization-policy") %>>
-      <a href="/docs/providers/google/d/datasource_google_folder_organization_policy.html">google_folder_organization_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-netblock-ip-ranges") %>>
-      <a href="/docs/providers/google/d/datasource_google_netblock_ip_ranges.html">google_netblock_ip_ranges</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-organization") %>>
-      <a href="/docs/providers/google/d/google_organization.html">google_organization</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-project") %>>
-      <a href="/docs/providers/google/d/google_project.html">google_project</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-projects") %>>
-      <a href="/docs/providers/google/d/google_projects.html">google_projects</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-project-organization-policy") %>>
-        <a href="/docs/providers/google/d/datasource_google_project_organization_policy.html">google_project_organization_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-service-account") %>>
-      <a href="/docs/providers/google/d/datasource_google_service_account.html">google_service_account</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-service-account-access-token") %>>
-      <a href="/docs/providers/google/d/datasource_google_service_account_access_token.html">google_service_account_access_token</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-service-account-key") %>>
-        <a href="/docs/providers/google/d/datasource_google_service_account_key.html">google_service_account_key</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-storage-bucket-object") %>>
-        <a href="/docs/providers/google/d/storage_bucket_object.html">google_storage_bucket_object</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-signed_url") %>>
-        <a href="/docs/providers/google/d/signed_url.html">google_storage_object_signed_url</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-storage-project-service-account") %>>
-        <a href="/docs/providers/google/d/google_storage_project_service_account.html">google_storage_project_service_account</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-storage-transfer-project-service-account") %>>
-        <a href="/docs/providers/google/d/google_storage_transfer_project_service_account.html">google_storage_transfer_project_service_account</a>
-      </li>
-      <li<%= sidebar_current("docs-google-datasource-tpu-tensorflow-versions") %>>
-        <a href="/docs/providers/google/d/datasource_tpu_tensorflow_versions.html">google_tpu_tensorflow_versions</a>
+
+    <li>
+    <a href="#">Access Approval</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/access_approval_folder_settings.html">google_folder_access_approval_settings</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/access_approval_organization_settings.html">google_organization_access_approval_settings</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/access_approval_project_settings.html">google_project_access_approval_settings</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-
-    <li<%= sidebar_current("docs-google-app-engine") %>>
-    <a href="#">Google App Engine Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-app-engine-application") %>>
-      <a href="/docs/providers/google/r/app_engine_application.html">google_app_engine_application</a>
-      </li>
-      <li<%= sidebar_current("docs-google-app-engine-domain-mapping") %>>
-      <a href="/docs/providers/google/r/app_engine_domain_mapping.html">google_app_engine_domain_mapping</a>
-      </li>
-      <li<%= sidebar_current("docs-google-app-engine-firewall-rule") %>>
-      <a href="/docs/providers/google/r/app_engine_firewall_rule.html">google_app_engine_firewall_rule</a>
-      </li>
-      <li<%= sidebar_current("docs-google-app-engine-standard-app-version") %>>
-      <a href="/docs/providers/google/r/app_engine_standard_app_version.html">google_app_engine_standard_app_version</a>
-      </li>
-      <li<%= sidebar_current("docs-google-app-engine-application-url-dispatch-rules") %>>
-      <a href="/docs/providers/google/r/app_engine_application_url_dispatch_rules.html">google_app_engine_application_url_dispatch_rules</a>
-      </li>
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-bigquery") %>>
-    <a href="#">Google BigQuery Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-bigquery-dataset") %>>
-      <a href="/docs/providers/google/r/bigquery_dataset.html">google_bigquery_dataset</a>
-      <li<%= sidebar_current("docs-google-bigquery-table") %>>
-      <a href="/docs/providers/google/r/bigquery_table.html">google_bigquery_table</a>
-      </li>
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-bigquery-data-transfer") %>>
-    <a href="#">Google BigQuery Data Transfer Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-bigquery-data-transfer-config") %>>
-      <a href="/docs/providers/google/r/bigquery_data_transfer_config.html">google_bigquery_data_transfer_config</a>
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-bigtable") %>>
-    <a href="#">Google Bigtable Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-bigtable-app-profile") %>>
-      <a href="/docs/providers/google/r/bigtable_app_profile.html">google_bigtable_app_profile</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-bigtable-gc-policy") %>>
-      <a href="/docs/providers/google/r/bigtable_gc_policy.html">google_bigtable_gc_policy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-bigtable-instance") %>>
-      <a href="/docs/providers/google/r/bigtable_instance.html">google_bigtable_instance</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-bigtable-instance-iam") %>>
-      <a href="/docs/providers/google/r/bigtable_instance_iam.html">google_bigtable_instance_iam_binding</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-bigtable-instance-iam") %>>
-      <a href="/docs/providers/google/r/bigtable_instance_iam.html">google_bigtable_instance_iam_member</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-bigtable-instance-iam") %>>
-      <a href="/docs/providers/google/r/bigtable_instance_iam.html">google_bigtable_instance_iam_policy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-bigtable-table") %>>
-      <a href="/docs/providers/google/r/bigtable_table.html">google_bigtable_table</a>
+    <li>
+    <a href="#">Access Context Manager (VPC Service Controls)</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/access_context_manager_access_level.html">google_access_context_manager_access_level</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/access_context_manager_access_levels.html">google_access_context_manager_access_levels</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/access_context_manager_access_policy.html">google_access_context_manager_access_policy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/access_context_manager_service_perimeter.html">google_access_context_manager_service_perimeter</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/access_context_manager_service_perimeter_resource.html">google_access_context_manager_service_perimeter_resource</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/access_context_manager_service_perimeters.html">google_access_context_manager_service_perimeters</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-binary-authorization") %>>
-    <a href="#">Google Binary Authorization Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-binary-authorization-attestor") %>>
-        <a href="/docs/providers/google/r/binary_authorization_attestor.html">google_binary_authorization_attestor</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-binary-authorization-attestor-iam") %>>
-      <a href="/docs/providers/google/r/binary_authorization_attestor_iam.html">google_binary_authorization_attestor_iam_binding</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-binary-authorization-attestor-iam") %>>
-      <a href="/docs/providers/google/r/binary_authorization_attestor_iam.html">google_binary_authorization_attestor_iam_member</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-binary-authorization-attestor-iam") %>>
-      <a href="/docs/providers/google/r/binary_authorization_attestor_iam.html">google_binary_authorization_attestor_iam_policy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-binary-authorization-policy") %>>
-      <a href="/docs/providers/google/r/binary_authorization_policy.html">google_binary_authorization_policy</a>
+    <li>
+    <a href="#">App Engine</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/app_engine_application.html">google_app_engine_application</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/app_engine_application_url_dispatch_rules.html">google_app_engine_application_url_dispatch_rules</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/app_engine_domain_mapping.html">google_app_engine_domain_mapping</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/app_engine_firewall_rule.html">google_app_engine_firewall_rule</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/app_engine_flexible_app_version.html">google_app_engine_flexible_app_version</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/app_engine_service_split_traffic.html">google_app_engine_service_split_traffic</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/app_engine_standard_app_version.html">google_app_engine_standard_app_version</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-cloudbuild") %>>
-    <a href="#">Google Cloud Build Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-cloudbuild-trigger") %>>
-      <a href="/docs/providers/google/r/cloudbuild_trigger.html">google_cloudbuild_trigger</a>
+    <li>
+    <a href="#">BigQuery</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/bigquery_default_service_account.html">google_bigquery_default_service_account</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/bigquery_dataset.html">google_bigquery_dataset</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/bigquery_dataset_access.html">google_bigquery_dataset_access</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/bigquery_dataset_iam.html">google_bigquery_dataset_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/bigquery_job.html">google_bigquery_job</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/bigquery_table.html">google_bigquery_table</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/bigquery_table_iam.html">google_bigquery_table_iam</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-composer") %>>
-      <a href="#">Google Cloud Composer Resources</a>
-      <ul class="nav nav-visible">
-        <li<%= sidebar_current("docs-google-composer-environment") %>>
+    <li>
+    <a href="#">BigQuery Data Transfer</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/bigquery_data_transfer_config.html">google_bigquery_data_transfer_config</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Binary Authorization</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/binary_authorization_attestor.html">google_binary_authorization_attestor</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/binary_authorization_attestor_iam.html">google_binary_authorization_attestor_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/binary_authorization_policy.html">google_binary_authorization_policy</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud (Stackdriver) Logging</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_billing_account_bucket_config.html">google_logging_billing_account_bucket_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_billing_account_exclusion.html">google_logging_billing_account_exclusion</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_billing_account_sink.html">google_logging_billing_account_sink</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_folder_bucket_config.html">google_logging_folder_bucket_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_folder_exclusion.html">google_logging_folder_exclusion</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_folder_sink.html">google_logging_folder_sink</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_metric.html">google_logging_metric</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_organization_bucket_config.html">google_logging_organization_bucket_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_organization_exclusion.html">google_logging_organization_exclusion</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_organization_sink.html">google_logging_organization_sink</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_project_bucket_config.html">google_logging_project_bucket_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_project_exclusion.html">google_logging_project_exclusion</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/logging_project_sink.html">google_logging_project_sink</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud (Stackdriver) Monitoring</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/monitoring_app_engine_service.html">google_monitoring_app_engine_service</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/monitoring_notification_channel.html">google_monitoring_notification_channel</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/monitoring_uptime_check_ips.html">google_monitoring_uptime_check_ips</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/monitoring_alert_policy.html">google_monitoring_alert_policy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/monitoring_dashboard.html">google_monitoring_dashboard</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/monitoring_group.html">google_monitoring_group</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/monitoring_metric_descriptor.html">google_monitoring_metric_descriptor</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/monitoring_notification_channel.html">google_monitoring_notification_channel</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/monitoring_service.html">google_monitoring_custom_service</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/monitoring_slo.html">google_monitoring_slo</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/monitoring_uptime_check_config.html">google_monitoring_uptime_check_config</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Asset Inventory</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/cloud_asset_folder_feed.html">google_cloud_asset_folder_feed</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/cloud_asset_organization_feed.html">google_cloud_asset_organization_feed</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/cloud_asset_project_feed.html">google_cloud_asset_project_feed</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Bigtable</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/bigtable_app_profile.html">google_bigtable_app_profile</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/bigtable_gc_policy.html">google_bigtable_gc_policy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/bigtable_instance.html">google_bigtable_instance</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/bigtable_instance_iam.html">google_bigtable_instance_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/bigtable_table.html">google_bigtable_table</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Build</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/cloudbuild_trigger.html">google_cloudbuild_trigger</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Composer</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/composer_image_versions.html">google_composer_image_versions</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
           <a href="/docs/providers/google/r/composer_environment.html">google_composer_environment</a>
-        </li>
-      </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-cloudfunctions") %>>
-    <a href="#">Google Cloud Functions Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-cloudfunctions-function") %>>
-      <a href="/docs/providers/google/r/cloudfunctions_function.html">google_cloudfunctions_function</a>
-      </li>
-      <li<%= sidebar_current("docs-google-cloudfunctions-function-iam") %>>
-      <a href="/docs/providers/google/r/cloudfunctions_cloud_function_iam.html">google_cloudfunctions_function_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-cloudfunctions-function-iam") %>>
-      <a href="/docs/providers/google/r/cloudfunctions_cloud_function_iam.html">google_cloudfunctions_function_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-cloudfunctions-function-iam") %>>
-      <a href="/docs/providers/google/r/cloudfunctions_cloud_function_iam.html">google_cloudfunctions_function_iam_policy</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-cloudiot") %>>
-      <a href="#">Google Cloud IoT Core</a>
-      <ul class="nav nav-visible">
-        <li<%= sidebar_current("docs-google-cloudiot-registry-x") %>>
-          <a href="/docs/providers/google/r/cloudiot_registry.html">google_cloudiot_registry</a>
-        </li>
-      </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-(project|service)") %>>
-    <a href="#">Google Cloud Platform Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-billing-account-iam-binding") %>>
-        <a href="/docs/providers/google/r/google_billing_account_iam_binding.html">google_billing_account_iam_binding</a>
+    <li>
+    <a href="#">Cloud DNS</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/dns_keys.html">google_dns_keys</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/dns_managed_zone.html">google_dns_managed_zone</a>
+          </li>
+    
+        </ul>
       </li>
-      <li<%= sidebar_current("docs-google-billing-account-iam-member") %>>
-        <a href="/docs/providers/google/r/google_billing_account_iam_member.html">google_billing_account_iam_member</a>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/dns_managed_zone.html">google_dns_managed_zone</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/dns_policy.html">google_dns_policy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/dns_record_set.html">google_dns_record_set</a>
+          </li>
+  
+        </ul>
       </li>
-      <li<%= sidebar_current("docs-google-billing-account-iam-policy") %>>
-        <a href="/docs/providers/google/r/google_billing_account_iam_policy.html">google_billing_account_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-folder-x") %>>
-        <a href="/docs/providers/google/r/google_folder.html">google_folder</a>
-      </li>
-      <li<%= sidebar_current("docs-google-folder-iam-binding") %>>
-        <a href="/docs/providers/google/r/google_folder_iam_binding.html">google_folder_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-folder-iam-member") %>>
-        <a href="/docs/providers/google/r/google_folder_iam_member.html">google_folder_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-folder-iam-policy") %>>
-        <a href="/docs/providers/google/r/google_folder_iam_policy.html">google_folder_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-folder-organization-policy") %>>
-        <a href="/docs/providers/google/r/google_folder_organization_policy.html">google_folder_organization_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-organization-policy") %>>
-        <a href="/docs/providers/google/r/google_organization_policy.html">google_organization_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-organization-iam-binding") %>>
-        <a href="/docs/providers/google/r/google_organization_iam_binding.html">google_organization_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-organization-iam-custom-role") %>>
-        <a href="/docs/providers/google/r/google_organization_iam_custom_role.html">google_organization_iam_custom_role</a>
-      </li>
-      <li<%= sidebar_current("docs-google-organization-iam-member") %>>
-        <a href="/docs/providers/google/r/google_organization_iam_member.html">google_organization_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-organization-iam-policy") %>>
-        <a href="/docs/providers/google/r/google_organization_iam_policy.html">google_organization_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-project-x") %>>
-        <a href="/docs/providers/google/r/google_project.html">google_project</a>
-      </li>
-      <li<%= sidebar_current("docs-google-project-iam-x") %>>
-        <a href="/docs/providers/google/r/google_project_iam.html">google_project_iam_audit_config</a>
-      </li>
-      <li<%= sidebar_current("docs-google-project-iam-x") %>>
-        <a href="/docs/providers/google/r/google_project_iam.html">google_project_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-project-iam-x") %>>
-        <a href="/docs/providers/google/r/google_project_iam.html">google_project_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-project-iam-x") %>>
-        <a href="/docs/providers/google/r/google_project_iam.html">google_project_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-project-iam-custom-role") %>>
-        <a href="/docs/providers/google/r/google_project_iam_custom_role.html">google_project_iam_custom_role</a>
-      </li>
-      <li<%= sidebar_current("docs-google-project-organization-policy") %>>
-        <a href="/docs/providers/google/r/google_project_organization_policy.html">google_project_organization_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-project-service-x") %>>
-        <a href="/docs/providers/google/r/google_project_service.html">google_project_service</a>
-      </li>
-      <li<%= sidebar_current("docs-google-project-usage-export-bucket") %>>
-        <a href="/docs/providers/google/r/usage_export_bucket.html">google_project_usage_export_bucket</a>
-      </li>
-      <li<%= sidebar_current("docs-google-resource-manager-lien") %>>
-        <a href="/docs/providers/google/r/resource_manager_lien.html">google_resource_manager_lien</a>
-      </li>
-      <li<%= sidebar_current("docs-google-service-account-x") %>>
-        <a href="/docs/providers/google/r/google_service_account.html">google_service_account</a>
-      </li>
-      <li<%= sidebar_current("docs-google-service-account-iam") %>>
-        <a href="/docs/providers/google/r/google_service_account_iam.html">google_service_account_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-service-account-iam") %>>
-        <a href="/docs/providers/google/r/google_service_account_iam.html">google_service_account_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-service-account-iam") %>>
-        <a href="/docs/providers/google/r/google_service_account_iam.html">google_service_account_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-service-account-key") %>>
-      <a href="/docs/providers/google/r/google_service_account_key.html">google_service_account_key</a>
-      </li>
-
     </ul>
     </li>
 
+    <li>
+    <a href="#">Cloud Deployment Manager</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/deployment_manager_deployment.html">google_deployment_manager_deployment</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
 
+    <li>
+    <a href="#">Cloud Endpoints</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/endpoints_service.html">google_endpoints_service</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/endpoints_service_iam.html">google_endpoints_service_iam</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
 
+    <li>
+    <a href="#">Cloud Functions</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/cloudfunctions_function.html">google_cloudfunctions_function</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/cloudfunctions_cloud_function_iam.html">google_cloudfunctions_function_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/cloudfunctions_function.html">google_cloudfunctions_function</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
 
-    <li<%= sidebar_current("docs-google-tpu") %>>
-      <a href="#">Google Cloud TPU</a>
-      <ul class="nav nav-visible">
-        <li<%= sidebar_current("docs-google-tpu-node") %>>
+    <li>
+    <a href="#">Cloud Healthcare</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/healthcare_dataset.html">google_healthcare_dataset</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/healthcare_dataset_iam.html">google_healthcare_dataset_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/healthcare_dicom_store.html">google_healthcare_dicom_store</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/healthcare_dicom_store_iam.html">google_healthcare_dicom_store_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/healthcare_fhir_store.html">google_healthcare_fhir_store</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/healthcare_fhir_store_iam.html">google_healthcare_fhir_store_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/healthcare_hl7_v2_store.html">google_healthcare_hl7_v2_store</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/healthcare_hl7_v2_store_iam.html">google_healthcare_hl7_v2_store_iam</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Identity</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/cloud_identity_group_membership.html">google_cloud_identity_group_memberships</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/cloud_identity_groups.html">google_cloud_identity_groups</a>
+          </li>
+    
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud IoT Core</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/cloudiot_device.html">google_cloudiot_device</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/cloudiot_device_registry.html">google_cloudiot_registry</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Key Management Service</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/kms_crypto_key.html">google_kms_crypto_key</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/kms_crypto_key_version.html">google_kms_crypto_key_version</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/kms_key_ring.html">google_kms_key_ring</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/kms_secret.html">google_kms_secret</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/kms_secret_ciphertext.html">google_kms_secret_ciphertext</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/google_kms_crypto_key_iam.html">google_kms_crypto_key_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_kms_key_ring_iam.html">google_kms_key_ring_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/kms_crypto_key.html">google_kms_crypto_key</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/kms_key_ring.html">google_kms_key_ring</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/kms_key_ring_import_job.html">google_kms_key_ring_import_job</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/kms_secret_ciphertext.html">google_kms_secret_ciphertext</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Platform</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/active_folder.html">google_active_folder</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/billing_account.html">google_billing_account</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/client_config.html">google_client_config</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/client_openid_userinfo.html">google_client_openid_userinfo</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/datasource_google_service_account_id_token.html">google_service_account_id_token</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/folder.html">google_folder</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/folder_organization_policy.html">google_folder_organization_policy</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/iam_policy.html">google_iam_policy</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/iam_role.html">google_iam_role</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/iam_testable_permissions.html">google_iam_testable_permissions</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/netblock_ip_ranges.html">google_netblock_ip_ranges</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/organization.html">google_organization</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/project.html">google_project</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/project_organization_policy.html">google_project_organization_policy</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/projects.html">google_projects</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/service_account.html">google_service_account</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/service_account_access_token.html">google_service_account_access_token</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/service_account_key.html">google_service_account_key</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/google_billing_account_iam_binding.html">google_billing_account_iam_binding</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_billing_account_iam_member.html">google_billing_account_iam_member</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_billing_account_iam_policy.html">google_billing_account_iam_policy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_folder.html">google_folder</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_folder_iam.html">google_folder_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_folder_organization_policy.html">google_folder_organization_policy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_organization_iam.html">google_organization_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_organization_iam_custom_role.html">google_organization_iam_custom_role</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_organization_policy.html">google_organization_policy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_project.html">google_project</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_project_iam.html">google_project_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_project_iam_custom_role.html">google_project_iam_custom_role</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_project_organization_policy.html">google_project_organization_policy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_project_service.html">google_project_service</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_service_account.html">google_service_account</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_service_account_iam.html">google_service_account_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/google_service_account_key.html">google_service_account_key</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/usage_export_bucket.html">google_project_usage_export_bucket</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Pub/Sub</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/pubsub_subscription.html">google_pubsub_subscription</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/pubsub_subscription_iam.html">google_pubsub_subscription_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/pubsub_topic.html">google_pubsub_topic</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/pubsub_topic_iam.html">google_pubsub_topic_iam</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Run</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/cloud_run_domain_mapping.html">google_cloud_run_domain_mapping</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/cloud_run_service.html">google_cloud_run_service</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/cloud_run_service_iam.html">google_cloud_run_service_iam</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud SQL</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/sql_ca_certs.html">google_sql_ca_certs</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/sql_database_instance.html">google_sql_database_instance</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/sql_database.html">google_sql_database</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/sql_database_instance.html">google_sql_database_instance</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/sql_source_representation_instance.html">google_sql_source_representation_instance</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/sql_ssl_cert.html">google_sql_ssl_cert</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/sql_user.html">google_sql_user</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Scheduler</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/cloud_scheduler_job.html">google_cloud_scheduler_job</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Source Repositories</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/sourcerepo_repository.html">google_sourcerepo_repository</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/sourcerepo_repository_iam.html">google_sourcerepo_repository_iam</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Spanner</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/spanner_database.html">google_spanner_database</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/spanner_database_iam.html">google_spanner_database_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/spanner_instance.html">google_spanner_instance</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/spanner_instance_iam.html">google_spanner_instance_iam</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud Storage</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/signed_url.html">google_storage_object_signed_url</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/storage_bucket_object.html">google_storage_bucket_object</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/storage_project_service_account.html">google_storage_project_service_account</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_bucket.html">google_storage_bucket</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_bucket_access_control.html">google_storage_bucket_access_control</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_bucket_acl.html">google_storage_bucket_acl</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_bucket_iam.html">google_storage_bucket_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_bucket_object.html">google_storage_bucket_object</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_default_object_access_control.html">google_storage_default_object_access_control</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_default_object_acl.html">google_storage_default_object_acl</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_hmac_key.html">google_storage_hmac_key</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_notification.html">google_storage_notification</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_object_access_control.html">google_storage_object_access_control</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_object_acl.html">google_storage_object_acl</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Cloud TPU</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/tpu_tensorflow_versions.html">google_tpu_tensorflow_versions</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
           <a href="/docs/providers/google/r/tpu_node.html">google_tpu_node</a>
-        </li>
-      </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-compute") %>>
-    <a href="#">Google Compute Engine Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-compute-address") %>>
-      <a href="/docs/providers/google/r/compute_address.html">google_compute_address</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-attached-disk") %>>
-      <a href="/docs/providers/google/r/compute_attached_disk.html">google_compute_attached_disk</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-autoscaler") %>>
-      <a href="/docs/providers/google/r/compute_autoscaler.html">google_compute_autoscaler</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-backend-bucket") %>>
-      <a href="/docs/providers/google/r/compute_backend_bucket.html">google_compute_backend_bucket</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-backend-bucket-signed-url-key") %>>
-      <a href="/docs/providers/google/r/compute_backend_bucket_signed_url_key.html">google_compute_backend_bucket_signed_url_key</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-backend-service") %>>
-      <a href="/docs/providers/google/r/compute_backend_service.html">google_compute_backend_service</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-backend-service-signed-url-key") %>>
-      <a href="/docs/providers/google/r/compute_backend_service_signed_url_key.html">google_compute_backend_service_signed_url_key</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-disk") %>>
-      <a href="/docs/providers/google/r/compute_disk.html">google_compute_disk</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-disk-resource-policy-attachment") %>>
-      <a href="/docs/providers/google/r/compute_disk_resource_policy_attachment.html">google_compute_disk_resource_policy_attachment</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-firewall") %>>
-      <a href="/docs/providers/google/r/compute_firewall.html">google_compute_firewall</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-forwarding-rule") %>>
-      <a href="/docs/providers/google/r/compute_forwarding_rule.html">google_compute_forwarding_rule</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-global-address") %>>
-      <a href="/docs/providers/google/r/compute_global_address.html">google_compute_global_address</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-global-forwarding-rule") %>>
-      <a href="/docs/providers/google/r/compute_global_forwarding_rule.html">google_compute_global_forwarding_rule</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-health-check") %>>
-      <a href="/docs/providers/google/r/compute_health_check.html">google_compute_health_check</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-http-health-check") %>>
-      <a href="/docs/providers/google/r/compute_http_health_check.html">google_compute_http_health_check</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-https-health-check") %>>
-      <a href="/docs/providers/google/r/compute_https_health_check.html">google_compute_https_health_check</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-image") %>>
-      <a href="/docs/providers/google/r/compute_image.html">google_compute_image</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-instance-x") %>>
-      <a href="/docs/providers/google/r/compute_instance.html">google_compute_instance</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-instance-iam") %>>
-      <a href="/docs/providers/google/r/compute_instance_iam.html">google_compute_instance_iam_binding</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-instance-iam") %>>
-      <a href="/docs/providers/google/r/compute_instance_iam.html">google_compute_instance_iam_member</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-instance-iam") %>>
-      <a href="/docs/providers/google/r/compute_instance_iam.html">google_compute_instance_iam_policy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-instance-from-template") %>>
-      <a href="/docs/providers/google/r/compute_instance_from_template.html">google_compute_instance_from_template</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-instance-group-x") %>>
-      <a href="/docs/providers/google/r/compute_instance_group.html">google_compute_instance_group</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-instance-group-manager") %>>
-      <a href="/docs/providers/google/r/compute_instance_group_manager.html">google_compute_instance_group_manager</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-instance-template") %>>
-      <a href="/docs/providers/google/r/compute_instance_template.html">google_compute_instance_template</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-interconnect-attachment") %>>
-      <a href="/docs/providers/google/r/compute_interconnect_attachment.html">google_compute_interconnect_attachment</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-network-x") %>>
-      <a href="/docs/providers/google/r/compute_network.html">google_compute_network</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-network-peering") %>>
-      <a href="/docs/providers/google/r/compute_network_peering.html">google_compute_network_peering</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-node-group") %>>
-      <a href="/docs/providers/google/r/compute_node_group.html">google_compute_node_group</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-node-template") %>>
-      <a href="/docs/providers/google/r/compute_node_template.html">google_compute_node_template</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-project-default-network-tier") %>>
-      <a href="/docs/providers/google/r/compute_project_default_network_tier.html">google_compute_project_default_network_tier</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-project-metadata") %>>
-      <a href="/docs/providers/google/r/compute_project_metadata.html">google_compute_project_metadata</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-project-metadata-item") %>>
-      <a href="/docs/providers/google/r/compute_project_metadata_item.html">google_compute_project_metadata_item</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-region-autoscaler") %>>
-      <a href="/docs/providers/google/r/compute_region_autoscaler.html">google_compute_region_autoscaler</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-region-backend-service") %>>
-      <a href="/docs/providers/google/r/compute_region_backend_service.html">google_compute_region_backend_service</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-region-disk") %>>
-      <a href="/docs/providers/google/r/compute_region_disk.html">google_compute_region_disk</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-region-instance-group-manager") %>>
-      <a href="/docs/providers/google/r/compute_region_instance_group_manager.html">google_compute_region_instance_group_manager</a>
-      </li>
-
-
-      <li<%= sidebar_current("docs-google-compute-reservation") %>>
-      <a href="/docs/providers/google/r/compute_reservation.html">google_compute_reservation</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-resource-policy") %>>
-      <a href="/docs/providers/google/r/compute_resource_policy.html">google_compute_resource_policy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-route-x") %>>
-      <a href="/docs/providers/google/r/compute_route.html">google_compute_route</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-router-x") %>>
-      <a href="/docs/providers/google/r/compute_router.html">google_compute_router</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-router-interface") %>>
-      <a href="/docs/providers/google/r/compute_router_interface.html">google_compute_router_interface</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-router-nat") %>>
-      <a href="/docs/providers/google/r/compute_router_nat.html">google_compute_router_nat</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-router-peer") %>>
-      <a href="/docs/providers/google/r/compute_router_bgp_peer.html">google_compute_router_peer</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-security-policy") %>>
-      <a href="/docs/providers/google/r/compute_security_policy.html">google_compute_security_policy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-shared-vpc-host-project") %>>
-      <a href="/docs/providers/google/r/compute_shared_vpc_host_project.html">google_compute_shared_vpc_host_project</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-shared-vpc-service-project") %>>
-      <a href="/docs/providers/google/r/compute_shared_vpc_service_project.html">google_compute_shared_vpc_service_project</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-snapshot") %>>
-      <a href="/docs/providers/google/r/compute_snapshot.html">google_compute_snapshot</a>
-      </li>
-
-
-      <li<%= sidebar_current("docs-google-compute-ssl-certificate") %>>
-      <a href="/docs/providers/google/r/compute_ssl_certificate.html">google_compute_ssl_certificate</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-ssl-policy") %>>
-      <a href="/docs/providers/google/r/compute_ssl_policy.html">google_compute_ssl_policy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-subnetwork-x") %>>
-      <a href="/docs/providers/google/r/compute_subnetwork.html">google_compute_subnetwork</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-subnetwork-iam") %>>
-        <a href="/docs/providers/google/r/compute_subnetwork_iam.html">google_compute_subnetwork_iam_binding</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-subnetwork-iam") %>>
-        <a href="/docs/providers/google/r/compute_subnetwork_iam.html">google_compute_subnetwork_iam_member</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-subnetwork-iam") %>>
-        <a href="/docs/providers/google/r/compute_subnetwork_iam.html">google_compute_subnetwork_iam_policy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-target-http-proxy") %>>
-      <a href="/docs/providers/google/r/compute_target_http_proxy.html">google_compute_target_http_proxy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-target-https-proxy") %>>
-      <a href="/docs/providers/google/r/compute_target_https_proxy.html">google_compute_target_https_proxy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-target-instance") %>>
-      <a href="/docs/providers/google/r/compute_target_instance.html">google_compute_target_instance</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-target-ssl-proxy") %>>
-      <a href="/docs/providers/google/r/compute_target_ssl_proxy.html">google_compute_target_ssl_proxy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-target-tcp-proxy") %>>
-      <a href="/docs/providers/google/r/compute_target_tcp_proxy.html">google_compute_target_tcp_proxy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-target-pool") %>>
-      <a href="/docs/providers/google/r/compute_target_pool.html">google_compute_target_pool</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-url-map") %>>
-      <a href="/docs/providers/google/r/compute_url_map.html">google_compute_url_map</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-vpn-gateway") %>>
-      <a href="/docs/providers/google/r/compute_vpn_gateway.html">google_compute_vpn_gateway</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-compute-vpn-tunnel") %>>
-      <a href="/docs/providers/google/r/compute_vpn_tunnel.html">google_compute_vpn_tunnel</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-container-analysis") %>>
-    <a href="#">Google Container Analysis Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-container-analysis-note") %>>
-      <a href="/docs/providers/google/r/container_analysis_note.html">google_container_analysis_note</a>
+    <li>
+    <a href="#">Cloud Tasks</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/cloud_tasks_queue.html">google_cloud_tasks_queue</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-container") %>>
-    <a href="#">Google Kubernetes (Container) Engine Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-container-cluster") %>>
-      <a href="/docs/providers/google/r/container_cluster.html">google_container_cluster</a>
+    <li>
+    <a href="#">Compute Engine</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_address.html">google_compute_address</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_backend_bucket.html">google_compute_backend_bucket</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_backend_service.html">google_compute_backend_service</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_default_service_account.html">google_compute_default_service_account</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_forwarding_rule.html">google_compute_forwarding_rule</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_global_address.html">google_compute_global_address</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_image.html">google_compute_image</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_instance.html">google_compute_instance</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_instance_group.html">google_compute_instance_group</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_instance_serial_port.html">google_compute_instance_serial_port</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_lb_ip_ranges.html">google_compute_lb_ip_ranges</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_network.html">google_compute_network</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_network_endpoint_group.html">google_compute_network_endpoint_group</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_node_types.html">google_compute_node_types</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_region_instance_group.html">google_compute_region_instance_group</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_regions.html">google_compute_regions</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_resource_policy.html">google_compute_resource_policy</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_router.html">google_compute_router</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_ssl_certificate.html">google_compute_ssl_certificate</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_ssl_policy.html">google_compute_ssl_policy</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_subnetwork.html">google_compute_subnetwork</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_vpn_gateway.html">google_compute_vpn_gateway</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/compute_zones.html">google_compute_zones</a>
+          </li>
+    
+        </ul>
       </li>
-
-      <li<%= sidebar_current("docs-google-container-node-pool") %>>
-      <a href="/docs/providers/google/r/container_node_pool.html">google_container_node_pool</a>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_address.html">google_compute_address</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_attached_disk.html">google_compute_attached_disk</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_autoscaler.html">google_compute_autoscaler</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_backend_bucket.html">google_compute_backend_bucket</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_backend_bucket_signed_url_key.html">google_compute_backend_bucket_signed_url_key</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_backend_service.html">google_compute_backend_service</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_backend_service_signed_url_key.html">google_compute_backend_service_signed_url_key</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_disk.html">google_compute_disk</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_disk_resource_policy_attachment.html">google_compute_disk_resource_policy_attachment</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_firewall.html">google_compute_firewall</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_forwarding_rule.html">google_compute_forwarding_rule</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_global_address.html">google_compute_global_address</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_global_forwarding_rule.html">google_compute_global_forwarding_rule</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_global_network_endpoint.html">google_compute_global_network_endpoint</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_global_network_endpoint_group.html">google_compute_global_network_endpoint_group</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_health_check.html">google_compute_health_check</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_http_health_check.html">google_compute_http_health_check</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_https_health_check.html">google_compute_https_health_check</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_image.html">google_compute_image</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_instance.html">google_compute_instance</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_instance_from_template.html">google_compute_instance_from_template</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_instance_group.html">google_compute_instance_group</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_instance_group_manager.html">google_compute_instance_group_manager</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_instance_group_named_port.html">google_compute_instance_group_named_port</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_instance_iam.html">google_compute_instance_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_instance_template.html">google_compute_instance_template</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_interconnect_attachment.html">google_compute_interconnect_attachment</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_network.html">google_compute_network</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_network_endpoint.html">google_compute_network_endpoint</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_network_endpoint_group.html">google_compute_network_endpoint_group</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_network_peering.html">google_compute_network_peering</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_network_peering_routes_config.html">google_compute_network_peering_routes_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_node_group.html">google_compute_node_group</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_node_template.html">google_compute_node_template</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_project_default_network_tier.html">google_compute_project_default_network_tier</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_project_metadata.html">google_compute_project_metadata</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_project_metadata_item.html">google_compute_project_metadata_item</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_region_autoscaler.html">google_compute_region_autoscaler</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_region_backend_service.html">google_compute_region_backend_service</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_region_disk.html">google_compute_region_disk</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_region_disk_resource_policy_attachment.html">google_compute_region_disk_resource_policy_attachment</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_region_health_check.html">google_compute_region_health_check</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_region_instance_group_manager.html">google_compute_region_instance_group_manager</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_region_ssl_certificate.html">google_compute_region_ssl_certificate</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_region_target_http_proxy.html">google_compute_region_target_http_proxy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_region_target_https_proxy.html">google_compute_region_target_https_proxy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_region_url_map.html">google_compute_region_url_map</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_reservation.html">google_compute_reservation</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_resource_policy.html">google_compute_resource_policy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_route.html">google_compute_route</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_router.html">google_compute_router</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_router_bgp_peer.html">google_compute_router_peer</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_router_interface.html">google_compute_router_interface</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_router_nat.html">google_compute_router_nat</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_security_policy.html">google_compute_security_policy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_shared_vpc_host_project.html">google_compute_shared_vpc_host_project</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_shared_vpc_service_project.html">google_compute_shared_vpc_service_project</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_snapshot.html">google_compute_snapshot</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_ssl_certificate.html">google_compute_ssl_certificate</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_ssl_policy.html">google_compute_ssl_policy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_subnetwork.html">google_compute_subnetwork</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_subnetwork_iam.html">google_compute_subnetwork_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_target_http_proxy.html">google_compute_target_http_proxy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_target_https_proxy.html">google_compute_target_https_proxy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_target_instance.html">google_compute_target_instance</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_target_pool.html">google_compute_target_pool</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_target_ssl_proxy.html">google_compute_target_ssl_proxy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_target_tcp_proxy.html">google_compute_target_tcp_proxy</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_url_map.html">google_compute_url_map</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_vpn_gateway.html">google_compute_vpn_gateway</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/compute_vpn_tunnel.html">google_compute_vpn_tunnel</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
+    <li>
+    <a href="#">Container Registry</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/container_registry_image.html">google_container_registry_image</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/container_registry_repository.html">google_container_registry_repository</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/container_analysis_note.html">google_container_analysis_note</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/container_analysis_occurrence.html">google_container_analysis_occurrence</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/container_registry.html">google_container_registry</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
 
-    <li<%= sidebar_current("docs-google-dataflow") %>>
-    <a href="#">Google Dataflow Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-dataflow-job") %>>
+    <li>
+    <a href="#">Data catalog</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/data_catalog_entry.html">google_data_catalog_entry</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/data_catalog_entry_group.html">google_data_catalog_entry_group</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/data_catalog_entry_group_iam.html">google_data_catalog_entry_group_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/data_catalog_tag.html">google_data_catalog_tag</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/data_catalog_tag_template.html">google_data_catalog_tag_template</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Dataflow</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/dataflow_flex_template_job.html">google_dataflow_flex_template_job</a>
+          </li>
+  
+          <li>
           <a href="/docs/providers/google/r/dataflow_job.html">google_dataflow_job</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-dataproc") %>>
-        <a href="#">Google Dataproc Resources</a>
-        <ul class="nav nav-visible">
-          <li<%= sidebar_current("docs-google-dataproc-autoscaling-policy") %>>
+    <li>
+    <a href="#">Dataproc</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
           <a href="/docs/providers/google/r/dataproc_autoscaling_policy.html">google_dataproc_autoscaling_policy</a>
           </li>
-
-          <li<%= sidebar_current("docs-google-dataproc-cluster") %>>
+  
+          <li>
           <a href="/docs/providers/google/r/dataproc_cluster.html">google_dataproc_cluster</a>
           </li>
-
-          <li<%= sidebar_current("docs-google-dataproc-cluster-iam") %>>
-          <a href="/docs/providers/google/r/dataproc_cluster_iam.html">google_dataproc_cluster_iam_binding</a>
+  
+          <li>
+          <a href="/docs/providers/google/r/dataproc_cluster_iam.html">google_dataproc_cluster_iam</a>
           </li>
-
-          <li<%= sidebar_current("docs-google-dataproc-cluster-iam") %>>
-          <a href="/docs/providers/google/r/dataproc_cluster_iam.html">google_dataproc_cluster_iam_member</a>
-          </li>
-
-          <li<%= sidebar_current("docs-google-dataproc-cluster-iam") %>>
-          <a href="/docs/providers/google/r/dataproc_cluster_iam.html">google_dataproc_cluster_iam_policy</a>
-          </li>
-
-          <li<%= sidebar_current("docs-google-dataproc-job") %>>
+  
+          <li>
           <a href="/docs/providers/google/r/dataproc_job.html">google_dataproc_job</a>
           </li>
-
-          <li<%= sidebar_current("docs-google-dataproc-job-iam") %>>
-          <a href="/docs/providers/google/r/dataproc_job_iam.html">google_dataproc_job_iam_binding</a>
+  
+          <li>
+          <a href="/docs/providers/google/r/dataproc_job_iam.html">google_dataproc_job_iam</a>
           </li>
-
-          <li<%= sidebar_current("docs-google-dataproc-job-iam") %>>
-          <a href="/docs/providers/google/r/dataproc_job_iam.html">google_dataproc_job_iam_member</a>
-          </li>
-
-          <li<%= sidebar_current("docs-google-dataproc-job-iam") %>>
-          <a href="/docs/providers/google/r/dataproc_job_iam.html">google_dataproc_job_iam_policy</a>
-          </li>
+  
         </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-dns") %>>
-    <a href="#">Google DNS Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-dns-managed-zone") %>>
-      <a href="/docs/providers/google/r/dns_managed_zone.html">google_dns_managed_zone</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-dns-record-set") %>>
-      <a href="/docs/providers/google/r/dns_record_set.html">google_dns_record_set</a>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-endpoints") %>>
-    <a href="#">Google Endpoints Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-endpoints-service") %>>
-          <a href="/docs/providers/google/r/endpoints_service.html">google_endpoints_service</a>
+    <li>
+    <a href="#">Datastore</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/datastore_index.html">google_datastore_index</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-filestore") %>>
-    <a href="#">Google Filestore Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-filestore-instance") %>>
+    <li>
+    <a href="#">Dialogflow</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/dialogflow_agent.html">google_dialogflow_agent</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/dialogflow_entity_type.html">google_dialogflow_entity_type</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/dialogflow_intent.html">google_dialogflow_intent</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Filestore</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
           <a href="/docs/providers/google/r/filestore_instance.html">google_filestore_instance</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-firestore") %>>
-    <a href="#">Google Firestore Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-firestore-index") %>>
+    <li>
+    <a href="#">Firebase</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/firebase_web_app.html">google_firebase_web_app</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/firebase_web_app_config.html">google_firebase_web_app_config</a>
+          </li>
+    
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Firestore</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
           <a href="/docs/providers/google/r/firestore_index.html">google_firestore_index</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-
-    <li<%= sidebar_current("docs-google-kms") %>>
-    <a href="#">Google Key Management Service Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-kms-crypto-key-x") %>>
-        <a href="/docs/providers/google/r/kms_crypto_key.html">google_kms_crypto_key</a>
+    <li>
+    <a href="#">Game Servers</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/game_services_game_server_deployment_rollout.html">google_game_services_game_server_deployment_rollout</a>
+          </li>
+    
+        </ul>
       </li>
-      <li<%= sidebar_current("docs-google-kms-crypto-key-iam-binding") %>>
-        <a href="/docs/providers/google/r/google_kms_crypto_key_iam_binding.html">google_kms_crypto_key_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-crypto-key-iam-member") %>>
-        <a href="/docs/providers/google/r/google_kms_crypto_key_iam_member.html">google_kms_crypto_key_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-key-ring-x") %>>
-        <a href="/docs/providers/google/r/kms_key_ring.html">google_kms_key_ring</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-key-ring-iam") %>>
-        <a href="/docs/providers/google/r/google_kms_key_ring_iam.html">google_kms_key_ring_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-key-ring-iam") %>>
-        <a href="/docs/providers/google/r/google_kms_key_ring_iam.html">google_kms_key_ring_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-kms-key-ring-iam") %>>
-        <a href="/docs/providers/google/r/google_kms_key_ring_iam.html">google_kms_key_ring_iam_policy</a>
-      </li>
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-iap") %>>
-    <a href="#">Google IAP Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-iap-app-engine-service-iam") %>>
-        <a href="/docs/providers/google/r/iap_app_engine_service_iam.html">google_iap_app_engine_service_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-app-engine-service-iam") %>>
-        <a href="/docs/providers/google/r/iap_app_engine_service_iam.html">google_iap_app_engine_service_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-app-engine-service-iam") %>>
-        <a href="/docs/providers/google/r/iap_app_engine_service_iam.html">google_iap_app_engine_service_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-app-engine-version-iam") %>>
-        <a href="/docs/providers/google/r/iap_app_engine_version_iam.html">google_iap_app_engine_version_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-app-engine-version-iam") %>>
-        <a href="/docs/providers/google/r/iap_app_engine_version_iam.html">google_iap_app_engine_version_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-app-engine-version-iam") %>>
-        <a href="/docs/providers/google/r/iap_app_engine_version_iam.html">google_iap_app_engine_version_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-backend-service-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_backend_service_iam.html">google_iap_web_backend_service_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-backend-service-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_backend_service_iam.html">google_iap_web_backend_service_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-backend-service-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_backend_service_iam.html">google_iap_web_backend_service_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_iam.html">google_iap_web_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_iam.html">google_iap_web_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_iam.html">google_iap_web_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-type-app-engine-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_type_app_engine_iam.html">google_iap_web_type_app_engine_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-type-app-engine-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_type_app_engine_iam.html">google_iap_web_type_app_engine_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-type-app-engine-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_type_app_engine_iam.html">google_iap_web_type_app_engine_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-type-compute-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_type_compute_iam.html">google_iap_web_type_compute_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-type-compute-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_type_compute_iam.html">google_iap_web_type_compute_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-iap-web-type-compute-iam") %>>
-        <a href="/docs/providers/google/r/iap_web_type_compute_iam.html">google_iap_web_type_compute_iam_policy</a>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/game_services_game_server_cluster.html">google_game_services_game_server_cluster</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/game_services_game_server_config.html">google_game_services_game_server_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/game_services_game_server_deployment.html">google_game_services_game_server_deployment</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/game_services_game_server_deployment_rollout.html">google_game_services_game_server_deployment_rollout</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/game_services_realm.html">google_game_services_realm</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-ml") %>>
-    <a href="#">Google ML Engine Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-ml-engine-model") %>>
-      <a href="/docs/providers/google/r/ml_engine_model.html">google_ml_engine_model</a>
+    <li>
+    <a href="#">Identity Platform</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/identity_platform_default_supported_idp_config.html">google_identity_platform_default_supported_idp_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/identity_platform_inbound_saml_config.html">google_identity_platform_inbound_saml_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/identity_platform_oauth_idp_config.html">google_identity_platform_oauth_idp_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/identity_platform_tenant.html">google_identity_platform_tenant</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/identity_platform_tenant_default_supported_idp_config.html">google_identity_platform_tenant_default_supported_idp_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/identity_platform_tenant_inbound_saml_config.html">google_identity_platform_tenant_inbound_saml_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/identity_platform_tenant_oauth_idp_config.html">google_identity_platform_tenant_oauth_idp_config</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-pubsub") %>>
-    <a href="#">Google PubSub Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-pubsub-subscription-x") %>>
-      <a href="/docs/providers/google/r/pubsub_subscription.html">google_pubsub_subscription</a>
-      </li>
-      <li<%= sidebar_current("docs-google-pubsub-subscription-iam") %>>
-        <a href="/docs/providers/google/r/pubsub_subscription_iam.html">google_pubsub_subscription_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-pubsub-subscription-iam") %>>
-        <a href="/docs/providers/google/r/pubsub_subscription_iam.html">google_pubsub_subscription_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-pubsub-subscription-iam") %>>
-        <a href="/docs/providers/google/r/pubsub_subscription_iam.html">google_pubsub_subscription_iam_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-pubsub-topic-x") %>>
-      <a href="/docs/providers/google/r/pubsub_topic.html">google_pubsub_topic</a>
-      </li>
-      <li<%= sidebar_current("docs-google-pubsub-topic-iam") %>>
-        <a href="/docs/providers/google/r/pubsub_topic_iam.html">google_pubsub_topic_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-pubsub-topic-iam") %>>
-        <a href="/docs/providers/google/r/pubsub_topic_iam.html">google_pubsub_topic_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-pubsub-topic-iam") %>>
-        <a href="/docs/providers/google/r/pubsub_topic_iam.html">google_pubsub_topic_iam_policy</a>
-      </li>
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-redis") %>>
-    <a href="#">Google Redis (Cloud Memorystore) Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-redis-instance") %>>
-      <a href="/docs/providers/google/r/redis_instance.html">google_redis_instance</a>
-      </li>
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-runtimeconfig") %>>
-    <a href="#">Google RuntimeConfig Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-runtimeconfig-config") %>>
-      <a href="/docs/providers/google/r/runtimeconfig_config.html">google_runtimeconfig_config</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-runtimeconfig-variable") %>>
-      <a href="/docs/providers/google/r/runtimeconfig_variable.html">google_runtimeconfig_variable</a>
+    <li>
+    <a href="#">Identity-Aware Proxy</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/iap_app_engine_service_iam.html">google_iap_app_engine_service_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/iap_app_engine_version_iam.html">google_iap_app_engine_version_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/iap_brand.html">google_iap_brand</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/iap_client.html">google_iap_client</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/iap_tunnel_instance_iam.html">google_iap_tunnel_instance_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/iap_web_backend_service_iam.html">google_iap_web_backend_service_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/iap_web_iam.html">google_iap_web_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/iap_web_type_app_engine_iam.html">google_iap_web_type_app_engine_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/iap_web_type_compute_iam.html">google_iap_web_type_compute_iam</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-scc") %>>
-    <a href="#">Google Cloud Security Command Center (SCC) Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-scc-source") %>>
+    <li>
+    <a href="#">Kubernetes (Container) Engine</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/container_cluster.html">google_container_cluster</a>
+          </li>
+    
+          <li>
+          <a href="/docs/providers/google/d/container_engine_versions.html">google_container_engine_versions</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/container_cluster.html">google_container_cluster</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/container_node_pool.html">google_container_node_pool</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">ML Engine</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/ml_engine_model.html">google_ml_engine_model</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Managed Microsoft Active Directory</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/active_directory_domain.html">google_active_directory_domain</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Memorystore (Redis)</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/redis_instance.html">google_redis_instance</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/redis_instance.html">google_redis_instance</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">NetworkManagement</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/network_management_connectivity_test_resource.html">google_network_management_connectivity_test</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">OS Config</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/os_config_patch_deployment.html">google_os_config_patch_deployment</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">OS Login</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/os_login_ssh_public_key.html">google_os_login_ssh_public_key</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Resource Manager</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/resource_manager_lien.html">google_resource_manager_lien</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Runtime Configurator</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/runtimeconfig_config.html">google_runtimeconfig_config</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/runtimeconfig_config_iam.html">google_runtimeconfig_config_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/runtimeconfig_variable.html">google_runtimeconfig_variable</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Secret Manager</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/secret_manager_secret_version.html">google_secret_manager_secret_version</a>
+          </li>
+    
+        </ul>
+      </li>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/secret_manager_secret.html">google_secret_manager_secret</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/secret_manager_secret_iam.html">google_secret_manager_secret_iam</a>
+          </li>
+  
+          <li>
+          <a href="/docs/providers/google/r/secret_manager_secret_version.html">google_secret_manager_secret_version</a>
+          </li>
+  
+        </ul>
+      </li>
+    </ul>
+    </li>
+
+    <li>
+    <a href="#">Security Command Center (SCC)</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
           <a href="/docs/providers/google/r/scc_source.html">google_scc_source</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-service-networking") %>>
-    <a href="#">Google Service Networking Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-service-networking-connection") %>>
-      <a href="/docs/providers/google/r/service_networking_connection.html">google_service_networking_connection</a>
+    <li>
+    <a href="#">Serverless VPC Access</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/vpc_access_connector.html">google_vpc_access_connector</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-sourcerepo") %>>
-    <a href="#">Google Source Repositories Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-sourcerepo-repository") %>>
-      <a href="/docs/providers/google/r/sourcerepo_repository.html">google_sourcerepo_repository</a>
-      </li>
-      <li<%= sidebar_current("docs-google-sourcerepo-repository-iam") %>>
-      <a href="/docs/providers/google/r/sourcerepo_repository_iam.html">google_sourcerepo_repository_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-sourcerepo-repository-iam") %>>
-      <a href="/docs/providers/google/r/sourcerepo_repository_iam.html">google_sourcerepo_repository_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-sourcerepo-repository-iam") %>>
-      <a href="/docs/providers/google/r/sourcerepo_repository_iam.html">google_sourcerepo_repository_iam_policy</a>
+    <li>
+    <a href="#">Service Networking</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/service_networking_connection.html">google_service_networking_connection</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>
 
-    <li<%= sidebar_current("docs-google-spanner") %>>
-    <a href="#">Google Spanner Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-spanner-database") %>>
-      <a href="/docs/providers/google/r/spanner_database.html">google_spanner_database</a>
+    <li>
+    <a href="#">Storage Transfer Service</a>
+    <ul class="nav">
+      <li>
+        <a href="#">Data Sources</a>
+        <ul class="nav nav-auto-expand">
+    
+          <li>
+          <a href="/docs/providers/google/d/storage_transfer_project_service_account.html">google_storage_transfer_project_service_account</a>
+          </li>
+    
+        </ul>
       </li>
-      <li<%= sidebar_current("docs-google-spanner-database-iam") %>>
-      <a href="/docs/providers/google/r/spanner_database_iam.html">google_spanner_database_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-spanner-database-iam") %>>
-      <a href="/docs/providers/google/r/spanner_database_iam.html">google_spanner_database_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-spanner-database-iam") %>>
-      <a href="/docs/providers/google/r/spanner_database_iam.html">google_spanner_database_iam_policy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-spanner-instance") %>>
-      <a href="/docs/providers/google/r/spanner_instance.html">google_spanner_instance</a>
-      </li>
-      <li<%= sidebar_current("docs-google-spanner-instance-iam") %>>
-      <a href="/docs/providers/google/r/spanner_instance_iam.html">google_spanner_instance_iam_binding</a>
-      </li>
-      <li<%= sidebar_current("docs-google-spanner-instance-iam") %>>
-      <a href="/docs/providers/google/r/spanner_instance_iam.html">google_spanner_instance_iam_member</a>
-      </li>
-      <li<%= sidebar_current("docs-google-spanner-instance-iam") %>>
-      <a href="/docs/providers/google/r/spanner_instance_iam.html">google_spanner_instance_iam_policy</a>
-      </li>
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-sql") %>>
-    <a href="#">Google SQL Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-sql-database-x") %>>
-      <a href="/docs/providers/google/r/sql_database.html">google_sql_database</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-sql-database-instance") %>>
-      <a href="/docs/providers/google/r/sql_database_instance.html">google_sql_database_instance</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-sql-ssl-cert") %>>
-      <a href="/docs/providers/google/r/sql_ssl_cert.html">google_sql_ssl_cert</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-sql-user") %>>
-      <a href="/docs/providers/google/r/sql_user.html">google_sql_user</a>
-      </li>
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-logging") %>>
-    <a href="#">Google Stackdriver Logging Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-logging-billing-account-exclusion") %>>
-      <a href="/docs/providers/google/r/logging_billing_account_exclusion.html">google_logging_billing_account_exclusion</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-logging-billing-account-sink") %>>
-      <a href="/docs/providers/google/r/logging_billing_account_sink.html">google_logging_billing_account_sink</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-logging-folder-exclusion") %>>
-      <a href="/docs/providers/google/r/logging_folder_exclusion.html">google_logging_folder_exclusion</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-logging-folder-sink") %>>
-      <a href="/docs/providers/google/r/logging_folder_sink.html">google_logging_folder_sink</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-logging-organization-exclusion") %>>
-      <a href="/docs/providers/google/r/logging_organization_exclusion.html">google_logging_organization_exclusion</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-logging-organization-sink") %>>
-      <a href="/docs/providers/google/r/logging_organization_sink.html">google_logging_organization_sink</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-logging-metric") %>>
-      <a href="/docs/providers/google/r/logging_metric.html">google_logging_metric</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-logging-project-exclusion") %>>
-      <a href="/docs/providers/google/r/logging_project_exclusion.html">google_logging_project_exclusion</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-logging-project-sink") %>>
-      <a href="/docs/providers/google/r/logging_project_sink.html">google_logging_project_sink</a>
-      </li>
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-monitoring") %>>
-    <a href="#">Google Stackdriver Monitoring Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-monitoring-alert-policy") %>>
-      <a href="/docs/providers/google/r/monitoring_alert_policy.html">google_monitoring_alert_policy</a>
-      </li>
-      <li<%= sidebar_current("docs-google-monitoring-group") %>>
-      <a href="/docs/providers/google/r/monitoring_group.html">google_monitoring_group</a>
-      </li>
-      <li<%= sidebar_current("docs-google-monitoring-notification-channel") %>>
-      <a href="/docs/providers/google/r/monitoring_notification_channel.html">google_monitoring_notification_channel</a>
-      </li>
-      <li<%= sidebar_current("docs-google-monitoring-uptime-check-config") %>>
-      <a href="/docs/providers/google/r/monitoring_uptime_check_config.html">google_monitoring_uptime_check_config</a>
-      </li>
-
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-storage") %>>
-    <a href="#">Google Storage Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-storage-bucket-x") %>>
-      <a href="/docs/providers/google/r/storage_bucket.html">google_storage_bucket</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-storage-bucket-access-control") %>>
-      <a href="/docs/providers/google/r/storage_bucket_access_control.html">google_storage_bucket_access_control</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-storage-bucket-acl") %>>
-      <a href="/docs/providers/google/r/storage_bucket_acl.html">google_storage_bucket_acl</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-storage-bucket-iam") %>>
-      <a href="/docs/providers/google/r/storage_bucket_iam.html">google_storage_bucket_iam_binding</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-storage-bucket-iam") %>>
-      <a href="/docs/providers/google/r/storage_bucket_iam.html">google_storage_bucket_iam_member</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-storage-bucket-iam") %>>
-      <a href="/docs/providers/google/r/storage_bucket_iam.html">google_storage_bucket_iam_policy</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-storage-bucket-object") %>>
-      <a href="/docs/providers/google/r/storage_bucket_object.html">google_storage_bucket_object</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-storage-default-object-access-control") %>>
-      <a href="/docs/providers/google/r/storage_default_object_access_control.html">google_storage_default_object_access_control</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-storage-default-object-acl") %>>
-      <a href="/docs/providers/google/r/storage_default_object_acl.html">google_storage_default_object_acl</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-storage-notification") %>>
-      <a href="/docs/providers/google/r/storage_notification.html">google_storage_notification</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-storage-object-access-control") %>>
-      <a href="/docs/providers/google/r/storage_object_access_control.html">google_storage_object_access_control</a>
-      </li>
-
-      <li<%= sidebar_current("docs-google-storage-object-acl") %>>
-      <a href="/docs/providers/google/r/storage_object_acl.html">google_storage_object_acl</a>
-      </li>
-    </ul>
-    </li>
-
-    <li<%= sidebar_current("docs-google-storage-transfer") %>>
-    <a href="#">Google Storage Transfer Resources</a>
-    <ul class="nav nav-visible">
-      <li<%= sidebar_current("docs-google-storage-transfer-job-x") %>>
-      <a href="/docs/providers/google/r/storage_transfer_job.html">google_storage_transfer_job</a>
+      <li>
+        <a href="#">Resources</a>
+        <ul class="nav nav-auto-expand">
+  
+          <li>
+          <a href="/docs/providers/google/r/storage_transfer_job.html">google_storage_transfer_job</a>
+          </li>
+  
+        </ul>
       </li>
     </ul>
     </li>

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -13,15 +12,15 @@ import (
 func TestAccServiceAccount_basic(t *testing.T) {
 	t.Parallel()
 
-	accountId := "a" + acctest.RandString(10)
+	accountId := "a" + randString(t, 10)
 	uniqueId := ""
 	displayName := "Terraform Test"
 	displayName2 := "Terraform Test Update"
 	desc := "test description"
-	desc2 := "test description update"
+	desc2 := ""
 	project := getTestProjectFromEnv()
 	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -18,38 +19,49 @@ func resourceGoogleServiceAccount() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceGoogleServiceAccountImport,
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(5 * time.Minute),
+		},
 		Schema: map[string]*schema.Schema{
 			"email": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The e-mail address of the service account. This value should be referenced from any google_iam_policy data sources that would grant the service account privileges.`,
 			},
 			"unique_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique id of the service account.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The fully-qualified name of the service account.`,
 			},
 			"account_id": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRFC1035Name(6, 30),
+				Description:  `The account id that is used to generate the service account email address and a stable unique id. It is unique within a project, must be 6-30 characters long, and match the regular expression [a-z]([-a-z0-9]*[a-z0-9]) to comply with RFC1035. Changing this forces a new service account to be created.`,
 			},
 			"display_name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The display name for the service account. Can be updated without creating a new resource.`,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(0, 256),
+				Description:  `A text description of the service account. Must be less than or equal to 256 UTF-8 bytes.`,
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The ID of the project that the service account will be created in. Defaults to the provider project configuration.`,
 			},
 		},
 	}
@@ -81,10 +93,15 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	d.SetId(sa.Name)
-	// This API is meant to be synchronous, but in practice it shows the old value for
-	// a few milliseconds after the update goes through.  A second is more than enough
-	// time to ensure following reads are correct.
-	time.Sleep(time.Second)
+
+	err = retryTimeDuration(func() (operr error) {
+		_, saerr := config.clientIAM.Projects.ServiceAccounts.Get(d.Id()).Do()
+		return saerr
+	}, d.Timeout(schema.TimeoutCreate), isNotFoundRetryableError("service account creation"))
+
+	if err != nil {
+		return fmt.Errorf("Error reading service account after creation: %s", err)
+	}
 
 	return resourceGoogleServiceAccountRead(d, meta)
 }
@@ -144,8 +161,10 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	// See comment in Create.
-	time.Sleep(time.Second)
+	// This API is meant to be synchronous, but in practice it shows the old value for
+	// a few milliseconds after the update goes through. 5 seconds is more than enough
+	// time to ensure following reads are correct.
+	time.Sleep(time.Second * 5)
 
 	return nil
 }

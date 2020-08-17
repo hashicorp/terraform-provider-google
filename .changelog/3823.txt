@@ -1,0 +1,6 @@
+```release-note:bug
+osconfig: `google_os_config_patch_deployment`'s `windows_update.classifications` field now works correctly, accepting multiple values.
+```
+```release-note:note
+all: Lists of enums now display the enum options in the documentation pages.
+```

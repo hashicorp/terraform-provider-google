@@ -44,7 +44,7 @@ To get more information about FirewallRule, see:
 ```hcl
 resource "google_project" "my_project" {
   name       = "tf-test-project"
-  project_id = "test-project"
+  project_id = "ae-project"
   org_id     = "123456789"
 }
 
@@ -73,6 +73,7 @@ The following arguments are supported:
 * `action` -
   (Required)
   The action to take if this rule matches.
+  Possible values are `UNSPECIFIED_ACTION`, `ALLOW`, and `DENY`.
 
 
 - - -
@@ -93,6 +94,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `apps/{{project}}/firewall/ingressRules/{{priority}}`
 
 
 ## Timeouts

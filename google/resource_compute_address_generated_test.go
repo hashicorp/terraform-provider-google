@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,13 +27,13 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroy,
+		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressBasicExample(context),
@@ -51,7 +50,7 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 func testAccComputeAddress_addressBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_address" "ip_address" {
-  name = "my-address%{random_suffix}"
+  name = "tf-test-my-address%{random_suffix}"
 }
 `, context)
 }
@@ -60,13 +59,13 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroy,
+		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressWithSubnetworkExample(context),
@@ -83,19 +82,19 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 func testAccComputeAddress_addressWithSubnetworkExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network" "default" {
-  name = "my-network%{random_suffix}"
+  name = "tf-test-my-network%{random_suffix}"
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "my-subnet%{random_suffix}"
+  name          = "tf-test-my-subnet%{random_suffix}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 
 resource "google_compute_address" "internal_with_subnet_and_address" {
-  name         = "my-internal-address%{random_suffix}"
-  subnetwork   = google_compute_subnetwork.default.self_link
+  name         = "tf-test-my-internal-address%{random_suffix}"
+  subnetwork   = google_compute_subnetwork.default.id
   address_type = "INTERNAL"
   address      = "10.0.42.42"
   region       = "us-central1"
@@ -107,13 +106,13 @@ func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroy,
+		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressWithGceEndpointExample(context),
@@ -130,7 +129,7 @@ func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
 func testAccComputeAddress_addressWithGceEndpointExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_address" "internal_with_gce_endpoint" {
-  name         = "my-internal-address-%{random_suffix}"
+  name         = "tf-test-my-internal-address-%{random_suffix}"
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
 }
@@ -141,13 +140,13 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroy,
+		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_instanceWithIpExample(context),
@@ -164,7 +163,7 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 func testAccComputeAddress_instanceWithIpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_address" "static" {
-  name = "ipv4-address%{random_suffix}"
+  name = "tf-test-ipv4-address%{random_suffix}"
 }
 
 data "google_compute_image" "debian_image" {
@@ -173,7 +172,7 @@ data "google_compute_image" "debian_image" {
 }
 
 resource "google_compute_instance" "instance_with_ip" {
-  name         = "vm-instance%{random_suffix}"
+  name         = "tf-test-vm-instance%{random_suffix}"
   machine_type = "f1-micro"
   zone         = "us-central1-a"
 
@@ -193,27 +192,29 @@ resource "google_compute_instance" "instance_with_ip" {
 `, context)
 }
 
-func testAccCheckComputeAddressDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_address" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckComputeAddressDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_address" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/addresses/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("ComputeAddress still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/addresses/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeAddress still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

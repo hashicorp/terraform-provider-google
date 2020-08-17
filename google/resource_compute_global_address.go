@@ -68,10 +68,10 @@ address or omitted to allow GCP to choose a valid one for you.`,
 				ForceNew:         true,
 				ValidateFunc:     validation.StringInSlice([]string{"EXTERNAL", "INTERNAL", ""}, false),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("EXTERNAL"),
-				Description: `The type of the address to reserve, default is EXTERNAL.
+				Description: `The type of the address to reserve.
 
 * EXTERNAL indicates public/external single IP address.
-* INTERNAL indicates internal IP ranges belonging to some network.`,
+* INTERNAL indicates internal IP ranges belonging to some network. Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL"]`,
 				Default: "EXTERNAL",
 			},
 			"description": {
@@ -86,8 +86,7 @@ address or omitted to allow GCP to choose a valid one for you.`,
 				ForceNew:         true,
 				ValidateFunc:     validation.StringInSlice([]string{"IPV4", "IPV6", ""}, false),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("IPV4"),
-				Description: `The IP Version that will be used by this address. Valid options are
-'IPV4' or 'IPV6'. The default value is 'IPV4'.`,
+				Description:      `The IP Version that will be used by this address. The default value is 'IPV4'. Possible values: ["IPV4", "IPV6"]`,
 			},
 			"network": {
 				Type:             schema.TypeString,
@@ -118,7 +117,7 @@ This field is not applicable to addresses with addressType=EXTERNAL.`,
 
 * VPC_PEERING - for peer networks
 
-This should only be set when using an Internal address.`,
+This should only be set when using an Internal address. Possible values: ["VPC_PEERING"]`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
@@ -216,7 +215,7 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating GlobalAddress",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -250,31 +249,31 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
 
-	if err := d.Set("address", flattenComputeGlobalAddressAddress(res["address"], d)); err != nil {
+	if err := d.Set("address", flattenComputeGlobalAddressAddress(res["address"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeGlobalAddressCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeGlobalAddressCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
-	if err := d.Set("description", flattenComputeGlobalAddressDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeGlobalAddressDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
-	if err := d.Set("name", flattenComputeGlobalAddressName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeGlobalAddressName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
-	if err := d.Set("ip_version", flattenComputeGlobalAddressIpVersion(res["ipVersion"], d)); err != nil {
+	if err := d.Set("ip_version", flattenComputeGlobalAddressIpVersion(res["ipVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
-	if err := d.Set("prefix_length", flattenComputeGlobalAddressPrefixLength(res["prefixLength"], d)); err != nil {
+	if err := d.Set("prefix_length", flattenComputeGlobalAddressPrefixLength(res["prefixLength"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
-	if err := d.Set("address_type", flattenComputeGlobalAddressAddressType(res["addressType"], d)); err != nil {
+	if err := d.Set("address_type", flattenComputeGlobalAddressAddressType(res["addressType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
-	if err := d.Set("purpose", flattenComputeGlobalAddressPurpose(res["purpose"], d)); err != nil {
+	if err := d.Set("purpose", flattenComputeGlobalAddressPurpose(res["purpose"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
-	if err := d.Set("network", flattenComputeGlobalAddressNetwork(res["network"], d)); err != nil {
+	if err := d.Set("network", flattenComputeGlobalAddressNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -307,7 +306,7 @@ func resourceComputeGlobalAddressDelete(d *schema.ResourceData, meta interface{}
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting GlobalAddress",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -337,45 +336,52 @@ func resourceComputeGlobalAddressImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeGlobalAddressAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalAddressAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalAddressCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalAddressDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalAddressName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressIpVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalAddressIpVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressPrefixLength(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalAddressPrefixLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeGlobalAddressAddressType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressAddressType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalAddressPurpose(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeGlobalAddressPurpose(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenComputeGlobalAddressNetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeGlobalAddressNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

@@ -65,6 +65,13 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Required:    true,
 							Description: `String or regex content to match (max 1024 bytes)`,
 						},
+						"matcher": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NON_MATCHES_REGEX", ""}, false),
+							Description:  `The type of content matcher that will be applied to the server output, compared to the content string when the check is run. Default value: "CONTAINS_STRING" Possible values: ["CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NON_MATCHES_REGEX"]`,
+							Default:      "CONTAINS_STRING",
+						},
 					},
 				},
 			},
@@ -97,8 +104,20 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							},
 							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
+						"body": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The request body associated with the HTTP POST request. If contentType is URL_ENCODED, the body passed in must be URL-encoded. Users can provide a Content-Length header via the headers field or the API will do so. If the requestMethod is GET and body is not empty, the API will return an error. The maximum byte size is 1 megabyte. Note - As with all bytes fields JSON representations are base64 encoded. e.g. "foo=bar" in URL-encoded form is "foo%3Dbar" and in base64 encoding is "Zm9vJTI1M0RiYXI=".`,
+						},
+						"content_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"TYPE_UNSPECIFIED", "URL_ENCODED", ""}, false),
+							Description:  `The content type to use for the check. Possible values: ["TYPE_UNSPECIFIED", "URL_ENCODED"]`,
+						},
 						"headers": {
 							Type:         schema.TypeMap,
+							Computed:     true,
 							Optional:     true,
 							Description:  `The list of headers to send as part of the uptime check request. If two headers have the same key and different values, they should be entered as a single header, with the value being a comma-separated list of all the desired values as described at https://www.w3.org/Protocols/rfc2616/rfc2616.txt (page 31). Entering two separate headers with the same key in a Create call will cause the first to be overwritten by the second. The maximum number of headers allowed is 100.`,
 							Elem:         &schema.Schema{Type: schema.TypeString},
@@ -123,6 +142,14 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Optional:     true,
 							Description:  `The port to the page to run the check against. Will be combined with host (specified within the MonitoredResource) and path to construct the full URL. Optional (defaults to 80 without SSL, or 443 with SSL).`,
 							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
+						},
+						"request_method": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"METHOD_UNSPECIFIED", "GET", "POST", ""}, false),
+							Description:  `The HTTP request method to use for the check. If set to METHOD_UNSPECIFIED then requestMethod defaults to GET. Default value: "GET" Possible values: ["METHOD_UNSPECIFIED", "GET", "POST"]`,
+							Default:      "GET",
 						},
 						"use_ssl": {
 							Type:         schema.TypeBool,
@@ -192,7 +219,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}, false),
-							Description:  `The resource type of the group members.`,
+							Description:  `The resource type of the group members. Possible values: ["RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER"]`,
 							AtLeastOneOf: []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
 						},
 					},
@@ -237,37 +264,44 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Removed:  "This field never worked, and will be removed in 3.0.0.",
+				Computed: true,
 			},
 			"internal_checkers": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Removed:  "This field never worked, and will be removed in 3.0.0.",
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"display_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Removed:  "This field never worked, and will be removed in 3.0.0.",
+							Computed: true,
 						},
 						"gcp_zone": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Removed:  "This field never worked, and will be removed in 3.0.0.",
+							Computed: true,
 						},
 						"name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Removed:  "This field never worked, and will be removed in 3.0.0.",
+							Computed: true,
 						},
 						"network": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Removed:  "This field never worked, and will be removed in 3.0.0.",
+							Computed: true,
 						},
 						"peer_project_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Removed:  "This field never worked, and will be removed in 3.0.0.",
+							Computed: true,
 						},
 					},
 				},
@@ -341,7 +375,14 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 		obj["monitoredResource"] = monitoredResourceProp
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}projects/{{project}}/uptimeCheckConfigs")
+	lockName, err := replaceVars(d, config, "stackdriver/groups/{{project}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/uptimeCheckConfigs")
 	if err != nil {
 		return err
 	}
@@ -351,9 +392,12 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating UptimeCheckConfig: %s", err)
+	}
+	if err := d.Set("name", flattenMonitoringUptimeCheckConfigName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
 
 	// Store the ID now
@@ -368,7 +412,15 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	// `name` is autogenerated from the api so needs to be set post-create
 	name, ok := res["name"]
 	if !ok {
-		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
+		respBody, ok := res["response"]
+		if !ok {
+			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
+		}
+
+		name, ok = respBody.(map[string]interface{})["name"]
+		if !ok {
+			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
+		}
 	}
 	d.Set("name", name.(string))
 	d.SetId(name.(string))
@@ -379,7 +431,7 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -388,7 +440,7 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringUptimeCheckConfig %q", d.Id()))
 	}
@@ -397,37 +449,37 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenMonitoringUptimeCheckConfigName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenMonitoringUptimeCheckConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("uptime_check_id", flattenMonitoringUptimeCheckConfigUptimeCheckId(res["id"], d)); err != nil {
+	if err := d.Set("uptime_check_id", flattenMonitoringUptimeCheckConfigUptimeCheckId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("display_name", flattenMonitoringUptimeCheckConfigDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenMonitoringUptimeCheckConfigDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("period", flattenMonitoringUptimeCheckConfigPeriod(res["period"], d)); err != nil {
+	if err := d.Set("period", flattenMonitoringUptimeCheckConfigPeriod(res["period"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("timeout", flattenMonitoringUptimeCheckConfigTimeout(res["timeout"], d)); err != nil {
+	if err := d.Set("timeout", flattenMonitoringUptimeCheckConfigTimeout(res["timeout"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("content_matchers", flattenMonitoringUptimeCheckConfigContentMatchers(res["contentMatchers"], d)); err != nil {
+	if err := d.Set("content_matchers", flattenMonitoringUptimeCheckConfigContentMatchers(res["contentMatchers"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("selected_regions", flattenMonitoringUptimeCheckConfigSelectedRegions(res["selectedRegions"], d)); err != nil {
+	if err := d.Set("selected_regions", flattenMonitoringUptimeCheckConfigSelectedRegions(res["selectedRegions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("http_check", flattenMonitoringUptimeCheckConfigHttpCheck(res["httpCheck"], d)); err != nil {
+	if err := d.Set("http_check", flattenMonitoringUptimeCheckConfigHttpCheck(res["httpCheck"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("tcp_check", flattenMonitoringUptimeCheckConfigTcpCheck(res["tcpCheck"], d)); err != nil {
+	if err := d.Set("tcp_check", flattenMonitoringUptimeCheckConfigTcpCheck(res["tcpCheck"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("resource_group", flattenMonitoringUptimeCheckConfigResourceGroup(res["resourceGroup"], d)); err != nil {
+	if err := d.Set("resource_group", flattenMonitoringUptimeCheckConfigResourceGroup(res["resourceGroup"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
-	if err := d.Set("monitored_resource", flattenMonitoringUptimeCheckConfigMonitoredResource(res["monitoredResource"], d)); err != nil {
+	if err := d.Set("monitored_resource", flattenMonitoringUptimeCheckConfigMonitoredResource(res["monitoredResource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 
@@ -480,7 +532,14 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 		obj["tcpCheck"] = tcpCheckProp
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	lockName, err := replaceVars(d, config, "stackdriver/groups/{{project}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -517,10 +576,12 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating UptimeCheckConfig %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating UptimeCheckConfig %q: %#v", d.Id(), res)
 	}
 
 	return resourceMonitoringUptimeCheckConfigRead(d, meta)
@@ -534,7 +595,14 @@ func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	lockName, err := replaceVars(d, config, "stackdriver/groups/{{project}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -542,7 +610,7 @@ func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta inte
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting UptimeCheckConfig %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, "UptimeCheckConfig")
 	}
@@ -556,35 +624,35 @@ func resourceMonitoringUptimeCheckConfigImport(d *schema.ResourceData, meta inte
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := parseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
 		return nil, err
 	}
 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMonitoringUptimeCheckConfigName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigUptimeCheckId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigUptimeCheckId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	parts := strings.Split(d.Get("name").(string), "/")
 	return parts[len(parts)-1]
 }
 
-func flattenMonitoringUptimeCheckConfigDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigPeriod(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigTimeout(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigContentMatchers(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigContentMatchers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -597,20 +665,25 @@ func flattenMonitoringUptimeCheckConfigContentMatchers(v interface{}, d *schema.
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"content": flattenMonitoringUptimeCheckConfigContentMatchersContent(original["content"], d),
+			"content": flattenMonitoringUptimeCheckConfigContentMatchersContent(original["content"], d, config),
+			"matcher": flattenMonitoringUptimeCheckConfigContentMatchersMatcher(original["matcher"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenMonitoringUptimeCheckConfigContentMatchersContent(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigContentMatchersContent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -619,23 +692,37 @@ func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.Resour
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["request_method"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckRequestMethod(original["requestMethod"], d, config)
+	transformed["content_type"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckContentType(original["contentType"], d, config)
 	transformed["auth_info"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(original["authInfo"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(original["authInfo"], d, config)
 	transformed["port"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckPort(original["port"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckPort(original["port"], d, config)
 	transformed["headers"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckHeaders(original["headers"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckHeaders(original["headers"], d, config)
 	transformed["path"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckPath(original["path"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckPath(original["path"], d, config)
 	transformed["use_ssl"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckUseSsl(original["useSsl"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckUseSsl(original["useSsl"], d, config)
 	transformed["validate_ssl"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(original["validateSsl"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(original["validateSsl"], d, config)
 	transformed["mask_headers"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(original["maskHeaders"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(original["maskHeaders"], d, config)
+	transformed["body"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckBody(original["body"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckRequestMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheckContentType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -645,50 +732,61 @@ func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d *schem
 	}
 	transformed := make(map[string]interface{})
 	transformed["password"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(original["password"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(original["password"], d, config)
 	transformed["username"] =
-		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(original["username"], d)
+		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(original["username"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return d.Get("http_check.0.auth_info.0.password")
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheckHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckUseSsl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckUseSsl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckValidateSsl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigHttpCheckBody(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigTcpCheck(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigTcpCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -698,20 +796,27 @@ func flattenMonitoringUptimeCheckConfigTcpCheck(v interface{}, d *schema.Resourc
 	}
 	transformed := make(map[string]interface{})
 	transformed["port"] =
-		flattenMonitoringUptimeCheckConfigTcpCheckPort(original["port"], d)
+		flattenMonitoringUptimeCheckConfigTcpCheckPort(original["port"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
-func flattenMonitoringUptimeCheckConfigResourceGroup(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigResourceGroup(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -721,21 +826,21 @@ func flattenMonitoringUptimeCheckConfigResourceGroup(v interface{}, d *schema.Re
 	}
 	transformed := make(map[string]interface{})
 	transformed["resource_type"] =
-		flattenMonitoringUptimeCheckConfigResourceGroupResourceType(original["resourceType"], d)
+		flattenMonitoringUptimeCheckConfigResourceGroupResourceType(original["resourceType"], d, config)
 	transformed["group_id"] =
-		flattenMonitoringUptimeCheckConfigResourceGroupGroupId(original["groupId"], d)
+		flattenMonitoringUptimeCheckConfigResourceGroupGroupId(original["groupId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringUptimeCheckConfigResourceGroupResourceType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigResourceGroupResourceType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigResourceGroupGroupId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigResourceGroupGroupId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	project := d.Get("project").(string)
 	return fmt.Sprintf("projects/%s/groups/%s", project, v)
 }
 
-func flattenMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -745,16 +850,16 @@ func flattenMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d *schem
 	}
 	transformed := make(map[string]interface{})
 	transformed["type"] =
-		flattenMonitoringUptimeCheckConfigMonitoredResourceType(original["type"], d)
+		flattenMonitoringUptimeCheckConfigMonitoredResourceType(original["type"], d, config)
 	transformed["labels"] =
-		flattenMonitoringUptimeCheckConfigMonitoredResourceLabels(original["labels"], d)
+		flattenMonitoringUptimeCheckConfigMonitoredResourceLabels(original["labels"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringUptimeCheckConfigMonitoredResourceType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigMonitoredResourceType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -787,12 +892,23 @@ func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d Terraform
 			transformed["content"] = transformedContent
 		}
 
+		transformedMatcher, err := expandMonitoringUptimeCheckConfigContentMatchersMatcher(original["matcher"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMatcher); val.IsValid() && !isEmptyValue(val) {
+			transformed["matcher"] = transformedMatcher
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
 }
 
 func expandMonitoringUptimeCheckConfigContentMatchersContent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -808,6 +924,20 @@ func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d TerraformResour
 	raw := l[0]
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
+
+	transformedRequestMethod, err := expandMonitoringUptimeCheckConfigHttpCheckRequestMethod(original["request_method"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestMethod); val.IsValid() && !isEmptyValue(val) {
+		transformed["requestMethod"] = transformedRequestMethod
+	}
+
+	transformedContentType, err := expandMonitoringUptimeCheckConfigHttpCheckContentType(original["content_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContentType); val.IsValid() && !isEmptyValue(val) {
+		transformed["contentType"] = transformedContentType
+	}
 
 	transformedAuthInfo, err := expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(original["auth_info"], d, config)
 	if err != nil {
@@ -858,7 +988,22 @@ func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d TerraformResour
 		transformed["maskHeaders"] = transformedMaskHeaders
 	}
 
+	transformedBody, err := expandMonitoringUptimeCheckConfigHttpCheckBody(original["body"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBody); val.IsValid() && !isEmptyValue(val) {
+		transformed["body"] = transformedBody
+	}
+
 	return transformed, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckRequestMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckContentType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -923,6 +1068,10 @@ func expandMonitoringUptimeCheckConfigHttpCheckValidateSsl(v interface{}, d Terr
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckBody(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

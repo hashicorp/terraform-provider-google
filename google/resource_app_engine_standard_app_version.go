@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -42,14 +43,9 @@ func resourceAppEngineStandardAppVersion() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"runtime": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Desired runtime. Example python27.`,
-			},
 			"deployment": {
 				Type:        schema.TypeList,
-				Optional:    true,
+				Required:    true,
 				Description: `Code and application artifacts that make up this version.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -103,6 +99,110 @@ All files must be readable using the credentials supplied with this call.`,
 					},
 				},
 			},
+			"runtime": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Desired runtime. Example python27.`,
+			},
+			"service": {
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `AppEngine service resource`,
+			},
+			"automatic_scaling": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Automatic scaling is based on request rate, response latencies, and other application metrics.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_concurrent_requests": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `Number of concurrent requests an automatic scaling instance can accept before the scheduler spawns a new instance.
+
+Defaults to a runtime-specific value.`,
+						},
+						"max_idle_instances": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Maximum number of idle instances that should be maintained for this version.`,
+						},
+						"max_pending_latency": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Maximum amount of time that a request should wait in the pending queue before starting a new instance to handle it.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+						},
+						"min_idle_instances": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Minimum number of idle instances that should be maintained for this version. Only applicable for the default version of a service.`,
+						},
+						"min_pending_latency": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Minimum amount of time a request should wait in the pending queue before starting a new instance to handle it.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+						},
+						"standard_scheduler_settings": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Scheduler settings for standard environment.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max_instances": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Maximum number of instances to run for this version. Set to zero to disable maxInstances configuration.`,
+									},
+									"min_instances": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Minimum number of instances to run for this version. Set to zero to disable minInstances configuration.`,
+									},
+									"target_cpu_utilization": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Target CPU utilization ratio to maintain when scaling. Should be a value in the range [0.50, 0.95], zero, or a negative value.`,
+									},
+									"target_throughput_utilization": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Target throughput utilization ratio to maintain when scaling. Should be a value in the range [0.50, 0.95], zero, or a negative value.`,
+									},
+								},
+							},
+						},
+					},
+				},
+				ConflictsWith: []string{"basic_scaling", "manual_scaling"},
+			},
+			"basic_scaling": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Basic scaling creates instances when your application receives requests. Each instance will be shut down when the application becomes idle. Basic scaling is ideal for work that is intermittent or driven by user activity.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_instances": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `Maximum number of instances to create for this version. Must be in the range [1.0, 200.0].`,
+						},
+						"idle_timeout": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Duration of time after the last request that an instance must wait before the instance is shut down.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s". Defaults to 900s.`,
+							Default: "900s",
+						},
+					},
+				},
+				ConflictsWith: []string{"automatic_scaling", "manual_scaling"},
+			},
 			"entrypoint": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -126,33 +226,34 @@ All files must be readable using the credentials supplied with this call.`,
 			},
 			"handlers": {
 				Type:     schema.TypeList,
+				Computed: true,
 				Optional: true,
-				Description: `An ordered list of URL-matching patterns that should be applied to incoming requests. 
+				Description: `An ordered list of URL-matching patterns that should be applied to incoming requests.
 The first matching URL handles the request and other request handlers are not attempted.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auth_fail_action": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"AUTH_FAIL_ACTION_UNSPECIFIED", "AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}, false),
-							Description:  `Actions to take when the user is not logged in.`,
+							ValidateFunc: validation.StringInSlice([]string{"AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED", ""}, false),
+							Description:  `Actions to take when the user is not logged in. Possible values: ["AUTH_FAIL_ACTION_REDIRECT", "AUTH_FAIL_ACTION_UNAUTHORIZED"]`,
 						},
 						"login": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"LOGIN_UNSPECIFIED", "LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}, false),
-							Description:  `Methods to restrict access to a URL based on login status.`,
+							ValidateFunc: validation.StringInSlice([]string{"LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED", ""}, false),
+							Description:  `Methods to restrict access to a URL based on login status. Possible values: ["LOGIN_OPTIONAL", "LOGIN_ADMIN", "LOGIN_REQUIRED"]`,
 						},
 						"redirect_http_response_code": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"REDIRECT_HTTP_RESPONSE_CODE_UNSPECIFIED", "REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307", ""}, false),
-							Description:  `Redirect codes.`,
+							ValidateFunc: validation.StringInSlice([]string{"REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307", ""}, false),
+							Description:  `30x code to use when performing redirects for the secure field. Possible values: ["REDIRECT_HTTP_RESPONSE_CODE_301", "REDIRECT_HTTP_RESPONSE_CODE_302", "REDIRECT_HTTP_RESPONSE_CODE_303", "REDIRECT_HTTP_RESPONSE_CODE_307"]`,
 						},
 						"script": {
 							Type:     schema.TypeList,
 							Optional: true,
-							Description: `Executes a script to handle the requests that match this URL pattern. 
+							Description: `Executes a script to handle the requests that match this URL pattern.
 Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
@@ -168,8 +269,8 @@ Only the auto value is supported for Node.js in the App Engine standard environm
 						"security_level": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"SECURE_UNSPECIFIED", "SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}, false),
-							Description:  `Security (HTTPS) enforcement for this URL.`,
+							ValidateFunc: validation.StringInSlice([]string{"SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS", ""}, false),
+							Description:  `Security (HTTPS) enforcement for this URL. Possible values: ["SECURE_DEFAULT", "SECURE_NEVER", "SECURE_OPTIONAL", "SECURE_ALWAYS"]`,
 						},
 						"static_files": {
 							Type:        schema.TypeList,
@@ -179,9 +280,11 @@ Only the auto value is supported for Node.js in the App Engine standard environm
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"application_readable": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: `Whether files should also be uploaded as code data. By default, files declared in static file handlers are uploaded as static data and are only served to end users; they cannot be read by the application. If enabled, uploads are charged against both your code and static data storage resource quotas.`,
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Whether files should also be uploaded as code data. By default, files declared in static file handlers are uploaded as
+static data and are only served to end users; they cannot be read by the application. If enabled, uploads are charged
+against both your code and static data storage resource quotas.`,
 									},
 									"expiration": {
 										Type:     schema.TypeString,
@@ -223,18 +326,30 @@ Defaults to file-specific MIME types, which are derived from each file's filenam
 						"url_regex": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `URL prefix. Uses regular expression syntax, which means regexp special characters must be escaped, but should not contain groupings. 
+							Description: `URL prefix. Uses regular expression syntax, which means regexp special characters must be escaped, but should not contain groupings.
 All URLs that begin with this prefix are handled by this handler, using the portion of the URL after the prefix as part of the file path.`,
 						},
 					},
 				},
 			},
+			"inbound_services": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: `A list of the types of messages that this application is able to receive. Possible values: ["INBOUND_SERVICE_MAIL", "INBOUND_SERVICE_MAIL_BOUNCE", "INBOUND_SERVICE_XMPP_ERROR", "INBOUND_SERVICE_XMPP_MESSAGE", "INBOUND_SERVICE_XMPP_SUBSCRIBE", "INBOUND_SERVICE_XMPP_PRESENCE", "INBOUND_SERVICE_CHANNEL_PRESENCE", "INBOUND_SERVICE_WARMUP"]`,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.StringInSlice([]string{"INBOUND_SERVICE_MAIL", "INBOUND_SERVICE_MAIL_BOUNCE", "INBOUND_SERVICE_XMPP_ERROR", "INBOUND_SERVICE_XMPP_MESSAGE", "INBOUND_SERVICE_XMPP_SUBSCRIBE", "INBOUND_SERVICE_XMPP_PRESENCE", "INBOUND_SERVICE_CHANNEL_PRESENCE", "INBOUND_SERVICE_WARMUP"}, false),
+				},
+				Set: schema.HashString,
+			},
 			"instance_class": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				Description: `Instance class that is used to run this version. Valid values are
-AutomaticScaling F1, F2, F4, F4_1G
-(Only AutomaticScaling is supported at the moment)`,
+AutomaticScaling: F1, F2, F4, F4_1G
+BasicScaling or ManualScaling: B1, B2, B4, B4_1G, B8
+Defaults to F1 for AutomaticScaling and B2 for ManualScaling and BasicScaling. If no scaling is specified, AutomaticScaling is chosen.`,
 			},
 			"libraries": {
 				Type:        schema.TypeList,
@@ -255,17 +370,30 @@ AutomaticScaling F1, F2, F4, F4_1G
 					},
 				},
 			},
+			"manual_scaling": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `A service with manual scaling runs continuously, allowing you to perform complex initialization and rely on the state of its memory over time.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"instances": {
+							Type:     schema.TypeInt,
+							Required: true,
+							Description: `Number of instances to assign to the service at the start.
+
+**Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2 
+Modules API set_num_instances() you must use 'lifecycle.ignore_changes = ["manual_scaling"[0].instances]' to prevent drift detection.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"automatic_scaling", "basic_scaling"},
+			},
 			"runtime_api_version": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: `The version of the API in the given runtime environment. 
+				Description: `The version of the API in the given runtime environment.
 Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref`,
-			},
-			"service": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `AppEngine service resource`,
 			},
 			"threadsafe": {
 				Type:        schema.TypeBool,
@@ -361,11 +489,35 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(entrypointProp)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
 	}
+	inboundServicesProp, err := expandAppEngineStandardAppVersionInboundServices(d.Get("inbound_services"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("inbound_services"); !isEmptyValue(reflect.ValueOf(inboundServicesProp)) && (ok || !reflect.DeepEqual(v, inboundServicesProp)) {
+		obj["inboundServices"] = inboundServicesProp
+	}
 	instanceClassProp, err := expandAppEngineStandardAppVersionInstanceClass(d.Get("instance_class"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("instance_class"); !isEmptyValue(reflect.ValueOf(instanceClassProp)) && (ok || !reflect.DeepEqual(v, instanceClassProp)) {
 		obj["instanceClass"] = instanceClassProp
+	}
+	automaticScalingProp, err := expandAppEngineStandardAppVersionAutomaticScaling(d.Get("automatic_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("automatic_scaling"); !isEmptyValue(reflect.ValueOf(automaticScalingProp)) && (ok || !reflect.DeepEqual(v, automaticScalingProp)) {
+		obj["automaticScaling"] = automaticScalingProp
+	}
+	basicScalingProp, err := expandAppEngineStandardAppVersionBasicScaling(d.Get("basic_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("basic_scaling"); !isEmptyValue(reflect.ValueOf(basicScalingProp)) && (ok || !reflect.DeepEqual(v, basicScalingProp)) {
+		obj["basicScaling"] = basicScalingProp
+	}
+	manualScalingProp, err := expandAppEngineStandardAppVersionManualScaling(d.Get("manual_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("manual_scaling"); !isEmptyValue(reflect.ValueOf(manualScalingProp)) && (ok || !reflect.DeepEqual(v, manualScalingProp)) {
+		obj["manualScaling"] = manualScalingProp
 	}
 
 	lockName, err := replaceVars(d, config, "apps/{{project}}")
@@ -385,7 +537,7 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isAppEngineRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating StandardAppVersion: %s", err)
 	}
@@ -399,7 +551,7 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 
 	err = appEngineOperationWaitTime(
 		config, res, project, "Creating StandardAppVersion",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -415,7 +567,7 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}/versions/{{version_id}}")
+	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}/versions/{{version_id}}?view=FULL")
 	if err != nil {
 		return err
 	}
@@ -424,7 +576,7 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	res, err := sendRequest(config, "GET", project, url, nil, isAppEngineRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineStandardAppVersion %q", d.Id()))
 	}
@@ -436,27 +588,41 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 	if _, ok := d.GetOk("delete_service_on_destroy"); !ok {
 		d.Set("delete_service_on_destroy", false)
 	}
-
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
 
-	if err := d.Set("name", flattenAppEngineStandardAppVersionName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenAppEngineStandardAppVersionName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("version_id", flattenAppEngineStandardAppVersionVersionId(res["id"], d)); err != nil {
+	if err := d.Set("version_id", flattenAppEngineStandardAppVersionVersionId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("runtime", flattenAppEngineStandardAppVersionRuntime(res["runtime"], d)); err != nil {
+	if err := d.Set("runtime", flattenAppEngineStandardAppVersionRuntime(res["runtime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("runtime_api_version", flattenAppEngineStandardAppVersionRuntimeApiVersion(res["runtimeApiVersion"], d)); err != nil {
+	if err := d.Set("runtime_api_version", flattenAppEngineStandardAppVersionRuntimeApiVersion(res["runtimeApiVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("handlers", flattenAppEngineStandardAppVersionHandlers(res["handlers"], d)); err != nil {
+	if err := d.Set("handlers", flattenAppEngineStandardAppVersionHandlers(res["handlers"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("libraries", flattenAppEngineStandardAppVersionLibraries(res["libraries"], d)); err != nil {
+	if err := d.Set("libraries", flattenAppEngineStandardAppVersionLibraries(res["libraries"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err := d.Set("inbound_services", flattenAppEngineStandardAppVersionInboundServices(res["inboundServices"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err := d.Set("instance_class", flattenAppEngineStandardAppVersionInstanceClass(res["instanceClass"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err := d.Set("automatic_scaling", flattenAppEngineStandardAppVersionAutomaticScaling(res["automaticScaling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err := d.Set("basic_scaling", flattenAppEngineStandardAppVersionBasicScaling(res["basicScaling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
+	if err := d.Set("manual_scaling", flattenAppEngineStandardAppVersionManualScaling(res["manualScaling"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
 
@@ -526,11 +692,35 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
 	}
+	inboundServicesProp, err := expandAppEngineStandardAppVersionInboundServices(d.Get("inbound_services"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("inbound_services"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, inboundServicesProp)) {
+		obj["inboundServices"] = inboundServicesProp
+	}
 	instanceClassProp, err := expandAppEngineStandardAppVersionInstanceClass(d.Get("instance_class"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("instance_class"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceClassProp)) {
 		obj["instanceClass"] = instanceClassProp
+	}
+	automaticScalingProp, err := expandAppEngineStandardAppVersionAutomaticScaling(d.Get("automatic_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("automatic_scaling"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, automaticScalingProp)) {
+		obj["automaticScaling"] = automaticScalingProp
+	}
+	basicScalingProp, err := expandAppEngineStandardAppVersionBasicScaling(d.Get("basic_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("basic_scaling"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, basicScalingProp)) {
+		obj["basicScaling"] = basicScalingProp
+	}
+	manualScalingProp, err := expandAppEngineStandardAppVersionManualScaling(d.Get("manual_scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("manual_scaling"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, manualScalingProp)) {
+		obj["manualScaling"] = manualScalingProp
 	}
 
 	lockName, err := replaceVars(d, config, "apps/{{project}}")
@@ -546,15 +736,17 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Updating StandardAppVersion %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate), isAppEngineRetryableError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating StandardAppVersion %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating StandardAppVersion %q: %#v", d.Id(), res)
 	}
 
 	err = appEngineOperationWaitTime(
 		config, res, project, "Updating StandardAppVersion",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err
@@ -566,7 +758,7 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta interface{}) error {
 
 	if d.Get("noop_on_destroy") == true {
-		log.Printf("[DEBUG] Keeping the StandardAppVersion %q", d.Id())
+		log.Printf("[DEBUG] Keeping the AppVersion %q", d.Id())
 		return nil
 	}
 	config := meta.(*Config)
@@ -590,13 +782,13 @@ func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta inte
 		}
 		var obj map[string]interface{}
 		log.Printf("[DEBUG] Deleting Service %q", d.Id())
-		res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+		res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isAppEngineRetryableError)
 		if err != nil {
 			return handleNotFoundError(err, d, "Service")
 		}
 		err = appEngineOperationWaitTime(
 			config, res, project, "Deleting Service",
-			int(d.Timeout(schema.TimeoutDelete).Minutes()))
+			d.Timeout(schema.TimeoutDelete))
 
 		if err != nil {
 			return err
@@ -609,19 +801,19 @@ func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta inte
 			return err
 		}
 		var obj map[string]interface{}
-		log.Printf("[DEBUG] Deleting StandardAppVersion %q", d.Id())
-		res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+		log.Printf("[DEBUG] Deleting AppVersion %q", d.Id())
+		res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isAppEngineRetryableError)
 		if err != nil {
-			return handleNotFoundError(err, d, "StandardAppVersion")
+			return handleNotFoundError(err, d, "AppVersion")
 		}
 		err = appEngineOperationWaitTime(
-			config, res, project, "Deleting StandardAppVersion",
-			int(d.Timeout(schema.TimeoutDelete).Minutes()))
+			config, res, project, "Deleting AppVersion",
+			d.Timeout(schema.TimeoutDelete))
 
 		if err != nil {
 			return err
 		}
-		log.Printf("[DEBUG] Finished deleting StandardAppVersion %q: %#v", d.Id(), res)
+		log.Printf("[DEBUG] Finished deleting AppVersion %q: %#v", d.Id(), res)
 		return nil
 
 	}
@@ -651,23 +843,23 @@ func resourceAppEngineStandardAppVersionImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAppEngineStandardAppVersionName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionVersionId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionVersionId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionRuntime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionRuntime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionRuntimeApiVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionRuntimeApiVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlers(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -680,38 +872,38 @@ func flattenAppEngineStandardAppVersionHandlers(v interface{}, d *schema.Resourc
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"url_regex":                   flattenAppEngineStandardAppVersionHandlersUrlRegex(original["urlRegex"], d),
-			"security_level":              flattenAppEngineStandardAppVersionHandlersSecurityLevel(original["securityLevel"], d),
-			"login":                       flattenAppEngineStandardAppVersionHandlersLogin(original["login"], d),
-			"auth_fail_action":            flattenAppEngineStandardAppVersionHandlersAuthFailAction(original["authFailAction"], d),
-			"redirect_http_response_code": flattenAppEngineStandardAppVersionHandlersRedirectHttpResponseCode(original["redirectHttpResponseCode"], d),
-			"script":                      flattenAppEngineStandardAppVersionHandlersScript(original["script"], d),
-			"static_files":                flattenAppEngineStandardAppVersionHandlersStaticFiles(original["staticFiles"], d),
+			"url_regex":                   flattenAppEngineStandardAppVersionHandlersUrlRegex(original["urlRegex"], d, config),
+			"security_level":              flattenAppEngineStandardAppVersionHandlersSecurityLevel(original["securityLevel"], d, config),
+			"login":                       flattenAppEngineStandardAppVersionHandlersLogin(original["login"], d, config),
+			"auth_fail_action":            flattenAppEngineStandardAppVersionHandlersAuthFailAction(original["authFailAction"], d, config),
+			"redirect_http_response_code": flattenAppEngineStandardAppVersionHandlersRedirectHttpResponseCode(original["redirectHttpResponseCode"], d, config),
+			"script":                      flattenAppEngineStandardAppVersionHandlersScript(original["script"], d, config),
+			"static_files":                flattenAppEngineStandardAppVersionHandlersStaticFiles(original["staticFiles"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenAppEngineStandardAppVersionHandlersUrlRegex(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersUrlRegex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersSecurityLevel(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersSecurityLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersLogin(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersLogin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersAuthFailAction(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersAuthFailAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersRedirectHttpResponseCode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersRedirectHttpResponseCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersScript(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersScript(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -721,14 +913,14 @@ func flattenAppEngineStandardAppVersionHandlersScript(v interface{}, d *schema.R
 	}
 	transformed := make(map[string]interface{})
 	transformed["script_path"] =
-		flattenAppEngineStandardAppVersionHandlersScriptScriptPath(original["scriptPath"], d)
+		flattenAppEngineStandardAppVersionHandlersScriptScriptPath(original["scriptPath"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAppEngineStandardAppVersionHandlersScriptScriptPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersScriptScriptPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFiles(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFiles(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -738,50 +930,50 @@ func flattenAppEngineStandardAppVersionHandlersStaticFiles(v interface{}, d *sch
 	}
 	transformed := make(map[string]interface{})
 	transformed["path"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesPath(original["path"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesPath(original["path"], d, config)
 	transformed["upload_path_regex"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesUploadPathRegex(original["uploadPathRegex"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesUploadPathRegex(original["uploadPathRegex"], d, config)
 	transformed["http_headers"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesHttpHeaders(original["httpHeaders"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesHttpHeaders(original["httpHeaders"], d, config)
 	transformed["mime_type"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesMimeType(original["mimeType"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesMimeType(original["mimeType"], d, config)
 	transformed["expiration"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesExpiration(original["expiration"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesExpiration(original["expiration"], d, config)
 	transformed["require_matching_file"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesRequireMatchingFile(original["requireMatchingFile"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesRequireMatchingFile(original["requireMatchingFile"], d, config)
 	transformed["application_readable"] =
-		flattenAppEngineStandardAppVersionHandlersStaticFilesApplicationReadable(original["applicationReadable"], d)
+		flattenAppEngineStandardAppVersionHandlersStaticFilesApplicationReadable(original["applicationReadable"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAppEngineStandardAppVersionHandlersStaticFilesPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesUploadPathRegex(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesUploadPathRegex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesHttpHeaders(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesHttpHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesMimeType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesMimeType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesExpiration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesExpiration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesRequireMatchingFile(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesRequireMatchingFile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionHandlersStaticFilesApplicationReadable(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionHandlersStaticFilesApplicationReadable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionLibraries(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionLibraries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -794,18 +986,238 @@ func flattenAppEngineStandardAppVersionLibraries(v interface{}, d *schema.Resour
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":    flattenAppEngineStandardAppVersionLibrariesName(original["name"], d),
-			"version": flattenAppEngineStandardAppVersionLibrariesVersion(original["version"], d),
+			"name":    flattenAppEngineStandardAppVersionLibrariesName(original["name"], d, config),
+			"version": flattenAppEngineStandardAppVersionLibrariesVersion(original["version"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenAppEngineStandardAppVersionLibrariesName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionLibrariesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionLibrariesVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAppEngineStandardAppVersionLibrariesVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenAppEngineStandardAppVersionInboundServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenAppEngineStandardAppVersionInstanceClass(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScaling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["max_concurrent_requests"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingMaxConcurrentRequests(original["maxConcurrentRequests"], d, config)
+	transformed["max_idle_instances"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingMaxIdleInstances(original["maxIdleInstances"], d, config)
+	transformed["max_pending_latency"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingMaxPendingLatency(original["maxPendingLatency"], d, config)
+	transformed["min_idle_instances"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingMinIdleInstances(original["minIdleInstances"], d, config)
+	transformed["min_pending_latency"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingMinPendingLatency(original["minPendingLatency"], d, config)
+	transformed["standard_scheduler_settings"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings(original["standardSchedulerSettings"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAppEngineStandardAppVersionAutomaticScalingMaxConcurrentRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingMaxIdleInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingMaxPendingLatency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingMinIdleInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingMinPendingLatency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["target_cpu_utilization"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetCpuUtilization(original["targetCpuUtilization"], d, config)
+	transformed["target_throughput_utilization"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetThroughputUtilization(original["targetThroughputUtilization"], d, config)
+	transformed["min_instances"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMinInstances(original["minInstances"], d, config)
+	transformed["max_instances"] =
+		flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMaxInstances(original["maxInstances"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetCpuUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetThroughputUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMinInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionBasicScaling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["idle_timeout"] =
+		flattenAppEngineStandardAppVersionBasicScalingIdleTimeout(original["idleTimeout"], d, config)
+	transformed["max_instances"] =
+		flattenAppEngineStandardAppVersionBasicScalingMaxInstances(original["maxInstances"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAppEngineStandardAppVersionBasicScalingIdleTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionBasicScalingMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAppEngineStandardAppVersionManualScaling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["instances"] =
+		flattenAppEngineStandardAppVersionManualScalingInstances(original["instances"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAppEngineStandardAppVersionManualScalingInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func expandAppEngineStandardAppVersionVersionId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -1147,15 +1559,22 @@ func expandAppEngineStandardAppVersionDeploymentFiles(v interface{}, d Terraform
 		transformedSha1Sum, err := expandAppEngineStandardAppVersionDeploymentFilesSha1Sum(original["sha1_sum"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedSha1Sum); val.IsValid() && !isEmptyValue(val) {
+			transformed["sha1Sum"] = transformedSha1Sum
 		}
-		transformed["sha1Sum"] = transformedSha1Sum
+
 		transformedSourceUrl, err := expandAppEngineStandardAppVersionDeploymentFilesSourceUrl(original["source_url"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedSourceUrl); val.IsValid() && !isEmptyValue(val) {
+			transformed["sourceUrl"] = transformedSourceUrl
 		}
-		transformed["sourceUrl"] = transformedSourceUrl
 
-		m[original["name"].(string)] = transformed
+		transformedName, err := expandString(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedName] = transformed
 	}
 	return m, nil
 }
@@ -1191,6 +1610,198 @@ func expandAppEngineStandardAppVersionEntrypointShell(v interface{}, d Terraform
 	return v, nil
 }
 
+func expandAppEngineStandardAppVersionInboundServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
 func expandAppEngineStandardAppVersionInstanceClass(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScaling(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMaxConcurrentRequests, err := expandAppEngineStandardAppVersionAutomaticScalingMaxConcurrentRequests(original["max_concurrent_requests"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxConcurrentRequests); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxConcurrentRequests"] = transformedMaxConcurrentRequests
+	}
+
+	transformedMaxIdleInstances, err := expandAppEngineStandardAppVersionAutomaticScalingMaxIdleInstances(original["max_idle_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxIdleInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxIdleInstances"] = transformedMaxIdleInstances
+	}
+
+	transformedMaxPendingLatency, err := expandAppEngineStandardAppVersionAutomaticScalingMaxPendingLatency(original["max_pending_latency"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxPendingLatency); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxPendingLatency"] = transformedMaxPendingLatency
+	}
+
+	transformedMinIdleInstances, err := expandAppEngineStandardAppVersionAutomaticScalingMinIdleInstances(original["min_idle_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinIdleInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["minIdleInstances"] = transformedMinIdleInstances
+	}
+
+	transformedMinPendingLatency, err := expandAppEngineStandardAppVersionAutomaticScalingMinPendingLatency(original["min_pending_latency"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinPendingLatency); val.IsValid() && !isEmptyValue(val) {
+		transformed["minPendingLatency"] = transformedMinPendingLatency
+	}
+
+	transformedStandardSchedulerSettings, err := expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings(original["standard_scheduler_settings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStandardSchedulerSettings); val.IsValid() && !isEmptyValue(val) {
+		transformed["standardSchedulerSettings"] = transformedStandardSchedulerSettings
+	}
+
+	return transformed, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingMaxConcurrentRequests(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingMaxIdleInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingMaxPendingLatency(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingMinIdleInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingMinPendingLatency(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTargetCpuUtilization, err := expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetCpuUtilization(original["target_cpu_utilization"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTargetCpuUtilization); val.IsValid() && !isEmptyValue(val) {
+		transformed["targetCpuUtilization"] = transformedTargetCpuUtilization
+	}
+
+	transformedTargetThroughputUtilization, err := expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetThroughputUtilization(original["target_throughput_utilization"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTargetThroughputUtilization); val.IsValid() && !isEmptyValue(val) {
+		transformed["targetThroughputUtilization"] = transformedTargetThroughputUtilization
+	}
+
+	transformedMinInstances, err := expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMinInstances(original["min_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["minInstances"] = transformedMinInstances
+	}
+
+	transformedMaxInstances, err := expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMaxInstances(original["max_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxInstances"] = transformedMaxInstances
+	}
+
+	return transformed, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetCpuUtilization(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsTargetThroughputUtilization(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMinInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettingsMaxInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionBasicScaling(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIdleTimeout, err := expandAppEngineStandardAppVersionBasicScalingIdleTimeout(original["idle_timeout"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdleTimeout); val.IsValid() && !isEmptyValue(val) {
+		transformed["idleTimeout"] = transformedIdleTimeout
+	}
+
+	transformedMaxInstances, err := expandAppEngineStandardAppVersionBasicScalingMaxInstances(original["max_instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxInstances"] = transformedMaxInstances
+	}
+
+	return transformed, nil
+}
+
+func expandAppEngineStandardAppVersionBasicScalingIdleTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionBasicScalingMaxInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionManualScaling(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInstances, err := expandAppEngineStandardAppVersionManualScalingInstances(original["instances"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInstances); val.IsValid() && !isEmptyValue(val) {
+		transformed["instances"] = transformedInstances
+	}
+
+	return transformed, nil
+}
+
+func expandAppEngineStandardAppVersionManualScalingInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

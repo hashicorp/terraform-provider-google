@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"google.golang.org/api/googleapi"
 )
 
 func resourceComputeNetwork() *schema.Resource {
@@ -82,7 +83,7 @@ recreated to modify this field.`,
 network's cloud routers will only advertise routes with subnetworks
 of this network in the same region as the router. If set to 'GLOBAL',
 this network's cloud routers will advertise routes with all
-subnetworks of this network, across regions.`,
+subnetworks of this network, across regions. Possible values: ["REGIONAL", "GLOBAL"]`,
 			},
 
 			"gateway_ipv4": {
@@ -168,7 +169,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating Network",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -196,7 +197,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 				if err != nil {
 					return fmt.Errorf("Error deleting route: %s", err)
 				}
-				err = computeOperationWait(config, op, project, "Deleting Route")
+				err = computeOperationWaitTime(config, op, project, "Deleting Route", d.Timeout(schema.TimeoutCreate))
 				if err != nil {
 					return err
 				}
@@ -231,26 +232,28 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 	if _, ok := d.GetOk("delete_default_routes_on_create"); !ok {
 		d.Set("delete_default_routes_on_create", false)
 	}
-
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeNetworkDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeNetworkDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err := d.Set("gateway_ipv4", flattenComputeNetworkGatewayIpv4(res["gatewayIPv4"], d)); err != nil {
+	if err := d.Set("gateway_ipv4", flattenComputeNetworkGatewayIpv4(res["gatewayIPv4"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err := d.Set("name", flattenComputeNetworkName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeNetworkName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err := d.Set("auto_create_subnetworks", flattenComputeNetworkAutoCreateSubnetworks(res["autoCreateSubnetworks"], d)); err != nil {
+	if err := d.Set("auto_create_subnetworks", flattenComputeNetworkAutoCreateSubnetworks(res["autoCreateSubnetworks"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
 	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenComputeNetworkRoutingConfig(res["routingConfig"], d); flattenedProp != nil {
+	if flattenedProp := flattenComputeNetworkRoutingConfig(res["routingConfig"], d, config); flattenedProp != nil {
+		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
+			return fmt.Errorf("Error reading Network: %s", gerr)
+		}
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
@@ -281,7 +284,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 		routingConfigProp, err := expandComputeNetworkRoutingConfig(nil, d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("routing_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, routingConfigProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(routingConfigProp)) {
 			obj["routingConfig"] = routingConfigProp
 		}
 
@@ -292,11 +295,13 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Network %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Network %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(
 			config, res, project, "Updating Network",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -332,7 +337,7 @@ func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) erro
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting Network",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -365,23 +370,23 @@ func resourceComputeNetworkImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNetworkDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkGatewayIpv4(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkGatewayIpv4(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkAutoCreateSubnetworks(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkAutoCreateSubnetworks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -391,10 +396,10 @@ func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData) i
 	}
 	transformed := make(map[string]interface{})
 	transformed["routing_mode"] =
-		flattenComputeNetworkRoutingConfigRoutingMode(original["routingMode"], d)
+		flattenComputeNetworkRoutingConfigRoutingMode(original["routingMode"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

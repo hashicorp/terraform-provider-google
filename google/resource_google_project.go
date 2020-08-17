@@ -33,10 +33,10 @@ func resourceGoogleProject() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
-			Read:   schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Read:   schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		MigrateState: resourceGoogleProjectMigrateState,
@@ -47,27 +47,32 @@ func resourceGoogleProject() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateProjectID(),
+				Description:  `The project ID. Changing this forces a new project to be created.`,
 			},
 			"skip_delete": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: `If true, the Terraform resource can be deleted without deleting the Project via the Google API.`,
 			},
 			"auto_create_network": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Create the 'default' network automatically.  Default true. If set to false, the default network will be deleted.  Note that, for quota purposes, you will still need to have 1 network slot available to create the project successfully, even if you set auto_create_network to false, since the network will exist momentarily.`,
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateProjectName(),
+				Description:  `The display name of the project.`,
 			},
 			"org_id": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"folder_id"},
+				Description:   `The numeric ID of the organization this project belongs to. Changing this forces a new project to be created.  Only one of org_id or folder_id may be specified. If the org_id is specified then the project is created at the top level. Changing this forces the project to be migrated to the newly specified organization.`,
 			},
 			"folder_id": {
 				Type:          schema.TypeString,
@@ -75,19 +80,23 @@ func resourceGoogleProject() *schema.Resource {
 				Computed:      true,
 				ConflictsWith: []string{"org_id"},
 				StateFunc:     parseFolderId,
+				Description:   `The numeric ID of the folder this project should be created under. Only one of org_id or folder_id may be specified. If the folder_id is specified, then the project is created under the specified folder. Changing this forces the project to be migrated to the newly specified folder.`,
 			},
 			"number": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The numeric identifier of the project.`,
 			},
 			"billing_account": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The alphanumeric ID of the billing account this project belongs to. The user or service account performing this operation with Terraform must have Billing Account Administrator privileges (roles/billing.admin) in the organization. See Google Cloud Billing API Access Control for more details.`,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A set of key/value label pairs to assign to the project.`,
 			},
 		},
 	}
@@ -95,6 +104,10 @@ func resourceGoogleProject() *schema.Resource {
 
 func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	if err := resourceGoogleProjectCheckPreRequisites(config, d); err != nil {
+		return fmt.Errorf("failed pre-requisites: %v", err)
+	}
 
 	var pid string
 	var err error
@@ -134,7 +147,7 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	waitErr := resourceManagerOperationWaitTime(config, opAsMap, "creating folder", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	waitErr := resourceManagerOperationWaitTime(config, opAsMap, "creating folder", d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		// The resource wasn't actually created
 		d.SetId("")
@@ -149,6 +162,10 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
+	// Sleep for 10s, letting the billing account settle before other resources
+	// try to use this project.
+	time.Sleep(10 * time.Second)
+
 	err = resourceGoogleProjectRead(d, meta)
 	if err != nil {
 		return err
@@ -161,16 +178,36 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	if !d.Get("auto_create_network").(bool) {
 		// The compute API has to be enabled before we can delete a network.
 		if err = enableServiceUsageProjectServices([]string{"compute.googleapis.com"}, project.ProjectId, config, d.Timeout(schema.TimeoutCreate)); err != nil {
-			return fmt.Errorf("Error enabling the Compute Engine API required to delete the default network: %s", err)
+			return errwrap.Wrapf("Error enabling the Compute Engine API required to delete the default network: {{err}} ", err)
 		}
 
 		if err = forceDeleteComputeNetwork(d, config, project.ProjectId, "default"); err != nil {
 			if isGoogleApiErrorWithCode(err, 404) {
 				log.Printf("[DEBUG] Default network not found for project %q, no need to delete it", project.ProjectId)
 			} else {
-				return fmt.Errorf("Error deleting default network in project %s: %s", project.ProjectId, err)
+				return errwrap.Wrapf(fmt.Sprintf("Error deleting default network in project %s: {{err}}", project.ProjectId), err)
 			}
 		}
+	}
+	return nil
+}
+
+func resourceGoogleProjectCheckPreRequisites(config *Config, d *schema.ResourceData) error {
+	ib, ok := d.GetOk("billing_account")
+	if !ok {
+		return nil
+	}
+	ba := "billingAccounts/" + ib.(string)
+	const perm = "billing.resourceAssociations.create"
+	req := &cloudbilling.TestIamPermissionsRequest{
+		Permissions: []string{perm},
+	}
+	resp, err := config.clientBilling.BillingAccounts.TestIamPermissions(ba, req).Do()
+	if err != nil {
+		return fmt.Errorf("failed to check permissions on billing account %q: %v", ba, err)
+	}
+	if !stringInSlice(resp.Permissions, perm) {
+		return fmt.Errorf("missing permission on %q: %v", ba, perm)
 	}
 	return nil
 }
@@ -182,6 +219,9 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 	p, err := readGoogleProject(d, config)
 	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 403 && strings.Contains(gerr.Message, "caller does not have permission") {
+			return fmt.Errorf("the user does not have permission to access Project %q or it may not exist", pid)
+		}
 		return handleNotFoundError(err, d, fmt.Sprintf("Project %q", pid))
 	}
 
@@ -295,11 +335,8 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 	if ok := d.HasChange("name"); ok {
 		p.Name = project_name
 		// Do update on project
-		if err = retryTimeDuration(func() (updateErr error) {
-			p, updateErr = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
-			return updateErr
-		}, d.Timeout(schema.TimeoutUpdate)); err != nil {
-			return fmt.Errorf("Error updating project %q: %s", project_name, err)
+		if p, err = updateProject(config, d, project_name, p); err != nil {
+			return err
 		}
 
 		d.SetPartial("name")
@@ -312,11 +349,8 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 
 		// Do update on project
-		if err = retryTimeDuration(func() (updateErr error) {
-			p, updateErr = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
-			return updateErr
-		}, d.Timeout(schema.TimeoutUpdate)); err != nil {
-			return fmt.Errorf("Error updating project %q: %s", project_name, err)
+		if p, err = updateProject(config, d, project_name, p); err != nil {
+			return err
 		}
 		d.SetPartial("org_id")
 		d.SetPartial("folder_id")
@@ -335,17 +369,25 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 		p.Labels = expandLabels(d)
 
 		// Do Update on project
-		if err = retryTimeDuration(func() (updateErr error) {
-			p, updateErr = config.clientResourceManager.Projects.Update(p.ProjectId, p).Do()
-			return updateErr
-		}, d.Timeout(schema.TimeoutUpdate)); err != nil {
-			return fmt.Errorf("Error updating project %q: %s", project_name, err)
+		if p, err = updateProject(config, d, project_name, p); err != nil {
+			return err
 		}
 		d.SetPartial("labels")
 	}
 
 	d.Partial(false)
 	return resourceGoogleProjectRead(d, meta)
+}
+
+func updateProject(config *Config, d *schema.ResourceData, projectName string, desiredProject *cloudresourcemanager.Project) (*cloudresourcemanager.Project, error) {
+	var newProj *cloudresourcemanager.Project
+	if err := retryTimeDuration(func() (updateErr error) {
+		newProj, updateErr = config.clientResourceManager.Projects.Update(desiredProject.ProjectId, desiredProject).Do()
+		return updateErr
+	}, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return nil, fmt.Errorf("Error updating project %q: %s", projectName, err)
+	}
+	return newProj, nil
 }
 
 func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error {
@@ -399,7 +441,7 @@ func forceDeleteComputeNetwork(d *schema.ResourceData, config *Config, projectId
 		filter := fmt.Sprintf("network eq %s", networkLink)
 		resp, err := config.clientCompute.Firewalls.List(projectId).Filter(filter).Do()
 		if err != nil {
-			return fmt.Errorf("Error listing firewall rules in proj: %s", err)
+			return errwrap.Wrapf("Error listing firewall rules in proj: {{err}}", err)
 		}
 
 		log.Printf("[DEBUG] Found %d firewall rules in %q network", len(resp.Items), networkName)
@@ -407,9 +449,9 @@ func forceDeleteComputeNetwork(d *schema.ResourceData, config *Config, projectId
 		for _, firewall := range resp.Items {
 			op, err := config.clientCompute.Firewalls.Delete(projectId, firewall.Name).Do()
 			if err != nil {
-				return fmt.Errorf("Error deleting firewall: %s", err)
+				return errwrap.Wrapf("Error deleting firewall: {{err}}", err)
 			}
-			err = computeOperationWait(config, op, projectId, "Deleting Firewall")
+			err = computeOperationWaitTime(config, op, projectId, "Deleting Firewall", d.Timeout(schema.TimeoutCreate))
 			if err != nil {
 				return err
 			}
@@ -431,7 +473,11 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
 	if name != "" {
 		ba.BillingAccountName = "billingAccounts/" + name
 	}
-	_, err := config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), ba).Do()
+	updateBillingInfoFunc := func() error {
+		_, err := config.clientBilling.Projects.UpdateBillingInfo(prefixedProject(pid), ba).Do()
+		return err
+	}
+	err := retryTimeDuration(updateBillingInfoFunc, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		d.Set("billing_account", "")
 		if _err, ok := err.(*googleapi.Error); ok {
@@ -440,9 +486,13 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
 		return fmt.Errorf("Error setting billing account %q for project %q: %v", name, prefixedProject(pid), err)
 	}
 	for retries := 0; retries < 3; retries++ {
-		ba, err = config.clientBilling.Projects.GetBillingInfo(prefixedProject(pid)).Do()
+		var ba *cloudbilling.ProjectBillingInfo
+		err = retryTimeDuration(func() (reqErr error) {
+			ba, reqErr = config.clientBilling.Projects.GetBillingInfo(prefixedProject(pid)).Do()
+			return reqErr
+		}, d.Timeout(schema.TimeoutRead))
 		if err != nil {
-			return err
+			return fmt.Errorf("Error getting billing info for project %q: %v", prefixedProject(pid), err)
 		}
 		baName := strings.TrimPrefix(ba.BillingAccountName, "billingAccounts/")
 		if baName == name {
@@ -458,10 +508,10 @@ func deleteComputeNetwork(project, network string, config *Config) error {
 	op, err := config.clientCompute.Networks.Delete(
 		project, network).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting network: %s", err)
+		return errwrap.Wrapf("Error deleting network: {{err}}", err)
 	}
 
-	err = computeOperationWaitTime(config, op, project, "Deleting Network", 10)
+	err = computeOperationWaitTime(config, op, project, "Deleting Network", 10*time.Minute)
 	if err != nil {
 		return err
 	}
@@ -529,7 +579,7 @@ func doEnableServicesRequest(services []string, project string, config *Config, 
 		return errwrap.Wrapf("failed to send enable services request: {{err}}", err)
 	}
 	// Poll for the API to return
-	waitErr := serviceUsageOperationWait(config, op, fmt.Sprintf("Enable Project %q Services: %+v", project, services))
+	waitErr := serviceUsageOperationWait(config, op, project, fmt.Sprintf("Enable Project %q Services: %+v", project, services), timeout)
 	if waitErr != nil {
 		return waitErr
 	}
@@ -541,22 +591,9 @@ func doEnableServicesRequest(services []string, project string, config *Config, 
 // forms of the service. LIST responses are expected to return only the old or
 // new form, but we'll always return both.
 func listCurrentlyEnabledServices(project string, config *Config, timeout time.Duration) (map[string]struct{}, error) {
-	// Verify project for services still exists
-	p, err := config.clientResourceManager.Projects.Get(project).Do()
-	if err != nil {
-		return nil, err
-	}
-	if p.LifecycleState == "DELETE_REQUESTED" {
-		// Construct a 404 error for handleNotFoundError
-		return nil, &googleapi.Error{
-			Code:    404,
-			Message: "Project deletion was requested",
-		}
-	}
-
 	log.Printf("[DEBUG] Listing enabled services for project %s", project)
 	apiServices := make(map[string]struct{})
-	err = retryTimeDuration(func() error {
+	err := retryTimeDuration(func() error {
 		ctx := context.Background()
 		return config.clientServiceUsage.Services.
 			List(fmt.Sprintf("projects/%s", project)).

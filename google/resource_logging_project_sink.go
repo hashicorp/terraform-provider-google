@@ -20,16 +20,18 @@ func resourceLoggingProjectSink() *schema.Resource {
 		},
 	}
 	schm.Schema["project"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Optional:    true,
+		Computed:    true,
+		ForceNew:    true,
+		Description: `The ID of the project to create the sink in. If omitted, the project associated with the provider is used.`,
 	}
 	schm.Schema["unique_writer_identity"] = &schema.Schema{
-		Type:     schema.TypeBool,
-		Optional: true,
-		Default:  false,
-		ForceNew: true,
+		Type:        schema.TypeBool,
+		Optional:    true,
+		Default:     false,
+		ForceNew:    true,
+		Description: `Whether or not to create a unique identity associated with this sink. If false (the default), then the writer_identity used is serviceAccount:cloud-logs@system.gserviceaccount.com. If true, then a unique service account is created and used for this sink. If you wish to publish logs across projects, you must set unique_writer_identity to true.`,
 	}
 	return schm
 }
@@ -81,11 +83,11 @@ func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) er
 func resourceLoggingProjectSinkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	sink := expandResourceLoggingSinkForUpdate(d)
+	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
 	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
 
 	_, err := config.clientLogging.Projects.Sinks.Patch(d.Id(), sink).
-		UpdateMask(defaultLogSinkUpdateMask).UniqueWriterIdentity(uniqueWriterIdentity).Do()
+		UpdateMask(updateMask).UniqueWriterIdentity(uniqueWriterIdentity).Do()
 	if err != nil {
 		return err
 	}

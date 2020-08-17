@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,21 +27,22 @@ func TestAccMonitoringNotificationChannel_notificationChannelBasicExample(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMonitoringNotificationChannelDestroy,
+		CheckDestroy: testAccCheckMonitoringNotificationChannelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringNotificationChannel_notificationChannelBasicExample(context),
 			},
 			{
-				ResourceName:      "google_monitoring_notification_channel.basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_monitoring_notification_channel.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"sensitive_labels"},
 			},
 		},
 	})
@@ -60,27 +60,29 @@ resource "google_monitoring_notification_channel" "basic" {
 `, context)
 }
 
-func testAccCheckMonitoringNotificationChannelDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_monitoring_notification_channel" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckMonitoringNotificationChannelDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_monitoring_notification_channel" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil, isMonitoringConcurrentEditError)
+			if err == nil {
+				return fmt.Errorf("MonitoringNotificationChannel still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("MonitoringNotificationChannel still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

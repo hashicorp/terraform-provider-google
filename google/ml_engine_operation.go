@@ -14,7 +14,9 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 type MLEngineOperationWaiter struct {
@@ -32,17 +34,39 @@ func (w *MLEngineOperationWaiter) QueryOp() (interface{}, error) {
 	return sendRequest(w.Config, "GET", w.Project, url, nil)
 }
 
-func mLEngineOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeoutMinutes int) error {
+func createMLEngineWaiter(config *Config, op map[string]interface{}, project, activity string) (*MLEngineOperationWaiter, error) {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
-		return nil
+		return nil, nil
 	}
 	w := &MLEngineOperationWaiter{
 		Config:  config,
 		Project: project,
 	}
 	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
+		return nil, err
+	}
+	return w, nil
+}
+
+// nolint: deadcode,unused
+func mLEngineOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity string, timeout time.Duration) error {
+	w, err := createMLEngineWaiter(config, op, project, activity)
+	if err != nil || w == nil {
+		// If w is nil, the op was synchronous.
 		return err
 	}
-	return OperationWait(w, activity, timeoutMinutes)
+	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
+		return err
+	}
+	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
+}
+
+func mLEngineOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeout time.Duration) error {
+	w, err := createMLEngineWaiter(config, op, project, activity)
+	if err != nil || w == nil {
+		// If w is nil, the op was synchronous.
+		return err
+	}
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }

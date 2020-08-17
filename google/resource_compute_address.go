@@ -67,9 +67,8 @@ if any.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"INTERNAL", "EXTERNAL", ""}, false),
-				Description: `The type of address to reserve, either INTERNAL or EXTERNAL.
-If unspecified, defaults to EXTERNAL.`,
-				Default: "EXTERNAL",
+				Description:  `The type of address to reserve. Default value: "EXTERNAL" Possible values: ["INTERNAL", "EXTERNAL"]`,
+				Default:      "EXTERNAL",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -83,9 +82,8 @@ If unspecified, defaults to EXTERNAL.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD", ""}, false),
-				Description: `The networking tier used for configuring this address. This field can
-take the following values: PREMIUM or STANDARD. If this field is not
-specified, it is assumed to be PREMIUM.`,
+				Description: `The networking tier used for configuring this address. If this field is not
+specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]`,
 			},
 			"purpose": {
 				Type:         schema.TypeString,
@@ -97,7 +95,7 @@ specified, it is assumed to be PREMIUM.`,
 
 - GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
 
-This should only be set when using an Internal address.`,
+This should only be set when using an Internal address. Possible values: ["GCE_ENDPOINT"]`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -223,7 +221,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating Address",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -257,34 +255,34 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 
-	if err := d.Set("address", flattenComputeAddressAddress(res["address"], d)); err != nil {
+	if err := d.Set("address", flattenComputeAddressAddress(res["address"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("address_type", flattenComputeAddressAddressType(res["addressType"], d)); err != nil {
+	if err := d.Set("address_type", flattenComputeAddressAddressType(res["addressType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeAddressCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeAddressCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("description", flattenComputeAddressDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeAddressDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("name", flattenComputeAddressName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeAddressName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("purpose", flattenComputeAddressPurpose(res["purpose"], d)); err != nil {
+	if err := d.Set("purpose", flattenComputeAddressPurpose(res["purpose"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("network_tier", flattenComputeAddressNetworkTier(res["networkTier"], d)); err != nil {
+	if err := d.Set("network_tier", flattenComputeAddressNetworkTier(res["networkTier"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("subnetwork", flattenComputeAddressSubnetwork(res["subnetwork"], d)); err != nil {
+	if err := d.Set("subnetwork", flattenComputeAddressSubnetwork(res["subnetwork"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("users", flattenComputeAddressUsers(res["users"], d)); err != nil {
+	if err := d.Set("users", flattenComputeAddressUsers(res["users"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("region", flattenComputeAddressRegion(res["region"], d)); err != nil {
+	if err := d.Set("region", flattenComputeAddressRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -317,7 +315,7 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting Address",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -348,49 +346,50 @@ func resourceComputeAddressImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeAddressAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressAddressType(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil || v.(string) == "" {
+func flattenComputeAddressAddressType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "EXTERNAL"
 	}
+
 	return v
 }
 
-func flattenComputeAddressCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressPurpose(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressPurpose(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressNetworkTier(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressNetworkTier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressSubnetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressSubnetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeAddressUsers(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressUsers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressRegion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

@@ -31,37 +31,43 @@ func resourceComputeAttachedDisk() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
+				Description:      `name or self_link of the disk that will be attached.`,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"instance": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
+				Description:      `name or self_link of the compute instance that the disk will be attached to. If the self_link is provided then zone and project are extracted from the self link. If only the name is used then zone and project must be defined as properties on the resource or provider.`,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"project": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Computed:    true,
+				Optional:    true,
+				Description: `The project that the referenced compute instance is a part of. If instance is referenced by its self_link the project defined in the link will take precedence.`,
 			},
 			"zone": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Computed:    true,
+				Optional:    true,
+				Description: `The zone that the referenced compute instance is located within. If instance is referenced by its self_link the zone defined in the link will take precedence.`,
 			},
 			"device_name": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies a unique device name of your choice that is reflected into the /dev/disk/by-id/google-* tree of a Linux operating system running within the instance. This name can be used to reference the device for mounting, resizing, and so on, from within the instance. If not specified, the server chooses a default device name to apply to this disk, in the form persistent-disks-x, where x is a number assigned by Google Compute Engine.`,
 			},
 			"mode": {
 				Type:         schema.TypeString,
 				ForceNew:     true,
 				Optional:     true,
 				Default:      "READ_WRITE",
+				Description:  `The mode in which to attach this disk, either READ_WRITE or READ_ONLY. If not specified, the default is to attach the disk in READ_WRITE mode.`,
 				ValidateFunc: validation.StringInSlice([]string{"READ_ONLY", "READ_WRITE"}, false),
 			},
 		},
@@ -103,7 +109,7 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s/%s", zv.Project, zv.Zone, zv.Name, diskName))
 
 	waitErr := computeOperationWaitTime(config, op, zv.Project,
-		"disk to attach", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		"disk to attach", d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		d.SetId("")
 		return waitErr
@@ -184,7 +190,7 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	waitErr := computeOperationWaitTime(config, op, zv.Project,
-		fmt.Sprintf("Detaching disk from %s", zv.Name), int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		fmt.Sprintf("Detaching disk from %s", zv.Name), d.Timeout(schema.TimeoutDelete))
 	if waitErr != nil {
 		return waitErr
 	}

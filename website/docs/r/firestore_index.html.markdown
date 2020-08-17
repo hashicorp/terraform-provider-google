@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Firestore"
+subcategory: "Firestore"
 layout: "google"
 page_title: "Google: google_firestore_index"
 sidebar_current: "docs-google-firestore-index"
@@ -80,7 +80,8 @@ The following arguments are supported:
   specified as the last field, it will be added automatically with the
   same direction as that of the last field defined. If the final field
   in a composite index is not directional, the `__name__` will be
-  ordered `"ASCENDING"` (unless explicitly specified otherwise).  Structure is documented below.
+  ordered `"ASCENDING"` (unless explicitly specified otherwise).
+  Structure is documented below.
 
 
 The `fields` block supports:
@@ -93,11 +94,13 @@ The `fields` block supports:
   (Optional)
   Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
   Only one of `order` and `arrayConfig` can be specified.
+  Possible values are `ASCENDING` and `DESCENDING`.
 
 * `array_config` -
   (Optional)
   Indicates that this field supports operations on arrayValues. Only one of `order` and `arrayConfig` can
   be specified.
+  Possible values are `CONTAINS`.
 
 - - -
 
@@ -108,8 +111,9 @@ The `fields` block supports:
 
 * `query_scope` -
   (Optional)
-  The scope at which a query is run. One of `"COLLECTION"` or
-  `"COLLECTION_GROUP"`. Defaults to `"COLLECTION"`.
+  The scope at which a query is run.
+  Default value is `COLLECTION`.
+  Possible values are `COLLECTION` and `COLLECTION_GROUP`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -119,6 +123,7 @@ The `fields` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   A server defined name for this index. Format:

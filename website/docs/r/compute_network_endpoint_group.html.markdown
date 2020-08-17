@@ -53,8 +53,8 @@ To get more information about NetworkEndpointGroup, see:
 ```hcl
 resource "google_compute_network_endpoint_group" "neg" {
   name         = "my-lb-neg"
-  network      = google_compute_network.default.self_link
-  subnetwork   = google_compute_subnetwork.default.self_link
+  network      = google_compute_network.default.id
+  subnetwork   = google_compute_subnetwork.default.id
   default_port = "90"
   zone         = "us-central1-a"
 }
@@ -68,7 +68,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "neg-subnetwork"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 ```
 
@@ -103,8 +103,9 @@ The following arguments are supported:
 
 * `network_endpoint_type` -
   (Optional)
-  Type of network endpoints in this network endpoint group. Currently
-  the only supported value is GCE_VM_IP_PORT.
+  Type of network endpoints in this network endpoint group.
+  Default value is `GCE_VM_IP_PORT`.
+  Possible values are `GCE_VM_IP_PORT`.
 
 * `subnetwork` -
   (Optional)
@@ -127,6 +128,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}`
 
 * `size` -
   Number of network endpoints in the network endpoint group.

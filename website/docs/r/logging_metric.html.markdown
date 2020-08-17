@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Stackdriver Logging"
+subcategory: "Cloud (Stackdriver) Logging"
 layout: "google"
 page_title: "Google: google_logging_metric"
 sidebar_current: "docs-google-logging-metric"
@@ -55,11 +55,17 @@ resource "google_logging_metric" "logging_metric" {
       value_type  = "STRING"
       description = "amount of matter"
     }
+    labels {
+      key         = "sku"
+      value_type  = "INT64"
+      description = "Identifying number for item"
+    }
     display_name = "My metric"
   }
   value_extractor = "EXTRACT(jsonPayload.request)"
   label_extractors = {
     "mass" = "EXTRACT(jsonPayload.request)"
+    "sku"  = "EXTRACT(jsonPayload.id)"
   }
   bucket_options {
     linear_buckets {
@@ -135,7 +141,8 @@ The following arguments are supported:
 
 * `metric_descriptor` -
   (Required)
-  The metric descriptor associated with the logs-based metric.  Structure is documented below.
+  The metric descriptor associated with the logs-based metric.
+  Structure is documented below.
 
 
 The `metric_descriptor` block supports:
@@ -151,19 +158,22 @@ The `metric_descriptor` block supports:
   Whether the measurement is an integer, a floating-point number, etc.
   Some combinations of metricKind and valueType might not be supported.
   For counter metrics, set this to INT64.
+  Possible values are `BOOL`, `INT64`, `DOUBLE`, `STRING`, `DISTRIBUTION`, and `MONEY`.
 
 * `metric_kind` -
   (Required)
   Whether the metric records instantaneous values, changes to a value, etc.
   Some combinations of metricKind and valueType might not be supported.
   For counter metrics, set this to DELTA.
+  Possible values are `DELTA`, `GAUGE`, and `CUMULATIVE`.
 
 * `labels` -
   (Optional)
   The set of labels that can be used to describe a specific instance of this metric type. For
   example, the appengine.googleapis.com/http/server/response_latencies metric type has a label
   for the HTTP response code, response_code, so you can look at latencies for successful responses
-  or just for responses that failed.  Structure is documented below.
+  or just for responses that failed.
+  Structure is documented below.
 
 * `display_name` -
   (Optional)
@@ -185,6 +195,8 @@ The `labels` block supports:
 * `value_type` -
   (Optional)
   The type of data that can be assigned to the label.
+  Default value is `STRING`.
+  Possible values are `BOOL`, `INT64`, and `STRING`.
 
 - - -
 
@@ -214,7 +226,8 @@ The `labels` block supports:
 * `bucket_options` -
   (Optional)
   The bucketOptions are required when the logs-based metric is using a DISTRIBUTION value type and it
-  describes the bucket boundaries used to create a histogram of the extracted values.  Structure is documented below.
+  describes the bucket boundaries used to create a histogram of the extracted values.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -225,16 +238,19 @@ The `bucket_options` block supports:
 * `linear_buckets` -
   (Optional)
   Specifies a linear sequence of buckets that all have the same width (except overflow and underflow).
-  Each bucket represents a constant absolute uncertainty on the specific value in the bucket.  Structure is documented below.
+  Each bucket represents a constant absolute uncertainty on the specific value in the bucket.
+  Structure is documented below.
 
 * `exponential_buckets` -
   (Optional)
   Specifies an exponential sequence of buckets that have a width that is proportional to the value of
-  the lower bound. Each bucket represents a constant relative uncertainty on a specific value in the bucket.  Structure is documented below.
+  the lower bound. Each bucket represents a constant relative uncertainty on a specific value in the bucket.
+  Structure is documented below.
 
 * `explicit_buckets` -
   (Optional)
-  Specifies a set of buckets with arbitrary widths.  Structure is documented below.
+  Specifies a set of buckets with arbitrary widths.
+  Structure is documented below.
 
 
 The `linear_buckets` block supports:
@@ -271,6 +287,12 @@ The `explicit_buckets` block supports:
   (Required)
   The values must be monotonically increasing.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{name}}`
+
 
 ## Timeouts
 
@@ -286,6 +308,7 @@ This resource provides the following
 Metric can be imported using any of these accepted formats:
 
 ```
+$ terraform import google_logging_metric.default {{project}} {{name}}
 $ terraform import google_logging_metric.default {{name}}
 ```
 

@@ -1,0 +1,4 @@
+```release-note:breaking-change
+`app_engine_flexible_app_version` and `app_engine_standard_app_version` now require `service` to be set.  Before this change, leaving the value empty would have passed validation but failed during apply.
+
+```

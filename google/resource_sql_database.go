@@ -149,7 +149,7 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 
 	err = sqlAdminOperationWaitTime(
 		config, res, project, "Creating Database",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -176,23 +176,23 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	res, err := sendRequest(config, "GET", project, url, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SQLDatabase %q", d.Id()))
+		return handleNotFoundError(transformSQLDatabaseReadError(err), d, fmt.Sprintf("SQLDatabase %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
-	if err := d.Set("charset", flattenSQLDatabaseCharset(res["charset"], d)); err != nil {
+	if err := d.Set("charset", flattenSQLDatabaseCharset(res["charset"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("collation", flattenSQLDatabaseCollation(res["collation"], d)); err != nil {
+	if err := d.Set("collation", flattenSQLDatabaseCollation(res["collation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("name", flattenSQLDatabaseName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenSQLDatabaseName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
-	if err := d.Set("instance", flattenSQLDatabaseInstance(res["instance"], d)); err != nil {
+	if err := d.Set("instance", flattenSQLDatabaseInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -253,11 +253,13 @@ func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if err != nil {
 		return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Database %q: %#v", d.Id(), res)
 	}
 
 	err = sqlAdminOperationWaitTime(
 		config, res, project, "Updating Database",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err
@@ -296,7 +298,7 @@ func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 
 	err = sqlAdminOperationWaitTime(
 		config, res, project, "Deleting Database",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -328,19 +330,19 @@ func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSQLDatabaseCharset(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseCharset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSQLDatabaseCollation(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseCollation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSQLDatabaseName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSQLDatabaseInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSQLDatabaseInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

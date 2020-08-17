@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Stackdriver Monitoring"
+subcategory: "Cloud (Stackdriver) Monitoring"
 layout: "google"
 page_title: "Google: google_monitoring_notification_channel"
 sidebar_current: "docs-google-monitoring-notification-channel"
@@ -48,6 +48,9 @@ To get more information about NotificationChannel, see:
     * [Notification Options](https://cloud.google.com/monitoring/support/notification-options)
     * [Monitoring API Documentation](https://cloud.google.com/monitoring/api/v3/)
 
+~> **Warning:** All arguments including `sensitive_labels.auth_token`, `sensitive_labels.password`, and `sensitive_labels.service_key` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=notification_channel_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -65,6 +68,21 @@ resource "google_monitoring_notification_channel" "basic" {
   }
 }
 ```
+## Example Usage - Notification Channel Sensitive
+
+
+```hcl
+resource "google_monitoring_notification_channel" "default" {
+  display_name = "Test Slack Channel"
+  type         = "slack"
+  labels = {
+    "channel_name" = "#foobar"
+  }
+  sensitive_labels {
+    auth_token = "one"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -75,10 +93,6 @@ The following arguments are supported:
   (Required)
   The type of the notification channel. This field matches the value of the NotificationChannelDescriptor.type field. See https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.notificationChannelDescriptors/list to get the list of valid values such as "email", "slack", etc...
 
-* `display_name` -
-  (Required)
-  An optional human-readable name for this notification channel. It is recommended that you specify a non-empty and unique name in order to make it easier to identify the channels in your project, though this is not enforced. The display name is limited to 512 Unicode characters.
-
 
 - - -
 
@@ -88,15 +102,19 @@ The following arguments are supported:
   Configuration fields that define the channel and its behavior. The
   permissible and required labels are specified in the
   NotificationChannelDescriptor corresponding to the type field.
-  **Note**: Some NotificationChannelDescriptor labels are
-  sensitive and the API will return an partially-obfuscated value.
-  For example, for `"type": "slack"` channels, an `auth_token`
-  label with value "SECRET" will be obfuscated as "**CRET". In order
-  to avoid a diff, Terraform will use the state value if it appears
-  that the obfuscated value matches the state value in
-  length/unobfuscated characters. However, Terraform will not detect a
-  a diff if the obfuscated portion of the value was changed outside of
-  Terraform.
+  Labels with sensitive data are obfuscated by the API and therefore Terraform cannot
+  determine if there are upstream changes to these fields. They can also be configured via
+  the sensitive_labels block, but cannot be configured in both places.
+
+* `sensitive_labels` -
+  (Optional)
+  Different notification type behaviors are configured primarily using the the `labels` field on this
+  resource. This block contains the labels which contain secrets or passwords so that they can be marked
+  sensitive and hidden from plan output. The name of the field, eg: password, will be the key
+  in the `labels` map in the api request.
+  Credentials may not be specified in both locations and will cause an error. Changing from one location
+  to a different credential configuration in the config will require an apply to update state.
+  Structure is documented below.
 
 * `user_labels` -
   (Optional)
@@ -106,6 +124,10 @@ The following arguments are supported:
   (Optional)
   An optional human-readable description of this notification channel. This description may provide additional details, beyond the display name, for the channel. This may not exceed 1024 Unicode characters.
 
+* `display_name` -
+  (Optional)
+  An optional human-readable name for this notification channel. It is recommended that you specify a non-empty and unique name in order to make it easier to identify the channels in your project, though this is not enforced. The display name is limited to 512 Unicode characters.
+
 * `enabled` -
   (Optional)
   Whether notifications are forwarded to the described channel. This makes it possible to disable delivery of notifications to a particular channel without removing the channel from all alerting policies that reference the channel. This is a more convenient approach when the change is temporary and you want to receive notifications from the same set of alerting policies on the channel at some point in the future.
@@ -114,10 +136,28 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+The `sensitive_labels` block supports:
+
+* `auth_token` -
+  (Optional)
+  An authorization token for a notification channel. Channel types that support this field include: slack
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `password` -
+  (Optional)
+  An password for a notification channel. Channel types that support this field include: webhook_basicauth
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `service_key` -
+  (Optional)
+  An servicekey token for a notification channel. Channel types that support this field include: pagerduty
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   The full REST resource name for this channel. The syntax is:

@@ -1,0 +1,3 @@
+```release-note:note
+provider: added documentation for the `id` field for many resources, including format
+```

@@ -16,35 +16,18 @@ const (
 // BatchRequestEnableServices can be used to batch requests to enable services
 // across resource nodes, i.e. to batch creation of several
 // google_project_service(s) resources.
-func BatchRequestEnableServices(services map[string]struct{}, project string, d *schema.ResourceData, config *Config) error {
-	// renamed service create calls are relatively likely to fail, so break out
-	// of the batched call to avoid failing that as well
-	for k := range services {
-		if v, ok := renamedServicesByOldAndNewServiceNames[k]; ok {
-			log.Printf("[DEBUG] found renamed service %s (with alternate name %s)", k, v)
-			delete(services, k)
-			// also remove the other name, so we don't enable it 2x in a row
-			delete(services, v)
-
-			// use a short timeout- failures are likely
-			log.Printf("[DEBUG] attempting user-specified name %s", k)
-			err := enableServiceUsageProjectServices([]string{k}, project, config, 1*time.Minute)
-			if err != nil {
-				log.Printf("[DEBUG] saw error %s. attempting alternate name %v", err, v)
-				err2 := enableServiceUsageProjectServices([]string{v}, project, config, 1*time.Minute)
-				if err2 != nil {
-					return fmt.Errorf("Saw 2 subsequent errors attempting to enable a renamed service: %s / %s", err, err2)
-				}
-			}
-		}
+func BatchRequestEnableService(service string, project string, d *schema.ResourceData, config *Config) error {
+	// Renamed service create calls are relatively likely to fail, so don't try to batch the call.
+	if altName, ok := renamedServicesByOldAndNewServiceNames[service]; ok {
+		return tryEnableRenamedService(service, altName, project, d, config)
 	}
 
 	req := &BatchRequest{
 		ResourceName: project,
-		Body:         stringSliceFromGolangSet(services),
+		Body:         []string{service},
 		CombineF:     combineServiceUsageServicesBatches,
 		SendF:        sendBatchFuncEnableServices(config, d.Timeout(schema.TimeoutCreate)),
-		DebugId:      fmt.Sprintf("Enable Project Services %s: %+v", project, services),
+		DebugId:      fmt.Sprintf("Enable Project Service %q for project %q", service, project),
 	}
 
 	_, err := config.requestBatcherServiceUsage.SendRequestWithTimeout(
@@ -52,6 +35,22 @@ func BatchRequestEnableServices(services map[string]struct{}, project string, d 
 		req,
 		d.Timeout(schema.TimeoutCreate))
 	return err
+}
+
+func tryEnableRenamedService(service, altName string, project string, d *schema.ResourceData, config *Config) error {
+	log.Printf("[DEBUG] found renamed service %s (with alternate name %s)", service, altName)
+	// use a short timeout- failures are likely
+
+	log.Printf("[DEBUG] attempting enabling service with user-specified name %s", service)
+	err := enableServiceUsageProjectServices([]string{altName}, project, config, 1*time.Minute)
+	if err != nil {
+		log.Printf("[DEBUG] saw error %s. attempting alternate name %v", err, altName)
+		err2 := enableServiceUsageProjectServices([]string{altName}, project, config, 1*time.Minute)
+		if err2 != nil {
+			return fmt.Errorf("Saw 2 subsequent errors attempting to enable a renamed service: %s / %s", err, err2)
+		}
+	}
+	return nil
 }
 
 func BatchRequestReadServices(project string, d *schema.ResourceData, config *Config) (interface{}, error) {
@@ -83,7 +82,7 @@ func combineServiceUsageServicesBatches(srvsRaw interface{}, toAddRaw interface{
 	return append(srvs, toAdd...), nil
 }
 
-func sendBatchFuncEnableServices(config *Config, timeout time.Duration) batcherSendFunc {
+func sendBatchFuncEnableServices(config *Config, timeout time.Duration) BatcherSendFunc {
 	return func(project string, toEnableRaw interface{}) (interface{}, error) {
 		toEnable, ok := toEnableRaw.([]string)
 		if !ok {
@@ -93,7 +92,7 @@ func sendBatchFuncEnableServices(config *Config, timeout time.Duration) batcherS
 	}
 }
 
-func sendListServices(config *Config, timeout time.Duration) batcherSendFunc {
+func sendListServices(config *Config, timeout time.Duration) BatcherSendFunc {
 	return func(project string, _ interface{}) (interface{}, error) {
 		return listCurrentlyEnabledServices(project, config, timeout)
 	}

@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: Added `mode` to `google_compute_region_autoscaler` `autoscaling_policy`
+```
+```release-note:enhancement
+compute: Added `scale_down_control ` to `google_compute_region_autoscaler` `autoscaling_policy` (beta only)
+```

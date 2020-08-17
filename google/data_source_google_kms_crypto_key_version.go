@@ -37,7 +37,7 @@ func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
 			},
 			"public_key": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -105,13 +105,19 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 			return err
 		}
 		log.Printf("[DEBUG] Getting public key of CryptoKeyVersion: %#v", url)
-		res, _ = sendRequest(config, "GET", cryptoKeyId.KeyRingId.Project, url, nil)
+
+		res, err = sendRequestWithTimeout(config, "GET", cryptoKeyId.KeyRingId.Project, url, nil, d.Timeout(schema.TimeoutRead), isCryptoKeyVersionsPendingGeneration)
+
+		if err != nil {
+			log.Printf("Error generating public key: %s", err)
+			return err
+		}
 
 		if err := d.Set("public_key", flattenKmsCryptoKeyVersionPublicKey(res, d)); err != nil {
 			return fmt.Errorf("Error reading CryptoKeyVersion public key: %s", err)
 		}
 	}
-	d.SetId(fmt.Sprintf("//cloudkms.googleapis.com/%s/cryptoKeyVersions/%d", d.Get("crypto_key"), d.Get("version")))
+	d.SetId(fmt.Sprintf("//cloudkms.googleapis.com/v1/%s/cryptoKeyVersions/%d", d.Get("crypto_key"), d.Get("version")))
 
 	return nil
 }

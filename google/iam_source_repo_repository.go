@@ -15,6 +15,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -32,8 +33,16 @@ var SourceRepoRepositoryIamSchema = map[string]*schema.Schema{
 		Type:             schema.TypeString,
 		Required:         true,
 		ForceNew:         true,
-		DiffSuppressFunc: compareSelfLinkOrResourceName,
+		DiffSuppressFunc: SourceRepoRepositoryDiffSuppress,
 	},
+}
+
+func SourceRepoRepositoryDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	oldParts := regexp.MustCompile("projects/[^/]+/repos/").Split(old, -1)
+	if len(oldParts) == 2 {
+		return oldParts[1] == new
+	}
+	return new == old
 }
 
 type SourceRepoRepositoryIamUpdater struct {
@@ -46,9 +55,9 @@ type SourceRepoRepositoryIamUpdater struct {
 func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		d.Set("project", project)
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("repository"); ok {
@@ -56,7 +65,7 @@ func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Conf
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>[^/]+)", "(?P<project>[^/]+)/(?P<repository>[^/]+)", "(?P<repository>[^/]+)"}, d, config, d.Get("repository").(string))
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>.+)", "(?P<repository>.+)"}, d, config, d.Get("repository").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -81,13 +90,12 @@ func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Conf
 func SourceRepoRepositoryIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>[^/]+)", "(?P<project>[^/]+)/(?P<repository>[^/]+)", "(?P<repository>[^/]+)"}, d, config, d.Id())
+	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/repos/(?P<repository>.+)", "(?P<repository>.+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -108,7 +116,10 @@ func SourceRepoRepositoryIdParseFunc(d *schema.ResourceData, config *Config) err
 }
 
 func (u *SourceRepoRepositoryIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyRepositoryUrl("getIamPolicy")
+	url, err := u.qualifyRepositoryUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
@@ -139,8 +150,10 @@ func (u *SourceRepoRepositoryIamUpdater) SetResourceIamPolicy(policy *cloudresou
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyRepositoryUrl("setIamPolicy")
-
+	url, err := u.qualifyRepositoryUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
@@ -154,8 +167,13 @@ func (u *SourceRepoRepositoryIamUpdater) SetResourceIamPolicy(policy *cloudresou
 	return nil
 }
 
-func (u *SourceRepoRepositoryIamUpdater) qualifyRepositoryUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://sourcerepo.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/repos/%s", u.project, u.repository), methodIdentifier)
+func (u *SourceRepoRepositoryIamUpdater) qualifyRepositoryUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{SourceRepoBasePath}}%s:%s", fmt.Sprintf("projects/%s/repos/%s", u.project, u.repository), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *SourceRepoRepositoryIamUpdater) GetResourceId() string {

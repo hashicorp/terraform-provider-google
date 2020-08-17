@@ -21,14 +21,16 @@ func resourceStorageBucketAcl() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"bucket": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the bucket it applies to.`,
 			},
 
 			"default_acl": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Configure this ACL to be the default ACL.`,
 			},
 
 			"predefined_acl": {
@@ -36,6 +38,7 @@ func resourceStorageBucketAcl() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"role_entity"},
+				Description:   `The canned GCS ACL to apply. Must be set if role_entity is not.`,
 			},
 
 			"role_entity": {
@@ -44,6 +47,7 @@ func resourceStorageBucketAcl() *schema.Resource {
 				Computed:      true,
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				ConflictsWith: []string{"predefined_acl"},
+				Description:   `List of role/entity pairs in the form ROLE:entity. See GCS Bucket ACL documentation  for more details. Must be set if predefined_acl is not.`,
 			},
 		},
 	}
@@ -70,6 +74,11 @@ func resourceStorageRoleEntityCustomizeDiff(diff *schema.ResourceDiff, meta inte
 	}
 	for k := range state {
 		if _, ok := conf[k]; !ok {
+			// project-owners- is explicitly stripped from the roles that this
+			// resource will delete
+			if strings.Contains(k, "OWNER:project-owners-") {
+				continue
+			}
 			return nil
 		}
 	}
@@ -114,6 +123,13 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("default_acl"); ok {
 		default_acl = v.(string)
 	}
+
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	if len(predefined_acl) > 0 {
 		res, err := config.clientStorage.Buckets.Get(bucket).Do()
@@ -228,6 +244,13 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 	bucket := d.Get("bucket").(string)
 
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	if d.HasChange("role_entity") {
 		bkt, err := config.clientStorage.Buckets.Get(bucket).Do()
 		if err != nil {
@@ -274,7 +297,7 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 		for entity, role := range old_re_map {
 			if entity == fmt.Sprintf("project-owners-%s", project) && role == "OWNER" {
-				log.Printf("Skipping %s-%s; not deleting owner ACL.", role, entity)
+				log.Printf("[WARN]: Skipping %s-%s; not deleting owner ACL.", role, entity)
 				continue
 			}
 			log.Printf("[DEBUG]: removing entity %s", entity)
@@ -315,6 +338,13 @@ func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) er
 
 	bucket := d.Get("bucket").(string)
 
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	bkt, err := config.clientStorage.Buckets.Get(bucket).Do()
 	if err != nil {
 		return fmt.Errorf("Error retrieving bucket %q: %v", bucket, err)
@@ -329,7 +359,7 @@ func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) er
 		}
 
 		if res.Entity == fmt.Sprintf("project-owners-%s", project) && res.Role == "OWNER" {
-			log.Printf("Skipping %s-%s; not deleting owner ACL.", res.Role, res.Entity)
+			log.Printf("[WARN]: Skipping %s-%s; not deleting owner ACL.", res.Role, res.Entity)
 			continue
 		}
 

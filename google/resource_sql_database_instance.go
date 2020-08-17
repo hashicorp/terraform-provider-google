@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
-	"google.golang.org/api/googleapi"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -41,6 +40,7 @@ var (
 		"settings.0.backup_configuration.0.enabled",
 		"settings.0.backup_configuration.0.start_time",
 		"settings.0.backup_configuration.0.location",
+		"settings.0.backup_configuration.0.point_in_time_recovery_enabled",
 	}
 
 	ipConfigurationKeys = []string{
@@ -100,10 +100,11 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The region the instance will sit in. Note, Cloud SQL is not available in all regions - choose from one of the options listed here. A valid region must be provided to use this resource. If a region is not provided in the resource definition, the provider region will be used instead, but this will be an apply-time error for instances if the provider region is not supported with Cloud SQL. If you choose not to provide the region argument for this resource, make sure you understand this.`,
 			},
 
 			"settings": {
@@ -113,23 +114,28 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"version": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Used to make sure changes to the settings block are atomic.`,
 						},
 						"tier": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The machine type to use. See tiers for more details and supported versions. Postgres supports only shared-core machine types such as db-f1-micro, and custom machine types such as db-custom-2-13312. See the Custom Machine Type Documentation to learn about specifying custom machine types.`,
 						},
 						"activation_policy": {
 							Type:     schema.TypeString,
 							Optional: true,
 							// Defaults differ between first and second gen instances
-							Computed: true,
+							Computed:    true,
+							Description: `This specifies when the instance should be active. Can be either ALWAYS, NEVER or ON_DEMAND.`,
 						},
 						"authorized_gae_applications": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeList,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
+							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see https://cloud.google.com/sql/docs/mysql/deprecation-notice for information on how to upgrade to Second Generation instances. A list of Google App Engine (GAE) project names that are allowed to access this instance.`,
 						},
 						"availability_type": {
 							Type:             schema.TypeString,
@@ -140,6 +146,10 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							// configuration.
 							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"REGIONAL", "ZONAL"}, false),
+							Description: `The availability type of the Cloud SQL instance, high availability
+(REGIONAL) or single zone (ZONAL). For MySQL instances, ensure that
+settings.backup_configuration.enabled and
+settings.backup_configuration.binary_log_enabled are both set to true.`,
 						},
 						"backup_configuration": {
 							Type:     schema.TypeList,
@@ -152,11 +162,13 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 										Type:         schema.TypeBool,
 										Optional:     true,
 										AtLeastOneOf: backupConfigurationKeys,
+										Description:  `True if binary logging is enabled. If settings.backup_configuration.enabled is false, this must be as well. Cannot be used with Postgres.`,
 									},
 									"enabled": {
 										Type:         schema.TypeBool,
 										Optional:     true,
 										AtLeastOneOf: backupConfigurationKeys,
+										Description:  `True if backup configuration is enabled.`,
 									},
 									"start_time": {
 										Type:     schema.TypeString,
@@ -164,19 +176,29 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 										// start_time is randomly assigned if not set
 										Computed:     true,
 										AtLeastOneOf: backupConfigurationKeys,
+										Description:  `HH:MM format time indicating when backup configuration starts.`,
 									},
 									"location": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										AtLeastOneOf: backupConfigurationKeys,
+										Description:  `Location of the backup configuration.`,
+									},
+									"point_in_time_recovery_enabled": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: backupConfigurationKeys,
+										Description:  `True if Point-in-time recovery is enabled.`,
 									},
 								},
 							},
 						},
 						"crash_safe_replication": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
+							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see here for information on how to upgrade to Second Generation instances. Specific to read instances, indicates when crash-safe replication flags are enabled.`,
 						},
 						"database_flags": {
 							Type:     schema.TypeList,
@@ -184,12 +206,14 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"value": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Value of the flag.`,
 									},
 									"name": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Name of the flag.`,
 									},
 								},
 							},
@@ -199,18 +223,21 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Optional:         true,
 							Default:          true,
 							DiffSuppressFunc: suppressFirstGen,
+							Description:      `Configuration to increase storage size automatically.  Note that future terraform apply calls will attempt to resize the disk to the value specified in disk_size - if this is set, do not set disk_size.`,
 						},
 						"disk_size": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							// Defaults differ between first and second gen instances
-							Computed: true,
+							Computed:    true,
+							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased.`,
 						},
 						"disk_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 							// Set computed instead of default because this property is for second-gen only.
-							Computed: true,
+							Computed:    true,
+							Description: `The type of data disk: PD_SSD or PD_HDD.`,
 						},
 						"ip_configuration": {
 							Type:     schema.TypeList,
@@ -227,11 +254,11 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 										AtLeastOneOf: ipConfigurationKeys,
 									},
 									"ipv4_enabled": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										// Defaults differ between first and second gen instances
-										Computed:     true,
+										Type:         schema.TypeBool,
+										Optional:     true,
+										Default:      true,
 										AtLeastOneOf: ipConfigurationKeys,
+										Description:  `Whether this Cloud SQL instance should be assigned a public IPV4 address. Either ipv4_enabled must be enabled or a private_network must be configured.`,
 									},
 									"require_ssl": {
 										Type:         schema.TypeBool,
@@ -244,6 +271,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 										ValidateFunc:     orEmpty(validateRegexp(privateNetworkLinkRegex)),
 										DiffSuppressFunc: compareSelfLinkRelativePaths,
 										AtLeastOneOf:     ipConfigurationKeys,
+										Description:      `The VPC network from which the Cloud SQL instance is accessible for private IP. For example, projects/myProject/global/networks/default. Specifying a network enables private IP. Either ipv4_enabled must be enabled or a private_network must be configured. This setting can be updated, but it cannot be removed after it is set.`,
 									},
 								},
 							},
@@ -259,11 +287,13 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 										Type:         schema.TypeString,
 										Optional:     true,
 										AtLeastOneOf: []string{"settings.0.location_preference.0.follow_gae_application", "settings.0.location_preference.0.zone"},
+										Description:  `A GAE application whose zone to remain in. Must be in the same region as this instance.`,
 									},
 									"zone": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										AtLeastOneOf: []string{"settings.0.location_preference.0.follow_gae_application", "settings.0.location_preference.0.zone"},
+										Description:  `The preferred compute engine zone.`,
 									},
 								},
 							},
@@ -279,50 +309,69 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 										Optional:     true,
 										ValidateFunc: validation.IntBetween(1, 7),
 										AtLeastOneOf: maintenanceWindowKeys,
+										Description:  `Day of week (1-7), starting on Monday`,
 									},
 									"hour": {
 										Type:         schema.TypeInt,
 										Optional:     true,
 										ValidateFunc: validation.IntBetween(0, 23),
 										AtLeastOneOf: maintenanceWindowKeys,
+										Description:  `Hour of day (0-23), ignored if day not set`,
 									},
 									"update_track": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										AtLeastOneOf: maintenanceWindowKeys,
+										Description:  `Receive updates earlier (canary) or later (stable)`,
 									},
 								},
 							},
+							Description: `Declares a one-hour maintenance window when an Instance can automatically restart to apply updates. The maintenance window is specified in UTC time.`,
 						},
 						"pricing_plan": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "PER_USE",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "PER_USE",
+							Description: `Pricing plan for this instance, can only be PER_USE.`,
 						},
 						"replication_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "SYNCHRONOUS",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
+							Default:     "SYNCHRONOUS",
+							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see here for information on how to upgrade to Second Generation instances. Replication type for this instance, can be one of ASYNCHRONOUS or SYNCHRONOUS.`,
 						},
 						"user_labels": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:        schema.TypeMap,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `A set of key/value user label pairs to assign to the instance.`,
 						},
 					},
 				},
+				Description: `The settings to use for the database. The configuration is detailed below.`,
 			},
 
 			"connection_name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The connection name of the instance to be used in connection strings. For example, when connecting with Cloud SQL Proxy.`,
 			},
 
 			"database_version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "MYSQL_5_6",
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "MYSQL_5_6",
+				ForceNew:    true,
+				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, POSTGRES_9_6,POSTGRES_11, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
+			},
+
+			"root_password": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Sensitive:   true,
+				Description: `Initial root password. Required for MS SQL Server, ignored by MySQL and PostgreSQL.`,
 			},
 
 			"ip_address": {
@@ -347,39 +396,45 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 			},
 
 			"first_ip_address": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The first IPv4 address of any type assigned. This is to support accessing the first address in the list in a terraform output when the resource is configured with a count.`,
 			},
 
 			"public_ip_address": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `IPv4 address assigned. This is a workaround for an issue fixed in Terraform 0.12 but also provides a convenient way to access an IP of a specific type without performing filtering in a Terraform config.`,
 			},
 
 			"private_ip_address": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `IPv4 address assigned. This is a workaround for an issue fixed in Terraform 0.12 but also provides a convenient way to access an IP of a specific type without performing filtering in a Terraform config.`,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The name of the instance. If the name is left blank, Terraform will randomly generate one when the instance is first created. This is done because after a name is used, it cannot be reused for up to one week.`,
 			},
 
 			"master_instance_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The name of the instance that will act as the master in the replication setup. Note, this requires the master to have binary_log_enabled set, as well as existing backups.`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
 			"replica_configuration": {
@@ -395,42 +450,49 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `PEM representation of the trusted CA's x509 certificate.`,
 						},
 						"client_certificate": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `PEM representation of the slave's x509 certificate.`,
 						},
 						"client_key": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `PEM representation of the slave's private key. The corresponding public key in encoded in the client_certificate.`,
 						},
 						"connect_retry_interval": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `The number of seconds between connect retries.`,
 						},
 						"dump_file_path": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `Path to a SQL file in GCS from which slave instances are created. Format is gs://bucket/filename.`,
 						},
 						"failover_target": {
 							Type:         schema.TypeBool,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `Specifies if the replica is the failover target. If the field is set to true the replica will be designated as a failover replica. If the master instance fails, the replica instance will be promoted as the new master instance.`,
 						},
 						"master_heartbeat_period": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `Time in ms between replication heartbeats.`,
 						},
 						"password": {
 							Type:         schema.TypeString,
@@ -438,27 +500,32 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							ForceNew:     true,
 							Sensitive:    true,
 							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `Password for the replication connection.`,
 						},
 						"ssl_cipher": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `Permissible ciphers for use in SSL encryption.`,
 						},
 						"username": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `Username for replication connection.`,
 						},
 						"verify_server_certificate": {
 							Type:         schema.TypeBool,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
+							Description:  `True if the master's common name value is checked during the SSL handshake.`,
 						},
 					},
 				},
+				Description: `The configuration for replication.`,
 			},
 			"server_ca_cert": {
 				Type:     schema.TypeList,
@@ -470,37 +537,44 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Type:         schema.TypeString,
 							Computed:     true,
 							AtLeastOneOf: serverCertsKeys,
+							Description:  `The CA Certificate used to connect to the SQL Instance via SSL.`,
 						},
 						"common_name": {
 							Type:         schema.TypeString,
 							Computed:     true,
 							AtLeastOneOf: serverCertsKeys,
+							Description:  `The CN valid for the CA Cert.`,
 						},
 						"create_time": {
 							Type:         schema.TypeString,
 							Computed:     true,
 							AtLeastOneOf: serverCertsKeys,
+							Description:  `Creation time of the CA Cert.`,
 						},
 						"expiration_time": {
 							Type:         schema.TypeString,
 							Computed:     true,
 							AtLeastOneOf: serverCertsKeys,
+							Description:  `Expiration time of the CA Cert.`,
 						},
 						"sha1_fingerprint": {
 							Type:         schema.TypeString,
 							Computed:     true,
 							AtLeastOneOf: serverCertsKeys,
+							Description:  `SHA Fingerprint of the CA Cert.`,
 						},
 					},
 				},
 			},
 			"service_account_email_address": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The service account email address assigned to the instance.`,
 			},
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The URI of the created resource.`,
 			},
 		},
 	}
@@ -559,6 +633,11 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		ReplicaConfiguration: expandReplicaConfiguration(d.Get("replica_configuration").([]interface{})),
 	}
 
+	// MSSQL Server require rootPassword to be set
+	if strings.Contains(instance.DatabaseVersion, "SQLSERVER") {
+		instance.RootPassword = d.Get("root_password").(string)
+	}
+
 	// Modifying a replica during Create can cause problems if the master is
 	// modified at the same time. Lock the master until we're done in order
 	// to prevent that.
@@ -582,7 +661,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	err = sqlAdminOperationWaitTime(config, op, project, "Create Instance", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = sqlAdminOperationWaitTime(config, op, project, "Create Instance", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return err
@@ -607,9 +686,9 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		for _, u := range users.Items {
 			if u.Name == "root" && u.Host == "%" {
 				err = retry(func() error {
-					op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name, u.Host, u.Name).Do()
+					op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name).Host(u.Host).Name(u.Name).Do()
 					if err == nil {
-						err = sqlAdminOperationWaitTime(config, op, project, "Delete default root User", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+						err = sqlAdminOperationWaitTime(config, op, project, "Delete default root User", d.Timeout(schema.TimeoutCreate))
 					}
 					return err
 				})
@@ -653,7 +732,8 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool)
 	// 1st Generation instances don't support the disk_autoresize parameter
 	// and it defaults to true - so we shouldn't set it if this is first gen
 	if secondGen {
-		settings.StorageAutoResize = googleapi.Bool(_settings["disk_autoresize"].(bool))
+		resize := _settings["disk_autoresize"].(bool)
+		settings.StorageAutoResize = &resize
 	}
 
 	return settings
@@ -768,10 +848,12 @@ func expandBackupConfiguration(configured []interface{}) *sqladmin.BackupConfigu
 
 	_backupConfiguration := configured[0].(map[string]interface{})
 	return &sqladmin.BackupConfiguration{
-		BinaryLogEnabled: _backupConfiguration["binary_log_enabled"].(bool),
-		Enabled:          _backupConfiguration["enabled"].(bool),
-		StartTime:        _backupConfiguration["start_time"].(string),
-		Location:         _backupConfiguration["location"].(string),
+		BinaryLogEnabled:           _backupConfiguration["binary_log_enabled"].(bool),
+		Enabled:                    _backupConfiguration["enabled"].(bool),
+		StartTime:                  _backupConfiguration["start_time"].(string),
+		Location:                   _backupConfiguration["location"].(string),
+		PointInTimeRecoveryEnabled: _backupConfiguration["point_in_time_recovery_enabled"].(bool),
+		ForceSendFields:            []string{"BinaryLogEnabled", "Enabled", "PointInTimeRecoveryEnabled"},
 	}
 }
 
@@ -829,7 +911,7 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("public_ip_address", publicIpAddress)
 	d.Set("private_ip_address", privateIpAddress)
 
-	if err := d.Set("server_ca_cert", flattenServerCaCert(instance.ServerCaCert)); err != nil {
+	if err := d.Set("server_ca_cert", flattenServerCaCerts([]*sqladmin.SslCert{instance.ServerCaCert})); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database CA Certificate")
 	}
 
@@ -870,7 +952,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
 	}
 
-	err = sqlAdminOperationWaitTime(config, op, project, "Update Instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+	err = sqlAdminOperationWaitTime(config, op, project, "Update Instance", d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -896,17 +978,18 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	var op *sqladmin.Operation
 	err = retryTimeDuration(func() (rerr error) {
 		op, rerr = config.clientSqlAdmin.Instances.Delete(project, d.Get("name").(string)).Do()
-		return rerr
-	}, d.Timeout(schema.TimeoutDelete))
+		if rerr != nil {
+			return rerr
+		}
+		err = sqlAdminOperationWaitTime(config, op, project, "Delete Instance", d.Timeout(schema.TimeoutDelete))
+		if err != nil {
+			return err
+		}
+		return nil
+	}, d.Timeout(schema.TimeoutDelete), isSqlOperationInProgressError, isSqlInternalError)
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete instance %s: %s", d.Get("name").(string), err)
 	}
-
-	err = sqlAdminOperationWaitTime(config, op, project, "Delete Instance", int(d.Timeout(schema.TimeoutDelete).Minutes()))
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -964,9 +1047,7 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		data["maintenance_window"] = flattenMaintenanceWindow(settings.MaintenanceWindow)
 	}
 
-	if settings.StorageAutoResize != nil {
-		data["disk_autoresize"] = *settings.StorageAutoResize
-	}
+	data["disk_autoresize"] = settings.StorageAutoResize
 
 	if settings.UserLabels != nil {
 		data["user_labels"] = settings.UserLabels
@@ -977,10 +1058,11 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 
 func flattenBackupConfiguration(backupConfiguration *sqladmin.BackupConfiguration) []map[string]interface{} {
 	data := map[string]interface{}{
-		"binary_log_enabled": backupConfiguration.BinaryLogEnabled,
-		"enabled":            backupConfiguration.Enabled,
-		"start_time":         backupConfiguration.StartTime,
-		"location":           backupConfiguration.Location,
+		"binary_log_enabled":             backupConfiguration.BinaryLogEnabled,
+		"enabled":                        backupConfiguration.Enabled,
+		"start_time":                     backupConfiguration.StartTime,
+		"location":                       backupConfiguration.Location,
+		"point_in_time_recovery_enabled": backupConfiguration.PointInTimeRecoveryEnabled,
 	}
 
 	return []map[string]interface{}{data}
@@ -1094,22 +1176,24 @@ func flattenIpAddresses(ipAddresses []*sqladmin.IpMapping) []map[string]interfac
 	return ips
 }
 
-func flattenServerCaCert(caCert *sqladmin.SslCert) []map[string]interface{} {
-	var cert []map[string]interface{}
+func flattenServerCaCerts(caCerts []*sqladmin.SslCert) []map[string]interface{} {
+	var certs []map[string]interface{}
 
-	if caCert != nil {
-		data := map[string]interface{}{
-			"cert":             caCert.Cert,
-			"common_name":      caCert.CommonName,
-			"create_time":      caCert.CreateTime,
-			"expiration_time":  caCert.ExpirationTime,
-			"sha1_fingerprint": caCert.Sha1Fingerprint,
+	for _, caCert := range caCerts {
+		if caCert != nil {
+			data := map[string]interface{}{
+				"cert":             caCert.Cert,
+				"common_name":      caCert.CommonName,
+				"create_time":      caCert.CreateTime,
+				"expiration_time":  caCert.ExpirationTime,
+				"sha1_fingerprint": caCert.Sha1Fingerprint,
+			}
+
+			certs = append(certs, data)
 		}
-
-		cert = append(cert, data)
 	}
 
-	return cert
+	return certs
 }
 
 func instanceMutexKey(project, instance_name string) string {

@@ -68,9 +68,10 @@ func computeInstanceFromTemplateSchema() map[string]*schema.Schema {
 	})
 
 	s["source_instance_template"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `Name or self link of an instance template to create the instance based on.`,
 	}
 
 	return s
@@ -126,6 +127,12 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	// when we make the original call to expandComputeInstance expandScheduling is called, which sets default values.
+	// However, we want the values to be read from the template instead.
+	if _, hasSchedule := d.GetOk("scheduling"); !hasSchedule {
+		instance.Scheduling = it.Properties.Scheduling
+	}
+
 	// Force send all top-level fields that have been set in case they're overridden to zero values.
 	// Initialize ForceSendFields to empty so we don't get things that the instance resource
 	// always force-sends.
@@ -157,7 +164,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 
 	// Wait for the operation to complete
 	waitErr := computeOperationWaitTime(config, op, project,
-		"instance to create", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		"instance to create", d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -181,6 +188,10 @@ func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it 
 		// boot disk was not overridden, so use the one from the instance template
 		for _, disk := range it.Properties.Disks {
 			if disk.Boot {
+				if disk.Source != "" {
+					// Instances need a URL for the disk, but instance templates only have the name
+					disk.Source = fmt.Sprintf("projects/%s/zones/%s/disks/%s", project, zone.Name, disk.Source)
+				}
 				if disk.InitializeParams != nil {
 					if dt := disk.InitializeParams.DiskType; dt != "" {
 						// Instances need a URL for the disk type, but instance templates

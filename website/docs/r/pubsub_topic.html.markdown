@@ -54,12 +54,12 @@ resource "google_pubsub_topic" "example" {
 ```hcl
 resource "google_pubsub_topic" "example" {
   name         = "example-topic"
-  kms_key_name = google_kms_crypto_key.crypto_key.self_link
+  kms_key_name = google_kms_crypto_key.crypto_key.id
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "example-key"
-  key_ring = google_kms_key_ring.key_ring.self_link
+  key_ring = google_kms_key_ring.key_ring.id
 }
 
 resource "google_kms_key_ring" "key_ring" {
@@ -116,7 +116,8 @@ The following arguments are supported:
   (Optional)
   Policy constraining the set of Google Cloud Platform regions where
   messages published to the topic may be stored. If not present, then no
-  constraints are in effect.  Structure is documented below.
+  constraints are in effect.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -133,14 +134,20 @@ The `message_storage_policy` block supports:
   allowed regions. An empty list means that no regions are allowed,
   and is not a valid configuration.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/topics/{{name}}`
+
 
 ## Timeouts
 
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
+- `create` - Default is 6 minutes.
+- `update` - Default is 6 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import

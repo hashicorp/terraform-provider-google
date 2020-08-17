@@ -95,7 +95,7 @@ resource "google_binary_authorization_attestor" "attestor" {
 }
 
 data "google_kms_crypto_key_version" "version" {
-  crypto_key = google_kms_crypto_key.crypto-key.self_link
+  crypto_key = google_kms_crypto_key.crypto-key.id
 }
 
 resource "google_container_analysis_note" "note" {
@@ -109,7 +109,7 @@ resource "google_container_analysis_note" "note" {
 
 resource "google_kms_crypto_key" "crypto-key" {
   name     = "test-attestor-key"
-  key_ring = google_kms_key_ring.keyring.self_link
+  key_ring = google_kms_key_ring.keyring.id
   purpose  = "ASYMMETRIC_SIGN"
 
   version_template {
@@ -138,7 +138,8 @@ The following arguments are supported:
 
 * `attestation_authority_note` -
   (Required)
-  A Container Analysis ATTESTATION_AUTHORITY Note, created by the user.  Structure is documented below.
+  A Container Analysis ATTESTATION_AUTHORITY Note, created by the user.
+  Structure is documented below.
 
 
 The `attestation_authority_note` block supports:
@@ -161,7 +162,8 @@ The `attestation_authority_note` block supports:
   verify that an attestation was signed by this attestor for the
   image specified in the admission request.
   If this field is empty, this attestor always returns that no valid
-  attestations exist.  Structure is documented below.
+  attestations exist.
+  Structure is documented below.
 
 * `delegation_service_account_email` -
   This field will contain the service account email address that
@@ -208,7 +210,8 @@ The `public_keys` block supports:
   NOTE: id may be explicitly provided by the caller when using this
   type of public key, but it MUST be a valid RFC3986 URI. If id is left
   blank, a default one will be computed based on the digest of the DER
-  encoding of the public key.  Structure is documented below.
+  encoding of the public key.
+  Structure is documented below.
 
 
 The `pkix_public_key` block supports:
@@ -237,6 +240,12 @@ The `pkix_public_key` block supports:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/attestors/{{name}}`
 
 
 ## Timeouts

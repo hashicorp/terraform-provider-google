@@ -23,15 +23,16 @@ description: |-
 # google\_app\_engine\_standard\_app\_version
 
 Standard App Version resource to create a new version of standard GAE Application.
+Learn about the differences between the standard environment and the flexible environment
+at https://cloud.google.com/appengine/docs/the-appengine-environments.
 Currently supporting Zip and File Containers.
-Currently does not support async operation checking.
 
 
 To get more information about StandardAppVersion, see:
 
 * [API documentation](https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1/apps.services.versions)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/appengine/docs/admin-api/deploying-overview)
+    * [Official Documentation](https://cloud.google.com/appengine/docs/standard)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=app_engine_standard_app_version&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -61,6 +62,20 @@ resource "google_app_engine_standard_app_version" "myapp_v1" {
     port = "8080"
   }
 
+  automatic_scaling {
+    max_concurrent_requests = 10
+    min_idle_instances = 1
+    max_idle_instances = 3
+    min_pending_latency = "1s"
+    max_pending_latency = "5s"
+    standard_scheduler_settings {
+      target_cpu_utilization = 0.5
+      target_throughput_utilization = 0.75
+      min_instances = 2
+      max_instances = 10
+    }
+  }
+
   delete_service_on_destroy = true
 }
 
@@ -81,6 +96,10 @@ resource "google_app_engine_standard_app_version" "myapp_v2" {
 
   env_variables = {
     port = "8080"
+  }
+
+  basic_scaling {
+    max_instances = 5
   }
 
   noop_on_destroy = true
@@ -106,6 +125,51 @@ The following arguments are supported:
   (Required)
   Desired runtime. Example python27.
 
+* `deployment` -
+  (Required)
+  Code and application artifacts that make up this version.
+  Structure is documented below.
+
+* `service` -
+  (Required)
+  AppEngine service resource
+
+
+The `deployment` block supports:
+
+* `zip` -
+  (Optional)
+  Zip File
+  Structure is documented below.
+
+* `files` -
+  (Optional)
+  Manifest of the files stored in Google Cloud Storage that are included as part of this version.
+  All files must be readable using the credentials supplied with this call.
+  Structure is documented below.
+
+
+The `zip` block supports:
+
+* `source_url` -
+  (Required)
+  Source URL
+
+* `files_count` -
+  (Optional)
+  files count
+
+The `files` block supports:
+
+* `name` - (Required) The identifier for this object. Format specified above.
+
+* `sha1_sum` -
+  (Optional)
+  SHA1 checksum of the file
+
+* `source_url` -
+  (Required)
+  Source URL
 
 - - -
 
@@ -120,39 +184,55 @@ The following arguments are supported:
 
 * `runtime_api_version` -
   (Optional)
-  The version of the API in the given runtime environment. 
+  The version of the API in the given runtime environment.
   Please see the app.yaml reference for valid values at https://cloud.google.com/appengine/docs/standard//config/appref
 
 * `handlers` -
   (Optional)
-  An ordered list of URL-matching patterns that should be applied to incoming requests. 
-  The first matching URL handles the request and other request handlers are not attempted.  Structure is documented below.
+  An ordered list of URL-matching patterns that should be applied to incoming requests.
+  The first matching URL handles the request and other request handlers are not attempted.
+  Structure is documented below.
 
 * `libraries` -
   (Optional)
-  Configuration for third-party Python runtime libraries that are required by the application.  Structure is documented below.
+  Configuration for third-party Python runtime libraries that are required by the application.
+  Structure is documented below.
 
 * `env_variables` -
   (Optional)
   Environment variables available to the application.
 
-* `deployment` -
-  (Optional)
-  Code and application artifacts that make up this version.  Structure is documented below.
-
 * `entrypoint` -
   (Optional)
-  The entrypoint for the application.  Structure is documented below.
+  The entrypoint for the application.
+  Structure is documented below.
+
+* `inbound_services` -
+  (Optional)
+  A list of the types of messages that this application is able to receive.
+  Each value may be one of `INBOUND_SERVICE_MAIL`, `INBOUND_SERVICE_MAIL_BOUNCE`, `INBOUND_SERVICE_XMPP_ERROR`, `INBOUND_SERVICE_XMPP_MESSAGE`, `INBOUND_SERVICE_XMPP_SUBSCRIBE`, `INBOUND_SERVICE_XMPP_PRESENCE`, `INBOUND_SERVICE_CHANNEL_PRESENCE`, and `INBOUND_SERVICE_WARMUP`.
 
 * `instance_class` -
   (Optional)
   Instance class that is used to run this version. Valid values are
-  AutomaticScaling F1, F2, F4, F4_1G
-  (Only AutomaticScaling is supported at the moment)
+  AutomaticScaling: F1, F2, F4, F4_1G
+  BasicScaling or ManualScaling: B1, B2, B4, B4_1G, B8
+  Defaults to F1 for AutomaticScaling and B2 for ManualScaling and BasicScaling. If no scaling is specified, AutomaticScaling is chosen.
 
-* `service` -
+* `automatic_scaling` -
   (Optional)
-  AppEngine service resource
+  Automatic scaling is based on request rate, response latencies, and other application metrics.
+  Structure is documented below.
+
+* `basic_scaling` -
+  (Optional)
+  Basic scaling creates instances when your application receives requests. Each instance will be shut down when the application becomes idle. Basic scaling is ideal for work that is intermittent or driven by user activity.
+  Structure is documented below.
+
+* `manual_scaling` -
+  (Optional)
+  A service with manual scaling runs continuously, allowing you to perform complex initialization and rely on the state of its memory over time.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -164,33 +244,39 @@ The `handlers` block supports:
 
 * `url_regex` -
   (Optional)
-  URL prefix. Uses regular expression syntax, which means regexp special characters must be escaped, but should not contain groupings. 
+  URL prefix. Uses regular expression syntax, which means regexp special characters must be escaped, but should not contain groupings.
   All URLs that begin with this prefix are handled by this handler, using the portion of the URL after the prefix as part of the file path.
 
 * `security_level` -
   (Optional)
   Security (HTTPS) enforcement for this URL.
+  Possible values are `SECURE_DEFAULT`, `SECURE_NEVER`, `SECURE_OPTIONAL`, and `SECURE_ALWAYS`.
 
 * `login` -
   (Optional)
   Methods to restrict access to a URL based on login status.
+  Possible values are `LOGIN_OPTIONAL`, `LOGIN_ADMIN`, and `LOGIN_REQUIRED`.
 
 * `auth_fail_action` -
   (Optional)
   Actions to take when the user is not logged in.
+  Possible values are `AUTH_FAIL_ACTION_REDIRECT` and `AUTH_FAIL_ACTION_UNAUTHORIZED`.
 
 * `redirect_http_response_code` -
   (Optional)
-  Redirect codes.
+  30x code to use when performing redirects for the secure field.
+  Possible values are `REDIRECT_HTTP_RESPONSE_CODE_301`, `REDIRECT_HTTP_RESPONSE_CODE_302`, `REDIRECT_HTTP_RESPONSE_CODE_303`, and `REDIRECT_HTTP_RESPONSE_CODE_307`.
 
 * `script` -
   (Optional)
-  Executes a script to handle the requests that match this URL pattern. 
-  Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".  Structure is documented below.
+  Executes a script to handle the requests that match this URL pattern.
+  Only the auto value is supported for Node.js in the App Engine standard environment, for example "script:" "auto".
+  Structure is documented below.
 
 * `static_files` -
   (Optional)
-  Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files. Static file handlers describe which files in the application directory are static files, and which URLs serve them.  Structure is documented below.
+  Files served directly to the user for a given URL, such as images, CSS stylesheets, or JavaScript source files. Static file handlers describe which files in the application directory are static files, and which URLs serve them.
+  Structure is documented below.
 
 
 The `script` block supports:
@@ -230,7 +316,9 @@ The `static_files` block supports:
 
 * `application_readable` -
   (Optional)
-  Whether files should also be uploaded as code data. By default, files declared in static file handlers are uploaded as static data and are only served to end users; they cannot be read by the application. If enabled, uploads are charged against both your code and static data storage resource quotas.
+  Whether files should also be uploaded as code data. By default, files declared in static file handlers are uploaded as
+  static data and are only served to end users; they cannot be read by the application. If enabled, uploads are charged
+  against both your code and static data storage resource quotas.
 
 The `libraries` block supports:
 
@@ -242,50 +330,85 @@ The `libraries` block supports:
   (Optional)
   Version of the library to select, or "latest".
 
-The `deployment` block supports:
-
-* `zip` -
-  (Optional)
-  Zip File  Structure is documented below.
-
-* `files` -
-  (Optional)
-  Manifest of the files stored in Google Cloud Storage that are included as part of this version.
-  All files must be readable using the credentials supplied with this call.  Structure is documented below.
-
-
-The `zip` block supports:
-
-* `source_url` -
-  (Required)
-  Source URL
-
-* `files_count` -
-  (Optional)
-  files count
-
-The `files` block supports:
-
-* `name` - (Required) The identifier for this object. Format specified above.
-
-* `sha1_sum` -
-  (Optional)
-  SHA1 checksum of the file
-
-* `source_url` -
-  (Required)
-  Source URL
-
 The `entrypoint` block supports:
 
 * `shell` -
   (Required)
   The format should be a shell command that can be fed to bash -c.
 
+The `automatic_scaling` block supports:
+
+* `max_concurrent_requests` -
+  (Optional)
+  Number of concurrent requests an automatic scaling instance can accept before the scheduler spawns a new instance.
+  Defaults to a runtime-specific value.
+
+* `max_idle_instances` -
+  (Optional)
+  Maximum number of idle instances that should be maintained for this version.
+
+* `max_pending_latency` -
+  (Optional)
+  Maximum amount of time that a request should wait in the pending queue before starting a new instance to handle it.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+
+* `min_idle_instances` -
+  (Optional)
+  Minimum number of idle instances that should be maintained for this version. Only applicable for the default version of a service.
+
+* `min_pending_latency` -
+  (Optional)
+  Minimum amount of time a request should wait in the pending queue before starting a new instance to handle it.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+
+* `standard_scheduler_settings` -
+  (Optional)
+  Scheduler settings for standard environment.
+  Structure is documented below.
+
+
+The `standard_scheduler_settings` block supports:
+
+* `target_cpu_utilization` -
+  (Optional)
+  Target CPU utilization ratio to maintain when scaling. Should be a value in the range [0.50, 0.95], zero, or a negative value.
+
+* `target_throughput_utilization` -
+  (Optional)
+  Target throughput utilization ratio to maintain when scaling. Should be a value in the range [0.50, 0.95], zero, or a negative value.
+
+* `min_instances` -
+  (Optional)
+  Minimum number of instances to run for this version. Set to zero to disable minInstances configuration.
+
+* `max_instances` -
+  (Optional)
+  Maximum number of instances to run for this version. Set to zero to disable maxInstances configuration.
+
+The `basic_scaling` block supports:
+
+* `idle_timeout` -
+  (Optional)
+  Duration of time after the last request that an instance must wait before the instance is shut down.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s". Defaults to 900s.
+
+* `max_instances` -
+  (Required)
+  Maximum number of instances to create for this version. Must be in the range [1.0, 200.0].
+
+The `manual_scaling` block supports:
+
+* `instances` -
+  (Required)
+  Number of instances to assign to the service at the start.
+  **Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2 
+  Modules API set_num_instances() you must use `lifecycle.ignore_changes = ["manual_scaling"[0].instances]` to prevent drift detection.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `apps/{{project}}/services/{{service}}/versions/{{version_id}}`
 
 * `name` -
   Full path to the Version resource in the API. Example, "v1".

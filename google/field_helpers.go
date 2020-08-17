@@ -346,6 +346,18 @@ func parseRegionalFieldValue(resourceType, fieldValue, projectSchemaField, regio
 // - provider-level region
 // - region extracted from the provider-level zone
 func getRegionFromSchema(regionSchemaField, zoneSchemaField string, d TerraformResourceData, config *Config) (string, error) {
+	// if identical such as GKE location, check if it's a zone first and find
+	// the region if so. Otherwise, return as it's a region.
+	if regionSchemaField == zoneSchemaField {
+		if v, ok := d.GetOk(regionSchemaField); ok {
+			if isZone(v.(string)) {
+				return getRegionFromZone(v.(string)), nil
+			}
+
+			return v.(string), nil
+		}
+	}
+
 	if v, ok := d.GetOk(regionSchemaField); ok && regionSchemaField != "" {
 		return GetResourceNameFromSelfLink(v.(string)), nil
 	}

@@ -119,7 +119,7 @@ func readProviderFiles(googleDir string) ([]string, error) {
 }
 
 func getDiffFromPR(pr uint, repo string) (string, error) {
-	resp, err := http.Get(fmt.Sprintf("https://github.com/terraform-providers/terraform-provider-%s/pull/%d.diff", repo, pr))
+	resp, err := http.Get(fmt.Sprintf("https://github.com/hashicorp/terraform-provider-%s/pull/%d.diff", repo, pr))
 	if err != nil {
 		return "", err
 	}

@@ -1,12 +1,25 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
+
+type googRanges struct {
+	SyncToken    string     `json:"syncToken"`
+	CreationTime string     `json:"creationTime"`
+	Prefixes     []prefixes `json:"prefixes"`
+}
+
+type prefixes struct {
+	Ipv4Prefix string `json:"ipv4Prefix"`
+	Ipv6Prefix string `json:"ipv6Prefix"`
+}
 
 func dataSourceGoogleNetblockIpRanges() *schema.Resource {
 	return &schema.Resource{
@@ -47,7 +60,7 @@ func dataSourceGoogleNetblockIpRangesRead(d *schema.ResourceData, meta interface
 	case "cloud-netblocks":
 		// https://cloud.google.com/compute/docs/faq#where_can_i_find_product_name_short_ip_ranges
 		const CLOUD_NETBLOCK_DNS = "_cloud-netblocks.googleusercontent.com"
-		CidrBlocks, err := getCidrBlocks(CLOUD_NETBLOCK_DNS)
+		CidrBlocks, err := getCidrBlocksFromDns(CLOUD_NETBLOCK_DNS)
 
 		if err != nil {
 			return err
@@ -56,9 +69,9 @@ func dataSourceGoogleNetblockIpRangesRead(d *schema.ResourceData, meta interface
 		d.Set("cidr_blocks_ipv4", CidrBlocks["cidr_blocks_ipv4"])
 		d.Set("cidr_blocks_ipv6", CidrBlocks["cidr_blocks_ipv6"])
 	case "google-netblocks":
-		// https://support.google.com/a/answer/33786?hl=en
-		const GOOGLE_NETBLOCK_DNS = "_spf.google.com"
-		CidrBlocks, err := getCidrBlocks(GOOGLE_NETBLOCK_DNS)
+		// https://cloud.google.com/vpc/docs/configure-private-google-access?hl=en#ip-addr-defaults
+		const GOOGLE_NETBLOCK_URL = "http://www.gstatic.com/ipranges/goog.json"
+		CidrBlocks, err := getCidrBlocksFromUrl(GOOGLE_NETBLOCK_URL)
 
 		if err != nil {
 			return err
@@ -132,7 +145,7 @@ func netblock_request(name string) (string, error) {
 	return string(body), nil
 }
 
-func getCidrBlocks(netblock string) (map[string][]string, error) {
+func getCidrBlocksFromDns(netblock string) (map[string][]string, error) {
 	var dnsNetblockList []string
 	cidrBlocks := make(map[string][]string)
 
@@ -182,6 +195,43 @@ func getCidrBlocks(netblock string) (map[string][]string, error) {
 				dnsNetblockList = append(dnsNetblockList, cidr_block)
 			}
 		}
+	}
+
+	return cidrBlocks, nil
+}
+
+func getCidrBlocksFromUrl(url string) (map[string][]string, error) {
+	cidrBlocks := make(map[string][]string)
+
+	response, err := http.Get(url)
+
+	if err != nil {
+		return nil, fmt.Errorf("Error: %s", err)
+	}
+
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
+
+	if err != nil {
+		return nil, fmt.Errorf("Error to retrieve the CIDR list: %s", err)
+	}
+
+	ranges := googRanges{}
+	jsonErr := json.Unmarshal(body, &ranges)
+	if jsonErr != nil {
+		return nil, fmt.Errorf("Error reading JSON list: %s", jsonErr)
+	}
+
+	for _, element := range ranges.Prefixes {
+
+		if len(element.Ipv4Prefix) > 0 {
+			cidrBlocks["cidr_blocks_ipv4"] = append(cidrBlocks["cidr_blocks_ipv4"], element.Ipv4Prefix)
+			cidrBlocks["cidr_blocks"] = append(cidrBlocks["cidr_blocks"], element.Ipv4Prefix)
+		} else if len(element.Ipv6Prefix) > 0 {
+			cidrBlocks["cidr_blocks_ipv6"] = append(cidrBlocks["cidr_blocks_ipv6"], element.Ipv6Prefix)
+			cidrBlocks["cidr_blocks"] = append(cidrBlocks["cidr_blocks"], element.Ipv6Prefix)
+		}
+
 	}
 
 	return cidrBlocks, nil

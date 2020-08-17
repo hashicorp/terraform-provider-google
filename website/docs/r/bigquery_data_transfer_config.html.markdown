@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "BigQueryDataTransfer"
+subcategory: "BigQuery Data Transfer"
 layout: "google"
 page_title: "Google: google_bigquery_data_transfer_config"
 sidebar_current: "docs-google-bigquery-data-transfer-config"
@@ -32,7 +32,7 @@ To get more information about Config, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/bigquery/docs/reference/datatransfer/rest/)
 
-## Example Usage - Scheduled Query
+## Example Usage - Bigquerydatatransfer Config Scheduled Query
 
 
 ```hcl
@@ -53,7 +53,7 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   schedule               = "first sunday of quarter 00:00"
   destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
   params = {
-    destination_table_name_template = "my-table"
+    destination_table_name_template = "my_table"
     write_disposition               = "WRITE_APPEND"
     query                           = "SELECT name FROM tabl WHERE x = 'y'"
   }
@@ -122,6 +122,12 @@ The following arguments are supported:
   The geographic location where the transfer config should reside.
   Examples: US, EU, asia-northeast1. The default value is US.
 
+* `service_account_name` -
+  (Optional)
+  Optional service account name. If this field is set, transfer config will
+  be created with this service account credentials. It requires that
+  requesting user calling this API has permissions to act as this service account.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -130,6 +136,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   The resource name of the transfer config. Transfer config names have the

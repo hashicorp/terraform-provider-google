@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"time"
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/servicemanagement/v1"
@@ -19,11 +20,7 @@ func (w *ServiceManagementOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 
-func serviceManagementOperationWait(config *Config, op *servicemanagement.Operation, activity string) (googleapi.RawMessage, error) {
-	return serviceManagementOperationWaitTime(config, op, activity, 10)
-}
-
-func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Operation, activity string, timeoutMinutes int) (googleapi.RawMessage, error) {
+func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Operation, activity string, timeout time.Duration) (googleapi.RawMessage, error) {
 	w := &ServiceManagementOperationWaiter{
 		Service: config.clientServiceMan,
 	}
@@ -32,7 +29,7 @@ func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Op
 		return nil, err
 	}
 
-	if err := OperationWait(w, activity, timeoutMinutes); err != nil {
+	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return nil, err
 	}
 	return w.Op.Response, nil

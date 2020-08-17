@@ -46,9 +46,9 @@ type IapWebBackendServiceIamUpdater struct {
 func IapWebBackendServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return nil, err
+	project, _ := getProject(d, config)
+	if project != "" {
+		d.Set("project", project)
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("web_backend_service"); ok {
@@ -81,11 +81,10 @@ func IapWebBackendServiceIamUpdaterProducer(d *schema.ResourceData, config *Conf
 func IapWebBackendServiceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	values := make(map[string]string)
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if project != "" {
+		values["project"] = project
 	}
-	values["project"] = project
 
 	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)", "(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)", "(?P<web_backend_service>[^/]+)"}, d, config, d.Id())
 	if err != nil {
@@ -108,13 +107,21 @@ func IapWebBackendServiceIdParseFunc(d *schema.ResourceData, config *Config) err
 }
 
 func (u *IapWebBackendServiceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := u.qualifyWebBackendServiceUrl("getIamPolicy")
+	url, err := u.qualifyWebBackendServiceUrl("getIamPolicy")
+	if err != nil {
+		return nil, err
+	}
 
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
 	var obj map[string]interface{}
+	obj = map[string]interface{}{
+		"options": map[string]interface{}{
+			"requestedPolicyVersion": iamPolicyVersion,
+		},
+	}
 
 	policy, err := sendRequest(u.Config, "POST", project, url, obj)
 	if err != nil {
@@ -139,8 +146,10 @@ func (u *IapWebBackendServiceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 	obj := make(map[string]interface{})
 	obj["policy"] = json
 
-	url := u.qualifyWebBackendServiceUrl("setIamPolicy")
-
+	url, err := u.qualifyWebBackendServiceUrl("setIamPolicy")
+	if err != nil {
+		return err
+	}
 	project, err := getProject(u.d, u.Config)
 	if err != nil {
 		return err
@@ -154,8 +163,13 @@ func (u *IapWebBackendServiceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 	return nil
 }
 
-func (u *IapWebBackendServiceIamUpdater) qualifyWebBackendServiceUrl(methodIdentifier string) string {
-	return fmt.Sprintf("https://iap.googleapis.com/v1/%s:%s", fmt.Sprintf("projects/%s/iap_web/compute/services/%s", u.project, u.webBackendService), methodIdentifier)
+func (u *IapWebBackendServiceIamUpdater) qualifyWebBackendServiceUrl(methodIdentifier string) (string, error) {
+	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/compute/services/%s", u.project, u.webBackendService), methodIdentifier)
+	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 func (u *IapWebBackendServiceIamUpdater) GetResourceId() string {

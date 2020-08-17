@@ -18,13 +18,12 @@ creation. If using these resources in the same config, you can add a
 
 ## Example Usage
 
-This snippet creates a service account, then gives it objectViewer
-permission in a project.
+This snippet creates a service account in a project.
 
 ```hcl
-resource "google_service_account" "object_viewer" {
-  account_id   = "object-viewer"
-  display_name = "Object viewer"
+resource "google_service_account" "service_account" {
+  account_id   = "service_account_id"
+  display_name = "Service Account"
 }
 ```
 
@@ -41,6 +40,7 @@ The following arguments are supported:
     Can be updated without creating a new resource.
 
 * `description` - (Optional) A text description of the service account.
+    Must be less than or equal to 256 UTF-8 bytes.
 
 * `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.
@@ -50,6 +50,8 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/serviceAccounts/{{email}}`
+
 * `email` - The e-mail address of the service account. This value
     should be referenced from any `google_iam_policy` data sources
     that would grant the service account privileges.
@@ -57,6 +59,13 @@ exported:
 * `name` - The fully-qualified name of the service account.
 
 * `unique_id` - The unique id of the service account.
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 5 minutes.
 
 ## Import
 

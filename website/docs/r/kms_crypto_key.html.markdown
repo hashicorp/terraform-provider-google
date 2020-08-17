@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud KMS"
+subcategory: "Cloud Key Management Service"
 layout: "google"
 page_title: "Google: google_kms_crypto_key"
 sidebar_current: "docs-google-kms-crypto-key"
@@ -51,7 +51,7 @@ resource "google_kms_key_ring" "keyring" {
 
 resource "google_kms_crypto_key" "example-key" {
   name            = "crypto-key-example"
-  key_ring        = google_kms_key_ring.keyring.self_link
+  key_ring        = google_kms_key_ring.keyring.id
   rotation_period = "100000s"
 
   lifecycle {
@@ -70,7 +70,7 @@ resource "google_kms_key_ring" "keyring" {
 
 resource "google_kms_crypto_key" "example-asymmetric-sign-key" {
   name     = "crypto-key-example"
-  key_ring = google_kms_key_ring.keyring.self_link
+  key_ring = google_kms_key_ring.keyring.id
   purpose  = "ASYMMETRIC_SIGN"
 
   version_template {
@@ -110,6 +110,8 @@ The following arguments are supported:
   The immutable purpose of this CryptoKey. See the
   [purpose reference](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKeyPurpose)
   for possible inputs.
+  Default value is `ENCRYPT_DECRYPT`.
+  Possible values are `ENCRYPT_DECRYPT`, `ASYMMETRIC_SIGN`, and `ASYMMETRIC_DECRYPT`.
 
 * `rotation_period` -
   (Optional)
@@ -120,7 +122,8 @@ The following arguments are supported:
 
 * `version_template` -
   (Optional)
-  A template describing settings for new crypto key versions.  Structure is documented below.
+  A template describing settings for new crypto key versions.
+  Structure is documented below.
 
 
 The `version_template` block supports:
@@ -133,11 +136,14 @@ The `version_template` block supports:
 * `protection_level` -
   (Optional)
   The protection level to use when creating a version based on this template.
+  Default value is `SOFTWARE`.
+  Possible values are `SOFTWARE` and `HSM`.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{key_ring}}/cryptoKeys/{{name}}`
 
 
 * `self_link`: The self link of the created CryptoKey. Its format is `{{key_ring}}/cryptoKeys/{{name}}`.

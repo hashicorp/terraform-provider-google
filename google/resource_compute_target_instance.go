@@ -77,7 +77,7 @@ character, which cannot be a dash.`,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"NO_NAT", ""}, false),
 				Description: `NAT option controlling how IPs are NAT'ed to the instance.
-Currently only NO_NAT (default value) is supported.`,
+Currently only NO_NAT (default value) is supported. Default value: "NO_NAT" Possible values: ["NO_NAT"]`,
 				Default: "NO_NAT",
 			},
 			"zone": {
@@ -166,7 +166,7 @@ func resourceComputeTargetInstanceCreate(d *schema.ResourceData, meta interface{
 
 	err = computeOperationWaitTime(
 		config, res, project, "Creating TargetInstance",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -200,22 +200,22 @@ func resourceComputeTargetInstanceRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeTargetInstanceName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeTargetInstanceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeTargetInstanceCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeTargetInstanceCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
-	if err := d.Set("description", flattenComputeTargetInstanceDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeTargetInstanceDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
-	if err := d.Set("instance", flattenComputeTargetInstanceInstance(res["instance"], d)); err != nil {
+	if err := d.Set("instance", flattenComputeTargetInstanceInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
-	if err := d.Set("nat_policy", flattenComputeTargetInstanceNatPolicy(res["natPolicy"], d)); err != nil {
+	if err := d.Set("nat_policy", flattenComputeTargetInstanceNatPolicy(res["natPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
-	if err := d.Set("zone", flattenComputeTargetInstanceZone(res["zone"], d)); err != nil {
+	if err := d.Set("zone", flattenComputeTargetInstanceZone(res["zone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -248,7 +248,7 @@ func resourceComputeTargetInstanceDelete(d *schema.ResourceData, meta interface{
 
 	err = computeOperationWaitTime(
 		config, res, project, "Deleting TargetInstance",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -279,30 +279,30 @@ func resourceComputeTargetInstanceImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeTargetInstanceName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetInstanceCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetInstanceDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetInstanceInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeTargetInstanceNatPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceNatPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetInstanceZone(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

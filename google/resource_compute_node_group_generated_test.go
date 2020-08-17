@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -28,13 +27,13 @@ func TestAccComputeNodeGroup_nodeGroupBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNodeGroupDestroy,
+		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNodeGroup_nodeGroupBasicExample(context),
@@ -50,48 +49,46 @@ func TestAccComputeNodeGroup_nodeGroupBasicExample(t *testing.T) {
 
 func testAccComputeNodeGroup_nodeGroupBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
-data "google_compute_node_types" "central1a" {
-  zone = "us-central1-a"
-}
-
 resource "google_compute_node_template" "soletenant-tmpl" {
-  name      = "soletenant-tmpl%{random_suffix}"
+  name      = "tf-test-soletenant-tmpl%{random_suffix}"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_group" "nodes" {
-  name        = "soletenant-group%{random_suffix}"
+  name        = "tf-test-soletenant-group%{random_suffix}"
   zone        = "us-central1-a"
   description = "example google_compute_node_group for Terraform Google Provider"
 
   size          = 1
-  node_template = google_compute_node_template.soletenant-tmpl.self_link
+  node_template = google_compute_node_template.soletenant-tmpl.id
 }
 `, context)
 }
 
-func testAccCheckComputeNodeGroupDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_node_group" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckComputeNodeGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_node_group" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, nil)
+			if err == nil {
+				return fmt.Errorf("ComputeNodeGroup still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeNodeGroup still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

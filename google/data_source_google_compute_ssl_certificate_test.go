@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccDataSourceComputeSslCertificate(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceComputeSslCertificateConfig(),
+				Config: testAccDataSourceComputeSslCertificateConfig(randString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					checkDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_ssl_certificate.cert",
@@ -31,7 +30,7 @@ func TestAccDataSourceComputeSslCertificate(t *testing.T) {
 	})
 }
 
-func testAccDataSourceComputeSslCertificateConfig() string {
+func testAccDataSourceComputeSslCertificateConfig(certName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_ssl_certificate" "foobar" {
   name        = "cert-test-%s"
@@ -43,5 +42,5 @@ resource "google_compute_ssl_certificate" "foobar" {
 data "google_compute_ssl_certificate" "cert" {
   name = google_compute_ssl_certificate.foobar.name
 }
-`, acctest.RandString(10))
+`, certName)
 }

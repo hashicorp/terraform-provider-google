@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -26,11 +25,11 @@ func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -61,11 +60,11 @@ func TestAccIapAppEngineVersionIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -87,16 +86,25 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineVersionIamPolicy_basicGenerated(context),
+			},
+			{
+				ResourceName:      "google_iap_app_engine_version_iam_policy.foo",
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", getTestProjectFromEnv(), getTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccIapAppEngineVersionIamPolicy_emptyBinding(context),
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_policy.foo",
@@ -139,12 +147,12 @@ resource "google_app_engine_standard_app_version" "version" {
 }
 
 resource "google_iap_app_engine_version_iam_member" "foo" {
-	project = "${google_app_engine_standard_app_version.version.project}"
-	app_id = "${google_app_engine_standard_app_version.version.project}"
-	service = "${google_app_engine_standard_app_version.version.service}"
-	version_id = "${google_app_engine_standard_app_version.version.version_id}"
-	role = "%{role}"
-	member = "user:admin@hashicorptest.com"
+  project = "${google_app_engine_standard_app_version.version.project}"
+  app_id = "${google_app_engine_standard_app_version.version.project}"
+  service = "${google_app_engine_standard_app_version.version.service}"
+  version_id = "${google_app_engine_standard_app_version.version.version_id}"
+  role = "%{role}"
+  member = "user:admin@hashicorptest.com"
 }
 `, context)
 }
@@ -180,18 +188,61 @@ resource "google_app_engine_standard_app_version" "version" {
 }
 
 data "google_iam_policy" "foo" {
-	binding {
-		role = "%{role}"
-		members = ["user:admin@hashicorptest.com"]
-	}
+  binding {
+    role = "%{role}"
+    members = ["user:admin@hashicorptest.com"]
+  }
 }
 
 resource "google_iap_app_engine_version_iam_policy" "foo" {
-	project = "${google_app_engine_standard_app_version.version.project}"
-	app_id = "${google_app_engine_standard_app_version.version.project}"
-	service = "${google_app_engine_standard_app_version.version.service}"
-	version_id = "${google_app_engine_standard_app_version.version.version_id}"
-	policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = "${google_app_engine_standard_app_version.version.project}"
+  app_id = "${google_app_engine_standard_app_version.version.project}"
+  service = "${google_app_engine_standard_app_version.version.service}"
+  version_id = "${google_app_engine_standard_app_version.version.version_id}"
+  policy_data = data.google_iam_policy.foo.policy_data
+}
+`, context)
+}
+
+func testAccIapAppEngineVersionIamPolicy_emptyBinding(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "appengine-static-content-%{random_suffix}"
+}
+
+resource "google_storage_bucket_object" "object" {
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/appengine/hello-world.zip"
+}
+
+resource "google_app_engine_standard_app_version" "version" {
+  version_id      = "%{random_suffix}"
+  service         = "default"
+  runtime         = "nodejs10"
+  noop_on_destroy = false
+  entrypoint {
+    shell = "node ./app.js"
+  }
+  deployment {
+    zip {
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/hello-world.zip"
+    }
+  }
+  env_variables = {
+    port = "8080"
+  }
+}
+
+data "google_iam_policy" "foo" {
+}
+
+resource "google_iap_app_engine_version_iam_policy" "foo" {
+  project = "${google_app_engine_standard_app_version.version.project}"
+  app_id = "${google_app_engine_standard_app_version.version.project}"
+  service = "${google_app_engine_standard_app_version.version.service}"
+  version_id = "${google_app_engine_standard_app_version.version.version_id}"
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -227,12 +278,12 @@ resource "google_app_engine_standard_app_version" "version" {
 }
 
 resource "google_iap_app_engine_version_iam_binding" "foo" {
-	project = "${google_app_engine_standard_app_version.version.project}"
-	app_id = "${google_app_engine_standard_app_version.version.project}"
-	service = "${google_app_engine_standard_app_version.version.service}"
-	version_id = "${google_app_engine_standard_app_version.version.version_id}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com"]
+  project = "${google_app_engine_standard_app_version.version.project}"
+  app_id = "${google_app_engine_standard_app_version.version.project}"
+  service = "${google_app_engine_standard_app_version.version.service}"
+  version_id = "${google_app_engine_standard_app_version.version.version_id}"
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com"]
 }
 `, context)
 }
@@ -268,12 +319,12 @@ resource "google_app_engine_standard_app_version" "version" {
 }
 
 resource "google_iap_app_engine_version_iam_binding" "foo" {
-	project = "${google_app_engine_standard_app_version.version.project}"
-	app_id = "${google_app_engine_standard_app_version.version.project}"
-	service = "${google_app_engine_standard_app_version.version.service}"
-	version_id = "${google_app_engine_standard_app_version.version.version_id}"
-	role = "%{role}"
-	members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  project = "${google_app_engine_standard_app_version.version.project}"
+  app_id = "${google_app_engine_standard_app_version.version.project}"
+  service = "${google_app_engine_standard_app_version.version.service}"
+  version_id = "${google_app_engine_standard_app_version.version.version_id}"
+  role = "%{role}"
+  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }
 `, context)
 }

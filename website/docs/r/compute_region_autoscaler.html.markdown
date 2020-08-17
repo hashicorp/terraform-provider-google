@@ -36,92 +36,6 @@ To get more information about RegionAutoscaler, see:
     * [Autoscaling Groups of Instances](https://cloud.google.com/compute/docs/autoscaler/)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_autoscaler_beta&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Region Autoscaler Beta
-
-
-```hcl
-resource "google_compute_region_autoscaler" "foobar" {
-  provider = google-beta
-
-  name   = "my-region-autoscaler"
-  region = "us-central1"
-  target = google_compute_region_instance_group_manager.foobar.self_link
-
-  autoscaling_policy {
-    max_replicas    = 5
-    min_replicas    = 1
-    cooldown_period = 60
-
-    cpu_utilization {
-      target = 0.5
-    }
-  }
-}
-
-resource "google_compute_instance_template" "foobar" {
-  provider = google-beta
-
-  name           = "my-instance-template"
-  machine_type   = "n1-standard-1"
-  can_ip_forward = false
-
-  tags = ["foo", "bar"]
-
-  disk {
-    source_image = data.google_compute_image.debian_9.self_link
-  }
-
-  network_interface {
-    network = "default"
-  }
-
-  metadata = {
-    foo = "bar"
-  }
-
-  service_account {
-    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-  }
-}
-
-resource "google_compute_target_pool" "foobar" {
-  provider = google-beta
-
-  name = "my-target-pool"
-}
-
-resource "google_compute_region_instance_group_manager" "foobar" {
-  provider = google-beta
-
-  name   = "my-region-igm"
-  region = "us-central1"
-
-  version {
-    instance_template = google_compute_instance_template.foobar.self_link
-    name              = "primary"
-  }
-
-  target_pools       = [google_compute_target_pool.foobar.self_link]
-  base_instance_name = "foobar"
-}
-
-data "google_compute_image" "debian_9" {
-  provider = google-beta
-
-  family  = "debian-9"
-  project = "debian-cloud"
-}
-
-provider "google-beta" {
-  region = "us-central1"
-  zone   = "us-central1-a"
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_autoscaler_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -133,7 +47,7 @@ provider "google-beta" {
 resource "google_compute_region_autoscaler" "foobar" {
   name   = "my-region-autoscaler"
   region = "us-central1"
-  target = google_compute_region_instance_group_manager.foobar.self_link
+  target = google_compute_region_instance_group_manager.foobar.id
 
   autoscaling_policy {
     max_replicas    = 5
@@ -154,7 +68,7 @@ resource "google_compute_instance_template" "foobar" {
   tags = ["foo", "bar"]
 
   disk {
-    source_image = data.google_compute_image.debian_9.self_link
+    source_image = data.google_compute_image.debian_9.id
   }
 
   network_interface {
@@ -179,11 +93,11 @@ resource "google_compute_region_instance_group_manager" "foobar" {
   region = "us-central1"
 
   version {
-    instance_template  = google_compute_instance_template.foobar.self_link
+    instance_template  = google_compute_instance_template.foobar.id
     name               = "primary"
   }
 
-  target_pools       = [google_compute_target_pool.foobar.self_link]
+  target_pools       = [google_compute_target_pool.foobar.id]
   base_instance_name = "foobar"
 }
 
@@ -212,7 +126,8 @@ The following arguments are supported:
   define one or more of the policies for an autoscaler: cpuUtilization,
   customMetricUtilizations, and loadBalancingUtilization.
   If none of these are specified, the default will be to autoscale based
-  on cpuUtilization to 0.6 or 60%.  Structure is documented below.
+  on cpuUtilization to 0.6 or 60%.
+  Structure is documented below.
 
 * `target` -
   (Required)
@@ -247,21 +162,28 @@ The `autoscaling_policy` block supports:
   instance may take to initialize. To do this, create an instance
   and time the startup process.
 
+* `mode` -
+  (Optional)
+  Defines operating mode for this policy.
+  Default value is `ON`.
+  Possible values are `OFF`, `ONLY_UP`, and `ON`.
+
 * `cpu_utilization` -
   (Optional)
   Defines the CPU utilization policy that allows the autoscaler to
   scale based on the average CPU utilization of a managed instance
-  group.  Structure is documented below.
+  group.
+  Structure is documented below.
 
 * `metric` -
   (Optional)
-  Defines the CPU utilization policy that allows the autoscaler to
-  scale based on the average CPU utilization of a managed instance
-  group.  Structure is documented below.
+  Configuration parameters of autoscaling based on a custom metric.
+  Structure is documented below.
 
 * `load_balancing_utilization` -
   (Optional)
-  Configuration parameters of autoscaling based on a load balancer.  Structure is documented below.
+  Configuration parameters of autoscaling based on a load balancer.
+  Structure is documented below.
 
 
 The `cpu_utilization` block supports:
@@ -302,8 +224,8 @@ The `metric` block supports:
 * `type` -
   (Optional)
   Defines how target utilization value is expressed for a
-  Stackdriver Monitoring metric. Either GAUGE, DELTA_PER_SECOND,
-  or DELTA_PER_MINUTE.
+  Stackdriver Monitoring metric.
+  Possible values are `GAUGE`, `DELTA_PER_SECOND`, and `DELTA_PER_MINUTE`.
 
 The `load_balancing_utilization` block supports:
 
@@ -332,6 +254,7 @@ The `load_balancing_utilization` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/autoscalers/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.

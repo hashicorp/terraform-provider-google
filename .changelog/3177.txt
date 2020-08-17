@@ -1,0 +1,3 @@
+```release-note:enhancement
+monitoring: Added `sensitive_labels` to `google_monitoring_notification_channel` so that labels like `password` and `auth_token` can be managed separately from the other labels and marked as sensitive.
+```

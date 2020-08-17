@@ -1,0 +1,7 @@
+```release-note:new-resource
+`gameservices: Added new resource `google_game_services_realm`
+`gameservices: Added new resource `google_game_services_game_server_cluster`
+`gameservices: Added new resource `google_game_services_game_server_config`
+`gameservices: Added new resource `google_game_services_game_server_deployment`
+`gameservices: Added new resource `google_game_services_game_server_deployment_rollout`
+```

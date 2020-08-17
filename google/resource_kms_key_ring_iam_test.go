@@ -6,7 +6,6 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -17,11 +16,11 @@ func TestAccKmsKeyRingIamBinding(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
-	projectId := acctest.RandomWithPrefix("tf-test")
+	projectId := fmt.Sprintf("tf-test-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	roleId := "roles/cloudkms.cryptoKeyDecrypter"
-	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyRingName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	keyRingId := &kmsKeyRingId{
 		Project:  projectId,
@@ -29,14 +28,14 @@ func TestAccKmsKeyRingIamBinding(t *testing.T) {
 		Name:     keyRingName,
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
 				Config: testAccKmsKeyRingIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
-				Check: testAccCheckGoogleKmsKeyRingIam(keyRingId.keyRingId(), roleId, []string{
+				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.keyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
@@ -49,7 +48,7 @@ func TestAccKmsKeyRingIamBinding(t *testing.T) {
 			{
 				// Test Iam Binding update
 				Config: testAccKmsKeyRingIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, roleId),
-				Check: testAccCheckGoogleKmsKeyRingIam(keyRingId.keyRingId(), roleId, []string{
+				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.keyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, projectId),
 				}),
@@ -68,11 +67,11 @@ func TestAccKmsKeyRingIamMember(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
-	projectId := acctest.RandomWithPrefix("tf-test")
+	projectId := fmt.Sprintf("tf-test-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
-	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyRingName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	keyRingId := &kmsKeyRingId{
 		Project:  projectId,
@@ -80,14 +79,14 @@ func TestAccKmsKeyRingIamMember(t *testing.T) {
 		Name:     keyRingName,
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccKmsKeyRingIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
-				Check: testAccCheckGoogleKmsKeyRingIam(keyRingId.keyRingId(), roleId, []string{
+				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.keyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
@@ -105,11 +104,11 @@ func TestAccKmsKeyRingIamPolicy(t *testing.T) {
 	t.Parallel()
 
 	orgId := getTestOrgFromEnv(t)
-	projectId := acctest.RandomWithPrefix("tf-test")
+	projectId := fmt.Sprintf("tf-test-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
-	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	keyRingName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	keyRingId := &kmsKeyRingId{
 		Project:  projectId,
@@ -117,13 +116,13 @@ func TestAccKmsKeyRingIamPolicy(t *testing.T) {
 		Name:     keyRingName,
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKmsKeyRingIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
-				Check: testAccCheckGoogleKmsKeyRingIam(keyRingId.keyRingId(), roleId, []string{
+				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.keyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
@@ -137,9 +136,9 @@ func TestAccKmsKeyRingIamPolicy(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleKmsKeyRingIam(keyRingId, role string, members []string) resource.TestCheckFunc {
+func testAccCheckGoogleKmsKeyRingIam(t *testing.T, keyRingId, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		p, err := config.clientKms.Projects.Locations.KeyRings.GetIamPolicy(keyRingId).Do()
 		if err != nil {
 			return err

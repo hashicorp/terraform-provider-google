@@ -1,5 +1,5 @@
 ---
-subcategory: "Stackdriver Logging"
+subcategory: "Cloud (Stackdriver) Logging"
 layout: "google"
 page_title: "Google: google_logging_folder_exclusion"
 sidebar_current: "docs-google-logging-folder-exclusion"
@@ -52,6 +52,12 @@ The following arguments are supported:
 * `filter` - (Required) The filter to apply when excluding logs. Only log entries that match the filter are excluded.
     See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced-filters) for information on how to
     write a filter.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `folders/{{folder}}/exclusions/{{name}}`
 
 ## Import
 

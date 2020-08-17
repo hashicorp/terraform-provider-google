@@ -1,0 +1,4 @@
+```release-note:enhancement
+monitoring: added `matcher` attribute to `content_matchers` block for 
+ `google_monitoring_uptime_check_config`
+```

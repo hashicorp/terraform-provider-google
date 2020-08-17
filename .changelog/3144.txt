@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added check on `google_compute_router` for non-empty advertised_groups or advertised_ip_ranges values when advertise_mode is DEFAULT in the bgp block.
+```

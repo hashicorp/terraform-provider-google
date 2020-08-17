@@ -1,14 +1,25 @@
 package google
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"math/rand"
+	"net/http"
 	"os"
+	"path/filepath"
+	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/dnaeon/go-vcr/cassette"
+	"github.com/dnaeon/go-vcr/recorder"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -53,6 +64,10 @@ var orgEnvVars = []string{
 	"GOOGLE_ORG",
 }
 
+var orgEnvDomainVars = []string{
+	"GOOGLE_ORG_DOMAIN",
+}
+
 var serviceAccountEnvVars = []string{
 	"GOOGLE_SERVICE_ACCOUNT",
 }
@@ -65,13 +80,287 @@ var billingAccountEnvVars = []string{
 	"GOOGLE_BILLING_ACCOUNT",
 }
 
+var configs map[string]*Config
+
+// A source for a given VCR test with the value that seeded it
+type VcrSource struct {
+	seed   int64
+	source rand.Source
+}
+
+var sources map[string]VcrSource
+
 func init() {
+	configs = make(map[string]*Config)
+	sources = make(map[string]VcrSource)
 	testAccProvider = Provider().(*schema.Provider)
 	testAccRandomProvider = random.Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
 		"google": testAccProvider,
 		"random": testAccRandomProvider,
 	}
+}
+
+// Returns a cached config if VCR testing is enabled. This enables us to use a single HTTP transport
+// for a given test, allowing for recording of HTTP interactions.
+// Why this exists: schema.Provider.ConfigureFunc is called multiple times for a given test
+// ConfigureFunc on our provider creates a new HTTP client and sets base paths (config.go LoadAndValidate)
+// VCR requires a single HTTP client to handle all interactions so it can record and replay responses so
+// this caches HTTP clients per test by replacing ConfigureFunc
+func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.ResourceData) (interface{}, error), testName string) (*Config, error) {
+	if v, ok := configs[testName]; ok {
+		return v, nil
+	}
+	c, err := configureFunc(d)
+	if err != nil {
+		return nil, err
+	}
+	config := c.(*Config)
+	var vcrMode recorder.Mode
+	switch vcrEnv := os.Getenv("VCR_MODE"); vcrEnv {
+	case "RECORDING":
+		vcrMode = recorder.ModeRecording
+	case "REPLAYING":
+		vcrMode = recorder.ModeReplaying
+		// When replaying, set the poll interval low to speed up tests
+		config.PollInterval = 10 * time.Millisecond
+	default:
+		log.Printf("[DEBUG] No valid environment var set for VCR_MODE, expected RECORDING or REPLAYING, skipping VCR. VCR_MODE: %s", vcrEnv)
+		return config, nil
+	}
+
+	envPath := os.Getenv("VCR_PATH")
+	if envPath == "" {
+		log.Print("[DEBUG] No environment var set for VCR_PATH, skipping VCR")
+		return config, nil
+	}
+	path := filepath.Join(envPath, vcrFileName(testName))
+
+	rec, err := recorder.NewAsMode(path, vcrMode, config.client.Transport)
+	if err != nil {
+		return nil, err
+	}
+	// Defines how VCR will match requests to responses.
+	rec.SetMatcher(func(r *http.Request, i cassette.Request) bool {
+		// Default matcher compares method and URL only
+		if !cassette.DefaultMatcher(r, i) {
+			return false
+		}
+		if r.Body == nil {
+			return true
+		}
+		contentType := r.Header.Get("Content-Type")
+		// If body contains media, don't try to compare
+		if strings.Contains(contentType, "multipart/related") {
+			return true
+		}
+
+		var b bytes.Buffer
+		if _, err := b.ReadFrom(r.Body); err != nil {
+			log.Printf("[DEBUG] Failed to read request body from cassette: %v", err)
+			return false
+		}
+		r.Body = ioutil.NopCloser(&b)
+		reqBody := b.String()
+		// If body matches identically, we are done
+		if reqBody == i.Body {
+			return true
+		}
+
+		// JSON might be the same, but reordered. Try parsing json and comparing
+		if strings.Contains(contentType, "application/json") {
+			var reqJson, cassetteJson interface{}
+			if err := json.Unmarshal([]byte(reqBody), &reqJson); err != nil {
+				log.Printf("[DEBUG] Failed to unmarshall request json: %v", err)
+				return false
+			}
+			if err := json.Unmarshal([]byte(i.Body), &cassetteJson); err != nil {
+				log.Printf("[DEBUG] Failed to unmarshall cassette json: %v", err)
+				return false
+			}
+			return reflect.DeepEqual(reqJson, cassetteJson)
+		}
+		return false
+	})
+	config.client.Transport = rec
+	config.wrappedPubsubClient.Transport = rec
+	config.wrappedBigQueryClient.Transport = rec
+	configs[testName] = config
+	return config, err
+}
+
+// We need to explicitly close the VCR recorder to save the cassette
+func closeRecorder(t *testing.T) {
+	if config, ok := configs[t.Name()]; ok {
+		// We did not cache the config if it does not use VCR
+		if !t.Failed() && isVcrEnabled() {
+			// If a test succeeds, write new seed/yaml to files
+			err := config.client.Transport.(*recorder.Recorder).Stop()
+			if err != nil {
+				t.Error(err)
+			}
+			envPath := os.Getenv("VCR_PATH")
+			if vcrSource, ok := sources[t.Name()]; ok {
+				err = writeSeedToFile(vcrSource.seed, vcrSeedFile(envPath, t.Name()))
+				if err != nil {
+					t.Error(err)
+				}
+			}
+		}
+		// Clean up test config
+		delete(configs, t.Name())
+		delete(sources, t.Name())
+	}
+}
+
+func googleProviderConfig(t *testing.T) *Config {
+	config, ok := configs[t.Name()]
+	if ok {
+		return config
+	}
+	return testAccProvider.Meta().(*Config)
+}
+
+func getTestAccProviders(testName string) map[string]terraform.ResourceProvider {
+	prov := Provider().(*schema.Provider)
+	provRand := random.Provider().(*schema.Provider)
+	if isVcrEnabled() {
+		old := prov.ConfigureFunc
+		prov.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
+			return getCachedConfig(d, old, testName)
+		}
+	} else {
+		log.Print("[DEBUG] VCR_PATH or VCR_MODE not set, skipping VCR")
+	}
+	return map[string]terraform.ResourceProvider{
+		"google":      prov,
+		"google-beta": prov,
+		"random":      provRand,
+	}
+}
+
+func isVcrEnabled() bool {
+	envPath := os.Getenv("VCR_PATH")
+	vcrMode := os.Getenv("VCR_MODE")
+	return envPath != "" && vcrMode != ""
+}
+
+// Wrapper for resource.Test to swap out providers for VCR providers and handle VCR specific things
+// Can be called when VCR is not enabled, and it will behave as normal
+func vcrTest(t *testing.T, c resource.TestCase) {
+	if isVcrEnabled() {
+		providers := getTestAccProviders(t.Name())
+		c.Providers = providers
+		defer closeRecorder(t)
+	}
+	resource.Test(t, c)
+}
+
+// Retrieves a unique test name used for writing files
+// replaces all `/` characters that would cause filepath issues
+// This matters during tests that dispatch multiple tests, for example TestAccLoggingFolderExclusion
+func vcrSeedFile(path, name string) string {
+	return filepath.Join(path, fmt.Sprintf("%s.seed", vcrFileName(name)))
+}
+
+func vcrFileName(name string) string {
+	return strings.ReplaceAll(name, "/", "_")
+}
+
+// Produces a rand.Source for VCR testing based on the given mode.
+// In RECORDING mode, generates a new seed and saves it to a file, using the seed for the source
+// In REPLAYING mode, reads a seed from a file and creates a source from it
+func vcrSource(t *testing.T, path, mode string) (*VcrSource, error) {
+	if s, ok := sources[t.Name()]; ok {
+		return &s, nil
+	}
+	switch mode {
+	case "RECORDING":
+		seed := rand.Int63()
+		s := rand.NewSource(seed)
+		vcrSource := VcrSource{seed: seed, source: s}
+		sources[t.Name()] = vcrSource
+		return &vcrSource, nil
+	case "REPLAYING":
+		seed, err := readSeedFromFile(vcrSeedFile(path, t.Name()))
+		if err != nil {
+			return nil, err
+		}
+		s := rand.NewSource(seed)
+		vcrSource := VcrSource{seed: seed, source: s}
+		sources[t.Name()] = vcrSource
+		return &vcrSource, nil
+	default:
+		log.Printf("[DEBUG] No valid environment var set for VCR_MODE, expected RECORDING or REPLAYING, skipping VCR. VCR_MODE: %s", mode)
+		return nil, errors.New("No valid VCR_MODE set")
+	}
+}
+
+func readSeedFromFile(fileName string) (int64, error) {
+	// Max number of digits for int64 is 19
+	data := make([]byte, 19)
+	f, err := os.Open(fileName)
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+	_, err = f.Read(data)
+	if err != nil {
+		return 0, err
+	}
+	// Remove NULL characters from seed
+	data = bytes.Trim(data, "\x00")
+	seed := string(data)
+	return strconv.ParseInt(seed, 10, 64)
+}
+
+func writeSeedToFile(seed int64, fileName string) error {
+	f, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = f.WriteString(strconv.FormatInt(seed, 10))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func randString(t *testing.T, length int) string {
+	if !isVcrEnabled() {
+		return acctest.RandString(length)
+	}
+	envPath := os.Getenv("VCR_PATH")
+	vcrMode := os.Getenv("VCR_MODE")
+	s, err := vcrSource(t, envPath, vcrMode)
+	if err != nil {
+		// At this point we haven't created any resources, so fail fast
+		t.Fatal(err)
+	}
+
+	r := rand.New(s.source)
+	result := make([]byte, length)
+	set := "abcdefghijklmnopqrstuvwxyz012346789"
+	for i := 0; i < length; i++ {
+		result[i] = set[r.Intn(len(set))]
+	}
+	return string(result)
+}
+
+func randInt(t *testing.T) int {
+	if !isVcrEnabled() {
+		return acctest.RandInt()
+	}
+	envPath := os.Getenv("VCR_PATH")
+	vcrMode := os.Getenv("VCR_MODE")
+	s, err := vcrSource(t, envPath, vcrMode)
+	if err != nil {
+		// At this point we haven't created any resources, so fail fast
+		t.Fatal(err)
+	}
+
+	return rand.New(s.source).Int()
 }
 
 func TestProvider(t *testing.T) {
@@ -152,13 +441,13 @@ func TestProvider_loadCredentialsFromJSON(t *testing.T) {
 func TestAccProviderBasePath_setBasePath(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroy,
+		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProviderBasePath_setBasePath("https://www.googleapis.com/compute/beta/", acctest.RandString(10)),
+				Config: testAccProviderBasePath_setBasePath("https://www.googleapis.com/compute/beta/", randString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_address.default",
@@ -172,13 +461,13 @@ func TestAccProviderBasePath_setBasePath(t *testing.T) {
 func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroy,
+		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", acctest.RandString(10)),
+				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", randString(t, 10)),
 				ExpectError: regexp.MustCompile("got HTTP response code 404 with body"),
 			},
 		},
@@ -186,14 +475,17 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 }
 
 func TestAccProviderUserProjectOverride(t *testing.T) {
+	// Parallel fine-grained resource creation
+	skipIfVcr(t)
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
 	billing := getTestBillingAccountFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
-	sa := "terraform-" + acctest.RandString(10)
+	pid := "tf-test-" + randString(t, 10)
+	sa := "tf-test-" + randString(t, 10)
+	topicName := "tf-test-topic-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		// No TestDestroy since that's not really the point of this test
@@ -208,14 +500,14 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 				},
 			},
 			{
-				Config:      testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, false),
-				ExpectError: regexp.MustCompile("Binary Authorization API has not been used"),
+				Config:      testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, false, topicName),
+				ExpectError: regexp.MustCompile("Cloud Pub/Sub API has not been used"),
 			},
 			{
-				Config: testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, true),
+				Config: testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, true, topicName),
 			},
 			{
-				ResourceName:      "google_binary_authorization_policy.project-2-policy",
+				ResourceName:      "google_pubsub_topic.project-2-topic",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -229,14 +521,16 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 // Do the same thing as TestAccProviderUserProjectOverride, but using a resource that gets its project via
 // a reference to a different resource instead of a project field.
 func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
+	// Parallel fine-grained resource creation
+	skipIfVcr(t)
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
 	billing := getTestBillingAccountFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
-	sa := "terraform-" + acctest.RandString(10)
+	pid := "tf-test-" + randString(t, 10)
+	sa := "tf-test-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		// No TestDestroy since that's not really the point of this test
@@ -281,7 +575,7 @@ resource "google_compute_address" "default" {
 }
 
 // Set up two projects. Project 1 has a service account that is used to create a
-// binauthz policy in project 2. The binauthz API is only enabled in project 2,
+// pubsub topic in project 2. The pubsub API is only enabled in project 2,
 // which causes the create to fail unless user_project_override is set to true.
 func testAccProviderUserProjectOverride(pid, name, org, billing, sa string) string {
 	return fmt.Sprintf(`
@@ -304,9 +598,9 @@ resource "google_project" "project-2" {
 	billing_account = "%s"
 }
 
-resource "google_project_service" "project-2-binauthz" {
+resource "google_project_service" "project-2-pubsub-service" {
 	project = google_project.project-2.project_id
-	service = "binaryauthorization.googleapis.com"
+	service = "pubsub.googleapis.com"
 }
 
 // Permission needed for user_project_override
@@ -316,9 +610,9 @@ resource "google_project_iam_member" "project-2-serviceusage" {
 	member  = "serviceAccount:${google_service_account.project-1.email}"
 }
 
-resource "google_project_iam_member" "project-2-binauthz" {
+resource "google_project_iam_member" "project-2-pubsub-member" {
 	project = google_project.project-2.project_id
-	role    = "roles/binaryauthorization.policyEditor"
+	role    = "roles/pubsub.admin"
 	member  = "serviceAccount:${google_service_account.project-1.email}"
 }
 
@@ -334,28 +628,24 @@ resource "google_service_account_iam_member" "token-creator-iam" {
 `, pid, name, org, billing, sa, pid, name, org, billing)
 }
 
-func testAccProviderUserProjectOverride_step2(pid, name, org, billing, sa string, override bool) string {
+func testAccProviderUserProjectOverride_step2(pid, name, org, billing, sa string, override bool, topicName string) string {
 	return fmt.Sprintf(`
-// See step 3 below, which is really step 2 minus the binauthz policy.
+// See step 3 below, which is really step 2 minus the pubsub topic.
 // Step 3 exists because provider configurations can't be removed while objects
 // created by that provider still exist in state. Step 3 will remove the
-// binauthz policy so the whole config can be deleted.
+// pubsub topic so the whole config can be deleted.
 %s
 
-resource "google_binary_authorization_policy" "project-2-policy" {
+resource "google_pubsub_topic" "project-2-topic" {
 	provider = google.project-1-token
 	project  = google_project.project-2.project_id
 
-	admission_whitelist_patterns {
-		name_pattern= "gcr.io/google_containers/*"
-	}
-
-	default_admission_rule {
-		evaluation_mode = "ALWAYS_DENY"
-		enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
+	name = "%s"
+	labels = {
+	  foo = "bar"
 	}
 }
-`, testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa, override))
+`, testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa, override), topicName)
 }
 
 func testAccProviderUserProjectOverride_step3(pid, name, org, billing, sa string, override bool) string {
@@ -550,6 +840,11 @@ func getTestOrgFromEnv(t *testing.T) string {
 	return multiEnvSearch(orgEnvVars)
 }
 
+func getTestOrgDomainFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, orgEnvDomainVars...)
+	return multiEnvSearch(orgEnvDomainVars)
+}
+
 func getTestOrgTargetFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, orgTargetEnvVars...)
 	return multiEnvSearch(orgTargetEnvVars)
@@ -572,4 +867,13 @@ func multiEnvSearch(ks []string) string {
 		}
 	}
 	return ""
+}
+
+// Some tests fail during VCR. One common case is race conditions when creating resources.
+// If a test config adds two fine-grained resources with the same parent it is undefined
+// which will be created first, causing VCR to fail ~50% of the time
+func skipIfVcr(t *testing.T) {
+	if isVcrEnabled() {
+		t.Skipf("VCR enabled, skipping test: %s", t.Name())
+	}
 }

@@ -1,0 +1,9 @@
+```release-note:bug
+`compute`: Fixed perma-diff on `google_compute_interconnect_attachment` `candidate_subnets`
+```
+```release-note:bug
+`compute`: Fixed diff on default value for `google_compute_interconnect_attachment` `admin_enabled`
+```
+```release-note:enhancement
+`compute`: Added update support for `google_compute_interconnect_attachment` `admin_enabled`
+```

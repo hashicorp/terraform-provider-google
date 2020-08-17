@@ -18,9 +18,10 @@ func resourceLoggingBillingAccountSink() *schema.Resource {
 		},
 	}
 	schm.Schema["billing_account"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The billing account exported to the sink.`,
 	}
 	return schm
 }
@@ -56,11 +57,11 @@ func resourceLoggingBillingAccountSinkRead(d *schema.ResourceData, meta interfac
 func resourceLoggingBillingAccountSinkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	sink := expandResourceLoggingSinkForUpdate(d)
+	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
 	_, err := config.clientLogging.BillingAccounts.Sinks.Patch(d.Id(), sink).
-		UpdateMask(defaultLogSinkUpdateMask).UniqueWriterIdentity(true).Do()
+		UpdateMask(updateMask).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
 	}

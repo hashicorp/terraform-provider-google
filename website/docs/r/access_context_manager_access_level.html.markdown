@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Access Context Manager"
+subcategory: "Access Context Manager (VPC Service Controls)"
 layout: "google"
 page_title: "Google: google_access_context_manager_access_level"
 sidebar_current: "docs-google-access-context-manager-access-level"
@@ -38,17 +38,22 @@ To get more information about AccessLevel, see:
 
 ```hcl
 resource "google_access_context_manager_access_level" "access-level" {
-  parent = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
-  name   = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/chromeos_no_lock"
+  parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/accessLevels/chromeos_no_lock"
   title  = "chromeos_no_lock"
   basic {
     conditions {
       device_policy {
-        require_screen_lock = false
+        require_screen_lock = true
         os_constraints {
           os_type = "DESKTOP_CHROME_OS"
         }
       }
+      regions = [
+	"CH",
+	"IT",
+	"US",
+      ]
     }
   }
 }
@@ -89,7 +94,14 @@ The following arguments are supported:
 
 * `basic` -
   (Optional)
-  A set of predefined conditions for the access level and a combining function.  Structure is documented below.
+  A set of predefined conditions for the access level and a combining function.
+  Structure is documented below.
+
+* `custom` -
+  (Optional)
+  Custom access level conditions are set using the Cloud Common Expression Language to represent the necessary conditions for the level to apply to a request. 
+  See CEL spec at: https://github.com/google/cel-spec.
+  Structure is documented below.
 
 
 The `basic` block supports:
@@ -100,11 +112,14 @@ The `basic` block supports:
   is granted this AccessLevel. If AND is used, each Condition in
   conditions must be satisfied for the AccessLevel to be applied. If
   OR is used, at least one Condition in conditions must be satisfied
-  for the AccessLevel to be applied. Defaults to AND if unspecified.
+  for the AccessLevel to be applied.
+  Default value is `AND`.
+  Possible values are `AND` and `OR`.
 
 * `conditions` -
   (Required)
-  A set of requirements for the AccessLevel to be granted.  Structure is documented below.
+  A set of requirements for the AccessLevel to be granted.
+  Structure is documented below.
 
 
 The `conditions` block supports:
@@ -150,7 +165,14 @@ The `conditions` block supports:
   (Optional)
   Device specific restrictions, all restrictions must hold for
   the Condition to be true. If not specified, all devices are
-  allowed.  Structure is documented below.
+  allowed.
+  Structure is documented below.
+
+* `regions` -
+  (Optional)
+  The request must originate from one of the provided
+  countries/regions.
+  Format: A valid ISO 3166-1 alpha-2 code.
 
 
 The `device_policy` block supports:
@@ -164,16 +186,19 @@ The `device_policy` block supports:
   (Optional)
   A list of allowed encryptions statuses.
   An empty list allows all statuses.
+  Each value may be one of `ENCRYPTION_UNSPECIFIED`, `ENCRYPTION_UNSUPPORTED`, `UNENCRYPTED`, and `ENCRYPTED`.
 
 * `allowed_device_management_levels` -
   (Optional)
   A list of allowed device management levels.
   An empty list allows all management levels.
+  Each value may be one of `MANAGEMENT_UNSPECIFIED`, `NONE`, `BASIC`, and `COMPLETE`.
 
 * `os_constraints` -
   (Optional)
   A list of allowed OS versions.
-  An empty list allows all types and all versions.  Structure is documented below.
+  An empty list allows all types and all versions.
+  Structure is documented below.
 
 * `require_admin_approval` -
   (Optional)
@@ -195,6 +220,41 @@ The `os_constraints` block supports:
 * `os_type` -
   (Required)
   The operating system type of the device.
+  Possible values are `OS_UNSPECIFIED`, `DESKTOP_MAC`, `DESKTOP_WINDOWS`, `DESKTOP_LINUX`, and `DESKTOP_CHROME_OS`.
+
+The `custom` block supports:
+
+* `expr` -
+  (Required)
+  Represents a textual expression in the Common Expression Language (CEL) syntax. CEL is a C-like expression language.
+  This page details the objects and attributes that are used to the build the CEL expressions for 
+  custom access levels - https://cloud.google.com/access-context-manager/docs/custom-access-level-spec.
+  Structure is documented below.
+
+
+The `expr` block supports:
+
+* `expression` -
+  (Required)
+  Textual representation of an expression in Common Expression Language syntax.
+
+* `title` -
+  (Optional)
+  Title for the expression, i.e. a short string describing its purpose.
+
+* `description` -
+  (Optional)
+  Description of the expression
+
+* `location` -
+  (Optional)
+  String indicating the location of the expression for error reporting, e.g. a file name and a position in the file
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{name}}`
 
 
 ## Timeouts

@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -14,18 +13,20 @@ import (
 // Test that services can be enabled and disabled on a project
 func TestAccProjectService_basic(t *testing.T) {
 	t.Parallel()
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	services := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_basic(services, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectService(services, pid, true),
+					testAccCheckProjectService(t, services, pid, true),
 				),
 			},
 			{
@@ -44,21 +45,21 @@ func TestAccProjectService_basic(t *testing.T) {
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectService(services, pid, false),
+					testAccCheckProjectService(t, services, pid, false),
 				),
 			},
 			// Create services with disabling turned off.
 			{
 				Config: testAccProjectService_noDisable(services, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectService(services, pid, true),
+					testAccCheckProjectService(t, services, pid, true),
 				),
 			},
 			// Check that services are still enabled even after the resources are deleted.
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectService(services, pid, true),
+					testAccCheckProjectService(t, services, pid, true),
 				),
 			},
 		},
@@ -66,14 +67,16 @@ func TestAccProjectService_basic(t *testing.T) {
 }
 
 func TestAccProjectService_disableDependentServices(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	services := []string{"cloudbuild.googleapis.com", "containerregistry.googleapis.com"}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -111,16 +114,16 @@ func TestAccProjectService_handleNotFound(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	service := "iam.googleapis.com"
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_handleNotFound(service, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectService([]string{service}, pid, true),
+					testAccCheckProjectService(t, []string{service}, pid, true),
 				),
 			},
 			// Delete the project, implicitly deletes service, expect the plan to want to create the service again
@@ -136,8 +139,8 @@ func TestAccProjectService_renamedService(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := "terraform-" + acctest.RandString(10)
-	resource.Test(t, resource.TestCase{
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -154,9 +157,9 @@ func TestAccProjectService_renamedService(t *testing.T) {
 	})
 }
 
-func testAccCheckProjectService(services []string, pid string, expectEnabled bool) resource.TestCheckFunc {
+func testAccCheckProjectService(t *testing.T, services []string, pid string, expectEnabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config, time.Minute*10)
 		if err != nil {

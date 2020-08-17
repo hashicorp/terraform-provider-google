@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/compute/v1"
@@ -15,18 +14,18 @@ func TestAccComputeHttpHealthCheck_update(t *testing.T) {
 
 	var healthCheck compute.HttpHealthCheck
 
-	hhckName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	hhckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHttpHealthCheckDestroy,
+		CheckDestroy: testAccCheckComputeHttpHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHttpHealthCheck_update1(hhckName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeHttpHealthCheckExists(
-						"google_compute_http_health_check.foobar", &healthCheck),
+						t, "google_compute_http_health_check.foobar", &healthCheck),
 					testAccCheckComputeHttpHealthCheckRequestPath(
 						"/not_default", &healthCheck),
 					testAccCheckComputeHttpHealthCheckThresholds(
@@ -37,7 +36,7 @@ func TestAccComputeHttpHealthCheck_update(t *testing.T) {
 				Config: testAccComputeHttpHealthCheck_update2(hhckName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeHttpHealthCheckExists(
-						"google_compute_http_health_check.foobar", &healthCheck),
+						t, "google_compute_http_health_check.foobar", &healthCheck),
 					testAccCheckComputeHttpHealthCheckRequestPath(
 						"/", &healthCheck),
 					testAccCheckComputeHttpHealthCheckThresholds(
@@ -48,7 +47,7 @@ func TestAccComputeHttpHealthCheck_update(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeHttpHealthCheckExists(n string, healthCheck *compute.HttpHealthCheck) resource.TestCheckFunc {
+func testAccCheckComputeHttpHealthCheckExists(t *testing.T, n string, healthCheck *compute.HttpHealthCheck) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -59,7 +58,7 @@ func testAccCheckComputeHttpHealthCheckExists(n string, healthCheck *compute.Htt
 			return fmt.Errorf("No name is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		found, err := config.clientCompute.HttpHealthChecks.Get(
 			config.Project, rs.Primary.Attributes["name"]).Do()

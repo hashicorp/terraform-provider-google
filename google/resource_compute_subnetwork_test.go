@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/api/compute/v1"
@@ -54,23 +53,23 @@ func TestAccComputeSubnetwork_basic(t *testing.T) {
 	var subnetwork1 compute.Subnetwork
 	var subnetwork2 compute.Subnetwork
 
-	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	subnetwork1Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	subnetwork2Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	subnetwork3Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	cnName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	subnetwork1Name := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	subnetwork2Name := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	subnetwork3Name := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_basic(cnName, subnetwork1Name, subnetwork2Name, subnetwork3Name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-ref-by-url", &subnetwork1),
+						t, "google_compute_subnetwork.network-ref-by-url", &subnetwork1),
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-ref-by-name", &subnetwork2),
+						t, "google_compute_subnetwork.network-ref-by-name", &subnetwork2),
 				),
 			},
 			{
@@ -92,19 +91,19 @@ func TestAccComputeSubnetwork_update(t *testing.T) {
 
 	var subnetwork compute.Subnetwork
 
-	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	cnName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_update1(cnName, "10.2.0.0/24", subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-with-private-google-access", &subnetwork),
+						t, "google_compute_subnetwork.network-with-private-google-access", &subnetwork),
 				),
 			},
 			{
@@ -112,7 +111,7 @@ func TestAccComputeSubnetwork_update(t *testing.T) {
 				Config: testAccComputeSubnetwork_update2(cnName, "10.2.0.0/16", subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-with-private-google-access", &subnetwork),
+						t, "google_compute_subnetwork.network-with-private-google-access", &subnetwork),
 				),
 			},
 			{
@@ -120,7 +119,7 @@ func TestAccComputeSubnetwork_update(t *testing.T) {
 				Config: testAccComputeSubnetwork_update2(cnName, "10.2.0.0/24", subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-with-private-google-access", &subnetwork),
+						t, "google_compute_subnetwork.network-with-private-google-access", &subnetwork),
 				),
 			},
 			{
@@ -128,7 +127,7 @@ func TestAccComputeSubnetwork_update(t *testing.T) {
 				Config: testAccComputeSubnetwork_update3(cnName, "10.2.0.0/24", subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-with-private-google-access", &subnetwork),
+						t, "google_compute_subnetwork.network-with-private-google-access", &subnetwork),
 				),
 			},
 			{
@@ -149,25 +148,25 @@ func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 
 	var subnetwork compute.Subnetwork
 
-	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	cnName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_secondaryIpRanges_update1(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSubnetworkExists("google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
 					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
 				),
 			},
 			{
 				Config: testAccComputeSubnetwork_secondaryIpRanges_update2(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSubnetworkExists("google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
 					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
 					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update2", "192.168.11.0/24"),
 				),
@@ -175,7 +174,7 @@ func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 			{
 				Config: testAccComputeSubnetwork_secondaryIpRanges_update3(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSubnetworkExists("google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
 					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
 					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update2", "192.168.11.0/24"),
 				),
@@ -183,7 +182,7 @@ func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 			{
 				Config: testAccComputeSubnetwork_secondaryIpRanges_update4(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSubnetworkExists("google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
 					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
 					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update2", "192.168.11.0/24"),
 				),
@@ -191,7 +190,7 @@ func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 			{
 				Config: testAccComputeSubnetwork_secondaryIpRanges_update1(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSubnetworkExists("google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
 					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
 					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update2", "192.168.11.0/24"),
 				),
@@ -205,19 +204,19 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 
 	var subnetwork compute.Subnetwork
 
-	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	cnName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+						t, "google_compute_subnetwork.network-with-flow-logs", &subnetwork),
 				),
 			},
 			{
@@ -229,7 +228,7 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 				Config: testAccComputeSubnetwork_flowLogsUpdate(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+						t, "google_compute_subnetwork.network-with-flow-logs", &subnetwork),
 				),
 			},
 			{
@@ -241,7 +240,7 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 				Config: testAccComputeSubnetwork_flowLogsDelete(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+						t, "google_compute_subnetwork.network-with-flow-logs", &subnetwork),
 				),
 			},
 			{
@@ -258,19 +257,19 @@ func TestAccComputeSubnetwork_flowLogsMigrate(t *testing.T) {
 
 	var subnetwork compute.Subnetwork
 
-	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	cnName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroy,
+		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_flowLogsMigrate(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+						t, "google_compute_subnetwork.network-with-flow-logs", &subnetwork),
 				),
 			},
 			{
@@ -282,7 +281,7 @@ func TestAccComputeSubnetwork_flowLogsMigrate(t *testing.T) {
 				Config: testAccComputeSubnetwork_flowLogsMigrate2(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+						t, "google_compute_subnetwork.network-with-flow-logs", &subnetwork),
 				),
 			},
 			{
@@ -294,7 +293,7 @@ func TestAccComputeSubnetwork_flowLogsMigrate(t *testing.T) {
 				Config: testAccComputeSubnetwork_flowLogsMigrate3(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(
-						"google_compute_subnetwork.network-with-flow-logs", &subnetwork),
+						t, "google_compute_subnetwork.network-with-flow-logs", &subnetwork),
 				),
 			},
 			{
@@ -306,7 +305,7 @@ func TestAccComputeSubnetwork_flowLogsMigrate(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeSubnetworkExists(n string, subnetwork *compute.Subnetwork) resource.TestCheckFunc {
+func testAccCheckComputeSubnetworkExists(t *testing.T, n string, subnetwork *compute.Subnetwork) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -317,7 +316,7 @@ func testAccCheckComputeSubnetworkExists(n string, subnetwork *compute.Subnetwor
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		region := rs.Primary.Attributes["region"]
 		subnet_name := rs.Primary.Attributes["name"]
 

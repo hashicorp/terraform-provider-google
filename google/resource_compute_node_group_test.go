@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -15,14 +14,14 @@ import (
 func TestAccComputeNodeGroup_updateNodeTemplate(t *testing.T) {
 	t.Parallel()
 
-	groupName := acctest.RandomWithPrefix("group-")
-	tmplPrefix := acctest.RandomWithPrefix("tmpl-")
+	groupName := fmt.Sprintf("group--%d", randInt(t))
+	tmplPrefix := fmt.Sprintf("tmpl--%d", randInt(t))
 
 	var timeCreated time.Time
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNodeGroupDestroy,
+		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNodeGroup_updateNodeTemplate(groupName, tmplPrefix, "tmpl1"),
@@ -87,20 +86,16 @@ func testAccCheckComputeNodeGroupCreationTimeBefore(prevTimeCreated *time.Time) 
 
 func testAccComputeNodeGroup_updateNodeTemplate(groupName, tmplPrefix, tmplToUse string) string {
 	return fmt.Sprintf(`
-data "google_compute_node_types" "central1a" {
-  zone = "us-central1-a"
-}
-
 resource "google_compute_node_template" "tmpl1" {
   name      = "%s-first"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_template" "tmpl2" {
   name      = "%s-second"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_group" "nodes" {

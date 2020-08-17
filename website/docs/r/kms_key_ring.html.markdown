@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud KMS"
+subcategory: "Cloud Key Management Service"
 layout: "google"
 page_title: "Google: google_kms_key_ring"
 sidebar_current: "docs-google-kms-key-ring"
@@ -72,6 +72,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/keyRings/{{name}}`
 
 
 * `self_link`: The self link of the created KeyRing in the format `projects/{project}/locations/{location}/keyRings/{name}`

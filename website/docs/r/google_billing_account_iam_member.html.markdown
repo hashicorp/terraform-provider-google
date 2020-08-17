@@ -50,3 +50,6 @@ IAM member imports use space-delimited identifiers; the resource in question, th
 ```
 $ terraform import google_billing_account_iam_member.binding "your-billing-account-id roles/viewer user:foo@example.com"
 ```
+
+-> **Custom Roles**: If you're importing a IAM member with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.

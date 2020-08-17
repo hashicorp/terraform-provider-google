@@ -3,10 +3,11 @@ package google
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 )
 
 func resourceGoogleFolder() *schema.Resource {
@@ -30,28 +31,37 @@ func resourceGoogleFolder() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			// Format is either folders/{folder_id} or organizations/{org_id}.
 			"parent": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The resource name of the parent Folder or Organization. Must be of the form folders/{folder_id} or organizations/{org_id}.`,
 			},
 			// Must be unique amongst its siblings.
 			"display_name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The folder's display name. A folder's display name must be unique amongst its siblings, e.g. no two folders with the same parent can share the same display name. The display name must start and end with a letter or digit, may contain letters, digits, spaces, hyphens and underscores and can be no longer than 30 characters.`,
 			},
-
+			"folder_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The folder id from the name "folders/{folder_id}"`,
+			},
 			// Format is 'folders/{folder_id}.
 			// The terraform id holds the same value.
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The resource name of the Folder. Its format is folders/{folder_id}.`,
 			},
 			"lifecycle_state": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The lifecycle state of the folder such as ACTIVE or DELETE_REQUESTED.`,
 			},
 			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Timestamp when the Folder was created. Assigned by the server. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".`,
 			},
 		},
 	}
@@ -80,7 +90,7 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	err = resourceManagerOperationWaitTime(config, opAsMap, "creating folder", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = resourceManagerOperationWaitTime(config, opAsMap, "creating folder", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating folder '%s' in '%s': %s", displayName, parent, err)
 	}
@@ -113,6 +123,8 @@ func resourceGoogleFolderRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("name", folder.Name)
+	folderId := strings.TrimPrefix(folder.Name, "folders/")
+	d.Set("folder_id", folderId)
 	d.Set("parent", folder.Parent)
 	d.Set("display_name", folder.DisplayName)
 	d.Set("lifecycle_state", folder.LifecycleState)
@@ -160,7 +172,7 @@ func resourceGoogleFolderUpdate(d *schema.ResourceData, meta interface{}) error 
 			return err
 		}
 
-		err = resourceManagerOperationWaitTime(config, opAsMap, "move folder", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		err = resourceManagerOperationWaitTime(config, opAsMap, "move folder", d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error moving folder '%s' to '%s': %s", displayName, newParent, err)
 		}

@@ -48,7 +48,7 @@ To get more information about TargetInstance, see:
 ```hcl
 resource "google_compute_target_instance" "default" {
   name     = "target"
-  instance = google_compute_instance.target-vm.self_link
+  instance = google_compute_instance.target-vm.id
 }
 
 data "google_compute_image" "vmimage" {
@@ -109,6 +109,8 @@ The following arguments are supported:
   (Optional)
   NAT option controlling how IPs are NAT'ed to the instance.
   Currently only NO_NAT (default value) is supported.
+  Default value is `NO_NAT`.
+  Possible values are `NO_NAT`.
 
 * `zone` -
   (Optional)
@@ -122,6 +124,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/targetInstances/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.

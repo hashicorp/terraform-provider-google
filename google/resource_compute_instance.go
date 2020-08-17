@@ -1,3 +1,4 @@
+//
 package google
 
 import (
@@ -11,6 +12,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/mitchellh/hashstructure"
@@ -74,10 +76,11 @@ func resourceComputeInstance() *schema.Resource {
 		// resource_compute_instance_template schema when updating this one.
 		Schema: map[string]*schema.Schema{
 			"boot_disk": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Required:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Description: `The boot disk for the instance.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auto_delete": {
@@ -86,6 +89,7 @@ func resourceComputeInstance() *schema.Resource {
 							AtLeastOneOf: bootDiskKeys,
 							Default:      true,
 							ForceNew:     true,
+							Description:  `Whether the disk will be auto-deleted when the instance is deleted.`,
 						},
 
 						"device_name": {
@@ -94,6 +98,7 @@ func resourceComputeInstance() *schema.Resource {
 							AtLeastOneOf: bootDiskKeys,
 							Computed:     true,
 							ForceNew:     true,
+							Description:  `Name with which attached disk will be accessible under /dev/disk/by-id/`,
 						},
 
 						"disk_encryption_key_raw": {
@@ -103,11 +108,13 @@ func resourceComputeInstance() *schema.Resource {
 							ForceNew:      true,
 							ConflictsWith: []string{"boot_disk.0.kms_key_self_link"},
 							Sensitive:     true,
+							Description:   `A 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to encrypt this disk. Only one of kms_key_self_link and disk_encryption_key_raw may be set.`,
 						},
 
 						"disk_encryption_key_sha256": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key that protects this resource.`,
 						},
 
 						"kms_key_self_link": {
@@ -118,6 +125,7 @@ func resourceComputeInstance() *schema.Resource {
 							ConflictsWith:    []string{"boot_disk.0.disk_encryption_key_raw"},
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
 							Computed:         true,
+							Description:      `The self_link of the encryption key that is stored in Google Cloud KMS to encrypt this disk. Only one of kms_key_self_link and disk_encryption_key_raw may be set.`,
 						},
 
 						"initialize_params": {
@@ -127,6 +135,7 @@ func resourceComputeInstance() *schema.Resource {
 							Computed:     true,
 							ForceNew:     true,
 							MaxItems:     1,
+							Description:  `Parameters with which a disk was created alongside the instance.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": {
@@ -136,6 +145,7 @@ func resourceComputeInstance() *schema.Resource {
 										Computed:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.IntAtLeast(1),
+										Description:  `The size of the image in gigabytes.`,
 									},
 
 									"type": {
@@ -145,6 +155,7 @@ func resourceComputeInstance() *schema.Resource {
 										Computed:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd"}, false),
+										Description:  `The GCE disk type. One of pd-standard or pd-ssd.`,
 									},
 
 									"image": {
@@ -154,6 +165,7 @@ func resourceComputeInstance() *schema.Resource {
 										Computed:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: diskImageDiffSuppress,
+										Description:      `The image from which this disk was initialised.`,
 									},
 
 									"labels": {
@@ -162,6 +174,7 @@ func resourceComputeInstance() *schema.Resource {
 										AtLeastOneOf: initializeParamsKeys,
 										Computed:     true,
 										ForceNew:     true,
+										Description:  `A set of key/value label pairs assigned to the disk.`,
 									},
 								},
 							},
@@ -174,6 +187,7 @@ func resourceComputeInstance() *schema.Resource {
 							ForceNew:     true,
 							Default:      "READ_WRITE",
 							ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, false),
+							Description:  `Read/write mode for the disk. One of "READ_ONLY" or "READ_WRITE".`,
 						},
 
 						"source": {
@@ -184,26 +198,30 @@ func resourceComputeInstance() *schema.Resource {
 							ForceNew:         true,
 							ConflictsWith:    []string{"boot_disk.initialize_params"},
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The name or self_link of the disk attached to this instance.`,
 						},
 					},
 				},
 			},
 
 			"machine_type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The machine type to create.`,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the instance. One of name or self_link must be provided.`,
 			},
 
 			"network_interface": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The networks attached to the instance.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network": {
@@ -212,6 +230,7 @@ func resourceComputeInstance() *schema.Resource {
 							Computed:         true,
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The name or self_link of the network attached to this interface.`,
 						},
 
 						"subnetwork": {
@@ -220,36 +239,42 @@ func resourceComputeInstance() *schema.Resource {
 							Computed:         true,
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The name or self_link of the subnetwork attached to this interface.`,
 						},
 
 						"subnetwork_project": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-						},
-
-						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: `The project in which the subnetwork belongs.`,
 						},
 
 						"network_ip": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `The private IP address assigned to the instance.`,
+						},
+
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the interface`,
 						},
 
 						"access_config": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Access configurations, i.e. IPs via which this instance can be accessed via the Internet.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"nat_ip": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: `The IP address that is be 1:1 mapped to the instance's network ip.`,
 									},
 
 									"network_tier": {
@@ -257,29 +282,34 @@ func resourceComputeInstance() *schema.Resource {
 										Optional:     true,
 										Computed:     true,
 										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
+										Description:  `The networking tier used for configuring this instance. One of PREMIUM or STANDARD.`,
 									},
 
 									"public_ptr_domain_name": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The DNS domain name for the public PTR record.`,
 									},
 								},
 							},
 						},
 
 						"alias_ip_range": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `An array of alias IP ranges for this network interface.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"ip_cidr_range": {
 										Type:             schema.TypeString,
 										Required:         true,
 										DiffSuppressFunc: ipCidrRangeDiffSuppress,
+										Description:      `The IP CIDR range represented by this alias IP range.`,
 									},
 									"subnetwork_range_name": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The subnetwork secondary range name specifying the secondary range from which to allocate the IP CIDR range for this alias IP range.`,
 									},
 								},
 							},
@@ -289,25 +319,29 @@ func resourceComputeInstance() *schema.Resource {
 			},
 
 			"allow_stopping_for_update": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If true, allows Terraform to stop the instance to update its properties. If you try to update a property that requires stopping the instance without setting this field, the update will fail.`,
 			},
 
 			"attached_disk": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `List of disks attached to the instance`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"source": {
 							Type:             schema.TypeString,
 							Required:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The name or self_link of the disk attached to this instance.`,
 						},
 
 						"device_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `Name with which the attached disk is accessible under /dev/disk/by-id/`,
 						},
 
 						"mode": {
@@ -315,12 +349,14 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:     true,
 							Default:      "READ_WRITE",
 							ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, false),
+							Description:  `Read/write mode for the disk. One of "READ_ONLY" or "READ_WRITE".`,
 						},
 
 						"disk_encryption_key_raw": {
-							Type:      schema.TypeString,
-							Optional:  true,
-							Sensitive: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Sensitive:   true,
+							Description: `A 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to encrypt this disk. Only one of kms_key_self_link and disk_encryption_key_raw may be set.`,
 						},
 
 						"kms_key_self_link": {
@@ -328,106 +364,126 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:         true,
 							DiffSuppressFunc: compareSelfLinkRelativePaths,
 							Computed:         true,
+							Description:      `The self_link of the encryption key that is stored in Google Cloud KMS to encrypt this disk. Only one of kms_key_self_link and disk_encryption_key_raw may be set.`,
 						},
 
 						"disk_encryption_key_sha256": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key that protects this resource.`,
 						},
 					},
 				},
 			},
 
 			"can_ip_forward": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-				ForceNew: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				ForceNew:    true,
+				Description: `Whether sending and receiving of packets with non-matching source or destination IPs is allowed.`,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `A brief description of the resource.`,
 			},
 
 			"deletion_protection": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `Whether deletion protection is enabled on this instance.`,
 			},
 
 			"enable_display": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether the instance has virtual displays enabled.`,
 			},
 
 			"guest_accelerator": {
-				Type:       schema.TypeList,
-				Optional:   true,
-				Computed:   true,
-				ForceNew:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				ConfigMode:  schema.SchemaConfigModeAttr,
+				Description: `List of the type and count of accelerator cards attached to the instance.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"count": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The number of the guest accelerator cards exposed to this instance.`,
 						},
 						"type": {
 							Type:             schema.TypeString,
 							Required:         true,
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The accelerator type resource exposed to this instance. E.g. nvidia-tesla-k80.`,
 						},
 					},
 				},
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A set of key/value label pairs assigned to the instance.`,
 			},
 
 			"metadata": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `Metadata key/value pairs made available within the instance.`,
 			},
 
 			"metadata_startup_script": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Metadata startup scripts made available within the instance.`,
 			},
 
 			"min_cpu_platform": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The minimum CPU platform specified for the VM instance.`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If self_link is provided, this value is ignored. If neither self_link nor project are provided, the provider project is used.`,
 			},
 
 			"scheduling": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: `The scheduling strategy being used by the instance.`,
 				Elem: &schema.Resource{
+					// !!! IMPORTANT !!!
+					// We have a custom diff function for the scheduling block due to issues with Terraform's
+					// diff on schema.Set. If changes are made to this block, they must be reflected in that
+					// method. See schedulingHasChange in compute_instance_helpers.go
 					Schema: map[string]*schema.Schema{
 						"on_host_maintenance": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Computed:     true,
 							AtLeastOneOf: schedulingKeys,
+							Description:  `Describes maintenance behavior for the instance. One of MIGRATE or TERMINATE,`,
 						},
 
 						"automatic_restart": {
@@ -435,6 +491,7 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:     true,
 							AtLeastOneOf: schedulingKeys,
 							Default:      true,
+							Description:  `Specifies if the instance should be restarted if it was terminated by Compute Engine (not a user).`,
 						},
 
 						"preemptible": {
@@ -443,6 +500,7 @@ func resourceComputeInstance() *schema.Resource {
 							Default:      false,
 							AtLeastOneOf: schedulingKeys,
 							ForceNew:     true,
+							Description:  `Whether the instance is preemptible.`,
 						},
 
 						"node_affinities": {
@@ -452,41 +510,47 @@ func resourceComputeInstance() *schema.Resource {
 							ForceNew:         true,
 							Elem:             instanceSchedulingNodeAffinitiesElemSchema(),
 							DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
+							Description:      `Specifies node affinities or anti-affinities to determine which sole-tenant nodes your instances and managed instance groups will use as host systems.`,
 						},
 					},
 				},
 			},
 
 			"scratch_disk": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The scratch disks attached to the instance.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"interface": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"SCSI", "NVME"}, false),
+							Description:  `The disk interface used for attaching this disk. One of SCSI or NVME.`,
 						},
 					},
 				},
 			},
 
 			"service_account": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Description: `The service account to attach to the instance.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"email": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `The service account e-mail address.`,
 						},
 
 						"scopes": {
-							Type:     schema.TypeSet,
-							Required: true,
+							Type:        schema.TypeSet,
+							Required:    true,
+							Description: `A list of service scopes.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 								StateFunc: func(v interface{}) string {
@@ -507,6 +571,7 @@ func resourceComputeInstance() *schema.Resource {
 				// image being used, the field needs to be marked as Computed.
 				Computed:         true,
 				DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
+				Description:      `The shielded vm config being used by the instance.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enable_secure_boot": {
@@ -514,6 +579,7 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:     true,
 							AtLeastOneOf: shieldedInstanceConfigKeys,
 							Default:      false,
+							Description:  `Whether secure boot is enabled for the instance.`,
 						},
 
 						"enable_vtpm": {
@@ -521,6 +587,7 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:     true,
 							AtLeastOneOf: shieldedInstanceConfigKeys,
 							Default:      true,
+							Description:  `Whether the instance uses vTPM.`,
 						},
 
 						"enable_integrity_monitoring": {
@@ -528,59 +595,89 @@ func resourceComputeInstance() *schema.Resource {
 							Optional:     true,
 							AtLeastOneOf: shieldedInstanceConfigKeys,
 							Default:      true,
+							Description:  `Whether integrity monitoring is enabled for the instance.`,
 						},
 					},
 				},
 			},
-
+			"desired_status": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"RUNNING", "TERMINATED"}, false),
+				Description:  `Desired status of the instance. Either "RUNNING" or "TERMINATED".`,
+			},
+			"current_status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Current status of the instance.`,
+			},
 			"tags": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: `The list of tags attached to the instance.`,
 			},
 
 			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The zone of the instance. If self_link is provided, this value is ignored. If neither self_link nor zone are provided, the provider zone is used.`,
 			},
 
 			"cpu_platform": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The CPU platform used by this instance.`,
 			},
 
 			"instance_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The server-assigned unique identifier of this instance.`,
 			},
 
 			"label_fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique fingerprint of the labels.`,
 			},
 
 			"metadata_fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique fingerprint of the metadata.`,
 			},
 
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The URI of the created resource.`,
 			},
 
 			"tags_fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique fingerprint of the tags.`,
 			},
 
 			"hostname": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `A custom hostname for the instance. Must be a fully qualified DNS name and RFC-1035-valid. Valid format is a series of labels 1-63 characters long matching the regular expression [a-z]([-a-z0-9]*[a-z0-9]), concatenated with periods. The entire hostname must not exceed 253 characters. Changing this forces a new resource to be created.`,
+			},
+
+			"resource_policies": {
+				Type:             schema.TypeList,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				Optional:         true,
+				ForceNew:         true,
+				MaxItems:         1,
+				Description:      `A list of short names or self_links of resource policies to attach to the instance. Modifying this list will cause the instance to recreate. Currently a max of 1 resource policy is supported.`,
 			},
 		},
 		CustomizeDiff: customdiff.All(
@@ -590,6 +687,7 @@ func resourceComputeInstance() *schema.Resource {
 				},
 				suppressEmptyGuestAcceleratorDiff,
 			),
+			desiredStatusDiff,
 		),
 	}
 }
@@ -690,25 +788,79 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 
 	// Create the instance information
 	return &computeBeta.Instance{
-		CanIpForward:       d.Get("can_ip_forward").(bool),
-		Description:        d.Get("description").(string),
-		Disks:              disks,
-		MachineType:        machineTypeUrl,
-		Metadata:           metadata,
-		Name:               d.Get("name").(string),
-		NetworkInterfaces:  networkInterfaces,
-		Tags:               resourceInstanceTags(d),
-		Labels:             expandLabels(d),
-		ServiceAccounts:    expandServiceAccounts(d.Get("service_account").([]interface{})),
-		GuestAccelerators:  accels,
-		MinCpuPlatform:     d.Get("min_cpu_platform").(string),
-		Scheduling:         scheduling,
-		DeletionProtection: d.Get("deletion_protection").(bool),
-		Hostname:           d.Get("hostname").(string),
-		ForceSendFields:    []string{"CanIpForward", "DeletionProtection"},
-		ShieldedVmConfig:   expandShieldedVmConfigs(d),
-		DisplayDevice:      expandDisplayDevice(d),
+		CanIpForward:           d.Get("can_ip_forward").(bool),
+		Description:            d.Get("description").(string),
+		Disks:                  disks,
+		MachineType:            machineTypeUrl,
+		Metadata:               metadata,
+		Name:                   d.Get("name").(string),
+		NetworkInterfaces:      networkInterfaces,
+		Tags:                   resourceInstanceTags(d),
+		Labels:                 expandLabels(d),
+		ServiceAccounts:        expandServiceAccounts(d.Get("service_account").([]interface{})),
+		GuestAccelerators:      accels,
+		MinCpuPlatform:         d.Get("min_cpu_platform").(string),
+		Scheduling:             scheduling,
+		DeletionProtection:     d.Get("deletion_protection").(bool),
+		Hostname:               d.Get("hostname").(string),
+		ForceSendFields:        []string{"CanIpForward", "DeletionProtection"},
+		ShieldedInstanceConfig: expandShieldedVmConfigs(d),
+		DisplayDevice:          expandDisplayDevice(d),
+		ResourcePolicies:       convertStringArr(d.Get("resource_policies").([]interface{})),
 	}, nil
+}
+
+var computeInstanceStatus = []string{
+	"PROVISIONING",
+	"REPAIRING",
+	"RUNNING",
+	"STAGING",
+	"STOPPED",
+	"STOPPING",
+	"SUSPENDED",
+	"SUSPENDING",
+	"TERMINATED",
+}
+
+// return all possible Compute instances status except the one passed as parameter
+func getAllStatusBut(status string) []string {
+	for i, s := range computeInstanceStatus {
+		if status == s {
+			return append(computeInstanceStatus[:i], computeInstanceStatus[i+1:]...)
+		}
+	}
+	return computeInstanceStatus
+}
+
+func waitUntilInstanceHasDesiredStatus(config *Config, d *schema.ResourceData) error {
+	desiredStatus := d.Get("desired_status").(string)
+
+	if desiredStatus != "" {
+		stateRefreshFunc := func() (interface{}, string, error) {
+			instance, err := getInstance(config, d)
+			if err != nil || instance == nil {
+				log.Printf("Error on InstanceStateRefresh: %s", err)
+				return nil, "", err
+			}
+			return instance.Id, instance.Status, nil
+		}
+		stateChangeConf := resource.StateChangeConf{
+			Delay:      5 * time.Second,
+			Pending:    getAllStatusBut(desiredStatus),
+			Refresh:    stateRefreshFunc,
+			Target:     []string{desiredStatus},
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			MinTimeout: 2 * time.Second,
+		}
+		_, err := stateChangeConf.WaitForState()
+
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for instance to reach desired status %s: %s", desiredStatus, err)
+		}
+	}
+
+	return nil
 }
 
 func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) error {
@@ -736,9 +888,6 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	// Read create timeout
-	createTimeout := int(d.Timeout(schema.TimeoutCreate).Minutes())
-
 	log.Printf("[INFO] Requesting instance creation")
 	op, err := config.clientComputeBeta.Instances.Insert(project, zone.Name, instance).Do()
 	if err != nil {
@@ -749,11 +898,16 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, z, instance.Name))
 
 	// Wait for the operation to complete
-	waitErr := computeOperationWaitTime(config, op, project, "instance to create", createTimeout)
+	waitErr := computeOperationWaitTime(config, op, project, "instance to create", d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")
 		return waitErr
+	}
+
+	err = waitUntilInstanceHasDesiredStatus(config, d)
+	if err != nil {
+		return fmt.Errorf("Error waiting for status: %s", err)
 	}
 
 	return resourceComputeInstanceRead(d, meta)
@@ -913,6 +1067,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			}
 		}
 	}
+
+	d.Set("resource_policies", instance.ResourcePolicies)
+
 	// Remove nils from map in case there were disks in the config that were not present on read;
 	// i.e. a disk was detached out of band
 	ads := []map[string]interface{}{}
@@ -929,7 +1086,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("scratch_disk", scratchDisks)
 	d.Set("scheduling", flattenScheduling(instance.Scheduling))
 	d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators))
-	d.Set("shielded_instance_config", flattenShieldedVmConfig(instance.ShieldedVmConfig))
+	d.Set("shielded_instance_config", flattenShieldedVmConfig(instance.ShieldedInstanceConfig))
 	d.Set("enable_display", flattenEnableDisplay(instance.DisplayDevice))
 	d.Set("cpu_platform", instance.CpuPlatform)
 	d.Set("min_cpu_platform", instance.MinCpuPlatform)
@@ -941,6 +1098,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("name", instance.Name)
 	d.Set("description", instance.Description)
 	d.Set("hostname", instance.Hostname)
+	d.Set("current_status", instance.Status)
+	if d.Get("desired_status") != "" {
+		d.Set("desired_status", instance.Status)
+	}
+
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
 
 	return nil
@@ -997,7 +1159,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return fmt.Errorf("Error updating metadata: %s", err)
 				}
 
-				opErr := computeOperationWaitTime(config, op, project, "metadata to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				opErr := computeOperationWaitTime(config, op, project, "metadata to update", d.Timeout(schema.TimeoutUpdate))
 				if opErr != nil {
 					return opErr
 				}
@@ -1025,7 +1187,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating tags: %s", err)
 		}
 
-		opErr := computeOperationWaitTime(config, op, project, "tags to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		opErr := computeOperationWaitTime(config, op, project, "tags to update", d.Timeout(schema.TimeoutUpdate))
 		if opErr != nil {
 			return opErr
 		}
@@ -1043,7 +1205,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating labels: %s", err)
 		}
 
-		opErr := computeOperationWaitTime(config, op, project, "labels to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		opErr := computeOperationWaitTime(config, op, project, "labels to update", d.Timeout(schema.TimeoutUpdate))
 		if opErr != nil {
 			return opErr
 		}
@@ -1051,7 +1213,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		d.SetPartial("labels")
 	}
 
-	if d.HasChange("scheduling") {
+	if schedulingHasChange(d) {
 		scheduling, err := expandScheduling(d.Get("scheduling"))
 		if err != nil {
 			return fmt.Errorf("Error creating request data to update scheduling: %s", err)
@@ -1065,7 +1227,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		opErr := computeOperationWaitTime(
 			config, op, project, "scheduling policy update",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			d.Timeout(schema.TimeoutUpdate))
 		if opErr != nil {
 			return opErr
 		}
@@ -1103,7 +1265,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return fmt.Errorf("Error deleting old access_config: %s", err)
 				}
-				opErr := computeOperationWaitTime(config, op, project, "old access_config to delete", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				opErr := computeOperationWaitTime(config, op, project, "old access_config to delete", d.Timeout(schema.TimeoutUpdate))
 				if opErr != nil {
 					return opErr
 				}
@@ -1128,7 +1290,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return fmt.Errorf("Error adding new access_config: %s", err)
 				}
-				opErr := computeOperationWaitTime(config, op, project, "new access_config to add", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				opErr := computeOperationWaitTime(config, op, project, "new access_config to add", d.Timeout(schema.TimeoutUpdate))
 				if opErr != nil {
 					return opErr
 				}
@@ -1148,7 +1310,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return errwrap.Wrapf("Error removing alias_ip_range: {{err}}", err)
 				}
-				opErr := computeOperationWaitTime(config, op, project, "updating alias ip ranges", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				opErr := computeOperationWaitTime(config, op, project, "updating alias ip ranges", d.Timeout(schema.TimeoutUpdate))
 				if opErr != nil {
 					return opErr
 				}
@@ -1172,7 +1334,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return errwrap.Wrapf("Error adding alias_ip_range: {{err}}", err)
 				}
-				opErr := computeOperationWaitTime(config, op, project, "updating alias ip ranges", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				opErr := computeOperationWaitTime(config, op, project, "updating alias ip ranges", d.Timeout(schema.TimeoutUpdate))
 				if opErr != nil {
 					return opErr
 				}
@@ -1250,7 +1412,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return errwrap.Wrapf("Error detaching disk: %s", err)
 				}
 
-				opErr := computeOperationWaitTime(config, op, project, "detaching disk", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+				opErr := computeOperationWaitTime(config, op, project, "detaching disk", d.Timeout(schema.TimeoutUpdate))
 				if opErr != nil {
 					return opErr
 				}
@@ -1265,7 +1427,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return errwrap.Wrapf("Error attaching disk : {{err}}", err)
 			}
 
-			opErr := computeOperationWaitTime(config, op, project, "attaching disk", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			opErr := computeOperationWaitTime(config, op, project, "attaching disk", d.Timeout(schema.TimeoutUpdate))
 			if opErr != nil {
 				return opErr
 			}
@@ -1299,7 +1461,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating deletion protection flag: %s", err)
 		}
 
-		opErr := computeOperationWaitTime(config, op, project, "deletion protection to update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		opErr := computeOperationWaitTime(config, op, project, "deletion protection to update", d.Timeout(schema.TimeoutUpdate))
 		if opErr != nil {
 			return opErr
 		}
@@ -1307,20 +1469,56 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		d.SetPartial("deletion_protection")
 	}
 
-	// Attributes which can only be changed if the instance is stopped
-	if scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") {
-		if !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on an instance requires stopping it. " +
-				"To acknowledge this, please set allow_stopping_for_update = true in your config.")
+	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display")
+
+	if d.HasChange("desired_status") && !needToStopInstanceBeforeUpdating {
+		desiredStatus := d.Get("desired_status").(string)
+
+		if desiredStatus != "" {
+			var op *compute.Operation
+
+			if desiredStatus == "RUNNING" {
+				op, err = startInstanceOperation(d, config)
+				if err != nil {
+					return errwrap.Wrapf("Error starting instance: {{err}}", err)
+				}
+			} else if desiredStatus == "TERMINATED" {
+				op, err = config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+				if err != nil {
+					return err
+				}
+			}
+			opErr := computeOperationWaitTime(
+				config, op, project, "updating status",
+				d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
 		}
-		op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
-		if err != nil {
-			return errwrap.Wrapf("Error stopping instance: {{err}}", err)
+		d.SetPartial("desired_status")
+	}
+
+	// Attributes which can only be changed if the instance is stopped
+	if needToStopInstanceBeforeUpdating {
+		statusBeforeUpdate := instance.Status
+		desiredStatus := d.Get("desired_status").(string)
+
+		if statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED" && !d.Get("allow_stopping_for_update").(bool) {
+			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on a started instance requires stopping it. " +
+				"To acknowledge this, please set allow_stopping_for_update = true in your config. " +
+				"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update.")
 		}
 
-		opErr := computeOperationWaitTime(config, op, project, "stopping instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if opErr != nil {
-			return opErr
+		if statusBeforeUpdate != "TERMINATED" {
+			op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+			if err != nil {
+				return errwrap.Wrapf("Error stopping instance: {{err}}", err)
+			}
+
+			opErr := computeOperationWaitTime(config, op, project, "stopping instance", d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
 		}
 
 		if d.HasChange("machine_type") {
@@ -1331,11 +1529,11 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			req := &compute.InstancesSetMachineTypeRequest{
 				MachineType: mt.RelativeLink(),
 			}
-			op, err = config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
-			opErr := computeOperationWaitTime(config, op, project, "updating machinetype", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			opErr := computeOperationWaitTime(config, op, project, "updating machinetype", d.Timeout(schema.TimeoutUpdate))
 			if opErr != nil {
 				return opErr
 			}
@@ -1353,11 +1551,11 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			req := &compute.InstancesSetMinCpuPlatformRequest{
 				MinCpuPlatform: minCpuPlatform.(string),
 			}
-			op, err = config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
-			opErr := computeOperationWaitTime(config, op, project, "updating min cpu platform", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			opErr := computeOperationWaitTime(config, op, project, "updating min cpu platform", d.Timeout(schema.TimeoutUpdate))
 			if opErr != nil {
 				return opErr
 			}
@@ -1372,11 +1570,11 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				req.Email = saMap["email"].(string)
 				req.Scopes = canonicalizeServiceScopes(convertStringSet(saMap["scopes"].(*schema.Set)))
 			}
-			op, err = config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
-			opErr := computeOperationWaitTime(config, op, project, "updating service account", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			opErr := computeOperationWaitTime(config, op, project, "updating service account", d.Timeout(schema.TimeoutUpdate))
 			if opErr != nil {
 				return opErr
 			}
@@ -1388,39 +1586,42 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				EnableDisplay:   d.Get("enable_display").(bool),
 				ForceSendFields: []string{"EnableDisplay"},
 			}
-			op, err = config.clientCompute.Instances.UpdateDisplayDevice(project, zone, instance.Name, req).Do()
+			op, err := config.clientCompute.Instances.UpdateDisplayDevice(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return fmt.Errorf("Error updating display device: %s", err)
 			}
-			opErr := computeOperationWaitTime(config, op, project, "updating display device", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			opErr := computeOperationWaitTime(config, op, project, "updating display device", d.Timeout(schema.TimeoutUpdate))
 			if opErr != nil {
 				return opErr
 			}
 			d.SetPartial("enable_display")
 		}
 
-		op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
-		if err != nil {
-			return errwrap.Wrapf("Error starting instance: {{err}}", err)
-		}
+		if (statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED") ||
+			(statusBeforeUpdate == "TERMINATED" && desiredStatus == "RUNNING") {
+			op, err := startInstanceOperation(d, config)
+			if err != nil {
+				return errwrap.Wrapf("Error starting instance: {{err}}", err)
+			}
 
-		opErr = computeOperationWaitTime(config, op, project,
-			"starting instance", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-		if opErr != nil {
-			return opErr
+			opErr := computeOperationWaitTime(config, op, project,
+				"starting instance", d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
 		}
 	}
 
 	if d.HasChange("shielded_instance_config") {
 		shieldedVmConfig := expandShieldedVmConfigs(d)
 
-		op, err := config.clientComputeBeta.Instances.UpdateShieldedVmConfig(project, zone, instance.Name, shieldedVmConfig).Do()
+		op, err := config.clientComputeBeta.Instances.UpdateShieldedInstanceConfig(project, zone, instance.Name, shieldedVmConfig).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating shielded vm config: %s", err)
 		}
 
 		opErr := computeOperationWaitTime(config, op, project,
-			"shielded vm config update", int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			"shielded vm config update", d.Timeout(schema.TimeoutUpdate))
 		if opErr != nil {
 			return opErr
 		}
@@ -1432,6 +1633,51 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	d.Partial(false)
 
 	return resourceComputeInstanceRead(d, meta)
+}
+
+func startInstanceOperation(d *schema.ResourceData, config *Config) (*compute.Operation, error) {
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	zone, err := getZone(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	// Use beta api directly in order to read network_interface.fingerprint without having to put it in the schema.
+	// Change back to getInstance(config, d) once updating alias ips is GA.
+	instance, err := config.clientComputeBeta.Instances.Get(project, zone, d.Get("name").(string)).Do()
+	if err != nil {
+		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", instance.Name))
+	}
+
+	// Retrieve instance from config to pull encryption keys if necessary
+	instanceFromConfig, err := expandComputeInstance(project, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	var encrypted []*compute.CustomerEncryptionKeyProtectedDisk
+	for _, disk := range instanceFromConfig.Disks {
+		if disk.DiskEncryptionKey != nil {
+			key := compute.CustomerEncryptionKey{RawKey: disk.DiskEncryptionKey.RawKey, KmsKeyName: disk.DiskEncryptionKey.KmsKeyName}
+			eDisk := compute.CustomerEncryptionKeyProtectedDisk{Source: disk.Source, DiskEncryptionKey: &key}
+			encrypted = append(encrypted, &eDisk)
+		}
+	}
+
+	var op *compute.Operation
+
+	if len(encrypted) > 0 {
+		request := compute.InstancesStartWithEncryptionKeyRequest{Disks: encrypted}
+		op, err = config.clientCompute.Instances.StartWithEncryptionKey(project, zone, instance.Name, &request).Do()
+	} else {
+		op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+	}
+
+	return op, err
 }
 
 func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*computeBeta.AttachedDisk, error) {
@@ -1557,6 +1803,25 @@ func suppressEmptyGuestAcceleratorDiff(d *schema.ResourceDiff, meta interface{})
 	return nil
 }
 
+// return an error if the desired_status field is set to a value other than RUNNING on Create.
+func desiredStatusDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	// when creating an instance, name is not set
+	oldName, _ := diff.GetChange("name")
+
+	if oldName == nil || oldName == "" {
+		_, newDesiredStatus := diff.GetChange("desired_status")
+
+		if newDesiredStatus == nil || newDesiredStatus == "" {
+			return nil
+		} else if newDesiredStatus != "RUNNING" {
+			return fmt.Errorf("When creating an instance, desired_status can only accept RUNNING value")
+		}
+		return nil
+	}
+
+	return nil
+}
+
 func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -1580,7 +1845,7 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		}
 
 		// Wait for the operation to complete
-		opErr := computeOperationWaitTime(config, op, project, "instance to delete", int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		opErr := computeOperationWaitTime(config, op, project, "instance to delete", d.Timeout(schema.TimeoutDelete))
 		if opErr != nil {
 			return opErr
 		}
@@ -1591,16 +1856,21 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "/")
-
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid import id %q. Expecting {project}/{zone}/{instance_name}", d.Id())
+	config := meta.(*Config)
+	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
+		"(?P<name>[^/]+)",
+	}, d, config); err != nil {
+		return nil, err
 	}
 
-	d.Set("project", parts[0])
-	d.Set("zone", parts[1])
-	d.Set("name", parts[2])
-	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", parts[0], parts[1], parts[2]))
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instances/{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
 }

@@ -48,7 +48,7 @@ resource "google_compute_instance_from_template" "tpl" {
   name = "instance-from-template"
   zone = "us-central1-a"
 
-  source_instance_template = google_compute_instance_template.tpl.self_link
+  source_instance_template = google_compute_instance_template.tpl.id
 
   // Override fields from instance template
   can_ip_forward = false
@@ -79,6 +79,7 @@ from `google_compute_instance` are likewise exported here.
 
 To support removal of Optional/Computed fields in Terraform 0.12 the following fields
 are marked [Attributes as Blocks](/docs/configuration/attr-as-blocks.html):
+
 * `attached_disk`
 * `guest_accelerator`
 * `service_account`

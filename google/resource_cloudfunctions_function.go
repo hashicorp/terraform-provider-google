@@ -1,6 +1,8 @@
 package google
 
 import (
+	"regexp"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/api/cloudfunctions/v1"
@@ -8,7 +10,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -29,6 +30,18 @@ var functionAllowedMemory = map[int]bool{
 
 const functionDefaultAllowedMemoryMb = 256
 
+var allowedIngressSettings = []string{
+	"ALLOW_ALL",
+	"ALLOW_INTERNAL_ONLY",
+}
+
+var allowedVpcConnectorEgressSettings = []string{
+	"ALL_TRAFFIC",
+	"PRIVATE_RANGES_ONLY",
+}
+
+const functionDefaultIngressSettings = "ALLOW_ALL"
+
 type cloudFunctionId struct {
 	Project string
 	Region  string
@@ -37,6 +50,23 @@ type cloudFunctionId struct {
 
 func (s *cloudFunctionId) cloudFunctionId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/functions/%s", s.Project, s.Region, s.Name)
+}
+
+// matches all international lower case letters, number, underscores and dashes.
+var labelKeyRegex = regexp.MustCompile(`^[\p{Ll}0-9_-]+$`)
+
+func labelKeyValidator(val interface{}, key string) (warns []string, errs []error) {
+	if val == nil {
+		return
+	}
+
+	m := val.(map[string]interface{})
+	for k := range m {
+		if !labelKeyRegex.MatchString(k) {
+			errs = append(errs, fmt.Errorf("%q is an invalid label key. See https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements", k))
+		}
+	}
+	return
 }
 
 func (s *cloudFunctionId) locationId() string {
@@ -66,26 +96,11 @@ func joinMapKeys(mapToJoin *map[int]bool) string {
 	return strings.Join(keys, ",")
 }
 
+// Differs from validateGcpName because Cloud Functions allow capital letters
+// at start/end
 func validateResourceCloudFunctionsFunctionName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-
-	if len(value) > 48 {
-		errors = append(errors, fmt.Errorf(
-			"%q cannot be longer than 48 characters", k))
-	}
-	if !regexp.MustCompile("^[a-zA-Z0-9-_]+$").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q can only contain letters, numbers, underscores and hyphens", k))
-	}
-	if !regexp.MustCompile("^[a-zA-Z]").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q must start with a letter", k))
-	}
-	if !regexp.MustCompile("[a-zA-Z0-9]$").MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q must end with a number or a letter", k))
-	}
-	return
+	re := `^(?:[a-zA-Z](?:[-_a-zA-Z0-9]{0,61}[a-zA-Z0-9])?)$`
+	return validateRegexp(re)(v, k)
 }
 
 // based on compareSelfLinkOrResourceName, but less reusable and allows multi-/
@@ -117,47 +132,55 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
+				Description:  `A user-defined name of the function. Function names must be unique globally.`,
 				ValidateFunc: validateResourceCloudFunctionsFunctionName,
 			},
 
 			"source_archive_bucket": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The GCS bucket containing the zip archive which contains the function.`,
 			},
 
 			"source_archive_object": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The source archive object (file) in archive bucket.`,
 			},
 
 			"source_repository": {
 				Type:          schema.TypeList,
 				Optional:      true,
 				MaxItems:      1,
+				Description:   `Represents parameters related to source repository where a function is hosted. Cannot be set alongside source_archive_bucket or source_archive_object.`,
 				ConflictsWith: []string{"source_archive_bucket", "source_archive_object"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"url": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The URL pointing to the hosted repository where the function is defined.`,
 						},
 						"deployed_url": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The URL pointing to the hosted repository where the function was defined at the time of deployment.`,
 						},
 					},
 				},
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Description of the function.`,
 			},
 
 			"available_memory_mb": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  functionDefaultAllowedMemoryMb,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     functionDefaultAllowedMemoryMb,
+				Description: `Memory (in MB), available to the function. Default value is 256MB. Allowed values are: 128MB, 256MB, 512MB, 1024MB, and 2048MB.`,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					availableMemoryMB := v.(int)
 
@@ -174,46 +197,71 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Optional:     true,
 				Default:      functionDefaultTimeout,
 				ValidateFunc: validation.IntBetween(functionTimeOutMin, functionTimeOutMax),
+				Description:  `Timeout (in seconds) for the function. Default value is 60 seconds. Cannot be more than 540 seconds.`,
 			},
 
 			"entry_point": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Name of the function that will be executed when the Google Cloud Function is triggered.`,
+			},
+
+			"ingress_settings": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      functionDefaultIngressSettings,
+				ValidateFunc: validation.StringInSlice(allowedIngressSettings, true),
+				Description:  `String value that controls what traffic can reach the function. Allowed values are ALLOW_ALL and ALLOW_INTERNAL_ONLY. Changes to this field will recreate the cloud function.`,
+			},
+
+			"vpc_connector_egress_settings": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice(allowedVpcConnectorEgressSettings, true),
+				Description:  `The egress settings for the connector, controlling what traffic is diverted through it. Allowed values are ALL_TRAFFIC and PRIVATE_RANGES_ONLY. Defaults to PRIVATE_RANGES_ONLY. If unset, this field preserves the previously set value.`,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:         schema.TypeMap,
+				ValidateFunc: labelKeyValidator,
+				Optional:     true,
+				Description:  `A set of key/value label pairs to assign to the function. Label keys must follow the requirements at https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements.`,
 			},
 
 			"runtime": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The runtime in which the function is going to run. Eg. "nodejs8", "nodejs10", "python37", "go111".`,
 			},
 
 			"service_account_email": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: ` If provided, the self-provided service account to run the function with.`,
 			},
 
 			"vpc_connector": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `The VPC Network Connector that this cloud function can connect to. It can be either the fully-qualified URI, or the short name of the network connector resource. The format of this field is projects/*/locations/*/connectors/*.`,
 			},
 
 			"environment_variables": {
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `A set of key/value environment variable pairs to assign to the function.`,
 			},
 
 			"trigger_http": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as https_trigger_url. Cannot be used with trigger_bucket and trigger_topic.`,
 			},
 
 			"event_trigger": {
@@ -222,29 +270,34 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Computed:      true,
 				ConflictsWith: []string{"trigger_http"},
 				MaxItems:      1,
+				Description:   `A source that fires events in response to a condition in another service. Cannot be used with trigger_http.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"event_type": {
-							Type:     schema.TypeString,
-							ForceNew: true,
-							Required: true,
+							Type:        schema.TypeString,
+							ForceNew:    true,
+							Required:    true,
+							Description: `The type of event to observe. For example: "google.storage.object.finalize". See the documentation on calling Cloud Functions for a full reference of accepted triggers.`,
 						},
 						"resource": {
 							Type:             schema.TypeString,
 							Required:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceNameWithMultipleParts,
+							Description:      `The name or partial URI of the resource from which to observe events. For example, "myBucket" or "projects/my-project/topics/my-topic"`,
 						},
 						"failure_policy": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							MaxItems:    1,
+							Description: `Specifies policy for failed executions`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"retry": {
 										Type: schema.TypeBool,
 										// not strictly required, but this way an empty block can't be specified
-										Required: true,
+										Required:    true,
+										Description: `Whether the function should be retried on failure. Defaults to false.`,
 									},
 								}},
 						},
@@ -253,9 +306,10 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"https_trigger_url": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `URL which triggers function execution. Returned only if trigger_http is used.`,
 			},
 
 			"max_instances": {
@@ -263,20 +317,23 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Optional:     true,
 				Default:      0,
 				ValidateFunc: validation.IntAtLeast(0),
+				Description:  `The limit on the maximum number of function instances that may coexist at a given time.`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Project of the function. If it is not provided, the provider project is used.`,
 			},
 
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Region of function. Currently can be only "us-central1". If it is not provided, the provider region is used.`,
 			},
 		},
 	}
@@ -346,6 +403,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 			"You must specify a trigger when deploying a new function.")
 	}
 
+	if v, ok := d.GetOk("ingress_settings"); ok {
+		function.IngressSettings = v.(string)
+	}
+
 	if _, ok := d.GetOk("labels"); ok {
 		function.Labels = expandLabels(d)
 	}
@@ -358,26 +419,36 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.VpcConnector = v.(string)
 	}
 
+	if v, ok := d.GetOk("vpc_connector_egress_settings"); ok {
+		function.VpcConnectorEgressSettings = v.(string)
+	}
+
 	if v, ok := d.GetOk("max_instances"); ok {
 		function.MaxInstances = int64(v.(int))
 	}
 
 	log.Printf("[DEBUG] Creating cloud function: %s", function.Name)
-	op, err := config.clientCloudFunctions.Projects.Locations.Functions.Create(
-		cloudFuncId.locationId(), function).Do()
-	if err != nil {
-		return err
+
+	// We retry the whole create-and-wait because Cloud Functions
+	// will sometimes fail a creation operation entirely if it fails to pull
+	// source code and we need to try the whole creation again.
+	rerr := retryTimeDuration(func() error {
+		op, err := config.clientCloudFunctions.Projects.Locations.Functions.Create(
+			cloudFuncId.locationId(), function).Do()
+		if err != nil {
+			return err
+		}
+
+		// Name of function should be unique
+		d.SetId(cloudFuncId.cloudFunctionId())
+
+		return cloudFunctionsOperationWait(config, op, "Creating CloudFunctions Function",
+			d.Timeout(schema.TimeoutCreate))
+	}, d.Timeout(schema.TimeoutCreate), isCloudFunctionsSourceCodeError)
+	if rerr != nil {
+		return rerr
 	}
-
-	// Name of function should be unique
-	d.SetId(cloudFuncId.cloudFunctionId())
-
-	err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Creating CloudFunctions Function",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-	if err != nil {
-		return err
-	}
-
+	log.Printf("[DEBUG] Finished creating cloud function: %s", function.Name)
 	return resourceCloudFunctionsRead(d, meta)
 }
 
@@ -404,11 +475,13 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 	d.Set("timeout", timeout)
+	d.Set("ingress_settings", function.IngressSettings)
 	d.Set("labels", function.Labels)
 	d.Set("runtime", function.Runtime)
 	d.Set("service_account_email", function.ServiceAccountEmail)
 	d.Set("environment_variables", function.EnvironmentVariables)
 	d.Set("vpc_connector", function.VpcConnector)
+	d.Set("vpc_connector_egress_settings", function.VpcConnectorEgressSettings)
 	if function.SourceArchiveUrl != "" {
 		// sourceArchiveUrl should always be a Google Cloud Storage URL (e.g. gs://bucket/object)
 		// https://cloud.google.com/functions/docs/reference/rest/v1/projects.locations.functions
@@ -485,6 +558,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMaskArr = append(updateMaskArr, "timeout")
 	}
 
+	if d.HasChange("ingress_settings") {
+		function.IngressSettings = d.Get("ingress_settings").(string)
+		updateMaskArr = append(updateMaskArr, "ingressSettings")
+	}
+
 	if d.HasChange("labels") {
 		function.Labels = expandLabels(d)
 		updateMaskArr = append(updateMaskArr, "labels")
@@ -498,6 +576,16 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("environment_variables") {
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
 		updateMaskArr = append(updateMaskArr, "environmentVariables")
+	}
+
+	if d.HasChange("vpc_connector") {
+		function.VpcConnector = d.Get("vpc_connector").(string)
+		updateMaskArr = append(updateMaskArr, "vpcConnector")
+	}
+
+	if d.HasChange("vpc_connector_egress_settings") {
+		function.VpcConnectorEgressSettings = d.Get("vpc_connector_egress_settings").(string)
+		updateMaskArr = append(updateMaskArr, "vpcConnectorEgressSettings")
 	}
 
 	if d.HasChange("event_trigger") {
@@ -520,8 +608,8 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("Error while updating cloudfunction configuration: %s", err)
 		}
 
-		err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Updating CloudFunctions Function",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		err = cloudFunctionsOperationWait(config, op, "Updating CloudFunctions Function",
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -543,8 +631,8 @@ func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	err = cloudFunctionsOperationWait(config.clientCloudFunctions, op, "Deleting CloudFunctions Function",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+	err = cloudFunctionsOperationWait(config, op, "Deleting CloudFunctions Function",
+		d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

@@ -1,0 +1,3 @@
+```release-note:enhancement
+accesscontextmanager: added `spec` and `use_explicit_dry_run_spec` to `google_access_context_manager_service_perimeter` to test perimeter configurations in dry-run mode.
+```

@@ -7,10 +7,9 @@ description: |-
   Allows management of a Google Cloud Platform service account Key Pair
 ---
 
-# google\_service\_account\_key
+# google_service_account_key
 
 Creates and manages service account key-pairs, which allow the user to establish identity of a service account outside of GCP. For more information, see [the official documentation](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and [API](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys).
-
 
 ## Example Usage, creating a new Key Pair
 
@@ -43,22 +42,8 @@ resource "kubernetes_secret" "google-application-credentials" {
     name = "google-application-credentials"
   }
   data = {
-    credentials.json = base64decode(google_service_account_key.mykey.private_key)
+    "credentials.json" = base64decode(google_service_account_key.mykey.private_key)
   }
-}
-```
-
-## Create new Key Pair, encrypting the private key with a PGP Key
-
-```hcl
-resource "google_service_account" "myaccount" {
-  account_id   = "myaccount"
-  display_name = "My Service Account"
-}
-
-resource "google_service_account_key" "mykey" {
-  service_account_id = google_service_account.myaccount.name
-  public_key_type    = "TYPE_X509_PEM_FILE"
 }
 ```
 
@@ -75,13 +60,17 @@ Valid values are listed at
 [ServiceAccountPrivateKeyType](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys#ServiceAccountKeyAlgorithm)
 (only used on create)
 
-* `public_key_type` (Optional) The output format of the public key requested. X509_PEM is the default output format.
+* `public_key_type` (Optional) The output format of the public key requested. TYPE_X509_PEM_FILE is the default output format.
 
 * `private_key_type` (Optional) The output format of the private key. TYPE_GOOGLE_CREDENTIALS_FILE is the default output format.
+
+* `public_key_data` (Optional) Public key data to create a service account key for given service account. The expected format for this field is a base64 encoded X509_PEM and it conflicts with `public_key_type` and `private_key_type`.
 
 ## Attributes Reference
 
 The following attributes are exported in addition to the arguments listed above:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/serviceAccounts/{{account}}/keys/{{key}}`
 
 * `name` - The name used for this key pair
 
@@ -94,4 +83,3 @@ service account keys through the CLI or web console. This is only populated when
 
 * `valid_before` - The key can be used before this timestamp.
 A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
-

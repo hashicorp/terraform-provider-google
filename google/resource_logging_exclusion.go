@@ -11,21 +11,25 @@ import (
 
 var LoggingExclusionBaseSchema = map[string]*schema.Schema{
 	"filter": {
-		Type:     schema.TypeString,
-		Required: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		Description: `The filter to apply when excluding logs. Only log entries that match the filter are excluded.`,
 	},
 	"name": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The name of the logging exclusion.`,
 	},
 	"description": {
-		Type:     schema.TypeString,
-		Optional: true,
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: `A human-readable description.`,
 	},
 	"disabled": {
-		Type:     schema.TypeBool,
-		Optional: true,
+		Type:        schema.TypeBool,
+		Optional:    true,
+		Description: `Whether this exclusion rule should be disabled or not. This defaults to false.`,
 	},
 }
 
@@ -55,7 +59,7 @@ func resourceLoggingExclusionCreate(newUpdaterFunc newResourceLoggingExclusionUp
 		id, exclusion := expandResourceLoggingExclusion(d, updater.GetResourceType(), updater.GetResourceId())
 
 		// Logging exclusions don't seem to be able to be mutated in parallel, see
-		// https://github.com/terraform-providers/terraform-provider-google/issues/4796
+		// https://github.com/hashicorp/terraform-provider-google/issues/4796
 		mutexKV.Lock(id.parent())
 		defer mutexKV.Unlock(id.parent())
 
@@ -106,7 +110,7 @@ func resourceLoggingExclusionUpdate(newUpdaterFunc newResourceLoggingExclusionUp
 		exclusion, updateMask := expandResourceLoggingExclusionForUpdate(d)
 
 		// Logging exclusions don't seem to be able to be mutated in parallel, see
-		// https://github.com/terraform-providers/terraform-provider-google/issues/4796
+		// https://github.com/hashicorp/terraform-provider-google/issues/4796
 		mutexKV.Lock(id.parent())
 		defer mutexKV.Unlock(id.parent())
 
@@ -129,7 +133,7 @@ func resourceLoggingExclusionDelete(newUpdaterFunc newResourceLoggingExclusionUp
 
 		id, _ := expandResourceLoggingExclusion(d, updater.GetResourceType(), updater.GetResourceId())
 		// Logging exclusions don't seem to be able to be mutated in parallel, see
-		// https://github.com/terraform-providers/terraform-provider-google/issues/4796
+		// https://github.com/hashicorp/terraform-provider-google/issues/4796
 		mutexKV.Lock(id.parent())
 		defer mutexKV.Unlock(id.parent())
 

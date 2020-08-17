@@ -1,0 +1,3 @@
+```release-note:bug
+dataflow: added retries in `google_dataflow_job` for common retryable API errors when waiting for job to update
+```

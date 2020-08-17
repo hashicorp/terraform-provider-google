@@ -74,12 +74,12 @@ resource "google_compute_subnetwork" "default" {
   name          = "my-subnet"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 
 resource "google_compute_address" "internal_with_subnet_and_address" {
   name         = "my-internal-address"
-  subnetwork   = google_compute_subnetwork.default.self_link
+  subnetwork   = google_compute_subnetwork.default.id
   address_type = "INTERNAL"
   address      = "10.0.42.42"
   region       = "us-central1"
@@ -165,8 +165,9 @@ The following arguments are supported:
 
 * `address_type` -
   (Optional)
-  The type of address to reserve, either INTERNAL or EXTERNAL.
-  If unspecified, defaults to EXTERNAL.
+  The type of address to reserve.
+  Default value is `EXTERNAL`.
+  Possible values are `INTERNAL` and `EXTERNAL`.
 
 * `description` -
   (Optional)
@@ -177,12 +178,13 @@ The following arguments are supported:
   The purpose of this resource, which can be one of the following values:
   - GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
   This should only be set when using an Internal address.
+  Possible values are `GCE_ENDPOINT`.
 
 * `network_tier` -
   (Optional)
-  The networking tier used for configuring this address. This field can
-  take the following values: PREMIUM or STANDARD. If this field is not
+  The networking tier used for configuring this address. If this field is not
   specified, it is assumed to be PREMIUM.
+  Possible values are `PREMIUM` and `STANDARD`.
 
 * `subnetwork` -
   (Optional)
@@ -204,6 +206,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/addresses/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -212,8 +215,6 @@ In addition to the arguments listed above, the following computed attributes are
   The URLs of the resources that are using this address.
 * `self_link` - The URI of the created resource.
 
-
-* `address` - The IP of the created resource.
 
 ## Timeouts
 

@@ -38,6 +38,20 @@ The following arguments are expected:
 
 * `service_project` - (Required) The ID of the project that will serve as a Shared VPC service project.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{host_project}}/{{service_project}}`
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
+
 ## Import
 
 Google Compute Engine Shared VPC service project feature can be imported using the `host_project` and `service_project`, e.g.

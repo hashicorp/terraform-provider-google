@@ -1,13 +1,18 @@
 package google
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"log"
+	"time"
 
 	container "google.golang.org/api/container/v1beta1"
 )
 
 type ContainerOperationWaiter struct {
 	Service  *container.Service
+	Context  context.Context
 	Op       *container.Operation
 	Project  string
 	Location string
@@ -62,6 +67,13 @@ func (w *ContainerOperationWaiter) QueryOp() (interface{}, error) {
 		w.Project, w.Location, w.Op.Name)
 
 	var op *container.Operation
+	select {
+	case <-w.Context.Done():
+		log.Println("[WARN] request has been cancelled early")
+		return op, errors.New("unable to finish polling, context has been cancelled")
+	default:
+		// default must be here to keep the previous case from blocking
+	}
 	err := retryTimeDuration(func() (opErr error) {
 		op, opErr = w.Service.Projects.Locations.Operations.Get(name).Do()
 		return opErr
@@ -85,9 +97,10 @@ func (w *ContainerOperationWaiter) TargetStates() []string {
 	return []string{"DONE"}
 }
 
-func containerOperationWait(config *Config, op *container.Operation, project, location, activity string, timeoutMinutes int) error {
+func containerOperationWait(config *Config, op *container.Operation, project, location, activity string, timeout time.Duration) error {
 	w := &ContainerOperationWaiter{
 		Service:  config.clientContainerBeta,
+		Context:  config.context,
 		Op:       op,
 		Project:  project,
 		Location: location,
@@ -97,5 +110,5 @@ func containerOperationWait(config *Config, op *container.Operation, project, lo
 		return err
 	}
 
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }

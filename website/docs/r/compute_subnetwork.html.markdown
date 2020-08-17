@@ -67,7 +67,7 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
   name          = "test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.custom-test.self_link
+  network       = google_compute_network.custom-test.id
   secondary_ip_range {
     range_name    = "tf-test-secondary-range-update1"
     ip_cidr_range = "192.168.10.0/24"
@@ -92,7 +92,7 @@ resource "google_compute_subnetwork" "subnet-with-logging" {
   name          = "log-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.custom-test.self_link
+  network       = google_compute_network.custom-test.id
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
@@ -123,7 +123,7 @@ resource "google_compute_subnetwork" "network-for-l7lb" {
   region        = "us-central1"
   purpose       = "INTERNAL_HTTPS_LOAD_BALANCER"
   role          = "ACTIVE"
-  network       = google_compute_network.custom-test.self_link
+  network       = google_compute_network.custom-test.id
 }
 
 resource "google_compute_network" "custom-test" {
@@ -177,9 +177,12 @@ The following arguments are supported:
   contained in this subnetwork. The primary IP of such VM must belong
   to the primary ipCidrRange of the subnetwork. The alias IPs may belong
   to either primary or secondary ranges.
-  This field uses attr-as-block mode to avoid breaking
-  users during the 0.12 upgrade. See [the Attr-as-Block page](https://www.terraform.io/docs/configuration/attr-as-blocks.html)
-  for more details.  Structure is documented below.
+  **Note**: This field uses [attr-as-block mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html) to avoid
+  breaking users during the 0.12 upgrade. To explicitly send a list
+  of zero objects you must use the following syntax:
+  `example=[]`
+  For more details about this behavior, see [this section](https://www.terraform.io/docs/configuration/attr-as-blocks.html#defining-a-fixed-object-collection-value).
+  Structure is documented below.
 
 * `private_ip_google_access` -
   (Optional)
@@ -188,13 +191,14 @@ The following arguments are supported:
 
 * `region` -
   (Optional)
-  URL of the GCP region for this subnetwork.
+  The GCP region for this subnetwork.
 
 * `log_config` -
   (Optional)
   Denotes the logging options for the subnetwork flow logs. If logging is enabled
   logs will be exported to Stackdriver. This field cannot be set if the `purpose` of this
-  subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER`  Structure is documented below.
+  subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER`
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -224,8 +228,8 @@ The `log_config` block supports:
   Toggles the aggregation interval for collecting flow logs. Increasing the
   interval time will reduce the amount of generated flow logs for long
   lasting connections. Default is an interval of 5 seconds per connection.
-  Possible values are INTERVAL_5_SEC, INTERVAL_30_SEC, INTERVAL_1_MIN,
-  INTERVAL_5_MIN, INTERVAL_10_MIN, INTERVAL_15_MIN
+  Default value is `INTERVAL_5_SEC`.
+  Possible values are `INTERVAL_5_SEC`, `INTERVAL_30_SEC`, `INTERVAL_1_MIN`, `INTERVAL_5_MIN`, `INTERVAL_10_MIN`, and `INTERVAL_15_MIN`.
 
 * `flow_sampling` -
   (Optional)
@@ -239,12 +243,15 @@ The `log_config` block supports:
   (Optional)
   Can only be specified if VPC flow logging for this subnetwork is enabled.
   Configures whether metadata fields should be added to the reported VPC
-  flow logs. Default is `INCLUDE_ALL_METADATA`.
+  flow logs.
+  Default value is `INCLUDE_ALL_METADATA`.
+  Possible values are `EXCLUDE_ALL_METADATA` and `INCLUDE_ALL_METADATA`.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/subnetworks/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -252,10 +259,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `gateway_address` -
   The gateway address for default routes to reach destination addresses
   outside this subnetwork.
-
-* `fingerprint` -
-  Fingerprint of this resource. This field is used internally during
-  updates of this resource.
 * `self_link` - The URI of the created resource.
 
 

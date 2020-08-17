@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: added `node_pool.upgrade_settings` (TPG only)
+```
+```release-note:enhancement
+container: updated `node_pool.upgrade_settings` to read defaults from API (TPGB only)
+```

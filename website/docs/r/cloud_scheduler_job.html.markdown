@@ -56,6 +56,7 @@ resource "google_cloud_scheduler_job" "job" {
   schedule    = "*/2 * * * *"
 
   pubsub_target {
+    # topic.id is the topic's full resource name.
     topic_name = google_pubsub_topic.topic.id
     data       = base64encode("test")
   }
@@ -71,10 +72,15 @@ resource "google_cloud_scheduler_job" "job" {
 
 ```hcl
 resource "google_cloud_scheduler_job" "job" {
-  name        = "test-job"
-  description = "test http job"
-  schedule    = "*/8 * * * *"
-  time_zone   = "America/New_York"
+  name             = "test-job"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 1
+  }
 
   http_target {
     http_method = "POST"
@@ -92,10 +98,18 @@ resource "google_cloud_scheduler_job" "job" {
 
 ```hcl
 resource "google_cloud_scheduler_job" "job" {
-  name        = "test-job"
-  schedule    = "*/4 * * * *"
-  description = "test app engine job"
-  time_zone   = "Europe/London"
+  name             = "test-job"
+  schedule         = "*/4 * * * *"
+  description      = "test app engine job"
+  time_zone        = "Europe/London"
+  attempt_deadline = "320s"
+
+  retry_config {
+    min_backoff_duration = "1s"
+    max_retry_duration = "10s"
+    max_doublings = 2
+    retry_count = 3
+  }
 
   app_engine_http_target {
     http_method = "POST"
@@ -123,10 +137,11 @@ data "google_compute_default_service_account" "default" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name        = "test-job"
-  description = "test http job"
-  schedule    = "*/8 * * * *"
-  time_zone   = "America/New_York"
+  name             = "test-job"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "GET"
@@ -151,10 +166,11 @@ data "google_compute_default_service_account" "default" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name        = "test-job"
-  description = "test http job"
-  schedule    = "*/8 * * * *"
-  time_zone   = "America/New_York"
+  name             = "test-job"
+  description      = "test http job"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "GET"
@@ -176,10 +192,6 @@ The following arguments are supported:
   (Required)
   The name of the job.
 
-* `region` -
-  (Required)
-  Region where the scheduler job resides
-
 
 - - -
 
@@ -198,29 +210,47 @@ The following arguments are supported:
   Specifies the time zone to be used in interpreting schedule.
   The value of this field must be a time zone name from the tz database.
 
+* `attempt_deadline` -
+  (Optional)
+  The deadline for job attempts. If the request handler does not respond by this deadline then the request is
+  cancelled and the attempt is marked as a DEADLINE_EXCEEDED failure. The failed attempt can be viewed in
+  execution logs. Cloud Scheduler will retry the job according to the RetryConfig.
+  The allowed duration for this deadline is:
+  * For HTTP targets, between 15 seconds and 30 minutes.
+  * For App Engine HTTP targets, between 15 seconds and 24 hours.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s"
+
 * `retry_config` -
   (Optional)
   By default, if a job does not complete successfully, 
   meaning that an acknowledgement is not received from the handler, 
-  then it will be retried with exponential backoff according to the settings  Structure is documented below.
+  then it will be retried with exponential backoff according to the settings
+  Structure is documented below.
 
 * `pubsub_target` -
   (Optional)
   Pub/Sub target
   If the job providers a Pub/Sub target the cron will publish
-  a message to the provided topic  Structure is documented below.
+  a message to the provided topic
+  Structure is documented below.
 
 * `app_engine_http_target` -
   (Optional)
   App Engine HTTP target.
   If the job providers a App Engine HTTP target the cron will 
-  send a request to the service instance  Structure is documented below.
+  send a request to the service instance
+  Structure is documented below.
 
 * `http_target` -
   (Optional)
   HTTP target.
   If the job providers a http_target the cron will 
-  send a request to the targeted url  Structure is documented below.
+  send a request to the targeted url
+  Structure is documented below.
+
+* `region` -
+  (Optional)
+  Region where the scheduler job resides. If it is not provided, Terraform will use the provider default.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -261,9 +291,10 @@ The `pubsub_target` block supports:
 
 * `topic_name` -
   (Required)
-  The name of the Cloud Pub/Sub topic to which messages will be published when a job is delivered. 
-  The topic name must be in the same format as required by PubSub's PublishRequest.name, 
-  for example projects/PROJECT_ID/topics/TOPIC_ID.
+  The full resource name for the Cloud Pub/Sub topic to which
+  messages will be published when a job is delivered. ~>**NOTE:**
+  The topic name must be in the same format as required by PubSub's
+  PublishRequest.name, e.g. `projects/my-project/topics/my-topic`.
 
 * `data` -
   (Optional)
@@ -283,7 +314,8 @@ The `app_engine_http_target` block supports:
 
 * `app_engine_routing` -
   (Optional)
-  App Engine Routing setting for the job.  Structure is documented below.
+  App Engine Routing setting for the job.
+  Structure is documented below.
 
 * `relative_uri` -
   (Required)
@@ -347,12 +379,14 @@ The `http_target` block supports:
 * `oauth_token` -
   (Optional)
   Contains information needed for generating an OAuth token.
-  This type of authorization should be used when sending requests to a GCP endpoint.  Structure is documented below.
+  This type of authorization should be used when sending requests to a GCP endpoint.
+  Structure is documented below.
 
 * `oidc_token` -
   (Optional)
   Contains information needed for generating an OpenID Connect token.
-  This type of authorization should be used when sending requests to third party endpoints or Cloud Run.  Structure is documented below.
+  This type of authorization should be used when sending requests to third party endpoints or Cloud Run.
+  Structure is documented below.
 
 
 The `oauth_token` block supports:
@@ -378,6 +412,12 @@ The `oidc_token` block supports:
   (Optional)
   Audience to be used when generating OIDC token. If not specified,
   the URI specified in target will be used.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{region}}/jobs/{{name}}`
 
 
 ## Timeouts

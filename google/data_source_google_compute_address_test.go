@@ -76,22 +76,22 @@ func TestAccDataSourceComputeAddress(t *testing.T) {
 	dsName := "my_address"
 	dsFullName := fmt.Sprintf("data.google_compute_address.%s", dsName)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataSourceComputeAddressDestroy(rsFullName),
+		CheckDestroy: testAccCheckDataSourceComputeAddressDestroy(t, rsFullName),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeAddressConfig(rsName, dsName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceComputeAddressCheck(dsFullName, rsFullName),
+					testAccDataSourceComputeAddressCheck(t, dsFullName, rsFullName),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceComputeAddressCheck(data_source_name string, resource_name string) resource.TestCheckFunc {
+func testAccDataSourceComputeAddressCheck(t *testing.T, data_source_name string, resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[data_source_name]
 		if !ok {
@@ -134,9 +134,9 @@ func testAccDataSourceComputeAddressCheck(data_source_name string, resource_name
 	}
 }
 
-func testAccCheckDataSourceComputeAddressDestroy(resource_name string) resource.TestCheckFunc {
+func testAccCheckDataSourceComputeAddressDestroy(t *testing.T, resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
 		rs, ok := s.RootModule().Resources[resource_name]
 		if !ok {
