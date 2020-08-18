@@ -96,7 +96,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			customdiff.ForceNewIfChange("settings.0.disk_size", isDiskShrinkage)),
+			customdiff.ForceNewIfChange("settings.0.disk_size", isDiskShrinkage),
+			privateNetworkCustomizeDiff),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -600,6 +601,18 @@ func isFirstGen(d *schema.ResourceData) bool {
 	// 1st Generation databases have tiers like 'D0', as opposed to 2nd Generation which are
 	// prefixed with 'db'
 	return !regexp.MustCompile("db*").Match([]byte(tier))
+}
+
+// Makes private_network ForceNew if it is changing from set to nil. The API returns an error
+// if this change is attempted in-place.
+func privateNetworkCustomizeDiff(d *schema.ResourceDiff, meta interface{}) error {
+	old, new := d.GetChange("settings.0.ip_configuration.0.private_network")
+
+	if old != "" && new == "" {
+		d.ForceNew("settings.0.ip_configuration.0.private_network")
+	}
+
+	return nil
 }
 
 func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{}) error {
