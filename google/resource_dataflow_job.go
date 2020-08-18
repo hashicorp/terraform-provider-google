@@ -279,6 +279,10 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 	optionsMap := sdkPipelineOptions["options"].(map[string]interface{})
 	d.Set("template_gcs_path", optionsMap["templateLocation"])
 	d.Set("temp_gcs_location", optionsMap["tempLocation"])
+	d.Set("machine_type", optionsMap["machineType"])
+	d.Set("network", optionsMap["network"])
+	d.Set("service_account_email", optionsMap["serviceAccountEmail"])
+	d.Set("additional_experiments", optionsMap["experiments"])
 
 	if _, ok := dataflowTerminalStatesMap[job.CurrentState]; ok {
 		log.Printf("[DEBUG] Removing resource '%s' because it is in state %s.\n", job.Name, job.CurrentState)
