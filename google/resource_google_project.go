@@ -217,6 +217,9 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 	p, err := readGoogleProject(d, config)
 	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 403 && strings.Contains(gerr.Message, "caller does not have permission") {
+			return fmt.Errorf("the user does not have permission to access Project %q or it may not exist", pid)
+		}
 		return handleNotFoundError(err, d, fmt.Sprintf("Project %q", pid))
 	}
 
@@ -421,16 +424,14 @@ func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*sc
 
 // Delete a compute network along with the firewall rules inside it.
 func forceDeleteComputeNetwork(d *schema.ResourceData, config *Config, projectId, networkName string) error {
-	// Read the network from the API so we can get the correct self link format. We can't construct it from the
-	// base path because it might not line up exactly (compute.googleapis.com vs www.googleapis.com)
-	net, err := config.clientCompute.Networks.Get(projectId, networkName).Do()
+	networkLink, err := replaceVars(d, config, fmt.Sprintf("{{ComputeBasePath}}projects/%s/global/networks/%s", projectId, networkName))
 	if err != nil {
 		return err
 	}
 
 	token := ""
 	for paginate := true; paginate; {
-		filter := fmt.Sprintf("network eq %s", net.SelfLink)
+		filter := fmt.Sprintf("network eq %s", networkLink)
 		resp, err := config.clientCompute.Firewalls.List(projectId).Filter(filter).Do()
 		if err != nil {
 			return errwrap.Wrapf("Error listing firewall rules in proj: {{err}}", err)

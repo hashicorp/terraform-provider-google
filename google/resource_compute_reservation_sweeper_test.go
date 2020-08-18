@@ -61,7 +61,7 @@ func testSweepComputeReservation(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://compute.googleapis.com/compute/v1/projects/{{project}}/aggregated/reservations", "?")[0]
+	listTemplate := strings.Split("https://www.googleapis.com/compute/v1/projects/{{project}}/aggregated/reservations", "?")[0]
 	listUrl, err := replaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -110,7 +110,7 @@ func testSweepComputeReservation(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://compute.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/reservations/{{name}}"
+		deleteTemplate := "https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/reservations/{{name}}"
 		if obj["zone"] == nil {
 			log.Printf("[INFO][SWEEPER_LOG] %s resource zone was nil", resourceName)
 			return nil

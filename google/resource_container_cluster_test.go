@@ -1406,7 +1406,15 @@ func TestAccContainerCluster_withDatabaseEncryption(t *testing.T) {
 				Config: testAccContainerCluster_withDatabaseEncryption(clusterName, kmsData),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_database_encryption",
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_basic(clusterName),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -3099,7 +3107,7 @@ resource "google_kms_key_ring_iam_policy" "test_key_ring_iam_policy" {
   policy_data = data.google_iam_policy.test_kms_binding.policy_data
 }
 
-resource "google_container_cluster" "with_database_encryption" {
+resource "google_container_cluster" "primary" {
   name               = "%[3]s"
   location           = "us-central1-a"
   initial_node_count = 1

@@ -3,11 +3,10 @@ package google
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/errwrap"
 	"log"
 	"sync"
 	"time"
-
-	"github.com/hashicorp/errwrap"
 )
 
 const defaultBatchSendIntervalSec = 3

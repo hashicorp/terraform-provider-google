@@ -11,7 +11,6 @@ import (
 
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
-	"github.com/hashicorp/terraform-provider-google/version"
 	"google.golang.org/api/option"
 
 	"golang.org/x/oauth2"
@@ -113,6 +112,7 @@ type Config struct {
 	MLEngineBasePath             string
 	MonitoringBasePath           string
 	NetworkManagementBasePath    string
+	OSConfigBasePath             string
 	OSLoginBasePath              string
 	PubsubBasePath               string
 	RedisBasePath                string
@@ -229,7 +229,7 @@ var AccessApprovalDefaultBasePath = "https://accessapproval.googleapis.com/v1/"
 var AccessContextManagerDefaultBasePath = "https://accesscontextmanager.googleapis.com/v1/"
 var ActiveDirectoryDefaultBasePath = "https://managedidentities.googleapis.com/v1/"
 var AppEngineDefaultBasePath = "https://appengine.googleapis.com/v1/"
-var BigQueryDefaultBasePath = "https://bigquery.googleapis.com/bigquery/v2/"
+var BigQueryDefaultBasePath = "https://www.googleapis.com/bigquery/v2/"
 var BigqueryDataTransferDefaultBasePath = "https://bigquerydatatransfer.googleapis.com/v1/"
 var BigtableDefaultBasePath = "https://bigtableadmin.googleapis.com/v2/"
 var BinaryAuthorizationDefaultBasePath = "https://binaryauthorization.googleapis.com/v1/"
@@ -240,7 +240,7 @@ var CloudIotDefaultBasePath = "https://cloudiot.googleapis.com/v1/"
 var CloudRunDefaultBasePath = "https://{{location}}-run.googleapis.com/"
 var CloudSchedulerDefaultBasePath = "https://cloudscheduler.googleapis.com/v1/"
 var CloudTasksDefaultBasePath = "https://cloudtasks.googleapis.com/v2/"
-var ComputeDefaultBasePath = "https://compute.googleapis.com/compute/v1/"
+var ComputeDefaultBasePath = "https://www.googleapis.com/compute/v1/"
 var ContainerAnalysisDefaultBasePath = "https://containeranalysis.googleapis.com/v1/"
 var DataCatalogDefaultBasePath = "https://datacatalog.googleapis.com/v1/"
 var DataLossPreventionDefaultBasePath = "https://dlp.googleapis.com/v2/"
@@ -248,7 +248,7 @@ var DataprocDefaultBasePath = "https://dataproc.googleapis.com/v1/"
 var DatastoreDefaultBasePath = "https://datastore.googleapis.com/v1/"
 var DeploymentManagerDefaultBasePath = "https://www.googleapis.com/deploymentmanager/v2/"
 var DialogflowDefaultBasePath = "https://dialogflow.googleapis.com/v2/"
-var DNSDefaultBasePath = "https://dns.googleapis.com/dns/v1/"
+var DNSDefaultBasePath = "https://www.googleapis.com/dns/v1/"
 var FilestoreDefaultBasePath = "https://file.googleapis.com/v1/"
 var FirestoreDefaultBasePath = "https://firestore.googleapis.com/v1/"
 var GameServicesDefaultBasePath = "https://gameservices.googleapis.com/v1/"
@@ -260,6 +260,7 @@ var LoggingDefaultBasePath = "https://logging.googleapis.com/v2/"
 var MLEngineDefaultBasePath = "https://ml.googleapis.com/v1/"
 var MonitoringDefaultBasePath = "https://monitoring.googleapis.com/"
 var NetworkManagementDefaultBasePath = "https://networkmanagement.googleapis.com/v1/"
+var OSConfigDefaultBasePath = "https://osconfig.googleapis.com/v1/"
 var OSLoginDefaultBasePath = "https://oslogin.googleapis.com/v1/"
 var PubsubDefaultBasePath = "https://pubsub.googleapis.com/v1/"
 var RedisDefaultBasePath = "https://redis.googleapis.com/v1/"
@@ -272,7 +273,7 @@ var ServiceUsageDefaultBasePath = "https://serviceusage.googleapis.com/v1/"
 var SourceRepoDefaultBasePath = "https://sourcerepo.googleapis.com/v1/"
 var SpannerDefaultBasePath = "https://spanner.googleapis.com/v1/"
 var SQLDefaultBasePath = "https://sqladmin.googleapis.com/sql/v1beta4/"
-var StorageDefaultBasePath = "https://storage.googleapis.com/storage/v1/"
+var StorageDefaultBasePath = "https://www.googleapis.com/storage/v1/"
 var TPUDefaultBasePath = "https://tpu.googleapis.com/v1/"
 var VPCAccessDefaultBasePath = "https://vpcaccess.googleapis.com/v1/"
 
@@ -319,7 +320,6 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	client.Timeout = c.synchronousTimeout()
 
 	c.client = client
-	c.userAgent = userAgent
 	c.context = ctx
 
 	// This base path and some others below need the version and possibly more of the path
@@ -806,6 +806,7 @@ func ConfigureBasePaths(c *Config) {
 	c.MLEngineBasePath = MLEngineDefaultBasePath
 	c.MonitoringBasePath = MonitoringDefaultBasePath
 	c.NetworkManagementBasePath = NetworkManagementDefaultBasePath
+	c.OSConfigBasePath = OSConfigDefaultBasePath
 	c.OSLoginBasePath = OSLoginDefaultBasePath
 	c.PubsubBasePath = PubsubDefaultBasePath
 	c.RedisBasePath = RedisDefaultBasePath

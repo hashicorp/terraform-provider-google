@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceCloudIotDevice() *schema.Resource {
@@ -148,7 +148,6 @@ func resourceCloudIotDevice() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The most recent device configuration, which is eventually sent from Cloud IoT Core to the device.`,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"binary_data": {
@@ -189,7 +188,6 @@ indicating that the device has received this configuration version.`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The error message of the most recent error, such as a failure to publish to Cloud Pub/Sub.`,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"details": {
@@ -243,7 +241,6 @@ This is a more compact way to identify devices, and it is globally unique.`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The state most recently received from the device.`,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"binary_data": {

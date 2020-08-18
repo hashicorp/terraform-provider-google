@@ -48,7 +48,7 @@ data "google_iam_policy" "admin" {
 }
 ```
 
-With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
+With IAM Conditions:
 
 ```hcl
 resource "google_project_iam_policy" "project" {
@@ -88,7 +88,7 @@ resource "google_project_iam_binding" "project" {
 }
 ```
 
-With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
+With IAM Conditions:
 
 ```hcl
 resource "google_project_iam_binding" "project" {
@@ -117,7 +117,7 @@ resource "google_project_iam_member" "project" {
 }
 ```
 
-With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
+With IAM Conditions:
 
 ```hcl
 resource "google_project_iam_member" "project" {
@@ -183,7 +183,7 @@ will not be inferred from the provider.
 
 * `audit_log_config` - (Required only by google\_project\_iam\_audit\_config) The configuration for logging of each type of permission.  This can be specified multiple times.  Structure is documented below.
 
-* `condition` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
+* `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
   Structure is documented below.
 
 ---

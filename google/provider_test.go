@@ -222,7 +222,7 @@ func googleProviderConfig(t *testing.T) *Config {
 	return testAccProvider.Meta().(*Config)
 }
 
-func getTestAccProviders(testName, providerName string) map[string]*schema.Provider {
+func getTestAccProviders(testName string) map[string]*schema.Provider {
 	prov := Provider()
 	if isVcrEnabled() {
 		old := prov.ConfigureContextFunc
@@ -233,7 +233,8 @@ func getTestAccProviders(testName, providerName string) map[string]*schema.Provi
 		log.Print("[DEBUG] VCR_PATH or VCR_MODE not set, skipping VCR")
 	}
 	return map[string]*schema.Provider{
-		providerName: prov,
+		"google":      prov,
+		"google-beta": prov,
 	}
 }
 
@@ -247,11 +248,7 @@ func isVcrEnabled() bool {
 // Can be called when VCR is not enabled, and it will behave as normal
 func vcrTest(t *testing.T, c resource.TestCase) {
 	if isVcrEnabled() {
-		var providerName string
-		for name := range c.Providers {
-			providerName = name
-		}
-		providers := getTestAccProviders(t.Name(), providerName)
+		providers := getTestAccProviders(t.Name())
 		c.Providers = providers
 		defer closeRecorder(t)
 	}

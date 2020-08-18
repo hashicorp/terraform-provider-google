@@ -16,6 +16,7 @@ package google
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -61,7 +62,7 @@ func diffSuppressEnableLogging(k, old, new string, d *schema.ResourceData) bool 
 	return false
 }
 
-func resourceComputeFirewallEnableLoggingCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
+func resourceComputeFirewallEnableLoggingCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	enableLogging, enableExists := diff.GetOkExists("enable_logging")
 	if !enableExists {
 		return nil

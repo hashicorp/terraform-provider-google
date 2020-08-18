@@ -250,22 +250,17 @@ func resourceComputeNetworkPeeringImport(d *schema.ResourceData, meta interface{
 	if len(splits) != 3 {
 		return nil, fmt.Errorf("Error parsing network peering import format, expected: {project}/{network}/{name}")
 	}
-	project := splits[0]
-	network := splits[1]
-	name := splits[2]
 
-	// Since the format of the network URL in the peering might be different depending on the ComputeBasePath,
-	// just read the network self link from the API.
-	net, err := config.clientCompute.Networks.Get(project, network).Do()
+	// Build the template for the network self_link
+	urlTemplate, err := replaceVars(d, config, "{{ComputeBasePath}}projects/%s/global/networks/%s")
 	if err != nil {
-		return nil, handleNotFoundError(err, d, fmt.Sprintf("Network %q", splits[1]))
+		return nil, err
 	}
-
-	d.Set("network", ConvertSelfLinkToV1(net.SelfLink))
-	d.Set("name", name)
+	d.Set("network", ConvertSelfLinkToV1(fmt.Sprintf(urlTemplate, splits[0], splits[1])))
+	d.Set("name", splits[2])
 
 	// Replace import id for the resource id
-	id := fmt.Sprintf("%s/%s", network, name)
+	id := fmt.Sprintf("%s/%s", splits[1], splits[2])
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil

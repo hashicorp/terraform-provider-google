@@ -835,21 +835,18 @@ func resourceContainerCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: `Application-layer Secrets Encryption settings. The object format is {state = string, key_name = string}. Valid values of state are: "ENCRYPTED"; "DECRYPTED". key_name is the name of a CloudKMS key.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"state": {
 							Type:         schema.TypeString,
-							ForceNew:     true,
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ENCRYPTED", "DECRYPTED"}, false),
 							Description:  `ENCRYPTED or DECRYPTED.`,
 						},
 						"key_name": {
 							Type:        schema.TypeString,
-							ForceNew:    true,
 							Optional:    true,
 							Description: `The key to use to encrypt/decrypt secrets.`,
 						},
@@ -880,8 +877,6 @@ func resourceContainerCluster() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: `Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.`,
-				Removed:     "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
-				Computed:    true,
 			},
 
 			"resource_usage_export_config": {
@@ -920,11 +915,6 @@ func resourceContainerCluster() *schema.Resource {
 						},
 					},
 				},
-			},
-			"enable_intranode_visibility": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: `Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.`,
 			},
 		},
 	}
@@ -1530,8 +1520,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s Release Channel has been updated to %#v", d.Id(), req.Update.DesiredReleaseChannel)
-
-		d.SetPartial("release_channel")
 	}
 
 	if d.HasChange("maintenance_policy") {
@@ -1899,6 +1887,29 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		if err := lockedCall(lockKey, updateF); err != nil {
 			return err
 		}
+	}
+
+	if d.HasChange("database_encryption") {
+		c := d.Get("database_encryption")
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredDatabaseEncryption: expandDatabaseEncryption(c),
+			},
+		}
+
+		updateF := func() error {
+			name := containerClusterFullName(project, location, clusterName)
+			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(name, req).Do()
+			if err != nil {
+				return err
+			}
+			// Wait until it's updated
+			return containerOperationWait(config, op, project, location, "updating GKE cluster database encryption config", d.Timeout(schema.TimeoutUpdate))
+		}
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+		log.Printf("[INFO] GKE cluster %s database encryption config has been updated", d.Id())
 	}
 
 	if d.HasChange("workload_identity_config") {
