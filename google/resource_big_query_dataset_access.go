@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -35,6 +36,108 @@ func resourceBigQueryDatasetAccessRoleDiffSuppress(k, old, new string, d *schema
 		return primitiveRole == old
 	}
 	return false
+}
+
+// we want to diff suppress any iam_members that are configured as `iam_member`, but stored in state as a different member type
+func resourceBigQueryDatasetAccessIamMemberDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if primitiveRole, ok := bigqueryAccessRoleToPrimitiveMap[new]; ok {
+		return primitiveRole == old
+	}
+
+	if d.Get("api_updated_member") == true {
+		expectedIamMember := d.Get("iam_member").(string)
+		parts := strings.SplitAfter(expectedIamMember, ":")
+
+		strippedIamMember := parts[0]
+		if len(parts) > 1 {
+			strippedIamMember = parts[1]
+		}
+
+		if memberInState := d.Get("user_by_email").(string); memberInState != "" {
+			return memberInState == strippedIamMember
+		}
+
+		if memberInState := d.Get("group_by_email").(string); memberInState != "" {
+			return memberInState == strippedIamMember
+		}
+
+		if memberInState := d.Get("domain").(string); memberInState != "" {
+			return memberInState == strippedIamMember
+		}
+
+		if memberInState := d.Get("special_group").(string); memberInState != "" {
+			return memberInState == strippedIamMember
+		}
+	}
+
+	return false
+}
+
+// this function will go through a response's access list and see if the iam_member has been reassigned to a different member_type
+// if it has, it will return the member type, and the member
+func resourceBigQueryDatasetAccessReassignIamMemberInNestedObjectList(d *schema.ResourceData, meta interface{}, items []interface{}) (member_type string, member interface{}, err error) {
+	expectedRole, err := expandNestedBigQueryDatasetAccessRole(d.Get("role"), d, meta.(*Config))
+	if err != nil {
+		return "", nil, err
+	}
+	expectedFlattenedRole := flattenNestedBigQueryDatasetAccessRole(expectedRole, d, meta.(*Config))
+
+	expectedIamMember, err := expandNestedBigQueryDatasetAccessIamMember(d.Get("iam_member"), d, meta.(*Config))
+	if err != nil {
+		return "", nil, err
+	}
+	expectedFlattenedIamMember := flattenNestedBigQueryDatasetAccessIamMember(expectedIamMember, d, meta.(*Config))
+
+	parts := strings.SplitAfter(expectedFlattenedIamMember.(string), ":")
+
+	expectedStrippedIamMember := parts[0]
+	if len(parts) > 1 {
+		expectedStrippedIamMember = parts[1]
+	}
+
+	// Search list for this resource.
+	for _, itemRaw := range items {
+		if itemRaw == nil {
+			continue
+		}
+		item := itemRaw.(map[string]interface{})
+
+		itemRole := flattenNestedBigQueryDatasetAccessRole(item["role"], d, meta.(*Config))
+		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(isEmptyValue(reflect.ValueOf(itemRole)) && isEmptyValue(reflect.ValueOf(expectedFlattenedRole))) && !reflect.DeepEqual(itemRole, expectedFlattenedRole) {
+			log.Printf("[DEBUG] Skipping item with role= %#v, looking for %#v)", itemRole, expectedFlattenedRole)
+			continue
+		}
+
+		itemUserByEmail := flattenNestedBigQueryDatasetAccessUserByEmail(item["userByEmail"], d, meta.(*Config))
+		if reflect.DeepEqual(itemUserByEmail, expectedStrippedIamMember) {
+			log.Printf("[DEBUG] Iam Member changed to userByEmail= %#v)", itemUserByEmail)
+			return "user_by_email", itemUserByEmail, nil
+		}
+		itemGroupByEmail := flattenNestedBigQueryDatasetAccessGroupByEmail(item["groupByEmail"], d, meta.(*Config))
+		if reflect.DeepEqual(itemGroupByEmail, expectedStrippedIamMember) {
+			log.Printf("[DEBUG] Iam Member changed to groupByEmail= %#v)", itemGroupByEmail)
+			return "group_by_email", itemGroupByEmail, nil
+		}
+		itemDomain := flattenNestedBigQueryDatasetAccessDomain(item["domain"], d, meta.(*Config))
+		if reflect.DeepEqual(itemDomain, expectedStrippedIamMember) {
+			log.Printf("[DEBUG] Iam Member changed to domain= %#v)", itemDomain)
+			return "domain", itemDomain, nil
+		}
+		itemSpecialGroup := flattenNestedBigQueryDatasetAccessSpecialGroup(item["specialGroup"], d, meta.(*Config))
+		if reflect.DeepEqual(itemSpecialGroup, expectedStrippedIamMember) {
+			log.Printf("[DEBUG] Iam Member changed to specialGroup= %#v)", itemSpecialGroup)
+			return "special_group", itemSpecialGroup, nil
+		}
+		itemIamMember := flattenNestedBigQueryDatasetAccessIamMember(item["iamMember"], d, meta.(*Config))
+		if reflect.DeepEqual(itemIamMember, expectedFlattenedIamMember) {
+			log.Printf("[DEBUG] Iam Member stayed as iamMember= %#v)", itemIamMember)
+			return "", nil, nil
+		}
+		continue
+	}
+	log.Printf("[DEBUG] Did not find item for resource %q)", d.Id())
+	return "", nil, nil
 }
 
 func resourceBigQueryDatasetAccess() *schema.Resource {
@@ -58,24 +161,27 @@ must contain only letters (a-z, A-Z), numbers (0-9), or
 underscores (_). The maximum length is 1,024 characters.`,
 			},
 			"domain": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: resourceBigQueryDatasetAccessIamMemberDiffSuppress,
 				Description: `A domain to grant access to. Any users signed in with the
 domain specified will be granted the specified access`,
 				ExactlyOneOf: []string{"user_by_email", "group_by_email", "domain", "special_group", "iam_member", "view"},
 			},
 			"group_by_email": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Description:  `An email address of a Google Group to grant access to.`,
-				ExactlyOneOf: []string{"user_by_email", "group_by_email", "domain", "special_group", "iam_member", "view"},
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: resourceBigQueryDatasetAccessIamMemberDiffSuppress,
+				Description:      `An email address of a Google Group to grant access to.`,
+				ExactlyOneOf:     []string{"user_by_email", "group_by_email", "domain", "special_group", "iam_member", "view"},
 			},
 			"iam_member": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: resourceBigQueryDatasetAccessIamMemberDiffSuppress,
 				Description: `Some other type of member that appears in the IAM Policy but isn't a user,
 group, domain, or special group. For example: 'allUsers'`,
 				ExactlyOneOf: []string{"user_by_email", "group_by_email", "domain", "special_group", "iam_member", "view"},
@@ -93,9 +199,10 @@ counterparts, and will show a diff post-create. See
 [official docs](https://cloud.google.com/bigquery/docs/access-control).`,
 			},
 			"special_group": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: resourceBigQueryDatasetAccessIamMemberDiffSuppress,
 				Description: `A special group to grant access to. Possible values include:
 
 
@@ -112,9 +219,10 @@ counterparts, and will show a diff post-create. See
 				ExactlyOneOf: []string{"user_by_email", "group_by_email", "domain", "special_group", "iam_member", "view"},
 			},
 			"user_by_email": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: resourceBigQueryDatasetAccessIamMemberDiffSuppress,
 				Description: `An email address of a user to grant access to. For example:
 fred@example.com`,
 				ExactlyOneOf: []string{"user_by_email", "group_by_email", "domain", "special_group", "iam_member", "view"},
@@ -154,6 +262,11 @@ is 1,024 characters.`,
 					},
 				},
 				ExactlyOneOf: []string{"user_by_email", "group_by_email", "domain", "special_group", "iam_member", "view"},
+			},
+			"api_updated_member": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "If true, represents that that the iam_member in the config was translated to a different member type by the API, and is stored in state as a different member type",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -253,6 +366,26 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating DatasetAccess %q: %#v", d.Id(), res)
+
+	// by default, we are not updating the member
+	d.Set("api_updated_member", false)
+
+	// iam_member is a generalized attribute, if the API can map it to a different member type on the backend, it will return
+	// the correct member_type in the response. If it cannot be mapped to a different member type, it will stay in iam_member.
+	if iamMemberProp != "" {
+		member_type, member, err := resourceBigQueryDatasetAccessReassignIamMemberInNestedObjectList(d, meta, res["access"].([]interface{}))
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		// if the member type changed, we set that member_type in state (it's already in the response) and we clear iam_member
+		// and we set "api_updated_member" to true to acknowledge that we are making this change
+		if member_type != "" {
+			d.Set(member_type, member.(string))
+			d.Set("iam_member", "")
+			d.Set("api_updated_member", true)
+		}
+	}
 
 	return resourceBigQueryDatasetAccessRead(d, meta)
 }
