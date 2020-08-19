@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/errwrap"
@@ -3144,8 +3144,13 @@ func resourceComputeBackendServiceEncoder(d *schema.ResourceData, meta interface
 		if !ok {
 			continue
 		}
-		if strings.Contains(backendGroup.(string), "global/networkEndpointGroups") {
-			// Remove `max_utilization` from any backend that belongs to a global NEG. This field
+
+		match, err := regexp.MatchString("(?:global|regions/[^/]+)/networkEndpointGroups", backendGroup.(string))
+		if err != nil {
+			return nil, err
+		}
+		if match {
+			// Remove `max_utilization` from any backend that belongs to a serverless NEG. This field
 			// has a default value and causes API validation errors
 			backend["maxUtilization"] = nil
 		}
