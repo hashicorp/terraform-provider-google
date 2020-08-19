@@ -101,22 +101,22 @@ resource "google_cloudiot_registry" "test-registry" {
     subfolder_matches = ""
   }
 
-  state_notification_config = {
+  state_notification_config {
     pubsub_topic_name = google_pubsub_topic.default-devicestatus.id
   }
 
-  mqtt_config = {
+  mqtt_config {
     mqtt_enabled_state = "MQTT_ENABLED"
   }
 
-  http_config = {
+  http_config {
     http_enabled_state = "HTTP_ENABLED"
   }
 
   log_level = "INFO"
 
   credentials {
-    public_key_certificate = {
+    public_key_certificate {
       format      = "X509_CERTIFICATE_PEM"
       certificate = file("test-fixtures/rsa_cert.pem")
     }

@@ -864,7 +864,7 @@ func TestAccStorageBucket_website(t *testing.T) {
 	t.Parallel()
 
 	bucketSuffix := fmt.Sprintf("tf-website-test-%d", randInt(t))
-	errRe := regexp.MustCompile("one of `((website.0.main_page_suffix,website.0.not_found_page)|(website.0.not_found_page,website.0.main_page_suffix))` must be specified")
+	errRe := regexp.MustCompile("one of\n`website.0.main_page_suffix,website.0.not_found_page` must be specified")
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
