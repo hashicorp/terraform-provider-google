@@ -1974,5 +1974,20 @@ func resourceComputeRegionHealthCheckEncoder(d *schema.ResourceData, meta interf
 		return obj, nil
 	}
 
+	if _, ok := d.GetOk("grpc_health_check"); ok {
+		hc := d.Get("grpc_health_check").([]interface{})[0]
+		ps := hc.(map[string]interface{})["port_specification"]
+		pn := hc.(map[string]interface{})["port_name"]
+
+		if ps == "USE_FIXED_PORT" || (ps == "" && pn == "") {
+			m := obj["grpcHealthCheck"].(map[string]interface{})
+			if m["port"] == nil {
+				return nil, fmt.Errorf("error in HealthCheck %s: `port` must be set for GRPC health checks`.", d.Get("name").(string))
+			}
+		}
+		obj["type"] = "GRPC"
+		return obj, nil
+	}
+
 	return nil, fmt.Errorf("error in HealthCheck %s: No health check block specified.", d.Get("name").(string))
 }
