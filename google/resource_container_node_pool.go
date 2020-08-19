@@ -738,6 +738,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 			log.Printf("[INFO] Updated image type in Node Pool %s", d.Id())
 		}
+
 		if prefix == "" {
 			d.SetPartial("node_config")
 		}
