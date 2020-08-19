@@ -382,7 +382,7 @@ Defaults to F1 for AutomaticScaling and B2 for ManualScaling and BasicScaling. I
 							Required: true,
 							Description: `Number of instances to assign to the service at the start.
 
-**Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2 
+**Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2
 Modules API set_num_instances() you must use 'lifecycle.ignore_changes = ["manual_scaling"[0].instances]' to prevent drift detection.`,
 						},
 					},
@@ -405,6 +405,21 @@ Please see the app.yaml reference for valid values at https://cloud.google.com/a
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Relative name of the version within the service. For example, 'v1'. Version names can contain only lowercase letters, numbers, or hyphens. Reserved names,"default", "latest", and any name with the prefix "ah-".`,
+			},
+			"vpc_access_connector": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Enables VPC connectivity for standard apps.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Full Serverless VPC Access Connector name e.g. /projects/my-project/locations/us-central1/connectors/c1.`,
+						},
+					},
+				},
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -488,6 +503,12 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(entrypointProp)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
+	}
+	vpcAccessConnectorProp, err := expandAppEngineStandardAppVersionVPCAccessConnector(d.Get("vpc_access_connector"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("vpc_access_connector"); !isEmptyValue(reflect.ValueOf(vpcAccessConnectorProp)) && (ok || !reflect.DeepEqual(v, vpcAccessConnectorProp)) {
+		obj["vpcAccessConnector"] = vpcAccessConnectorProp
 	}
 	inboundServicesProp, err := expandAppEngineStandardAppVersionInboundServices(d.Get("inbound_services"), d, config)
 	if err != nil {
@@ -610,6 +631,9 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("libraries", flattenAppEngineStandardAppVersionLibraries(res["libraries"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
+	if err := d.Set("vpc_access_connector", flattenAppEngineStandardAppVersionVPCAccessConnector(res["vpcAccessConnector"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
+	}
 	if err := d.Set("inbound_services", flattenAppEngineStandardAppVersionInboundServices(res["inboundServices"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
@@ -691,6 +715,12 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
+	}
+	vpcAccessConnectorProp, err := expandAppEngineStandardAppVersionVPCAccessConnector(d.Get("vpc_access_connector"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("vpc_access_connector"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, vpcAccessConnectorProp)) {
+		obj["vpcAccessConnector"] = vpcAccessConnectorProp
 	}
 	inboundServicesProp, err := expandAppEngineStandardAppVersionInboundServices(d.Get("inbound_services"), d, config)
 	if err != nil {
@@ -997,6 +1027,23 @@ func flattenAppEngineStandardAppVersionLibrariesName(v interface{}, d *schema.Re
 }
 
 func flattenAppEngineStandardAppVersionLibrariesVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenAppEngineStandardAppVersionVPCAccessConnector(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenAppEngineStandardAppVersionVPCAccessConnectorName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAppEngineStandardAppVersionVPCAccessConnectorName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1607,6 +1654,29 @@ func expandAppEngineStandardAppVersionEntrypoint(v interface{}, d TerraformResou
 }
 
 func expandAppEngineStandardAppVersionEntrypointShell(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionVPCAccessConnector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandAppEngineStandardAppVersionVPCAccessConnectorName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandAppEngineStandardAppVersionVPCAccessConnectorName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

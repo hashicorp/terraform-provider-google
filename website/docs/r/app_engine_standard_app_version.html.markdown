@@ -207,6 +207,11 @@ The `files` block supports:
   The entrypoint for the application.
   Structure is documented below.
 
+* `vpc_access_connector` -
+  (Optional)
+  Enables VPC connectivity for standard apps.
+  Structure is documented below.
+
 * `inbound_services` -
   (Optional)
   A list of the types of messages that this application is able to receive.
@@ -336,6 +341,12 @@ The `entrypoint` block supports:
   (Required)
   The format should be a shell command that can be fed to bash -c.
 
+The `vpc_access_connector` block supports:
+
+* `name` -
+  (Required)
+  Full Serverless VPC Access Connector name e.g. /projects/my-project/locations/us-central1/connectors/c1.
+
 The `automatic_scaling` block supports:
 
 * `max_concurrent_requests` -
@@ -401,7 +412,7 @@ The `manual_scaling` block supports:
 * `instances` -
   (Required)
   Number of instances to assign to the service at the start.
-  **Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2 
+  **Note:** When managing the number of instances at runtime through the App Engine Admin API or the (now deprecated) Python 2
   Modules API set_num_instances() you must use `lifecycle.ignore_changes = ["manual_scaling"[0].instances]` to prevent drift detection.
 
 ## Attributes Reference
