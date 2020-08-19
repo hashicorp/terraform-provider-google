@@ -1122,7 +1122,6 @@ The value must be between 0 and 1000`,
 									},
 								},
 							},
-							ConflictsWith: []string{"default_url_redirect"},
 						},
 						"default_service": {
 							Type:             schema.TypeString,
@@ -1200,7 +1199,6 @@ the request method will be retained. Possible values: ["FOUND", "MOVED_PERMANENT
 									},
 								},
 							},
-							ConflictsWith: []string{"default_route_action"},
 						},
 						"description": {
 							Type:     schema.TypeString,
