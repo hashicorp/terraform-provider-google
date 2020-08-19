@@ -314,7 +314,7 @@ resource "google_compute_region_health_check" "http2-region-health-check" {
 
 
 ```hcl
-resource "google_compute_region_health_check" "grpc-health-check" {
+resource "google_compute_region_health_check" "grpc-region-health-check" {
   name = "grpc-region-health-check"
 
   timeout_sec        = 1
@@ -334,7 +334,7 @@ resource "google_compute_region_health_check" "grpc-health-check" {
 
 
 ```hcl
-resource "google_compute_region_health_check" "grpc-health-check" {
+resource "google_compute_region_health_check" "grpc-region-health-check" {
   name = "grpc-region-health-check"
 
   timeout_sec        = 1
