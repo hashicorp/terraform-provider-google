@@ -1,4 +1,29 @@
 ## 3.36.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_active_directory_domain_trust` ([#7056](https://github.com/hashicorp/terraform-provider-google/pull/7056))
+* **New Resource:** `google_access_context_manager_service_perimeters` ([#7027](https://github.com/hashicorp/terraform-provider-google/pull/7027))
+* **New Resource:** `google_folder_access_approval_settings` ([#7010](https://github.com/hashicorp/terraform-provider-google/pull/7010))
+* **New Resource:** `google_organization_access_approval_settings` ([#7010](https://github.com/hashicorp/terraform-provider-google/pull/7010))
+* **New Resource:** `google_project_access_approval_settings` ([#7010](https://github.com/hashicorp/terraform-provider-google/pull/7010))
+
+IMPROVEMENTS:
+* bigquery: added support for BigQuery table ACLs ([#7041](https://github.com/hashicorp/terraform-provider-google/pull/7041))
+* compute: added confidential_instance_config block to google_compute_instance ([#7000](https://github.com/hashicorp/terraform-provider-google/pull/7000))
+* compute: added confidential_instance_config block to google_compute_instance_template ([#7000](https://github.com/hashicorp/terraform-provider-google/pull/7000))
+* compute: added grpc_health_check block to compute_health_check ([#7038](https://github.com/hashicorp/terraform-provider-google/pull/7038))
+* compute: added grpc_health_check block to compute_region_health_check ([#7038](https://github.com/hashicorp/terraform-provider-google/pull/7038))
+* pubsub: added `enable_message_ordering` support to `google_pubsub_subscription` ([#7039](https://github.com/hashicorp/terraform-provider-google/pull/7039))
+* sql: added project field to `google_sql_database_instance` datasource. ([#7007](https://github.com/hashicorp/terraform-provider-google/pull/7007))
+* storage: added `ARCHIVE` as an accepted class for `google_storage_bucket` and `google_storage_bucket_object` ([#7030](https://github.com/hashicorp/terraform-provider-google/pull/7030))
+
+BUG FIXES:
+* all: updated base urls for compute, dns, storage, and bigquery APIs to their recommended endpoints ([#7045](https://github.com/hashicorp/terraform-provider-google/pull/7045))
+* bigquery: fixed a bug where `dataset_access.iam_member` would produce inconsistent results after apply. ([#7047](https://github.com/hashicorp/terraform-provider-google/pull/7047))
+* bigquery: fixed an issue with `use_legacy_sql` not being set to `false`. ([#7012](https://github.com/hashicorp/terraform-provider-google/pull/7012))
+* dns: fixed an issue where `google_dns_managed_zone` would not remove `private_visibility_config` on updates ([#7022](https://github.com/hashicorp/terraform-provider-google/pull/7022))
+* sql: fixed an issue where `google_sql_database_instance` would throw an error when removing `private_network`. Removing `private_network` now recreates the resource. ([#7054](https://github.com/hashicorp/terraform-provider-google/pull/7054))
+
 ## 3.35.0 (August 17, 2020)
 NOTES:
 * all: Updated lists of enums to display the enum options in the documentation pages. ([#6946](https://github.com/hashicorp/terraform-provider-google/pull/6946))
