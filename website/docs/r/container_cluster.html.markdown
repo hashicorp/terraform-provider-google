@@ -632,6 +632,32 @@ recommended. Structure is documented below.
 
 * `workload_metadata_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Metadata configuration to expose to workloads on the node pool.
     Structure is documented below.
+    
+* `kubelet_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+Kubelet configuration, currently supported attributes can be found [here](https://cloud.google.com/sdk/gcloud/reference/beta/container/node-pools/create#--system-config-from-file).
+Structure is documented below.
+
+```
+kubelet_config {
+  cpu_manager_policy   = "static"
+  cpu_cfs_quota        = true
+  cpu_cfs_quota_period = "100us"
+}
+```
+
+* `linux_node_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+Linux node configuration, currently supported attributes can be found [here](https://cloud.google.com/sdk/gcloud/reference/beta/container/node-pools/create#--system-config-from-file).
+Note that validations happen all server side. All attributes are optional.
+Structure is documented below.
+
+```hcl
+linux_node_config {
+  sysctls = {
+    "net.core.netdev_max_backlog" = "10000"
+    "net.core.rmem_max"           = "10000"
+  }
+}
+```
 
 The `guest_accelerator` block supports:
 
@@ -763,6 +789,31 @@ The `workload_metadata_config` block supports:
     * SECURE: Prevent workloads not in hostNetwork from accessing certain VM metadata, specifically kube-env, which contains Kubelet credentials, and the instance identity token. See [Metadata Concealment](https://cloud.google.com/kubernetes-engine/docs/how-to/metadata-proxy) documentation.
     * EXPOSE: Expose all VM metadata to pods.
     * GKE_METADATA_SERVER: Enables [workload identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) on the node.
+
+The `kubelet_config` block supports:
+
+* `cpu_manager_policy` - (Required) The CPU management policy on the node. See
+[K8S CPU Management Policies](https://kubernetes.io/docs/tasks/administer-cluster/cpu-management-policies/).
+One of `"none"` or `"static"`. Defaults to `none` when `kubelet_config` is unset.
+
+* `cpu_cfs_quota` - (Optional) If true, enables CPU CFS quota enforcement for
+containers that specify CPU limits.
+
+* `cpu_cfs_quota_period` - (Optional) The CPU CFS quota period value. Specified
+as a sequence of decimal numbers, each with optional fraction and a unit suffix,
+such as `"300ms"`. Valid time units are "ns", "us" (or "µs"), "ms", "s", "m",
+"h". The value must be a positive duration.
+
+-> Note: At the time of writing (2020/08/18) the GKE API rejects the `none`
+value and accepts an invalid `default` value instead. While this remains true,
+not specifying the `kubelet_config` block should be the equivalent of specifying
+`none`.
+
+The `linux_node_config` block supports:
+
+* `sysctls` - (Required)  The Linux kernel parameters to be applied to the nodes
+and all pods running on the nodes. Specified as a map from the key, such as
+`net.core.wmem_max`, to a string value. 
 
 The `vertical_pod_autoscaling` block supports:
 
