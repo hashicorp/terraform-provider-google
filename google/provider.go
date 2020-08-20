@@ -616,8 +616,8 @@ func Provider() terraform.ResourceProvider {
 }
 
 // Generated resources: 155
-// Generated IAM resources: 60
-// Total generated resources: 215
+// Generated IAM resources: 63
+// Total generated resources: 218
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -690,6 +690,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_https_health_check":                            resourceComputeHttpsHealthCheck(),
 			"google_compute_health_check":                                  resourceComputeHealthCheck(),
 			"google_compute_image":                                         resourceComputeImage(),
+			"google_compute_image_iam_binding":                             ResourceIamBinding(ComputeImageIamSchema, ComputeImageIamUpdaterProducer, ComputeImageIdParseFunc),
+			"google_compute_image_iam_member":                              ResourceIamMember(ComputeImageIamSchema, ComputeImageIamUpdaterProducer, ComputeImageIdParseFunc),
+			"google_compute_image_iam_policy":                              ResourceIamPolicy(ComputeImageIamSchema, ComputeImageIamUpdaterProducer, ComputeImageIdParseFunc),
 			"google_compute_instance_iam_binding":                          ResourceIamBinding(ComputeInstanceIamSchema, ComputeInstanceIamUpdaterProducer, ComputeInstanceIdParseFunc),
 			"google_compute_instance_iam_member":                           ResourceIamMember(ComputeInstanceIamSchema, ComputeInstanceIamUpdaterProducer, ComputeInstanceIdParseFunc),
 			"google_compute_instance_iam_policy":                           ResourceIamPolicy(ComputeInstanceIamSchema, ComputeInstanceIamUpdaterProducer, ComputeInstanceIdParseFunc),
