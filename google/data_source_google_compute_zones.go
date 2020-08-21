@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -51,30 +52,28 @@ func dataSourceGoogleComputeZonesRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	// we want to share exactly the same base path as the compute client or the
-	// region string may mismatch, giving us no results
-	// note that the client's BasePath includes a `projects/` suffix, so that'll
-	// need to be added to the URL below if the source changes
-	computeClientBasePath := config.clientCompute.BasePath
-
-	regionUrl, err := replaceVars(d, config, fmt.Sprintf("%s%s/regions/%s", computeClientBasePath, project, region))
-	if err != nil {
-		return err
-	}
-	filter := fmt.Sprintf("(region eq %s)", regionUrl)
-
+	filter := ""
 	if s, ok := d.GetOk("status"); ok {
 		filter += fmt.Sprintf(" (status eq %s)", s)
 	}
 
-	call := config.clientCompute.Zones.List(project).Filter(filter)
+	zones := []string{}
+	err = config.clientCompute.Zones.List(project).Filter(filter).Pages(config.context, func(zl *compute.ZoneList) error {
+		for _, zone := range zl.Items {
+			// We have no way to guarantee a specific base path for the region, but the built-in API-level filtering
+			// only lets us query on exact matches, so we do our own filtering here.
+			if strings.HasSuffix(zone.Region, "/"+region) {
+				zones = append(zones, zone.Name)
+			}
+		}
+		return nil
+	})
 
-	resp, err := call.Do()
 	if err != nil {
 		return err
 	}
 
-	zones := flattenZones(resp.Items)
+	sort.Strings(zones)
 	log.Printf("[DEBUG] Received Google Compute Zones: %q", zones)
 
 	d.Set("names", zones)
@@ -83,13 +82,4 @@ func dataSourceGoogleComputeZonesRead(d *schema.ResourceData, meta interface{}) 
 	d.SetId(time.Now().UTC().String())
 
 	return nil
-}
-
-func flattenZones(zones []*compute.Zone) []string {
-	result := make([]string, len(zones))
-	for i, zone := range zones {
-		result[i] = zone.Name
-	}
-	sort.Strings(result)
-	return result
 }

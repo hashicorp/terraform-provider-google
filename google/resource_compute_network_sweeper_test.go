@@ -61,7 +61,7 @@ func testSweepComputeNetwork(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://www.googleapis.com/compute/v1/projects/{{project}}/global/networks", "?")[0]
+	listTemplate := strings.Split("https://compute.googleapis.com/compute/v1/projects/{{project}}/global/networks", "?")[0]
 	listUrl, err := replaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -99,7 +99,7 @@ func testSweepComputeNetwork(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://www.googleapis.com/compute/v1/projects/{{project}}/global/networks/{{name}}"
+		deleteTemplate := "https://compute.googleapis.com/compute/v1/projects/{{project}}/global/networks/{{name}}"
 		deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)

@@ -424,14 +424,16 @@ func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*sc
 
 // Delete a compute network along with the firewall rules inside it.
 func forceDeleteComputeNetwork(d *schema.ResourceData, config *Config, projectId, networkName string) error {
-	networkLink, err := replaceVars(d, config, fmt.Sprintf("{{ComputeBasePath}}projects/%s/global/networks/%s", projectId, networkName))
+	// Read the network from the API so we can get the correct self link format. We can't construct it from the
+	// base path because it might not line up exactly (compute.googleapis.com vs www.googleapis.com)
+	net, err := config.clientCompute.Networks.Get(projectId, networkName).Do()
 	if err != nil {
 		return err
 	}
 
 	token := ""
 	for paginate := true; paginate; {
-		filter := fmt.Sprintf("network eq %s", networkLink)
+		filter := fmt.Sprintf("network eq %s", net.SelfLink)
 		resp, err := config.clientCompute.Firewalls.List(projectId).Filter(filter).Do()
 		if err != nil {
 			return errwrap.Wrapf("Error listing firewall rules in proj: {{err}}", err)

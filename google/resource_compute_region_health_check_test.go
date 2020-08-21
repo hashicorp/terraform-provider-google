@@ -155,7 +155,6 @@ func TestAccComputeRegionHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
 			{
 				Config:      testAccComputeRegionHealthCheck_tcpAndSsl_shouldFail(hckName),
 				ExpectError: regexp.MustCompile("only one of\n`grpc_health_check,http2_health_check,http_health_check,https_health_check,ssl_health_check,tcp_health_check`\ncan be specified, but `ssl_health_check,tcp_health_check` were specified"),
-
 			},
 		},
 	})

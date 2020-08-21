@@ -1,6 +1,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"regexp"
@@ -599,7 +600,7 @@ func isFirstGen(d *schema.ResourceData) bool {
 
 // Makes private_network ForceNew if it is changing from set to nil. The API returns an error
 // if this change is attempted in-place.
-func privateNetworkCustomizeDiff(d *schema.ResourceDiff, meta interface{}) error {
+func privateNetworkCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	old, new := d.GetChange("settings.0.ip_configuration.0.private_network")
 
 	if old != "" && new == "" {
