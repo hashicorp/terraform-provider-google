@@ -90,6 +90,9 @@ resource "google_pubsub_subscription" "example" {
   expiration_policy {
     ttl = "300000.5s"
   }
+  retry_policy {
+    minimum_backoff = "10s"
+  }
 
   enable_message_ordering    = false
 }
@@ -230,6 +233,13 @@ The following arguments are supported:
   permission to Acknowledge() messages on this subscription.
   Structure is documented below.
 
+* `retry_policy` -
+  (Optional)
+  A policy that specifies how Pub/Sub retries message delivery for this subscription.
+  If not set, the default retry policy is applied. This generally implies that messages will be retried as soon as possible for healthy subscribers. 
+  RetryPolicy will be triggered on NACKs or acknowledgement deadline exceeded events for a given message
+  Structure is documented below.
+
 * `enable_message_ordering` -
   (Optional)
   If `true`, messages published with the same orderingKey in PubsubMessage will be delivered to
@@ -328,6 +338,18 @@ The `dead_letter_policy` block supports:
   client libraries may automatically extend ack_deadlines.
   This field will be honored on a best effort basis.
   If this parameter is 0, a default value of 5 is used.
+
+The `retry_policy` block supports:
+
+* `minimum_backoff` -
+  (Optional)
+  The minimum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 10 seconds.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+
+* `maximum_backoff` -
+  (Optional)
+  The maximum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 600 seconds. 
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 
 ## Attributes Reference
 
