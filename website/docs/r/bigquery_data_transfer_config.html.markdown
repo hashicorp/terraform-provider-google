@@ -105,6 +105,11 @@ The following arguments are supported:
   https://cloud.google.com/appengine/docs/flexible/python/scheduling-jobs-with-cron-yaml#the_schedule_format
   NOTE: the granularity should be at least 8 hours, or less frequent.
 
+* `notification_pubsub_topic` -
+  (Optional)
+  Pub/Sub topic where notifications will be sent after transfer runs
+  associated with this transfer config finish.
+
 * `data_refresh_window_days` -
   (Optional)
   The number of days to look back to automatically refresh the data.

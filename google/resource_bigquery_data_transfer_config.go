@@ -88,6 +88,12 @@ Set the value to 0 to use the default value.`,
 Examples: US, EU, asia-northeast1. The default value is US.`,
 				Default: "US",
 			},
+			"notification_pubsub_topic": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Pub/Sub topic where notifications will be sent after transfer runs
+associated with this transfer config finish.`,
+			},
 			"schedule": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -154,6 +160,12 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("schedule"); !isEmptyValue(reflect.ValueOf(scheduleProp)) && (ok || !reflect.DeepEqual(v, scheduleProp)) {
 		obj["schedule"] = scheduleProp
+	}
+	notificationPubsubTopicProp, err := expandBigqueryDataTransferConfigNotificationPubsubTopic(d.Get("notification_pubsub_topic"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("notification_pubsub_topic"); !isEmptyValue(reflect.ValueOf(notificationPubsubTopicProp)) && (ok || !reflect.DeepEqual(v, notificationPubsubTopicProp)) {
+		obj["notificationPubsubTopic"] = notificationPubsubTopicProp
 	}
 	dataRefreshWindowDaysProp, err := expandBigqueryDataTransferConfigDataRefreshWindowDays(d.Get("data_refresh_window_days"), d, config)
 	if err != nil {
@@ -256,6 +268,9 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 	if err := d.Set("schedule", flattenBigqueryDataTransferConfigSchedule(res["schedule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
+	if err := d.Set("notification_pubsub_topic", flattenBigqueryDataTransferConfigNotificationPubsubTopic(res["notificationPubsubTopic"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
 	if err := d.Set("data_refresh_window_days", flattenBigqueryDataTransferConfigDataRefreshWindowDays(res["dataRefreshWindowDays"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
@@ -290,6 +305,12 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("schedule"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scheduleProp)) {
 		obj["schedule"] = scheduleProp
 	}
+	notificationPubsubTopicProp, err := expandBigqueryDataTransferConfigNotificationPubsubTopic(d.Get("notification_pubsub_topic"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("notification_pubsub_topic"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, notificationPubsubTopicProp)) {
+		obj["notificationPubsubTopic"] = notificationPubsubTopicProp
+	}
 	dataRefreshWindowDaysProp, err := expandBigqueryDataTransferConfigDataRefreshWindowDays(d.Get("data_refresh_window_days"), d, config)
 	if err != nil {
 		return err
@@ -323,6 +344,10 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("schedule") {
 		updateMask = append(updateMask, "schedule")
+	}
+
+	if d.HasChange("notification_pubsub_topic") {
+		updateMask = append(updateMask, "notificationPubsubTopic")
 	}
 
 	if d.HasChange("data_refresh_window_days") {
@@ -410,6 +435,10 @@ func flattenBigqueryDataTransferConfigSchedule(v interface{}, d *schema.Resource
 	return v
 }
 
+func flattenBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
@@ -458,6 +487,10 @@ func expandBigqueryDataTransferConfigDataSourceId(v interface{}, d TerraformReso
 }
 
 func expandBigqueryDataTransferConfigSchedule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
