@@ -288,6 +288,33 @@ messages are not expunged from the subscription's backlog, even if
 they are acknowledged, until they fall out of the
 messageRetentionDuration window.`,
 			},
+			"retry_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A policy that specifies how Pub/Sub retries message delivery for this subscription.
+
+If not set, the default retry policy is applied. This generally implies that messages will be retried as soon as possible for healthy subscribers. 
+RetryPolicy will be triggered on NACKs or acknowledgement deadline exceeded events for a given message`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"maximum_backoff": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Description: `The maximum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 600 seconds. 
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+						},
+						"minimum_backoff": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Description: `The minimum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 10 seconds.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+						},
+					},
+				},
+			},
 			"path": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -365,6 +392,12 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
 		obj["deadLetterPolicy"] = deadLetterPolicyProp
+	}
+	retryPolicyProp, err := expandPubsubSubscriptionRetryPolicy(d.Get("retry_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("retry_policy"); !isEmptyValue(reflect.ValueOf(retryPolicyProp)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
+		obj["retryPolicy"] = retryPolicyProp
 	}
 	enableMessageOrderingProp, err := expandPubsubSubscriptionEnableMessageOrdering(d.Get("enable_message_ordering"), d, config)
 	if err != nil {
@@ -506,6 +539,9 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("dead_letter_policy", flattenPubsubSubscriptionDeadLetterPolicy(res["deadLetterPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
+	if err := d.Set("retry_policy", flattenPubsubSubscriptionRetryPolicy(res["retryPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
 	if err := d.Set("enable_message_ordering", flattenPubsubSubscriptionEnableMessageOrdering(res["enableMessageOrdering"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
@@ -564,6 +600,12 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
 		obj["deadLetterPolicy"] = deadLetterPolicyProp
 	}
+	retryPolicyProp, err := expandPubsubSubscriptionRetryPolicy(d.Get("retry_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("retry_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
+		obj["retryPolicy"] = retryPolicyProp
+	}
 	enableMessageOrderingProp, err := expandPubsubSubscriptionEnableMessageOrdering(d.Get("enable_message_ordering"), d, config)
 	if err != nil {
 		return err
@@ -610,6 +652,10 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("dead_letter_policy") {
 		updateMask = append(updateMask, "deadLetterPolicy")
+	}
+
+	if d.HasChange("retry_policy") {
+		updateMask = append(updateMask, "retryPolicy")
 	}
 
 	if d.HasChange("enable_message_ordering") {
@@ -822,6 +868,29 @@ func flattenPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{},
 	return v // let terraform core handle it otherwise
 }
 
+func flattenPubsubSubscriptionRetryPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["minimum_backoff"] =
+		flattenPubsubSubscriptionRetryPolicyMinimumBackoff(original["minimumBackoff"], d, config)
+	transformed["maximum_backoff"] =
+		flattenPubsubSubscriptionRetryPolicyMaximumBackoff(original["maximumBackoff"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubSubscriptionRetryPolicyMinimumBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionRetryPolicyMaximumBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenPubsubSubscriptionEnableMessageOrdering(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -1018,6 +1087,40 @@ func expandPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(v interface{}, d Te
 }
 
 func expandPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionRetryPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMinimumBackoff, err := expandPubsubSubscriptionRetryPolicyMinimumBackoff(original["minimum_backoff"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinimumBackoff); val.IsValid() && !isEmptyValue(val) {
+		transformed["minimumBackoff"] = transformedMinimumBackoff
+	}
+
+	transformedMaximumBackoff, err := expandPubsubSubscriptionRetryPolicyMaximumBackoff(original["maximum_backoff"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaximumBackoff); val.IsValid() && !isEmptyValue(val) {
+		transformed["maximumBackoff"] = transformedMaximumBackoff
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionRetryPolicyMinimumBackoff(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionRetryPolicyMaximumBackoff(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
