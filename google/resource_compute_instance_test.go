@@ -656,7 +656,7 @@ func TestAccComputeInstance_scratchDisk(t *testing.T) {
 				Config: testAccComputeInstance_scratchDisk(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						t, "google_compute_instance.scratch", &instance),
+						t, "google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME", "SCSI"}),
 				),
 			},
@@ -3531,7 +3531,7 @@ data "google_compute_image" "my_image" {
   project = "debian-cloud"
 }
 
-resource "google_compute_instance" "scratch" {
+resource "google_compute_instance" "foobar" {
   name         = "%s"
   machine_type = "n1-standard-1"
   zone         = "us-central1-a"
