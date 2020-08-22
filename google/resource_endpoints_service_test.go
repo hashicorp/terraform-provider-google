@@ -21,6 +21,9 @@ func TestAccEndpointsService_basic(t *testing.T) {
 		PreCheck:     func() { testAccPreCheck(t) },
 		CheckDestroy: testAccCheckEndpointServiceDestroyProducer(t),
 		Providers:    testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv(), "1"),
