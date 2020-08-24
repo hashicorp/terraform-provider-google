@@ -48,7 +48,7 @@ Building the provider
 Clone repository to: `$GOPATH/src/github.com/hashicorp/terraform-provider-google`
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
+$ mkdir -p $GOPATH/src/github.com/hashicorp; cd $GOPATH/src/github.com/hashicorp
 $ git clone git@github.com:hashicorp/terraform-provider-google
 ```
 
