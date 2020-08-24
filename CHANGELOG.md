@@ -3,14 +3,15 @@
 FEATURES:
 * **New Resource:** `google_active_directory_domain_trust` ([#7056](https://github.com/hashicorp/terraform-provider-google/pull/7056))
 * **New Resource:** `google_access_context_manager_service_perimeters` ([#7027](https://github.com/hashicorp/terraform-provider-google/pull/7027))
+* **New Resource:** `google_access_context_manager_access_levels` ([#7027](https://github.com/hashicorp/terraform-provider-google/pull/7027))
 * **New Resource:** `google_folder_access_approval_settings` ([#7010](https://github.com/hashicorp/terraform-provider-google/pull/7010))
 * **New Resource:** `google_organization_access_approval_settings` ([#7010](https://github.com/hashicorp/terraform-provider-google/pull/7010))
 * **New Resource:** `google_project_access_approval_settings` ([#7010](https://github.com/hashicorp/terraform-provider-google/pull/7010))
+* **New Resource:** `google_bigquery_table_iam_policy` ([#7041](https://github.com/hashicorp/terraform-provider-google/pull/7041))
+* **New Resource:** `google_bigquery_table_iam_binding` ([#7041](https://github.com/hashicorp/terraform-provider-google/pull/7041))
+* **New Resource:** `google_bigquery_table_iam_member` ([#7041](https://github.com/hashicorp/terraform-provider-google/pull/7041))
 
 IMPROVEMENTS:
-* bigquery: added support for BigQuery table ACLs ([#7041](https://github.com/hashicorp/terraform-provider-google/pull/7041))
-* compute: added confidential_instance_config block to google_compute_instance ([#7000](https://github.com/hashicorp/terraform-provider-google/pull/7000))
-* compute: added confidential_instance_config block to google_compute_instance_template ([#7000](https://github.com/hashicorp/terraform-provider-google/pull/7000))
 * compute: added grpc_health_check block to compute_health_check ([#7038](https://github.com/hashicorp/terraform-provider-google/pull/7038))
 * compute: added grpc_health_check block to compute_region_health_check ([#7038](https://github.com/hashicorp/terraform-provider-google/pull/7038))
 * pubsub: added `enable_message_ordering` support to `google_pubsub_subscription` ([#7039](https://github.com/hashicorp/terraform-provider-google/pull/7039))
