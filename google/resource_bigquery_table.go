@@ -368,6 +368,44 @@ func resourceBigQueryTable() *schema.Resource {
 				},
 			},
 
+			// Materialized View: [Optional] If specified, configures this table as a materialized view.
+			"materialized_view": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `If specified, configures this table as a materialized view.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// EnableRefresh: [Optional] Enable automatic refresh of
+						// the materialized view when the base table is updated. The default
+						// value is "true".
+						"enable_refresh": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: `Specifies if BigQuery should automatically refresh materialized view when the base table is updated. The default is true.`,
+						},
+
+						// RefreshIntervalMs: [Optional] The maximum frequency
+						// at which this materialized view will be refreshed. The default value
+						// is 1800000 (30 minutes).
+						"refresh_interval_ms": {
+							Type:        schema.TypeInt,
+							Default:     1800000,
+							Optional:    true,
+							Description: `Specifies maximum frequency at which this materialized view will be refreshed. The default is 1800000`,
+						},
+
+						// Query: [Required] A query whose result is persisted
+						"query": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `A query whose result is persisted.`,
+						},
+					},
+				},
+			},
+
 			// TimePartitioning: [Experimental] If specified, configures time-based
 			// partitioning for this table.
 			"time_partitioning": {
@@ -593,6 +631,10 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		table.View = expandView(v)
 	}
 
+	if v, ok := d.GetOk("materialized_view"); ok {
+		table.MaterializedView = expandMaterializedView(v)
+	}
+
 	if v, ok := d.GetOk("description"); ok {
 		table.Description = v.(string)
 	}
@@ -785,6 +827,12 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	if res.View != nil {
 		view := flattenView(res.View)
 		d.Set("view", view)
+	}
+
+	if res.MaterializedView != nil {
+		materialized_view := flattenMaterializedView(res.MaterializedView)
+
+		d.Set("materialized_view", materialized_view)
 	}
 
 	return nil
@@ -1181,6 +1229,31 @@ func expandView(configured interface{}) *bigquery.ViewDefinition {
 func flattenView(vd *bigquery.ViewDefinition) []map[string]interface{} {
 	result := map[string]interface{}{"query": vd.Query}
 	result["use_legacy_sql"] = vd.UseLegacySql
+
+	return []map[string]interface{}{result}
+}
+
+func expandMaterializedView(configured interface{}) *bigquery.MaterializedViewDefinition {
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	mvd := &bigquery.MaterializedViewDefinition{Query: raw["query"].(string)}
+
+	if v, ok := raw["enable_refresh"]; ok {
+		mvd.EnableRefresh = v.(bool)
+		mvd.ForceSendFields = append(mvd.ForceSendFields, "EnableRefresh")
+	}
+
+	if v, ok := raw["refresh_interval_ms"]; ok {
+		mvd.RefreshIntervalMs = int64(v.(int))
+		mvd.ForceSendFields = append(mvd.ForceSendFields, "RefreshIntervalMs")
+	}
+
+	return mvd
+}
+
+func flattenMaterializedView(mvd *bigquery.MaterializedViewDefinition) []map[string]interface{} {
+	result := map[string]interface{}{"query": mvd.Query}
+	result["enable_refresh"] = mvd.EnableRefresh
+	result["refresh_interval_ms"] = mvd.RefreshIntervalMs
 
 	return []map[string]interface{}{result}
 }
