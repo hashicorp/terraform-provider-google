@@ -126,7 +126,15 @@ Toggles the aggregation interval for collecting flow logs. Increasing the
 interval time will reduce the amount of generated flow logs for long
 lasting connections. Default is an interval of 5 seconds per connection. Default value: "INTERVAL_5_SEC" Possible values: ["INTERVAL_5_SEC", "INTERVAL_30_SEC", "INTERVAL_1_MIN", "INTERVAL_5_MIN", "INTERVAL_10_MIN", "INTERVAL_15_MIN"]`,
 							Default:      "INTERVAL_5_SEC",
-							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata"},
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
+						},
+						"filter_expr": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Export filter used to define which VPC flow logs should be logged, as as CEL expression. See
+https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.`,
+							Default:      "true",
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
 						},
 						"flow_sampling": {
 							Type:     schema.TypeFloat,
@@ -137,17 +145,27 @@ flow logs within the subnetwork where 1.0 means all collected logs are
 reported and 0.0 means no logs are reported. Default is 0.5 which means
 half of all collected logs are reported.`,
 							Default:      0.5,
-							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata"},
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
 						},
 						"metadata": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", ""}, false),
+							ValidateFunc: validation.StringInSlice([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", "CUSTOM_METADATA", ""}, false),
 							Description: `Can only be specified if VPC flow logging for this subnetwork is enabled.
 Configures whether metadata fields should be added to the reported VPC
-flow logs. Default value: "INCLUDE_ALL_METADATA" Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"]`,
+flow logs. Default value: "INCLUDE_ALL_METADATA" Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", "CUSTOM_METADATA"]`,
 							Default:      "INCLUDE_ALL_METADATA",
-							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata"},
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
+						},
+						"metadata_fields": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Description: `List of metadata fields that should be added to reported logs.
+Can only be specified if VPC flow logs for this subnetwork is enabled and "metadata" is set to CUSTOM_METADATA.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Set: schema.HashString,
 						},
 					},
 				},
@@ -726,6 +744,18 @@ func flattenComputeSubnetworkLogConfig(v interface{}, d *schema.ResourceData, co
 	transformed["flow_sampling"] = original["flowSampling"]
 	transformed["aggregation_interval"] = original["aggregationInterval"]
 	transformed["metadata"] = original["metadata"]
+	if original["metadata"].(string) == "CUSTOM_METADATA" {
+		transformed["metadata_fields"] = original["metadataFields"]
+	} else {
+		// MetadataFields can only be set when metadata is CUSTOM_METADATA. However, when updating
+		// from custom to include/exclude, the API will return the previous values of the metadata fields,
+		// despite not actually having any custom fields at the moment. The API team has confirmed
+		// this as WAI (b/162771344), so we work around it by clearing the response if metadata is
+		// not custom.
+		transformed["metadata_fields"] = nil
+	}
+	transformed["filter_expr"] = original["filterExpr"]
+
 	return []interface{}{transformed}
 }
 
@@ -821,6 +851,10 @@ func expandComputeSubnetworkLogConfig(v interface{}, d TerraformResourceData, co
 	transformed["aggregationInterval"] = original["aggregation_interval"]
 	transformed["flowSampling"] = original["flow_sampling"]
 	transformed["metadata"] = original["metadata"]
+	transformed["filterExpr"] = original["filter_expr"]
+
+	// make it JSON marshallable
+	transformed["metadataFields"] = original["metadata_fields"].(*schema.Set).List()
 
 	return transformed, nil
 }
