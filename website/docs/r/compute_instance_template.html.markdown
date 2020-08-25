@@ -281,7 +281,7 @@ The `disk` block supports:
 ~> **Note:** Either `source` or `source_image` is **required** when creating a new instance except for when creating a local SSD. Check the API [docs](https://cloud.google.com/compute/docs/reference/rest/v1/instanceTemplates/insert) for details.
 
 * `disk_type` - (Optional) The GCE disk type. Can be either `"pd-ssd"`,
-    `"local-ssd"`, or `"pd-standard"`.
+    `"local-ssd"`, `"pd-balanced"` or `"pd-standard"`.
 
 * `disk_size_gb` - (Optional) The size of the image in gigabytes. If not
     specified, it will inherit the size of its base image. For SCRATCH disks,
