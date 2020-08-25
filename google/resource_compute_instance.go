@@ -154,8 +154,8 @@ func resourceComputeInstance() *schema.Resource {
 										AtLeastOneOf: initializeParamsKeys,
 										Computed:     true,
 										ForceNew:     true,
-										ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd"}, false),
-										Description:  `The GCE disk type. One of pd-standard or pd-ssd.`,
+										ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd", "pd-balanced"}, false),
+										Description:  `The GCE disk type. One of pd-standard, pd-ssd or pd-balanced.`,
 									},
 
 									"image": {

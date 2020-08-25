@@ -38,7 +38,7 @@ func schemaNodeConfig() *schema.Schema {
 					Optional:     true,
 					Computed:     true,
 					ForceNew:     true,
-					ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-ssd"}, false),
+					ValidateFunc: validation.StringInSlice([]string{"pd-standard", "pd-balanced", "pd-ssd"}, false),
 				},
 
 				"guest_accelerator": {

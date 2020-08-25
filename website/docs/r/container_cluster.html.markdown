@@ -554,7 +554,7 @@ The `node_config` block supports:
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB.
 
 * `disk_type` - (Optional) Type of the disk attached to each node
-    (e.g. 'pd-standard' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+    (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
 
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance.
     Structure documented below.

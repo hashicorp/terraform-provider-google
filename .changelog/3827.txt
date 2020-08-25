@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added support for pd-balanced disk type for `google_compute_instance`
+```
+```release-note:enhancement
+container: added support for pd-balanced disk type for `google_container_node_pool`
+```
