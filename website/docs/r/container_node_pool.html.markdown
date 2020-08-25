@@ -154,7 +154,7 @@ cluster.
 * `project` - (Optional) The ID of the project in which to create the node pool. If blank,
     the provider-configured project will be used.
 
-* `upgrade_settings` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Specify node upgrade settings to change how many nodes GKE attempts to
+* `upgrade_settings` (Optional) Specify node upgrade settings to change how many nodes GKE attempts to
     upgrade at once. The number of nodes upgraded simultaneously is the sum of `max_surge` and `max_unavailable`.
     The maximum number of nodes upgraded simultaneously is limited to 20.
 
