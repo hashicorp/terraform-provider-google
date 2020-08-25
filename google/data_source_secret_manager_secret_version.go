@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"regexp"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -121,6 +120,6 @@ func dataSourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta inter
 	}
 	d.Set("secret_data", string(secretData))
 
-	d.SetId(time.Now().UTC().String())
+	d.SetId(version["name"].(string))
 	return nil
 }
