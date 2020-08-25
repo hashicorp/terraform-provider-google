@@ -308,6 +308,3 @@ ServicePerimeter can be imported using any of these accepted formats:
 ```
 $ terraform import google_access_context_manager_service_perimeter.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.

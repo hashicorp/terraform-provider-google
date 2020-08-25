@@ -137,9 +137,6 @@ EntityType can be imported using any of these accepted formats:
 $ terraform import google_dialogflow_entity_type.default {{name}}
 ```
 
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
-
 ## User Project Overrides
 
 This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

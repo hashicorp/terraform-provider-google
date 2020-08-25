@@ -754,9 +754,6 @@ $ terraform import google_app_engine_flexible_app_version.default {{project}}/{{
 $ terraform import google_app_engine_flexible_app_version.default {{service}}/{{version_id}}
 ```
 
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
-
 ## User Project Overrides
 
 This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

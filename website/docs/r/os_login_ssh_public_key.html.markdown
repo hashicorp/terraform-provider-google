@@ -98,6 +98,3 @@ SSHPublicKey can be imported using any of these accepted formats:
 $ terraform import google_os_login_ssh_public_key.default users/{{user}}/sshPublicKeys/{{fingerprint}}
 $ terraform import google_os_login_ssh_public_key.default {{user}}/{{fingerprint}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.

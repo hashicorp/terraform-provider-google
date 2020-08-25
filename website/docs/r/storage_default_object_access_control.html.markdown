@@ -150,6 +150,3 @@ DefaultObjectAccessControl can be imported using any of these accepted formats:
 ```
 $ terraform import google_storage_default_object_access_control.default {{bucket}}/{{entity}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
