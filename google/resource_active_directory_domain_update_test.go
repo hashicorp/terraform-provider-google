@@ -10,7 +10,7 @@ import (
 func TestAccActiveDirectoryDomain_update(t *testing.T) {
 	t.Parallel()
 
-	domain := fmt.Sprintf("mydomain%s.org1.com", randString(t, 5))
+	domain := fmt.Sprintf("tf-test%s.org1.com", randString(t, 5))
 	context := map[string]interface{}{
 		"domain":        domain,
 		"resource_name": "ad-domain",
