@@ -61,7 +61,7 @@ func testSweepActiveDirectoryDomain(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://managedidentities.googleapis.com/v1/projects/{{project}}/locations/global/domains?domainName={{domain_name}}", "?")[0]
+	listTemplate := strings.Split("https://managedidentities.googleapis.com/v1/projects/{{project}}/locations/global/domains", "?")[0]
 	listUrl, err := replaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
