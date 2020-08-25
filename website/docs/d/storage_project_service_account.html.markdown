@@ -18,7 +18,7 @@ operations involving
 and those involving
 [storage notifications to pub/sub](https://cloud.google.com/storage/docs/gsutil/commands/notification).
 This automatic Google service account requires access to the relevant Cloud KMS keys or pub/sub topics, respectively, in order for Cloud Storage to use
-these customer-maanged resources.
+these customer-managed resources.
 
 The service account has a well-known, documented naming format which is parameterised on the numeric Google project ID.
 However, as noted in [the docs](https://cloud.google.com/storage/docs/projects#service-accounts), it is only created when certain relevant actions occur which
