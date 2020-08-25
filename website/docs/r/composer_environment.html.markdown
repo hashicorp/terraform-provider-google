@@ -173,6 +173,13 @@ The `config` block supports:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The network-level access control policy for the Airflow web server. If unspecified, no network-level access restrictions will be applied.
 
+* `database_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The configuration settings for Cloud SQL instance used internally by Apache Airflow software.
+
+* `web_server_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The configuration settings for the Airflow web server App Engine instance.
 
 The `node_config` block supports:
 
@@ -368,6 +375,22 @@ The `ip_allocation_policy` block supports:
   Set to a CIDR notation (e.g. 10.96.0.0/14) from the RFC-1918 private networks
   (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use.
   Specify either `services_secondary_range_name` or `services_ipv4_cidr_block` but not both.
+
+The `database_config` block supports:
+
+* `machine_type` -
+  (Required)
+  Cloud SQL machine type used by Airflow database. It has to be one of: db-n1-standard-2,
+  db-n1-standard-4, db-n1-standard-8 or db-n1-standard-16.
+
+The `web_server_config` block supports:
+
+* `machine_type` -
+  (Required)
+  Machine type on which Airflow web server is running. It has to be one of: composer-n1-webserver-2,
+  composer-n1-webserver-4 or composer-n1-webserver-8.
+  Value custom is returned only in response, if Airflow web server parameters were
+  manually changed to a non-standard values.
 
 
 

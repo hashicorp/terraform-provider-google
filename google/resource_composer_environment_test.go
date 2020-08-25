@@ -306,29 +306,29 @@ func testAccComposerEnvironmentDestroyProducer(t *testing.T) func(s *terraform.S
 func testAccComposerEnvironment_basic(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-    }
-  }
+	name   = "%s"
+	region = "us-central1"
+	config {
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
+		}
+	}
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
 }
 `, name, network, subnetwork)
 }
@@ -336,38 +336,38 @@ resource "google_compute_subnetwork" "test" {
 func testAccComposerEnvironment_private(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
+	name   = "%s"
+	region = "us-central1"
 
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-      ip_allocation_policy {
-        use_ip_aliases          = true
-        cluster_ipv4_cidr_block = "10.0.0.0/16"
-      }
-    }
-    private_environment_config {
-      enable_private_endpoint = true
-    }
-  }
+	config {
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
+			ip_allocation_policy {
+				use_ip_aliases          = true
+				cluster_ipv4_cidr_block = "10.0.0.0/16"
+			}
+		}
+		private_environment_config {
+			enable_private_endpoint = true
+		}
+	}
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name                     = "%s"
-  ip_cidr_range            = "10.2.0.0/16"
-  region                   = "us-central1"
-  network                  = google_compute_network.test.self_link
-  private_ip_google_access = true
+	name                     = "%s"
+	ip_cidr_range            = "10.2.0.0/16"
+	region                   = "us-central1"
+	network                  = google_compute_network.test.self_link
+	private_ip_google_access = true
 }
 `, name, network, subnetwork)
 }
@@ -378,52 +378,52 @@ data "google_composer_image_versions" "all" {
 }
 
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
+	name   = "%s"
+	region = "us-central1"
 
-  config {
-    node_count = 4
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-    }
+	config {
+		node_count = 4
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
+		}
 
-    software_config {
-      image_version = data.google_composer_image_versions.all.image_versions[0].image_version_id
+		software_config {
+			image_version = data.google_composer_image_versions.all.image_versions[0].image_version_id
 
-      airflow_config_overrides = {
-        core-load_example = "True"
-      }
+			airflow_config_overrides = {
+				core-load_example = "True"
+			}
 
-      pypi_packages = {
-        numpy = ""
-      }
+			pypi_packages = {
+				numpy = ""
+			}
 
-      env_variables = {
-        FOO = "bar"
-      }
-    }
-  }
+			env_variables = {
+				FOO = "bar"
+			}
+		}
+	}
 
-  labels = {
-    foo          = "bar"
-    anotherlabel = "boo"
-  }
+	labels = {
+		foo          = "bar"
+		anotherlabel = "boo"
+	}
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
 }
 `, name, network, subnetwork)
 }
@@ -431,41 +431,41 @@ resource "google_compute_subnetwork" "test" {
 func testAccComposerEnvironment_nodeCfg(environment, network, subnetwork, serviceAccount string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
+	name   = "%s"
+	region = "us-central1"
+	config {
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
 
-      service_account = google_service_account.test.name
-    }
-  }
+			service_account = google_service_account.test.name
+		}
+	}
 
-  depends_on = [google_project_iam_member.composer-worker]
+	depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
 }
 
 resource "google_service_account" "test" {
-  account_id   = "%s"
-  display_name = "Test Service Account for Composer Environment"
+	account_id   = "%s"
+	display_name = "Test Service Account for Composer Environment"
 }
 
 resource "google_project_iam_member" "composer-worker" {
-  role   = "roles/composer.worker"
-  member = "serviceAccount:${google_service_account.test.email}"
+	role   = "roles/composer.worker"
+	member = "serviceAccount:${google_service_account.test.email}"
 }
 `, environment, network, subnetwork, serviceAccount)
 }
@@ -476,33 +476,33 @@ data "google_composer_image_versions" "all" {
 }
 
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-    }
-    software_config {
-      image_version  = data.google_composer_image_versions.all.image_versions[0].image_version_id
-      python_version = "3"
-    }
-  }
+	name   = "%s"
+	region = "us-central1"
+	config {
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
+		}
+		software_config {
+			image_version  = data.google_composer_image_versions.all.image_versions[0].image_version_id
+			python_version = "3"
+		}
+	}
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
 }
 `, name, network, subnetwork)
 }
@@ -510,34 +510,34 @@ resource "google_compute_subnetwork" "test" {
 func testAccComposerEnvironment_updateOnlyFields(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-    }
-    software_config {
-      pypi_packages = {
-        scipy = "==1.1.0"
-      }
-    }
-  }
+	name   = "%s"
+	region = "us-central1"
+	config {
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
+		}
+		software_config {
+			pypi_packages = {
+				scipy = "==1.1.0"
+			}
+		}
+	}
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
 }
 `, name, network, subnetwork)
 }

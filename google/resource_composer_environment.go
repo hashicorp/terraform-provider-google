@@ -589,6 +589,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			}
 			d.SetPartial("config")
 		}
+
 	}
 
 	if d.HasChange("labels") {
