@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: Added custom metadata fields and filter expressions to `google_compute_subnetwork` flow log configuration
+```

@@ -49,7 +49,7 @@ of the network, even entire subnets, using firewall rules.
 
 To get more information about Subnetwork, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/subnetworks)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/subnetworks)
 * How-to Guides
     * [Private Google Access](https://cloud.google.com/vpc/docs/configure-private-google-access)
     * [Cloud Networking](https://cloud.google.com/vpc/docs/using-vpc)
@@ -245,7 +245,17 @@ The `log_config` block supports:
   Configures whether metadata fields should be added to the reported VPC
   flow logs.
   Default value is `INCLUDE_ALL_METADATA`.
-  Possible values are `EXCLUDE_ALL_METADATA` and `INCLUDE_ALL_METADATA`.
+  Possible values are `EXCLUDE_ALL_METADATA`, `INCLUDE_ALL_METADATA`, and `CUSTOM_METADATA`.
+
+* `metadata_fields` -
+  (Optional)
+  List of metadata fields that should be added to reported logs.
+  Can only be specified if VPC flow logs for this subnetwork is enabled and "metadata" is set to CUSTOM_METADATA.
+
+* `filter_expr` -
+  (Optional)
+  Export filter used to define which VPC flow logs should be logged, as as CEL expression. See
+  https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.
 
 ## Attributes Reference
 
