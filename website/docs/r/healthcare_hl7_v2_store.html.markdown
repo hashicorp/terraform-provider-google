@@ -280,6 +280,3 @@ Hl7V2Store can be imported using any of these accepted formats:
 $ terraform import google_healthcare_hl7_v2_store.default {{dataset}}/hl7V2Stores/{{name}}
 $ terraform import google_healthcare_hl7_v2_store.default {{dataset}}/{{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
