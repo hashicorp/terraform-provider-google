@@ -297,7 +297,7 @@ channel. Structure is documented below.
 
 * `resource_labels` - (Optional) The GCE resource labels (a map of key/value pairs) to be applied to the cluster.
 
-* `resource_usage_export_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for the
+* `resource_usage_export_config` - (Optional) Configuration for the
     [ResourceUsageExportConfig](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-usage-metering) feature.
     Structure is documented below.
 
