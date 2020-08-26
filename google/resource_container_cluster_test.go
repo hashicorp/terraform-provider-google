@@ -2784,6 +2784,9 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
 
 func testAccContainerCluster_withResourceUsageExportConfig(clusterName, datasetId, enableMetering string) string {
 	return fmt.Sprintf(`
+provider "google" {
+  user_project_override = true
+}	
 resource "google_bigquery_dataset" "default" {
   dataset_id                 = "%s"
   description                = "gke resource usage dataset tests"

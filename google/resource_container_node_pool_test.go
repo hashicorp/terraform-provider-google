@@ -664,6 +664,9 @@ func testAccCheckContainerNodePoolDestroyProducer(t *testing.T) func(s *terrafor
 
 func testAccContainerNodePool_basic(cluster, np string) string {
 	return fmt.Sprintf(`
+provider "google" {
+  user_project_override = true
+}	
 resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1-a"
