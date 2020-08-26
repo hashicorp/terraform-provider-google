@@ -100,11 +100,20 @@ func resourceHealthcareDatasetCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Creating new Dataset: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Dataset: %s", err)
 	}
@@ -129,11 +138,20 @@ func resourceHealthcareDatasetRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("HealthcareDataset %q", d.Id()))
 	}
@@ -167,10 +185,13 @@ func resourceHealthcareDatasetRead(d *schema.ResourceData, meta interface{}) err
 func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	timeZoneProp, err := expandHealthcareDatasetTimeZone(d.Get("time_zone"), d, config)
@@ -197,7 +218,13 @@ func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Dataset %q: %s", d.Id(), err)
@@ -211,10 +238,13 @@ func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) e
 func resourceHealthcareDatasetDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{HealthcareBasePath}}projects/{{project}}/locations/{{location}}/datasets/{{name}}")
 	if err != nil {
@@ -224,7 +254,12 @@ func resourceHealthcareDatasetDelete(d *schema.ResourceData, meta interface{}) e
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Dataset %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Dataset")
 	}

@@ -394,11 +394,20 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new ForwardingRule: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ForwardingRule: %s", err)
 	}
@@ -433,11 +442,20 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeForwardingRule %q", d.Id()))
 	}
@@ -510,10 +528,13 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	d.Partial(true)
 
@@ -531,7 +552,13 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
 		} else {
@@ -561,7 +588,13 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
 		} else {
@@ -586,10 +619,13 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
@@ -599,7 +635,12 @@ func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ForwardingRule %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "ForwardingRule")
 	}

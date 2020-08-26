@@ -220,7 +220,14 @@ func resourceHealthcareHl7V2StoreCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Creating new Hl7V2Store: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Hl7V2Store: %s", err)
 	}
@@ -245,7 +252,14 @@ func resourceHealthcareHl7V2StoreRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("HealthcareHl7V2Store %q", d.Id()))
 	}
@@ -283,6 +297,8 @@ func resourceHealthcareHl7V2StoreRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	parserConfigProp, err := expandHealthcareHl7V2StoreParserConfig(d.Get("parser_config"), d, config)
@@ -339,7 +355,13 @@ func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Hl7V2Store %q: %s", d.Id(), err)
@@ -353,6 +375,8 @@ func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}
 func resourceHealthcareHl7V2StoreDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores/{{name}}")
 	if err != nil {
 		return err
@@ -361,7 +385,12 @@ func resourceHealthcareHl7V2StoreDelete(d *schema.ResourceData, meta interface{}
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Hl7V2Store %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Hl7V2Store")
 	}

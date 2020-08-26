@@ -120,7 +120,14 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Creating new SecretVersion: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating SecretVersion: %s", err)
 	}
@@ -161,7 +168,14 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SecretManagerSecretVersion %q", d.Id()))
 	}
@@ -198,6 +212,8 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}{{name}}:destroy")
 	if err != nil {
 		return err
@@ -206,7 +222,12 @@ func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta inter
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting SecretVersion %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "SecretVersion")
 	}

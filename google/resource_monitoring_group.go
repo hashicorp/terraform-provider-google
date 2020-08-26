@@ -126,11 +126,20 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Creating new Group: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating Group: %s", err)
 	}
@@ -174,11 +183,20 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringConcurrentEditError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil, isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringGroup %q", d.Id()))
 	}
@@ -209,10 +227,13 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	parentNameProp, err := expandMonitoringGroupParentName(d.Get("parent_name"), d, config)
@@ -253,7 +274,13 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Group %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Group %q: %s", d.Id(), err)
@@ -267,10 +294,13 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "stackdriver/groups/{{project}}")
 	if err != nil {
@@ -287,7 +317,12 @@ func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) err
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Group %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, "Group")
 	}

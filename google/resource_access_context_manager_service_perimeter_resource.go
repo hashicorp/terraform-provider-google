@@ -92,7 +92,14 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ServicePerimeterResource: %s", err)
 	}
@@ -150,7 +157,14 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeterResource %q", d.Id()))
 	}
@@ -177,6 +191,8 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	lockName, err := replaceVars(d, config, "{{perimeter_name}}")
 	if err != nil {
 		return err
@@ -201,7 +217,12 @@ func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.Resour
 	}
 	log.Printf("[DEBUG] Deleting ServicePerimeterResource %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "ServicePerimeterResource")
 	}

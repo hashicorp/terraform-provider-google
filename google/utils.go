@@ -55,6 +55,12 @@ func getProject(d TerraformResourceData, config *Config) (string, error) {
 	return getProjectFromSchema("project", d, config)
 }
 
+// getBillingProject reads the "billing_project" field from the given resource data and falls
+// back to the provider's value if not given. If no value is found, an error is returned.
+func getBillingProject(d TerraformResourceData, config *Config) (string, error) {
+	return getBillingProjectFromSchema("billing_project", d, config)
+}
+
 // getProjectFromDiff reads the "project" field from the given diff and falls
 // back to the provider's value if not given. If the provider's value is not
 // given, an error is returned.

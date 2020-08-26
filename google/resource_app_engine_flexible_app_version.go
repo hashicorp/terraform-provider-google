@@ -1022,11 +1022,20 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new FlexibleAppVersion: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isAppEngineRetryableError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate), isAppEngineRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating FlexibleAppVersion: %s", err)
 	}
@@ -1061,11 +1070,20 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil, isAppEngineRetryableError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil, isAppEngineRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineFlexibleAppVersion %q", d.Id()))
 	}
@@ -1151,10 +1169,13 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	idProp, err := expandAppEngineFlexibleAppVersionVersionId(d.Get("version_id"), d, config)
@@ -1320,7 +1341,13 @@ func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Updating FlexibleAppVersion %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate), isAppEngineRetryableError)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate), isAppEngineRetryableError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating FlexibleAppVersion %q: %s", d.Id(), err)

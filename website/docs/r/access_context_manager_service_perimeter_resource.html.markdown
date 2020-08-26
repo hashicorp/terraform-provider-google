@@ -38,6 +38,12 @@ To get more information about ServicePerimeterResource, see:
 * How-to Guides
     * [Service Perimeter Quickstart](https://cloud.google.com/vpc-service-controls/docs/quickstart)
 
+~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
+you must specify a `billing_project` and set `user_project_override` to true 
+in the provider configuration. Otherwise the ACM API will return a 403 error. 
+Your account must have the `serviceusage.services.use` permission on the 
+`billing_project` you defined.
+
 ## Example Usage - Access Context Manager Service Perimeter Resource Basic
 
 

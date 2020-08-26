@@ -353,7 +353,14 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 	}
 
 	log.Printf("[DEBUG] Creating new ServicePerimeter: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ServicePerimeter: %s", err)
 	}
@@ -401,7 +408,14 @@ func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, me
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeter %q", d.Id()))
 	}
@@ -439,6 +453,8 @@ func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, me
 
 func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	titleProp, err := expandAccessContextManagerServicePerimeterTitle(d.Get("title"), d, config)
@@ -517,7 +533,13 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ServicePerimeter %q: %s", d.Id(), err)
@@ -539,6 +561,8 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 func resourceAccessContextManagerServicePerimeterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	lockName, err := replaceVars(d, config, "{{name}}")
 	if err != nil {
 		return err
@@ -554,7 +578,12 @@ func resourceAccessContextManagerServicePerimeterDelete(d *schema.ResourceData, 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ServicePerimeter %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "ServicePerimeter")
 	}

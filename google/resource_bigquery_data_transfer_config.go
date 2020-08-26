@@ -192,11 +192,20 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Creating new Config: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), iamMemberMissing)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate), iamMemberMissing)
 	if err != nil {
 		return fmt.Errorf("Error creating Config: %s", err)
 	}
@@ -240,11 +249,20 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil, iamMemberMissing)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil, iamMemberMissing)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigqueryDataTransferConfig %q", d.Id()))
 	}
@@ -287,10 +305,13 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	destinationDatasetIdProp, err := expandBigqueryDataTransferConfigDestinationDatasetId(d.Get("destination_dataset_id"), d, config)
@@ -367,7 +388,13 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), iamMemberMissing)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate), iamMemberMissing)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Config %q: %s", d.Id(), err)
@@ -381,10 +408,13 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
 	if err != nil {
@@ -394,7 +424,12 @@ func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta inter
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Config %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), iamMemberMissing)
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete), iamMemberMissing)
 	if err != nil {
 		return handleNotFoundError(err, d, "Config")
 	}

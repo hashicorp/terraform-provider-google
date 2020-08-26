@@ -885,11 +885,20 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new Job: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Job: %s", err)
 	}
@@ -920,11 +929,20 @@ func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollR
 			return nil, err
 		}
 
+		billingProject := ""
+
 		project, err := getProject(d, config)
 		if err != nil {
 			return nil, err
 		}
-		res, err := sendRequest(config, "GET", project, url, nil)
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequest(config, "GET", billingProject, url, nil)
 		if err != nil {
 			return res, err
 		}
@@ -940,11 +958,20 @@ func resourceBigQueryJobRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigQueryJob %q", d.Id()))
 	}

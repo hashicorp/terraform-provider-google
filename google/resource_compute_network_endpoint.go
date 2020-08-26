@@ -128,11 +128,20 @@ func resourceComputeNetworkEndpointCreate(d *schema.ResourceData, meta interface
 	}
 
 	log.Printf("[DEBUG] Creating new NetworkEndpoint: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating NetworkEndpoint: %s", err)
 	}
@@ -167,11 +176,20 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "POST", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "POST", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkEndpoint %q", d.Id()))
 	}
@@ -220,10 +238,13 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "networkEndpoint/{{project}}/{{zone}}/{{network_endpoint_group}}")
 	if err != nil {
@@ -262,7 +283,12 @@ func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface
 	}
 	log.Printf("[DEBUG] Deleting NetworkEndpoint %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "NetworkEndpoint")
 	}

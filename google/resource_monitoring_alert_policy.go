@@ -781,11 +781,20 @@ func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new AlertPolicy: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating AlertPolicy: %s", err)
 	}
@@ -829,11 +838,20 @@ func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringConcurrentEditError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil, isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringAlertPolicy %q", d.Id()))
 	}
@@ -888,10 +906,13 @@ func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{})
 func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandMonitoringAlertPolicyDisplayName(d.Get("display_name"), d, config)
@@ -985,7 +1006,13 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating AlertPolicy %q: %s", d.Id(), err)
@@ -999,10 +1026,13 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 func resourceMonitoringAlertPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "alertPolicy/{{project}}")
 	if err != nil {
@@ -1019,7 +1049,12 @@ func resourceMonitoringAlertPolicyDelete(d *schema.ResourceData, meta interface{
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting AlertPolicy %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, "AlertPolicy")
 	}

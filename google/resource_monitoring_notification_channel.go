@@ -213,11 +213,20 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Creating new NotificationChannel: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating NotificationChannel: %s", err)
 	}
@@ -261,11 +270,20 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringConcurrentEditError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil, isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringNotificationChannel %q", d.Id()))
 	}
@@ -317,10 +335,13 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandMonitoringNotificationChannelLabels(d.Get("labels"), d, config)
@@ -378,7 +399,13 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Updating NotificationChannel %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating NotificationChannel %q: %s", d.Id(), err)
@@ -392,10 +419,13 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 func resourceMonitoringNotificationChannelDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "stackdriver/notifications/{{project}}")
 	if err != nil {
@@ -412,7 +442,12 @@ func resourceMonitoringNotificationChannelDelete(d *schema.ResourceData, meta in
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting NotificationChannel %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, "NotificationChannel")
 	}

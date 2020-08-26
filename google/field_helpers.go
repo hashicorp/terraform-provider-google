@@ -231,6 +231,17 @@ func getProjectFromSchema(projectSchemaField string, d TerraformResourceData, co
 	return "", fmt.Errorf("%s: required field is not set", projectSchemaField)
 }
 
+func getBillingProjectFromSchema(billingProjectSchemaField string, d TerraformResourceData, config *Config) (string, error) {
+	res, ok := d.GetOk(billingProjectSchemaField)
+	if ok && billingProjectSchemaField != "" {
+		return res.(string), nil
+	}
+	if config.BillingProject != "" {
+		return config.BillingProject, nil
+	}
+	return "", fmt.Errorf("%s: required field is not set", billingProjectSchemaField)
+}
+
 type OrganizationFieldValue struct {
 	OrgId string
 	Name  string

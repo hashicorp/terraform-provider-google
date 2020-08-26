@@ -160,7 +160,14 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Creating new ObjectAccessControl: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ObjectAccessControl: %s", err)
 	}
@@ -185,7 +192,14 @@ func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("StorageObjectAccessControl %q", d.Id()))
 	}
@@ -223,6 +237,8 @@ func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interfa
 
 func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	bucketProp, err := expandStorageObjectAccessControlBucket(d.Get("bucket"), d, config)
@@ -263,7 +279,13 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Updating ObjectAccessControl %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ObjectAccessControl %q: %s", d.Id(), err)
@@ -276,6 +298,8 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 
 func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	billingProject := ""
 
 	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
 	if err != nil {
@@ -292,7 +316,12 @@ func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta inter
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ObjectAccessControl %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "ObjectAccessControl")
 	}

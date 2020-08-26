@@ -194,11 +194,20 @@ func resourceComputeHttpHealthCheckCreate(d *schema.ResourceData, meta interface
 	}
 
 	log.Printf("[DEBUG] Creating new HttpHealthCheck: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating HttpHealthCheck: %s", err)
 	}
@@ -233,11 +242,20 @@ func resourceComputeHttpHealthCheckRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeHttpHealthCheck %q", d.Id()))
 	}
@@ -286,10 +304,13 @@ func resourceComputeHttpHealthCheckRead(d *schema.ResourceData, meta interface{}
 func resourceComputeHttpHealthCheckUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	checkIntervalSecProp, err := expandComputeHttpHealthCheckCheckIntervalSec(d.Get("check_interval_sec"), d, config)
@@ -353,7 +374,13 @@ func resourceComputeHttpHealthCheckUpdate(d *schema.ResourceData, meta interface
 	}
 
 	log.Printf("[DEBUG] Updating HttpHealthCheck %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating HttpHealthCheck %q: %s", d.Id(), err)
@@ -375,10 +402,13 @@ func resourceComputeHttpHealthCheckUpdate(d *schema.ResourceData, meta interface
 func resourceComputeHttpHealthCheckDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/httpHealthChecks/{{name}}")
 	if err != nil {
@@ -388,7 +418,12 @@ func resourceComputeHttpHealthCheckDelete(d *schema.ResourceData, meta interface
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting HttpHealthCheck %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "HttpHealthCheck")
 	}
