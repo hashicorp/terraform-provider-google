@@ -21,10 +21,7 @@ IMPROVEMENTS:
 * compute: added support for pd-balanced disk type for `google_compute_instance` ([#7108](https://github.com/hashicorp/terraform-provider-google/pull/7108))
 * container: added support for `kubelet_config` and `linux_node_config` to GKE node pools (beta) ([#7060](https://github.com/hashicorp/terraform-provider-google/pull/7060))
 * container: added support for pd-balanced disk type for `google_container_node_pool` ([#7108](https://github.com/hashicorp/terraform-provider-google/pull/7108))
-* container: added user project override support to `google_container_cluster` and `google_container_nodepool` ([#7114](https://github.com/hashicorp/terraform-provider-google/pull/7114))
-* provider: added a new field `billing_project` to the provider that's associated as a billing/quota project with most requests when `user_project_override` true ([#7113](https://github.com/hashicorp/terraform-provider-google/pull/7113))
 * pubsub: added `retry_policy` to `google_pubsub_subscription` resource ([#7077](https://github.com/hashicorp/terraform-provider-google/pull/7077))
-* serviceusage: added project override support to `google_project_service` ([#7114](https://github.com/hashicorp/terraform-provider-google/pull/7114))
 
 BUG FIXES:
 * compute: fixed an issue where `google_compute_url_map` `path_matcher.default_route_action` would conflict with `default_url_redirect` ([#7063](https://github.com/hashicorp/terraform-provider-google/pull/7063))
