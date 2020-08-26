@@ -1,4 +1,35 @@
 ## 3.37.0 (Unreleased)
+NOTES:
+* Drop recommendation to use -provider= on import in documentation ([#7100](https://github.com/hashicorp/terraform-provider-google/pull/7100))
+
+FEATURES:
+* **New Resource:** `google_compute_image_iam_binding` ([#7070](https://github.com/hashicorp/terraform-provider-google/pull/7070))
+* **New Resource:** `google_compute_image_iam_member` ([#7070](https://github.com/hashicorp/terraform-provider-google/pull/7070))
+* **New Resource:** `google_compute_image_iam_policy` ([#7070](https://github.com/hashicorp/terraform-provider-google/pull/7070))
+* **New Resource:** `google_compute_disk_iam_binding` ([#7110](https://github.com/hashicorp/terraform-provider-google/pull/7110))
+* **New Resource:** `google_compute_disk_iam_member` ([#7110](https://github.com/hashicorp/terraform-provider-google/pull/7110))
+* **New Resource:** `google_compute_disk_iam_policy` ([#7110](https://github.com/hashicorp/terraform-provider-google/pull/7110))
+* **New Resource:** `google_compute_region_disk_iam_binding` ([#7110](https://github.com/hashicorp/terraform-provider-google/pull/7110))
+* **New Resource:** `google_compute_region_disk_iam_member` ([#7110](https://github.com/hashicorp/terraform-provider-google/pull/7110))
+* **New Resource:** `google_compute_region_disk_iam_policy` ([#7110](https://github.com/hashicorp/terraform-provider-google/pull/7110))
+
+IMPROVEMENTS:
+* appengine: added `vpc_access_connector` field to `google_app_engine_standard_app_version` resource ([#7062](https://github.com/hashicorp/terraform-provider-google/pull/7062))
+* bigquery: added `notification_pubsub_topic` field to `google_bigquery_data_transfer_config` resource ([#7076](https://github.com/hashicorp/terraform-provider-google/pull/7076))
+* compute: Added custom metadata fields and filter expressions to `google_compute_subnetwork` flow log configuration ([#7099](https://github.com/hashicorp/terraform-provider-google/pull/7099))
+* compute: Added support to `google_compute_backend_service` for setting a serverless regional network endpoint group as `backend.group` ([#7066](https://github.com/hashicorp/terraform-provider-google/pull/7066))
+* compute: added support for pd-balanced disk type for `google_compute_instance` ([#7108](https://github.com/hashicorp/terraform-provider-google/pull/7108))
+* container: added support for `kubelet_config` and `linux_node_config` to GKE node pools (beta) ([#7060](https://github.com/hashicorp/terraform-provider-google/pull/7060))
+* container: added support for pd-balanced disk type for `google_container_node_pool` ([#7108](https://github.com/hashicorp/terraform-provider-google/pull/7108))
+* container: added user project override support to `google_container_cluster` and `google_container_nodepool` ([#7114](https://github.com/hashicorp/terraform-provider-google/pull/7114))
+* provider: added a new field `billing_project` to the provider that's associated as a billing/quota project with most requests when `user_project_override` true ([#7113](https://github.com/hashicorp/terraform-provider-google/pull/7113))
+* pubsub: added `retry_policy` to `google_pubsub_subscription` resource ([#7077](https://github.com/hashicorp/terraform-provider-google/pull/7077))
+* serviceusage: added project override support to `google_project_service` ([#7114](https://github.com/hashicorp/terraform-provider-google/pull/7114))
+
+BUG FIXES:
+* compute: fixed an issue where `google_compute_url_map` `path_matcher.default_route_action` would conflict with `default_url_redirect` ([#7063](https://github.com/hashicorp/terraform-provider-google/pull/7063))
+* kms: updated `data_source_secret_manager_secret_version` to have consistent id value ([#7098](https://github.com/hashicorp/terraform-provider-google/pull/7098))
+
 ## 3.36.0 (August 24, 2020)
 
 FEATURES:
