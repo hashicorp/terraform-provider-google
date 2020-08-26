@@ -1,0 +1,4 @@
+```release-note:none
+Omitted as per https://github.com/GoogleCloudPlatform/magic-modules/blob/master/.ci/RELEASE_NOTES_GUIDE.md#release-note-style-guide-terraform-specific.
+This PR is for website-only documentation changes.
+```
