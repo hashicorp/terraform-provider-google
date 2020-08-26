@@ -98,6 +98,7 @@ type Config struct {
 	ComputeBasePath              string
 	ContainerAnalysisBasePath    string
 	DataCatalogBasePath          string
+	DataLossPreventionBasePath   string
 	DataprocBasePath             string
 	DatastoreBasePath            string
 	DeploymentManagerBasePath    string
@@ -245,6 +246,7 @@ var CloudTasksDefaultBasePath = "https://cloudtasks.googleapis.com/v2/"
 var ComputeDefaultBasePath = "https://compute.googleapis.com/compute/v1/"
 var ContainerAnalysisDefaultBasePath = "https://containeranalysis.googleapis.com/v1/"
 var DataCatalogDefaultBasePath = "https://datacatalog.googleapis.com/v1/"
+var DataLossPreventionDefaultBasePath = "https://dlp.googleapis.com/v2/"
 var DataprocDefaultBasePath = "https://dataproc.googleapis.com/v1/"
 var DatastoreDefaultBasePath = "https://datastore.googleapis.com/v1/"
 var DeploymentManagerDefaultBasePath = "https://www.googleapis.com/deploymentmanager/v2/"
@@ -792,6 +794,7 @@ func ConfigureBasePaths(c *Config) {
 	c.ComputeBasePath = ComputeDefaultBasePath
 	c.ContainerAnalysisBasePath = ContainerAnalysisDefaultBasePath
 	c.DataCatalogBasePath = DataCatalogDefaultBasePath
+	c.DataLossPreventionBasePath = DataLossPreventionDefaultBasePath
 	c.DataprocBasePath = DataprocDefaultBasePath
 	c.DatastoreBasePath = DatastoreDefaultBasePath
 	c.DeploymentManagerBasePath = DeploymentManagerDefaultBasePath
