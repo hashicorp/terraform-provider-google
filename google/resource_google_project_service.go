@@ -157,7 +157,12 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Verify project for services still exists
-	p, err := config.clientResourceManager.Projects.Get(project).Do()
+	projectGetCall := config.clientResourceManager.Projects.Get(project)
+	if config.UserProjectOverride {
+		projectGetCall.Header().Add("X-Goog-User-Project", project)
+	}
+	p, err := projectGetCall.Do()
+
 	if err == nil && p.LifecycleState == "DELETE_REQUESTED" {
 		// Construct a 404 error for handleNotFoundError
 		err = &googleapi.Error{
@@ -222,9 +227,13 @@ func resourceGoogleProjectServiceUpdate(d *schema.ResourceData, meta interface{}
 func disableServiceUsageProjectService(service, project string, d *schema.ResourceData, config *Config, disableDependentServices bool) error {
 	err := retryTimeDuration(func() error {
 		name := fmt.Sprintf("projects/%s/services/%s", project, service)
-		sop, err := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{
+		servicesDisableCall := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{
 			DisableDependentServices: disableDependentServices,
-		}).Do()
+		})
+		if config.UserProjectOverride {
+			servicesDisableCall.Header().Add("X-Goog-User-Project", project)
+		}
+		sop, err := servicesDisableCall.Do()
 		if err != nil {
 			return err
 		}
