@@ -145,10 +145,19 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Creating new ProjectSettings: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	updateMask := []string{}
 
 	if d.HasChange("notification_emails") {
@@ -164,7 +173,7 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ProjectSettings: %s", err)
 	}
@@ -192,11 +201,20 @@ func resourceAccessApprovalProjectSettingsRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessApprovalProjectSettings %q", d.Id()))
 	}
@@ -224,10 +242,13 @@ func resourceAccessApprovalProjectSettingsRead(d *schema.ResourceData, meta inte
 func resourceAccessApprovalProjectSettingsUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	notificationEmailsProp, err := expandAccessApprovalProjectSettingsNotificationEmails(d.Get("notification_emails"), d, config)
@@ -264,7 +285,13 @@ func resourceAccessApprovalProjectSettingsUpdate(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ProjectSettings %q: %s", d.Id(), err)

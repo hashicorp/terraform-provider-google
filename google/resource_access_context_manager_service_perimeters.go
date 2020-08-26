@@ -312,7 +312,14 @@ func resourceAccessContextManagerServicePerimetersCreate(d *schema.ResourceData,
 	}
 
 	log.Printf("[DEBUG] Creating new ServicePerimeters: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ServicePerimeters: %s", err)
 	}
@@ -347,7 +354,14 @@ func resourceAccessContextManagerServicePerimetersRead(d *schema.ResourceData, m
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeters %q", d.Id()))
 	}
@@ -361,6 +375,8 @@ func resourceAccessContextManagerServicePerimetersRead(d *schema.ResourceData, m
 
 func resourceAccessContextManagerServicePerimetersUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	servicePerimetersProp, err := expandAccessContextManagerServicePerimetersServicePerimeters(d.Get("service_perimeters"), d, config)
@@ -382,7 +398,13 @@ func resourceAccessContextManagerServicePerimetersUpdate(d *schema.ResourceData,
 	}
 
 	log.Printf("[DEBUG] Updating ServicePerimeters %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ServicePerimeters %q: %s", d.Id(), err)

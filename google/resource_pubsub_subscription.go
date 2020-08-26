@@ -417,11 +417,20 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Creating new Subscription: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Subscription: %s", err)
 	}
@@ -452,11 +461,20 @@ func resourcePubsubSubscriptionPollRead(d *schema.ResourceData, meta interface{}
 			return nil, err
 		}
 
+		billingProject := ""
+
 		project, err := getProject(d, config)
 		if err != nil {
 			return nil, err
 		}
-		res, err := sendRequest(config, "GET", project, url, nil)
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequest(config, "GET", billingProject, url, nil)
 		if err != nil {
 			return res, err
 		}
@@ -484,11 +502,20 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("PubsubSubscription %q", d.Id()))
 	}
@@ -552,10 +579,13 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandPubsubSubscriptionLabels(d.Get("labels"), d, config)
@@ -667,7 +697,13 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Subscription %q: %s", d.Id(), err)
@@ -681,10 +717,13 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
@@ -694,7 +733,12 @@ func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Subscription %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Subscription")
 	}

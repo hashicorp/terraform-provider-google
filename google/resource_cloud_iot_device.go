@@ -310,7 +310,14 @@ func resourceCloudIotDeviceCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Creating new Device: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Device: %s", err)
 	}
@@ -335,7 +342,14 @@ func resourceCloudIotDeviceRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudIotDevice %q", d.Id()))
 	}
@@ -394,6 +408,8 @@ func resourceCloudIotDeviceRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceCloudIotDeviceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	credentialsProp, err := expandCloudIotDeviceCredentials(d.Get("credentials"), d, config)
@@ -460,7 +476,13 @@ func resourceCloudIotDeviceUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Device %q: %s", d.Id(), err)
@@ -474,6 +496,8 @@ func resourceCloudIotDeviceUpdate(d *schema.ResourceData, meta interface{}) erro
 func resourceCloudIotDeviceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	url, err := replaceVars(d, config, "{{CloudIotBasePath}}{{registry}}/devices/{{name}}")
 	if err != nil {
 		return err
@@ -482,7 +506,12 @@ func resourceCloudIotDeviceDelete(d *schema.ResourceData, meta interface{}) erro
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Device %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Device")
 	}

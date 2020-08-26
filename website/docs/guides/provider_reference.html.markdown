@@ -107,6 +107,11 @@ resource project for preconditions, quota, and billing, instead of the project
 the credentials belong to. Not all resources support this- see the
 documentation for each resource to learn whether it does.
 
+* `billing_project` - (Optional) This fields specifies a project that's used for 
+preconditions, quota, and billing for requests. All resources that support user project 
+overrides will use this project instead of the resource's project (if available). This 
+field is ignored if `user_project_override` is set to false or unset.
+
 * `{{service}}_custom_endpoint` - (Optional) The endpoint for a service's APIs,
 such as `compute_custom_endpoint`. Defaults to the production GCP endpoint for
 the service. This can be used to configure the Google provider to communicate
@@ -176,6 +181,13 @@ following ordered by precedence.
     * GOOGLE_CLOUD_PROJECT
     * GCLOUD_PROJECT
     * CLOUDSDK_CORE_PROJECT
+
+---
+
+* `billing_project` - (Optional) This fields allows Terraform to set X-Goog-User-Project
+for APIs that require a billing project to be specified like Access Context Manager APIs if 
+User ADCs are being used. This can also be
+specified using the `GOOGLE_BILLING_PROJECT` environment variable.
 
 ---
 
@@ -360,7 +372,8 @@ to create the resource.  This may help in those cases.
 * `user_project_override` - (Optional) Defaults to false. If true, uses the
 resource project for preconditions, quota, and billing, instead of the project
 the credentials belong to. Not all resources support this- see the
-documentation for each resource to learn whether it does.
+documentation for each resource to learn whether it does. Alternatively, this can
+be specified using the `USER_PROJECT_OVERRIDE` environment variable.
 
 When set to false, the project the credentials belong to will be billed for the
 request, and quota / API enablement checks will be done against that project.

@@ -245,11 +245,20 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new Deployment: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Deployment: %s", err)
 	}
@@ -285,11 +294,20 @@ func resourceDeploymentManagerDeploymentRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
 	}
@@ -323,10 +341,13 @@ func resourceDeploymentManagerDeploymentRead(d *schema.ResourceData, meta interf
 func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	d.Partial(true)
 
@@ -337,7 +358,13 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		getRes, err := sendRequest(config, "GET", billingProject, getUrl, nil)
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
 		}
@@ -348,7 +375,13 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Deployment %q: %s", d.Id(), err)
 		} else {
@@ -371,7 +404,13 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		getRes, err := sendRequest(config, "GET", billingProject, getUrl, nil)
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
 		}
@@ -401,7 +440,13 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Deployment %q: %s", d.Id(), err)
 		} else {
@@ -428,10 +473,13 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 func resourceDeploymentManagerDeploymentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}?deletePolicy={{delete_policy}}")
 	if err != nil {
@@ -441,7 +489,12 @@ func resourceDeploymentManagerDeploymentDelete(d *schema.ResourceData, meta inte
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Deployment %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Deployment")
 	}

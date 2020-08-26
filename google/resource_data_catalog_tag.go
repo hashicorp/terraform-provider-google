@@ -165,7 +165,14 @@ func resourceDataCatalogTagCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Creating new Tag: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Tag: %s", err)
 	}
@@ -193,7 +200,14 @@ func resourceDataCatalogTagRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DataCatalogTag %q", d.Id()))
 	}
@@ -232,6 +246,8 @@ func resourceDataCatalogTagRead(d *schema.ResourceData, meta interface{}) error 
 func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	obj := make(map[string]interface{})
 	fieldsProp, err := expandNestedDataCatalogTagFields(d.Get("fields"), d, config)
 	if err != nil {
@@ -267,7 +283,13 @@ func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Tag %q: %s", d.Id(), err)
@@ -281,6 +303,8 @@ func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) erro
 func resourceDataCatalogTagDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
@@ -289,7 +313,12 @@ func resourceDataCatalogTagDelete(d *schema.ResourceData, meta interface{}) erro
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Tag %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Tag")
 	}

@@ -51,6 +51,14 @@ func Provider() terraform.ResourceProvider {
 				}, nil),
 			},
 
+			"billing_project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_BILLING_PROJECT",
+				}, nil),
+			},
+
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -101,6 +109,9 @@ func Provider() terraform.ResourceProvider {
 			"user_project_override": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"USER_PROJECT_OVERRIDE",
+				}, nil),
 			},
 
 			"request_timeout": {
@@ -987,6 +998,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 		Region:              d.Get("region").(string),
 		Zone:                d.Get("zone").(string),
 		UserProjectOverride: d.Get("user_project_override").(bool),
+		BillingProject:      d.Get("billing_project").(string),
 		terraformVersion:    terraformVersion,
 	}
 

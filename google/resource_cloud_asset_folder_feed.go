@@ -173,27 +173,21 @@ func resourceCloudAssetFolderFeedCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Creating new FolderFeed: %#v", obj)
-	var project string
+	billingProject := ""
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	// This should never happen, but the linter complains otherwise with ineffectual assignment to `project`
-	if project == "dummy lint" {
-		log.Printf("[DEBUG] Found project in url: %s", project)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
 	}
+
 	// Send the project ID in the X-Goog-User-Project header.
 	origUserProjectOverride := config.UserProjectOverride
 	config.UserProjectOverride = true
-	// If we have a billing project, use that one in the header.
-	bp, bpok := d.GetOk("billing_project")
-	if bpok && bp != "" {
-		project = bp.(string)
-	} else {
-		// otherwise, use the resource's project
-		rp, _ := d.GetOk("project")
-		project = rp.(string)
-	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating FolderFeed: %s", err)
 	}
@@ -224,11 +218,18 @@ func resourceCloudAssetFolderFeedRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	var project string
+	billingProject := ""
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudAssetFolderFeed %q", d.Id()))
 	}
@@ -257,6 +258,8 @@ func resourceCloudAssetFolderFeedRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceCloudAssetFolderFeedUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	assetNamesProp, err := expandCloudAssetFolderFeedAssetNames(d.Get("asset_names"), d, config)
@@ -318,11 +321,16 @@ func resourceCloudAssetFolderFeedUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	var project string
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating FolderFeed %q: %s", d.Id(), err)
@@ -336,19 +344,27 @@ func resourceCloudAssetFolderFeedUpdate(d *schema.ResourceData, meta interface{}
 func resourceCloudAssetFolderFeedDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	url, err := replaceVars(d, config, "{{CloudAssetBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
-	var project string
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
+
 	log.Printf("[DEBUG] Deleting FolderFeed %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "FolderFeed")
 	}

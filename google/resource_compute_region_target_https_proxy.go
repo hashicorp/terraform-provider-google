@@ -152,11 +152,20 @@ func resourceComputeRegionTargetHttpsProxyCreate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Creating new RegionTargetHttpsProxy: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating RegionTargetHttpsProxy: %s", err)
 	}
@@ -191,11 +200,20 @@ func resourceComputeRegionTargetHttpsProxyRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionTargetHttpsProxy %q", d.Id()))
 	}
@@ -235,10 +253,13 @@ func resourceComputeRegionTargetHttpsProxyRead(d *schema.ResourceData, meta inte
 func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	d.Partial(true)
 
@@ -256,7 +277,13 @@ func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta in
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating RegionTargetHttpsProxy %q: %s", d.Id(), err)
 		} else {
@@ -286,7 +313,13 @@ func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta in
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating RegionTargetHttpsProxy %q: %s", d.Id(), err)
 		} else {
@@ -311,10 +344,13 @@ func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta in
 func resourceComputeRegionTargetHttpsProxyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetHttpsProxies/{{name}}")
 	if err != nil {
@@ -324,7 +360,12 @@ func resourceComputeRegionTargetHttpsProxyDelete(d *schema.ResourceData, meta in
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting RegionTargetHttpsProxy %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "RegionTargetHttpsProxy")
 	}

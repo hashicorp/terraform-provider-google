@@ -141,11 +141,20 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new Topic: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutCreate), pubsubTopicProjectNotReady)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, obj, d.Timeout(schema.TimeoutCreate), pubsubTopicProjectNotReady)
 	if err != nil {
 		return fmt.Errorf("Error creating Topic: %s", err)
 	}
@@ -176,11 +185,20 @@ func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) PollR
 			return nil, err
 		}
 
+		billingProject := ""
+
 		project, err := getProject(d, config)
 		if err != nil {
 			return nil, err
 		}
-		res, err := sendRequest(config, "GET", project, url, nil, pubsubTopicProjectNotReady)
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequest(config, "GET", billingProject, url, nil, pubsubTopicProjectNotReady)
 		if err != nil {
 			return res, err
 		}
@@ -196,11 +214,20 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil, pubsubTopicProjectNotReady)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, nil, pubsubTopicProjectNotReady)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("PubsubTopic %q", d.Id()))
 	}
@@ -228,10 +255,13 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandPubsubTopicLabels(d.Get("labels"), d, config)
@@ -273,7 +303,13 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), pubsubTopicProjectNotReady)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate), pubsubTopicProjectNotReady)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Topic %q: %s", d.Id(), err)
@@ -287,10 +323,13 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 	if err != nil {
@@ -300,7 +339,12 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Topic %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), pubsubTopicProjectNotReady)
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete), pubsubTopicProjectNotReady)
 	if err != nil {
 		return handleNotFoundError(err, d, "Topic")
 	}
