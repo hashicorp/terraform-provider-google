@@ -97,16 +97,6 @@ The `condition` block supports:
 
 * `description` - (Optional) An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
 
-* `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding. Structure is documented below.
-
-The `condition` block supports:
-
-* `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
-
-* `title` - (Required) A title for the expression, i.e. a short string describing its purpose.
-
-* `description` - (Optional) An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
-
 ## Attributes Reference
 
 The following attribute is exported:

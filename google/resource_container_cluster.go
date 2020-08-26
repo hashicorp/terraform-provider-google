@@ -1887,28 +1887,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		if err := lockedCall(lockKey, updateF); err != nil {
 			return err
 		}
-	}
-
-	if d.HasChange("database_encryption") {
-		c := d.Get("database_encryption")
-		req := &containerBeta.UpdateClusterRequest{
-			Update: &containerBeta.ClusterUpdate{
-				DesiredDatabaseEncryption: expandDatabaseEncryption(c),
-			},
-		}
-
-		updateF := func() error {
-			name := containerClusterFullName(project, location, clusterName)
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(name, req).Do()
-			if err != nil {
-				return err
-			}
-			// Wait until it's updated
-			return containerOperationWait(config, op, project, location, "updating GKE cluster database encryption config", d.Timeout(schema.TimeoutUpdate))
-		}
-		if err := lockedCall(lockKey, updateF); err != nil {
-			return err
-		}
 		log.Printf("[INFO] GKE cluster %s database encryption config has been updated", d.Id())
 	}
 

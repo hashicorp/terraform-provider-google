@@ -358,13 +358,13 @@ func listFromIamAuditConfigMap(acMap map[string]map[string]map[string]struct{}) 
 
 func jsonPolicyDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	var oldPolicy, newPolicy cloudresourcemanager.Policy
-	if len(old) > 0 {
+	if old == "" {
 		if err := json.Unmarshal([]byte(old), &oldPolicy); err != nil {
 			log.Printf("[ERROR] Could not unmarshal old policy %s: %v", old, err)
 			return false
 		}
 	}
-	if len(new) > 0 {
+	if new == "" {
 		if err := json.Unmarshal([]byte(new), &newPolicy); err != nil {
 			log.Printf("[ERROR] Could not unmarshal new policy %s: %v", new, err)
 			return false
