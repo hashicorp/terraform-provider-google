@@ -1257,7 +1257,7 @@ func TestAccComputeInstance_hostname(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_shieldedVmConfig1(t *testing.T) {
+func TestAccComputeInstance_shieldedVmConfig(t *testing.T) {
 	t.Parallel()
 
 	var instance computeBeta.Instance
@@ -1275,22 +1275,7 @@ func TestAccComputeInstance_shieldedVmConfig1(t *testing.T) {
 					testAccCheckComputeInstanceHasShieldedVmConfig(&instance, true, true, true),
 				),
 			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
-		},
-	})
-}
-
-func TestAccComputeInstance_shieldedVmConfig2(t *testing.T) {
-	t.Parallel()
-
-	var instance computeBeta.Instance
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
 			{
 				Config: testAccComputeInstance_shieldedVmConfig(instanceName, true, true, false),
 				Check: resource.ComposeTestCheckFunc(
@@ -1298,7 +1283,7 @@ func TestAccComputeInstance_shieldedVmConfig2(t *testing.T) {
 					testAccCheckComputeInstanceHasShieldedVmConfig(&instance, true, true, false),
 				),
 			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
 		},
 	})
 }
@@ -1502,7 +1487,7 @@ func TestAccComputeInstance_updateRunning_desiredStatusNotSet_notAllowStoppingFo
 			{
 				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "", false),
 				ExpectError: regexp.MustCompile("Changing the machine_type, min_cpu_platform, service_account, " +
-					"or enable display on a started instance requires stopping it. To acknowledge this, please set " +
+					"enable_display, or shielded_instance_config on a started instance requires stopping it. To acknowledge this, please set " +
 					"allow_stopping_for_update = true in your config. " +
 					"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not " +
 					"be restarted after the update."),
@@ -1533,7 +1518,7 @@ func TestAccComputeInstance_updateRunning_desiredStatusRunning_notAllowStoppingF
 			{
 				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "RUNNING", false),
 				ExpectError: regexp.MustCompile("Changing the machine_type, min_cpu_platform, service_account, " +
-					"or enable display on a started instance requires stopping it. To acknowledge this, please set " +
+					"enable_display, or shielded_instance_config on a started instance requires stopping it. To acknowledge this, please set " +
 					"allow_stopping_for_update = true in your config. " +
 					"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not " +
 					"be restarted after the update."),
@@ -4454,6 +4439,8 @@ resource "google_compute_instance" "foobar" {
     enable_vtpm                 = %t
     enable_integrity_monitoring = %t
   }
+
+  allow_stopping_for_update = true
 }
 `, instance, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
 }
