@@ -1469,7 +1469,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		d.SetPartial("deletion_protection")
 	}
 
-	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display")
+	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") || d.HasChange("shielded_instance_config")
 
 	if d.HasChange("desired_status") && !needToStopInstanceBeforeUpdating {
 		desiredStatus := d.Get("desired_status").(string)
@@ -1504,7 +1504,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		desiredStatus := d.Get("desired_status").(string)
 
 		if statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED" && !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, or enable display on a started instance requires stopping it. " +
+			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, enable_display, or shielded_instance_config on a started instance requires stopping it. " +
 				"To acknowledge this, please set allow_stopping_for_update = true in your config. " +
 				"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update.")
 		}
@@ -1597,6 +1597,23 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			d.SetPartial("enable_display")
 		}
 
+		if d.HasChange("shielded_instance_config") {
+			shieldedVmConfig := expandShieldedVmConfigs(d)
+
+			op, err := config.clientComputeBeta.Instances.UpdateShieldedInstanceConfig(project, zone, instance.Name, shieldedVmConfig).Do()
+			if err != nil {
+				return fmt.Errorf("Error updating shielded vm config: %s", err)
+			}
+
+			opErr := computeOperationWaitTime(config, op, project,
+				"shielded vm config update", d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
+
+			d.SetPartial("shielded_instance_config")
+		}
+
 		if (statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED") ||
 			(statusBeforeUpdate == "TERMINATED" && desiredStatus == "RUNNING") {
 			op, err := startInstanceOperation(d, config)
@@ -1610,23 +1627,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return opErr
 			}
 		}
-	}
-
-	if d.HasChange("shielded_instance_config") {
-		shieldedVmConfig := expandShieldedVmConfigs(d)
-
-		op, err := config.clientComputeBeta.Instances.UpdateShieldedInstanceConfig(project, zone, instance.Name, shieldedVmConfig).Do()
-		if err != nil {
-			return fmt.Errorf("Error updating shielded vm config: %s", err)
-		}
-
-		opErr := computeOperationWaitTime(config, op, project,
-			"shielded vm config update", d.Timeout(schema.TimeoutUpdate))
-		if opErr != nil {
-			return opErr
-		}
-
-		d.SetPartial("shielded_instance_config")
 	}
 
 	// We made it, disable partial mode
