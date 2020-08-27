@@ -46,7 +46,7 @@ func TestAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(t 
 func testAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_active_directory_domain_trust" "ad-domain-trust" {
-    domain     = "test-managed-ad.com"
+    domain     = "ci-managed-ad.com"
     target_domain_name = "example-gcp.com"
     target_dns_ip_addresses = ["10.1.0.100"]
     trust_direction         = "OUTBOUND"
@@ -59,7 +59,7 @@ resource "google_active_directory_domain_trust" "ad-domain-trust" {
 func testAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustUpdate(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_active_directory_domain_trust" "ad-domain-trust" {
-    domain     = "test-managed-ad.com"
+    domain     = "ci-managed-ad.com"
     target_domain_name = "example-gcp.com"
     target_dns_ip_addresses = ["10.2.0.100"]
     trust_direction         = "OUTBOUND"
