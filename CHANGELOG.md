@@ -19,7 +19,6 @@ IMPROVEMENTS:
 * compute: Added custom metadata fields and filter expressions to `google_compute_subnetwork` flow log configuration ([#7099](https://github.com/hashicorp/terraform-provider-google/pull/7099))
 * compute: Added support to `google_compute_backend_service` for setting a serverless regional network endpoint group as `backend.group` ([#7066](https://github.com/hashicorp/terraform-provider-google/pull/7066))
 * compute: added support for pd-balanced disk type for `google_compute_instance` ([#7108](https://github.com/hashicorp/terraform-provider-google/pull/7108))
-* container: added support for `kubelet_config` and `linux_node_config` to GKE node pools (beta) ([#7060](https://github.com/hashicorp/terraform-provider-google/pull/7060))
 * container: added support for pd-balanced disk type for `google_container_node_pool` ([#7108](https://github.com/hashicorp/terraform-provider-google/pull/7108))
 * pubsub: added `retry_policy` to `google_pubsub_subscription` resource ([#7077](https://github.com/hashicorp/terraform-provider-google/pull/7077))
 
