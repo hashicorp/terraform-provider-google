@@ -53,7 +53,7 @@ resource "google_compute_disk" "default" {
   name  = "tf-test-test-disk%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-8-jessie-v20170523"
+  image = "debian-9-stretch-v20200805"
   labels = {
     environment = "dev"
   }
