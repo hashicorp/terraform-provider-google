@@ -1593,8 +1593,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if opErr != nil {
 				return opErr
 			}
-
-			d.SetPartial("shielded_instance_config")
 		}
 
 		if (statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED") ||
