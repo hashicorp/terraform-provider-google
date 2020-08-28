@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -508,15 +508,21 @@ func resourceDataLossPreventionStoredInfoTypeImport(d *schema.ResourceData, meta
 	}
 	parts := strings.Split(d.Get("name").(string), "/")
 	if len(parts) == 6 {
-		d.Set("name", parts[5])
+		if err := d.Set("name", parts[5]); err != nil {
+			return nil, fmt.Errorf("Error reading name: %s", err)
+		}
 	} else if len(parts) == 4 {
-		d.Set("name", parts[3])
+		if err := d.Set("name", parts[3]); err != nil {
+			return nil, fmt.Errorf("Error reading name: %s", err)
+		}
 	} else {
 		return nil, fmt.Errorf("Unexpected import id: %s, expected form {{parent}}/storedInfoType/{{name}}", d.Get("name").(string))
 	}
 	// Remove "/storedInfoType/{{name}}" from the id
 	parts = parts[:len(parts)-2]
-	d.Set("parent", strings.Join(parts, "/"))
+	if err := d.Set("parent", strings.Join(parts, "/")); err != nil {
+		return nil, fmt.Errorf("Error reading parent: %s", err)
+	}
 
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{parent}}/storedInfoTypes/{{name}}")
