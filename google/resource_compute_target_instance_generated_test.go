@@ -39,9 +39,10 @@ func TestAccComputeTargetInstance_targetInstanceBasicExample(t *testing.T) {
 				Config: testAccComputeTargetInstance_targetInstanceBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_target_instance.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_target_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance", "zone"},
 			},
 		},
 	})

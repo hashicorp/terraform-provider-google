@@ -39,9 +39,10 @@ func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *test
 				Config: testAccComputeRegionBackendService_regionBackendServiceBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})
@@ -85,9 +86,10 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample
 				Config: testAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})
@@ -129,9 +131,10 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(t
 				Config: testAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})
@@ -189,9 +192,10 @@ func TestAccComputeRegionBackendService_regionBackendServiceBalancingModeExample
 				Config: testAccComputeRegionBackendService_regionBackendServiceBalancingModeExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})

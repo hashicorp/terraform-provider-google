@@ -39,9 +39,10 @@ func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(t *te
 				Config: testAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_target_http_proxy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_target_http_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"url_map", "region"},
 			},
 		},
 	})
@@ -111,9 +112,10 @@ func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpsRedirectExamp
 				Config: testAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpsRedirectExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_target_http_proxy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_target_http_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"url_map", "region"},
 			},
 		},
 	})

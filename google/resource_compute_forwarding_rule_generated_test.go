@@ -39,9 +39,10 @@ func TestAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(t *testi
 				Config: testAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(context),
 			},
 			{
-				ResourceName:      "google_compute_forwarding_rule.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_forwarding_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "region"},
 			},
 		},
 	})
@@ -102,9 +103,10 @@ func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 				Config: testAccComputeForwardingRule_forwardingRuleBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_forwarding_rule.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_forwarding_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "region"},
 			},
 		},
 	})
@@ -140,9 +142,10 @@ func TestAccComputeForwardingRule_forwardingRuleInternallbExample(t *testing.T) 
 				Config: testAccComputeForwardingRule_forwardingRuleInternallbExample(context),
 			},
 			{
-				ResourceName:      "google_compute_forwarding_rule.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_forwarding_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "region"},
 			},
 		},
 	})

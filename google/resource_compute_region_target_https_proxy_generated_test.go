@@ -39,9 +39,10 @@ func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyBasicExample(t *
 				Config: testAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_target_https_proxy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_target_https_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"url_map", "region"},
 			},
 		},
 	})

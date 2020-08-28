@@ -39,9 +39,10 @@ func TestAccComputeGlobalAddress_globalAddressBasicExample(t *testing.T) {
 				Config: testAccComputeGlobalAddress_globalAddressBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_global_address.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_global_address.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network"},
 			},
 		},
 	})

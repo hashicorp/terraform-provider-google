@@ -42,7 +42,7 @@ func TestAccComputeSnapshot_snapshotBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_snapshot.snapshot",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"zone", "source_disk_encryption_key"},
+				ImportStateVerifyIgnore: []string{"source_disk", "zone", "source_disk_encryption_key"},
 			},
 		},
 	})

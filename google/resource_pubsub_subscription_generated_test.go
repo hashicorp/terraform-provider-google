@@ -39,9 +39,10 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
 				Config: testAccPubsubSubscription_pubsubSubscriptionPullExample(context),
 			},
 			{
-				ResourceName:      "google_pubsub_subscription.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_pubsub_subscription.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"topic"},
 			},
 		},
 	})
@@ -95,9 +96,10 @@ func TestAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(t *testing.T)
 				Config: testAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(context),
 			},
 			{
-				ResourceName:      "google_pubsub_subscription.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_pubsub_subscription.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"topic"},
 			},
 		},
 	})

@@ -39,9 +39,10 @@ func TestAccComputeNetworkEndpointGroup_networkEndpointGroupExample(t *testing.T
 				Config: testAccComputeNetworkEndpointGroup_networkEndpointGroupExample(context),
 			},
 			{
-				ResourceName:      "google_compute_network_endpoint_group.neg",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network_endpoint_group.neg",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "subnetwork", "zone"},
 			},
 		},
 	})

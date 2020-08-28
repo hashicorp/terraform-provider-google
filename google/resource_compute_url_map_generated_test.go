@@ -39,9 +39,10 @@ func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
 				Config: testAccComputeUrlMap_urlMapBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -151,9 +152,10 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRouteExample(t *testing.T) {
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorRouteExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -263,9 +265,10 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(t *testing.T)
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -346,9 +349,10 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathExample(t *testing.T) {
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorPathExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -478,9 +482,10 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(t *testing.T) 
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -579,9 +584,10 @@ func TestAccComputeUrlMap_urlMapHeaderBasedRoutingExample(t *testing.T) {
 				Config: testAccComputeUrlMap_urlMapHeaderBasedRoutingExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -682,9 +688,10 @@ func TestAccComputeUrlMap_urlMapParameterBasedRoutingExample(t *testing.T) {
 				Config: testAccComputeUrlMap_urlMapParameterBasedRoutingExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
