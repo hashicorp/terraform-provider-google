@@ -39,9 +39,10 @@ func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 				Config: testAccComputeVpnGateway_targetVpnGatewayBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_vpn_gateway.target_gateway",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_vpn_gateway.target_gateway",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})

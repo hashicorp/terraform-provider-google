@@ -39,9 +39,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckTcpExample(t *testing.T) {
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckTcpExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.tcp-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.tcp-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -78,9 +79,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckTcpFullExample(t *testing.
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckTcpFullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.tcp-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.tcp-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -124,9 +126,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckSslExample(t *testing.T) {
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckSslExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.ssl-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.ssl-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -163,9 +166,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckSslFullExample(t *testing.
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckSslFullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.ssl-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.ssl-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -209,9 +213,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpExample(t *testing.T) 
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttpExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.http-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.http-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -248,9 +253,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpFullExample(t *testing
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttpFullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.http-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.http-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -295,9 +301,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpsExample(t *testing.T)
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttpsExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.https-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.https-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -334,9 +341,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttpsFullExample(t *testin
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttpsFullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.https-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.https-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -381,9 +389,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttp2Example(t *testing.T)
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttp2Example(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.http2-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.http2-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -420,9 +429,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckHttp2FullExample(t *testin
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckHttp2FullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.http2-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.http2-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -467,9 +477,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckGrpcExample(t *testing.T) 
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckGrpcExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.grpc-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.grpc-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -506,9 +517,10 @@ func TestAccComputeRegionHealthCheck_regionHealthCheckGrpcFullExample(t *testing
 				Config: testAccComputeRegionHealthCheck_regionHealthCheckGrpcFullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_health_check.grpc-region-health-check",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_health_check.grpc-region-health-check",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})

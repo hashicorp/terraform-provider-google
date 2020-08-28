@@ -40,9 +40,10 @@ func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
 				Config: testAccSpannerInstance_spannerInstanceBasicExample(context),
 			},
 			{
-				ResourceName:      "google_spanner_instance.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_spanner_instance.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config"},
 			},
 		},
 	})

@@ -39,9 +39,10 @@ func TestAccComputeResourcePolicy_resourcePolicyBasicExample(t *testing.T) {
 				Config: testAccComputeResourcePolicy_resourcePolicyBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_resource_policy.foo",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_resource_policy.foo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -80,9 +81,10 @@ func TestAccComputeResourcePolicy_resourcePolicyFullExample(t *testing.T) {
 				Config: testAccComputeResourcePolicy_resourcePolicyFullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_resource_policy.bar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_resource_policy.bar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -132,9 +134,10 @@ func TestAccComputeResourcePolicy_resourcePolicyPlacementPolicyExample(t *testin
 				Config: testAccComputeResourcePolicy_resourcePolicyPlacementPolicyExample(context),
 			},
 			{
-				ResourceName:      "google_compute_resource_policy.baz",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_resource_policy.baz",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})

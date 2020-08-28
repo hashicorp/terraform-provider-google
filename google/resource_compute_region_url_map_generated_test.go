@@ -39,9 +39,10 @@ func TestAccComputeRegionUrlMap_regionUrlMapBasicExample(t *testing.T) {
 				Config: testAccComputeRegionUrlMap_regionUrlMapBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_url_map.regionurlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_url_map.regionurlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
 		},
 	})
@@ -134,9 +135,10 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(t *testing.T) {
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_url_map.regionurlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_url_map.regionurlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
 		},
 	})
@@ -264,9 +266,10 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(t *testing.T
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_url_map.regionurlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_url_map.regionurlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
 		},
 	})
@@ -362,9 +365,10 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(t *testing.T) {
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_url_map.regionurlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_url_map.regionurlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
 		},
 	})
@@ -473,9 +477,10 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(t *testing.
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_url_map.regionurlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_url_map.regionurlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
 		},
 	})

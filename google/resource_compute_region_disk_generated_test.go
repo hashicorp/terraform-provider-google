@@ -39,9 +39,10 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 				Config: testAccComputeRegionDisk_regionDiskBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_disk.regiondisk",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_disk.regiondisk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"type", "region", "snapshot"},
 			},
 		},
 	})

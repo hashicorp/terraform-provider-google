@@ -39,9 +39,10 @@ func TestAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(t *testing.T) {
 				Config: testAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_target_https_proxy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_target_https_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ssl_policy", "url_map"},
 			},
 		},
 	})

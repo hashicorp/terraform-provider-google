@@ -39,9 +39,10 @@ func TestAccComputeNodeTemplate_nodeTemplateBasicExample(t *testing.T) {
 				Config: testAccComputeNodeTemplate_nodeTemplateBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_node_template.template",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_node_template.template",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})

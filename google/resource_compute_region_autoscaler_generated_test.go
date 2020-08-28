@@ -39,9 +39,10 @@ func TestAccComputeRegionAutoscaler_regionAutoscalerBasicExample(t *testing.T) {
 				Config: testAccComputeRegionAutoscaler_regionAutoscalerBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_autoscaler.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_autoscaler.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})

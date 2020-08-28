@@ -39,9 +39,10 @@ func TestAccComputeReservation_reservationBasicExample(t *testing.T) {
 				Config: testAccComputeReservation_reservationBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_reservation.gce_reservation",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_reservation.gce_reservation",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"zone"},
 			},
 		},
 	})

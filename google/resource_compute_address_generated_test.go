@@ -39,9 +39,10 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 				Config: testAccComputeAddress_addressBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_address.ip_address",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_address.ip_address",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
 			},
 		},
 	})
@@ -71,9 +72,10 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 				Config: testAccComputeAddress_addressWithSubnetworkExample(context),
 			},
 			{
-				ResourceName:      "google_compute_address.internal_with_subnet_and_address",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_address.internal_with_subnet_and_address",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
 			},
 		},
 	})
@@ -118,9 +120,10 @@ func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
 				Config: testAccComputeAddress_addressWithGceEndpointExample(context),
 			},
 			{
-				ResourceName:      "google_compute_address.internal_with_gce_endpoint",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_address.internal_with_gce_endpoint",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
 			},
 		},
 	})
@@ -152,9 +155,10 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 				Config: testAccComputeAddress_instanceWithIpExample(context),
 			},
 			{
-				ResourceName:      "google_compute_address.static",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_address.static",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
 			},
 		},
 	})

@@ -39,9 +39,10 @@ func TestAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExa
 				Config: testAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExample(context),
 			},
 			{
-				ResourceName:      "google_storage_bucket_access_control.public_rule",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket_access_control.public_rule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"bucket"},
 			},
 		},
 	})

@@ -43,7 +43,7 @@ func TestAccSpannerDatabase_spannerDatabaseBasicExample(t *testing.T) {
 				ResourceName:            "google_spanner_database.database",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ddl"},
+				ImportStateVerifyIgnore: []string{"ddl", "instance"},
 			},
 		},
 	})

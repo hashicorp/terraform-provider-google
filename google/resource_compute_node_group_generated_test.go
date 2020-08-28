@@ -39,9 +39,10 @@ func TestAccComputeNodeGroup_nodeGroupBasicExample(t *testing.T) {
 				Config: testAccComputeNodeGroup_nodeGroupBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_node_group.nodes",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_node_group.nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"node_template", "zone"},
 			},
 		},
 	})

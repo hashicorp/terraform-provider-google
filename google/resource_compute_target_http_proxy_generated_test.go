@@ -39,9 +39,10 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyBasicExample(t *testing.T) {
 				Config: testAccComputeTargetHttpProxy_targetHttpProxyBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_target_http_proxy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_target_http_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"url_map"},
 			},
 		},
 	})
@@ -108,9 +109,10 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(t *testin
 				Config: testAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(context),
 			},
 			{
-				ResourceName:      "google_compute_target_http_proxy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_target_http_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"url_map"},
 			},
 		},
 	})

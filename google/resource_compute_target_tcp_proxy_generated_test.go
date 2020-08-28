@@ -39,9 +39,10 @@ func TestAccComputeTargetTcpProxy_targetTcpProxyBasicExample(t *testing.T) {
 				Config: testAccComputeTargetTcpProxy_targetTcpProxyBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_target_tcp_proxy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_target_tcp_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service"},
 			},
 		},
 	})

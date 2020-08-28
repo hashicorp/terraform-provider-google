@@ -39,9 +39,10 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 				Config: testAccComputeFirewall_firewallBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_firewall.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_firewall.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network"},
 			},
 		},
 	})

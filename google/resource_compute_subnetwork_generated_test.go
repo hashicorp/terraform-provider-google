@@ -39,9 +39,10 @@ func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 				Config: testAccComputeSubnetwork_subnetworkBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})
@@ -83,9 +84,10 @@ func TestAccComputeSubnetwork_subnetworkLoggingConfigExample(t *testing.T) {
 				Config: testAccComputeSubnetwork_subnetworkLoggingConfigExample(context),
 			},
 			{
-				ResourceName:      "google_compute_subnetwork.subnet-with-logging",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_subnetwork.subnet-with-logging",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})
