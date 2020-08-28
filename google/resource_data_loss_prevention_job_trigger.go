@@ -689,9 +689,9 @@ func resourceDataLossPreventionJobTriggerImport(d *schema.ResourceData, meta int
 	} else if len(parts) == 4 {
 		d.Set("name", parts[3])
 	} else {
-		return nil, fmt.Errorf("Unexpected import id: %s, expected form {{parent}}/jobTriggers/{{name}}", d.Get("name").(string))
+		return nil, fmt.Errorf("Unexpected import id: %s, expected form {{parent}}/jobTrigger/{{name}}", d.Get("name").(string))
 	}
-	// Remove "/jobTriggers/{{name}}" from the id
+	// Remove "/jobTrigger/{{name}}" from the id
 	parts = parts[:len(parts)-2]
 	d.Set("parent", strings.Join(parts, "/"))
 

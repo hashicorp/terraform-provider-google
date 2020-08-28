@@ -618,9 +618,9 @@ func resourceDataLossPreventionInspectTemplateImport(d *schema.ResourceData, met
 	} else if len(parts) == 4 {
 		d.Set("name", parts[3])
 	} else {
-		return nil, fmt.Errorf("Unexpected import id: %s, expected form {{parent}}/inspectTemplates/{{name}}", d.Get("name").(string))
+		return nil, fmt.Errorf("Unexpected import id: %s, expected form {{parent}}/inspectTemplate/{{name}}", d.Get("name").(string))
 	}
-	// Remove "/inspectTemplates/{{name}}" from the id
+	// Remove "/inspectTemplate/{{name}}" from the id
 	parts = parts[:len(parts)-2]
 	d.Set("parent", strings.Join(parts, "/"))
 
