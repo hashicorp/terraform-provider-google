@@ -23,6 +23,37 @@ func dataSourceGoogleProjects() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"create_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"labels": {
+							Type:        schema.TypeMap,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `A set of key/value label pairs assigned on a project.`,
+						},
+						"parent": {
+							Type:        schema.TypeMap,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `An optional reference to a parent Resource.`,
+						},
+						"number": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The numeric identifier of the project.`,
+						},
+						"lifecycle_state": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The numeric identifier of the project.`,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The optional user-assigned display name of the Project.`,
+						},
 					},
 				},
 			},
@@ -79,11 +110,38 @@ func flattenDatasourceGoogleProjectsList(v interface{}) []map[string]interface{}
 	projects := make([]map[string]interface{}, 0, len(ls))
 	for _, raw := range ls {
 		p := raw.(map[string]interface{})
+
+		var mId, mNumber, mLabels, mLifecycleState, mName, mCreateTime, mParent interface{}
 		if pId, ok := p["projectId"]; ok {
-			projects = append(projects, map[string]interface{}{
-				"project_id": pId,
-			})
+			mId = pId
 		}
+		if pNumber, ok := p["projectNumber"]; ok {
+			mNumber = pNumber
+		}
+		if pName, ok := p["name"]; ok {
+			mName = pName
+		}
+		if pLabels, ok := p["labels"]; ok {
+			mLabels = pLabels
+		}
+		if pLifecycleState, ok := p["lifecycleState"]; ok {
+			mLifecycleState = pLifecycleState
+		}
+		if pCreateTime, ok := p["createTime"]; ok {
+			mCreateTime = pCreateTime
+		}
+		if pParent, ok := p["parent"]; ok {
+			mParent = pParent
+		}
+		projects = append(projects, map[string]interface{}{
+			"project_id":      mId,
+			"number":          mNumber,
+			"name":            mName,
+			"labels":          mLabels,
+			"lifecycle_state": mLifecycleState,
+			"create_time":     mCreateTime,
+			"parent":          mParent,
+		})
 	}
 
 	return projects
