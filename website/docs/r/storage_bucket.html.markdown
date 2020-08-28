@@ -31,7 +31,7 @@ resource "google_storage_bucket" "static-site" {
   location      = "EU"
   force_destroy = true
 
-  bucket_policy_only = true
+  uniform_bucket_level_access = true
 
   website {
     main_page_suffix = "index.html"
@@ -101,7 +101,9 @@ The following arguments are supported:
 
 * `requester_pays` - (Optional, Default: false) Enables [Requester Pays](https://cloud.google.com/storage/docs/requester-pays) on a storage bucket.
 
-* `bucket_policy_only` - (Optional, Default: false) Enables [Bucket Policy Only](https://cloud.google.com/storage/docs/bucket-policy-only) access to a bucket.
+* `bucket_policy_only` - (Deprecated, Default: false) Enables [Bucket Policy Only](https://cloud.google.com/storage/docs/bucket-policy-only) access to a bucket. This field will be removed in the next major release of the provider.
+
+* `uniform_bucket_level_access` - (Optional, Default: false) Enables [Uniform bucket-level access](https://cloud.google.com/storage/docs/uniform-bucket-level-access) access to a bucket.
 
 The `lifecycle_rule` block supports:
 
