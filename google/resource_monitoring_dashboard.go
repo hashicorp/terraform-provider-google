@@ -188,7 +188,9 @@ func resourceMonitoringDashboardImport(d *schema.ResourceData, meta interface{})
 		return nil, err
 	}
 
-	d.Set("project", parts["project"])
+	if err := d.Set("project", parts["project"]); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
 	d.SetId(fmt.Sprintf("projects/%s/dashboards/%s", parts["project"], parts["id"]))
 
 	return []*schema.ResourceData{d}, nil

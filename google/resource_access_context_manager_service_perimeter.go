@@ -611,7 +611,9 @@ func resourceAccessContextManagerServicePerimeterImport(d *schema.ResourceData, 
 	if len(stringParts) < 2 {
 		return nil, fmt.Errorf("Error parsing parent name. Should be in form accessPolicies/{{policy_id}}/servicePerimeters/{{short_name}}")
 	}
-	d.Set("parent", fmt.Sprintf("%s/%s", stringParts[0], stringParts[1]))
+	if err := d.Set("parent", fmt.Sprintf("%s/%s", stringParts[0], stringParts[1])); err != nil {
+		return nil, fmt.Errorf("Error reading parent, %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

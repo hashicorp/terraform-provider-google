@@ -88,7 +88,9 @@ func resourceComputeProjectDefaultNetworkTierRead(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error setting default network tier: %s", err)
 	}
 
-	d.Set("project", projectId)
+	if err := d.Set("project", projectId); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
 
 	return nil
 }

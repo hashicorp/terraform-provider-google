@@ -130,14 +130,30 @@ func resourceStorageNotificationRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("Notification configuration %s for bucket %s", notificationID, bucket))
 	}
 
-	d.Set("bucket", bucket)
-	d.Set("payload_format", res.PayloadFormat)
-	d.Set("topic", res.Topic)
-	d.Set("object_name_prefix", res.ObjectNamePrefix)
-	d.Set("event_types", res.EventTypes)
-	d.Set("notification_id", notificationID)
-	d.Set("self_link", res.SelfLink)
-	d.Set("custom_attributes", res.CustomAttributes)
+	if err := d.Set("bucket", bucket); err != nil {
+		return fmt.Errorf("Error reading bucket: %s", err)
+	}
+	if err := d.Set("payload_format", res.PayloadFormat); err != nil {
+		return fmt.Errorf("Error reading payload_format: %s", err)
+	}
+	if err := d.Set("topic", res.Topic); err != nil {
+		return fmt.Errorf("Error reading topic: %s", err)
+	}
+	if err := d.Set("object_name_prefix", res.ObjectNamePrefix); err != nil {
+		return fmt.Errorf("Error reading object_name_prefix: %s", err)
+	}
+	if err := d.Set("event_types", res.EventTypes); err != nil {
+		return fmt.Errorf("Error reading event_types: %s", err)
+	}
+	if err := d.Set("notification_id", notificationID); err != nil {
+		return fmt.Errorf("Error reading notification_id: %s", err)
+	}
+	if err := d.Set("self_link", res.SelfLink); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
+	if err := d.Set("custom_attributes", res.CustomAttributes); err != nil {
+		return fmt.Errorf("Error reading custom_attributes: %s", err)
+	}
 
 	return nil
 }

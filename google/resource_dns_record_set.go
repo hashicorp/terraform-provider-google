@@ -179,10 +179,18 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Only expected 1 record set, got %d", len(resp.Rrsets))
 	}
 
-	d.Set("type", resp.Rrsets[0].Type)
-	d.Set("ttl", resp.Rrsets[0].Ttl)
-	d.Set("rrdatas", resp.Rrsets[0].Rrdatas)
-	d.Set("project", project)
+	if err := d.Set("type", resp.Rrsets[0].Type); err != nil {
+		return fmt.Errorf("Error reading type: %s", err)
+	}
+	if err := d.Set("ttl", resp.Rrsets[0].Ttl); err != nil {
+		return fmt.Errorf("Error reading ttl: %s", err)
+	}
+	if err := d.Set("rrdatas", resp.Rrsets[0].Rrdatas); err != nil {
+		return fmt.Errorf("Error reading rrdatas: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
 
 	return nil
 }
@@ -313,14 +321,28 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 func resourceDnsRecordSetImportState(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) == 3 {
-		d.Set("managed_zone", parts[0])
-		d.Set("name", parts[1])
-		d.Set("type", parts[2])
+		if err := d.Set("managed_zone", parts[0]); err != nil {
+			return nil, fmt.Errorf("Error reading managed_zone: %s", err)
+		}
+		if err := d.Set("name", parts[1]); err != nil {
+			return nil, fmt.Errorf("Error reading name: %s", err)
+		}
+		if err := d.Set("type", parts[2]); err != nil {
+			return nil, fmt.Errorf("Error reading type: %s", err)
+		}
 	} else if len(parts) == 4 {
-		d.Set("project", parts[0])
-		d.Set("managed_zone", parts[1])
-		d.Set("name", parts[2])
-		d.Set("type", parts[3])
+		if err := d.Set("project", parts[0]); err != nil {
+			return nil, fmt.Errorf("Error reading project: %s", err)
+		}
+		if err := d.Set("managed_zone", parts[1]); err != nil {
+			return nil, fmt.Errorf("Error reading managed_zone: %s", err)
+		}
+		if err := d.Set("name", parts[2]); err != nil {
+			return nil, fmt.Errorf("Error reading name: %s", err)
+		}
+		if err := d.Set("type", parts[3]); err != nil {
+			return nil, fmt.Errorf("Error reading type: %s", err)
+		}
 		d.SetId(parts[1] + "/" + parts[2] + "/" + parts[3])
 	} else {
 		return nil, fmt.Errorf("Invalid dns record specifier. Expecting {zone-name}/{record-name}/{record-type} or {project}/{zone-name}/{record-name}/{record-type}. The record name must include a trailing '.' at the end.")

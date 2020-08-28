@@ -105,18 +105,30 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 			// The resource doesn't have any instances, which is okay.
-			d.Set("instances", nil)
+			if err := d.Set("instances", nil); err != nil {
+				return fmt.Errorf("Error reading instances: %s", err)
+			}
 		} else {
 			return fmt.Errorf("Error reading RegionInstanceGroup Members: %s", err)
 		}
 	} else {
-		d.Set("instances", flattenInstancesWithNamedPorts(members.Items))
+		if err := d.Set("instances", flattenInstancesWithNamedPorts(members.Items)); err != nil {
+			return fmt.Errorf("Error reading instances: %s", err)
+		}
 	}
 	d.SetId(fmt.Sprintf("projects/%s/regions/%s/instanceGroups/%s", project, region, name))
-	d.Set("self_link", instanceGroup.SelfLink)
-	d.Set("name", name)
-	d.Set("project", project)
-	d.Set("region", region)
+	if err := d.Set("self_link", instanceGroup.SelfLink); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
+	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("region", region); err != nil {
+		return fmt.Errorf("Error reading region: %s", err)
+	}
 	return nil
 }
 

@@ -117,9 +117,15 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 
 	d.SetId(sak.Name)
 	// Data only available on create.
-	d.Set("valid_after", sak.ValidAfterTime)
-	d.Set("valid_before", sak.ValidBeforeTime)
-	d.Set("private_key", sak.PrivateKeyData)
+	if err := d.Set("valid_after", sak.ValidAfterTime); err != nil {
+		return fmt.Errorf("Error reading valid_after: %s", err)
+	}
+	if err := d.Set("valid_before", sak.ValidBeforeTime); err != nil {
+		return fmt.Errorf("Error reading valid_before: %s", err)
+	}
+	if err := d.Set("private_key", sak.PrivateKeyData); err != nil {
+		return fmt.Errorf("Error reading private_key: %s", err)
+	}
 
 	err = serviceAccountKeyWaitTime(config.clientIAM.Projects.ServiceAccounts.Keys, d.Id(), d.Get("public_key_type").(string), "Creating Service account key", 4*time.Minute)
 	if err != nil {
@@ -150,9 +156,15 @@ func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	d.Set("name", sak.Name)
-	d.Set("key_algorithm", sak.KeyAlgorithm)
-	d.Set("public_key", sak.PublicKeyData)
+	if err := d.Set("name", sak.Name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("key_algorithm", sak.KeyAlgorithm); err != nil {
+		return fmt.Errorf("Error reading key_algorithm: %s", err)
+	}
+	if err := d.Set("public_key", sak.PublicKeyData); err != nil {
+		return fmt.Errorf("Error reading public_key: %s", err)
+	}
 	return nil
 }
 

@@ -1,6 +1,7 @@
 package google
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -26,6 +27,8 @@ func dataSourceGoogleClientOpenIDUserinfoRead(d *schema.ResourceData, meta inter
 		return err
 	}
 	d.SetId(time.Now().UTC().String())
-	d.Set("email", email)
+	if err := d.Set("email", email); err != nil {
+		return fmt.Errorf("Error reading email: %s", err)
+	}
 	return nil
 }

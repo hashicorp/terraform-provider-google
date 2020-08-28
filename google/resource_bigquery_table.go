@@ -724,22 +724,54 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigQuery table %q", tableID))
 	}
 
-	d.Set("project", project)
-	d.Set("description", res.Description)
-	d.Set("expiration_time", res.ExpirationTime)
-	d.Set("friendly_name", res.FriendlyName)
-	d.Set("labels", res.Labels)
-	d.Set("creation_time", res.CreationTime)
-	d.Set("etag", res.Etag)
-	d.Set("last_modified_time", res.LastModifiedTime)
-	d.Set("location", res.Location)
-	d.Set("num_bytes", res.NumBytes)
-	d.Set("table_id", res.TableReference.TableId)
-	d.Set("dataset_id", res.TableReference.DatasetId)
-	d.Set("num_long_term_bytes", res.NumLongTermBytes)
-	d.Set("num_rows", res.NumRows)
-	d.Set("self_link", res.SelfLink)
-	d.Set("type", res.Type)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("description", res.Description); err != nil {
+		return fmt.Errorf("Error reading description: %s", err)
+	}
+	if err := d.Set("expiration_time", res.ExpirationTime); err != nil {
+		return fmt.Errorf("Error reading expiration_time: %s", err)
+	}
+	if err := d.Set("friendly_name", res.FriendlyName); err != nil {
+		return fmt.Errorf("Error reading friendly_name: %s", err)
+	}
+	if err := d.Set("labels", res.Labels); err != nil {
+		return fmt.Errorf("Error reading labels: %s", err)
+	}
+	if err := d.Set("creation_time", res.CreationTime); err != nil {
+		return fmt.Errorf("Error reading creation_time: %s", err)
+	}
+	if err := d.Set("etag", res.Etag); err != nil {
+		return fmt.Errorf("Error reading etag: %s", err)
+	}
+	if err := d.Set("last_modified_time", res.LastModifiedTime); err != nil {
+		return fmt.Errorf("Error reading last_modified_time: %s", err)
+	}
+	if err := d.Set("location", res.Location); err != nil {
+		return fmt.Errorf("Error reading location: %s", err)
+	}
+	if err := d.Set("num_bytes", res.NumBytes); err != nil {
+		return fmt.Errorf("Error reading num_bytes: %s", err)
+	}
+	if err := d.Set("table_id", res.TableReference.TableId); err != nil {
+		return fmt.Errorf("Error reading table_id: %s", err)
+	}
+	if err := d.Set("dataset_id", res.TableReference.DatasetId); err != nil {
+		return fmt.Errorf("Error reading dataset_id: %s", err)
+	}
+	if err := d.Set("num_long_term_bytes", res.NumLongTermBytes); err != nil {
+		return fmt.Errorf("Error reading num_long_term_bytes: %s", err)
+	}
+	if err := d.Set("num_rows", res.NumRows); err != nil {
+		return fmt.Errorf("Error reading num_rows: %s", err)
+	}
+	if err := d.Set("self_link", res.SelfLink); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
+	if err := d.Set("type", res.Type); err != nil {
+		return fmt.Errorf("Error reading type: %s", err)
+	}
 
 	if res.ExternalDataConfiguration != nil {
 		externalDataConfiguration, err := flattenExternalDataConfiguration(res.ExternalDataConfiguration)
@@ -765,7 +797,9 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 
-		d.Set("external_data_configuration", externalDataConfiguration)
+		if err := d.Set("external_data_configuration", externalDataConfiguration); err != nil {
+			return fmt.Errorf("Error reading external_data_configuration: %s", err)
+		}
 	}
 
 	if res.TimePartitioning != nil {
@@ -781,7 +815,9 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if res.Clustering != nil {
-		d.Set("clustering", res.Clustering.Fields)
+		if err := d.Set("clustering", res.Clustering.Fields); err != nil {
+			return fmt.Errorf("Error reading clustering: %s", err)
+		}
 	}
 	if res.EncryptionConfiguration != nil {
 		if err := d.Set("encryption_configuration", flattenEncryptionConfiguration(res.EncryptionConfiguration)); err != nil {
@@ -795,12 +831,16 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 
-		d.Set("schema", schema)
+		if err := d.Set("schema", schema); err != nil {
+			return fmt.Errorf("Error reading schema: %s", err)
+		}
 	}
 
 	if res.View != nil {
 		view := flattenView(res.View)
-		d.Set("view", view)
+		if err := d.Set("view", view); err != nil {
+			return fmt.Errorf("Error reading view: %s", err)
+		}
 	}
 
 	return nil

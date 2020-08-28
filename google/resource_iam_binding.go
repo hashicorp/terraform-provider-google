@@ -141,15 +141,27 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 		if binding == nil {
 			log.Printf("[WARNING] Binding for role %q not found, assuming it has no members. If you expected existing members bound for this role, make sure your role is correctly formatted.", eBinding.Role)
 			log.Printf("[DEBUG] Binding for role %q and condition %+v not found in policy for %s, assuming it has no members.", eBinding.Role, eCondition, updater.DescribeResource())
-			d.Set("role", eBinding.Role)
-			d.Set("members", nil)
+			if err := d.Set("role", eBinding.Role); err != nil {
+				return fmt.Errorf("Error reading role: %s", err)
+			}
+			if err := d.Set("members", nil); err != nil {
+				return fmt.Errorf("Error reading members: %s", err)
+			}
 			return nil
 		} else {
-			d.Set("role", binding.Role)
-			d.Set("members", binding.Members)
-			d.Set("condition", flattenIamCondition(binding.Condition))
+			if err := d.Set("role", binding.Role); err != nil {
+				return fmt.Errorf("Error reading role: %s", err)
+			}
+			if err := d.Set("members", binding.Members); err != nil {
+				return fmt.Errorf("Error reading members: %s", err)
+			}
+			if err := d.Set("condition", flattenIamCondition(binding.Condition)); err != nil {
+				return fmt.Errorf("Error reading condition: %s", err)
+			}
 		}
-		d.Set("etag", p.Etag)
+		if err := d.Set("etag", p.Etag); err != nil {
+			return fmt.Errorf("Error reading etag: %s", err)
+		}
 		return nil
 	}
 }
@@ -177,7 +189,9 @@ func iamBindingImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser
 
 		// Set the ID only to the first part so all IAM types can share the same resourceIdParserFunc.
 		d.SetId(id)
-		d.Set("role", role)
+		if err := d.Set("role", role); err != nil {
+			return nil, fmt.Errorf("Error reading role: %s", err)
+		}
 		err := resourceIdParser(d, config)
 		if err != nil {
 			return nil, err
@@ -210,7 +224,9 @@ func iamBindingImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser
 			}
 		}
 		if binding != nil {
-			d.Set("condition", flattenIamCondition(binding.Condition))
+			if err := d.Set("condition", flattenIamCondition(binding.Condition)); err != nil {
+				return nil, fmt.Errorf("Error reading condition: %s", err)
+			}
 			if k := conditionKeyFromCondition(binding.Condition); !k.Empty() {
 				d.SetId(d.Id() + "/" + k.String())
 			}

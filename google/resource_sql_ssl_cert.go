@@ -122,11 +122,17 @@ func resourceSqlSslCertCreate(d *schema.ResourceData, meta interface{}) error {
 
 	fingerprint := resp.ClientCert.CertInfo.Sha1Fingerprint
 	d.SetId(fmt.Sprintf("projects/%s/instances/%s/sslCerts/%s", project, instance, fingerprint))
-	d.Set("sha1_fingerprint", fingerprint)
+	if err := d.Set("sha1_fingerprint", fingerprint); err != nil {
+		return fmt.Errorf("Error reading sha1_fingerprint: %s", err)
+	}
 
 	// The private key is only returned on the initial insert so set it here.
-	d.Set("private_key", resp.ClientCert.CertPrivateKey)
-	d.Set("server_ca_cert", resp.ServerCaCert.Cert)
+	if err := d.Set("private_key", resp.ClientCert.CertPrivateKey); err != nil {
+		return fmt.Errorf("Error reading private_key: %s", err)
+	}
+	if err := d.Set("server_ca_cert", resp.ServerCaCert.Cert); err != nil {
+		return fmt.Errorf("Error reading server_ca_cert: %s", err)
+	}
 
 	return resourceSqlSslCertRead(d, meta)
 }
@@ -155,14 +161,30 @@ func resourceSqlSslCertRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	d.Set("instance", sslCerts.Instance)
-	d.Set("project", project)
-	d.Set("sha1_fingerprint", sslCerts.Sha1Fingerprint)
-	d.Set("common_name", sslCerts.CommonName)
-	d.Set("cert", sslCerts.Cert)
-	d.Set("cert_serial_number", sslCerts.CertSerialNumber)
-	d.Set("create_time", sslCerts.CreateTime)
-	d.Set("expiration_time", sslCerts.ExpirationTime)
+	if err := d.Set("instance", sslCerts.Instance); err != nil {
+		return fmt.Errorf("Error reading instance: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("sha1_fingerprint", sslCerts.Sha1Fingerprint); err != nil {
+		return fmt.Errorf("Error reading sha1_fingerprint: %s", err)
+	}
+	if err := d.Set("common_name", sslCerts.CommonName); err != nil {
+		return fmt.Errorf("Error reading common_name: %s", err)
+	}
+	if err := d.Set("cert", sslCerts.Cert); err != nil {
+		return fmt.Errorf("Error reading cert: %s", err)
+	}
+	if err := d.Set("cert_serial_number", sslCerts.CertSerialNumber); err != nil {
+		return fmt.Errorf("Error reading cert_serial_number: %s", err)
+	}
+	if err := d.Set("create_time", sslCerts.CreateTime); err != nil {
+		return fmt.Errorf("Error reading create_time: %s", err)
+	}
+	if err := d.Set("expiration_time", sslCerts.ExpirationTime); err != nil {
+		return fmt.Errorf("Error reading expiration_time: %s", err)
+	}
 
 	d.SetId(fmt.Sprintf("projects/%s/instances/%s/sslCerts/%s", project, instance, fingerprint))
 	return nil

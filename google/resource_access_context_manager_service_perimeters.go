@@ -463,7 +463,9 @@ func resourceAccessContextManagerServicePerimetersImport(d *schema.ResourceData,
 		return nil, err
 	}
 
-	d.Set("parent", fmt.Sprintf("accessPolicies/%s", parts["accessPolicy"]))
+	if err := d.Set("parent", fmt.Sprintf("accessPolicies/%s", parts["accessPolicy"])); err != nil {
+		return nil, fmt.Errorf("Error reading parent: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

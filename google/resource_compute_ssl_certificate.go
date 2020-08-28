@@ -362,7 +362,9 @@ func expandComputeSslCertificateName(v interface{}, d TerraformResourceData, con
 	}
 
 	// We need to get the {{name}} into schema to set the ID using ReplaceVars
-	d.Set("name", certName)
+	if err := d.Set("name", certName); err != nil {
+		return nil, fmt.Errorf("Error reading name: %s", err)
+	}
 
 	return certName, nil
 }

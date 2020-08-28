@@ -48,7 +48,9 @@ func RuntimeConfigConfigIamUpdaterProducer(d *schema.ResourceData, config *Confi
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return nil, fmt.Errorf("Error reading project: %s", err)
+		}
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("config"); ok {
@@ -72,8 +74,12 @@ func RuntimeConfigConfigIamUpdaterProducer(d *schema.ResourceData, config *Confi
 		Config:  config,
 	}
 
-	d.Set("project", u.project)
-	d.Set("config", u.GetResourceId())
+	if err := d.Set("project", u.project); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("config", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error reading config: %s", err)
+	}
 
 	return u, nil
 }
@@ -101,7 +107,9 @@ func RuntimeConfigConfigIdParseFunc(d *schema.ResourceData, config *Config) erro
 		d:       d,
 		Config:  config,
 	}
-	d.Set("config", u.GetResourceId())
+	if err := d.Set("config", u.GetResourceId()); err != nil {
+		return fmt.Errorf("Error reading config: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }

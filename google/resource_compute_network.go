@@ -246,7 +246,9 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOk("delete_default_routes_on_create"); !ok {
-		d.Set("delete_default_routes_on_create", false)
+		if err := d.Set("delete_default_routes_on_create", false); err != nil {
+			return fmt.Errorf("Error setting delete_default_routes_on_create: %s", err)
+		}
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
@@ -273,7 +275,9 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
-				d.Set(k, v)
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
 			}
 		}
 	}
@@ -396,7 +400,9 @@ func resourceComputeNetworkImport(d *schema.ResourceData, meta interface{}) ([]*
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	d.Set("delete_default_routes_on_create", false)
+	if err := d.Set("delete_default_routes_on_create", false); err != nil {
+		return nil, fmt.Errorf("Error setting delete_default_routes_on_create: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

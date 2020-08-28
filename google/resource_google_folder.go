@@ -122,13 +122,25 @@ func resourceGoogleFolderRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Folder Not Found : %s", d.Id()))
 	}
 
-	d.Set("name", folder.Name)
+	if err := d.Set("name", folder.Name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
 	folderId := strings.TrimPrefix(folder.Name, "folders/")
-	d.Set("folder_id", folderId)
-	d.Set("parent", folder.Parent)
-	d.Set("display_name", folder.DisplayName)
-	d.Set("lifecycle_state", folder.LifecycleState)
-	d.Set("create_time", folder.CreateTime)
+	if err := d.Set("folder_id", folderId); err != nil {
+		return fmt.Errorf("Error reading folder_id: %s", err)
+	}
+	if err := d.Set("parent", folder.Parent); err != nil {
+		return fmt.Errorf("Error reading parent: %s", err)
+	}
+	if err := d.Set("display_name", folder.DisplayName); err != nil {
+		return fmt.Errorf("Error reading display_name: %s", err)
+	}
+	if err := d.Set("lifecycle_state", folder.LifecycleState); err != nil {
+		return fmt.Errorf("Error reading lifecycle_state: %s", err)
+	}
+	if err := d.Set("create_time", folder.CreateTime); err != nil {
+		return fmt.Errorf("Error reading create_time: %s", err)
+	}
 
 	return nil
 }

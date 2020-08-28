@@ -42,7 +42,9 @@ func IapWebTypeComputeIamUpdaterProducer(d *schema.ResourceData, config *Config)
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return nil, fmt.Errorf("Error reading project: %s", err)
+		}
 	}
 	values["project"] = project
 
@@ -62,7 +64,9 @@ func IapWebTypeComputeIamUpdaterProducer(d *schema.ResourceData, config *Config)
 		Config:  config,
 	}
 
-	d.Set("project", u.project)
+	if err := d.Set("project", u.project); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
 
 	return u, nil
 }
@@ -89,7 +93,9 @@ func IapWebTypeComputeIdParseFunc(d *schema.ResourceData, config *Config) error 
 		d:       d,
 		Config:  config,
 	}
-	d.Set("project", u.project)
+	if err := d.Set("project", u.project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }

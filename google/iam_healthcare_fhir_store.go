@@ -42,7 +42,9 @@ func FhirStoreIdParseFunc(d *schema.ResourceData, config *Config) error {
 	if err != nil {
 		return err
 	}
-	d.Set("fhir_store_id", fhirStoreId.fhirStoreId())
+	if err := d.Set("fhir_store_id", fhirStoreId.fhirStoreId()); err != nil {
+		return fmt.Errorf("Error reading fhir_store_id: %s", err)
+	}
 	d.SetId(fhirStoreId.fhirStoreId())
 	return nil
 }

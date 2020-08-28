@@ -57,10 +57,18 @@ func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Network Not Found : %s", name))
 	}
-	d.Set("gateway_ipv4", network.GatewayIPv4)
-	d.Set("self_link", network.SelfLink)
-	d.Set("description", network.Description)
-	d.Set("subnetworks_self_links", network.Subnetworks)
+	if err := d.Set("gateway_ipv4", network.GatewayIPv4); err != nil {
+		return fmt.Errorf("Error reading gateway_ipv4: %s", err)
+	}
+	if err := d.Set("self_link", network.SelfLink); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
+	if err := d.Set("description", network.Description); err != nil {
+		return fmt.Errorf("Error reading description: %s", err)
+	}
+	if err := d.Set("subnetworks_self_links", network.Subnetworks); err != nil {
+		return fmt.Errorf("Error reading subnetworks_self_links: %s", err)
+	}
 	d.SetId(fmt.Sprintf("projects/%s/global/networks/%s", project, network.Name))
 	return nil
 }

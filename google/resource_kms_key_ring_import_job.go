@@ -267,8 +267,12 @@ func resourceKMSKeyRingImportJobImport(d *schema.ResourceData, meta interface{})
 		)
 	}
 
-	d.Set("key_ring", stringParts[3])
-	d.Set("import_job_id", stringParts[5])
+	if err := d.Set("key_ring", stringParts[3]); err != nil {
+		return nil, fmt.Errorf("Error reading key_ring: %s", err)
+	}
+	if err := d.Set("import_job_id", stringParts[5]); err != nil {
+		return nil, fmt.Errorf("Error reading import_job_id: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

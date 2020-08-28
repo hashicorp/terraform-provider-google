@@ -43,7 +43,9 @@ func folderLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) error 
 		return fmt.Errorf("Error importing logging exclusion, invalid resourceType %#v", loggingExclusionId.resourceType)
 	}
 
-	d.Set("folder", loggingExclusionId.resourceId)
+	if err := d.Set("folder", loggingExclusionId.resourceId); err != nil {
+		return fmt.Errorf("Error reading folder: %s", err)
+	}
 	return nil
 }
 

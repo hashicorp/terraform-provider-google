@@ -42,7 +42,9 @@ func NewBigqueryDatasetIamUpdater(d *schema.ResourceData, config *Config) (Resou
 		return nil, err
 	}
 
-	d.Set("project", project)
+	if err := d.Set("project", project); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
 
 	return &BigqueryDatasetIamUpdater{
 		project:   project,
@@ -57,8 +59,12 @@ func BigqueryDatasetIdParseFunc(d *schema.ResourceData, config *Config) error {
 		return err
 	}
 
-	d.Set("project", fv.Project)
-	d.Set("dataset_id", fv.Name)
+	if err := d.Set("project", fv.Project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("dataset_id", fv.Name); err != nil {
+		return fmt.Errorf("Error reading dataset_id: %s", err)
+	}
 
 	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
 	d.SetId(fv.RelativeLink())

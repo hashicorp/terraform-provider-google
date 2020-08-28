@@ -34,13 +34,19 @@ func containerRegistryRepoRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	d.Set("project", project)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
 	region, ok := d.GetOk("region")
 	escapedProject := strings.Replace(project, ":", "/", -1)
 	if ok && region != nil && region != "" {
-		d.Set("repository_url", fmt.Sprintf("%s.gcr.io/%s", region, escapedProject))
+		if err := d.Set("repository_url", fmt.Sprintf("%s.gcr.io/%s", region, escapedProject)); err != nil {
+			return fmt.Errorf("Error setting repository_url: %s", err)
+		}
 	} else {
-		d.Set("repository_url", fmt.Sprintf("gcr.io/%s", escapedProject))
+		if err := d.Set("repository_url", fmt.Sprintf("gcr.io/%s", escapedProject)); err != nil {
+			return fmt.Errorf("Error setting repository_url: %s", err)
+		}
 	}
 	d.SetId(d.Get("repository_url").(string))
 	return nil

@@ -883,7 +883,9 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	if !ok {
 		return fmt.Errorf("Create response didn't contain id. Create may not have succeeded.")
 	}
-	d.Set("trigger_id", triggerId.(string))
+	if err := d.Set("trigger_id", triggerId.(string)); err != nil {
+		return fmt.Errorf("Error setting trigger_id: %s", err)
+	}
 
 	// Store the ID now. We tried to set it before and it failed because
 	// trigger_id didn't exist yet.

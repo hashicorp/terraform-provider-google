@@ -55,12 +55,16 @@ func CloudFunctionsCloudFunctionIamUpdaterProducer(d *schema.ResourceData, confi
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return nil, fmt.Errorf("Error reading project: %s", err)
+		}
 	}
 	values["project"] = project
 	region, _ := getRegion(d, config)
 	if region != "" {
-		d.Set("region", region)
+		if err := d.Set("region", region); err != nil {
+			return nil, fmt.Errorf("Error reading region: %s", err)
+		}
 	}
 	values["region"] = region
 	if v, ok := d.GetOk("cloud_function"); ok {
@@ -85,9 +89,15 @@ func CloudFunctionsCloudFunctionIamUpdaterProducer(d *schema.ResourceData, confi
 		Config:        config,
 	}
 
-	d.Set("project", u.project)
-	d.Set("region", u.region)
-	d.Set("cloud_function", u.GetResourceId())
+	if err := d.Set("project", u.project); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("region", u.region); err != nil {
+		return nil, fmt.Errorf("Error reading region: %s", err)
+	}
+	if err := d.Set("cloud_function", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error reading cloud_function: %s", err)
+	}
 
 	return u, nil
 }
@@ -121,7 +131,9 @@ func CloudFunctionsCloudFunctionIdParseFunc(d *schema.ResourceData, config *Conf
 		d:             d,
 		Config:        config,
 	}
-	d.Set("cloud_function", u.GetResourceId())
+	if err := d.Set("cloud_function", u.GetResourceId()); err != nil {
+		return fmt.Errorf("Error reading cloud_function: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }

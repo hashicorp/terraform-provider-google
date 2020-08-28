@@ -201,13 +201,27 @@ func resourceGoogleOrganizationPolicyRead(d *schema.ResourceData, meta interface
 		return handleNotFoundError(err, d, fmt.Sprintf("Organization policy for %s", org))
 	}
 
-	d.Set("constraint", policy.Constraint)
-	d.Set("boolean_policy", flattenBooleanOrganizationPolicy(policy.BooleanPolicy))
-	d.Set("list_policy", flattenListOrganizationPolicy(policy.ListPolicy))
-	d.Set("version", policy.Version)
-	d.Set("etag", policy.Etag)
-	d.Set("update_time", policy.UpdateTime)
-	d.Set("restore_policy", flattenRestoreOrganizationPolicy(policy.RestoreDefault))
+	if err := d.Set("constraint", policy.Constraint); err != nil {
+		return fmt.Errorf("Error reading constraint: %s", err)
+	}
+	if err := d.Set("boolean_policy", flattenBooleanOrganizationPolicy(policy.BooleanPolicy)); err != nil {
+		return fmt.Errorf("Error reading boolean_policy: %s", err)
+	}
+	if err := d.Set("list_policy", flattenListOrganizationPolicy(policy.ListPolicy)); err != nil {
+		return fmt.Errorf("Error reading list_policy: %s", err)
+	}
+	if err := d.Set("version", policy.Version); err != nil {
+		return fmt.Errorf("Error reading version: %s", err)
+	}
+	if err := d.Set("etag", policy.Etag); err != nil {
+		return fmt.Errorf("Error reading etag: %s", err)
+	}
+	if err := d.Set("update_time", policy.UpdateTime); err != nil {
+		return fmt.Errorf("Error reading update_time: %s", err)
+	}
+	if err := d.Set("restore_policy", flattenRestoreOrganizationPolicy(policy.RestoreDefault)); err != nil {
+		return fmt.Errorf("Error reading restore_policy: %s", err)
+	}
 
 	return nil
 }
@@ -247,8 +261,12 @@ func resourceGoogleOrganizationPolicyImportState(d *schema.ResourceData, meta in
 		return nil, fmt.Errorf("Invalid id format. Expecting {org_id}/{constraint}, got '%s' instead.", d.Id())
 	}
 
-	d.Set("org_id", parts[0])
-	d.Set("constraint", parts[1])
+	if err := d.Set("org_id", parts[0]); err != nil {
+		return nil, fmt.Errorf("Error reading org_id: %s", err)
+	}
+	if err := d.Set("constraint", parts[1]); err != nil {
+		return nil, fmt.Errorf("Error reading constraint: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

@@ -68,9 +68,15 @@ func dataSourceGoogleComposerImageVersionsRead(d *schema.ResourceData, meta inte
 
 	log.Printf("[DEBUG] Received Composer Image Versions: %q", versions)
 
-	d.Set("image_versions", versions)
-	d.Set("region", region)
-	d.Set("project", project)
+	if err := d.Set("image_versions", versions); err != nil {
+		return fmt.Errorf("Error reading image_versions: %s", err)
+	}
+	if err := d.Set("region", region); err != nil {
+		return fmt.Errorf("Error reading region: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
 	d.SetId(time.Now().UTC().String())
 
 	return nil

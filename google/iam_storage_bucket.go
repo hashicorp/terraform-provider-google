@@ -63,7 +63,9 @@ func StorageBucketIamUpdaterProducer(d *schema.ResourceData, config *Config) (Re
 		Config: config,
 	}
 
-	d.Set("bucket", u.GetResourceId())
+	if err := d.Set("bucket", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error reading bucket: %s", err)
+	}
 
 	return u, nil
 }
@@ -85,7 +87,9 @@ func StorageBucketIdParseFunc(d *schema.ResourceData, config *Config) error {
 		d:      d,
 		Config: config,
 	}
-	d.Set("bucket", u.GetResourceId())
+	if err := d.Set("bucket", u.GetResourceId()); err != nil {
+		return fmt.Errorf("Error reading bucket: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }

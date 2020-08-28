@@ -85,16 +85,36 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 		return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork Not Found : %s", name))
 	}
 
-	d.Set("ip_cidr_range", subnetwork.IpCidrRange)
-	d.Set("private_ip_google_access", subnetwork.PrivateIpGoogleAccess)
-	d.Set("self_link", subnetwork.SelfLink)
-	d.Set("description", subnetwork.Description)
-	d.Set("gateway_address", subnetwork.GatewayAddress)
-	d.Set("network", subnetwork.Network)
-	d.Set("project", project)
-	d.Set("region", region)
-	d.Set("name", name)
-	d.Set("secondary_ip_range", flattenSecondaryRanges(subnetwork.SecondaryIpRanges))
+	if err := d.Set("ip_cidr_range", subnetwork.IpCidrRange); err != nil {
+		return fmt.Errorf("Error reading ip_cidr_range: %s", err)
+	}
+	if err := d.Set("private_ip_google_access", subnetwork.PrivateIpGoogleAccess); err != nil {
+		return fmt.Errorf("Error reading private_ip_google_access: %s", err)
+	}
+	if err := d.Set("self_link", subnetwork.SelfLink); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
+	if err := d.Set("description", subnetwork.Description); err != nil {
+		return fmt.Errorf("Error reading description: %s", err)
+	}
+	if err := d.Set("gateway_address", subnetwork.GatewayAddress); err != nil {
+		return fmt.Errorf("Error reading gateway_address: %s", err)
+	}
+	if err := d.Set("network", subnetwork.Network); err != nil {
+		return fmt.Errorf("Error reading network: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("region", region); err != nil {
+		return fmt.Errorf("Error reading region: %s", err)
+	}
+	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("secondary_ip_range", flattenSecondaryRanges(subnetwork.SecondaryIpRanges)); err != nil {
+		return fmt.Errorf("Error reading secondary_ip_range: %s", err)
+	}
 
 	d.SetId(fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", project, region, name))
 	return nil

@@ -1155,7 +1155,9 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		select {
 		case <-config.context.Done():
 			log.Printf("[DEBUG] Persisting %s so this operation can be resumed \n", op.Name)
-			d.Set("operation", op.Name)
+			if err := d.Set("operation", op.Name); err != nil {
+				return fmt.Errorf("Error reading operation: %s", err)
+			}
 			return nil
 		default:
 			// leaving default case to ensure this is non blocking
@@ -1238,7 +1240,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		op := &containerBeta.Operation{
 			Name: operation,
 		}
-		d.Set("operation", "")
+		if err := d.Set("operation", ""); err != nil {
+			return fmt.Errorf("Error reading operation: %s", err)
+		}
 		waitErr := containerOperationWait(config, op, project, location, "resuming GKE cluster", d.Timeout(schema.TimeoutRead))
 		if waitErr != nil {
 			return waitErr
@@ -1257,16 +1261,22 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return handleNotFoundError(err, d, fmt.Sprintf("Container Cluster %q", d.Get("name").(string)))
 	}
 
-	d.Set("name", cluster.Name)
+	if err := d.Set("name", cluster.Name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
 	if err := d.Set("network_policy", flattenNetworkPolicy(cluster.NetworkPolicy)); err != nil {
 		return err
 	}
 
-	d.Set("location", cluster.Location)
+	if err := d.Set("location", cluster.Location); err != nil {
+		return fmt.Errorf("Error reading location: %s", err)
+	}
 
 	locations := schema.NewSet(schema.HashString, convertStringArrToInterface(cluster.Locations))
 	locations.Remove(cluster.Zone) // Remove the original zone since we only store additional zones
-	d.Set("node_locations", locations)
+	if err := d.Set("node_locations", locations); err != nil {
+		return fmt.Errorf("Error reading node_locations: %s", err)
+	}
 
 	d.Set("endpoint", cluster.Endpoint)
 	d.Set("self_link", cluster.SelfLink)
@@ -1279,24 +1289,52 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("master_authorized_networks_config", flattenMasterAuthorizedNetworksConfig(cluster.MasterAuthorizedNetworksConfig)); err != nil {
 		return err
 	}
-	d.Set("initial_node_count", cluster.InitialNodeCount)
-	d.Set("master_version", cluster.CurrentMasterVersion)
-	d.Set("node_version", cluster.CurrentNodeVersion)
-	d.Set("cluster_ipv4_cidr", cluster.ClusterIpv4Cidr)
-	d.Set("services_ipv4_cidr", cluster.ServicesIpv4Cidr)
-	d.Set("description", cluster.Description)
-	d.Set("enable_kubernetes_alpha", cluster.EnableKubernetesAlpha)
-	d.Set("enable_legacy_abac", cluster.LegacyAbac.Enabled)
-	d.Set("logging_service", cluster.LoggingService)
-	d.Set("monitoring_service", cluster.MonitoringService)
-	d.Set("network", cluster.NetworkConfig.Network)
-	d.Set("subnetwork", cluster.NetworkConfig.Subnetwork)
+	if err := d.Set("initial_node_count", cluster.InitialNodeCount); err != nil {
+		return fmt.Errorf("Error reading initial_node_count: %s", err)
+	}
+	if err := d.Set("master_version", cluster.CurrentMasterVersion); err != nil {
+		return fmt.Errorf("Error reading master_version: %s", err)
+	}
+	if err := d.Set("node_version", cluster.CurrentNodeVersion); err != nil {
+		return fmt.Errorf("Error reading node_version: %s", err)
+	}
+	if err := d.Set("cluster_ipv4_cidr", cluster.ClusterIpv4Cidr); err != nil {
+		return fmt.Errorf("Error reading cluster_ipv4_cidr: %s", err)
+	}
+	if err := d.Set("services_ipv4_cidr", cluster.ServicesIpv4Cidr); err != nil {
+		return fmt.Errorf("Error reading services_ipv4_cidr: %s", err)
+	}
+	if err := d.Set("description", cluster.Description); err != nil {
+		return fmt.Errorf("Error reading description: %s", err)
+	}
+	if err := d.Set("enable_kubernetes_alpha", cluster.EnableKubernetesAlpha); err != nil {
+		return fmt.Errorf("Error reading enable_kubernetes_alpha: %s", err)
+	}
+	if err := d.Set("enable_legacy_abac", cluster.LegacyAbac.Enabled); err != nil {
+		return fmt.Errorf("Error reading enable_legacy_abac: %s", err)
+	}
+	if err := d.Set("logging_service", cluster.LoggingService); err != nil {
+		return fmt.Errorf("Error reading logging_service: %s", err)
+	}
+	if err := d.Set("monitoring_service", cluster.MonitoringService); err != nil {
+		return fmt.Errorf("Error reading monitoring_service: %s", err)
+	}
+	if err := d.Set("network", cluster.NetworkConfig.Network); err != nil {
+		return fmt.Errorf("Error reading network: %s", err)
+	}
+	if err := d.Set("subnetwork", cluster.NetworkConfig.Subnetwork); err != nil {
+		return fmt.Errorf("Error reading subnetwork: %s", err)
+	}
 	if err := d.Set("cluster_autoscaling", flattenClusterAutoscaling(cluster.Autoscaling)); err != nil {
 		return err
 	}
-	d.Set("enable_binary_authorization", cluster.BinaryAuthorization != nil && cluster.BinaryAuthorization.Enabled)
+	if err := d.Set("enable_binary_authorization", cluster.BinaryAuthorization != nil && cluster.BinaryAuthorization.Enabled); err != nil {
+		return fmt.Errorf("Error reading enable_binary_authorization: %s", err)
+	}
 	if cluster.ShieldedNodes != nil {
-		d.Set("enable_shielded_nodes", cluster.ShieldedNodes.Enabled)
+		if err := d.Set("enable_shielded_nodes", cluster.ShieldedNodes.Enabled); err != nil {
+			return fmt.Errorf("Error reading enable_shielded_nodes: %s", err)
+		}
 	}
 	if err := d.Set("release_channel", flattenReleaseChannel(cluster.ReleaseChannel)); err != nil {
 		return err
@@ -1305,12 +1343,16 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	if cluster.DefaultMaxPodsConstraint != nil {
-		d.Set("default_max_pods_per_node", cluster.DefaultMaxPodsConstraint.MaxPodsPerNode)
+		if err := d.Set("default_max_pods_per_node", cluster.DefaultMaxPodsConstraint.MaxPodsPerNode); err != nil {
+			return fmt.Errorf("Error reading default_max_pods_per_node: %s", err)
+		}
 	}
 	if err := d.Set("node_config", flattenNodeConfig(cluster.NodeConfig)); err != nil {
 		return err
 	}
-	d.Set("project", project)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
 	if err := d.Set("addons_config", flattenClusterAddonsConfig(cluster.AddonsConfig)); err != nil {
 		return err
 	}
@@ -1350,8 +1392,12 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	d.Set("resource_labels", cluster.ResourceLabels)
-	d.Set("label_fingerprint", cluster.LabelFingerprint)
+	if err := d.Set("resource_labels", cluster.ResourceLabels); err != nil {
+		return fmt.Errorf("Error reading resource_labels: %s", err)
+	}
+	if err := d.Set("label_fingerprint", cluster.LabelFingerprint); err != nil {
+		return fmt.Errorf("Error reading label_fingerprint: %s", err)
+	}
 
 	if err := d.Set("resource_usage_export_config", flattenResourceUsageExportConfig(cluster.ResourceUsageExportConfig)); err != nil {
 		return err
@@ -2860,7 +2906,9 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 
 	clusterName := d.Get("name").(string)
 
-	d.Set("location", location)
+	if err := d.Set("location", location); err != nil {
+		return nil, fmt.Errorf("Error reading location: %s", err)
+	}
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return nil, err
 	}

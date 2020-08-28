@@ -89,12 +89,16 @@ func resourceIamAuditConfigRead(newUpdaterFunc newResourceIamUpdaterFunc) schema
 			return nil
 		}
 
-		d.Set("etag", p.Etag)
+		if err := d.Set("etag", p.Etag); err != nil {
+			return fmt.Errorf("Error reading etag: %s", err)
+		}
 		err = d.Set("audit_log_config", flattenAuditLogConfigs(ac.AuditLogConfigs))
 		if err != nil {
 			return fmt.Errorf("Error flattening audit log config: %s", err)
 		}
-		d.Set("service", ac.Service)
+		if err := d.Set("service", ac.Service); err != nil {
+			return fmt.Errorf("Error reading service: %s", err)
+		}
 		return nil
 	}
 }
@@ -114,7 +118,9 @@ func iamAuditConfigImport(resourceIdParser resourceIdParserFunc) schema.StateFun
 
 		// Set the ID only to the first part so all IAM types can share the same resourceIdParserFunc.
 		d.SetId(id)
-		d.Set("service", service)
+		if err := d.Set("service", service); err != nil {
+			return nil, fmt.Errorf("Error reading service: %s", err)
+		}
 		err := resourceIdParser(d, config)
 		if err != nil {
 			return nil, err

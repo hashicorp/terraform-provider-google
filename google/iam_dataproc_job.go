@@ -47,8 +47,12 @@ func NewDataprocJobUpdater(d *schema.ResourceData, config *Config) (ResourceIamU
 		return nil, err
 	}
 
-	d.Set("project", project)
-	d.Set("region", region)
+	if err := d.Set("project", project); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("region", region); err != nil {
+		return nil, fmt.Errorf("Error reading region: %s", err)
+	}
 
 	return &DataprocJobIamUpdater{
 		project: project,
@@ -64,9 +68,15 @@ func DataprocJobIdParseFunc(d *schema.ResourceData, config *Config) error {
 		return err
 	}
 
-	d.Set("job_id", fv.Name)
-	d.Set("project", fv.Project)
-	d.Set("region", fv.Region)
+	if err := d.Set("job_id", fv.Name); err != nil {
+		return fmt.Errorf("Error reading job_id: %s", err)
+	}
+	if err := d.Set("project", fv.Project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("region", fv.Region); err != nil {
+		return fmt.Errorf("Error reading region: %s", err)
+	}
 
 	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
 	d.SetId(fv.RelativeLink())

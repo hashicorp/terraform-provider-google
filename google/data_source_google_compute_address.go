@@ -71,11 +71,21 @@ func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}
 		return handleNotFoundError(err, d, fmt.Sprintf("Address Not Found : %s", name))
 	}
 
-	d.Set("address", address.Address)
-	d.Set("status", address.Status)
-	d.Set("self_link", address.SelfLink)
-	d.Set("project", project)
-	d.Set("region", region)
+	if err := d.Set("address", address.Address); err != nil {
+		return fmt.Errorf("Error reading address: %s", err)
+	}
+	if err := d.Set("status", address.Status); err != nil {
+		return fmt.Errorf("Error reading status: %s", err)
+	}
+	if err := d.Set("self_link", address.SelfLink); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("region", region); err != nil {
+		return fmt.Errorf("Error reading region: %s", err)
+	}
 
 	d.SetId(fmt.Sprintf("projects/%s/regions/%s/addresses/%s", project, region, name))
 	return nil

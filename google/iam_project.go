@@ -40,7 +40,9 @@ func NewProjectIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUp
 		return nil, err
 	}
 
-	d.Set("project", pid)
+	if err := d.Set("project", pid); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
 
 	return &ProjectIamUpdater{
 		resourceId: pid,
@@ -58,7 +60,9 @@ func NewProjectIamPolicyUpdater(d *schema.ResourceData, config *Config) (Resourc
 }
 
 func ProjectIdParseFunc(d *schema.ResourceData, _ *Config) error {
-	d.Set("project", d.Id())
+	if err := d.Set("project", d.Id()); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
 	return nil
 }
 

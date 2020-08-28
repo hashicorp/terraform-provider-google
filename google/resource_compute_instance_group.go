@@ -250,7 +250,9 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 			// The resource doesn't have any instances
-			d.Set("instances", nil)
+			if err := d.Set("instances", nil); err != nil {
+				return fmt.Errorf("Error reading instances: %s", err)
+			}
 		} else {
 			// any other errors return them
 			return fmt.Errorf("Error reading InstanceGroup Members: %s", err)
@@ -260,18 +262,34 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 			memberUrls = append(memberUrls, member.Instance)
 		}
 		log.Printf("[DEBUG] InstanceGroup members: %v", memberUrls)
-		d.Set("instances", memberUrls)
+		if err := d.Set("instances", memberUrls); err != nil {
+			return fmt.Errorf("Error reading instances: %s", err)
+		}
 	}
 
-	d.Set("named_port", flattenNamedPorts(instanceGroup.NamedPorts))
-	d.Set("description", instanceGroup.Description)
+	if err := d.Set("named_port", flattenNamedPorts(instanceGroup.NamedPorts)); err != nil {
+		return fmt.Errorf("Error reading named_port: %s", err)
+	}
+	if err := d.Set("description", instanceGroup.Description); err != nil {
+		return fmt.Errorf("Error reading description: %s", err)
+	}
 
 	// Set computed fields
-	d.Set("network", instanceGroup.Network)
-	d.Set("size", instanceGroup.Size)
-	d.Set("project", project)
-	d.Set("zone", zone)
-	d.Set("self_link", instanceGroup.SelfLink)
+	if err := d.Set("network", instanceGroup.Network); err != nil {
+		return fmt.Errorf("Error reading network: %s", err)
+	}
+	if err := d.Set("size", instanceGroup.Size); err != nil {
+		return fmt.Errorf("Error reading size: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("zone", zone); err != nil {
+		return fmt.Errorf("Error reading zone: %s", err)
+	}
+	if err := d.Set("self_link", instanceGroup.SelfLink); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
 
 	return nil
 }

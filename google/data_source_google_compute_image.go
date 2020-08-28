@@ -139,24 +139,60 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 		ieks256 = image.ImageEncryptionKey.Sha256
 	}
 
-	d.Set("project", project)
-	d.Set("name", image.Name)
-	d.Set("family", image.Family)
-	d.Set("archive_size_bytes", image.ArchiveSizeBytes)
-	d.Set("creation_timestamp", image.CreationTimestamp)
-	d.Set("description", image.Description)
-	d.Set("disk_size_gb", image.DiskSizeGb)
-	d.Set("image_id", strconv.FormatUint(image.Id, 10))
-	d.Set("image_encryption_key_sha256", ieks256)
-	d.Set("label_fingerprint", image.LabelFingerprint)
-	d.Set("labels", image.Labels)
-	d.Set("licenses", image.Licenses)
-	d.Set("self_link", image.SelfLink)
-	d.Set("source_disk", image.SourceDisk)
-	d.Set("source_disk_encryption_key_sha256", sdeks256)
-	d.Set("source_disk_id", image.SourceDiskId)
-	d.Set("source_image_id", image.SourceImageId)
-	d.Set("status", image.Status)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("name", image.Name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("family", image.Family); err != nil {
+		return fmt.Errorf("Error reading family: %s", err)
+	}
+	if err := d.Set("archive_size_bytes", image.ArchiveSizeBytes); err != nil {
+		return fmt.Errorf("Error reading archive_size_bytes: %s", err)
+	}
+	if err := d.Set("creation_timestamp", image.CreationTimestamp); err != nil {
+		return fmt.Errorf("Error reading creation_timestamp: %s", err)
+	}
+	if err := d.Set("description", image.Description); err != nil {
+		return fmt.Errorf("Error reading description: %s", err)
+	}
+	if err := d.Set("disk_size_gb", image.DiskSizeGb); err != nil {
+		return fmt.Errorf("Error reading disk_size_gb: %s", err)
+	}
+	if err := d.Set("image_id", strconv.FormatUint(image.Id, 10)); err != nil {
+		return fmt.Errorf("Error reading image_id: %s", err)
+	}
+	if err := d.Set("image_encryption_key_sha256", ieks256); err != nil {
+		return fmt.Errorf("Error reading image_encryption_key_sha256: %s", err)
+	}
+	if err := d.Set("label_fingerprint", image.LabelFingerprint); err != nil {
+		return fmt.Errorf("Error reading label_fingerprint: %s", err)
+	}
+	if err := d.Set("labels", image.Labels); err != nil {
+		return fmt.Errorf("Error reading labels: %s", err)
+	}
+	if err := d.Set("licenses", image.Licenses); err != nil {
+		return fmt.Errorf("Error reading licenses: %s", err)
+	}
+	if err := d.Set("self_link", image.SelfLink); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
+	if err := d.Set("source_disk", image.SourceDisk); err != nil {
+		return fmt.Errorf("Error reading source_disk: %s", err)
+	}
+	if err := d.Set("source_disk_encryption_key_sha256", sdeks256); err != nil {
+		return fmt.Errorf("Error reading source_disk_encryption_key_sha256: %s", err)
+	}
+	if err := d.Set("source_disk_id", image.SourceDiskId); err != nil {
+		return fmt.Errorf("Error reading source_disk_id: %s", err)
+	}
+	if err := d.Set("source_image_id", image.SourceImageId); err != nil {
+		return fmt.Errorf("Error reading source_image_id: %s", err)
+	}
+	if err := d.Set("status", image.Status); err != nil {
+		return fmt.Errorf("Error reading status: %s", err)
+	}
 
 	id, err := replaceVars(d, config, "projects/{{project}}/global/images/{{name}}")
 	if err != nil {

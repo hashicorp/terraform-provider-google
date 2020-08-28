@@ -31,7 +31,9 @@ func NewServiceAccountIamUpdater(d *schema.ResourceData, config *Config) (Resour
 }
 
 func ServiceAccountIdParseFunc(d *schema.ResourceData, _ *Config) error {
-	d.Set("service_account_id", d.Id())
+	if err := d.Set("service_account_id", d.Id()); err != nil {
+		return fmt.Errorf("Error reading service_account_id: %s", err)
+	}
 	return nil
 }
 

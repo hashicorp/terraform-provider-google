@@ -47,8 +47,12 @@ func NewDataprocClusterUpdater(d *schema.ResourceData, config *Config) (Resource
 		return nil, err
 	}
 
-	d.Set("project", project)
-	d.Set("region", region)
+	if err := d.Set("project", project); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("region", region); err != nil {
+		return nil, fmt.Errorf("Error reading region: %s", err)
+	}
 
 	return &DataprocClusterIamUpdater{
 		project: project,
@@ -64,9 +68,15 @@ func DataprocClusterIdParseFunc(d *schema.ResourceData, config *Config) error {
 		return err
 	}
 
-	d.Set("project", fv.Project)
-	d.Set("region", fv.Region)
-	d.Set("cluster", fv.Name)
+	if err := d.Set("project", fv.Project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("region", fv.Region); err != nil {
+		return fmt.Errorf("Error reading region: %s", err)
+	}
+	if err := d.Set("cluster", fv.Name); err != nil {
+		return fmt.Errorf("Error reading cluster: %s", err)
+	}
 
 	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
 	d.SetId(fv.RelativeLink())

@@ -55,12 +55,16 @@ func CloudRunServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return nil, fmt.Errorf("Error reading project: %s", err)
+		}
 	}
 	values["project"] = project
 	location, _ := getLocation(d, config)
 	if location != "" {
-		d.Set("location", location)
+		if err := d.Set("location", location); err != nil {
+			return nil, fmt.Errorf("Error reading location: %s", err)
+		}
 	}
 	values["location"] = location
 	if v, ok := d.GetOk("service"); ok {
@@ -85,9 +89,15 @@ func CloudRunServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (
 		Config:   config,
 	}
 
-	d.Set("project", u.project)
-	d.Set("location", u.location)
-	d.Set("service", u.GetResourceId())
+	if err := d.Set("project", u.project); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("location", u.location); err != nil {
+		return nil, fmt.Errorf("Error reading location: %s", err)
+	}
+	if err := d.Set("service", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error reading service: %s", err)
+	}
 
 	return u, nil
 }
@@ -121,7 +131,9 @@ func CloudRunServiceIdParseFunc(d *schema.ResourceData, config *Config) error {
 		d:        d,
 		Config:   config,
 	}
-	d.Set("service", u.GetResourceId())
+	if err := d.Set("service", u.GetResourceId()); err != nil {
+		return fmt.Errorf("Error reading service: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }

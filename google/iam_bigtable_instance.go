@@ -35,7 +35,9 @@ func NewBigtableInstanceUpdater(d *schema.ResourceData, config *Config) (Resourc
 		return nil, err
 	}
 
-	d.Set("project", project)
+	if err := d.Set("project", project); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
 
 	return &BigtableInstanceIamUpdater{
 		project:  project,
@@ -50,8 +52,12 @@ func BigtableInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 		return err
 	}
 
-	d.Set("project", fv.Project)
-	d.Set("instance", fv.Name)
+	if err := d.Set("project", fv.Project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("instance", fv.Name); err != nil {
+		return fmt.Errorf("Error reading instance: %s", err)
+	}
 
 	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
 	d.SetId(fv.RelativeLink())

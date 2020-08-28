@@ -343,7 +343,9 @@ func resourceDataCatalogTagImport(d *schema.ResourceData, meta interface{}) ([]*
 		return nil, fmt.Errorf("entry name does not fit the format %s", egRegex)
 	}
 
-	d.Set("parent", parts[1])
+	if err := d.Set("parent", parts[1]); err != nil {
+		return nil, fmt.Errorf("Error reading parent: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

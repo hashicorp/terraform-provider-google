@@ -211,7 +211,9 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	metadata := res["metadata"].(map[string]interface{})
 	name := metadata["index"].(string)
 	log.Printf("[DEBUG] Setting Index name, id to %s", name)
-	d.Set("name", name)
+	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name)
 
 	return resourceFirestoreIndexRead(d, meta)
@@ -319,9 +321,15 @@ func resourceFirestoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*
 		)
 	}
 
-	d.Set("project", stringParts[1])
-	d.Set("database", stringParts[3])
-	d.Set("collection", stringParts[5])
+	if err := d.Set("project", stringParts[1]); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("database", stringParts[3]); err != nil {
+		return nil, fmt.Errorf("Error reading database: %s", err)
+	}
+	if err := d.Set("collection", stringParts[5]); err != nil {
+		return nil, fmt.Errorf("Error reading collection: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

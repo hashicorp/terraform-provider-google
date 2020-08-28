@@ -55,7 +55,9 @@ func resourceFolderOrgPolicyImporter(d *schema.ResourceData, meta interface{}) (
 		return nil, fmt.Errorf("unable to parse folder or constraint. Check import formats")
 	}
 
-	d.Set("folder", "folders/"+d.Get("folder").(string))
+	if err := d.Set("folder", "folders/"+d.Get("folder").(string)); err != nil {
+		return nil, fmt.Errorf("Error reading folder: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -89,13 +91,27 @@ func resourceGoogleFolderOrganizationPolicyRead(d *schema.ResourceData, meta int
 		return handleNotFoundError(err, d, fmt.Sprintf("Organization policy for %s", folder))
 	}
 
-	d.Set("constraint", policy.Constraint)
-	d.Set("boolean_policy", flattenBooleanOrganizationPolicy(policy.BooleanPolicy))
-	d.Set("list_policy", flattenListOrganizationPolicy(policy.ListPolicy))
-	d.Set("restore_policy", flattenRestoreOrganizationPolicy(policy.RestoreDefault))
-	d.Set("version", policy.Version)
-	d.Set("etag", policy.Etag)
-	d.Set("update_time", policy.UpdateTime)
+	if err := d.Set("constraint", policy.Constraint); err != nil {
+		return fmt.Errorf("Error reading constraint: %s", err)
+	}
+	if err := d.Set("boolean_policy", flattenBooleanOrganizationPolicy(policy.BooleanPolicy)); err != nil {
+		return fmt.Errorf("Error reading boolean_policy: %s", err)
+	}
+	if err := d.Set("list_policy", flattenListOrganizationPolicy(policy.ListPolicy)); err != nil {
+		return fmt.Errorf("Error reading list_policy: %s", err)
+	}
+	if err := d.Set("restore_policy", flattenRestoreOrganizationPolicy(policy.RestoreDefault)); err != nil {
+		return fmt.Errorf("Error reading restore_policy: %s", err)
+	}
+	if err := d.Set("version", policy.Version); err != nil {
+		return fmt.Errorf("Error reading version: %s", err)
+	}
+	if err := d.Set("etag", policy.Etag); err != nil {
+		return fmt.Errorf("Error reading etag: %s", err)
+	}
+	if err := d.Set("update_time", policy.UpdateTime); err != nil {
+		return fmt.Errorf("Error reading update_time: %s", err)
+	}
 
 	return nil
 }

@@ -159,10 +159,18 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	d.Set("host", user.Host)
-	d.Set("instance", user.Instance)
-	d.Set("name", user.Name)
-	d.Set("project", project)
+	if err := d.Set("host", user.Host); err != nil {
+		return fmt.Errorf("Error reading host: %s", err)
+	}
+	if err := d.Set("instance", user.Instance); err != nil {
+		return fmt.Errorf("Error reading instance: %s", err)
+	}
+	if err := d.Set("name", user.Name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
 	d.SetId(fmt.Sprintf("%s/%s/%s", user.Name, user.Host, user.Instance))
 	return nil
 }
@@ -255,14 +263,28 @@ func resourceSqlUserImporter(d *schema.ResourceData, meta interface{}) ([]*schem
 	parts := strings.Split(d.Id(), "/")
 
 	if len(parts) == 3 {
-		d.Set("project", parts[0])
-		d.Set("instance", parts[1])
-		d.Set("name", parts[2])
+		if err := d.Set("project", parts[0]); err != nil {
+			return nil, fmt.Errorf("Error reading project: %s", err)
+		}
+		if err := d.Set("instance", parts[1]); err != nil {
+			return nil, fmt.Errorf("Error reading instance: %s", err)
+		}
+		if err := d.Set("name", parts[2]); err != nil {
+			return nil, fmt.Errorf("Error reading name: %s", err)
+		}
 	} else if len(parts) == 4 {
-		d.Set("project", parts[0])
-		d.Set("instance", parts[1])
-		d.Set("host", parts[2])
-		d.Set("name", parts[3])
+		if err := d.Set("project", parts[0]); err != nil {
+			return nil, fmt.Errorf("Error reading project: %s", err)
+		}
+		if err := d.Set("instance", parts[1]); err != nil {
+			return nil, fmt.Errorf("Error reading instance: %s", err)
+		}
+		if err := d.Set("host", parts[2]); err != nil {
+			return nil, fmt.Errorf("Error reading host: %s", err)
+		}
+		if err := d.Set("name", parts[3]); err != nil {
+			return nil, fmt.Errorf("Error reading name: %s", err)
+		}
 	} else {
 		return nil, fmt.Errorf("Invalid specifier. Expecting {project}/{instance}/{name} for postgres instance and {project}/{instance}/{host}/{name} for MySQL instance")
 	}

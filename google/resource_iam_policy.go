@@ -81,8 +81,12 @@ func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 			return handleNotFoundError(err, d, fmt.Sprintf("Resource %q with IAM Policy", updater.DescribeResource()))
 		}
 
-		d.Set("etag", policy.Etag)
-		d.Set("policy_data", marshalIamPolicy(policy))
+		if err := d.Set("etag", policy.Etag); err != nil {
+			return fmt.Errorf("Error reading etag: %s", err)
+		}
+		if err := d.Set("policy_data", marshalIamPolicy(policy)); err != nil {
+			return fmt.Errorf("Error reading policy_data: %s", err)
+		}
 
 		return nil
 	}

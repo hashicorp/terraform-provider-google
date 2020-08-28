@@ -566,8 +566,12 @@ func resourceDataCatalogEntryImport(d *schema.ResourceData, meta interface{}) ([
 	if len(parts) != 3 {
 		return nil, fmt.Errorf("entry name does not fit the format %s", egRegex)
 	}
-	d.Set("entry_group", parts[1])
-	d.Set("entry_id", parts[2])
+	if err := d.Set("entry_group", parts[1]); err != nil {
+		return nil, fmt.Errorf("Error reading entry_group: %s", err)
+	}
+	if err := d.Set("entry_id", parts[2]); err != nil {
+		return nil, fmt.Errorf("Error reading entry_id: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

@@ -263,19 +263,45 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket Object %q", d.Get("name").(string)))
 	}
 
-	d.Set("md5hash", res.Md5Hash)
-	d.Set("detect_md5hash", res.Md5Hash)
-	d.Set("crc32c", res.Crc32c)
-	d.Set("cache_control", res.CacheControl)
-	d.Set("content_disposition", res.ContentDisposition)
-	d.Set("content_encoding", res.ContentEncoding)
-	d.Set("content_language", res.ContentLanguage)
-	d.Set("content_type", res.ContentType)
-	d.Set("storage_class", res.StorageClass)
-	d.Set("self_link", res.SelfLink)
-	d.Set("output_name", res.Name)
-	d.Set("metadata", res.Metadata)
-	d.Set("media_link", res.MediaLink)
+	if err := d.Set("md5hash", res.Md5Hash); err != nil {
+		return fmt.Errorf("Error reading md5hash: %s", err)
+	}
+	if err := d.Set("detect_md5hash", res.Md5Hash); err != nil {
+		return fmt.Errorf("Error reading detect_md5hash: %s", err)
+	}
+	if err := d.Set("crc32c", res.Crc32c); err != nil {
+		return fmt.Errorf("Error reading crc32c: %s", err)
+	}
+	if err := d.Set("cache_control", res.CacheControl); err != nil {
+		return fmt.Errorf("Error reading cache_control: %s", err)
+	}
+	if err := d.Set("content_disposition", res.ContentDisposition); err != nil {
+		return fmt.Errorf("Error reading content_disposition: %s", err)
+	}
+	if err := d.Set("content_encoding", res.ContentEncoding); err != nil {
+		return fmt.Errorf("Error reading content_encoding: %s", err)
+	}
+	if err := d.Set("content_language", res.ContentLanguage); err != nil {
+		return fmt.Errorf("Error reading content_language: %s", err)
+	}
+	if err := d.Set("content_type", res.ContentType); err != nil {
+		return fmt.Errorf("Error reading content_type: %s", err)
+	}
+	if err := d.Set("storage_class", res.StorageClass); err != nil {
+		return fmt.Errorf("Error reading storage_class: %s", err)
+	}
+	if err := d.Set("self_link", res.SelfLink); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
+	if err := d.Set("output_name", res.Name); err != nil {
+		return fmt.Errorf("Error reading output_name: %s", err)
+	}
+	if err := d.Set("metadata", res.Metadata); err != nil {
+		return fmt.Errorf("Error reading metadata: %s", err)
+	}
+	if err := d.Set("media_link", res.MediaLink); err != nil {
+		return fmt.Errorf("Error reading media_link: %s", err)
+	}
 
 	d.SetId(objectGetId(res))
 

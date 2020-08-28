@@ -110,7 +110,9 @@ func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
 	}
-	d.Set("instance_name", instanceName)
+	if err := d.Set("instance_name", instanceName); err != nil {
+		return fmt.Errorf("Error reading instance_name: %s", err)
+	}
 
 	defer c.Close()
 
@@ -172,7 +174,9 @@ func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	d.Set("project", project)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
 
 	return nil
 }

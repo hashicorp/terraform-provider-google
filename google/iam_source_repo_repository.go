@@ -57,7 +57,9 @@ func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Conf
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return nil, fmt.Errorf("Error reading project: %s", err)
+		}
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("repository"); ok {
@@ -81,8 +83,12 @@ func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Conf
 		Config:     config,
 	}
 
-	d.Set("project", u.project)
-	d.Set("repository", u.GetResourceId())
+	if err := d.Set("project", u.project); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("repository", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error reading repository: %s", err)
+	}
 
 	return u, nil
 }
@@ -110,7 +116,9 @@ func SourceRepoRepositoryIdParseFunc(d *schema.ResourceData, config *Config) err
 		d:          d,
 		Config:     config,
 	}
-	d.Set("repository", u.GetResourceId())
+	if err := d.Set("repository", u.GetResourceId()); err != nil {
+		return fmt.Errorf("Error reading repository: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }

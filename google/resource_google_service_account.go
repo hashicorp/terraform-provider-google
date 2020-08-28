@@ -115,13 +115,27 @@ func resourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}) 
 		return handleNotFoundError(err, d, fmt.Sprintf("Service Account %q", d.Id()))
 	}
 
-	d.Set("email", sa.Email)
-	d.Set("unique_id", sa.UniqueId)
-	d.Set("project", sa.ProjectId)
-	d.Set("account_id", strings.Split(sa.Email, "@")[0])
-	d.Set("name", sa.Name)
-	d.Set("display_name", sa.DisplayName)
-	d.Set("description", sa.Description)
+	if err := d.Set("email", sa.Email); err != nil {
+		return fmt.Errorf("Error reading email: %s", err)
+	}
+	if err := d.Set("unique_id", sa.UniqueId); err != nil {
+		return fmt.Errorf("Error reading unique_id: %s", err)
+	}
+	if err := d.Set("project", sa.ProjectId); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("account_id", strings.Split(sa.Email, "@")[0]); err != nil {
+		return fmt.Errorf("Error reading account_id: %s", err)
+	}
+	if err := d.Set("name", sa.Name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("display_name", sa.DisplayName); err != nil {
+		return fmt.Errorf("Error reading display_name: %s", err)
+	}
+	if err := d.Set("description", sa.Description); err != nil {
+		return fmt.Errorf("Error reading description: %s", err)
+	}
 	return nil
 }
 

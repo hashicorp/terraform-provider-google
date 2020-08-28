@@ -156,7 +156,9 @@ func TestGetZone(t *testing.T) {
 	if zone, err := getZone(d, &config); err != nil || zone != "foo" {
 		t.Fatalf("Zone '%s' != 'foo', %s", zone, err)
 	}
-	d.Set("zone", "")
+	if err := d.Set("zone", ""); err != nil {
+		t.Fatalf("Error reading zone: %s", err)
+	}
 	if zone, err := getZone(d, &config); err != nil || zone != "bar" {
 		t.Fatalf("Zone '%s' != 'bar', %s", zone, err)
 	}
@@ -179,7 +181,9 @@ func TestGetRegion(t *testing.T) {
 	}
 
 	config.Zone = "bar"
-	d.Set("zone", "")
+	if err := d.Set("zone", ""); err != nil {
+		t.Fatalf("Error reading zone: %s", err)
+	}
 	if region, err := getRegion(d, &config); err != nil || region != barRegionName {
 		t.Fatalf("Zone '%s' != '%s', %s", region, barRegionName, err)
 	}

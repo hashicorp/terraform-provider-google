@@ -55,12 +55,16 @@ func ComputeInstanceIamUpdaterProducer(d *schema.ResourceData, config *Config) (
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return nil, fmt.Errorf("Error reading project: %s", err)
+		}
 	}
 	values["project"] = project
 	zone, _ := getZone(d, config)
 	if zone != "" {
-		d.Set("zone", zone)
+		if err := d.Set("zone", zone); err != nil {
+			return nil, fmt.Errorf("Error reading zone: %s", err)
+		}
 	}
 	values["zone"] = zone
 	if v, ok := d.GetOk("instance_name"); ok {
@@ -85,9 +89,15 @@ func ComputeInstanceIamUpdaterProducer(d *schema.ResourceData, config *Config) (
 		Config:       config,
 	}
 
-	d.Set("project", u.project)
-	d.Set("zone", u.zone)
-	d.Set("instance_name", u.GetResourceId())
+	if err := d.Set("project", u.project); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("zone", u.zone); err != nil {
+		return nil, fmt.Errorf("Error reading zone: %s", err)
+	}
+	if err := d.Set("instance_name", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error reading instance_name: %s", err)
+	}
 
 	return u, nil
 }
@@ -121,7 +131,9 @@ func ComputeInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 		d:            d,
 		Config:       config,
 	}
-	d.Set("instance_name", u.GetResourceId())
+	if err := d.Set("instance_name", u.GetResourceId()); err != nil {
+		return fmt.Errorf("Error reading instance_name: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }

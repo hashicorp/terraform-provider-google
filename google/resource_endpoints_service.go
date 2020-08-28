@@ -171,9 +171,13 @@ func predictServiceId(_ context.Context, d *schema.ResourceDiff, meta interface{
 		if err != nil {
 			return err
 		}
-		d.SetNew("config_id", fmt.Sprintf("%sr%d", baseDate, n+1))
+		if err := d.SetNew("config_id", fmt.Sprintf("%sr%d", baseDate, n+1)); err != nil {
+			return err
+		}
 	} else {
-		d.SetNew("config_id", baseDate+"r0")
+		if err := d.SetNew("config_id", baseDate+"r0"); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -360,10 +364,18 @@ func resourceEndpointsServiceRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	d.Set("config_id", service.Id)
-	d.Set("dns_address", service.Name)
-	d.Set("apis", flattenServiceManagementAPIs(service.Apis))
-	d.Set("endpoints", flattenServiceManagementEndpoints(service.Endpoints))
+	if err := d.Set("config_id", service.Id); err != nil {
+		return fmt.Errorf("Error reading config_id: %s", err)
+	}
+	if err := d.Set("dns_address", service.Name); err != nil {
+		return fmt.Errorf("Error reading dns_address: %s", err)
+	}
+	if err := d.Set("apis", flattenServiceManagementAPIs(service.Apis)); err != nil {
+		return fmt.Errorf("Error reading apis: %s", err)
+	}
+	if err := d.Set("endpoints", flattenServiceManagementEndpoints(service.Endpoints)); err != nil {
+		return fmt.Errorf("Error reading endpoints: %s", err)
+	}
 
 	return nil
 }

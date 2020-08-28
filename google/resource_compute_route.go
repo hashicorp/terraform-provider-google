@@ -606,7 +606,9 @@ func resourceComputeRouteDecoder(d *schema.ResourceData, meta interface{}, res m
 		if err != nil {
 			return nil, err
 		}
-		d.Set("next_hop_instance_zone", val.Zone)
+		if err := d.Set("next_hop_instance_zone", val.Zone); err != nil {
+			return nil, fmt.Errorf("Error reading next_hop_instance_zone: %s", err)
+		}
 		res["nextHopInstance"] = val.RelativeLink()
 	}
 

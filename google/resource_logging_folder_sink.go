@@ -63,8 +63,13 @@ func resourceLoggingFolderSinkRead(d *schema.ResourceData, meta interface{}) err
 		return handleNotFoundError(err, d, fmt.Sprintf("Folder Logging Sink %s", d.Get("name").(string)))
 	}
 
-	flattenResourceLoggingSink(d, sink)
-	d.Set("include_children", sink.IncludeChildren)
+	if err := flattenResourceLoggingSink(d, sink); err != nil {
+		return err
+	}
+
+	if err := d.Set("include_children", sink.IncludeChildren); err != nil {
+		return fmt.Errorf("Error reading include_children: %s", err)
+	}
 
 	return nil
 }

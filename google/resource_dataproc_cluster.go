@@ -1153,10 +1153,18 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataproc Cluster %q", clusterName))
 	}
 
-	d.Set("name", cluster.ClusterName)
-	d.Set("project", project)
-	d.Set("region", region)
-	d.Set("labels", cluster.Labels)
+	if err := d.Set("name", cluster.ClusterName); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("region", region); err != nil {
+		return fmt.Errorf("Error reading region: %s", err)
+	}
+	if err := d.Set("labels", cluster.Labels); err != nil {
+		return fmt.Errorf("Error reading labels: %s", err)
+	}
 
 	cfg, err := flattenClusterConfig(d, cluster.Config)
 	if err != nil {

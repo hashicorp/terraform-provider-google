@@ -57,14 +57,6 @@ var (
 		"settings.0.maintenance_window.0.update_track",
 	}
 
-	serverCertsKeys = []string{
-		"server_ca_cert.0.cert",
-		"server_ca_cert.0.common_name",
-		"server_ca_cert.0.create_time",
-		"server_ca_cert.0.expiration_time",
-		"server_ca_cert.0.sha1_fingerprint",
-	}
-
 	replicaConfigurationKeys = []string{
 		"replica_configuration.0.ca_certificate",
 		"replica_configuration.0.client_certificate",
@@ -604,7 +596,9 @@ func privateNetworkCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta
 	old, new := d.GetChange("settings.0.ip_configuration.0.private_network")
 
 	if old != "" && new == "" {
-		d.ForceNew("settings.0.ip_configuration.0.private_network")
+		if err := d.ForceNew("settings.0.ip_configuration.0.private_network"); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -630,7 +624,9 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		name = resource.UniqueId()
 	}
 
-	d.Set("name", name)
+	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
 
 	instance := &sqladmin.DatabaseInstance{
 		Name:                 name,
@@ -882,11 +878,21 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("name").(string)))
 	}
 
-	d.Set("name", instance.Name)
-	d.Set("region", instance.Region)
-	d.Set("database_version", instance.DatabaseVersion)
-	d.Set("connection_name", instance.ConnectionName)
-	d.Set("service_account_email_address", instance.ServiceAccountEmailAddress)
+	if err := d.Set("name", instance.Name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("region", instance.Region); err != nil {
+		return fmt.Errorf("Error reading region: %s", err)
+	}
+	if err := d.Set("database_version", instance.DatabaseVersion); err != nil {
+		return fmt.Errorf("Error reading database_version: %s", err)
+	}
+	if err := d.Set("connection_name", instance.ConnectionName); err != nil {
+		return fmt.Errorf("Error reading connection_name: %s", err)
+	}
+	if err := d.Set("service_account_email_address", instance.ServiceAccountEmailAddress); err != nil {
+		return fmt.Errorf("Error reading service_account_email_address: %s", err)
+	}
 
 	if err := d.Set("settings", flattenSettings(instance.Settings)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
@@ -901,7 +907,9 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if len(ipAddresses) > 0 {
-		d.Set("first_ip_address", ipAddresses[0]["ip_address"])
+		if err := d.Set("first_ip_address", ipAddresses[0]["ip_address"]); err != nil {
+			return fmt.Errorf("Error reading first_ip_address: %s", err)
+		}
 	}
 
 	publicIpAddress := ""
@@ -916,16 +924,26 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	d.Set("public_ip_address", publicIpAddress)
-	d.Set("private_ip_address", privateIpAddress)
+	if err := d.Set("public_ip_address", publicIpAddress); err != nil {
+		return fmt.Errorf("Error reading public_ip_address: %s", err)
+	}
+	if err := d.Set("private_ip_address", privateIpAddress); err != nil {
+		return fmt.Errorf("Error reading private_ip_address: %s", err)
+	}
 
 	if err := d.Set("server_ca_cert", flattenServerCaCerts([]*sqladmin.SslCert{instance.ServerCaCert})); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database CA Certificate")
 	}
 
-	d.Set("master_instance_name", strings.TrimPrefix(instance.MasterInstanceName, project+":"))
-	d.Set("project", project)
-	d.Set("self_link", instance.SelfLink)
+	if err := d.Set("master_instance_name", strings.TrimPrefix(instance.MasterInstanceName, project+":")); err != nil {
+		return fmt.Errorf("Error reading master_instance_name: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("self_link", instance.SelfLink); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
 	d.SetId(instance.Name)
 
 	return nil

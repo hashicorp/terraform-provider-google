@@ -237,14 +237,24 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("SecurityPolicy %q", d.Id()))
 	}
 
-	d.Set("name", securityPolicy.Name)
-	d.Set("description", securityPolicy.Description)
+	if err := d.Set("name", securityPolicy.Name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("description", securityPolicy.Description); err != nil {
+		return fmt.Errorf("Error reading description: %s", err)
+	}
 	if err := d.Set("rule", flattenSecurityPolicyRules(securityPolicy.Rules)); err != nil {
 		return err
 	}
-	d.Set("fingerprint", securityPolicy.Fingerprint)
-	d.Set("project", project)
-	d.Set("self_link", ConvertSelfLinkToV1(securityPolicy.SelfLink))
+	if err := d.Set("fingerprint", securityPolicy.Fingerprint); err != nil {
+		return fmt.Errorf("Error reading fingerprint: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("self_link", ConvertSelfLinkToV1(securityPolicy.SelfLink)); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
 
 	return nil
 }

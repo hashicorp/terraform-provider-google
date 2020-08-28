@@ -361,8 +361,12 @@ func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 		return nil, err
 	}
 
-	d.Set("key_ring", cryptoKeyId.KeyRingId.keyRingId())
-	d.Set("name", cryptoKeyId.Name)
+	if err := d.Set("key_ring", cryptoKeyId.KeyRingId.keyRingId()); err != nil {
+		return nil, fmt.Errorf("Error reading key_ring: %s", err)
+	}
+	if err := d.Set("name", cryptoKeyId.Name); err != nil {
+		return nil, fmt.Errorf("Error reading name: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -493,7 +497,9 @@ func resourceKMSCryptoKeyDecoder(d *schema.ResourceData, meta interface{}, res m
 	// We can't just ignore_read on `name` as the linter will
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
-	d.Set("self_link", res["name"].(string))
+	if err := d.Set("self_link", res["name"].(string)); err != nil {
+		return nil, fmt.Errorf("Error reading self_link: %s", err)
+	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
 }

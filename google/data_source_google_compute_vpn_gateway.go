@@ -68,11 +68,21 @@ func dataSourceGoogleComputeVpnGatewayRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("VPN Gateway Not Found : %s", name))
 	}
-	d.Set("network", ConvertSelfLinkToV1(gateway.Network))
-	d.Set("region", gateway.Region)
-	d.Set("self_link", gateway.SelfLink)
-	d.Set("description", gateway.Description)
-	d.Set("project", project)
+	if err := d.Set("network", ConvertSelfLinkToV1(gateway.Network)); err != nil {
+		return fmt.Errorf("Error reading network: %s", err)
+	}
+	if err := d.Set("region", gateway.Region); err != nil {
+		return fmt.Errorf("Error reading region: %s", err)
+	}
+	if err := d.Set("self_link", gateway.SelfLink); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
+	if err := d.Set("description", gateway.Description); err != nil {
+		return fmt.Errorf("Error reading description: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
 	d.SetId(fmt.Sprintf("projects/%s/regions/%s/targetVpnGateways/%s", project, region, name))
 	return nil
 }

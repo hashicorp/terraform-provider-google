@@ -157,14 +157,30 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 		return nil
 	}
 
-	d.Set("peer_network", peering.Network)
-	d.Set("name", peering.Name)
-	d.Set("import_custom_routes", peering.ImportCustomRoutes)
-	d.Set("export_custom_routes", peering.ExportCustomRoutes)
-	d.Set("import_subnet_routes_with_public_ip", peering.ImportSubnetRoutesWithPublicIp)
-	d.Set("export_subnet_routes_with_public_ip", peering.ExportSubnetRoutesWithPublicIp)
-	d.Set("state", peering.State)
-	d.Set("state_details", peering.StateDetails)
+	if err := d.Set("peer_network", peering.Network); err != nil {
+		return fmt.Errorf("Error reading peer_network: %s", err)
+	}
+	if err := d.Set("name", peering.Name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("import_custom_routes", peering.ImportCustomRoutes); err != nil {
+		return fmt.Errorf("Error reading import_custom_routes: %s", err)
+	}
+	if err := d.Set("export_custom_routes", peering.ExportCustomRoutes); err != nil {
+		return fmt.Errorf("Error reading export_custom_routes: %s", err)
+	}
+	if err := d.Set("import_subnet_routes_with_public_ip", peering.ImportSubnetRoutesWithPublicIp); err != nil {
+		return fmt.Errorf("Error reading import_subnet_routes_with_public_ip: %s", err)
+	}
+	if err := d.Set("export_subnet_routes_with_public_ip", peering.ExportSubnetRoutesWithPublicIp); err != nil {
+		return fmt.Errorf("Error reading export_subnet_routes_with_public_ip: %s", err)
+	}
+	if err := d.Set("state", peering.State); err != nil {
+		return fmt.Errorf("Error reading state: %s", err)
+	}
+	if err := d.Set("state_details", peering.StateDetails); err != nil {
+		return fmt.Errorf("Error reading state_details: %s", err)
+	}
 
 	return nil
 }
@@ -261,8 +277,12 @@ func resourceComputeNetworkPeeringImport(d *schema.ResourceData, meta interface{
 		return nil, handleNotFoundError(err, d, fmt.Sprintf("Network %q", splits[1]))
 	}
 
-	d.Set("network", ConvertSelfLinkToV1(net.SelfLink))
-	d.Set("name", name)
+	if err := d.Set("network", ConvertSelfLinkToV1(net.SelfLink)); err != nil {
+		return nil, fmt.Errorf("Error reading network: %s", err)
+	}
+	if err := d.Set("name", name); err != nil {
+		return nil, fmt.Errorf("Error reading name: %s", err)
+	}
 
 	// Replace import id for the resource id
 	id := fmt.Sprintf("%s/%s", network, name)

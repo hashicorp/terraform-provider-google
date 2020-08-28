@@ -88,10 +88,14 @@ func resourceLoggingExclusionRead(newUpdaterFunc newResourceLoggingExclusionUpda
 			return handleNotFoundError(err, d, fmt.Sprintf("Logging Exclusion %s", d.Get("name").(string)))
 		}
 
-		flattenResourceLoggingExclusion(d, exclusion)
+		if err := flattenResourceLoggingExclusion(d, exclusion); err != nil {
+			return err
+		}
 
 		if updater.GetResourceType() == "projects" {
-			d.Set("project", updater.GetResourceId())
+			if err := d.Set("project", updater.GetResourceId()); err != nil {
+				return fmt.Errorf("Error reading project: %s", err)
+			}
 		}
 
 		return nil
@@ -174,11 +178,21 @@ func expandResourceLoggingExclusion(d *schema.ResourceData, resourceType, resour
 	return id, &exclusion
 }
 
-func flattenResourceLoggingExclusion(d *schema.ResourceData, exclusion *logging.LogExclusion) {
-	d.Set("name", exclusion.Name)
-	d.Set("description", exclusion.Description)
-	d.Set("filter", exclusion.Filter)
-	d.Set("disabled", exclusion.Disabled)
+func flattenResourceLoggingExclusion(d *schema.ResourceData, exclusion *logging.LogExclusion) error {
+	if err := d.Set("name", exclusion.Name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("description", exclusion.Description); err != nil {
+		return fmt.Errorf("Error reading description: %s", err)
+	}
+	if err := d.Set("filter", exclusion.Filter); err != nil {
+		return fmt.Errorf("Error reading filter: %s", err)
+	}
+	if err := d.Set("disabled", exclusion.Disabled); err != nil {
+		return fmt.Errorf("Error reading disabled: %s", err)
+	}
+
+	return nil
 }
 
 func expandResourceLoggingExclusionForUpdate(d *schema.ResourceData) (*logging.LogExclusion, string) {

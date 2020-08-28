@@ -377,7 +377,9 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Finished creating DatasetAccess %q: %#v", d.Id(), res)
 
 	// by default, we are not updating the member
-	d.Set("api_updated_member", false)
+	if err := d.Set("api_updated_member", false); err != nil {
+		return fmt.Errorf("Error setting api_updated_member: %s", err)
+	}
 
 	// iam_member is a generalized attribute, if the API can map it to a different member type on the backend, it will return
 	// the correct member_type in the response. If it cannot be mapped to a different member type, it will stay in iam_member.
@@ -390,9 +392,15 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 		// if the member type changed, we set that member_type in state (it's already in the response) and we clear iam_member
 		// and we set "api_updated_member" to true to acknowledge that we are making this change
 		if member_type != "" {
-			d.Set(member_type, member.(string))
-			d.Set("iam_member", "")
-			d.Set("api_updated_member", true)
+			if err := d.Set(member_type, member.(string)); err != nil {
+				return fmt.Errorf("Error setting member_type: %s", err)
+			}
+			if err := d.Set("iam_member", ""); err != nil {
+				return fmt.Errorf("Error reading iam_member: %s", err)
+			}
+			if err := d.Set("api_updated_member", true); err != nil {
+				return fmt.Errorf("Error reading api_updated_member: %s", err)
+			}
 		}
 	}
 

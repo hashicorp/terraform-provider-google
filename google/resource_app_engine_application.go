@@ -239,17 +239,39 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("App Engine Application %q", pid))
 	}
-	d.Set("auth_domain", app.AuthDomain)
-	d.Set("code_bucket", app.CodeBucket)
-	d.Set("default_bucket", app.DefaultBucket)
-	d.Set("default_hostname", app.DefaultHostname)
-	d.Set("location_id", app.LocationId)
-	d.Set("name", app.Name)
-	d.Set("app_id", app.Id)
-	d.Set("serving_status", app.ServingStatus)
-	d.Set("gcr_domain", app.GcrDomain)
-	d.Set("database_type", app.DatabaseType)
-	d.Set("project", pid)
+	if err := d.Set("auth_domain", app.AuthDomain); err != nil {
+		return fmt.Errorf("Error reading auth_domain: %s", err)
+	}
+	if err := d.Set("code_bucket", app.CodeBucket); err != nil {
+		return fmt.Errorf("Error reading code_bucket: %s", err)
+	}
+	if err := d.Set("default_bucket", app.DefaultBucket); err != nil {
+		return fmt.Errorf("Error reading default_bucket: %s", err)
+	}
+	if err := d.Set("default_hostname", app.DefaultHostname); err != nil {
+		return fmt.Errorf("Error reading default_hostname: %s", err)
+	}
+	if err := d.Set("location_id", app.LocationId); err != nil {
+		return fmt.Errorf("Error reading location_id: %s", err)
+	}
+	if err := d.Set("name", app.Name); err != nil {
+		return fmt.Errorf("Error reading name: %s", err)
+	}
+	if err := d.Set("app_id", app.Id); err != nil {
+		return fmt.Errorf("Error reading app_id: %s", err)
+	}
+	if err := d.Set("serving_status", app.ServingStatus); err != nil {
+		return fmt.Errorf("Error reading serving_status: %s", err)
+	}
+	if err := d.Set("gcr_domain", app.GcrDomain); err != nil {
+		return fmt.Errorf("Error reading gcr_domain: %s", err)
+	}
+	if err := d.Set("database_type", app.DatabaseType); err != nil {
+		return fmt.Errorf("Error reading database_type: %s", err)
+	}
+	if err := d.Set("project", pid); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
 	dispatchRules, err := flattenAppEngineApplicationDispatchRules(app.DispatchRules)
 	if err != nil {
 		return err

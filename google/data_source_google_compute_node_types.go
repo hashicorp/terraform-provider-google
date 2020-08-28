@@ -53,9 +53,15 @@ func dataSourceGoogleComputeNodeTypesRead(d *schema.ResourceData, meta interface
 	nodeTypes := flattenComputeNodeTypes(resp.Items)
 	log.Printf("[DEBUG] Received Google Compute Regions: %q", nodeTypes)
 
-	d.Set("names", nodeTypes)
-	d.Set("project", project)
-	d.Set("zone", zone)
+	if err := d.Set("names", nodeTypes); err != nil {
+		return fmt.Errorf("Error reading names: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("zone", zone); err != nil {
+		return fmt.Errorf("Error reading zone: %s", err)
+	}
 	d.SetId(time.Now().UTC().String())
 
 	return nil

@@ -70,12 +70,22 @@ func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, fmt.Sprintf("Project Logging Sink %s", d.Get("name").(string)))
 	}
 
-	d.Set("project", project)
-	flattenResourceLoggingSink(d, sink)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading project: %s", err)
+	}
+
+	if err := flattenResourceLoggingSink(d, sink); err != nil {
+		return err
+	}
+
 	if sink.WriterIdentity != nonUniqueWriterAccount {
-		d.Set("unique_writer_identity", true)
+		if err := d.Set("unique_writer_identity", true); err != nil {
+			return fmt.Errorf("Error reading unique_writer_identity: %s", err)
+		}
 	} else {
-		d.Set("unique_writer_identity", false)
+		if err := d.Set("unique_writer_identity", false); err != nil {
+			return fmt.Errorf("Error reading unique_writer_identity: %s", err)
+		}
 	}
 	return nil
 }

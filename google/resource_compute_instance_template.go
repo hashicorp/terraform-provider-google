@@ -1106,10 +1106,14 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
 	} else {
-		d.Set("tags_fingerprint", "")
+		if err := d.Set("tags_fingerprint", ""); err != nil {
+			return fmt.Errorf("Error reading tags_fingerprint: %s", err)
+		}
 	}
 	if instanceTemplate.Properties.Labels != nil {
-		d.Set("labels", instanceTemplate.Properties.Labels)
+		if err := d.Set("labels", instanceTemplate.Properties.Labels); err != nil {
+			return fmt.Errorf("Error reading labels: %s", err)
+		}
 	}
 	if err = d.Set("self_link", instanceTemplate.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)

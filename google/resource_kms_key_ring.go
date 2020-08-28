@@ -224,7 +224,9 @@ func resourceKMSKeyRingDecoder(d *schema.ResourceData, meta interface{}, res map
 	// We can't just ignore_read on `name` as the linter will
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
-	d.Set("self_link", res["name"].(string))
+	if err := d.Set("self_link", res["name"].(string)); err != nil {
+		return nil, fmt.Errorf("Error reading self_link: %s", err)
+	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
 }

@@ -44,7 +44,9 @@ func NewPubsubSubscriptionIamUpdater(d *schema.ResourceData, config *Config) (Re
 }
 
 func PubsubSubscriptionIdParseFunc(d *schema.ResourceData, _ *Config) error {
-	d.Set("subscription", d.Id())
+	if err := d.Set("subscription", d.Id()); err != nil {
+		return fmt.Errorf("Error reading subscription: %s", err)
+	}
 	return nil
 }
 

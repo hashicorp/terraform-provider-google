@@ -380,9 +380,15 @@ func resourceDataCatalogTagTemplateImport(d *schema.ResourceData, meta interface
 	if len(parts) != 4 {
 		return nil, fmt.Errorf("tag template name does not fit the format %s", egRegex)
 	}
-	d.Set("project", parts[1])
-	d.Set("region", parts[2])
-	d.Set("tag_template_id", parts[3])
+	if err := d.Set("project", parts[1]); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("region", parts[2]); err != nil {
+		return nil, fmt.Errorf("Error reading region: %s", err)
+	}
+	if err := d.Set("tag_template_id", parts[3]); err != nil {
+		return nil, fmt.Errorf("Error reading tag_template_id: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

@@ -40,17 +40,39 @@ func dataSourceGoogleStorageBucketObjectRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error retrieving storage bucket object: %s", err)
 	}
 
-	d.Set("cache_control", res["cacheControl"])
-	d.Set("content_disposition", res["contentDisposition"])
-	d.Set("content_encoding", res["contentEncoding"])
-	d.Set("content_language", res["contentLanguage"])
-	d.Set("content_type", res["contentType"])
-	d.Set("crc32c", res["crc32c"])
-	d.Set("self_link", res["selfLink"])
-	d.Set("storage_class", res["storageClass"])
-	d.Set("md5hash", res["md5Hash"])
-	d.Set("media_link", res["mediaLink"])
-	d.Set("metadata", res["metadata"])
+	if err := d.Set("cache_control", res["cacheControl"]); err != nil {
+		return fmt.Errorf("Error reading cache_control: %s", err)
+	}
+	if err := d.Set("content_disposition", res["contentDisposition"]); err != nil {
+		return fmt.Errorf("Error reading content_disposition: %s", err)
+	}
+	if err := d.Set("content_encoding", res["contentEncoding"]); err != nil {
+		return fmt.Errorf("Error reading content_encoding: %s", err)
+	}
+	if err := d.Set("content_language", res["contentLanguage"]); err != nil {
+		return fmt.Errorf("Error reading content_language: %s", err)
+	}
+	if err := d.Set("content_type", res["contentType"]); err != nil {
+		return fmt.Errorf("Error reading content_type: %s", err)
+	}
+	if err := d.Set("crc32c", res["crc32c"]); err != nil {
+		return fmt.Errorf("Error reading crc32c: %s", err)
+	}
+	if err := d.Set("self_link", res["selfLink"]); err != nil {
+		return fmt.Errorf("Error reading self_link: %s", err)
+	}
+	if err := d.Set("storage_class", res["storageClass"]); err != nil {
+		return fmt.Errorf("Error reading storage_class: %s", err)
+	}
+	if err := d.Set("md5hash", res["md5Hash"]); err != nil {
+		return fmt.Errorf("Error reading md5hash: %s", err)
+	}
+	if err := d.Set("media_link", res["mediaLink"]); err != nil {
+		return fmt.Errorf("Error reading media_link: %s", err)
+	}
+	if err := d.Set("metadata", res["metadata"]); err != nil {
+		return fmt.Errorf("Error reading metadata: %s", err)
+	}
 
 	d.SetId(bucket + "-" + name)
 

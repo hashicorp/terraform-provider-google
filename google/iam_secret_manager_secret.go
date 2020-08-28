@@ -48,7 +48,9 @@ func SecretManagerSecretIamUpdaterProducer(d *schema.ResourceData, config *Confi
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return nil, fmt.Errorf("Error reading project: %s", err)
+		}
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("secret_id"); ok {
@@ -72,8 +74,12 @@ func SecretManagerSecretIamUpdaterProducer(d *schema.ResourceData, config *Confi
 		Config:   config,
 	}
 
-	d.Set("project", u.project)
-	d.Set("secret_id", u.GetResourceId())
+	if err := d.Set("project", u.project); err != nil {
+		return nil, fmt.Errorf("Error reading project: %s", err)
+	}
+	if err := d.Set("secret_id", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error reading secret_id: %s", err)
+	}
 
 	return u, nil
 }
@@ -101,7 +107,9 @@ func SecretManagerSecretIdParseFunc(d *schema.ResourceData, config *Config) erro
 		d:        d,
 		Config:   config,
 	}
-	d.Set("secret_id", u.GetResourceId())
+	if err := d.Set("secret_id", u.GetResourceId()); err != nil {
+		return fmt.Errorf("Error reading secret_id: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }
