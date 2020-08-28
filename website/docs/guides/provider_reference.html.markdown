@@ -48,13 +48,13 @@ the Google provider.
 
 ```hcl
 resource "google_compute_instance" "ga-instance" {
-  provider = "google"
+  provider = google
 
   # ...
 }
 
 resource "google_compute_instance" "beta-instance" {
-  provider = "google-beta"
+  provider = google-beta
 
   # ...
 }
