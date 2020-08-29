@@ -2,7 +2,10 @@ package google
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"google.golang.org/api/compute/v1"
@@ -11,6 +14,7 @@ import (
 type ComputeOperationWaiter struct {
 	Service *compute.Service
 	Op      *compute.Operation
+	Context context.Context
 	Project string
 }
 
@@ -53,6 +57,15 @@ func (w *ComputeOperationWaiter) QueryOp() (interface{}, error) {
 	if w == nil || w.Op == nil {
 		return nil, fmt.Errorf("Cannot query operation, it's unset or nil.")
 	}
+	if w.Context != nil {
+		select {
+		case <-w.Context.Done():
+			log.Println("[WARN] request has been cancelled early")
+			return w.Op, errors.New("unable to finish polling, context has been cancelled")
+		default:
+			// default must be here to keep the previous case from blocking
+		}
+	}
 	if w.Op.Zone != "" {
 		zone := GetResourceNameFromSelfLink(w.Op.Zone)
 		return w.Service.ZoneOperations.Get(w.Project, zone, w.Op.Name).Do()
@@ -88,6 +101,7 @@ func computeOperationWaitTime(config *Config, res interface{}, project, activity
 
 	w := &ComputeOperationWaiter{
 		Service: config.clientCompute,
+		Context: config.context,
 		Op:      op,
 		Project: project,
 	}

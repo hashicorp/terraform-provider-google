@@ -277,6 +277,10 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Default:     false,
 				Description: `Whether to wait for all instances to be created/updated before returning. Note that if this is set to true and the operation does not succeed, Terraform will continue trying until it times out.`,
 			},
+			"operation": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -353,6 +357,18 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	// Wait for the operation to complete
 	err = computeOperationWaitTime(config, op, project, "Creating InstanceGroupManager", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
+		// Check if the create operation failed because Terraform was prematurely terminated. If it was we can persist the
+		// operation id to state so that a subsequent refresh of this resource will wait until the operation has terminated
+		// before attempting to Read the state of the manager. This allows a graceful resumption of a Create that was killed
+		// by the upstream Terraform process exiting early such as a sigterm.
+		select {
+		case <-config.context.Done():
+			log.Printf("[DEBUG] Persisting %s so this operation can be resumed \n", op.Name)
+			d.Set("operation", op.Name)
+			return nil
+		default:
+			// leaving default case to ensure this is non blocking
+		}
 		return err
 	}
 
@@ -428,6 +444,24 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
+	}
+
+	operation := d.Get("operation").(string)
+	if operation != "" {
+		log.Printf("[DEBUG] in progress operation detected at %v, attempting to resume", operation)
+		zone, _ := getZone(d, config)
+		op := &computeBeta.Operation{
+			Name: operation,
+			Zone: zone,
+		}
+		d.Set("operation", "")
+		err = computeOperationWaitTime(config, op, project, "Creating InstanceGroupManager", d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			// remove from state to allow refresh to finish
+			log.Printf("[DEBUG] Resumed operation returned an error, removing from state: %s", err)
+			d.SetId("")
+			return nil
+		}
 	}
 
 	manager, err := getManager(d, meta)
