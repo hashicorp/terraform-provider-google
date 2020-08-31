@@ -1,3 +1,4 @@
+## 3.38.0 (Unreleased)
 ## 3.37.0 (August 31, 2020)
 NOTES:
 * Drop recommendation to use -provider= on import in documentation ([#7100](https://github.com/hashicorp/terraform-provider-google/pull/7100))
