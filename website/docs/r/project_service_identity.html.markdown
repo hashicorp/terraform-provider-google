@@ -23,7 +23,6 @@ To get more information about Service Identity, see:
 
 ## Example Usage - Service Identity Basic
 
-
 ```hcl
 data "google_project" "project" {}
 
@@ -35,9 +34,9 @@ resource "google_project_service_identity" "hc_sa" {
 }
 
 resource "google_project_iam_member" "hc_sa_bq_jobuser" {
-    project = google_project_service_identity.hc_sa.project
-    role    = "roles/bigquery.jobUser"
-    member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-healthcare.iam.gserviceaccount.com"
+  project = data.google_project.project.project_id
+  role    = "roles/bigquery.jobUser"
+  member  = "serviceAccount:${google_project_service_identity.hc_sa.email}"
 }
 ```
 
@@ -45,24 +44,27 @@ resource "google_project_iam_member" "hc_sa_bq_jobuser" {
 
 The following arguments are supported:
 
-
 * `service` -
   (Required)
   The service to generate identity for.
-
 
 - - -
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `email` - The email address of the Google managed service account.
 
 ## Timeouts
 
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 20 minutes.
+* `create` - Default is 20 minutes.
 
 ## User Project Overrides
 
