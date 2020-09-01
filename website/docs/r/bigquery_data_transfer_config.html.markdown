@@ -32,6 +32,9 @@ To get more information about Config, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/bigquery/docs/reference/datatransfer/rest/)
 
+~> **Warning:** All arguments including `sensitive_params.secret_access_key` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+
 ## Example Usage - Bigquerydatatransfer Config Scheduled Query
 
 
@@ -122,6 +125,16 @@ The following arguments are supported:
   (Optional)
   When set to true, no runs are scheduled for a given transfer.
 
+* `sensitive_params` -
+  (Optional)
+  Different parameters are configured primarily using the the `params` field on this
+  resource. This block contains the parameters which contain secrets or passwords so that they can be marked
+  sensitive and hidden from plan output. The name of the field, eg: secret_access_key, will be the key
+  in the `params` map in the api request.
+  Credentials may not be specified in both locations and will cause an error. Changing from one location
+  to a different credential configuration in the config will require an apply to update state.
+  Structure is documented below.
+
 * `location` -
   (Optional)
   The geographic location where the transfer config should reside.
@@ -136,6 +149,13 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `sensitive_params` block supports:
+
+* `secret_access_key` -
+  (Required)
+  The Secret Access Key of the AWS account transferring data from.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 ## Attributes Reference
 
