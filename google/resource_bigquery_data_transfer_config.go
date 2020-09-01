@@ -25,6 +25,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
+var sensitiveParams = []string{"secret_access_key"}
+
+func sensitiveParamCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
+	for _, sp := range sensitiveParams {
+		mapLabel := diff.Get("params." + sp).(string)
+		authLabel := diff.Get("sensitive_params.0." + sp).(string)
+		if mapLabel != "" && authLabel != "" {
+			return fmt.Errorf("Sensitive param [%s] cannot be set in both `params` and the `sensitive_params` block.", sp)
+		}
+	}
+	return nil
+}
+
 func resourceBigqueryDataTransferConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigqueryDataTransferConfigCreate,
@@ -41,6 +54,8 @@ func resourceBigqueryDataTransferConfig() *schema.Resource {
 			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
+
+		CustomizeDiff: sensitiveParamCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"data_source_id": {
@@ -105,6 +120,28 @@ jun 13:15, and first sunday of quarter 00:00. See more explanation
 about the format here:
 https://cloud.google.com/appengine/docs/flexible/python/scheduling-jobs-with-cron-yaml#the_schedule_format
 NOTE: the granularity should be at least 8 hours, or less frequent.`,
+			},
+			"sensitive_params": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Different parameters are configured primarily using the the 'params' field on this
+resource. This block contains the parameters which contain secrets or passwords so that they can be marked
+sensitive and hidden from plan output. The name of the field, eg: secret_access_key, will be the key
+in the 'params' map in the api request.
+
+Credentials may not be specified in both locations and will cause an error. Changing from one location
+to a different credential configuration in the config will require an apply to update state.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"secret_access_key": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The Secret Access Key of the AWS account transferring data from.`,
+							Sensitive:   true,
+						},
+					},
+				},
 			},
 			"service_account_name": {
 				Type:     schema.TypeString,
@@ -186,6 +223,11 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 		obj["params"] = paramsProp
 	}
 
+	obj, err = resourceBigqueryDataTransferConfigEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}projects/{{project}}/locations/{{location}}/transferConfigs?serviceAccountName={{service_account_name}}")
 	if err != nil {
 		return err
@@ -265,6 +307,18 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 	res, err := sendRequest(config, "GET", billingProject, url, nil, iamMemberMissing)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigqueryDataTransferConfig %q", d.Id()))
+	}
+
+	res, err = resourceBigqueryDataTransferConfigDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing BigqueryDataTransferConfig because it no longer exists.")
+		d.SetId("")
+		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -349,6 +403,11 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("params"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, paramsProp)) {
 		obj["params"] = paramsProp
+	}
+
+	obj, err = resourceBigqueryDataTransferConfigEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
@@ -546,4 +605,41 @@ func expandBigqueryDataTransferConfigParams(v interface{}, d TerraformResourceDa
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceBigqueryDataTransferConfigEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	paramMap, ok := obj["params"]
+	if !ok {
+		paramMap = make(map[string]string)
+	}
+
+	var params map[string]string
+	params = paramMap.(map[string]string)
+
+	for _, sp := range sensitiveParams {
+		if auth, _ := d.GetOkExists("sensitive_params.0." + sp); auth != "" {
+			params[sp] = auth.(string)
+		}
+	}
+
+	obj["params"] = params
+
+	return obj, nil
+}
+
+func resourceBigqueryDataTransferConfigDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	if paramMap, ok := res["params"]; ok {
+		params := paramMap.(map[string]interface{})
+		for _, sp := range sensitiveParams {
+			if _, apiOk := params[sp]; apiOk {
+				if _, exists := d.GetOkExists("sensitive_params.0." + sp); exists {
+					delete(params, sp)
+				} else {
+					params[sp] = d.Get("params." + sp)
+				}
+			}
+		}
+	}
+
+	return res, nil
 }
