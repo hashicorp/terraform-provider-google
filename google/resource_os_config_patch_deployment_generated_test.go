@@ -286,6 +286,13 @@ resource "google_os_config_patch_deployment" "patch" {
       }
     }
   }
+
+  rollout {
+    mode = "ZONE_BY_ZONE"
+    disruption_budget {
+      fixed = 1
+    }
+  }
 }
 `, context)
 }
