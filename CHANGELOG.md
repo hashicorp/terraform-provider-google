@@ -16,7 +16,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * compute: Added graceful termination to `google_compute_instance_group_manager` create calls so that partially created instance group managers will resume the original operation if the Terraform process is killed mid create. ([#7153](https://github.com/hashicorp/terraform-provider-google/pull/7153))
-* compute: added `erase_windows_vss_signature` field to `google_compute_disk` (beta) ([#7130](https://github.com/hashicorp/terraform-provider-google/pull/7130))
 * container: added project override support to `google_container_cluster` and `google_container_nodepool` ([#7114](https://github.com/hashicorp/terraform-provider-google/pull/7114))
 * google_project_service_identity: added `email` output. ([#7162](https://github.com/hashicorp/terraform-provider-google/pull/7162))
 * osconfig: added rollout field to `google_os_config_patch_deployment` ([#7172](https://github.com/hashicorp/terraform-provider-google/pull/7172))
