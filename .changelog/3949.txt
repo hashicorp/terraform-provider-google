@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed bug where updating `clustering` would force a new resource rather than update.
+```
