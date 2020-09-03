@@ -72,6 +72,7 @@ func TestAccContainerCluster_basic(t *testing.T) {
 				Config: testAccContainerCluster_basic(clusterName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "services_ipv4_cidr"),
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "self_link"),
 				),
 			},
 			{
@@ -2786,7 +2787,7 @@ func testAccContainerCluster_withResourceUsageExportConfig(clusterName, datasetI
 	return fmt.Sprintf(`
 provider "google" {
   user_project_override = true
-}	
+}
 resource "google_bigquery_dataset" "default" {
   dataset_id                 = "%s"
   description                = "gke resource usage dataset tests"
