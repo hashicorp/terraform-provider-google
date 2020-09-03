@@ -474,7 +474,6 @@ func resourceBigQueryTable() *schema.Resource {
 			"clustering": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				MaxItems:    4,
 				Description: `Specifies column names to use for data clustering. Up to four top-level columns are allowed, and should be specified in descending priority order.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
