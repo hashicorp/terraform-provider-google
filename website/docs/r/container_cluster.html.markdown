@@ -311,7 +311,7 @@ subnetwork in which the cluster's instances are launched.
     Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it.
     Structure is documented below.
 
-* `workload_identity_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `workload_identity_config` - (Optional)
     Workload Identity allows Kubernetes service accounts to act as a user-managed
     [Google IAM Service Account](https://cloud.google.com/iam/docs/service-accounts#user-managed_service_accounts).
     Structure is documented below.
@@ -634,7 +634,7 @@ Kubernetes (eg. through `kubectl`), and it's recommended that you do not use
 this field to manage taints. If you do, `lifecycle.ignore_changes` is
 recommended. Structure is documented below.
 
-* `workload_metadata_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Metadata configuration to expose to workloads on the node pool.
+* `workload_metadata_config` - (Optional) Metadata configuration to expose to workloads on the node pool.
     Structure is documented below.
 
 * `kubelet_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
