@@ -12,12 +12,10 @@ FEATURES:
 * **New Resource:** google_data_loss_prevention_inspect_template ([#7123](https://github.com/hashicorp/terraform-provider-google/pull/7123))
 * **New Resource:** google_data_loss_prevention_job_trigger ([#7123](https://github.com/hashicorp/terraform-provider-google/pull/7123))
 * **New Resource:** google_data_loss_prevention_stored_info_type ([#7145](https://github.com/hashicorp/terraform-provider-google/pull/7145))
-* **New Resource:** google_project_service_identity ([#7133](https://github.com/hashicorp/terraform-provider-google/pull/7133))
 
 IMPROVEMENTS:
 * compute: Added graceful termination to `google_compute_instance_group_manager` create calls so that partially created instance group managers will resume the original operation if the Terraform process is killed mid create. ([#7153](https://github.com/hashicorp/terraform-provider-google/pull/7153))
 * container: added project override support to `google_container_cluster` and `google_container_nodepool` ([#7114](https://github.com/hashicorp/terraform-provider-google/pull/7114))
-* google_project_service_identity: added `email` output. ([#7162](https://github.com/hashicorp/terraform-provider-google/pull/7162))
 * osconfig: added rollout field to `google_os_config_patch_deployment` ([#7172](https://github.com/hashicorp/terraform-provider-google/pull/7172))
 * provider: added a new field `billing_project` to the provider that's associated as a billing/quota project with most requests when `user_project_override` is true ([#7113](https://github.com/hashicorp/terraform-provider-google/pull/7113))
 * resourcemanager: added additional fields to `google_projects` datasource ([#7139](https://github.com/hashicorp/terraform-provider-google/pull/7139))
