@@ -57,6 +57,7 @@ resource "google_compute_snapshot" "snapshot" {
   labels = {
     my_label = "value"
   }
+  storage_locations = ["us-central1"]
 }
 
 data "google_compute_image" "debian" {

@@ -292,7 +292,7 @@ See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encr
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: `The service account used for the encryption request for the given KMS key. 
+							Description: `The service account used for the encryption request for the given KMS key.
 If absent, the Compute Engine Service Agent service account is used.`,
 						},
 						"raw_key": {
@@ -396,7 +396,7 @@ See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encr
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: `The service account used for the encryption request for the given KMS key. 
+							Description: `The service account used for the encryption request for the given KMS key.
 If absent, the Compute Engine Service Agent service account is used.`,
 						},
 						"raw_key": {
@@ -1477,6 +1477,10 @@ func resourceComputeDiskDecoder(d *schema.ResourceData, meta interface{}, res ma
 			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
 		}
 
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
+		}
+
 		res["diskEncryptionKey"] = transformed
 	}
 
@@ -1493,6 +1497,10 @@ func resourceComputeDiskDecoder(d *schema.ResourceData, meta interface{}, res ma
 			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
 		}
 
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
+		}
+
 		res["sourceImageEncryptionKey"] = transformed
 	}
 
@@ -1507,6 +1515,10 @@ func resourceComputeDiskDecoder(d *schema.ResourceData, meta interface{}, res ma
 			// The response for crypto keys often includes the version of the key which needs to be removed
 			// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
 			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
+		}
+
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
 		}
 
 		res["sourceSnapshotEncryptionKey"] = transformed
