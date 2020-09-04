@@ -127,6 +127,8 @@ func TestAccComputeNetwork_default_routing_mode(t *testing.T) {
 func TestAccComputeNetwork_networkDeleteDefaultRoute(t *testing.T) {
 	t.Parallel()
 
+	var network compute.Network
+
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -134,6 +136,12 @@ func TestAccComputeNetwork_networkDeleteDefaultRoute(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetwork_deleteDefaultRoute(randString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkExists(
+						t, "google_compute_network.bar", &network),
+					testAccCheckComputeNetworkDefaultRoutesDeleted(
+						t, "google_compute_network.bar", &network),
+				),
 			},
 		},
 	})
@@ -163,6 +171,32 @@ func testAccCheckComputeNetworkExists(t *testing.T, n string, network *compute.N
 		}
 
 		*network = *found
+
+		return nil
+	}
+}
+
+func testAccCheckComputeNetworkDefaultRoutesDeleted(t *testing.T, n string, network *compute.Network) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.Attributes["name"] == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := googleProviderConfig(t)
+
+		routes, err := config.clientCompute.Routes.List(config.Project).Filter(fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", network.SelfLink)).Do()
+		if err != nil {
+			return err
+		}
+
+		if len(routes.Items) > 0 {
+			return fmt.Errorf("Default routes were not deleted")
+		}
 
 		return nil
 	}

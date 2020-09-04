@@ -191,8 +191,11 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	if d.Get("delete_default_routes_on_create").(bool) {
 		token := ""
 		for paginate := true; paginate; {
-			networkLink := fmt.Sprintf("%s/%s", url, d.Get("name").(string))
-			filter := fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", networkLink)
+			network, err := config.clientCompute.Networks.Get(project, d.Get("name").(string)).Do()
+			if err != nil {
+				return fmt.Errorf("Error finding network in proj: %s", err)
+			}
+			filter := fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", network.SelfLink)
 			log.Printf("[DEBUG] Getting routes for network %q with filter '%q'", d.Get("name").(string), filter)
 			resp, err := config.clientCompute.Routes.List(project).Filter(filter).Do()
 			if err != nil {
