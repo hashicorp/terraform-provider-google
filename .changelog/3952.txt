@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed a bug when a big query table schema didn't have `name` in the schema it'd panic, now logs an error.
+```

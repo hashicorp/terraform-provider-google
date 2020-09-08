@@ -14,6 +14,16 @@ import (
 	"google.golang.org/api/bigquery/v2"
 )
 
+func checkNameExists(jsonList []interface{}) error {
+	for _, m := range jsonList {
+		if _, ok := m.(map[string]interface{})["name"]; !ok {
+			return fmt.Errorf("No name in schema %+v", m)
+		}
+	}
+
+	return nil
+}
+
 // JSONBytesEqual compares the JSON in two byte slices.
 // Reference: https://stackoverflow.com/questions/32408890/how-to-compare-two-json-requests
 func JSONBytesEqual(a, b []byte) (bool, error) {
@@ -22,6 +32,9 @@ func JSONBytesEqual(a, b []byte) (bool, error) {
 		return false, err
 	}
 	jList := j.([]interface{})
+	if err := checkNameExists(jList); err != nil {
+		return false, err
+	}
 	sort.Slice(jList, func(i, k int) bool {
 		return jList[i].(map[string]interface{})["name"].(string) < jList[k].(map[string]interface{})["name"].(string)
 	})
@@ -29,6 +42,9 @@ func JSONBytesEqual(a, b []byte) (bool, error) {
 		return false, err
 	}
 	j2List := j2.([]interface{})
+	if err := checkNameExists(j2List); err != nil {
+		return false, err
+	}
 	sort.Slice(j2List, func(i, k int) bool {
 		return j2List[i].(map[string]interface{})["name"].(string) < j2List[k].(map[string]interface{})["name"].(string)
 	})
@@ -42,6 +58,7 @@ func bigQueryTableSchemaDiffSuppress(_, old, new string, _ *schema.ResourceData)
 
 	eq, err := JSONBytesEqual(oldBytes, newBytes)
 	if err != nil {
+		log.Printf("[DEBUG] %v", err)
 		log.Printf("[DEBUG] Error comparing JSON bytes: %v, %v", old, new)
 	}
 
