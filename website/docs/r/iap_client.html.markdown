@@ -29,6 +29,11 @@ manually created via the GCP console. This restriction is due to the existing AP
 in this tool.
 
 
+To get more information about Client, see:
+
+* [API documentation](https://cloud.google.com/iap/docs/reference/rest/v1/projects.brands.identityAwareProxyClients)
+* How-to Guides
+    * [Setting up IAP Client](https://cloud.google.com/iap/docs/authentication-howto)
 
 ~> **Warning:** All arguments including `secret` will be stored in the raw
 state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
