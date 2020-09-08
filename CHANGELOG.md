@@ -1,4 +1,4 @@
-## 3.38.0 (Unreleased)
+## 3.38.0 (September 08, 2020)
 DEPRECATIONS:
 * storage: deprecated `bucket_policy_only` field in `google_storage_bucket` in favour of `uniform_bucket_level_access` ([#7143](https://github.com/hashicorp/terraform-provider-google/pull/7143))
 
