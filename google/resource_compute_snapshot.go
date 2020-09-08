@@ -825,6 +825,30 @@ func resourceComputeSnapshotDecoder(d *schema.ResourceData, meta interface{}, re
 		res["sourceDiskEncryptionKey"] = transformed
 	}
 
+	if err := d.Set("source_disk_link", ConvertSelfLinkToV1(res["sourceDisk"].(string))); err != nil {
+		return nil, fmt.Errorf("Error setting source_disk_link: %s", err)
+	}
+
+	if v, ok := res["sourceDiskEncryptionKey"]; ok {
+		original := v.(map[string]interface{})
+		transformed := make(map[string]interface{})
+		// The raw key won't be returned, so we need to use the original.
+		transformed["rawKey"] = d.Get("source_disk_encryption_key.0.raw_key")
+		transformed["sha256"] = original["sha256"]
+
+		if kmsKeyName, ok := original["kmsKeyName"]; ok {
+			// The response for crypto keys often includes the version of the key which needs to be removed
+			// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
+			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
+		}
+
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
+		}
+
+		res["sourceDiskEncryptionKey"] = transformed
+	}
+
 	d.Set("source_disk_link", ConvertSelfLinkToV1(res["sourceDisk"].(string)))
 	return res, nil
 }

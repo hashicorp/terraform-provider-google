@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -27,7 +28,7 @@ import (
 
 var sensitiveParams = []string{"secret_access_key"}
 
-func sensitiveParamCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
+func sensitiveParamCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	for _, sp := range sensitiveParams {
 		mapLabel := diff.Get("params." + sp).(string)
 		authLabel := diff.Get("sensitive_params.0." + sp).(string)
