@@ -407,12 +407,8 @@ func resourceHealthcareHl7V2StoreImport(d *schema.ResourceData, meta interface{}
 		return nil, err
 	}
 
-	if err := d.Set("dataset", hl7v2StoreId.DatasetId.datasetId()); err != nil {
-		return nil, fmt.Errorf("Error setting dataset: %s", err)
-	}
-	if err := d.Set("name", hl7v2StoreId.Name); err != nil {
-		return nil, fmt.Errorf("Error setting name: %s", err)
-	}
+	d.Set("dataset", hl7v2StoreId.DatasetId.datasetId())
+	d.Set("name", hl7v2StoreId.Name)
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -640,9 +636,7 @@ func resourceHealthcareHl7V2StoreDecoder(d *schema.ResourceData, meta interface{
 	// We can't just ignore_read on `name` as the linter will
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
-	if err := d.Set("self_link", res["name"].(string)); err != nil {
-		return nil, fmt.Errorf("Error reading self_link: %s", err)
-	}
+	d.Set("self_link", res["name"].(string))
 	res["name"] = d.Get("name").(string)
 	return res, nil
 }

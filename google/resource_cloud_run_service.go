@@ -771,9 +771,7 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOk("autogenerate_revision_name"); !ok {
-		if err := d.Set("autogenerate_revision_name", false); err != nil {
-			return fmt.Errorf("Error setting autogenerate_revision_name: %s", err)
-		}
+		d.Set("autogenerate_revision_name", false)
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
@@ -788,9 +786,7 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
-				if err := d.Set(k, v); err != nil {
-					return fmt.Errorf("Error setting %s: %s", k, err)
-				}
+				d.Set(k, v)
 			}
 		}
 	}
@@ -913,9 +909,7 @@ func resourceCloudRunServiceImport(d *schema.ResourceData, meta interface{}) ([]
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	if err := d.Set("autogenerate_revision_name", false); err != nil {
-		return nil, fmt.Errorf("Error setting autogenerate_revision_name: %s", err)
-	}
+	d.Set("autogenerate_revision_name", false)
 
 	return []*schema.ResourceData{d}, nil
 }

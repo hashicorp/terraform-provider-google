@@ -53,18 +53,10 @@ func dataSourceGoogleComputeGlobalAddressRead(d *schema.ResourceData, meta inter
 		return handleNotFoundError(err, d, fmt.Sprintf("Global Address Not Found : %s", name))
 	}
 
-	if err := d.Set("address", address.Address); err != nil {
-		return fmt.Errorf("Error reading address: %s", err)
-	}
-	if err := d.Set("status", address.Status); err != nil {
-		return fmt.Errorf("Error reading status: %s", err)
-	}
-	if err := d.Set("self_link", address.SelfLink); err != nil {
-		return fmt.Errorf("Error reading self_link: %s", err)
-	}
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading project: %s", err)
-	}
+	d.Set("address", address.Address)
+	d.Set("status", address.Status)
+	d.Set("self_link", address.SelfLink)
+	d.Set("project", project)
 	d.SetId(fmt.Sprintf("projects/%s/global/addresses/%s", project, name))
 	return nil
 }

@@ -150,9 +150,7 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 		}
 	}
-	if err := d.Set("name", name.(string)); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
+	d.Set("name", name.(string))
 	d.SetId(name.(string))
 
 	return resourceIapBrandRead(d, meta)
@@ -260,9 +258,7 @@ func resourceIapBrandImport(d *schema.ResourceData, meta interface{}) ([]*schema
 		)
 	}
 
-	if err := d.Set("project", nameParts[1]); err != nil {
-		return nil, fmt.Errorf("Error setting project: %s", err)
-	}
+	d.Set("project", nameParts[1])
 	return []*schema.ResourceData{d}, nil
 }
 

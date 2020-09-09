@@ -676,14 +676,10 @@ func resourceComputeVpnTunnelEncoder(d *schema.ResourceData, meta interface{}, o
 		return nil, err
 	}
 	if _, ok := d.GetOk("project"); !ok {
-		if err := d.Set("project", f.Project); err != nil {
-			return nil, fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", f.Project)
 	}
 	if _, ok := d.GetOk("region"); !ok {
-		if err := d.Set("region", f.Region); err != nil {
-			return nil, fmt.Errorf("Error reading region: %s", err)
-		}
+		d.Set("region", f.Region)
 	}
 	return obj, nil
 }

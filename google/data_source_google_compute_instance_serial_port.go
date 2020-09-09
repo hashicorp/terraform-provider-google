@@ -1,7 +1,6 @@
 package google
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -41,16 +40,12 @@ func computeInstanceSerialPortRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading project: %s", err)
-	}
+	d.Set("project", project)
 	zone, err := getZone(d, config)
 	if err != nil {
 		return err
 	}
-	if err := d.Set("zone", zone); err != nil {
-		return fmt.Errorf("Error reading zone: %s", err)
-	}
+	d.Set("zone", zone)
 
 	port := int64(d.Get("port").(int))
 	output, err := config.clientCompute.Instances.GetSerialPortOutput(project, zone, d.Get("instance").(string)).Port(port).Do()
@@ -58,9 +53,7 @@ func computeInstanceSerialPortRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	if err := d.Set("contents", output.Contents); err != nil {
-		return fmt.Errorf("Error reading contents: %s", err)
-	}
+	d.Set("contents", output.Contents)
 	d.SetId(output.SelfLink)
 	return nil
 }

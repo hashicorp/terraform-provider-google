@@ -2,7 +2,6 @@ package google
 
 import (
 	"encoding/json"
-	"fmt"
 	"regexp"
 	"sort"
 	"strconv"
@@ -155,9 +154,7 @@ func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	}
 	pstring := string(pjson)
 
-	if err := d.Set("policy_data", pstring); err != nil {
-		return fmt.Errorf("Error reading policy_data: %s", err)
-	}
+	d.Set("policy_data", pstring)
 	d.SetId(strconv.Itoa(hashcode(pstring)))
 
 	return nil

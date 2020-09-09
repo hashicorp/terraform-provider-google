@@ -42,9 +42,7 @@ func DicomStoreIdParseFunc(d *schema.ResourceData, config *Config) error {
 	if err != nil {
 		return err
 	}
-	if err := d.Set("dicom_store_id", dicomStoreId.dicomStoreId()); err != nil {
-		return fmt.Errorf("Error reading dicom_store_id: %s", err)
-	}
+	d.Set("dicom_store_id", dicomStoreId.dicomStoreId())
 	d.SetId(dicomStoreId.dicomStoreId())
 	return nil
 }

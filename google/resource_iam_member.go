@@ -79,12 +79,8 @@ func iamMemberImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser 
 
 		// Set the ID only to the first part so all IAM types can share the same resourceIdParserFunc.
 		d.SetId(id)
-		if err := d.Set("role", role); err != nil {
-			return nil, fmt.Errorf("Error reading role: %s", err)
-		}
-		if err := d.Set("member", strings.ToLower(member)); err != nil {
-			return nil, fmt.Errorf("Error reading member: %s", err)
-		}
+		d.Set("role", role)
+		d.Set("member", strings.ToLower(member))
 
 		err := resourceIdParser(d, config)
 		if err != nil {
@@ -127,9 +123,7 @@ func iamMemberImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser 
 			return nil, fmt.Errorf("Cannot find binding for %q with role %q, member %q, and condition title %q", updater.DescribeResource(), role, member, conditionTitle)
 		}
 
-		if err := d.Set("condition", flattenIamCondition(binding.Condition)); err != nil {
-			return nil, fmt.Errorf("Error reading condition: %s", err)
-		}
+		d.Set("condition", flattenIamCondition(binding.Condition))
 		if k := conditionKeyFromCondition(binding.Condition); !k.Empty() {
 			d.SetId(d.Id() + "/" + k.String())
 		}
@@ -242,18 +236,10 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 			return nil
 		}
 
-		if err := d.Set("etag", p.Etag); err != nil {
-			return fmt.Errorf("Error reading etag: %s", err)
-		}
-		if err := d.Set("member", member); err != nil {
-			return fmt.Errorf("Error reading member: %s", err)
-		}
-		if err := d.Set("role", binding.Role); err != nil {
-			return fmt.Errorf("Error reading role: %s", err)
-		}
-		if err := d.Set("condition", flattenIamCondition(binding.Condition)); err != nil {
-			return fmt.Errorf("Error reading condition: %s", err)
-		}
+		d.Set("etag", p.Etag)
+		d.Set("member", member)
+		d.Set("role", binding.Role)
+		d.Set("condition", flattenIamCondition(binding.Condition))
 		return nil
 	}
 }

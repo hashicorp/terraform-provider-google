@@ -120,9 +120,7 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	if !ok {
 		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 	}
-	if err := d.Set("ciphertext", ciphertext.(string)); err != nil {
-		return fmt.Errorf("Error setting ciphertext: %s", err)
-	}
+	d.Set("ciphertext", ciphertext.(string))
 
 	id, err = replaceVars(d, config, "{{crypto_key}}/{{ciphertext}}")
 	if err != nil {

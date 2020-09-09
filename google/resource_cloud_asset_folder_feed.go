@@ -487,9 +487,7 @@ func expandCloudAssetFolderFeedFeedOutputConfigPubsubDestinationTopic(v interfac
 func resourceCloudAssetFolderFeedEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// Remove the "folders/" prefix from the folder ID
 	if folder, ok := d.GetOkExists("folder"); ok {
-		if err := d.Set("folder_id", strings.TrimPrefix(folder.(string), "folders/")); err != nil {
-			return nil, fmt.Errorf("Error setting folder_id: %s", err)
-		}
+		d.Set("folder_id", strings.TrimPrefix(folder.(string), "folders/"))
 	}
 	// The feed object must be under the "feed" attribute on the request.
 	newObj := make(map[string]interface{})

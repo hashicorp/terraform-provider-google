@@ -301,15 +301,9 @@ func resourceDataCatalogEntryGroupImport(d *schema.ResourceData, meta interface{
 	if len(parts) != 4 {
 		return nil, fmt.Errorf("entry group name does not fit the format %s", egRegex)
 	}
-	if err := d.Set("project", parts[1]); err != nil {
-		return nil, fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("region", parts[2]); err != nil {
-		return nil, fmt.Errorf("Error reading region: %s", err)
-	}
-	if err := d.Set("entry_group_id", parts[3]); err != nil {
-		return nil, fmt.Errorf("Error reading entry_group_id: %s", err)
-	}
+	d.Set("project", parts[1])
+	d.Set("region", parts[2])
+	d.Set("entry_group_id", parts[3])
 	return []*schema.ResourceData{d}, nil
 }
 

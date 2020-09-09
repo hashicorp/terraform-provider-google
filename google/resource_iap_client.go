@@ -110,9 +110,7 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 	brand := d.Get("brand")
 	clientId := flattenIapClientClientId(res["name"], d, config)
 
-	if err := d.Set("client_id", clientId); err != nil {
-		return fmt.Errorf("Error setting client_id: %s", err)
-	}
+	d.Set("client_id", clientId)
 	d.SetId(fmt.Sprintf("%s/identityAwareProxyClients/%s", brand, clientId))
 
 	return resourceIapClientRead(d, meta)
@@ -195,12 +193,8 @@ func resourceIapClientImport(d *schema.ResourceData, meta interface{}) ([]*schem
 		)
 	}
 
-	if err := d.Set("brand", fmt.Sprintf("projects/%s/brands/%s", nameParts[1], nameParts[3])); err != nil {
-		return nil, fmt.Errorf("Error setting brand: %s", err)
-	}
-	if err := d.Set("client_id", nameParts[5]); err != nil {
-		return nil, fmt.Errorf("Error setting client_id: %s", err)
-	}
+	d.Set("brand", fmt.Sprintf("projects/%s/brands/%s", nameParts[1], nameParts[3]))
+	d.Set("client_id", nameParts[5])
 	return []*schema.ResourceData{d}, nil
 }
 

@@ -147,9 +147,7 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	resp := res["response"].(map[string]interface{})
 	name := GetResourceNameFromSelfLink(resp["name"].(string))
 	log.Printf("[DEBUG] Setting AccessPolicy name, id to %s", name)
-	if err := d.Set("name", name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
+	d.Set("name", name)
 	d.SetId(name)
 
 	return resourceAccessContextManagerAccessPolicyRead(d, meta)

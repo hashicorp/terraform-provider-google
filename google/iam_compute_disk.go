@@ -55,16 +55,12 @@ func ComputeDiskIamUpdaterProducer(d *schema.ResourceData, config *Config) (Reso
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		if err := d.Set("project", project); err != nil {
-			return nil, fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", project)
 	}
 	values["project"] = project
 	zone, _ := getZone(d, config)
 	if zone != "" {
-		if err := d.Set("zone", zone); err != nil {
-			return nil, fmt.Errorf("Error reading zone: %s", err)
-		}
+		d.Set("zone", zone)
 	}
 	values["zone"] = zone
 	if v, ok := d.GetOk("name"); ok {
@@ -89,15 +85,9 @@ func ComputeDiskIamUpdaterProducer(d *schema.ResourceData, config *Config) (Reso
 		Config:  config,
 	}
 
-	if err := d.Set("project", u.project); err != nil {
-		return nil, fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("zone", u.zone); err != nil {
-		return nil, fmt.Errorf("Error reading zone: %s", err)
-	}
-	if err := d.Set("name", u.GetResourceId()); err != nil {
-		return nil, fmt.Errorf("Error reading name: %s", err)
-	}
+	d.Set("project", u.project)
+	d.Set("zone", u.zone)
+	d.Set("name", u.GetResourceId())
 
 	return u, nil
 }
@@ -131,9 +121,7 @@ func ComputeDiskIdParseFunc(d *schema.ResourceData, config *Config) error {
 		d:       d,
 		Config:  config,
 	}
-	if err := d.Set("name", u.GetResourceId()); err != nil {
-		return fmt.Errorf("Error reading name: %s", err)
-	}
+	d.Set("name", u.GetResourceId())
 	d.SetId(u.GetResourceId())
 	return nil
 }

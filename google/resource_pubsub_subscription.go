@@ -958,9 +958,7 @@ func expandPubsubSubscriptionTopic(v interface{}, d TerraformResourceData, confi
 	} else {
 		// If no full topic given, we expand it to a full topic on the same project
 		fullTopic := fmt.Sprintf("projects/%s/topics/%s", project, topic)
-		if err := d.Set("topic", fullTopic); err != nil {
-			return nil, fmt.Errorf("Error reading topic: %s", err)
-		}
+		d.Set("topic", fullTopic)
 		return fullTopic, nil
 	}
 }
@@ -1189,9 +1187,7 @@ func resourcePubsubSubscriptionDecoder(d *schema.ResourceData, meta interface{},
 
 	// path is a derived field from the API-side `name`
 	path := fmt.Sprintf("projects/%s/subscriptions/%s", d.Get("project"), d.Get("name"))
-	if err := d.Set("path", path); err != nil {
-		return nil, fmt.Errorf("Error setting path: %s", err)
-	}
+	d.Set("path", path)
 
 	return res, nil
 }

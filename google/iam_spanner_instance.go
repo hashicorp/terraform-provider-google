@@ -50,12 +50,8 @@ func SpannerInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	if err != nil {
 		return err
 	}
-	if err := d.Set("instance", id.Instance); err != nil {
-		return fmt.Errorf("Error reading instance: %s", err)
-	}
-	if err := d.Set("project", id.Project); err != nil {
-		return fmt.Errorf("Error reading project: %s", err)
-	}
+	d.Set("instance", id.Instance)
+	d.Set("project", id.Project)
 
 	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
 	d.SetId(id.terraformId())

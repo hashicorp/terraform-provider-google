@@ -42,9 +42,7 @@ func billingAccountLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config
 		return fmt.Errorf("Error importing logging exclusion, invalid resourceType %#v", loggingExclusionId.resourceType)
 	}
 
-	if err := d.Set("billing_account", loggingExclusionId.resourceId); err != nil {
-		return fmt.Errorf("Error reading billing_account: %s", err)
-	}
+	d.Set("billing_account", loggingExclusionId.resourceId)
 	return nil
 }
 

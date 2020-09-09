@@ -66,15 +66,9 @@ func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) er
 		return nil
 	}
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("prefix", p.UsageExportLocation.ReportNamePrefix); err != nil {
-		return fmt.Errorf("Error reading prefix: %s", err)
-	}
-	if err := d.Set("bucket_name", p.UsageExportLocation.BucketName); err != nil {
-		return fmt.Errorf("Error reading bucket_name: %s", err)
-	}
+	d.Set("project", project)
+	d.Set("prefix", p.UsageExportLocation.ReportNamePrefix)
+	d.Set("bucket_name", p.UsageExportLocation.BucketName)
 	return nil
 }
 
@@ -100,9 +94,7 @@ func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading project: %s", err)
-	}
+	d.Set("project", project)
 
 	return resourceProjectUsageBucketRead(d, meta)
 }
@@ -132,8 +124,6 @@ func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) 
 
 func resourceProjectUsageBucketImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	project := d.Id()
-	if err := d.Set("project", project); err != nil {
-		return nil, fmt.Errorf("Error reading project: %s", err)
-	}
+	d.Set("project", project)
 	return []*schema.ResourceData{d}, nil
 }

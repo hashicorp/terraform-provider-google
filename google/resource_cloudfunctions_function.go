@@ -457,47 +457,23 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		return handleNotFoundError(err, d, fmt.Sprintf("Target CloudFunctions Function %q", cloudFuncId.Name))
 	}
 
-	if err := d.Set("name", cloudFuncId.Name); err != nil {
-		return fmt.Errorf("Error reading name: %s", err)
-	}
-	if err := d.Set("description", function.Description); err != nil {
-		return fmt.Errorf("Error reading description: %s", err)
-	}
-	if err := d.Set("entry_point", function.EntryPoint); err != nil {
-		return fmt.Errorf("Error reading entry_point: %s", err)
-	}
-	if err := d.Set("available_memory_mb", function.AvailableMemoryMb); err != nil {
-		return fmt.Errorf("Error reading available_memory_mb: %s", err)
-	}
+	d.Set("name", cloudFuncId.Name)
+	d.Set("description", function.Description)
+	d.Set("entry_point", function.EntryPoint)
+	d.Set("available_memory_mb", function.AvailableMemoryMb)
 	sRemoved := strings.Replace(function.Timeout, "s", "", -1)
 	timeout, err := strconv.Atoi(sRemoved)
 	if err != nil {
 		return err
 	}
-	if err := d.Set("timeout", timeout); err != nil {
-		return fmt.Errorf("Error reading timeout: %s", err)
-	}
-	if err := d.Set("ingress_settings", function.IngressSettings); err != nil {
-		return fmt.Errorf("Error reading ingress_settings: %s", err)
-	}
-	if err := d.Set("labels", function.Labels); err != nil {
-		return fmt.Errorf("Error reading labels: %s", err)
-	}
-	if err := d.Set("runtime", function.Runtime); err != nil {
-		return fmt.Errorf("Error reading runtime: %s", err)
-	}
-	if err := d.Set("service_account_email", function.ServiceAccountEmail); err != nil {
-		return fmt.Errorf("Error reading service_account_email: %s", err)
-	}
-	if err := d.Set("environment_variables", function.EnvironmentVariables); err != nil {
-		return fmt.Errorf("Error reading environment_variables: %s", err)
-	}
-	if err := d.Set("vpc_connector", function.VpcConnector); err != nil {
-		return fmt.Errorf("Error reading vpc_connector: %s", err)
-	}
-	if err := d.Set("vpc_connector_egress_settings", function.VpcConnectorEgressSettings); err != nil {
-		return fmt.Errorf("Error reading vpc_connector_egress_settings: %s", err)
-	}
+	d.Set("timeout", timeout)
+	d.Set("ingress_settings", function.IngressSettings)
+	d.Set("labels", function.Labels)
+	d.Set("runtime", function.Runtime)
+	d.Set("service_account_email", function.ServiceAccountEmail)
+	d.Set("environment_variables", function.EnvironmentVariables)
+	d.Set("vpc_connector", function.VpcConnector)
+	d.Set("vpc_connector_egress_settings", function.VpcConnectorEgressSettings)
 	if function.SourceArchiveUrl != "" {
 		// sourceArchiveUrl should always be a Google Cloud Storage URL (e.g. gs://bucket/object)
 		// https://cloud.google.com/functions/docs/reference/rest/v1/projects.locations.functions
@@ -507,38 +483,20 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		}
 		bucket := sourceURL.Host
 		object := strings.TrimLeft(sourceURL.Path, "/")
-		if err := d.Set("source_archive_bucket", bucket); err != nil {
-			return fmt.Errorf("Error reading source_archive_bucket: %s", err)
-		}
-		if err := d.Set("source_archive_object", object); err != nil {
-			return fmt.Errorf("Error reading source_archive_object: %s", err)
-		}
+		d.Set("source_archive_bucket", bucket)
+		d.Set("source_archive_object", object)
 	}
-	if err := d.Set("source_repository", flattenSourceRepository(function.SourceRepository)); err != nil {
-		return fmt.Errorf("Error reading source_repository: %s", err)
-	}
+	d.Set("source_repository", flattenSourceRepository(function.SourceRepository))
 
 	if function.HttpsTrigger != nil {
-		if err := d.Set("trigger_http", true); err != nil {
-			return fmt.Errorf("Error reading trigger_http: %s", err)
-		}
-		if err := d.Set("https_trigger_url", function.HttpsTrigger.Url); err != nil {
-			return fmt.Errorf("Error reading https_trigger_url: %s", err)
-		}
+		d.Set("trigger_http", true)
+		d.Set("https_trigger_url", function.HttpsTrigger.Url)
 	}
 
-	if err := d.Set("event_trigger", flattenEventTrigger(function.EventTrigger)); err != nil {
-		return fmt.Errorf("Error reading event_trigger: %s", err)
-	}
-	if err := d.Set("max_instances", function.MaxInstances); err != nil {
-		return fmt.Errorf("Error reading max_instances: %s", err)
-	}
-	if err := d.Set("region", cloudFuncId.Region); err != nil {
-		return fmt.Errorf("Error reading region: %s", err)
-	}
-	if err := d.Set("project", cloudFuncId.Project); err != nil {
-		return fmt.Errorf("Error reading project: %s", err)
-	}
+	d.Set("event_trigger", flattenEventTrigger(function.EventTrigger))
+	d.Set("max_instances", function.MaxInstances)
+	d.Set("region", cloudFuncId.Region)
+	d.Set("project", cloudFuncId.Project)
 
 	return nil
 }

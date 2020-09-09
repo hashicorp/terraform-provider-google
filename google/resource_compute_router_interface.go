@@ -202,21 +202,11 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 
 		if iface.Name == ifaceName {
 			d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
-			if err := d.Set("vpn_tunnel", iface.LinkedVpnTunnel); err != nil {
-				return fmt.Errorf("Error reading vpn_tunnel: %s", err)
-			}
-			if err := d.Set("interconnect_attachment", iface.LinkedInterconnectAttachment); err != nil {
-				return fmt.Errorf("Error reading interconnect_attachment: %s", err)
-			}
-			if err := d.Set("ip_range", iface.IpRange); err != nil {
-				return fmt.Errorf("Error reading ip_range: %s", err)
-			}
-			if err := d.Set("region", region); err != nil {
-				return fmt.Errorf("Error reading region: %s", err)
-			}
-			if err := d.Set("project", project); err != nil {
-				return fmt.Errorf("Error reading project: %s", err)
-			}
+			d.Set("vpn_tunnel", iface.LinkedVpnTunnel)
+			d.Set("interconnect_attachment", iface.LinkedInterconnectAttachment)
+			d.Set("ip_range", iface.IpRange)
+			d.Set("region", region)
+			d.Set("project", project)
 			return nil
 		}
 	}
@@ -309,15 +299,9 @@ func resourceComputeRouterInterfaceImportState(d *schema.ResourceData, meta inte
 		return nil, fmt.Errorf("Invalid router interface specifier. Expecting {region}/{router}/{interface}")
 	}
 
-	if err := d.Set("region", parts[0]); err != nil {
-		return nil, fmt.Errorf("Error reading region: %s", err)
-	}
-	if err := d.Set("router", parts[1]); err != nil {
-		return nil, fmt.Errorf("Error reading router: %s", err)
-	}
-	if err := d.Set("name", parts[2]); err != nil {
-		return nil, fmt.Errorf("Error reading name: %s", err)
-	}
+	d.Set("region", parts[0])
+	d.Set("router", parts[1])
+	d.Set("name", parts[2])
 
 	return []*schema.ResourceData{d}, nil
 }

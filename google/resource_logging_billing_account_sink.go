@@ -49,11 +49,9 @@ func resourceLoggingBillingAccountSinkRead(d *schema.ResourceData, meta interfac
 		return handleNotFoundError(err, d, fmt.Sprintf("Billing Logging Sink %s", d.Get("name").(string)))
 	}
 
-	if err := flattenResourceLoggingSink(d, sink); err != nil {
-		return err
-	}
-
+	flattenResourceLoggingSink(d, sink)
 	return nil
+
 }
 
 func resourceLoggingBillingAccountSinkUpdate(d *schema.ResourceData, meta interface{}) error {

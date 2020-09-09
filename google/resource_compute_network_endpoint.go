@@ -359,9 +359,7 @@ func expandNestedComputeNetworkEndpointIpAddress(v interface{}, d TerraformResou
 
 func resourceComputeNetworkEndpointEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// Network Endpoint Group is a URL parameter only, so replace self-link/path with resource name only.
-	if err := d.Set("network_endpoint_group", GetResourceNameFromSelfLink(d.Get("network_endpoint_group").(string))); err != nil {
-		return nil, fmt.Errorf("Error setting network_endpoint_group: %s", err)
-	}
+	d.Set("network_endpoint_group", GetResourceNameFromSelfLink(d.Get("network_endpoint_group").(string)))
 
 	wrappedReq := map[string]interface{}{
 		"networkEndpoints": []interface{}{obj},

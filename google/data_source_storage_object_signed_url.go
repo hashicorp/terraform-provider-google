@@ -155,9 +155,7 @@ func dataSourceGoogleSignedUrlRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Success
-	if err := d.Set("signed_url", signedUrl); err != nil {
-		return fmt.Errorf("Error reading signed_url: %s", err)
-	}
+	d.Set("signed_url", signedUrl)
 
 	encodedSig, err := urlData.EncodedSignature()
 	if err != nil {

@@ -685,21 +685,15 @@ func resourceDataLossPreventionJobTriggerImport(d *schema.ResourceData, meta int
 	}
 	parts := strings.Split(d.Get("name").(string), "/")
 	if len(parts) == 6 {
-		if err := d.Set("name", parts[5]); err != nil {
-			return nil, fmt.Errorf("Error reading name: %s", err)
-		}
+		d.Set("name", parts[5])
 	} else if len(parts) == 4 {
-		if err := d.Set("name", parts[3]); err != nil {
-			return nil, fmt.Errorf("Error reading name: %s", err)
-		}
+		d.Set("name", parts[3])
 	} else {
 		return nil, fmt.Errorf("Unexpected import id: %s, expected form {{parent}}/jobTrigger/{{name}}", d.Get("name").(string))
 	}
 	// Remove "/jobTrigger/{{name}}" from the id
 	parts = parts[:len(parts)-2]
-	if err := d.Set("parent", strings.Join(parts, "/")); err != nil {
-		return nil, fmt.Errorf("Error reading parent: %s", err)
-	}
+	d.Set("parent", strings.Join(parts, "/"))
 
 	// Replace import id for the resource id
 	id, err := replaceVars(d, config, "{{parent}}/jobTriggers/{{name}}")

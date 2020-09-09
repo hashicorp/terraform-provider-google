@@ -1,8 +1,6 @@
 package google
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -35,17 +33,13 @@ func dataSourceGoogleComputeLbIpRangesRead(d *schema.ResourceData, meta interfac
 		"209.85.204.0/22",
 		"35.191.0.0/16",
 	}
-	if err := d.Set("network", networkIpRanges); err != nil {
-		return fmt.Errorf("Error reading network: %s", err)
-	}
+	d.Set("network", networkIpRanges)
 
 	httpSslTcpInternalRanges := []string{
 		"130.211.0.0/22",
 		"35.191.0.0/16",
 	}
-	if err := d.Set("http_ssl_tcp_internal", httpSslTcpInternalRanges); err != nil {
-		return fmt.Errorf("Error reading http_ssl_tcp_internal: %s", err)
-	}
+	d.Set("http_ssl_tcp_internal", httpSslTcpInternalRanges)
 
 	return nil
 }

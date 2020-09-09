@@ -42,9 +42,7 @@ func KeyRingIdParseFunc(d *schema.ResourceData, config *Config) error {
 		return err
 	}
 
-	if err := d.Set("key_ring_id", keyRingId.keyRingId()); err != nil {
-		return fmt.Errorf("Error reading key_ring_id: %s", err)
-	}
+	d.Set("key_ring_id", keyRingId.keyRingId())
 	d.SetId(keyRingId.keyRingId())
 	return nil
 }

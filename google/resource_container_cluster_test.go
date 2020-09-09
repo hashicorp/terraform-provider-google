@@ -751,6 +751,33 @@ func TestAccContainerCluster_withNodeConfigShieldedInstanceConfig(t *testing.T) 
 	})
 }
 
+func TestAccContainerCluster_withWorkloadMetadataConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withWorkloadMetadataConfig(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_workload_metadata_config",
+						"node_config.0.workload_metadata_config.0.node_metadata", "SECURE"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_workload_metadata_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_network(t *testing.T) {
 	t.Parallel()
 
@@ -2321,6 +2348,70 @@ resource "google_container_cluster" "with_node_config" {
     shielded_instance_config {
       enable_secure_boot          = true
       enable_integrity_monitoring = true
+    }
+  }
+}
+`, clusterName)
+}
+
+func testAccContainerCluster_withWorkloadMetadataConfig(clusterName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_workload_metadata_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    workload_metadata_config {
+      node_metadata = "SECURE"
+    }
+  }
+}
+`, clusterName)
+}
+
+func testAccContainerCluster_withSandboxConfig(clusterName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_sandbox_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    image_type = "COS_CONTAINERD"
+
+    sandbox_config {
+      sandbox_type = "gvisor"
+    }
+
+    labels = {
+      "test.terraform.io/gke-sandbox" = "true"
+    }
+
+    taint {
+      key    = "test.terraform.io/gke-sandbox"
+      value  = "true"
+      effect = "NO_SCHEDULE"
     }
   }
 }

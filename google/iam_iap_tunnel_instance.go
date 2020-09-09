@@ -55,16 +55,12 @@ func IapTunnelInstanceIamUpdaterProducer(d *schema.ResourceData, config *Config)
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		if err := d.Set("project", project); err != nil {
-			return nil, fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", project)
 	}
 	values["project"] = project
 	zone, _ := getZone(d, config)
 	if zone != "" {
-		if err := d.Set("zone", zone); err != nil {
-			return nil, fmt.Errorf("Error reading zone: %s", err)
-		}
+		d.Set("zone", zone)
 	}
 	values["zone"] = zone
 	if v, ok := d.GetOk("instance"); ok {
@@ -89,15 +85,9 @@ func IapTunnelInstanceIamUpdaterProducer(d *schema.ResourceData, config *Config)
 		Config:   config,
 	}
 
-	if err := d.Set("project", u.project); err != nil {
-		return nil, fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("zone", u.zone); err != nil {
-		return nil, fmt.Errorf("Error reading zone: %s", err)
-	}
-	if err := d.Set("instance", u.GetResourceId()); err != nil {
-		return nil, fmt.Errorf("Error reading instance: %s", err)
-	}
+	d.Set("project", u.project)
+	d.Set("zone", u.zone)
+	d.Set("instance", u.GetResourceId())
 
 	return u, nil
 }
@@ -131,9 +121,7 @@ func IapTunnelInstanceIdParseFunc(d *schema.ResourceData, config *Config) error 
 		d:        d,
 		Config:   config,
 	}
-	if err := d.Set("instance", u.GetResourceId()); err != nil {
-		return fmt.Errorf("Error reading instance: %s", err)
-	}
+	d.Set("instance", u.GetResourceId())
 	d.SetId(u.GetResourceId())
 	return nil
 }

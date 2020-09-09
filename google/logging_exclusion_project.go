@@ -47,9 +47,7 @@ func projectLoggingExclusionIdParseFunc(d *schema.ResourceData, config *Config) 
 	}
 
 	if config.Project != loggingExclusionId.resourceId {
-		if err := d.Set("project", loggingExclusionId.resourceId); err != nil {
-			return fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", loggingExclusionId.resourceId)
 	}
 
 	return nil

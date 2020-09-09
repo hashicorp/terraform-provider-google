@@ -47,9 +47,7 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 	for _, folder := range searchResponse.Folders {
 		if folder.DisplayName == displayName {
 			d.SetId(folder.Name)
-			if err := d.Set("name", folder.Name); err != nil {
-				return fmt.Errorf("Error reading folder name: %s", err)
-			}
+			d.Set("name", folder.Name)
 			return nil
 		}
 	}

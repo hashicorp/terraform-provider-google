@@ -1,7 +1,6 @@
 package google
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -36,11 +35,7 @@ func dataSourceGoogleStorageTransferProjectServiceAccountRead(d *schema.Resource
 	}
 
 	d.SetId(serviceAccount.AccountEmail)
-	if err := d.Set("email", serviceAccount.AccountEmail); err != nil {
-		return fmt.Errorf("Error reading email: %s", err)
-	}
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading project: %s", err)
-	}
+	d.Set("email", serviceAccount.AccountEmail)
+	d.Set("project", project)
 	return nil
 }

@@ -54,9 +54,7 @@ func BigQueryTableIamUpdaterProducer(d *schema.ResourceData, config *Config) (Re
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		if err := d.Set("project", project); err != nil {
-			return nil, fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", project)
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("dataset_id"); ok {
@@ -85,15 +83,9 @@ func BigQueryTableIamUpdaterProducer(d *schema.ResourceData, config *Config) (Re
 		Config:    config,
 	}
 
-	if err := d.Set("project", u.project); err != nil {
-		return nil, fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("dataset_id", u.datasetId); err != nil {
-		return nil, fmt.Errorf("Error reading dataset_id: %s", err)
-	}
-	if err := d.Set("table_id", u.GetResourceId()); err != nil {
-		return nil, fmt.Errorf("Error reading table_id: %s", err)
-	}
+	d.Set("project", u.project)
+	d.Set("dataset_id", u.datasetId)
+	d.Set("table_id", u.GetResourceId())
 
 	return u, nil
 }
@@ -122,9 +114,7 @@ func BigQueryTableIdParseFunc(d *schema.ResourceData, config *Config) error {
 		d:         d,
 		Config:    config,
 	}
-	if err := d.Set("table_id", u.GetResourceId()); err != nil {
-		return fmt.Errorf("Error reading table_id: %s", err)
-	}
+	d.Set("table_id", u.GetResourceId())
 	d.SetId(u.GetResourceId())
 	return nil
 }

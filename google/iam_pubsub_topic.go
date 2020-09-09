@@ -48,9 +48,7 @@ func PubsubTopicIamUpdaterProducer(d *schema.ResourceData, config *Config) (Reso
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		if err := d.Set("project", project); err != nil {
-			return nil, fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", project)
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("topic"); ok {
@@ -74,12 +72,8 @@ func PubsubTopicIamUpdaterProducer(d *schema.ResourceData, config *Config) (Reso
 		Config:  config,
 	}
 
-	if err := d.Set("project", u.project); err != nil {
-		return nil, fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("topic", u.GetResourceId()); err != nil {
-		return nil, fmt.Errorf("Error reading topic: %s", err)
-	}
+	d.Set("project", u.project)
+	d.Set("topic", u.GetResourceId())
 
 	return u, nil
 }
@@ -107,9 +101,7 @@ func PubsubTopicIdParseFunc(d *schema.ResourceData, config *Config) error {
 		d:       d,
 		Config:  config,
 	}
-	if err := d.Set("topic", u.GetResourceId()); err != nil {
-		return fmt.Errorf("Error reading topic: %s", err)
-	}
+	d.Set("topic", u.GetResourceId())
 	d.SetId(u.GetResourceId())
 	return nil
 }

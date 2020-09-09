@@ -91,9 +91,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		}
 
 		d.SetId(time.Now().UTC().String())
-		if err := d.Set("id_token", at.Token); err != nil {
-			return fmt.Errorf("Error reading id_token: %s", err)
-		}
+		d.Set("id_token", at.Token)
 
 		return nil
 	}
@@ -123,9 +121,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 	}
 
 	d.SetId(time.Now().UTC().String())
-	if err := d.Set("id_token", idToken.AccessToken); err != nil {
-		return fmt.Errorf("Error reading id_token: %s", err)
-	}
+	d.Set("id_token", idToken.AccessToken)
 
 	return nil
 }

@@ -56,12 +56,8 @@ func dataSourceGoogleComputeRegionsRead(d *schema.ResourceData, meta interface{}
 	regions := flattenRegions(resp.Items)
 	log.Printf("[DEBUG] Received Google Compute Regions: %q", regions)
 
-	if err := d.Set("names", regions); err != nil {
-		return fmt.Errorf("Error reading names: %s", err)
-	}
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading project: %s", err)
-	}
+	d.Set("names", regions)
+	d.Set("project", project)
 	d.SetId(time.Now().UTC().String())
 
 	return nil

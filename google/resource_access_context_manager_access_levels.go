@@ -453,9 +453,7 @@ func resourceAccessContextManagerAccessLevelsImport(d *schema.ResourceData, meta
 		return nil, err
 	}
 
-	if err := d.Set("parent", fmt.Sprintf("accessPolicies/%s", parts["accessPolicy"])); err != nil {
-		return nil, fmt.Errorf("Error reading parent: %s", err)
-	}
+	d.Set("parent", fmt.Sprintf("accessPolicies/%s", parts["accessPolicy"]))
 	return []*schema.ResourceData{d}, nil
 }
 

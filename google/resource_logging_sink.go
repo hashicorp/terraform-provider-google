@@ -1,7 +1,6 @@
 package google
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -71,24 +70,12 @@ func expandResourceLoggingSink(d *schema.ResourceData, resourceType, resourceId 
 	return id, &sink
 }
 
-func flattenResourceLoggingSink(d *schema.ResourceData, sink *logging.LogSink) error {
-	if err := d.Set("name", sink.Name); err != nil {
-		return fmt.Errorf("Error reading name: %s", err)
-	}
-	if err := d.Set("destination", sink.Destination); err != nil {
-		return fmt.Errorf("Error reading destination: %s", err)
-	}
-	if err := d.Set("filter", sink.Filter); err != nil {
-		return fmt.Errorf("Error reading filter: %s", err)
-	}
-	if err := d.Set("writer_identity", sink.WriterIdentity); err != nil {
-		return fmt.Errorf("Error reading writer_identity: %s", err)
-	}
-	if err := d.Set("bigquery_options", flattenLoggingSinkBigqueryOptions(sink.BigqueryOptions)); err != nil {
-		return fmt.Errorf("Error reading bigquery_options: %s", err)
-	}
-
-	return nil
+func flattenResourceLoggingSink(d *schema.ResourceData, sink *logging.LogSink) {
+	d.Set("name", sink.Name)
+	d.Set("destination", sink.Destination)
+	d.Set("filter", sink.Filter)
+	d.Set("writer_identity", sink.WriterIdentity)
+	d.Set("bigquery_options", flattenLoggingSinkBigqueryOptions(sink.BigqueryOptions))
 }
 
 func expandResourceLoggingSinkForUpdate(d *schema.ResourceData) (sink *logging.LogSink, updateMask string) {
@@ -148,9 +135,7 @@ func resourceLoggingSinkImportState(sinkType string) schema.StateFunc {
 			return nil, err
 		}
 
-		if err := d.Set(sinkType, loggingSinkId.resourceId); err != nil {
-			return nil, fmt.Errorf("Error setting sinkType: %s", err)
-		}
+		d.Set(sinkType, loggingSinkId.resourceId)
 
 		return []*schema.ResourceData{d}, nil
 	}

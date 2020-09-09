@@ -248,12 +248,8 @@ func resourceAccessContextManagerServicePerimeterResourceImport(d *schema.Resour
 		return nil, err
 	}
 
-	if err := d.Set("perimeter_name", fmt.Sprintf("accessPolicies/%s/servicePerimeters/%s", parts["accessPolicy"], parts["perimeter"])); err != nil {
-		return nil, fmt.Errorf("Error reading perimeter_name: %s", err)
-	}
-	if err := d.Set("resource", parts["resource"]); err != nil {
-		return nil, fmt.Errorf("Error reading resource: %s", err)
-	}
+	d.Set("perimeter_name", fmt.Sprintf("accessPolicies/%s/servicePerimeters/%s", parts["accessPolicy"], parts["perimeter"]))
+	d.Set("resource", parts["resource"])
 	return []*schema.ResourceData{d}, nil
 }
 

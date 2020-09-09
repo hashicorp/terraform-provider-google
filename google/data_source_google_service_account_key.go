@@ -62,15 +62,9 @@ func dataSourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interfac
 
 	d.SetId(sak.Name)
 
-	if err := d.Set("name", sak.Name); err != nil {
-		return fmt.Errorf("Error reading name: %s", err)
-	}
-	if err := d.Set("key_algorithm", sak.KeyAlgorithm); err != nil {
-		return fmt.Errorf("Error reading key_algorithm: %s", err)
-	}
-	if err := d.Set("public_key", sak.PublicKeyData); err != nil {
-		return fmt.Errorf("Error reading public_key: %s", err)
-	}
+	d.Set("name", sak.Name)
+	d.Set("key_algorithm", sak.KeyAlgorithm)
+	d.Set("public_key", sak.PublicKeyData)
 
 	return nil
 }

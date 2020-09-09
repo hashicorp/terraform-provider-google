@@ -149,9 +149,7 @@ func resourceIdentityPlatformTenantCreate(d *schema.ResourceData, meta interface
 	if !ok {
 		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 	}
-	if err := d.Set("name", GetResourceNameFromSelfLink(name.(string))); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
+	d.Set("name", GetResourceNameFromSelfLink(name.(string)))
 	// Store the ID now that we have set the computed name
 	id, err = replaceVars(d, config, "projects/{{project}}/tenants/{{name}}")
 	if err != nil {

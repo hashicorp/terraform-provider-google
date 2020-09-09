@@ -149,9 +149,7 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 	if !ok {
 		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 	}
-	if err := d.Set("name", name.(string)); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
+	d.Set("name", name.(string))
 	d.SetId(name.(string))
 
 	_, err = expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
@@ -203,9 +201,7 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
-				if err := d.Set(k, v); err != nil {
-					return fmt.Errorf("Error setting %s: %s", k, err)
-				}
+				d.Set(k, v)
 			}
 		}
 	}
@@ -255,9 +251,7 @@ func resourceSecretManagerSecretVersionImport(d *schema.ResourceData, meta inter
 	if len(parts) != 2 {
 		panic(fmt.Sprintf("Version name doesn not fit the format `projects/{{project}}/secrets/{{secret}}/versions{{version}}`"))
 	}
-	if err := d.Set("secret", parts[1]); err != nil {
-		return nil, fmt.Errorf("Error reading secret: %s", err)
-	}
+	d.Set("secret", parts[1])
 
 	return []*schema.ResourceData{d}, nil
 }

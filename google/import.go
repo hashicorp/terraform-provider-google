@@ -79,27 +79,21 @@ func setDefaultValues(idRegex string, d TerraformResourceData, config *Config) e
 		if err != nil {
 			return err
 		}
-		if err := d.Set("project", project); err != nil {
-			return fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", project)
 	}
 	if _, ok := d.GetOk("region"); !ok && strings.Contains(idRegex, "?P<region>") {
 		region, err := getRegion(d, config)
 		if err != nil {
 			return err
 		}
-		if err := d.Set("region", region); err != nil {
-			return fmt.Errorf("Error reading region: %s", err)
-		}
+		d.Set("region", region)
 	}
 	if _, ok := d.GetOk("zone"); !ok && strings.Contains(idRegex, "?P<zone>") {
 		zone, err := getZone(d, config)
 		if err != nil {
 			return err
 		}
-		if err := d.Set("zone", zone); err != nil {
-			return fmt.Errorf("Error reading zone: %s", err)
-		}
+		d.Set("zone", zone)
 	}
 	return nil
 }

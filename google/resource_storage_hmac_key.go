@@ -143,9 +143,7 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("The response to CREATE was missing an expected field. Your create did not work.")
 	}
 
-	if err := d.Set("secret", secret); err != nil {
-		return fmt.Errorf("Error setting secret: %s", err)
-	}
+	d.Set("secret", secret)
 
 	metadata := res["metadata"].(map[string]interface{})
 	accessId, ok := metadata["accessId"].(string)
@@ -153,9 +151,7 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("The response to CREATE was missing an expected field. Your create did not work.")
 	}
 
-	if err := d.Set("access_id", accessId); err != nil {
-		return fmt.Errorf("Error setting access_id: %s", err)
-	}
+	d.Set("access_id", accessId)
 
 	id, err = replaceVars(d, config, "projects/{{project}}/hmacKeys/{{access_id}}")
 	if err != nil {

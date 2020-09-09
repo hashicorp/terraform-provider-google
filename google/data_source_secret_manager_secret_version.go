@@ -64,12 +64,8 @@ func dataSourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("The project set on this secret version (%s) is not equal to the project where this secret exists (%s).", d.Get("project").(string), fv.Project)
 	}
 	project := fv.Project
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("secret", fv.Name); err != nil {
-		return fmt.Errorf("Error reading secret: %s", err)
-	}
+	d.Set("project", project)
+	d.Set("secret", fv.Name)
 
 	var url string
 	versionNum := d.Get("version")
@@ -102,9 +98,7 @@ func dataSourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Received Google SecretManager Version: %q", version)
 
-	if err := d.Set("version", parts[3]); err != nil {
-		return fmt.Errorf("Error reading version: %s", err)
-	}
+	d.Set("version", parts[3])
 
 	url = fmt.Sprintf("%s:access", url)
 	resp, err := sendRequest(config, "GET", project, url, nil)
@@ -112,29 +106,19 @@ func dataSourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error retrieving available secret manager secret version access: %s", err.Error())
 	}
 
-	if err := d.Set("create_time", version["createTime"].(string)); err != nil {
-		return fmt.Errorf("Error reading create_time: %s", err)
-	}
+	d.Set("create_time", version["createTime"].(string))
 	if version["destroyTime"] != nil {
-		if err := d.Set("destroy_time", version["destroyTime"].(string)); err != nil {
-			return fmt.Errorf("Error reading destroy_time: %s", err)
-		}
+		d.Set("destroy_time", version["destroyTime"].(string))
 	}
-	if err := d.Set("name", version["name"].(string)); err != nil {
-		return fmt.Errorf("Error reading name: %s", err)
-	}
-	if err := d.Set("enabled", true); err != nil {
-		return fmt.Errorf("Error reading enabled: %s", err)
-	}
+	d.Set("name", version["name"].(string))
+	d.Set("enabled", true)
 
 	data := resp["payload"].(map[string]interface{})
 	secretData, err := base64.StdEncoding.DecodeString(data["data"].(string))
 	if err != nil {
 		return fmt.Errorf("Error decoding secret manager secret version data: %s", err.Error())
 	}
-	if err := d.Set("secret_data", string(secretData)); err != nil {
-		return fmt.Errorf("Error reading secret_data: %s", err)
-	}
+	d.Set("secret_data", string(secretData))
 
 	d.SetId(version["name"].(string))
 	return nil

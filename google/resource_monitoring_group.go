@@ -169,9 +169,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 		}
 	}
-	if err := d.Set("name", name.(string)); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
+	d.Set("name", name.(string))
 	d.SetId(name.(string))
 
 	return resourceMonitoringGroupRead(d, meta)

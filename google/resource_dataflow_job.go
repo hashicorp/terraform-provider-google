@@ -206,13 +206,9 @@ func resourceDataflowJobTypeCustomizeDiff(_ context.Context, d *schema.ResourceD
 			}
 			// Labels map will likely have suppressed changes, so we check each key instead of the parent field
 			if field == "labels" {
-				if err := resourceDataflowJobIterateMapForceNew(field, d); err != nil {
-					return err
-				}
+				resourceDataflowJobIterateMapForceNew(field, d)
 			} else if d.HasChange(field) {
-				if err := d.ForceNew(field); err != nil {
-					return err
-				}
+				d.ForceNew(field)
 			}
 		}
 	}
@@ -276,48 +272,24 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataflow job %s", id))
 	}
 
-	if err := d.Set("job_id", job.Id); err != nil {
-		return fmt.Errorf("Error reading job_id: %s", err)
-	}
-	if err := d.Set("state", job.CurrentState); err != nil {
-		return fmt.Errorf("Error reading state: %s", err)
-	}
-	if err := d.Set("name", job.Name); err != nil {
-		return fmt.Errorf("Error reading name: %s", err)
-	}
-	if err := d.Set("type", job.Type); err != nil {
-		return fmt.Errorf("Error reading type: %s", err)
-	}
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("labels", job.Labels); err != nil {
-		return fmt.Errorf("Error reading labels: %s", err)
-	}
+	d.Set("job_id", job.Id)
+	d.Set("state", job.CurrentState)
+	d.Set("name", job.Name)
+	d.Set("type", job.Type)
+	d.Set("project", project)
+	d.Set("labels", job.Labels)
 
 	sdkPipelineOptions, err := ConvertToMap(job.Environment.SdkPipelineOptions)
 	if err != nil {
 		return err
 	}
 	optionsMap := sdkPipelineOptions["options"].(map[string]interface{})
-	if err := d.Set("template_gcs_path", optionsMap["templateLocation"]); err != nil {
-		return fmt.Errorf("Error reading template_gcs_path: %s", err)
-	}
-	if err := d.Set("temp_gcs_location", optionsMap["tempLocation"]); err != nil {
-		return fmt.Errorf("Error reading temp_gcs_location: %s", err)
-	}
-	if err := d.Set("machine_type", optionsMap["machineType"]); err != nil {
-		return fmt.Errorf("Error reading machine_type: %s", err)
-	}
-	if err := d.Set("network", optionsMap["network"]); err != nil {
-		return fmt.Errorf("Error reading network: %s", err)
-	}
-	if err := d.Set("service_account_email", optionsMap["serviceAccountEmail"]); err != nil {
-		return fmt.Errorf("Error reading service_account_email: %s", err)
-	}
-	if err := d.Set("additional_experiments", optionsMap["experiments"]); err != nil {
-		return fmt.Errorf("Error reading additional_experiments: %s", err)
-	}
+	d.Set("template_gcs_path", optionsMap["templateLocation"])
+	d.Set("temp_gcs_location", optionsMap["tempLocation"])
+	d.Set("machine_type", optionsMap["machineType"])
+	d.Set("network", optionsMap["network"])
+	d.Set("service_account_email", optionsMap["serviceAccountEmail"])
+	d.Set("additional_experiments", optionsMap["experiments"])
 
 	if _, ok := dataflowTerminalStatesMap[job.CurrentState]; ok {
 		log.Printf("[DEBUG] Removing resource '%s' because it is in state %s.\n", job.Name, job.CurrentState)
@@ -523,19 +495,16 @@ func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *Config) (datafl
 	return env, nil
 }
 
-func resourceDataflowJobIterateMapForceNew(mapKey string, d *schema.ResourceDiff) error {
+func resourceDataflowJobIterateMapForceNew(mapKey string, d *schema.ResourceDiff) {
 	obj := d.Get(mapKey).(map[string]interface{})
 	for k := range obj {
 		entrySchemaKey := mapKey + "." + k
 		if d.HasChange(entrySchemaKey) {
 			// ForceNew must be called on the parent map to trigger
-			if err := d.ForceNew(mapKey); err != nil {
-				return err
-			}
+			d.ForceNew(mapKey)
 			break
 		}
 	}
-	return nil
 }
 
 func resourceDataflowJobIterateMapHasChange(mapKey string, d *schema.ResourceData) bool {

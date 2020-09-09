@@ -98,15 +98,9 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 		return nil
 	}
 
-	if err := d.Set("project", projectID); err != nil {
-		return fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("key", d.Id()); err != nil {
-		return fmt.Errorf("Error reading key: %s", err)
-	}
-	if err := d.Set("value", val); err != nil {
-		return fmt.Errorf("Error reading value: %s", err)
-	}
+	d.Set("project", projectID)
+	d.Set("key", d.Id())
+	d.Set("value", val)
 
 	return nil
 }

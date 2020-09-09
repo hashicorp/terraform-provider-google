@@ -321,15 +321,9 @@ func resourceComputeInstanceGroupNamedPortEncoder(d *schema.ResourceData, meta i
 		return nil, err
 	}
 
-	if err := d.Set("group", ig.Name); err != nil {
-		return nil, fmt.Errorf("Error setting group: %s", err)
-	}
-	if err := d.Set("zone", ig.Zone); err != nil {
-		return nil, fmt.Errorf("Error setting zone: %s", err)
-	}
-	if err := d.Set("project", ig.Project); err != nil {
-		return nil, fmt.Errorf("Error setting project: %s", err)
-	}
+	d.Set("group", ig.Name)
+	d.Set("zone", ig.Zone)
+	d.Set("project", ig.Project)
 
 	return obj, nil
 }

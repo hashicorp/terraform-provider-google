@@ -55,16 +55,12 @@ func ComputeSubnetworkIamUpdaterProducer(d *schema.ResourceData, config *Config)
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		if err := d.Set("project", project); err != nil {
-			return nil, fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", project)
 	}
 	values["project"] = project
 	region, _ := getRegion(d, config)
 	if region != "" {
-		if err := d.Set("region", region); err != nil {
-			return nil, fmt.Errorf("Error reading region: %s", err)
-		}
+		d.Set("region", region)
 	}
 	values["region"] = region
 	if v, ok := d.GetOk("subnetwork"); ok {
@@ -89,15 +85,9 @@ func ComputeSubnetworkIamUpdaterProducer(d *schema.ResourceData, config *Config)
 		Config:     config,
 	}
 
-	if err := d.Set("project", u.project); err != nil {
-		return nil, fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("region", u.region); err != nil {
-		return nil, fmt.Errorf("Error reading region: %s", err)
-	}
-	if err := d.Set("subnetwork", u.GetResourceId()); err != nil {
-		return nil, fmt.Errorf("Error reading subnetwork: %s", err)
-	}
+	d.Set("project", u.project)
+	d.Set("region", u.region)
+	d.Set("subnetwork", u.GetResourceId())
 
 	return u, nil
 }
@@ -131,9 +121,7 @@ func ComputeSubnetworkIdParseFunc(d *schema.ResourceData, config *Config) error 
 		d:          d,
 		Config:     config,
 	}
-	if err := d.Set("subnetwork", u.GetResourceId()); err != nil {
-		return fmt.Errorf("Error reading subnetwork: %s", err)
-	}
+	d.Set("subnetwork", u.GetResourceId())
 	d.SetId(u.GetResourceId())
 	return nil
 }

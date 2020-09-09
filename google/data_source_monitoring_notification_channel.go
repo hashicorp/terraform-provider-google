@@ -98,9 +98,7 @@ func dataSourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta in
 	res := channels[0].(map[string]interface{})
 
 	name := flattenMonitoringNotificationChannelName(res["name"], d, config).(string)
-	if err := d.Set("name", name); err != nil {
-		return fmt.Errorf("Error reading name: %s", err)
-	}
+	d.Set("name", name)
 	d.SetId(name)
 
 	return resourceMonitoringNotificationChannelRead(d, meta)

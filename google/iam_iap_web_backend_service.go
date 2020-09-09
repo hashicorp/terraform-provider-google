@@ -48,9 +48,7 @@ func IapWebBackendServiceIamUpdaterProducer(d *schema.ResourceData, config *Conf
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		if err := d.Set("project", project); err != nil {
-			return nil, fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", project)
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("web_backend_service"); ok {
@@ -74,12 +72,8 @@ func IapWebBackendServiceIamUpdaterProducer(d *schema.ResourceData, config *Conf
 		Config:            config,
 	}
 
-	if err := d.Set("project", u.project); err != nil {
-		return nil, fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("web_backend_service", u.GetResourceId()); err != nil {
-		return nil, fmt.Errorf("Error reading web_backend_service: %s", err)
-	}
+	d.Set("project", u.project)
+	d.Set("web_backend_service", u.GetResourceId())
 
 	return u, nil
 }
@@ -107,9 +101,7 @@ func IapWebBackendServiceIdParseFunc(d *schema.ResourceData, config *Config) err
 		d:                 d,
 		Config:            config,
 	}
-	if err := d.Set("web_backend_service", u.GetResourceId()); err != nil {
-		return fmt.Errorf("Error reading web_backend_service: %s", err)
-	}
+	d.Set("web_backend_service", u.GetResourceId())
 	d.SetId(u.GetResourceId())
 	return nil
 }

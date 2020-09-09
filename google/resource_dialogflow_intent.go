@@ -297,9 +297,7 @@ func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 		}
 	}
-	if err := d.Set("name", name.(string)); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
+	d.Set("name", name.(string))
 	d.SetId(name.(string))
 
 	return resourceDialogflowIntentRead(d, meta)
@@ -527,9 +525,7 @@ func resourceDialogflowIntentImport(d *schema.ResourceData, meta interface{}) ([
 		)
 	}
 
-	if err := d.Set("project", stringParts[1]); err != nil {
-		return nil, fmt.Errorf("Error reading project: %s", err)
-	}
+	d.Set("project", stringParts[1])
 	return []*schema.ResourceData{d}, nil
 }
 

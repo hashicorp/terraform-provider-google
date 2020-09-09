@@ -41,9 +41,7 @@ func CryptoIdParseFunc(d *schema.ResourceData, config *Config) error {
 	if err != nil {
 		return err
 	}
-	if err := d.Set("crypto_key_id", cryptoKeyId.cryptoKeyId()); err != nil {
-		return fmt.Errorf("Error reading crypto_key_id: %s", err)
-	}
+	d.Set("crypto_key_id", cryptoKeyId.cryptoKeyId())
 	d.SetId(cryptoKeyId.cryptoKeyId())
 	return nil
 }

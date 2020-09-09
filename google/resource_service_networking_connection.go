@@ -145,18 +145,10 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 		return nil
 	}
 
-	if err := d.Set("network", connectionId.Network); err != nil {
-		return fmt.Errorf("Error reading network: %s", err)
-	}
-	if err := d.Set("service", connectionId.Service); err != nil {
-		return fmt.Errorf("Error reading service: %s", err)
-	}
-	if err := d.Set("peering", connection.Peering); err != nil {
-		return fmt.Errorf("Error reading peering: %s", err)
-	}
-	if err := d.Set("reserved_peering_ranges", connection.ReservedPeeringRanges); err != nil {
-		return fmt.Errorf("Error reading reserved_peering_ranges: %s", err)
-	}
+	d.Set("network", connectionId.Network)
+	d.Set("service", connectionId.Service)
+	d.Set("peering", connection.Peering)
+	d.Set("reserved_peering_ranges", connection.ReservedPeeringRanges)
 	return nil
 }
 
@@ -244,12 +236,8 @@ func resourceServiceNetworkingConnectionImportState(d *schema.ResourceData, meta
 		return nil, err
 	}
 
-	if err := d.Set("network", connectionId.Network); err != nil {
-		return nil, fmt.Errorf("Error reading network: %s", err)
-	}
-	if err := d.Set("service", connectionId.Service); err != nil {
-		return nil, fmt.Errorf("Error reading service: %s", err)
-	}
+	d.Set("network", connectionId.Network)
+	d.Set("service", connectionId.Service)
 	return []*schema.ResourceData{d}, nil
 }
 

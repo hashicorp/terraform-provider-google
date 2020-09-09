@@ -42,9 +42,7 @@ func organizationLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) 
 		return fmt.Errorf("Error importing logging exclusion, invalid resourceType %#v", loggingExclusionId.resourceType)
 	}
 
-	if err := d.Set("org_id", loggingExclusionId.resourceId); err != nil {
-		return fmt.Errorf("Error reading org_id: %s", err)
-	}
+	d.Set("org_id", loggingExclusionId.resourceId)
 	return nil
 }
 

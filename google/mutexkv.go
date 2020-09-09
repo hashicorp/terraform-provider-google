@@ -43,7 +43,7 @@ func (m *MutexKV) get(key string) *sync.Mutex {
 	return mutex
 }
 
-// Returns a properly initialized MutexKV
+// Returns a properly initalized MutexKV
 func NewMutexKV() *MutexKV {
 	return &MutexKV{
 		store: make(map[string]*sync.Mutex),

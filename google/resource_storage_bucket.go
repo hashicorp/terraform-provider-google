@@ -564,9 +564,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Assign the bucket ID as the resource ID
-	if err := d.Set("self_link", res.SelfLink); err != nil {
-		return fmt.Errorf("Error reading self_link: %s", err)
-	}
+	d.Set("self_link", res.SelfLink)
 
 	if d.HasChange("retention_policy") {
 		if v, ok := d.GetOk("retention_policy"); ok {
@@ -614,9 +612,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	// from the projectNumber which is included in the bucket API response
 	if d.Get("project") == "" {
 		project, _ := getProject(d, config)
-		if err := d.Set("project", project); err != nil {
-			return fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", project)
 	}
 	if d.Get("project") == "" {
 		proj, err := config.clientCompute.Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
@@ -624,77 +620,37 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 		log.Printf("[DEBUG] Bucket %v is in project number %v, which is project ID %s.\n", res.Name, res.ProjectNumber, proj.Name)
-		if err := d.Set("project", proj.Name); err != nil {
-			return fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", proj.Name)
 	}
 
 	// Update the bucket ID according to the resource ID
-	if err := d.Set("self_link", res.SelfLink); err != nil {
-		return fmt.Errorf("Error reading self_link: %s", err)
-	}
-	if err := d.Set("url", fmt.Sprintf("gs://%s", bucket)); err != nil {
-		return fmt.Errorf("Error reading url: %s", err)
-	}
-	if err := d.Set("storage_class", res.StorageClass); err != nil {
-		return fmt.Errorf("Error reading storage_class: %s", err)
-	}
-	if err := d.Set("encryption", flattenBucketEncryption(res.Encryption)); err != nil {
-		return fmt.Errorf("Error reading encryption: %s", err)
-	}
-	if err := d.Set("location", res.Location); err != nil {
-		return fmt.Errorf("Error reading location: %s", err)
-	}
-	if err := d.Set("cors", flattenCors(res.Cors)); err != nil {
-		return fmt.Errorf("Error reading cors: %s", err)
-	}
-	if err := d.Set("default_event_based_hold", res.DefaultEventBasedHold); err != nil {
-		return fmt.Errorf("Error reading default_event_based_hold: %s", err)
-	}
-	if err := d.Set("logging", flattenBucketLogging(res.Logging)); err != nil {
-		return fmt.Errorf("Error reading logging: %s", err)
-	}
-	if err := d.Set("versioning", flattenBucketVersioning(res.Versioning)); err != nil {
-		return fmt.Errorf("Error reading versioning: %s", err)
-	}
-	if err := d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle)); err != nil {
-		return fmt.Errorf("Error reading lifecycle_rule: %s", err)
-	}
-	if err := d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("Error reading labels: %s", err)
-	}
-	if err := d.Set("website", flattenBucketWebsite(res.Website)); err != nil {
-		return fmt.Errorf("Error reading website: %s", err)
-	}
-	if err := d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy)); err != nil {
-		return fmt.Errorf("Error reading retention_policy: %s", err)
-	}
+	d.Set("self_link", res.SelfLink)
+	d.Set("url", fmt.Sprintf("gs://%s", bucket))
+	d.Set("storage_class", res.StorageClass)
+	d.Set("encryption", flattenBucketEncryption(res.Encryption))
+	d.Set("location", res.Location)
+	d.Set("cors", flattenCors(res.Cors))
+	d.Set("default_event_based_hold", res.DefaultEventBasedHold)
+	d.Set("logging", flattenBucketLogging(res.Logging))
+	d.Set("versioning", flattenBucketVersioning(res.Versioning))
+	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
+	d.Set("labels", res.Labels)
+	d.Set("website", flattenBucketWebsite(res.Website))
+	d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy))
 
 	// Delete the bucket_policy_only field in the next major version of the provider.
 	if res.IamConfiguration != nil && res.IamConfiguration.UniformBucketLevelAccess != nil {
-		if err := d.Set("uniform_bucket_level_access", res.IamConfiguration.UniformBucketLevelAccess.Enabled); err != nil {
-			return fmt.Errorf("Error reading uniform_bucket_level_access: %s", err)
-		}
-		if err := d.Set("bucket_policy_only", res.IamConfiguration.BucketPolicyOnly.Enabled); err != nil {
-			return fmt.Errorf("Error reading bucket_policy_only: %s", err)
-		}
+		d.Set("uniform_bucket_level_access", res.IamConfiguration.UniformBucketLevelAccess.Enabled)
+		d.Set("bucket_policy_only", res.IamConfiguration.UniformBucketLevelAccess.Enabled)
 	} else {
-		if err := d.Set("bucket_policy_only", false); err != nil {
-			return fmt.Errorf("Error reading bucket_policy_only: %s", err)
-		}
-		if err := d.Set("uniform_bucket_level_access", false); err != nil {
-			return fmt.Errorf("Error reading uniform_bucket_level_access: %s", err)
-		}
+		d.Set("bucket_policy_only", false)
+		d.Set("uniform_bucket_level_access", false)
 	}
 
 	if res.Billing == nil {
-		if err := d.Set("requester_pays", nil); err != nil {
-			return fmt.Errorf("Error reading requester_pays: %s", err)
-		}
+		d.Set("requester_pays", nil)
 	} else {
-		if err := d.Set("requester_pays", res.Billing.RequesterPays); err != nil {
-			return fmt.Errorf("Error reading requester_pays: %s", err)
-		}
+		d.Set("requester_pays", res.Billing.RequesterPays)
 	}
 
 	d.SetId(res.Id)
@@ -808,21 +764,13 @@ func resourceStorageBucketStateImporter(d *schema.ResourceData, meta interface{}
 	// is a valid state as the project_id will be retrieved in READ
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) == 1 {
-		if err := d.Set("name", parts[0]); err != nil {
-			return nil, fmt.Errorf("Error reading name: %s", err)
-		}
+		d.Set("name", parts[0])
 	} else if len(parts) > 1 {
-		if err := d.Set("project", parts[0]); err != nil {
-			return nil, fmt.Errorf("Error reading project: %s", err)
-		}
-		if err := d.Set("name", parts[1]); err != nil {
-			return nil, fmt.Errorf("Error reading name: %s", err)
-		}
+		d.Set("project", parts[0])
+		d.Set("name", parts[1])
 	}
 
-	if err := d.Set("force_destroy", false); err != nil {
-		return nil, fmt.Errorf("Error reading force_destroy: %s", err)
-	}
+	d.Set("force_destroy", false)
 	return []*schema.ResourceData{d}, nil
 }
 

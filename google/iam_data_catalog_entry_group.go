@@ -55,16 +55,12 @@ func DataCatalogEntryGroupIamUpdaterProducer(d *schema.ResourceData, config *Con
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		if err := d.Set("project", project); err != nil {
-			return nil, fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", project)
 	}
 	values["project"] = project
 	region, _ := getRegion(d, config)
 	if region != "" {
-		if err := d.Set("region", region); err != nil {
-			return nil, fmt.Errorf("Error reading region: %s", err)
-		}
+		d.Set("region", region)
 	}
 	values["region"] = region
 	if v, ok := d.GetOk("entry_group"); ok {
@@ -89,15 +85,9 @@ func DataCatalogEntryGroupIamUpdaterProducer(d *schema.ResourceData, config *Con
 		Config:     config,
 	}
 
-	if err := d.Set("project", u.project); err != nil {
-		return nil, fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("region", u.region); err != nil {
-		return nil, fmt.Errorf("Error reading region: %s", err)
-	}
-	if err := d.Set("entry_group", u.GetResourceId()); err != nil {
-		return nil, fmt.Errorf("Error reading entry_group: %s", err)
-	}
+	d.Set("project", u.project)
+	d.Set("region", u.region)
+	d.Set("entry_group", u.GetResourceId())
 
 	return u, nil
 }
@@ -131,9 +121,7 @@ func DataCatalogEntryGroupIdParseFunc(d *schema.ResourceData, config *Config) er
 		d:          d,
 		Config:     config,
 	}
-	if err := d.Set("entry_group", u.GetResourceId()); err != nil {
-		return fmt.Errorf("Error reading entry_group: %s", err)
-	}
+	d.Set("entry_group", u.GetResourceId())
 	d.SetId(u.GetResourceId())
 	return nil
 }

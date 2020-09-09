@@ -62,9 +62,7 @@ func IapWebTypeAppEngineIamUpdaterProducer(d *schema.ResourceData, config *Confi
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		if err := d.Set("project", project); err != nil {
-			return nil, fmt.Errorf("Error reading project: %s", err)
-		}
+		d.Set("project", project)
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("app_id"); ok {
@@ -88,12 +86,8 @@ func IapWebTypeAppEngineIamUpdaterProducer(d *schema.ResourceData, config *Confi
 		Config:  config,
 	}
 
-	if err := d.Set("project", u.project); err != nil {
-		return nil, fmt.Errorf("Error reading project: %s", err)
-	}
-	if err := d.Set("app_id", u.GetResourceId()); err != nil {
-		return nil, fmt.Errorf("Error reading app_id: %s", err)
-	}
+	d.Set("project", u.project)
+	d.Set("app_id", u.GetResourceId())
 
 	return u, nil
 }
@@ -121,9 +115,7 @@ func IapWebTypeAppEngineIdParseFunc(d *schema.ResourceData, config *Config) erro
 		d:       d,
 		Config:  config,
 	}
-	if err := d.Set("app_id", u.GetResourceId()); err != nil {
-		return fmt.Errorf("Error reading app_id: %s", err)
-	}
+	d.Set("app_id", u.GetResourceId())
 	d.SetId(u.GetResourceId())
 	return nil
 }
