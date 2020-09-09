@@ -62,6 +62,45 @@ resource "google_spanner_instance" "example" {
 `, context)
 }
 
+func TestAccSpannerInstance_spannerInstanceMultiRegionalExample(t *testing.T) {
+	skipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_spannerInstanceMultiRegionalExample(context),
+			},
+			{
+				ResourceName:            "google_spanner_instance.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config"},
+			},
+		},
+	})
+}
+
+func testAccSpannerInstance_spannerInstanceMultiRegionalExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_spanner_instance" "example" {
+  config       = "nam-eur-asia1"
+  display_name = "Multi Regional Spanner Instance"
+  num_nodes    = 2
+  labels = {
+    "foo" = "bar"
+  }
+}
+`, context)
+}
+
 func testAccCheckSpannerInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
