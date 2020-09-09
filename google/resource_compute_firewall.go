@@ -326,7 +326,7 @@ func computeFirewallAllowSchema() *schema.Resource {
 				Description: `The IP protocol to which this rule applies. The protocol type is
 required when creating a firewall rule. This value can either be
 one of the following well known protocol strings (tcp, udp,
-icmp, esp, ah, sctp, ipip), or the IP protocol number.`,
+icmp, esp, ah, sctp, ipip, all), or the IP protocol number.`,
 			},
 			"ports": {
 				Type:     schema.TypeList,
@@ -356,7 +356,7 @@ func computeFirewallDenySchema() *schema.Resource {
 				Description: `The IP protocol to which this rule applies. The protocol type is
 required when creating a firewall rule. This value can either be
 one of the following well known protocol strings (tcp, udp,
-icmp, esp, ah, sctp, ipip), or the IP protocol number.`,
+icmp, esp, ah, sctp, ipip, all), or the IP protocol number.`,
 			},
 			"ports": {
 				Type:     schema.TypeList,
