@@ -1,5 +1,17 @@
 ## 3.39.0 (Unreleased)
 
+IMPROVEMENTS:
+* compute: added `network` field to `compute_target_instance` ([#7189](https://github.com/hashicorp/terraform-provider-google/pull/7189))
+* compute: added `storage_locations` field to `google_compute_snapshot` ([#7201](https://github.com/hashicorp/terraform-provider-google/pull/7201))
+* container: added `self_link` to `google_container_cluster` ([#7191](https://github.com/hashicorp/terraform-provider-google/pull/7191))
+* container: marked `workload_metadata_config` as GA in `google_container_node_pool` ([#7192](https://github.com/hashicorp/terraform-provider-google/pull/7192))
+
+BUG FIXES:
+* bigquery: fixed a bug when a big query table schema didn't have `name` in the schema it'd panic, now logs an error. ([#7215](https://github.com/hashicorp/terraform-provider-google/pull/7215))
+* bigquery: fixed bug where updating `clustering` would force a new resource rather than update. ([#7195](https://github.com/hashicorp/terraform-provider-google/pull/7195))
+* bigquerydatatransfer: fixed `params.secret_access_key` perma-diff for AWS S3 data transfer config types by adding a `sensitive_params` block with the `secret_access_key` attribute. ([#7174](https://github.com/hashicorp/terraform-provider-google/pull/7174))
+* compute: fixed bug where `delete_default_routes_on_create=true` was not actually deleting the default routes on create. ([#7199](https://github.com/hashicorp/terraform-provider-google/pull/7199))
+
 ## 3.38.0 (September 08, 2020)
 
 DEPRECATIONS:
