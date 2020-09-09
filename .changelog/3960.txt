@@ -1,0 +1,6 @@
+```release-note:bug
+serviceusage: added retries when a service is already being modified
+```
+```release-note:bug
+serviceusage: fixed an issue where `bigquery.googleapis.com` was getting enabled as the `bigquery-json.googleapis.com` alias instead, incorrectly. This had no user impact yet, but the alias may go away in the future.
+```

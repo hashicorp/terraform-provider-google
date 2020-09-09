@@ -574,7 +574,7 @@ func doEnableServicesRequest(services []string, project string, config *Config, 
 			op, rerr = config.clientServiceUsage.Services.BatchEnable(name, req).Do()
 		}
 		return handleServiceUsageRetryableError(rerr)
-	}, timeout)
+	}, timeout, serviceUsageServiceBeingActivated)
 	if err != nil {
 		return errwrap.Wrapf("failed to send enable services request: {{err}}", err)
 	}

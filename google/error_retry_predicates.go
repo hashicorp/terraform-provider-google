@@ -190,6 +190,21 @@ func isSqlOperationInProgressError(err error) (bool, string) {
 	return false, ""
 }
 
+// Retry if service usage decides you're activating the same service multiple
+// times. This can happen if a service and a dependent service aren't batched
+// together- eg container.googleapis.com in one request followed by compute.g.c
+// in the next (container relies on compute and implicitly activates it)
+func serviceUsageServiceBeingActivated(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 400 {
+		if strings.Contains(gerr.Body, "Another activation or deactivation is in progress") {
+			return false, ""
+		}
+
+		return true, "Waiting for same service activation/deactivation to finish"
+	}
+	return false, ""
+}
+
 // Retry if Monitoring operation returns a 429 with a specific message for
 // concurrent operations.
 func isMonitoringConcurrentEditError(err error) (bool, string) {
