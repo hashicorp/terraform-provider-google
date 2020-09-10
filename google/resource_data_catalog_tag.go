@@ -473,7 +473,7 @@ func expandNestedDataCatalogTagFields(v interface{}, d TerraformResourceData, co
 		transformedBoolValue, err := expandNestedDataCatalogTagFieldsBoolValue(original["bool_value"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedBoolValue); val.IsValid() && !isEmptyValue(val) {
+		} else {
 			transformed["boolValue"] = transformedBoolValue
 		}
 
