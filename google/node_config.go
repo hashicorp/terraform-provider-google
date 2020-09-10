@@ -200,6 +200,7 @@ func schemaNodeConfig() *schema.Schema {
 						},
 					},
 				},
+
 				"workload_metadata_config": {
 					Computed: true,
 					Type:     schema.TypeList,
@@ -211,23 +212,6 @@ func schemaNodeConfig() *schema.Schema {
 								Type:         schema.TypeString,
 								Required:     true,
 								ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "SECURE", "EXPOSE", "GKE_METADATA_SERVER"}, false),
-							},
-						},
-					},
-				},
-				"sandbox_config": {
-					Removed:  "This field is in beta. Use it in the the google-beta provider instead. See https://terraform.io/docs/providers/google/guides/provider_versions.html for more details.",
-					Computed: true,
-					Type:     schema.TypeList,
-					Optional: true,
-					ForceNew: true,
-					MaxItems: 1,
-					Elem: &schema.Resource{
-						Schema: map[string]*schema.Schema{
-							"sandbox_type": {
-								Type:         schema.TypeString,
-								Required:     true,
-								ValidateFunc: validation.StringInSlice([]string{"gvisor"}, false),
 							},
 						},
 					},
