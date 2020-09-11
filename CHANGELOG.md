@@ -2,8 +2,8 @@
 
 IMPROVEMENTS:
 * compute: added `storage_locations` field to `google_compute_snapshot` ([#7201](https://github.com/hashicorp/terraform-provider-google/pull/7201))
-* compute: added `kms_key_service_account`, `kms_key_self_link ` fields to `snapshot_encryption_key` field in `google_compute_snapshot`
-* compute: added `source_disk_encryption_key.kms_key_service_account` field to `google_compute_snapshot`
+* compute: added `kms_key_service_account`, `kms_key_self_link ` fields to `snapshot_encryption_key` field in `google_compute_snapshot` ([#7201](https://github.com/hashicorp/terraform-provider-google/pull/7201))
+* compute: added `source_disk_encryption_key.kms_key_service_account` field to `google_compute_snapshot` ([#7201](https://github.com/hashicorp/terraform-provider-google/pull/7201))
 * container: added `self_link` to `google_container_cluster` ([#7191](https://github.com/hashicorp/terraform-provider-google/pull/7191))
 * container: marked `workload_metadata_config` as GA in `google_container_node_pool` ([#7192](https://github.com/hashicorp/terraform-provider-google/pull/7192))
 
