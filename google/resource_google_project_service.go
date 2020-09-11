@@ -82,10 +82,11 @@ func resourceGoogleProjectService() *schema.Resource {
 				ValidateFunc: StringNotInSlice(append(ignoredProjectServices, bannedProjectServices...), false),
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareResourceNames,
 			},
 
 			"disable_dependent_services": {
@@ -119,12 +120,10 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	project = GetResourceNameFromSelfLink(project)
 
 	srv := d.Get("service").(string)
-	id, err := replaceVars(d, config, "{{project}}/{{service}}")
-	if err != nil {
-		return fmt.Errorf("unable to construct ID: %s", err)
-	}
+	id := project + "/" + srv
 
 	// Check if the service has already been enabled
 	servicesRaw, err := BatchRequestReadServices(project, d, config)
@@ -155,6 +154,7 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+	project = GetResourceNameFromSelfLink(project)
 
 	// Verify project for services still exists
 	projectGetCall := config.clientResourceManager.Projects.Get(project)
@@ -206,6 +206,7 @@ func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	project = GetResourceNameFromSelfLink(project)
 
 	service := d.Get("service").(string)
 	disableDependencies := d.Get("disable_dependent_services").(bool)

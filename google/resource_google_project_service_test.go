@@ -39,7 +39,7 @@ func TestAccProjectService_basic(t *testing.T) {
 				ResourceName:            "google_project_service.test2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
+				ImportStateVerifyIgnore: []string{"disable_on_destroy", "project"},
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			{
@@ -189,7 +189,7 @@ func testAccProjectService_basic(services []string, pid, name, org string) strin
 	return fmt.Sprintf(`
 provider "google" {
   user_project_override = true
-}	
+}
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
@@ -202,7 +202,7 @@ resource "google_project_service" "test" {
 }
 
 resource "google_project_service" "test2" {
-  project = google_project.acceptance.project_id
+  project = google_project.acceptance.id
   service = "%s"
 }
 `, pid, name, org, services[0], services[1])
