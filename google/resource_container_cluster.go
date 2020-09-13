@@ -274,6 +274,10 @@ func resourceContainerCluster() *schema.Resource {
 										Type:     schema.TypeBool,
 										Required: true,
 									},
+									"load_balancer_type": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 								},
 							},
 						},
@@ -2298,6 +2302,11 @@ func expandClusterAddonsConfig(configured interface{}) *containerBeta.AddonsConf
 			Disabled:        addon["disabled"].(bool),
 			ForceSendFields: []string{"Disabled"},
 		}
+		if v, ok := addon["load_balancer_type"]; ok {
+			ac.CloudRunConfig.LoadBalancerType = v.(string)
+		} else {
+			ac.CloudRunConfig.LoadBalancerType = "LOAD_BALANCER_TYPE_EXTERNAL"
+		}
 	}
 
 	return ac
@@ -2682,7 +2691,8 @@ func flattenClusterAddonsConfig(c *containerBeta.AddonsConfig) []map[string]inte
 	if c.CloudRunConfig != nil {
 		result["cloudrun_config"] = []map[string]interface{}{
 			{
-				"disabled": c.CloudRunConfig.Disabled,
+				"disabled":           c.CloudRunConfig.Disabled,
+				"load_balancer_type": c.CloudRunConfig.LoadBalancerType,
 			},
 		}
 	}
