@@ -1813,7 +1813,7 @@ resource "google_container_cluster" "primary" {
     }
     cloudrun_config {
 	  disabled = false
-	  load_balancer_type = "INTERNAL"
+	  load_balancer_type = "LOAD_BALANCER_TYPE_INTERNAL"
     }
   }
 }

@@ -276,7 +276,7 @@ func resourceContainerCluster() *schema.Resource {
 									},
 									"load_balancer_type": {
 										Type:         schema.TypeString,
-										ValidateFunc: validation.StringInSlice([]string{"INTERNAL"}, false),
+										ValidateFunc: validation.StringInSlice([]string{"LOAD_BALANCER_TYPE_INTERNAL"}, false),
 										Optional:     true,
 									},
 								},
@@ -2304,7 +2304,7 @@ func expandClusterAddonsConfig(configured interface{}) *containerBeta.AddonsConf
 			ForceSendFields: []string{"Disabled"},
 		}
 		if addon["load_balancer_type"] != "" {
-			ac.CloudRunConfig.LoadBalancerType = "LOAD_BALANCER_TYPE_INTERNAL"
+			ac.CloudRunConfig.LoadBalancerType = addon["load_balancer_type"].(string)
 		}
 	}
 
@@ -2692,8 +2692,8 @@ func flattenClusterAddonsConfig(c *containerBeta.AddonsConfig) []map[string]inte
 			"disabled": c.CloudRunConfig.Disabled,
 		}
 		if c.CloudRunConfig.LoadBalancerType == "LOAD_BALANCER_TYPE_INTERNAL" {
-			// Currently we only allow setting load_balancer_type to INTERNAL
-			cloudRunConfig["load_balancer_type"] = "INTERNAL"
+			// Currently we only allow setting load_balancer_type to LOAD_BALANCER_TYPE_INTERNAL
+			cloudRunConfig["load_balancer_type"] = "LOAD_BALANCER_TYPE_INTERNAL"
 		}
 		result["cloudrun_config"] = []map[string]interface{}{cloudRunConfig}
 	}
