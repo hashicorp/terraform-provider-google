@@ -48,18 +48,8 @@ resource "google_os_config_patch_deployment" "patch" {
     all = true
   }
 
-  recurring_schedule {
-    time_zone {
-      id = "America/New_York"
-    }
-
-    time_of_day {
-      hours = 1
-    }
-
-    weekly {
-      day_of_week = "MONDAY"
-    }
+  one_time_schedule {
+    execute_time = "2020-10-10T10:10:10.045123456Z"
   }
 }
 ```
