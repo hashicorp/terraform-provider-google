@@ -393,7 +393,10 @@ The `database_encryption` block supports:
 
 The `cloudrun_config` block supports:
 
-* `disabled` - (Ooptional)
+* `disabled` - (Optional) The status of the CloudRun addon. It is disabled by default. Set `disabled=false` to enable.
+
+* `load_balancer_type` - (Optional) The load balancer type of CloudRun ingress service. It is external load balancer by default.
+    Set `load_balancer_type=LOAD_BALANCER_TYPE_INTERNAL` to configure it as internal load balancer.
 
 The `istio_config` block supports:
 
