@@ -79,7 +79,6 @@ consistency to improve availability.`,
 			"single_cluster_routing": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Use a single-cluster routing policy.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -245,6 +244,12 @@ func resourceBigtableAppProfileUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	singleClusterRoutingProp, err := expandBigtableAppProfileSingleClusterRouting(d.Get("single_cluster_routing"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("single_cluster_routing"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, singleClusterRoutingProp)) {
+		obj["singleClusterRouting"] = singleClusterRoutingProp
+	}
 
 	obj, err = resourceBigtableAppProfileEncoder(d, meta, obj)
 	if err != nil {
@@ -261,6 +266,10 @@ func resourceBigtableAppProfileUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("single_cluster_routing") {
+		updateMask = append(updateMask, "singleClusterRouting")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
