@@ -20,7 +20,7 @@ func TestAccBigtableAppProfile_update(t *testing.T) {
 		CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigtableAppProfile_multiClusterRouting(instanceName),
+				Config: testAccBigtableAppProfile_update1(instanceName),
 			},
 			{
 				ResourceName:            "google_bigtable_app_profile.ap",
@@ -29,7 +29,7 @@ func TestAccBigtableAppProfile_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"ignore_warnings"},
 			},
 			{
-				Config: testAccBigtableAppProfile_update(instanceName),
+				Config: testAccBigtableAppProfile_update2(instanceName),
 			},
 			{
 				ResourceName:            "google_bigtable_app_profile.ap",
@@ -41,7 +41,7 @@ func TestAccBigtableAppProfile_update(t *testing.T) {
 	})
 }
 
-func testAccBigtableAppProfile_multiClusterRouting(instanceName string) string {
+func testAccBigtableAppProfile_update1(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
   name = "%s"
@@ -59,13 +59,17 @@ resource "google_bigtable_app_profile" "ap" {
   instance       = google_bigtable_instance.instance.id
   app_profile_id = "test"
 
-  multi_cluster_routing_use_any = true
+  single_cluster_routing {
+    cluster_id                 = %q
+    allow_transactional_writes = true
+  }
+
   ignore_warnings               = true
 }
-`, instanceName, instanceName)
+`, instanceName, instanceName, instanceName)
 }
 
-func testAccBigtableAppProfile_update(instanceName string) string {
+func testAccBigtableAppProfile_update2(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
   name = "%s"
@@ -84,8 +88,12 @@ resource "google_bigtable_app_profile" "ap" {
   app_profile_id = "test"
   description    = "add a description"
 
-  multi_cluster_routing_use_any = true
+  single_cluster_routing {
+    cluster_id                 = %q
+    allow_transactional_writes = false
+  }
+
   ignore_warnings               = true
 }
-`, instanceName, instanceName)
+`, instanceName, instanceName, instanceName)
 }

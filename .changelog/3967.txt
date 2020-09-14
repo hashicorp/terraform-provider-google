@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: fixed the update behaviour of the `single_cluster_routing` sub-fields in `google_bigtable_app_profile`
+```
