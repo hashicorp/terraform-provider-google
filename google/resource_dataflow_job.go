@@ -111,6 +111,12 @@ func resourceDataflowJob() *schema.Resource {
 				Description:      `User labels to be specified for the job. Keys and values should follow the restrictions specified in the labeling restrictions page. NOTE: Google-provided Dataflow templates often provide default labels that begin with goog-dataflow-provided. Unless explicitly set in config, these labels will be ignored to prevent diffs on re-apply.`,
 			},
 
+			"transform_name_mapping": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Only applicable when updating a pipeline. Map of transform name prefixes of the job to be replaced with the corresponding name prefixes of the new job.`,
+			},
+
 			"on_delete": {
 				Type:         schema.TypeString,
 				ValidateFunc: validation.StringInSlice([]string{"cancel", "drain"}, false),
@@ -314,6 +320,7 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 	}
 
 	params := expandStringMap(d, "parameters")
+	tnamemapping := expandStringMap(d, "transform_name_mapping")
 
 	env, err := resourceDataflowJobSetupEnv(d, config)
 	if err != nil {
@@ -321,10 +328,11 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 	}
 
 	request := dataflow.LaunchTemplateParameters{
-		JobName:     d.Get("name").(string),
-		Parameters:  params,
-		Environment: &env,
-		Update:      true,
+		JobName:              d.Get("name").(string),
+		Parameters:           params,
+		TransformNameMapping: tnamemapping,
+		Environment:          &env,
+		Update:               true,
 	}
 
 	var response *dataflow.LaunchTemplateResponse

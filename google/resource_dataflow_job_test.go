@@ -827,6 +827,10 @@ resource "google_dataflow_job" "pubsub_stream" {
 	  inputFilePattern = "${google_storage_bucket.bucket1.url}/*.json"
 	  outputTopic    = google_pubsub_topic.topic.id
 	}
+	transform_name_mapping = {
+		name = "test_job"
+		env = "test"
+	}
 	on_delete = "cancel"
 }
   `, suffix, suffix, suffix, suffix, testDataflowJobTemplateTextToPubsub, tempLocation)
