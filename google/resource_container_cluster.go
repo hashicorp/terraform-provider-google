@@ -2302,10 +2302,12 @@ func expandClusterAddonsConfig(configured interface{}) *containerBeta.AddonsConf
 			Disabled:        addon["disabled"].(bool),
 			ForceSendFields: []string{"Disabled"},
 		}
-		if v, ok := addon["load_balancer_type"]; ok {
-			ac.CloudRunConfig.LoadBalancerType = v.(string)
-		} else {
-			ac.CloudRunConfig.LoadBalancerType = "LOAD_BALANCER_TYPE_EXTERNAL"
+		if !ac.CloudRunConfig.Disabled {
+			if v, ok := addon["load_balancer_type"]; ok {
+				ac.CloudRunConfig.LoadBalancerType = v.(string)
+			} else {
+				ac.CloudRunConfig.LoadBalancerType = "LOAD_BALANCER_TYPE_EXTERNAL"
+			}
 		}
 	}
 
