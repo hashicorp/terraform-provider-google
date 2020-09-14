@@ -5,6 +5,7 @@ package google
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"reflect"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -74,4 +75,40 @@ func rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 		return true
 	}
 	return false
+}
+
+// Suppress diffs for blocks where one version is completely unset and the other is set
+// to an empty block. This might occur in situations where removing a block completely
+// is impossible (if it's computed or part of an AtLeastOneOf), so instead the user sets
+// its values to empty.
+func emptyOrUnsetBlockDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	o, n := d.GetChange(strings.TrimSuffix(k, ".#"))
+	var l []interface{}
+	if old == "0" && new == "1" {
+		l = n.([]interface{})
+	} else if new == "0" && old == "1" {
+		l = o.([]interface{})
+	} else {
+		// we don't have one set and one unset, so don't suppress the diff
+		return false
+	}
+
+	contents := l[0].(map[string]interface{})
+	for _, v := range contents {
+		if !isEmptyValue(reflect.ValueOf(v)) {
+			return false
+		}
+	}
+	return true
+}
+
+// Suppress diffs for values that are equivalent except for their use of the words "location"
+// compared to "region" or "zone"
+func locationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return locationDiffSuppressHelper(old, new) || locationDiffSuppressHelper(new, old)
+}
+
+func locationDiffSuppressHelper(a, b string) bool {
+	return strings.Replace(a, "/locations/", "/regions/", 1) == b ||
+		strings.Replace(a, "/locations/", "/zones/", 1) == b
 }
