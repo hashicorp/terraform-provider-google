@@ -525,17 +525,19 @@ by Dataproc`,
 							},
 						},
 						"autoscaling_config": {
-							Type:         schema.TypeList,
-							Optional:     true,
-							AtLeastOneOf: clusterConfigKeys,
-							MaxItems:     1,
-							Description:  `The autoscaling policy config associated with the cluster.`,
+							Type:             schema.TypeList,
+							Optional:         true,
+							AtLeastOneOf:     clusterConfigKeys,
+							MaxItems:         1,
+							Description:      `The autoscaling policy config associated with the cluster.`,
+							DiffSuppressFunc: emptyOrUnsetBlockDiffSuppress,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"policy_uri": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `The autoscaling policy used by the cluster.`,
+										Type:             schema.TypeString,
+										Required:         true,
+										Description:      `The autoscaling policy used by the cluster.`,
+										DiffSuppressFunc: locationDiffSuppress,
 									},
 								},
 							},
@@ -1103,6 +1105,15 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		updMask = append(updMask, "config.secondary_worker_config.num_instances")
+	}
+
+	if d.HasChange("cluster_config.0.autoscaling_config") {
+		desiredPolicy := d.Get("cluster_config.0.autoscaling_config.0.policy_uri").(string)
+		cluster.Config.AutoscalingConfig = &dataproc.AutoscalingConfig{
+			PolicyUri: desiredPolicy,
+		}
+
+		updMask = append(updMask, "config.autoscaling_config.policy_uri")
 	}
 
 	if len(updMask) > 0 {

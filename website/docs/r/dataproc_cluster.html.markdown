@@ -176,6 +176,8 @@ The `cluster_config` block supports:
 * `security_config` (Optional) Security related configuration. Structure defined below.
 
 * `autoscaling_config` (Optional)  The autoscaling policy config associated with the cluster.
+   Note that once set, if `autoscaling_config` is the only field set in `cluster_config`, it can
+   only be removed by setting `policy_uri = ""`, rather than removing the whole block.
    Structure defined below.
 
 * `initialization_action` (Optional) Commands to execute on each node after config is completed.
