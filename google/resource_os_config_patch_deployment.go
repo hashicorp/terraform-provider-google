@@ -3243,11 +3243,13 @@ func expandOSConfigPatchDeploymentRolloutDisruptionBudgetPercentage(v interface{
 }
 
 func resourceOSConfigPatchDeploymentEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	schedule := obj["recurringSchedule"].(map[string]interface{})
-	if schedule["monthly"] != nil {
-		obj["recurringSchedule"].(map[string]interface{})["frequency"] = "MONTHLY"
-	} else if schedule["weekly"] != nil {
-		obj["recurringSchedule"].(map[string]interface{})["frequency"] = "WEEKLY"
+	if obj["recurringSchedule"] != nil {
+		schedule := obj["recurringSchedule"].(map[string]interface{})
+		if schedule["monthly"] != nil {
+			obj["recurringSchedule"].(map[string]interface{})["frequency"] = "MONTHLY"
+		} else if schedule["weekly"] != nil {
+			obj["recurringSchedule"].(map[string]interface{})["frequency"] = "WEEKLY"
+		}
 	}
 
 	if obj["patchConfig"] != nil {

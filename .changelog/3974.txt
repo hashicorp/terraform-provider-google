@@ -1,0 +1,3 @@
+```release-note:bug
+osconfig: fixed a potential crash in `google_os_config_patch_deployment` due to an unchecked nil value in `recurring_schedule`
+````
