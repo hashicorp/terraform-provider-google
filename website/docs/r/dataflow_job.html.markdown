@@ -26,6 +26,34 @@ resource "google_dataflow_job" "big_data_job" {
   }
 }
 ```
+## Example Usage - Streaming Job
+```hcl
+resource "google_pubsub_topic" "topic" {
+	name     = "dataflow-job1"
+}
+resource "google_storage_bucket" "bucket1" {
+	name = "tf-test-bucket1"
+	force_destroy = true
+}
+resource "google_storage_bucket" "bucket2" {
+	name = "tf-test-bucket2"
+	force_destroy = true
+}
+resource "google_dataflow_job" "pubsub_stream" {
+	name = "tf-test-dataflow-job1"
+	template_gcs_path = "gs://my-bucket/templates/template_file"
+	temp_gcs_location = "gs://my-bucket/tmp_dir"
+	parameters = {
+	  inputFilePattern = "${google_storage_bucket.bucket1.url}/*.json"
+	  outputTopic    = google_pubsub_topic.topic.id
+	}
+	transform_name_mapping = {
+		name = "test_job"
+		env = "test"
+	}
+	on_delete = "cancel"
+}
+```
 
 ## Note on "destroy" / "apply"
 There are many types of Dataflow jobs.  Some Dataflow jobs run constantly, getting new data from (e.g.) a GCS bucket, and outputting data continuously.  Some jobs process a set amount of data then terminate.  All jobs can fail while running due to programming errors or other issues.  In this way, Dataflow jobs are different from most other Terraform / Google resources.
@@ -49,6 +77,7 @@ The following arguments are supported:
    specified in the [labeling restrictions](https://cloud.google.com/compute/docs/labeling-resources#restrictions) page.
    **NOTE**: Google-provided Dataflow templates often provide default labels that begin with `goog-dataflow-provided`.
    Unless explicitly set in config, these labels will be ignored to prevent diffs on re-apply. 
+* `transform_name_mapping` - (Optional) Only applicable when updating a pipeline. Map of transform name prefixes of the job to be replaced with the corresponding name prefixes of the new job. This field is not used outside of update.   
 * `max_workers` - (Optional) The number of workers permitted to work on the job.  More workers may improve processing speed at additional cost.
 * `on_delete` - (Optional) One of "drain" or "cancel".  Specifies behavior of deletion during `terraform destroy`.  See above note.
 * `project` - (Optional) The project in which the resource belongs. If it is not provided, the provider project is used.
