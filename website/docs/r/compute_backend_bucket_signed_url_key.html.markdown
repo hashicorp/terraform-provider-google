@@ -38,9 +38,13 @@ state as plain-text. [Read more about sensitive data in state](/docs/state/sensi
 
 
 ```hcl
+resource "random_id" "url_signature" {
+  byte_length = 16
+}
+
 resource "google_compute_backend_bucket_signed_url_key" "backend_key" {
   name           = "test-key"
-  key_value      = "pPsVemX8GM46QVeezid6Rw=="
+  key_value      = random_id.url_signature.b64_std
   backend_bucket = google_compute_backend_bucket.test_backend.name
 }
 
