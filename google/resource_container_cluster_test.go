@@ -160,6 +160,15 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"min_master_version"},
 			},
+			{
+				Config: testAccContainerCluster_withInternalLoadBalancer(pid, clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
 		},
 	})
 }
@@ -1769,6 +1778,42 @@ resource "google_container_cluster" "primary" {
     }
     cloudrun_config {
       disabled = false
+    }
+  }
+}
+`, projectID, clusterName)
+}
+
+func testAccContainerCluster_withInternalLoadBalancer(projectID string, clusterName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  min_master_version = "latest"
+
+  workload_identity_config {
+    identity_namespace = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+
+  addons_config {
+    http_load_balancing {
+      disabled = false
+    }
+    horizontal_pod_autoscaling {
+      disabled = false
+    }
+    network_policy_config {
+      disabled = false
+    }
+    cloudrun_config {
+	  disabled = false
+	  load_balancer_type = "LOAD_BALANCER_TYPE_INTERNAL"
     }
   }
 }
