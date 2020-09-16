@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudfunctions: added the ALLOW_INTERNAL_AND_GCLB option to `ingress_settings` of `google_cloudfunctions_function` resource.
+```
