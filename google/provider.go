@@ -574,7 +574,7 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_region_instance_group":                dataSourceGoogleComputeRegionInstanceGroup(),
 			"google_compute_region_ssl_certificate":               dataSourceGoogleRegionComputeSslCertificate(),
 			"google_compute_router":                               dataSourceGoogleComputeRouter(),
-			"google_compute_shared_vpc_host_project":			   dataSourceComputeSharedVpcHostProject(),
+			"google_compute_shared_vpc_host_project":              dataSourceComputeSharedVpcHostProject(),
 			"google_compute_ssl_certificate":                      dataSourceGoogleComputeSslCertificate(),
 			"google_compute_ssl_policy":                           dataSourceGoogleComputeSslPolicy(),
 			"google_compute_subnetwork":                           dataSourceGoogleComputeSubnetwork(),

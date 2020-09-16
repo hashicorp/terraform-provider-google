@@ -26,6 +26,9 @@ func dataSourceComputeSharedVpcHostProject() *schema.Resource {
 func dataSourceComputeSharedVpcHostProjectRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting service project for Shared VPC Host project: %s", err)
+	}
 
 	op, err := config.clientComputeBeta.Projects.GetXpnHost(project).Do()
 	if err != nil {
