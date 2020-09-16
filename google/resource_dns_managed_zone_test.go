@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"google.golang.org/api/dns/v1"
 )
 
 func TestAccDNSManagedZone_update(t *testing.T) {
@@ -147,6 +149,89 @@ func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccDNSManagedZone_forceDestroy(t *testing.T) {
+	//t.Parallel()
+
+	zoneSuffix := randString(t, 10)
+	project := getTestProjectFromEnv()
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSManagedZone_forceDestroy(zoneSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckManagedZoneCreateRRs(t, zoneSuffix, project),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckManagedZoneCreateRRs(t *testing.T, zoneSuffix string, project string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
+		zone := fmt.Sprintf("mzone-test-%s", zoneSuffix)
+		// Build the change
+		chg := &dns.Change{
+			Additions: []*dns.ResourceRecordSet{
+				{
+					Name:    fmt.Sprintf("cname.%s.hashicorptest.com.", zoneSuffix),
+					Type:    "CNAME",
+					Ttl:     300,
+					Rrdatas: []string{"foo.example.com."},
+				},
+				{
+					Name:    fmt.Sprintf("a.%s.hashicorptest.com.", zoneSuffix),
+					Type:    "A",
+					Ttl:     300,
+					Rrdatas: []string{"1.1.1.1"},
+				},
+				{
+					Name:    fmt.Sprintf("nested.%s.hashicorptest.com.", zoneSuffix),
+					Type:    "NS",
+					Ttl:     300,
+					Rrdatas: []string{"ns.hashicorp.services.", "ns2.hashicorp.services."},
+				},
+			},
+		}
+
+		chg, err := config.clientDns.Changes.Create(project, zone, chg).Do()
+		if err != nil {
+			return fmt.Errorf("Error creating DNS RecordSet: %s", err)
+		}
+
+		w := &DnsChangeWaiter{
+			Service:     config.clientDns,
+			Change:      chg,
+			Project:     project,
+			ManagedZone: zone,
+		}
+		_, err = w.Conf().WaitForState()
+		if err != nil {
+			return fmt.Errorf("Error waiting for Google DNS change: %s", err)
+		}
+
+		return nil
+	}
+}
+
+func testAccDNSManagedZone_forceDestroy(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "foobar" {
+  name        = "mzone-test-%s"
+  dns_name    = "%s.hashicorptest.com."
+  labels = {
+    foo = "bar"
+  }
+  force_destroy = true
+  visibility = "public"
+}
+`, suffix, suffix)
 }
 
 func testAccDnsManagedZone_basic(suffix, description string) string {

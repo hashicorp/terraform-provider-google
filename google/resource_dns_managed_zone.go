@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"google.golang.org/api/dns/v1"
 )
 
 func resourceDNSManagedZone() *schema.Resource {
@@ -256,6 +257,11 @@ defined by the server`,
 					Type: schema.TypeString,
 				},
 			},
+			"force_destroy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -422,6 +428,10 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 		return handleNotFoundError(err, d, fmt.Sprintf("DNSManagedZone %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOk("force_destroy"); !ok {
+		d.Set("force_destroy", false)
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
 	}
@@ -549,6 +559,76 @@ func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	var obj map[string]interface{}
+	if d.Get("force_destroy").(bool) {
+		zone := d.Get("name").(string)
+		token := ""
+		for paginate := true; paginate; {
+			var resp *dns.ResourceRecordSetsListResponse
+			if token == "" {
+				resp, err = config.clientDns.ResourceRecordSets.List(project, zone).Do()
+				if err != nil {
+					return fmt.Errorf("Error reading ResourceRecordSets: %s", err)
+				}
+			} else {
+				resp, err = config.clientDns.ResourceRecordSets.List(project, zone).PageToken(token).Do()
+				if err != nil {
+					return fmt.Errorf("Error reading ResourceRecordSets: %s", err)
+				}
+			}
+
+			for _, rr := range resp.Rrsets {
+				// Build the change
+				chg := &dns.Change{
+					Deletions: []*dns.ResourceRecordSet{
+						{
+							Name:    rr.Name,
+							Type:    rr.Type,
+							Ttl:     rr.Ttl,
+							Rrdatas: rr.Rrdatas,
+						},
+					},
+				}
+
+				if rr.Type == "NS" {
+					mz, err := config.clientDns.ManagedZones.Get(project, zone).Do()
+					if err != nil {
+						return fmt.Errorf("Error retrieving managed zone %q from %q: %s", zone, project, err)
+					}
+					domain := mz.DnsName
+
+					if domain == rr.Name {
+						log.Println("[DEBUG] NS records can't be deleted due to API restrictions, so they're being left in place. See https://www.terraform.io/docs/providers/google/r/dns_record_set.html for more information.")
+						continue
+					}
+				}
+
+				if rr.Type == "SOA" {
+					log.Println("[DEBUG] SOA records can't be deleted due to API restrictions, so they're being left in place.")
+					continue
+				}
+
+				log.Printf("[DEBUG] DNS Record delete request via MZ: %#v", chg)
+				chg, err = config.clientDns.Changes.Create(project, zone, chg).Do()
+				if err != nil {
+					return fmt.Errorf("Unable to delete ResourceRecordSets: %s", err)
+				}
+
+				w := &DnsChangeWaiter{
+					Service:     config.clientDns,
+					Change:      chg,
+					Project:     project,
+					ManagedZone: zone,
+				}
+				_, err = w.Conf().WaitForState()
+				if err != nil {
+					return fmt.Errorf("Error waiting for Google DNS change: %s", err)
+				}
+			}
+
+			token = resp.NextPageToken
+			paginate = token != ""
+		}
+	}
 	log.Printf("[DEBUG] Deleting ManagedZone %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -581,6 +661,9 @@ func resourceDNSManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	d.Set("force_destroy", false)
 
 	return []*schema.ResourceData{d}, nil
 }
