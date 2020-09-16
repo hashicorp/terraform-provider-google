@@ -27,12 +27,7 @@ import (
 )
 
 func expandCloudIotDeviceRegistryHTTPConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
+	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
 	transformedHTTPEnabledState, err := expandCloudIotDeviceRegistryHTTPEnabledState(original["http_enabled_state"], d, config)
@@ -50,12 +45,7 @@ func expandCloudIotDeviceRegistryHTTPEnabledState(v interface{}, d TerraformReso
 }
 
 func expandCloudIotDeviceRegistryMqttConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
+	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
 	transformedMqttEnabledState, err := expandCloudIotDeviceRegistryMqttEnabledState(original["mqtt_enabled_state"], d, config)
@@ -73,12 +63,7 @@ func expandCloudIotDeviceRegistryMqttEnabledState(v interface{}, d TerraformReso
 }
 
 func expandCloudIotDeviceRegistryStateNotificationConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
+	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
 	transformedPubsubTopicName, err := expandCloudIotDeviceRegistryStateNotificationConfigPubsubTopicName(original["pubsub_topic_name"], d, config)
@@ -120,12 +105,7 @@ func expandCloudIotDeviceRegistryCredentials(v interface{}, d TerraformResourceD
 }
 
 func expandCloudIotDeviceRegistryCredentialsPublicKeyCertificate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
+	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
 	transformedFormat, err := expandCloudIotDeviceRegistryPublicKeyCertificateFormat(original["format"], d, config)
@@ -196,7 +176,7 @@ func flattenCloudIotDeviceRegistryCredentialsPublicKeyCertificate(v interface{},
 
 	log.Printf("[DEBUG] Transformed public key certificate: %+v", transformed)
 
-	return []interface{}{transformed}
+	return transformed
 }
 
 func flattenCloudIotDeviceRegistryPublicKeyCertificateFormat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -218,7 +198,7 @@ func flattenCloudIotDeviceRegistryHTTPConfig(v interface{}, d *schema.ResourceDa
 	transformedHTTPEnabledState := flattenCloudIotDeviceRegistryHTTPConfigHTTPEnabledState(original["httpEnabledState"], d, config)
 	transformed["http_enabled_state"] = transformedHTTPEnabledState
 
-	return []interface{}{transformed}
+	return transformed
 }
 
 func flattenCloudIotDeviceRegistryHTTPConfigHTTPEnabledState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -236,7 +216,7 @@ func flattenCloudIotDeviceRegistryMqttConfig(v interface{}, d *schema.ResourceDa
 	transformedMqttEnabledState := flattenCloudIotDeviceRegistryMqttConfigMqttEnabledState(original["mqttEnabledState"], d, config)
 	transformed["mqtt_enabled_state"] = transformedMqttEnabledState
 
-	return []interface{}{transformed}
+	return transformed
 }
 
 func flattenCloudIotDeviceRegistryMqttConfigMqttEnabledState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -258,7 +238,7 @@ func flattenCloudIotDeviceRegistryStateNotificationConfig(v interface{}, d *sche
 		transformed["pubsub_topic_name"] = transformedPubsubTopicName
 	}
 
-	return []interface{}{transformed}
+	return transformed
 }
 
 func flattenCloudIotDeviceRegistryStateNotificationConfigPubsubTopicName(v interface{}, d *schema.ResourceData, config *Config) interface{} {

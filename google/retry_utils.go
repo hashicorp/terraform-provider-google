@@ -30,6 +30,10 @@ func retryTimeDuration(retryFunc func() error, duration time.Duration, errorRetr
 }
 
 func isRetryableError(topErr error, customPredicates ...RetryErrorPredicateFunc) bool {
+	if topErr == nil {
+		return false
+	}
+
 	retryPredicates := append(
 		// Global error retry predicates are registered in this default list.
 		defaultErrorRetryPredicates,

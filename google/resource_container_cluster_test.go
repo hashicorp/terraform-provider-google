@@ -1615,6 +1615,9 @@ func checkMatch(attributes map[string]string, attr string, gcp interface{}) stri
 }
 
 func checkListMatch(attributes map[string]string, attr string, gcpList []string) string {
+	// A bunch of the TestAccDataprocJob_* tests fail without this. It's likely an inaccuracy that happens when shimming the terraform-json
+	// representation of state back to the old framework's representation of state. So, in the past we would get x.# = 0 whereas now we get x.# = ''.
+	// It's likely not intentional, however, shouldn't be a big problem - but if we notice it is the sdk team can address it.
 	if attributes[attr+".#"] == "" {
 		attributes[attr+".#"] = "0"
 	}
@@ -1637,6 +1640,9 @@ func checkListMatch(attributes map[string]string, attr string, gcpList []string)
 }
 
 func checkMapMatch(attributes map[string]string, attr string, gcpMap map[string]string) string {
+	// A bunch of the TestAccDataprocJob_* tests fail without this. It's likely an inaccuracy that happens when shimming the terraform-json
+	// representation of state back to the old framework's representation of state. So, in the past we would get x.# = 0 whereas now we get x.# = ''.
+	// It's likely not intentional, however, shouldn't be a big problem - but if we notice it is the sdk team can address it.
 	if attributes[attr+".%"] == "" {
 		attributes[attr+".%"] = "0"
 	}
