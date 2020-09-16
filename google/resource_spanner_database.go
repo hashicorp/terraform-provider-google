@@ -18,15 +18,49 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
+// customizeDiff func for additional checks on google_spanner_database properties:
+func resourceSpannerDBDdlCustomDiffFunc(diff TerraformResourceDiff) error {
+	old, new := diff.GetChange("ddl")
+	oldDdls := old.([]interface{})
+	newDdls := new.([]interface{})
+	var err error
+
+	if len(newDdls) < len(oldDdls) {
+		err = diff.ForceNew("ddl")
+		if err != nil {
+			return fmt.Errorf("ForceNew failed for ddl, old - %v and new - %v", oldDdls, newDdls)
+		}
+		return nil
+	}
+
+	for i := range oldDdls {
+		if newDdls[i].(string) != oldDdls[i].(string) {
+			err = diff.ForceNew("ddl")
+			if err != nil {
+				return fmt.Errorf("ForceNew failed for ddl, old - %v and new - %v", oldDdls, newDdls)
+			}
+			return nil
+		}
+	}
+	return nil
+}
+
+func resourceSpannerDBDdlCustomDiff(diff *schema.ResourceDiff, meta interface{}) error {
+	// separate func to allow unit testing
+	return resourceSpannerDBDdlCustomDiffFunc(diff)
+}
+
 func resourceSpannerDatabase() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSpannerDatabaseCreate,
 		Read:   resourceSpannerDatabaseRead,
+		Update: resourceSpannerDatabaseUpdate,
 		Delete: resourceSpannerDatabaseDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -35,8 +69,11 @@ func resourceSpannerDatabase() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
+
+		CustomizeDiff: resourceSpannerDBDdlCustomDiff,
 
 		Schema: map[string]*schema.Schema{
 			"instance": {
@@ -57,7 +94,6 @@ the instance is created. Values are of the form [a-z][-a-z0-9]*[a-z0-9].`,
 			"ddl": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `An optional list of DDL statements to run inside the newly created
 database. Statements can create tables, indexes, etc. These statements
 execute atomically with the creation of the database: if there is an
@@ -231,6 +267,66 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
+func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+	billingProject = project
+
+	d.Partial(true)
+
+	if d.HasChange("ddl") {
+		obj := make(map[string]interface{})
+
+		extraStatementsProp, err := expandSpannerDatabaseDdl(d.Get("ddl"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("ddl"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, extraStatementsProp)) {
+			obj["extraStatements"] = extraStatementsProp
+		}
+
+		obj, err = resourceSpannerDatabaseUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Database %q: %#v", d.Id(), res)
+		}
+
+		err = spannerOperationWaitTime(
+			config, res, project, "Updating Database",
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("ddl")
+	}
+
+	d.Partial(false)
+
+	return resourceSpannerDatabaseRead(d, meta)
+}
+
 func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -258,6 +354,14 @@ func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Database")
+	}
+
+	err = spannerOperationWaitTime(
+		config, res, project, "Deleting Database",
+		d.Timeout(schema.TimeoutDelete))
+
+	if err != nil {
+		return err
 	}
 
 	log.Printf("[DEBUG] Finished deleting Database %q: %#v", d.Id(), res)
@@ -323,6 +427,24 @@ func resourceSpannerDatabaseEncoder(d *schema.ResourceData, meta interface{}, ob
 	obj["createStatement"] = fmt.Sprintf("CREATE DATABASE `%s`", obj["name"])
 	delete(obj, "name")
 	delete(obj, "instance")
+	return obj, nil
+}
+
+func resourceSpannerDatabaseUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	old, new := d.GetChange("ddl")
+	oldDdls := old.([]interface{})
+	newDdls := new.([]interface{})
+	updateDdls := []string{}
+
+	//Only new ddl statments to be add to update call
+	for i := len(oldDdls); i < len(newDdls); i++ {
+		updateDdls = append(updateDdls, newDdls[i].(string))
+	}
+
+	obj["statements"] = strings.Join(updateDdls, ",")
+	delete(obj, "name")
+	delete(obj, "instance")
+	delete(obj, "extraStatements")
 	return obj, nil
 }
 
