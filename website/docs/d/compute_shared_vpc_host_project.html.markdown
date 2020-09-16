@@ -2,7 +2,7 @@
 subcategory: "Cloud Platform"
 layout: "google"
 page_title: "Google: google_compute_shared_vpc_host_project"
-sidebar_current: "docs-google-datasource-shared-vpc-host-project"
+sidebar_current: "docs-google-datasource-compute-shared-vpc-host-project"
 description: |-
   Retrieve shared VPC host project id
 ---
