@@ -31,8 +31,11 @@ func TestAccComputeTargetTcpProxy_targetTcpProxyBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeTargetTcpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

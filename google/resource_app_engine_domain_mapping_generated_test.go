@@ -31,8 +31,11 @@ func TestAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(t *testing
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckAppEngineDomainMappingDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

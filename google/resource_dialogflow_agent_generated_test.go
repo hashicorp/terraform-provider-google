@@ -31,8 +31,11 @@ func TestAccDialogflowAgent_dialogflowAgentFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckDialogflowAgentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

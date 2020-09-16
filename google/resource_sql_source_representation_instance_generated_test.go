@@ -31,8 +31,11 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasic
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckSQLSourceRepresentationInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

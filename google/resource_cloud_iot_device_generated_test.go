@@ -33,8 +33,11 @@ func TestAccCloudIotDevice_cloudiotDeviceBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckCloudIotDeviceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -73,8 +76,11 @@ func TestAccCloudIotDevice_cloudiotDeviceFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckCloudIotDeviceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

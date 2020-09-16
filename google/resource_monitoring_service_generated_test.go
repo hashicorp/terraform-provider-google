@@ -31,8 +31,11 @@ func TestAccMonitoringService_monitoringServiceCustomExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckMonitoringServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

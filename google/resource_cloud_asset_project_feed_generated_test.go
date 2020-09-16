@@ -32,8 +32,11 @@ func TestAccCloudAssetProjectFeed_cloudAssetProjectFeedExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckCloudAssetProjectFeedDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

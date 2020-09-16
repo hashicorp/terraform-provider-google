@@ -31,8 +31,11 @@ func TestAccIdentityPlatformTenant_identityPlatformTenantBasicExample(t *testing
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckIdentityPlatformTenantDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

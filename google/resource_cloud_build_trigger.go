@@ -297,7 +297,6 @@ this location as a prefix.`,
 													Type:        schema.TypeList,
 													Computed:    true,
 													Description: `Output only. Stores timing information for pushing all artifact objects.`,
-													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"end_time": {

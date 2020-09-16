@@ -402,12 +402,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 
 	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), nodePoolInfo.project, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		if isGoogleApiErrorWithCode(err, 404) {
-			log.Printf("node pool %q not found, doesn't need to be cleaned up", name)
-			return nil
-		} else {
-			return err
-		}
+		return err
 	}
 
 	mutexKV.Lock(nodePoolInfo.lockKey())

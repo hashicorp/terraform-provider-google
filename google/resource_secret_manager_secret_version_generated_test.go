@@ -31,8 +31,11 @@ func TestAccSecretManagerSecretVersion_secretVersionBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckSecretManagerSecretVersionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

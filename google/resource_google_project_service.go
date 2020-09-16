@@ -187,9 +187,21 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 		return nil
 	}
 
-	// The service is was not found in enabled services - remove it from state
-	log.Printf("[DEBUG] service %s not in enabled services for project %s, removing from state", srv, project)
-	d.SetId("")
+	// only remove the resource from state when it's not found if this isn't
+	// a Read that was called through from Create. The call through from
+	// Create may be dealing with eventual consistency, and will try to
+	// remove the newly created resource from state, which doesn't match
+	// the plan. So the user will get an incomprehensible error about
+	// "produced an unexpected new value for was present, but now absent."
+	// if we don't have this check.
+	//
+	// If the service _actually_ didn't get enabled, it'll be removed by
+	// the next refresh, anyways.
+	if !d.IsNewResource() {
+		// The service is was not found in enabled services - remove it from state
+		log.Printf("[DEBUG] service %s not in enabled services for project %s, removing from state", srv, project)
+		d.SetId("")
+	}
 	return nil
 }
 

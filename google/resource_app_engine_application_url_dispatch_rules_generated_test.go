@@ -31,8 +31,11 @@ func TestAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatch
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckAppEngineApplicationUrlDispatchRulesDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
