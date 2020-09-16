@@ -344,50 +344,18 @@ If it is not provided, the provider region is used.`,
 				Type:        schema.TypeMap,
 				Description: `A PubSub topic to publish device state updates.`,
 				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"pubsub_topic_name": {
-							Type:             schema.TypeString,
-							Description:      `PubSub topic name to publish device state updates.`,
-							Required:         true,
-							DiffSuppressFunc: compareSelfLinkOrResourceName,
-						},
-					},
-				},
 			},
 			"mqtt_config": {
 				Type:        schema.TypeMap,
 				Description: `Activate or deactivate MQTT.`,
 				Computed:    true,
 				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"mqtt_enabled_state": {
-							Type:        schema.TypeString,
-							Description: `The field allows MQTT_ENABLED or MQTT_DISABLED`,
-							Required:    true,
-							ValidateFunc: validation.StringInSlice(
-								[]string{"MQTT_DISABLED", "MQTT_ENABLED"}, false),
-						},
-					},
-				},
 			},
 			"http_config": {
 				Type:        schema.TypeMap,
 				Description: `Activate or deactivate HTTP.`,
 				Computed:    true,
 				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"http_enabled_state": {
-							Type:        schema.TypeString,
-							Description: `The field allows HTTP_ENABLED or HTTP_DISABLED`,
-							Required:    true,
-							ValidateFunc: validation.StringInSlice(
-								[]string{"HTTP_DISABLED", "HTTP_ENABLED"}, false),
-						},
-					},
-				},
 			},
 			"credentials": {
 				Type:        schema.TypeList,
@@ -400,22 +368,6 @@ If it is not provided, the provider region is used.`,
 							Type:        schema.TypeMap,
 							Description: `A public key certificate format and data.`,
 							Required:    true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"format": {
-										Type:        schema.TypeString,
-										Description: `The field allows only X509_CERTIFICATE_PEM.`,
-										Required:    true,
-										ValidateFunc: validation.StringInSlice(
-											[]string{"X509_CERTIFICATE_PEM"}, false),
-									},
-									"certificate": {
-										Type:        schema.TypeString,
-										Description: `The certificate data.`,
-										Required:    true,
-									},
-								},
-							},
 						},
 					},
 				},
