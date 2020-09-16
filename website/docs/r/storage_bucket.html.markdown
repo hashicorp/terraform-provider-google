@@ -93,7 +93,7 @@ The following arguments are supported:
 
 * `retention_policy` - (Optional) Configuration of the bucket's data retention policy for how long objects in the bucket should be retained. Structure is documented below.
 
-* `labels` - (Optional) A set of key/value label pairs to assign to the bucket.
+* `labels` - (Optional) A map of key/value label pairs to assign to the bucket.
 
 * `logging` - (Optional) The bucket's [Access & Storage Logs](https://cloud.google.com/storage/docs/access-logs) configuration.
 
