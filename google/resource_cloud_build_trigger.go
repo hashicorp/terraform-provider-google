@@ -18,9 +18,11 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func stepTimeoutCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
@@ -239,6 +241,89 @@ have completed successfully.`,
 								},
 							},
 						},
+						"artifacts": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Artifacts produced by the build that should be uploaded upon successful completion of all build steps.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"images": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A list of images to be pushed upon the successful completion of all build steps.
+
+The images will be pushed using the builder service account's credentials.
+
+The digests of the pushed images will be stored in the Build resource's results field.
+
+If any of the images fail to be pushed, the build is marked FAILURE.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"objects": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A list of objects to be uploaded to Cloud Storage upon successful completion of all build steps.
+
+Files in the workspace matching specified paths globs will be uploaded to the
+Cloud Storage location using the builder service account's credentials.
+
+The location and generation of the uploaded objects will be stored in the Build resource's results field.
+
+If any objects fail to be pushed, the build is marked FAILURE.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"location": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Cloud Storage bucket and optional object path, in the form "gs://bucket/path/to/somewhere/".
+
+Files in the workspace matching any path pattern will be uploaded to Cloud Storage with
+this location as a prefix.`,
+												},
+												"paths": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Path globs used to match files in the build's workspace.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"timing": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `Output only. Stores timing information for pushing all artifact objects.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"end_time": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `End of time span.
+
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
+nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+															},
+															"start_time": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `Start of time span.
+
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
+nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"images": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -255,6 +340,135 @@ If any of the images fail to be pushed, the build status is marked FAILURE.`,
 							Optional: true,
 							Description: `Google Cloud Storage bucket where logs should be written. 
 Logs file names will be of the format ${logsBucket}/log-${build_id}.txt.`,
+						},
+						"options": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Special options for this build.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disk_size_gb": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Requested disk size for the VM that runs the build. Note that this is NOT "disk free";
+some of the space will be used by the operating system and build utilities.
+Also note that this is the minimum disk size that will be allocated for the build --
+the build may run with a larger disk than requested. At present, the maximum disk size
+is 1000GB; builds that request more than the maximum are rejected with an error.`,
+									},
+									"dynamic_substitutions": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Option to specify whether or not to apply bash style string operations to the substitutions.
+
+NOTE this is always enabled for triggered builds and cannot be overridden in the build configuration file.`,
+									},
+									"env": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A list of global environment variable definitions that will exist for all build steps
+in this build. If a variable is defined in both globally and in a build step,
+the variable will use the build step value.
+
+The elements are of the form "KEY=VALUE" for the environment variable "KEY" being given the value "VALUE".`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"log_streaming_option": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"STREAM_DEFAULT", "STREAM_ON", "STREAM_OFF", ""}, false),
+										Description:  `Option to define build log streaming behavior to Google Cloud Storage. Possible values: ["STREAM_DEFAULT", "STREAM_ON", "STREAM_OFF"]`,
+									},
+									"logging": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"LOGGING_UNSPECIFIED", "LEGACY", "GCS_ONLY", "STACKDRIVER_ONLY", "NONE", ""}, false),
+										Description:  `Option to specify the logging mode, which determines if and where build logs are stored. Possible values: ["LOGGING_UNSPECIFIED", "LEGACY", "GCS_ONLY", "STACKDRIVER_ONLY", "NONE"]`,
+									},
+									"machine_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32", ""}, false),
+										Description:  `Compute Engine machine type on which to run the build. Possible values: ["UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32"]`,
+									},
+									"requested_verify_option": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"NOT_VERIFIED", "VERIFIED", ""}, false),
+										Description:  `Requested verifiability options. Possible values: ["NOT_VERIFIED", "VERIFIED"]`,
+									},
+									"secret_env": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A list of global environment variables, which are encrypted using a Cloud Key Management
+Service crypto key. These values must be specified in the build's Secret. These variables
+will be available to all build steps in this build.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"source_provenance_hash": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Requested hash for SourceProvenance. Possible values: ["NONE", "SHA256", "MD5"]`,
+										Elem: &schema.Schema{
+											Type:         schema.TypeString,
+											ValidateFunc: validation.StringInSlice([]string{"NONE", "SHA256", "MD5"}, false),
+										},
+									},
+									"substitution_option": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"MUST_MATCH", "ALLOW_LOOSE", ""}, false),
+										Description: `Option to specify behavior when there is an error in the substitution checks.
+
+NOTE this is always set to ALLOW_LOOSE for triggered builds and cannot be overridden
+in the build configuration file. Possible values: ["MUST_MATCH", "ALLOW_LOOSE"]`,
+									},
+									"volumes": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Global list of volumes to mount for ALL build steps
+
+Each volume is created as an empty volume prior to starting the build process.
+Upon completion of the build, volumes and their contents are discarded. Global
+volume names and paths cannot conflict with the volumes defined a build step.
+
+Using a global volume in a build with only one step is not valid as it is indicative
+of a build request with an incorrect configuration.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Name of the volume to mount.
+
+Volume names must be unique per build step and must be valid names for Docker volumes.
+Each named volume must be used by at least two build steps.`,
+												},
+												"path": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Path at which to mount the volume.
+
+Paths must be absolute and cannot conflict with other volume paths on the same
+build step or with certain reserved volume paths.`,
+												},
+											},
+										},
+									},
+									"worker_pool": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Option to specify a WorkerPool for the build. Format projects/{project}/workerPools/{workerPool}
+
+This field is experimental.`,
+									},
+								},
+							},
 						},
 						"queue_ttl": {
 							Type:     schema.TypeString,
@@ -1021,6 +1235,10 @@ func flattenCloudBuildTriggerBuild(v interface{}, d *schema.ResourceData, config
 		flattenCloudBuildTriggerBuildSecret(original["secrets"], d, config)
 	transformed["step"] =
 		flattenCloudBuildTriggerBuildStep(original["steps"], d, config)
+	transformed["artifacts"] =
+		flattenCloudBuildTriggerBuildArtifacts(original["artifacts"], d, config)
+	transformed["options"] =
+		flattenCloudBuildTriggerBuildOptions(original["options"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudBuildTriggerBuildSource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1272,6 +1490,192 @@ func flattenCloudBuildTriggerBuildStepWaitFor(v interface{}, d *schema.ResourceD
 	return v
 }
 
+func flattenCloudBuildTriggerBuildArtifacts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["images"] =
+		flattenCloudBuildTriggerBuildArtifactsImages(original["images"], d, config)
+	transformed["objects"] =
+		flattenCloudBuildTriggerBuildArtifactsObjects(original["objects"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudBuildTriggerBuildArtifactsImages(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildArtifactsObjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["location"] =
+		flattenCloudBuildTriggerBuildArtifactsObjectsLocation(original["location"], d, config)
+	transformed["paths"] =
+		flattenCloudBuildTriggerBuildArtifactsObjectsPaths(original["paths"], d, config)
+	transformed["timing"] =
+		flattenCloudBuildTriggerBuildArtifactsObjectsTiming(original["timing"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudBuildTriggerBuildArtifactsObjectsLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildArtifactsObjectsPaths(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildArtifactsObjectsTiming(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["start_time"] =
+		flattenCloudBuildTriggerBuildArtifactsObjectsTimingStartTime(original["startTime"], d, config)
+	transformed["end_time"] =
+		flattenCloudBuildTriggerBuildArtifactsObjectsTimingEndTime(original["endTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudBuildTriggerBuildArtifactsObjectsTimingStartTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildArtifactsObjectsTimingEndTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["source_provenance_hash"] =
+		flattenCloudBuildTriggerBuildOptionsSourceProvenanceHash(original["sourceProvenanceHash"], d, config)
+	transformed["requested_verify_option"] =
+		flattenCloudBuildTriggerBuildOptionsRequestedVerifyOption(original["requestedVerifyOption"], d, config)
+	transformed["machine_type"] =
+		flattenCloudBuildTriggerBuildOptionsMachineType(original["machineType"], d, config)
+	transformed["disk_size_gb"] =
+		flattenCloudBuildTriggerBuildOptionsDiskSizeGb(original["diskSizeGb"], d, config)
+	transformed["substitution_option"] =
+		flattenCloudBuildTriggerBuildOptionsSubstitutionOption(original["substitutionOption"], d, config)
+	transformed["dynamic_substitutions"] =
+		flattenCloudBuildTriggerBuildOptionsDynamicSubstitutions(original["dynamicSubstitutions"], d, config)
+	transformed["log_streaming_option"] =
+		flattenCloudBuildTriggerBuildOptionsLogStreamingOption(original["logStreamingOption"], d, config)
+	transformed["worker_pool"] =
+		flattenCloudBuildTriggerBuildOptionsWorkerPool(original["workerPool"], d, config)
+	transformed["logging"] =
+		flattenCloudBuildTriggerBuildOptionsLogging(original["logging"], d, config)
+	transformed["env"] =
+		flattenCloudBuildTriggerBuildOptionsEnv(original["env"], d, config)
+	transformed["secret_env"] =
+		flattenCloudBuildTriggerBuildOptionsSecretEnv(original["secretEnv"], d, config)
+	transformed["volumes"] =
+		flattenCloudBuildTriggerBuildOptionsVolumes(original["volumes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudBuildTriggerBuildOptionsSourceProvenanceHash(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsRequestedVerifyOption(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsMachineType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudBuildTriggerBuildOptionsSubstitutionOption(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsDynamicSubstitutions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsLogStreamingOption(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsWorkerPool(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsEnv(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsSecretEnv(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsVolumes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name": flattenCloudBuildTriggerBuildOptionsVolumesName(original["name"], d, config),
+			"path": flattenCloudBuildTriggerBuildOptionsVolumesPath(original["path"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudBuildTriggerBuildOptionsVolumesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsVolumesPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandCloudBuildTriggerName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1470,6 +1874,20 @@ func expandCloudBuildTriggerBuild(v interface{}, d TerraformResourceData, config
 		return nil, err
 	} else if val := reflect.ValueOf(transformedStep); val.IsValid() && !isEmptyValue(val) {
 		transformed["steps"] = transformedStep
+	}
+
+	transformedArtifacts, err := expandCloudBuildTriggerBuildArtifacts(original["artifacts"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedArtifacts); val.IsValid() && !isEmptyValue(val) {
+		transformed["artifacts"] = transformedArtifacts
+	}
+
+	transformedOptions, err := expandCloudBuildTriggerBuildOptions(original["options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOptions); val.IsValid() && !isEmptyValue(val) {
+		transformed["options"] = transformedOptions
 	}
 
 	return transformed, nil
@@ -1894,5 +2312,287 @@ func expandCloudBuildTriggerBuildStepVolumesPath(v interface{}, d TerraformResou
 }
 
 func expandCloudBuildTriggerBuildStepWaitFor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildArtifacts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedImages, err := expandCloudBuildTriggerBuildArtifactsImages(original["images"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedImages); val.IsValid() && !isEmptyValue(val) {
+		transformed["images"] = transformedImages
+	}
+
+	transformedObjects, err := expandCloudBuildTriggerBuildArtifactsObjects(original["objects"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedObjects); val.IsValid() && !isEmptyValue(val) {
+		transformed["objects"] = transformedObjects
+	}
+
+	return transformed, nil
+}
+
+func expandCloudBuildTriggerBuildArtifactsImages(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildArtifactsObjects(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLocation, err := expandCloudBuildTriggerBuildArtifactsObjectsLocation(original["location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !isEmptyValue(val) {
+		transformed["location"] = transformedLocation
+	}
+
+	transformedPaths, err := expandCloudBuildTriggerBuildArtifactsObjectsPaths(original["paths"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPaths); val.IsValid() && !isEmptyValue(val) {
+		transformed["paths"] = transformedPaths
+	}
+
+	transformedTiming, err := expandCloudBuildTriggerBuildArtifactsObjectsTiming(original["timing"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTiming); val.IsValid() && !isEmptyValue(val) {
+		transformed["timing"] = transformedTiming
+	}
+
+	return transformed, nil
+}
+
+func expandCloudBuildTriggerBuildArtifactsObjectsLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildArtifactsObjectsPaths(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildArtifactsObjectsTiming(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStartTime, err := expandCloudBuildTriggerBuildArtifactsObjectsTimingStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !isEmptyValue(val) {
+		transformed["startTime"] = transformedStartTime
+	}
+
+	transformedEndTime, err := expandCloudBuildTriggerBuildArtifactsObjectsTimingEndTime(original["end_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEndTime); val.IsValid() && !isEmptyValue(val) {
+		transformed["endTime"] = transformedEndTime
+	}
+
+	return transformed, nil
+}
+
+func expandCloudBuildTriggerBuildArtifactsObjectsTimingStartTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildArtifactsObjectsTimingEndTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSourceProvenanceHash, err := expandCloudBuildTriggerBuildOptionsSourceProvenanceHash(original["source_provenance_hash"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceProvenanceHash); val.IsValid() && !isEmptyValue(val) {
+		transformed["sourceProvenanceHash"] = transformedSourceProvenanceHash
+	}
+
+	transformedRequestedVerifyOption, err := expandCloudBuildTriggerBuildOptionsRequestedVerifyOption(original["requested_verify_option"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestedVerifyOption); val.IsValid() && !isEmptyValue(val) {
+		transformed["requestedVerifyOption"] = transformedRequestedVerifyOption
+	}
+
+	transformedMachineType, err := expandCloudBuildTriggerBuildOptionsMachineType(original["machine_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMachineType); val.IsValid() && !isEmptyValue(val) {
+		transformed["machineType"] = transformedMachineType
+	}
+
+	transformedDiskSizeGb, err := expandCloudBuildTriggerBuildOptionsDiskSizeGb(original["disk_size_gb"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDiskSizeGb); val.IsValid() && !isEmptyValue(val) {
+		transformed["diskSizeGb"] = transformedDiskSizeGb
+	}
+
+	transformedSubstitutionOption, err := expandCloudBuildTriggerBuildOptionsSubstitutionOption(original["substitution_option"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSubstitutionOption); val.IsValid() && !isEmptyValue(val) {
+		transformed["substitutionOption"] = transformedSubstitutionOption
+	}
+
+	transformedDynamicSubstitutions, err := expandCloudBuildTriggerBuildOptionsDynamicSubstitutions(original["dynamic_substitutions"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["dynamicSubstitutions"] = transformedDynamicSubstitutions
+	}
+
+	transformedLogStreamingOption, err := expandCloudBuildTriggerBuildOptionsLogStreamingOption(original["log_streaming_option"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLogStreamingOption); val.IsValid() && !isEmptyValue(val) {
+		transformed["logStreamingOption"] = transformedLogStreamingOption
+	}
+
+	transformedWorkerPool, err := expandCloudBuildTriggerBuildOptionsWorkerPool(original["worker_pool"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWorkerPool); val.IsValid() && !isEmptyValue(val) {
+		transformed["workerPool"] = transformedWorkerPool
+	}
+
+	transformedLogging, err := expandCloudBuildTriggerBuildOptionsLogging(original["logging"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLogging); val.IsValid() && !isEmptyValue(val) {
+		transformed["logging"] = transformedLogging
+	}
+
+	transformedEnv, err := expandCloudBuildTriggerBuildOptionsEnv(original["env"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnv); val.IsValid() && !isEmptyValue(val) {
+		transformed["env"] = transformedEnv
+	}
+
+	transformedSecretEnv, err := expandCloudBuildTriggerBuildOptionsSecretEnv(original["secret_env"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretEnv); val.IsValid() && !isEmptyValue(val) {
+		transformed["secretEnv"] = transformedSecretEnv
+	}
+
+	transformedVolumes, err := expandCloudBuildTriggerBuildOptionsVolumes(original["volumes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVolumes); val.IsValid() && !isEmptyValue(val) {
+		transformed["volumes"] = transformedVolumes
+	}
+
+	return transformed, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsSourceProvenanceHash(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsRequestedVerifyOption(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsMachineType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsDiskSizeGb(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsSubstitutionOption(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsDynamicSubstitutions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsLogStreamingOption(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsWorkerPool(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsLogging(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsEnv(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsSecretEnv(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsVolumes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandCloudBuildTriggerBuildOptionsVolumesName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedPath, err := expandCloudBuildTriggerBuildOptionsVolumesPath(original["path"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !isEmptyValue(val) {
+			transformed["path"] = transformedPath
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsVolumesName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsVolumesPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

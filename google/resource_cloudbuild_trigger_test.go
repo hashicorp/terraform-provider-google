@@ -132,7 +132,6 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     repo_name   = "some-repo"
   }
   build {
-    images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
     tags   = ["team-a", "service-b"]
     timeout = "1800s"
     step {
@@ -150,6 +149,30 @@ resource "google_cloudbuild_trigger" "build_trigger" {
       name = "gcr.io/cloud-builders/docker"
       args = ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA", "-f", "Dockerfile", "."]
       timeout = "300s"
+    }
+    artifacts {
+      images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+      objects {
+        location = "gs://bucket/path/to/somewhere/"
+        paths = ["path"]
+      }
+    }
+    options {
+      source_provenance_hash = ["MD5"]
+      requested_verify_option = "VERIFIED"
+      machine_type = "N1_HIGHCPU_8"
+      disk_size_gb = 100
+      substitution_option = "ALLOW_LOOSE"
+      dynamic_substitutions = false
+      log_streaming_option = "STREAM_OFF"
+      worker_pool = "pool"
+      logging = "LEGACY"
+      env = ["ekey = evalue"]
+      secret_env = ["secretenv = svalue"]
+      volumes {
+        name = "v1"
+        path = "v1"
+      }
     }
   }
 }
@@ -249,6 +272,10 @@ resource "google_cloudbuild_trigger" "build_trigger" {
       timeout = "300s"
     }
     logs_bucket = "gs://mybucket/logs"
+    options {
+      # this field is always enabled for triggered build and cannot be overridden in the build configuration file.
+      dynamic_substitutions = true
+    }
   }
 }
   `, name)
