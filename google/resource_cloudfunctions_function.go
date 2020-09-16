@@ -15,11 +15,6 @@ import (
 	"time"
 )
 
-// Min is 1 second, max is 9 minutes 540 sec
-const functionTimeOutMax = 540
-const functionTimeOutMin = 1
-const functionDefaultTimeout = 60
-
 var functionAllowedMemory = map[int]bool{
 	128:  true,
 	256:  true,
@@ -28,10 +23,9 @@ var functionAllowedMemory = map[int]bool{
 	2048: true,
 }
 
-const functionDefaultAllowedMemoryMb = 256
-
 var allowedIngressSettings = []string{
 	"ALLOW_ALL",
+	"ALLOW_INTERNAL_AND_GCLB",
 	"ALLOW_INTERNAL_ONLY",
 }
 
@@ -39,8 +33,6 @@ var allowedVpcConnectorEgressSettings = []string{
 	"ALL_TRAFFIC",
 	"PRIVATE_RANGES_ONLY",
 }
-
-const functionDefaultIngressSettings = "ALLOW_ALL"
 
 type cloudFunctionId struct {
 	Project string
@@ -179,7 +171,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"available_memory_mb": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     functionDefaultAllowedMemoryMb,
+				Default:     256,
 				Description: `Memory (in MB), available to the function. Default value is 256MB. Allowed values are: 128MB, 256MB, 512MB, 1024MB, and 2048MB.`,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					availableMemoryMB := v.(int)
@@ -195,8 +187,8 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"timeout": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Default:      functionDefaultTimeout,
-				ValidateFunc: validation.IntBetween(functionTimeOutMin, functionTimeOutMax),
+				Default:      60,
+				ValidateFunc: validation.IntBetween(1, 540),
 				Description:  `Timeout (in seconds) for the function. Default value is 60 seconds. Cannot be more than 540 seconds.`,
 			},
 
@@ -210,7 +202,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"ingress_settings": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      functionDefaultIngressSettings,
+				Default:      "ALLOW_ALL",
 				ValidateFunc: validation.StringInSlice(allowedIngressSettings, true),
 				Description:  `String value that controls what traffic can reach the function. Allowed values are ALLOW_ALL and ALLOW_INTERNAL_ONLY. Changes to this field will recreate the cloud function.`,
 			},
