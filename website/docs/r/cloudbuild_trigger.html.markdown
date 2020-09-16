@@ -95,6 +95,30 @@ resource "google_cloudbuild_trigger" "build-trigger" {
         PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
       }
     }
+    artifacts {
+      images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+      objects {
+        location = "gs://bucket/path/to/somewhere/"
+        paths = ["path"]
+      }
+    }
+    options {
+      source_provenance_hash = ["MD5"]
+      requested_verify_option = "VERIFIED"
+      machine_type = "N1_HIGHCPU_8"
+      disk_size_gb = 100
+      substitution_option = "ALLOW_LOOSE"
+      dynamic_substitutions = true
+      log_streaming_option = "STREAM_OFF"
+      worker_pool = "pool"
+      logging = "LEGACY"
+      env = ["ekey = evalue"]
+      secret_env = ["secretenv = svalue"]
+      volumes {
+        name = "v1"
+        path = "v1"
+      }
+    }
   }  
 }
 ```
@@ -259,6 +283,16 @@ The `build` block supports:
 * `step` -
   (Required)
   The operations to be performed on the workspace.
+  Structure is documented below.
+
+* `artifacts` -
+  (Optional)
+  Artifacts produced by the build that should be uploaded upon successful completion of all build steps.
+  Structure is documented below.
+
+* `options` -
+  (Optional)
+  Special options for this build.
   Structure is documented below.
 
 
@@ -451,6 +485,146 @@ The `volumes` block supports:
   Path at which to mount the volume.
   Paths must be absolute and cannot conflict with other volume paths on
   the same build step or with certain reserved volume paths.
+
+The `artifacts` block supports:
+
+* `images` -
+  (Optional)
+  A list of images to be pushed upon the successful completion of all build steps.
+  The images will be pushed using the builder service account's credentials.
+  The digests of the pushed images will be stored in the Build resource's results field.
+  If any of the images fail to be pushed, the build is marked FAILURE.
+
+* `objects` -
+  (Optional)
+  A list of objects to be uploaded to Cloud Storage upon successful completion of all build steps.
+  Files in the workspace matching specified paths globs will be uploaded to the
+  Cloud Storage location using the builder service account's credentials.
+  The location and generation of the uploaded objects will be stored in the Build resource's results field.
+  If any objects fail to be pushed, the build is marked FAILURE.
+  Structure is documented below.
+
+
+The `objects` block supports:
+
+* `location` -
+  (Optional)
+  Cloud Storage bucket and optional object path, in the form "gs://bucket/path/to/somewhere/".
+  Files in the workspace matching any path pattern will be uploaded to Cloud Storage with
+  this location as a prefix.
+
+* `paths` -
+  (Optional)
+  Path globs used to match files in the build's workspace.
+
+* `timing` -
+  Output only. Stores timing information for pushing all artifact objects.
+  Structure is documented below.
+
+
+The `timing` block contains:
+
+* `start_time` -
+  (Optional)
+  Start of time span.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
+  nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `end_time` -
+  (Optional)
+  End of time span.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
+  nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+The `options` block supports:
+
+* `source_provenance_hash` -
+  (Optional)
+  Requested hash for SourceProvenance.
+  Each value may be one of `NONE`, `SHA256`, and `MD5`.
+
+* `requested_verify_option` -
+  (Optional)
+  Requested verifiability options.
+  Possible values are `NOT_VERIFIED` and `VERIFIED`.
+
+* `machine_type` -
+  (Optional)
+  Compute Engine machine type on which to run the build.
+  Possible values are `UNSPECIFIED`, `N1_HIGHCPU_8`, and `N1_HIGHCPU_32`.
+
+* `disk_size_gb` -
+  (Optional)
+  Requested disk size for the VM that runs the build. Note that this is NOT "disk free";
+  some of the space will be used by the operating system and build utilities.
+  Also note that this is the minimum disk size that will be allocated for the build --
+  the build may run with a larger disk than requested. At present, the maximum disk size
+  is 1000GB; builds that request more than the maximum are rejected with an error.
+
+* `substitution_option` -
+  (Optional)
+  Option to specify behavior when there is an error in the substitution checks.
+  NOTE this is always set to ALLOW_LOOSE for triggered builds and cannot be overridden
+  in the build configuration file.
+  Possible values are `MUST_MATCH` and `ALLOW_LOOSE`.
+
+* `dynamic_substitutions` -
+  (Optional)
+  Option to specify whether or not to apply bash style string operations to the substitutions.
+  NOTE this is always enabled for triggered builds and cannot be overridden in the build configuration file.
+
+* `log_streaming_option` -
+  (Optional)
+  Option to define build log streaming behavior to Google Cloud Storage.
+  Possible values are `STREAM_DEFAULT`, `STREAM_ON`, and `STREAM_OFF`.
+
+* `worker_pool` -
+  (Optional)
+  Option to specify a WorkerPool for the build. Format projects/{project}/workerPools/{workerPool}
+  This field is experimental.
+
+* `logging` -
+  (Optional)
+  Option to specify the logging mode, which determines if and where build logs are stored.
+  Possible values are `LOGGING_UNSPECIFIED`, `LEGACY`, `GCS_ONLY`, `STACKDRIVER_ONLY`, and `NONE`.
+
+* `env` -
+  (Optional)
+  A list of global environment variable definitions that will exist for all build steps
+  in this build. If a variable is defined in both globally and in a build step,
+  the variable will use the build step value.
+  The elements are of the form "KEY=VALUE" for the environment variable "KEY" being given the value "VALUE".
+
+* `secret_env` -
+  (Optional)
+  A list of global environment variables, which are encrypted using a Cloud Key Management
+  Service crypto key. These values must be specified in the build's Secret. These variables
+  will be available to all build steps in this build.
+
+* `volumes` -
+  (Optional)
+  Global list of volumes to mount for ALL build steps
+  Each volume is created as an empty volume prior to starting the build process.
+  Upon completion of the build, volumes and their contents are discarded. Global
+  volume names and paths cannot conflict with the volumes defined a build step.
+  Using a global volume in a build with only one step is not valid as it is indicative
+  of a build request with an incorrect configuration.
+  Structure is documented below.
+
+
+The `volumes` block supports:
+
+* `name` -
+  (Optional)
+  Name of the volume to mount.
+  Volume names must be unique per build step and must be valid names for Docker volumes.
+  Each named volume must be used by at least two build steps.
+
+* `path` -
+  (Optional)
+  Path at which to mount the volume.
+  Paths must be absolute and cannot conflict with other volume paths on the same
+  build step or with certain reserved volume paths.
 
 ## Attributes Reference
 
