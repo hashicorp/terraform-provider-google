@@ -1,4 +1,31 @@
 ## 3.40.0 (Unreleased)
+
+DEPRECATIONS:
+* bigtable: Deprecated `instance_type` for `google_bigtable_instance` - it is now recommended to leave field unspecified. ([#7253](https://github.com/hashicorp/terraform-provider-google/pull/7253))
+
+FEATURES:
+* **New Data Source:** compute: added `google_compute_region_ssl_certificate` datasource ([#7252](https://github.com/hashicorp/terraform-provider-google/pull/7252))
+* **New Resource:** `google_compute_target_grpc_proxy` ([#7277](https://github.com/hashicorp/terraform-provider-google/pull/7277))
+
+IMPROVEMENTS:
+* cloudfunctions: added the ALLOW_INTERNAL_AND_GCLB option to `ingress_settings` of `google_cloudfunctions_function` resource. ([#7287](https://github.com/hashicorp/terraform-provider-google/pull/7287))
+* cloudlbuild: added `options` and `artifacts` properties to `google_cloudbuild_trigger` ([#7280](https://github.com/hashicorp/terraform-provider-google/pull/7280))
+* compute: added GRPC as a valid value for `google_compute_backend_service.protocol` (and regional equivalent) ([#7254](https://github.com/hashicorp/terraform-provider-google/pull/7254))
+* compute: added support for configuring Internal load balancer for Cloud Run for Anthos ([#7268](https://github.com/hashicorp/terraform-provider-google/pull/7268))
+* compute: added 'all' option for `google_compute_firewall` ([#7225](https://github.com/hashicorp/terraform-provider-google/pull/7225))
+* dataflow : added `transformnameMapping` to `google_dataflow_job` ([#7259](https://github.com/hashicorp/terraform-provider-google/pull/7259))
+* dns: added `force_destroy` option to `google_dns_managed_zone` to delete records created outside of Terraform ([#7289](https://github.com/hashicorp/terraform-provider-google/pull/7289))
+* serviceusage: added ability to pass `google.project.id` to `project` property ([#7255](https://github.com/hashicorp/terraform-provider-google/pull/7255))
+* spanner: added schema update/update ddl support for `google_spanner_database` ([#7279](https://github.com/hashicorp/terraform-provider-google/pull/7279))
+
+BUG FIXES:
+* bigtable: fixed the update behaviour of the `single_cluster_routing` sub-fields in `google_bigtable_app_profile` ([#7266](https://github.com/hashicorp/terraform-provider-google/pull/7266))
+* datacatalog: fixed error when trying to set `bool_value` to false on `google_data_catalog_tag` ([#7241](https://github.com/hashicorp/terraform-provider-google/pull/7241))
+* dataproc: fixed issues where updating `google_dataproc_cluster.cluster_config.autoscaling_policy` would do nothing, and where there was no way to remove a policy. ([#7269](https://github.com/hashicorp/terraform-provider-google/pull/7269))
+* osconfig: fixed a potential crash in `google_os_config_patch_deployment` due to an unchecked nil value in `recurring_schedule` ([#7265](https://github.com/hashicorp/terraform-provider-google/pull/7265))
+* serviceusage: fixed intermittent failure when a service is already being modified - added retries [#7230](https://github.com/hashicorp/terraform-provider-google/pull/7230))
+* serviceusage: fixed an issue where `bigquery.googleapis.com` was getting enabled as the `bigquery-json.googleapis.com` alias instead, incorrectly. This had no user impact yet, but the alias may go away in the future. ([#7230](https://github.com/hashicorp/terraform-provider-google/pull/7230))
+
 ## 3.39.0 (September 15, 2020)
 
 IMPROVEMENTS:
