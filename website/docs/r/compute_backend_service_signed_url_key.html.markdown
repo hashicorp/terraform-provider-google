@@ -44,7 +44,7 @@ resource "random_id" "url_signature" {
 
 resource "google_compute_backend_service_signed_url_key" "backend_key" {
   name            = "test-key"
-  key_value       = random_id.url_signature.b64_std
+  key_value       = random_id.url_signature.b64_url
   backend_service = google_compute_backend_service.example_backend.name
 }
 
