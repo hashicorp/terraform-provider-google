@@ -1,0 +1,3 @@
+```release-note:enhancement
+tpu: added `use_service_networking` to `google_tpu_node` which enables Shared VPC Support.
+```
