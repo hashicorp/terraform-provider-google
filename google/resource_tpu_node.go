@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -39,7 +40,7 @@ func compareTpuNodeSchedulingConfig(k, old, new string, d *schema.ResourceData) 
 	return false
 }
 
-func tpuNodeCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func tpuNodeCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	old, new := diff.GetChange("network")
 	config := meta.(*Config)
 
