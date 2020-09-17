@@ -1,10 +1,11 @@
 package google
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 type ResourceDataMock struct {
@@ -117,6 +118,9 @@ func checkDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 			if _, ok := ignoreFields[k]; ok {
 				continue
 			}
+			if k == "%" {
+				continue
+			}
 			if dsAttr[k] != rsAttr[k] {
 				// ignore data sources where an empty list is being compared against a null list.
 				if k[len(k)-1:] == "#" && (dsAttr[k] == "" || dsAttr[k] == "0") && (rsAttr[k] == "" || rsAttr[k] == "0") {
@@ -127,7 +131,7 @@ func checkDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 		}
 
 		if errMsg != "" {
-			return fmt.Errorf(errMsg)
+			return errors.New(errMsg)
 		}
 
 		return nil

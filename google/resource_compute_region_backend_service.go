@@ -15,14 +15,15 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -91,7 +92,7 @@ func validateInternalBackendServiceBackends(backends []interface{}, d *schema.Re
 	return nil
 }
 
-func customDiffRegionBackendService(d *schema.ResourceDiff, meta interface{}) error {
+func customDiffRegionBackendService(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	v, ok := d.GetOk("backend")
 	if !ok {
 		return nil

@@ -9,7 +9,7 @@ import (
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceComputeInstanceGroup() *schema.Resource {
@@ -349,8 +349,6 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 				return err
 			}
 		}
-
-		d.SetPartial("instances")
 	}
 
 	if d.HasChange("named_port") {
@@ -371,7 +369,6 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return err
 		}
-		d.SetPartial("named_port")
 	}
 
 	d.Partial(false)

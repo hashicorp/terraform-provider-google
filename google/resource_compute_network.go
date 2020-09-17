@@ -20,8 +20,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -96,11 +96,6 @@ is selected by GCP.`,
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
-			},
-			"ipv4_range": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Removed:  "Legacy Networks are deprecated and you will no longer be able to create them using this field from Feb 1, 2020 onwards.",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -335,8 +330,6 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("routing_mode")
 	}
 
 	d.Partial(false)

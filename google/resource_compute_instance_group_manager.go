@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
@@ -36,14 +36,6 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `The base instance name to use for instances in this group. The value must be a valid RFC1035 name. Supported characters are lowercase letters, numbers, and hyphens (-). Instances are named by appending a hyphen and a random four-character string to the base instance name.`,
-			},
-
-			"instance_template": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Removed:     "This field has been replaced by `version.instance_template`",
-				Description: `The full URL to an instance template from which all new instances of this version will be created.`,
 			},
 
 			"version": {
@@ -158,12 +150,6 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The URL of the created resource.`,
-			},
-
-			"update_strategy": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Removed:  "This field has been replaced by `update_policy`",
 			},
 
 			"target_pools": {
@@ -592,7 +578,6 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		d.SetPartial("named_port")
 	}
 
 	// target_size should be updated through resize
@@ -612,7 +597,6 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		d.SetPartial("target_size")
 	}
 
 	d.Partial(false)

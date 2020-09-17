@@ -1,16 +1,17 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
@@ -531,38 +532,32 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 			"server_ca_cert": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cert": {
-							Type:         schema.TypeString,
-							Computed:     true,
-							AtLeastOneOf: serverCertsKeys,
-							Description:  `The CA Certificate used to connect to the SQL Instance via SSL.`,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The CA Certificate used to connect to the SQL Instance via SSL.`,
 						},
 						"common_name": {
-							Type:         schema.TypeString,
-							Computed:     true,
-							AtLeastOneOf: serverCertsKeys,
-							Description:  `The CN valid for the CA Cert.`,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The CN valid for the CA Cert.`,
 						},
 						"create_time": {
-							Type:         schema.TypeString,
-							Computed:     true,
-							AtLeastOneOf: serverCertsKeys,
-							Description:  `Creation time of the CA Cert.`,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Creation time of the CA Cert.`,
 						},
 						"expiration_time": {
-							Type:         schema.TypeString,
-							Computed:     true,
-							AtLeastOneOf: serverCertsKeys,
-							Description:  `Expiration time of the CA Cert.`,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Expiration time of the CA Cert.`,
 						},
 						"sha1_fingerprint": {
-							Type:         schema.TypeString,
-							Computed:     true,
-							AtLeastOneOf: serverCertsKeys,
-							Description:  `SHA Fingerprint of the CA Cert.`,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `SHA Fingerprint of the CA Cert.`,
 						},
 					},
 				},
@@ -605,7 +600,7 @@ func isFirstGen(d *schema.ResourceData) bool {
 
 // Makes private_network ForceNew if it is changing from set to nil. The API returns an error
 // if this change is attempted in-place.
-func privateNetworkCustomizeDiff(d *schema.ResourceDiff, meta interface{}) error {
+func privateNetworkCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	old, new := d.GetChange("settings.0.ip_configuration.0.private_network")
 
 	if old != "" && new == "" {

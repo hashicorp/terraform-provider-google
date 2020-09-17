@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // Test that services can be enabled and disabled on a project
@@ -103,8 +103,8 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
 			},
 			{
-				Config:             testAccProjectService_dependencyRemoved(services, pid, pname, org, billingId),
-				ExpectNonEmptyPlan: true,
+				Config:      testAccProjectService_dependencyRemoved(services, pid, pname, org, billingId),
+				ExpectError: regexp.MustCompile("service .* not in enabled services for project"),
 			},
 		},
 	})

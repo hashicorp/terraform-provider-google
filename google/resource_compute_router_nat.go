@@ -15,14 +15,15 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -45,7 +46,7 @@ func resourceNameSetFromSelfLinkSet(v interface{}) *schema.Set {
 // so this customizeDiff func makes sure drainNatIps values:
 //   - aren't set at creation time
 //   - are in old value of nat_ips but not in new values
-func resourceComputeRouterNatDrainNatIpsCustomDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceComputeRouterNatDrainNatIpsCustomDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	o, n := diff.GetChange("drain_nat_ips")
 	oSet := resourceNameSetFromSelfLinkSet(o)
 	nSet := resourceNameSetFromSelfLinkSet(n)

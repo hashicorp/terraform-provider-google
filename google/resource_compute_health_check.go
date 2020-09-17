@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -22,8 +23,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // Whether the port should be set or not
@@ -53,7 +54,7 @@ func validatePortSpec(diff *schema.ResourceDiff, blockName string) error {
 	return nil
 }
 
-func healthCheckCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
+func healthCheckCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	if diff.Get("http_health_check") != nil {
 		return validatePortSpec(diff, "http_health_check")
 	}

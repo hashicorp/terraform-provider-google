@@ -15,13 +15,14 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // customizeDiff func for additional checks on google_spanner_database properties:
@@ -51,7 +52,7 @@ func resourceSpannerDBDdlCustomDiffFunc(diff TerraformResourceDiff) error {
 	return nil
 }
 
-func resourceSpannerDBDdlCustomDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceSpannerDBDdlCustomDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	// separate func to allow unit testing
 	return resourceSpannerDBDdlCustomDiffFunc(diff)
 }
@@ -318,8 +319,6 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("ddl")
 	}
 
 	d.Partial(false)

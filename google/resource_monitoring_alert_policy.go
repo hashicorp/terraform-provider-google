@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceMonitoringAlertPolicy() *schema.Resource {
@@ -680,7 +680,6 @@ must begin with a letter.`,
 				Description: `A read-only record of the creation of the alerting policy.
 If provided in a call to create or update, this field will
 be ignored.`,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mutate_time": {
@@ -701,15 +700,6 @@ be ignored.`,
 				Computed: true,
 				Description: `The unique resource name for this policy.
 Its syntax is: projects/[PROJECT_ID]/alertPolicies/[ALERT_POLICY_ID]`,
-			},
-			"labels": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Removed:  "labels is removed as it was never used. See user_labels for the correct field",
-				Computed: true,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -854,18 +844,6 @@ func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{})
 	res, err := sendRequest(config, "GET", billingProject, url, nil, isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringAlertPolicy %q", d.Id()))
-	}
-
-	res, err = resourceMonitoringAlertPolicyDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
-
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing MonitoringAlertPolicy because it no longer exists.")
-		d.SetId("")
-		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -1922,11 +1900,4 @@ func expandMonitoringAlertPolicyDocumentationContent(v interface{}, d TerraformR
 
 func expandMonitoringAlertPolicyDocumentationMimeType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
-}
-
-func resourceMonitoringAlertPolicyDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	if err := d.Set("labels", nil); err != nil {
-		return res, fmt.Errorf("Error ignoring Removed fields for AlertPolicy: %s", err)
-	}
-	return res, nil
 }

@@ -2,10 +2,11 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestComputeAddressIdParsing(t *testing.T) {
@@ -134,24 +135,29 @@ func testAccDataSourceComputeAddressCheck(t *testing.T, data_source_name string,
 	}
 }
 
-func testAccCheckDataSourceComputeAddressDestroy(t *testing.T, resource_name string) resource.TestCheckFunc {
+func testAccCheckDataSourceComputeAddressDestroy(t *testing.T, name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_address" {
+				continue
+			}
 
-		rs, ok := s.RootModule().Resources[resource_name]
-		if !ok {
-			return fmt.Errorf("can't find %s in state", resource_name)
-		}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
 
-		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
-		if err != nil {
-			return err
-		}
+			config := googleProviderConfig(t)
 
-		_, err = config.clientCompute.Addresses.Get(
-			config.Project, addressId.Region, addressId.Name).Do()
-		if err == nil {
-			return fmt.Errorf("Address still exists")
+			addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
+			if err != nil {
+				return err
+			}
+
+			_, err = config.clientCompute.Addresses.Get(
+				config.Project, addressId.Region, addressId.Name).Do()
+			if err == nil {
+				return fmt.Errorf("Address still exists")
+			}
 		}
 
 		return nil

@@ -1,6 +1,7 @@
 package google
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -11,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/servicemanagement/v1"
 )
 
@@ -149,7 +150,7 @@ func resourceEndpointsService() *schema.Resource {
 	}
 }
 
-func predictServiceId(d *schema.ResourceDiff, meta interface{}) error {
+func predictServiceId(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	if !d.HasChange("openapi_config") && !d.HasChange("grpc_config") && !d.HasChange("protoc_output_base64") {
 		return nil
 	}

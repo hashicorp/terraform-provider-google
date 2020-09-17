@@ -6,18 +6,20 @@ import (
 	"os"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/version"
 
 	googleoauth "golang.org/x/oauth2/google"
 )
 
-// Global MutexKV
-var mutexKV = mutexkv.NewMutexKV()
+const TestEnvVar = "TF_ACC"
 
-// Provider returns a terraform.ResourceProvider.
-func Provider() terraform.ResourceProvider {
+// Global MutexKV
+var mutexKV = NewMutexKV()
+
+// Provider returns a *schema.Provider.
+func Provider() *schema.Provider {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"credentials": {
@@ -622,14 +624,8 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: ResourceMap(),
 	}
 
-	provider.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
-		terraformVersion := provider.TerraformVersion
-		if terraformVersion == "" {
-			// Terraform 0.12 introduced this field to the protocol
-			// We can therefore assume that if it's missing it's 0.10 or 0.11
-			terraformVersion = "0.11+compatible"
-		}
-		return providerConfigure(d, provider, terraformVersion)
+	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		return providerConfigure(ctx, d, provider)
 	}
 
 	return provider
@@ -1005,21 +1001,21 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	)
 }
 
-func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVersion string) (interface{}, error) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider) (interface{}, diag.Diagnostics) {
 	config := Config{
 		Project:             d.Get("project").(string),
 		Region:              d.Get("region").(string),
 		Zone:                d.Get("zone").(string),
 		UserProjectOverride: d.Get("user_project_override").(bool),
 		BillingProject:      d.Get("billing_project").(string),
-		terraformVersion:    terraformVersion,
+		userAgent:           p.UserAgent("terraform-provider-google", version.ProviderVersion),
 	}
 
 	if v, ok := d.GetOk("request_timeout"); ok {
 		var err error
 		config.RequestTimeout, err = time.ParseDuration(v.(string))
 		if err != nil {
-			return nil, err
+			return nil, diag.FromErr(err)
 		}
 	}
 	// Add credential source
@@ -1039,7 +1035,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 
 	batchCfg, err := expandProviderBatchingConfig(d.Get("batching"))
 	if err != nil {
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 	config.BatchingConfig = batchCfg
 
@@ -1115,8 +1111,12 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 	config.StorageTransferBasePath = d.Get(StorageTransferCustomEndpointEntryKey).(string)
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
 
-	if err := config.LoadAndValidate(p.StopContext()); err != nil {
-		return nil, err
+	stopCtx, ok := schema.StopContext(ctx)
+	if !ok {
+		stopCtx = ctx
+	}
+	if err := config.LoadAndValidate(stopCtx); err != nil {
+		return nil, diag.FromErr(err)
 	}
 
 	return &config, nil

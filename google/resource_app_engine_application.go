@@ -1,13 +1,14 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	appengine "google.golang.org/api/appengine/v1"
 )
 
@@ -184,7 +185,7 @@ func appEngineApplicationFeatureSettingsResource() *schema.Resource {
 	}
 }
 
-func appEngineApplicationLocationIDCustomizeDiff(d *schema.ResourceDiff, meta interface{}) error {
+func appEngineApplicationLocationIDCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	old, new := d.GetChange("location_id")
 	if old != "" && old != new {
 		return fmt.Errorf("Cannot change location_id once the resource is created.")

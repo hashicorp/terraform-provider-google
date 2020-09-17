@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeReservation() *schema.Resource {
@@ -400,8 +400,6 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("specific_reservation")
 	}
 
 	d.Partial(false)

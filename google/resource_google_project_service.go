@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1"
 )
@@ -187,9 +187,15 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 		return nil
 	}
 
-	// The service is was not found in enabled services - remove it from state
-	log.Printf("[DEBUG] service %s not in enabled services for project %s, removing from state", srv, project)
-	d.SetId("")
+	// If we get here due to eventual consistency, the next apply will fix things
+	// instead of re-creating the resource and if we didn't get here by error,
+	// the next apply will (correctly) remove it from state, anyways. Seeing as
+	// no downstreams can possibly get the result, as we're halting execution,
+	// it's safe to rely on refresh for putting the state back in order.
+	if !d.IsNewResource() {
+		// The service is was not found in enabled services - return an error
+		return fmt.Errorf("service %s not in enabled services for project %s", srv, project)
+	}
 	return nil
 }
 

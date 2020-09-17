@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceComputeNodeGroup() *schema.Resource {
@@ -275,8 +275,6 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("node_template")
 	}
 
 	d.Partial(false)

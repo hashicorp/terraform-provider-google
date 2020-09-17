@@ -22,8 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceDNSPolicy() *schema.Resource {
@@ -69,11 +68,11 @@ are not available when an alternative name server is specified.`,
 							Set: func(v interface{}) int {
 								raw := v.(map[string]interface{})
 								if address, ok := raw["ipv4_address"]; ok {
-									hashcode.String(address.(string))
+									hashcode(address.(string))
 								}
 								var buf bytes.Buffer
 								schema.SerializeResourceForHash(&buf, raw, dnsPolicyAlternativeNameServerConfigTargetNameServersSchema())
-								return hashcode.String(buf.String())
+								return hashcode(buf.String())
 							},
 						},
 					},
@@ -111,7 +110,7 @@ Defaults to no logging if not set.`,
 					}
 					var buf bytes.Buffer
 					schema.SerializeResourceForHash(&buf, raw, dnsPolicyNetworksSchema())
-					return hashcode.String(buf.String())
+					return hashcode(buf.String())
 				},
 			},
 			"project": {
@@ -344,11 +343,6 @@ func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 			log.Printf("[DEBUG] Finished updating Policy %q: %#v", d.Id(), res)
 		}
 
-		d.SetPartial("alternative_name_server_config")
-		d.SetPartial("description")
-		d.SetPartial("enable_inbound_forwarding")
-		d.SetPartial("enable_logging")
-		d.SetPartial("networks")
 	}
 
 	d.Partial(false)
@@ -445,11 +439,11 @@ func flattenDNSPolicyAlternativeNameServerConfigTargetNameServers(v interface{},
 	transformed := schema.NewSet(func(v interface{}) int {
 		raw := v.(map[string]interface{})
 		if address, ok := raw["ipv4_address"]; ok {
-			hashcode.String(address.(string))
+			hashcode(address.(string))
 		}
 		var buf bytes.Buffer
 		schema.SerializeResourceForHash(&buf, raw, dnsPolicyAlternativeNameServerConfigTargetNameServersSchema())
-		return hashcode.String(buf.String())
+		return hashcode(buf.String())
 	}, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
@@ -495,7 +489,7 @@ func flattenDNSPolicyNetworks(v interface{}, d *schema.ResourceData, config *Con
 		}
 		var buf bytes.Buffer
 		schema.SerializeResourceForHash(&buf, raw, dnsPolicyNetworksSchema())
-		return hashcode.String(buf.String())
+		return hashcode(buf.String())
 	}, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
