@@ -136,7 +136,9 @@ func resourceSecurityCenterSourceCreate(d *schema.ResourceData, meta interface{}
 			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 		}
 	}
-	d.Set("name", name.(string))
+	if err := d.Set("name", name.(string)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name.(string))
 
 	return resourceSecurityCenterSourceRead(d, meta)
@@ -258,7 +260,9 @@ func resourceSecurityCenterSourceImport(d *schema.ResourceData, meta interface{}
 		)
 	}
 
-	d.Set("organization", stringParts[1])
+	if err := d.Set("organization", stringParts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting organization: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

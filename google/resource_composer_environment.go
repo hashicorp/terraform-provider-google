@@ -457,20 +457,20 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 
 	// Set from getProject(d)
 	if err := d.Set("project", envName.Project); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	// Set from getRegion(d)
 	if err := d.Set("region", envName.Region); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	if err := d.Set("name", GetResourceNameFromSelfLink(res.Name)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	if err := d.Set("config", flattenComposerEnvironmentConfig(res.Config)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	if err := d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	return nil
 }

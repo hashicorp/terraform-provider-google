@@ -760,6 +760,8 @@ func resourceRedisInstanceEncoder(d *schema.ResourceData, meta interface{}, obj 
 	if err != nil {
 		return nil, err
 	}
-	d.Set("region", region)
+	if err := d.Set("region", region); err != nil {
+		return nil, fmt.Errorf("Error setting region: %s", err)
+	}
 	return obj, nil
 }

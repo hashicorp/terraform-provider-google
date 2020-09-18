@@ -108,8 +108,12 @@ func resourceGoogleProjectServiceImport(d *schema.ResourceData, m interface{}) (
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("Invalid google_project_service id format for import, expecting `{project}/{service}`, found %s", d.Id())
 	}
-	d.Set("project", parts[0])
-	d.Set("service", parts[1])
+	if err := d.Set("project", parts[0]); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("service", parts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting service: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -134,8 +138,12 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	if _, ok := servicesList[srv]; ok {
 		log.Printf("[DEBUG] service %s was already found to be enabled in project %s", srv, project)
 		d.SetId(id)
-		d.Set("project", project)
-		d.Set("service", srv)
+		if err := d.Set("project", project); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+		if err := d.Set("service", srv); err != nil {
+			return fmt.Errorf("Error setting service: %s", err)
+		}
 		return nil
 	}
 
@@ -182,8 +190,12 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 
 	srv := d.Get("service").(string)
 	if _, ok := servicesList[srv]; ok {
-		d.Set("project", project)
-		d.Set("service", srv)
+		if err := d.Set("project", project); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+		if err := d.Set("service", srv); err != nil {
+			return fmt.Errorf("Error setting service: %s", err)
+		}
 		return nil
 	}
 

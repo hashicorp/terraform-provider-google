@@ -34,7 +34,9 @@ func FolderIdParseFunc(d *schema.ResourceData, _ *Config) error {
 	if !strings.HasPrefix(d.Id(), "folders/") {
 		d.SetId(fmt.Sprintf("folders/%s", d.Id()))
 	}
-	d.Set("folder", d.Id())
+	if err := d.Set("folder", d.Id()); err != nil {
+		return fmt.Errorf("Error setting folder: %s", err)
+	}
 	return nil
 }
 

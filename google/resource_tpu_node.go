@@ -63,7 +63,9 @@ func tpuNodeCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta int
 		i, err := strconv.ParseInt(parts[1], 10, 64)
 		if err == nil {
 			if project.ProjectNumber == i {
-				diff.SetNew("network", old)
+				if err := diff.SetNew("network", old); err != nil {
+					return err
+				}
 				return nil
 			}
 		}

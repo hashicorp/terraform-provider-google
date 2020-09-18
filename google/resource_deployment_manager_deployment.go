@@ -30,15 +30,21 @@ func customDiffDeploymentManagerDeployment(_ context.Context, d *schema.Resource
 		log.Printf("[WARN] Deployment preview set to true - Terraform will treat Deployment as recreate-only")
 
 		if d.HasChange("preview") {
-			d.ForceNew("preview")
+			if err := d.ForceNew("preview"); err != nil {
+				return err
+			}
 		}
 
 		if d.HasChange("target") {
-			d.ForceNew("target")
+			if err := d.ForceNew("target"); err != nil {
+				return err
+			}
 		}
 
 		if d.HasChange("labels") {
-			d.ForceNew("labels")
+			if err := d.ForceNew("labels"); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

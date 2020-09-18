@@ -934,7 +934,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// we shouldn't move the remote metadata.startup-script to metadata_startup_script.  Otherwise,
 	// we should.
 	if _, ok := existingMetadata["startup-script"]; !ok {
-		d.Set("metadata_startup_script", md["startup-script"])
+		if err := d.Set("metadata_startup_script", md["startup-script"]); err != nil {
+			return fmt.Errorf("Error setting metadata_startup_script: %s", err)
+		}
 		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
 		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
 		delete(md, "startup-script")
@@ -946,9 +948,15 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
-	d.Set("metadata_fingerprint", instance.Metadata.Fingerprint)
-	d.Set("can_ip_forward", instance.CanIpForward)
-	d.Set("machine_type", GetResourceNameFromSelfLink(instance.MachineType))
+	if err := d.Set("metadata_fingerprint", instance.Metadata.Fingerprint); err != nil {
+		return fmt.Errorf("Error setting metadata_fingerprint: %s", err)
+	}
+	if err := d.Set("can_ip_forward", instance.CanIpForward); err != nil {
+		return fmt.Errorf("Error setting can_ip_forward: %s", err)
+	}
+	if err := d.Set("machine_type", GetResourceNameFromSelfLink(instance.MachineType)); err != nil {
+		return fmt.Errorf("Error setting machine_type: %s", err)
+	}
 
 	// Set the networks
 	// Use the first external IP found for the default connection info.
@@ -976,8 +984,12 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	// Set the tags fingerprint if there is one.
 	if instance.Tags != nil {
-		d.Set("tags_fingerprint", instance.Tags.Fingerprint)
-		d.Set("tags", convertStringArrToInterface(instance.Tags.Items))
+		if err := d.Set("tags_fingerprint", instance.Tags.Fingerprint); err != nil {
+			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
+		}
+		if err := d.Set("tags", convertStringArrToInterface(instance.Tags.Items)); err != nil {
+			return fmt.Errorf("Error setting tags: %s", err)
+		}
 	}
 
 	if err := d.Set("labels", instance.Labels); err != nil {
@@ -985,7 +997,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if instance.LabelFingerprint != "" {
-		d.Set("label_fingerprint", instance.LabelFingerprint)
+		if err := d.Set("label_fingerprint", instance.LabelFingerprint); err != nil {
+			return fmt.Errorf("Error setting label_fingerprint: %s", err)
+		}
 	}
 
 	attachedDiskSources := make(map[string]int)
@@ -1019,7 +1033,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	scratchDisks := []map[string]interface{}{}
 	for _, disk := range instance.Disks {
 		if disk.Boot {
-			d.Set("boot_disk", flattenBootDisk(d, disk, config))
+			if err := d.Set("boot_disk", flattenBootDisk(d, disk, config)); err != nil {
+				return fmt.Errorf("Error setting boot_disk: %s", err)
+			}
 		} else if disk.Type == "SCRATCH" {
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
 		} else {
@@ -1069,7 +1085,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	d.Set("resource_policies", instance.ResourcePolicies)
+	if err := d.Set("resource_policies", instance.ResourcePolicies); err != nil {
+		return fmt.Errorf("Error setting resource_policies: %s", err)
+	}
 
 	// Remove nils from map in case there were disks in the config that were not present on read;
 	// i.e. a disk was detached out of band
@@ -1082,26 +1100,64 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	zone := GetResourceNameFromSelfLink(instance.Zone)
 
-	d.Set("service_account", flattenServiceAccounts(instance.ServiceAccounts))
-	d.Set("attached_disk", ads)
-	d.Set("scratch_disk", scratchDisks)
-	d.Set("scheduling", flattenScheduling(instance.Scheduling))
-	d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators))
-	d.Set("shielded_instance_config", flattenShieldedVmConfig(instance.ShieldedInstanceConfig))
-	d.Set("enable_display", flattenEnableDisplay(instance.DisplayDevice))
-	d.Set("cpu_platform", instance.CpuPlatform)
-	d.Set("min_cpu_platform", instance.MinCpuPlatform)
-	d.Set("deletion_protection", instance.DeletionProtection)
-	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
-	d.Set("instance_id", fmt.Sprintf("%d", instance.Id))
-	d.Set("project", project)
-	d.Set("zone", zone)
-	d.Set("name", instance.Name)
-	d.Set("description", instance.Description)
-	d.Set("hostname", instance.Hostname)
-	d.Set("current_status", instance.Status)
+	if err := d.Set("service_account", flattenServiceAccounts(instance.ServiceAccounts)); err != nil {
+		return fmt.Errorf("Error setting service_account: %s", err)
+	}
+	if err := d.Set("attached_disk", ads); err != nil {
+		return fmt.Errorf("Error setting attached_disk: %s", err)
+	}
+	if err := d.Set("scratch_disk", scratchDisks); err != nil {
+		return fmt.Errorf("Error setting scratch_disk: %s", err)
+	}
+	if err := d.Set("scheduling", flattenScheduling(instance.Scheduling)); err != nil {
+		return fmt.Errorf("Error setting scheduling: %s", err)
+	}
+	if err := d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators)); err != nil {
+		return fmt.Errorf("Error setting guest_accelerator: %s", err)
+	}
+	if err := d.Set("shielded_instance_config", flattenShieldedVmConfig(instance.ShieldedInstanceConfig)); err != nil {
+		return fmt.Errorf("Error setting shielded_instance_config: %s", err)
+	}
+	if err := d.Set("enable_display", flattenEnableDisplay(instance.DisplayDevice)); err != nil {
+		return fmt.Errorf("Error setting enable_display: %s", err)
+	}
+	if err := d.Set("cpu_platform", instance.CpuPlatform); err != nil {
+		return fmt.Errorf("Error setting cpu_platform: %s", err)
+	}
+	if err := d.Set("min_cpu_platform", instance.MinCpuPlatform); err != nil {
+		return fmt.Errorf("Error setting min_cpu_platform: %s", err)
+	}
+	if err := d.Set("deletion_protection", instance.DeletionProtection); err != nil {
+		return fmt.Errorf("Error setting deletion_protection: %s", err)
+	}
+	if err := d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink)); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("instance_id", fmt.Sprintf("%d", instance.Id)); err != nil {
+		return fmt.Errorf("Error setting instance_id: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("zone", zone); err != nil {
+		return fmt.Errorf("Error setting zone: %s", err)
+	}
+	if err := d.Set("name", instance.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("description", instance.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("hostname", instance.Hostname); err != nil {
+		return fmt.Errorf("Error setting hostname: %s", err)
+	}
+	if err := d.Set("current_status", instance.Status); err != nil {
+		return fmt.Errorf("Error setting current_status: %s", err)
+	}
 	if d.Get("desired_status") != "" {
-		d.Set("desired_status", instance.Status)
+		if err := d.Set("desired_status", instance.Status); err != nil {
+			return fmt.Errorf("Error setting desired_status: %s", err)
+		}
 	}
 
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))

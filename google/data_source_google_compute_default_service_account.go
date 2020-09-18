@@ -58,11 +58,21 @@ func dataSourceGoogleComputeDefaultServiceAccountRead(d *schema.ResourceData, me
 	}
 
 	d.SetId(sa.Name)
-	d.Set("email", sa.Email)
-	d.Set("unique_id", sa.UniqueId)
-	d.Set("project", sa.ProjectId)
-	d.Set("name", sa.Name)
-	d.Set("display_name", sa.DisplayName)
+	if err := d.Set("email", sa.Email); err != nil {
+		return fmt.Errorf("Error setting email: %s", err)
+	}
+	if err := d.Set("unique_id", sa.UniqueId); err != nil {
+		return fmt.Errorf("Error setting unique_id: %s", err)
+	}
+	if err := d.Set("project", sa.ProjectId); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("name", sa.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("display_name", sa.DisplayName); err != nil {
+		return fmt.Errorf("Error setting display_name: %s", err)
+	}
 
 	return nil
 }

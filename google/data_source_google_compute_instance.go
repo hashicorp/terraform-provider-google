@@ -37,8 +37,12 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("error setting metadata: %s", err)
 	}
 
-	d.Set("can_ip_forward", instance.CanIpForward)
-	d.Set("machine_type", GetResourceNameFromSelfLink(instance.MachineType))
+	if err := d.Set("can_ip_forward", instance.CanIpForward); err != nil {
+		return fmt.Errorf("Error setting can_ip_forward: %s", err)
+	}
+	if err := d.Set("machine_type", GetResourceNameFromSelfLink(instance.MachineType)); err != nil {
+		return fmt.Errorf("Error setting machine_type: %s", err)
+	}
 
 	// Set the networks
 	// Use the first external IP found for the default connection info.
@@ -66,13 +70,19 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 
 	// Set the metadata fingerprint if there is one.
 	if instance.Metadata != nil {
-		d.Set("metadata_fingerprint", instance.Metadata.Fingerprint)
+		if err := d.Set("metadata_fingerprint", instance.Metadata.Fingerprint); err != nil {
+			return fmt.Errorf("Error setting metadata_fingerprint: %s", err)
+		}
 	}
 
 	// Set the tags fingerprint if there is one.
 	if instance.Tags != nil {
-		d.Set("tags_fingerprint", instance.Tags.Fingerprint)
-		d.Set("tags", convertStringArrToInterface(instance.Tags.Items))
+		if err := d.Set("tags_fingerprint", instance.Tags.Fingerprint); err != nil {
+			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
+		}
+		if err := d.Set("tags", convertStringArrToInterface(instance.Tags.Items)); err != nil {
+			return fmt.Errorf("Error setting tags: %s", err)
+		}
 	}
 
 	if err := d.Set("labels", instance.Labels); err != nil {
@@ -80,7 +90,9 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 	}
 
 	if instance.LabelFingerprint != "" {
-		d.Set("label_fingerprint", instance.LabelFingerprint)
+		if err := d.Set("label_fingerprint", instance.LabelFingerprint); err != nil {
+			return fmt.Errorf("Error setting label_fingerprint: %s", err)
+		}
 	}
 
 	attachedDisks := []map[string]interface{}{}
@@ -145,16 +157,36 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	d.Set("attached_disk", ads)
-	d.Set("cpu_platform", instance.CpuPlatform)
-	d.Set("min_cpu_platform", instance.MinCpuPlatform)
-	d.Set("deletion_protection", instance.DeletionProtection)
-	d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink))
-	d.Set("instance_id", fmt.Sprintf("%d", instance.Id))
-	d.Set("project", project)
-	d.Set("zone", GetResourceNameFromSelfLink(instance.Zone))
-	d.Set("current_status", instance.Status)
-	d.Set("name", instance.Name)
+	if err := d.Set("attached_disk", ads); err != nil {
+		return fmt.Errorf("Error setting attached_disk: %s", err)
+	}
+	if err := d.Set("cpu_platform", instance.CpuPlatform); err != nil {
+		return fmt.Errorf("Error setting cpu_platform: %s", err)
+	}
+	if err := d.Set("min_cpu_platform", instance.MinCpuPlatform); err != nil {
+		return fmt.Errorf("Error setting min_cpu_platform: %s", err)
+	}
+	if err := d.Set("deletion_protection", instance.DeletionProtection); err != nil {
+		return fmt.Errorf("Error setting deletion_protection: %s", err)
+	}
+	if err := d.Set("self_link", ConvertSelfLinkToV1(instance.SelfLink)); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("instance_id", fmt.Sprintf("%d", instance.Id)); err != nil {
+		return fmt.Errorf("Error setting instance_id: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("zone", GetResourceNameFromSelfLink(instance.Zone)); err != nil {
+		return fmt.Errorf("Error setting zone: %s", err)
+	}
+	if err := d.Set("current_status", instance.Status); err != nil {
+		return fmt.Errorf("Error setting current_status: %s", err)
+	}
+	if err := d.Set("name", instance.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, instance.Zone, instance.Name))
 	return nil
 }
