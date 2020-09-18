@@ -1,8 +1,6 @@
 package google
 
 import (
-	"bytes"
-	"fmt"
 	"hash/crc32"
 )
 
@@ -21,15 +19,4 @@ func hashcode(s string) int {
 	}
 	// v == MinInt
 	return 0
-}
-
-// hashcodes hashes a list of strings to a unique hashcode.
-func hashcodes(strings []string) string {
-	var buf bytes.Buffer
-
-	for _, s := range strings {
-		buf.WriteString(fmt.Sprintf("%s-", s))
-	}
-
-	return fmt.Sprintf("%d", hashcode(buf.String()))
 }

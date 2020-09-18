@@ -159,7 +159,9 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	// trying to fetch, and the only way to know that is to capture
 	// it here.  The following two lines do that.
 	d.SetId(flattenNestedResourceManagerLienName(res["name"], d, config).(string))
-	d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config))
+	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 
 	return resourceResourceManagerLienRead(d, meta)
 }
@@ -284,7 +286,9 @@ func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return nil, err
 	}
-	d.Set("parent", parent)
+	if err := d.Set("parent", parent); err != nil {
+		return nil, fmt.Errorf("Error setting parent: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

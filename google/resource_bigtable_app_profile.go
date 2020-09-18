@@ -430,6 +430,8 @@ func expandBigtableAppProfileSingleClusterRoutingAllowTransactionalWrites(v inte
 
 func resourceBigtableAppProfileEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// Instance is a URL parameter only, so replace self-link/path with resource name only.
-	d.Set("instance", GetResourceNameFromSelfLink(d.Get("instance").(string)))
+	if err := d.Set("instance", GetResourceNameFromSelfLink(d.Get("instance").(string))); err != nil {
+		return nil, fmt.Errorf("Error setting instance: %s", err)
+	}
 	return obj, nil
 }

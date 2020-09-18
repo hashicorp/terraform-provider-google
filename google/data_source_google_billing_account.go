@@ -99,10 +99,18 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 	projectIds := flattenBillingProjects(resp.ProjectBillingInfo)
 
 	d.SetId(GetResourceNameFromSelfLink(billingAccount.Name))
-	d.Set("name", billingAccount.Name)
-	d.Set("display_name", billingAccount.DisplayName)
-	d.Set("open", billingAccount.Open)
-	d.Set("project_ids", projectIds)
+	if err := d.Set("name", billingAccount.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("display_name", billingAccount.DisplayName); err != nil {
+		return fmt.Errorf("Error setting display_name: %s", err)
+	}
+	if err := d.Set("open", billingAccount.Open); err != nil {
+		return fmt.Errorf("Error setting open: %s", err)
+	}
+	if err := d.Set("project_ids", projectIds); err != nil {
+		return fmt.Errorf("Error setting project_ids: %s", err)
+	}
 
 	return nil
 }

@@ -429,7 +429,9 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOk("force_destroy"); !ok {
-		d.Set("force_destroy", false)
+		if err := d.Set("force_destroy", false); err != nil {
+			return fmt.Errorf("Error setting force_destroy: %s", err)
+		}
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ManagedZone: %s", err)
@@ -662,7 +664,9 @@ func resourceDNSManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	d.Set("force_destroy", false)
+	if err := d.Set("force_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting force_destroy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

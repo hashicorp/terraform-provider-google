@@ -118,7 +118,7 @@ func resourceMonitoringDashboardRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Dashboard: %s", err)
+		return fmt.Errorf("Error setting Dashboard: %s", err)
 	}
 
 	str, err := structure.FlattenJsonToString(res)
@@ -188,7 +188,9 @@ func resourceMonitoringDashboardImport(d *schema.ResourceData, meta interface{})
 		return nil, err
 	}
 
-	d.Set("project", parts["project"])
+	if err := d.Set("project", parts["project"]); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
 	d.SetId(fmt.Sprintf("projects/%s/dashboards/%s", parts["project"], parts["id"]))
 
 	return []*schema.ResourceData{d}, nil

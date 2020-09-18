@@ -94,12 +94,20 @@ func resourceRuntimeconfigConfigRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 	if project != curProject {
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
 	}
 
-	d.Set("name", name)
-	d.Set("description", runConfig.Description)
-	d.Set("project", project)
+	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("description", runConfig.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 
 	return nil
 }

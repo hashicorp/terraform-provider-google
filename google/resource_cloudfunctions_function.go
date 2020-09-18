@@ -457,23 +457,47 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		return handleNotFoundError(err, d, fmt.Sprintf("Target CloudFunctions Function %q", cloudFuncId.Name))
 	}
 
-	d.Set("name", cloudFuncId.Name)
-	d.Set("description", function.Description)
-	d.Set("entry_point", function.EntryPoint)
-	d.Set("available_memory_mb", function.AvailableMemoryMb)
+	if err := d.Set("name", cloudFuncId.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("description", function.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("entry_point", function.EntryPoint); err != nil {
+		return fmt.Errorf("Error setting entry_point: %s", err)
+	}
+	if err := d.Set("available_memory_mb", function.AvailableMemoryMb); err != nil {
+		return fmt.Errorf("Error setting available_memory_mb: %s", err)
+	}
 	sRemoved := strings.Replace(function.Timeout, "s", "", -1)
 	timeout, err := strconv.Atoi(sRemoved)
 	if err != nil {
 		return err
 	}
-	d.Set("timeout", timeout)
-	d.Set("ingress_settings", function.IngressSettings)
-	d.Set("labels", function.Labels)
-	d.Set("runtime", function.Runtime)
-	d.Set("service_account_email", function.ServiceAccountEmail)
-	d.Set("environment_variables", function.EnvironmentVariables)
-	d.Set("vpc_connector", function.VpcConnector)
-	d.Set("vpc_connector_egress_settings", function.VpcConnectorEgressSettings)
+	if err := d.Set("timeout", timeout); err != nil {
+		return fmt.Errorf("Error setting timeout: %s", err)
+	}
+	if err := d.Set("ingress_settings", function.IngressSettings); err != nil {
+		return fmt.Errorf("Error setting ingress_settings: %s", err)
+	}
+	if err := d.Set("labels", function.Labels); err != nil {
+		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := d.Set("runtime", function.Runtime); err != nil {
+		return fmt.Errorf("Error setting runtime: %s", err)
+	}
+	if err := d.Set("service_account_email", function.ServiceAccountEmail); err != nil {
+		return fmt.Errorf("Error setting service_account_email: %s", err)
+	}
+	if err := d.Set("environment_variables", function.EnvironmentVariables); err != nil {
+		return fmt.Errorf("Error setting environment_variables: %s", err)
+	}
+	if err := d.Set("vpc_connector", function.VpcConnector); err != nil {
+		return fmt.Errorf("Error setting vpc_connector: %s", err)
+	}
+	if err := d.Set("vpc_connector_egress_settings", function.VpcConnectorEgressSettings); err != nil {
+		return fmt.Errorf("Error setting vpc_connector_egress_settings: %s", err)
+	}
 	if function.SourceArchiveUrl != "" {
 		// sourceArchiveUrl should always be a Google Cloud Storage URL (e.g. gs://bucket/object)
 		// https://cloud.google.com/functions/docs/reference/rest/v1/projects.locations.functions
@@ -483,20 +507,38 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		}
 		bucket := sourceURL.Host
 		object := strings.TrimLeft(sourceURL.Path, "/")
-		d.Set("source_archive_bucket", bucket)
-		d.Set("source_archive_object", object)
+		if err := d.Set("source_archive_bucket", bucket); err != nil {
+			return fmt.Errorf("Error setting source_archive_bucket: %s", err)
+		}
+		if err := d.Set("source_archive_object", object); err != nil {
+			return fmt.Errorf("Error setting source_archive_object: %s", err)
+		}
 	}
-	d.Set("source_repository", flattenSourceRepository(function.SourceRepository))
+	if err := d.Set("source_repository", flattenSourceRepository(function.SourceRepository)); err != nil {
+		return fmt.Errorf("Error setting source_repository: %s", err)
+	}
 
 	if function.HttpsTrigger != nil {
-		d.Set("trigger_http", true)
-		d.Set("https_trigger_url", function.HttpsTrigger.Url)
+		if err := d.Set("trigger_http", true); err != nil {
+			return fmt.Errorf("Error setting trigger_http: %s", err)
+		}
+		if err := d.Set("https_trigger_url", function.HttpsTrigger.Url); err != nil {
+			return fmt.Errorf("Error setting https_trigger_url: %s", err)
+		}
 	}
 
-	d.Set("event_trigger", flattenEventTrigger(function.EventTrigger))
-	d.Set("max_instances", function.MaxInstances)
-	d.Set("region", cloudFuncId.Region)
-	d.Set("project", cloudFuncId.Project)
+	if err := d.Set("event_trigger", flattenEventTrigger(function.EventTrigger)); err != nil {
+		return fmt.Errorf("Error setting event_trigger: %s", err)
+	}
+	if err := d.Set("max_instances", function.MaxInstances); err != nil {
+		return fmt.Errorf("Error setting max_instances: %s", err)
+	}
+	if err := d.Set("region", cloudFuncId.Region); err != nil {
+		return fmt.Errorf("Error setting region: %s", err)
+	}
+	if err := d.Set("project", cloudFuncId.Project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 
 	return nil
 }

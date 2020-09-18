@@ -88,11 +88,17 @@ func resourceLoggingBucketConfigImportState(parent string) schema.StateFunc {
 				loggingSinkResourceTypes)
 		}
 
-		d.Set(parent, parts[1]+"/"+parts[2])
+		if err := d.Set(parent, parts[1]+"/"+parts[2]); err != nil {
+			return nil, fmt.Errorf("Error setting parent: %s", err)
+		}
 
-		d.Set("location", parts[3])
+		if err := d.Set("location", parts[3]); err != nil {
+			return nil, fmt.Errorf("Error setting location: %s", err)
+		}
 
-		d.Set("bucket_id", parts[4])
+		if err := d.Set("bucket_id", parts[4]); err != nil {
+			return nil, fmt.Errorf("Error setting bucket_id: %s", err)
+		}
 
 		return []*schema.ResourceData{d}, nil
 	}
@@ -131,10 +137,18 @@ func resourceLoggingBucketConfigRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	d.Set("name", res["name"])
-	d.Set("description", res["description"])
-	d.Set("lifecycle_state", res["lifecycleState"])
-	d.Set("retention_days", res["retentionDays"])
+	if err := d.Set("name", res["name"]); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("description", res["description"]); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("lifecycle_state", res["lifecycleState"]); err != nil {
+		return fmt.Errorf("Error setting lifecycle_state: %s", err)
+	}
+	if err := d.Set("retention_days", res["retentionDays"]); err != nil {
+		return fmt.Errorf("Error setting retention_days: %s", err)
+	}
 
 	return nil
 

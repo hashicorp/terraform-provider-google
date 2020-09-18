@@ -1090,10 +1090,14 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOk("noop_on_destroy"); !ok {
-		d.Set("noop_on_destroy", false)
+		if err := d.Set("noop_on_destroy", false); err != nil {
+			return fmt.Errorf("Error setting noop_on_destroy: %s", err)
+		}
 	}
 	if _, ok := d.GetOk("delete_service_on_destroy"); !ok {
-		d.Set("delete_service_on_destroy", false)
+		if err := d.Set("delete_service_on_destroy", false); err != nil {
+			return fmt.Errorf("Error setting delete_service_on_destroy: %s", err)
+		}
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
@@ -1448,8 +1452,12 @@ func resourceAppEngineFlexibleAppVersionImport(d *schema.ResourceData, meta inte
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	d.Set("noop_on_destroy", false)
-	d.Set("delete_service_on_destroy", false)
+	if err := d.Set("noop_on_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting noop_on_destroy: %s", err)
+	}
+	if err := d.Set("delete_service_on_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting delete_service_on_destroy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
