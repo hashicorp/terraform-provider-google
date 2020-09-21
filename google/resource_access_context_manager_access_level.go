@@ -281,7 +281,15 @@ custom access levels - https://cloud.google.com/access-context-manager/docs/cust
 }
 
 func resourceAccessContextManagerAccessLevelCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	titleProp, err := expandAccessContextManagerAccessLevelTitle(d.Get("title"), d, config)
@@ -380,7 +388,15 @@ func resourceAccessContextManagerAccessLevelCreate(d *schema.ResourceData, meta 
 }
 
 func resourceAccessContextManagerAccessLevelRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
@@ -419,7 +435,15 @@ func resourceAccessContextManagerAccessLevelRead(d *schema.ResourceData, meta in
 }
 
 func resourceAccessContextManagerAccessLevelUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -509,7 +533,15 @@ func resourceAccessContextManagerAccessLevelUpdate(d *schema.ResourceData, meta 
 }
 
 func resourceAccessContextManagerAccessLevelDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

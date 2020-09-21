@@ -146,7 +146,15 @@ the [avatarUri] field can be used.`,
 }
 
 func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandDialogflowAgentDisplayName(d.Get("display_name"), d, config)
@@ -253,7 +261,15 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceDialogflowAgentRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
 	if err != nil {
@@ -317,7 +333,15 @@ func resourceDialogflowAgentRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -419,7 +443,15 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceDialogflowAgentDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

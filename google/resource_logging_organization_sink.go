@@ -38,7 +38,14 @@ func resourceLoggingOrganizationSink() *schema.Resource {
 }
 
 func resourceLoggingOrganizationSinkCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
+	config.clientLogging.UserAgent = fmt.Sprintf("%s %s", config.clientLogging.UserAgent, m.ModuleName)
 
 	org := d.Get("org_id").(string)
 	id, sink := expandResourceLoggingSink(d, "organizations", org)
@@ -46,7 +53,7 @@ func resourceLoggingOrganizationSinkCreate(d *schema.ResourceData, meta interfac
 
 	// Must use a unique writer, since all destinations are in projects.
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err := config.clientLogging.Organizations.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
+	_, err = config.clientLogging.Organizations.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
 	}

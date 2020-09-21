@@ -118,7 +118,15 @@ func resourceStorageObjectAccessControl() *schema.Resource {
 }
 
 func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	bucketProp, err := expandStorageObjectAccessControlBucket(d.Get("bucket"), d, config)
@@ -184,7 +192,15 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
 	if err != nil {
@@ -235,7 +251,15 @@ func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -296,7 +320,15 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

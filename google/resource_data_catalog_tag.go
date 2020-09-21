@@ -137,7 +137,15 @@ where tag_id is a system-generated identifier. Note that this Tag may not actual
 }
 
 func resourceDataCatalogTagCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	templateProp, err := expandNestedDataCatalogTagTemplate(d.Get("template"), d, config)
@@ -193,7 +201,15 @@ func resourceDataCatalogTagCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDataCatalogTagRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{parent}}/tags")
 	if err != nil {
@@ -244,7 +260,15 @@ func resourceDataCatalogTagRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -301,7 +325,15 @@ func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDataCatalogTagDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

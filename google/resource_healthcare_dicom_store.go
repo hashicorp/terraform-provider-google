@@ -105,7 +105,15 @@ Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that s
 }
 
 func resourceHealthcareDicomStoreCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandHealthcareDicomStoreName(d.Get("name"), d, config)
@@ -158,7 +166,15 @@ func resourceHealthcareDicomStoreCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceHealthcareDicomStoreRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/dicomStores/{{name}}")
 	if err != nil {
@@ -203,7 +219,15 @@ func resourceHealthcareDicomStoreRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceHealthcareDicomStoreUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -260,7 +284,15 @@ func resourceHealthcareDicomStoreUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceHealthcareDicomStoreDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

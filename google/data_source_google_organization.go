@@ -49,7 +49,14 @@ func dataSourceGoogleOrganization() *schema.Resource {
 }
 
 func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
+	config.clientResourceManager.UserAgent = fmt.Sprintf("%s %s", config.clientResourceManager.UserAgent, m.ModuleName)
 
 	var organization *cloudresourcemanager.Organization
 	if v, ok := d.GetOk("domain"); ok {

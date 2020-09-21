@@ -141,7 +141,15 @@ func resourceGoogleFolderOrganizationPolicyDelete(d *schema.ResourceData, meta i
 }
 
 func setFolderOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
+	config.clientResourceManager.UserAgent = fmt.Sprintf("%s %s", config.clientResourceManager.UserAgent, m.ModuleName)
+
 	folder := canonicalFolderId(d.Get("folder").(string))
 
 	listPolicy, err := expandListOrganizationPolicy(d.Get("list_policy").([]interface{}))

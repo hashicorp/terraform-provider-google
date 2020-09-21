@@ -383,7 +383,15 @@ If it is not provided, the provider region is used.`,
 }
 
 func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	idProp, err := expandCloudIotDeviceRegistryName(d.Get("name"), d, config)
@@ -447,7 +455,15 @@ func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceCloudIotDeviceRegistryRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
@@ -510,7 +526,15 @@ func resourceCloudIotDeviceRegistryRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -613,7 +637,15 @@ func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceCloudIotDeviceRegistryDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

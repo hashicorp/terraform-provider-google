@@ -123,7 +123,15 @@ These are in the same namespace as the managed SSL certificates.`,
 }
 
 func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	certificateProp, err := expandComputeSslCertificateCertificate(d.Get("certificate"), d, config)
@@ -198,7 +206,15 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
 	if err != nil {
@@ -250,7 +266,15 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeSslCertificateDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

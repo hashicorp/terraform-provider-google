@@ -90,7 +90,15 @@ Examples:
 }
 
 func resourceStorageBucketAccessControlCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	bucketProp, err := expandStorageBucketAccessControlBucket(d.Get("bucket"), d, config)
@@ -150,7 +158,15 @@ func resourceStorageBucketAccessControlCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceStorageBucketAccessControlRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
 	if err != nil {
@@ -189,7 +205,15 @@ func resourceStorageBucketAccessControlRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceStorageBucketAccessControlUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -244,7 +268,15 @@ func resourceStorageBucketAccessControlUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceStorageBucketAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

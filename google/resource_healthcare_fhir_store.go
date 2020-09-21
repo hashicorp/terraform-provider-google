@@ -231,7 +231,15 @@ an empty list as an intent to stream all the supported resource types in this FH
 }
 
 func resourceHealthcareFhirStoreCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandHealthcareFhirStoreName(d.Get("name"), d, config)
@@ -320,7 +328,15 @@ func resourceHealthcareFhirStoreCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceHealthcareFhirStoreRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores/{{name}}")
 	if err != nil {
@@ -383,7 +399,15 @@ func resourceHealthcareFhirStoreRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceHealthcareFhirStoreUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -460,7 +484,15 @@ func resourceHealthcareFhirStoreUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceHealthcareFhirStoreDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

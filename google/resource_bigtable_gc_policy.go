@@ -97,7 +97,15 @@ func resourceBigtableGCPolicy() *schema.Resource {
 }
 
 func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
+	// Need to set UserAgent
+
 	ctx := context.Background()
 
 	project, err := getProject(d, config)

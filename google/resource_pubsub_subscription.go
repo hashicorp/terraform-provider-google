@@ -330,7 +330,15 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 }
 
 func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandPubsubSubscriptionName(d.Get("name"), d, config)
@@ -495,7 +503,15 @@ func resourcePubsubSubscriptionPollRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
@@ -577,7 +593,15 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -715,7 +739,15 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

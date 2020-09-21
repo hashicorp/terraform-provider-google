@@ -130,7 +130,15 @@ If it is not provided, the provider region is used.`,
 }
 
 func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeNodeTemplateDescription(d.Get("description"), d, config)
@@ -217,7 +225,15 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
 	if err != nil {
@@ -275,7 +291,15 @@ func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeNodeTemplateDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

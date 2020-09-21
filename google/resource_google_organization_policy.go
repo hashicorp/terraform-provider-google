@@ -285,7 +285,15 @@ func isOrganizationPolicyUnset(d *schema.ResourceData) bool {
 }
 
 func setOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
+	config.clientResourceManager.UserAgent = fmt.Sprintf("%s %s", config.clientResourceManager.UserAgent, m.ModuleName)
+
 	org := "organizations/" + d.Get("org_id").(string)
 
 	listPolicy, err := expandListOrganizationPolicy(d.Get("list_policy").([]interface{}))

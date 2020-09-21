@@ -52,6 +52,10 @@ import (
 	"google.golang.org/api/storagetransfer/v1"
 )
 
+type providerMeta struct {
+	ModuleName string `cty:"module_name"`
+}
+
 // Config is the configuration structure used to instantiate the Google
 // provider.
 type Config struct {

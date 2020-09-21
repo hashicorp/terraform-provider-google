@@ -118,7 +118,15 @@ request to retrieve the TargetGrpcProxy. A base64-encoded string.`,
 }
 
 func resourceComputeTargetGrpcProxyCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandComputeTargetGrpcProxyName(d.Get("name"), d, config)
@@ -199,7 +207,15 @@ func resourceComputeTargetGrpcProxyCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceComputeTargetGrpcProxyRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetGrpcProxies/{{name}}")
 	if err != nil {
@@ -257,7 +273,15 @@ func resourceComputeTargetGrpcProxyRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeTargetGrpcProxyUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -313,7 +337,15 @@ func resourceComputeTargetGrpcProxyUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceComputeTargetGrpcProxyDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

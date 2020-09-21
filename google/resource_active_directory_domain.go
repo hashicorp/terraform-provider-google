@@ -112,7 +112,15 @@ Similar to what would be chosen for an Active Directory set up on an internal ne
 }
 
 func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandActiveDirectoryDomainLabels(d.Get("labels"), d, config)
@@ -206,7 +214,15 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")
 	if err != nil {
@@ -261,7 +277,15 @@ func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -342,7 +366,15 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceActiveDirectoryDomainDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

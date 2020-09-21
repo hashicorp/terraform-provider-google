@@ -937,7 +937,15 @@ A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "201
 }
 
 func resourceOSConfigPatchDeploymentCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandOSConfigPatchDeploymentDescription(d.Get("description"), d, config)
@@ -1046,7 +1054,15 @@ func resourceOSConfigPatchDeploymentCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceOSConfigPatchDeploymentRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{OSConfigBasePath}}{{name}}")
 	if err != nil {
@@ -1125,7 +1141,15 @@ func resourceOSConfigPatchDeploymentRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceOSConfigPatchDeploymentDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

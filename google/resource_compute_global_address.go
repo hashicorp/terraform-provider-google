@@ -139,7 +139,15 @@ This should only be set when using an Internal address. Possible values: ["VPC_P
 }
 
 func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	addressProp, err := expandComputeGlobalAddressAddress(d.Get("address"), d, config)
@@ -238,7 +246,15 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/addresses/{{name}}")
 	if err != nil {
@@ -302,7 +318,15 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceComputeGlobalAddressDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

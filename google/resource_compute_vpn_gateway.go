@@ -98,7 +98,15 @@ character, which cannot be a dash.`,
 }
 
 func resourceComputeVpnGatewayCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeVpnGatewayDescription(d.Get("description"), d, config)
@@ -173,7 +181,15 @@ func resourceComputeVpnGatewayCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}")
 	if err != nil {
@@ -228,7 +244,15 @@ func resourceComputeVpnGatewayRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeVpnGatewayDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
