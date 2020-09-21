@@ -8,7 +8,7 @@ description: |-
 
 # Using GKE with Terraform
 
--> Visit the [Provision a GKE Cluster (Google Cloud)](https://learn.hashicorp.com/tutorials/terraform/gke?in=terraform/kubernetes&utm_source=WEBSITE&utm_medium=WEB_IO&utm_offer=ARTICLE_PAGE&utm_content=DOCS) Learn tutorial to learn how to provision and interact 
+-> Visit the [Provision a GKE Cluster (Google Cloud)](https://learn.hashicorp.com/tutorials/terraform/gke?in=terraform/kubernetes&utm_source=WEBSITE&utm_medium=WEB_IO&utm_offer=ARTICLE_PAGE&utm_content=DOCS) Learn tutorial to learn how to provision and interact
 with a GKE cluster.
 
 This page is a brief overview of GKE usage with Terraform, based on the content
@@ -145,7 +145,7 @@ resource "google_container_cluster" "my_vpc_native_cluster" {
 
 ## Node Pool Management
 
-In Terraform, we recommend managing your node pools using the 
+In Terraform, we recommend managing your node pools using the
 `google_container_node_pool` resource, separate from the
 `google_container_cluster` resource. This separates cluster-level configuration
 like networking and Kubernetes features from the configuration of your nodes.
@@ -201,3 +201,65 @@ resource "google_container_cluster" "my-gke-cluster" {
   # other settings...
 }
 ```
+
+### Windows Node Pools
+
+You can add
+[Windows Server node pools](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster-windows)
+to your GKE cluster by adding `google_container_node_pool` to your Terraform
+configuration with `image_type=WINDOWS_LTSC` or `WINDOWS_SAC`.
+
+```hcl
+resource "google_container_cluster" "demo_cluster" {
+  project  = "" # Replace with your Project ID, https://cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects
+  name     = "demo-cluster"
+  location = "us-west1-a"
+
+  min_master_version = "1.16"
+
+  # Enable Alias IPs to allow Windows Server networking.
+  ip_allocation_policy {
+    cluster_ipv4_cidr_block  = "/14"
+    services_ipv4_cidr_block = "/20"
+  }
+
+  # Removes the implicit default node pool, recommended when using
+  # google_container_node_pool.
+  remove_default_node_pool = true
+  initial_node_count = 1
+}
+
+# Small Linux node pool to run some Linux-only Kubernetes Pods.
+resource "google_container_node_pool" "linux_pool" {
+  name               = "linux-pool"
+  project            = google_container_cluster.demo_cluster.project
+  cluster            = google_container_cluster.demo_cluster.name
+  location           = google_container_cluster.demo_cluster.location
+
+  node_config {
+    image_type   = "COS_CONTAINERD"
+  }
+}
+
+# Node pool of Windows Server machines.
+resource "google_container_node_pool" "windows_pool" {
+  name               = "windows-pool"
+  project            = google_container_cluster.demo_cluster.project
+  cluster            = google_container_cluster.demo_cluster.name
+  location           = google_container_cluster.demo_cluster.location
+
+  node_config {
+    machine_type = "e2-standard-4"
+    image_type   = "WINDOWS_LTSC" # Or WINDOWS_SAC for new features.
+  }
+
+  # The Linux node pool must be created before the Windows Server node pool.
+  depends_on = [google_container_node_pool.linux_pool]
+}
+```
+
+The example above creates a cluster with a small Linux node pool and a Windows
+Server node pool. The Linux node pool is necessary since some critical pods are
+not yet supported on Windows. Please see
+[Limitations](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster-windows#limitations)
+for details on features that are not supported by Windows Server node pools.
