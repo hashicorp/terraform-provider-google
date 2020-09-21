@@ -20,7 +20,6 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * bigtable: fixed the update behaviour of the `single_cluster_routing` sub-fields in `google_bigtable_app_profile` ([#7266](https://github.com/hashicorp/terraform-provider-google/pull/7266))
-* datacatalog: fixed error when trying to set `bool_value` to false on `google_data_catalog_tag` ([#7241](https://github.com/hashicorp/terraform-provider-google/pull/7241))
 * dataproc: fixed issues where updating `google_dataproc_cluster.cluster_config.autoscaling_policy` would do nothing, and where there was no way to remove a policy. ([#7269](https://github.com/hashicorp/terraform-provider-google/pull/7269))
 * osconfig: fixed a potential crash in `google_os_config_patch_deployment` due to an unchecked nil value in `recurring_schedule` ([#7265](https://github.com/hashicorp/terraform-provider-google/pull/7265))
 * serviceusage: fixed intermittent failure when a service is already being modified - added retries [#7230](https://github.com/hashicorp/terraform-provider-google/pull/7230))
