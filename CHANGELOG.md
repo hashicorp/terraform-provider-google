@@ -15,7 +15,7 @@ IMPROVEMENTS:
 * compute: added 'all' option for `google_compute_firewall` ([#7225](https://github.com/hashicorp/terraform-provider-google/pull/7225))
 * dataflow : added `transformnameMapping` to `google_dataflow_job` ([#7259](https://github.com/hashicorp/terraform-provider-google/pull/7259))
 * dns: added `force_destroy` option to `google_dns_managed_zone` to delete records created outside of Terraform ([#7289](https://github.com/hashicorp/terraform-provider-google/pull/7289))
-* serviceusage: added ability to pass `google.project.id` to `project` property ([#7255](https://github.com/hashicorp/terraform-provider-google/pull/7255))
+* serviceusage: added ability to pass `google.project.id` to `google_project_service.project` ([#7255](https://github.com/hashicorp/terraform-provider-google/pull/7255))
 * spanner: added schema update/update ddl support for `google_spanner_database` ([#7279](https://github.com/hashicorp/terraform-provider-google/pull/7279))
 
 BUG FIXES:
