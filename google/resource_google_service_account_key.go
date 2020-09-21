@@ -87,7 +87,14 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 }
 
 func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
+	config.clientIAM.UserAgent = fmt.Sprintf("%s %s", config.clientIAM.UserAgent, m.ModuleName)
 
 	serviceAccountName, err := serviceAccountFQN(d.Get("service_account_id").(string), d, config)
 	if err != nil {

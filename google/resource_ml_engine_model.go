@@ -110,7 +110,15 @@ Currently only one region per model is supported`,
 }
 
 func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandMLEngineModelName(d.Get("name"), d, config)
@@ -193,7 +201,15 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
 	if err != nil {
@@ -248,7 +264,15 @@ func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMLEngineModelDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

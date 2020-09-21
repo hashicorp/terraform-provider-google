@@ -373,12 +373,19 @@ func diffSuppressEmptyStartTimeOfDay(k, old, new string, d *schema.ResourceData)
 }
 
 func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	config.clientStorageTransfer.UserAgent = fmt.Sprintf("%s %s", config.clientStorageTransfer.UserAgent, m.ModuleName)
 
 	transferJob := &storagetransfer.TransferJob{
 		Description:  d.Get("description").(string),

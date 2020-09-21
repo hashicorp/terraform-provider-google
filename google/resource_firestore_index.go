@@ -117,7 +117,15 @@ Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCEN
 }
 
 func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	databaseProp, err := expandFirestoreIndexDatabase(d.Get("database"), d, config)
@@ -220,7 +228,15 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
@@ -263,7 +279,15 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

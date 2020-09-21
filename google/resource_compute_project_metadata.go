@@ -46,7 +46,14 @@ func resourceComputeProjectMetadata() *schema.Resource {
 }
 
 func resourceComputeProjectMetadataCreateOrUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
+	config.clientCompute.UserAgent = fmt.Sprintf("%s %s", config.clientCompute.UserAgent, m.ModuleName)
 
 	projectID, err := getProject(d, config)
 	if err != nil {

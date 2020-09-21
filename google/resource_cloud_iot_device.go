@@ -261,7 +261,15 @@ This is a more compact way to identify devices, and it is globally unique.`,
 }
 
 func resourceCloudIotDeviceCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	idProp, err := expandCloudIotDeviceName(d.Get("name"), d, config)
@@ -332,7 +340,15 @@ func resourceCloudIotDeviceCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceCloudIotDeviceRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{CloudIotBasePath}}{{registry}}/devices/{{name}}")
 	if err != nil {
@@ -404,7 +420,15 @@ func resourceCloudIotDeviceRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceCloudIotDeviceUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -491,7 +515,15 @@ func resourceCloudIotDeviceUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceCloudIotDeviceDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

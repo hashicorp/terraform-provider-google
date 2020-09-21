@@ -74,7 +74,15 @@ Format: organizations/{organization_id}`,
 }
 
 func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	parentProp, err := expandAccessContextManagerAccessPolicyParent(d.Get("parent"), d, config)
@@ -156,7 +164,15 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 }
 
 func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
@@ -195,7 +211,15 @@ func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta i
 }
 
 func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -250,7 +274,15 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 }
 
 func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

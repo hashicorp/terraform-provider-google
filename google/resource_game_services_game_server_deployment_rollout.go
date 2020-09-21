@@ -109,7 +109,15 @@ eg: 'projects/my-project/locations/global/gameServerDeployments/my-deployment/ro
 }
 
 func resourceGameServicesGameServerDeploymentRolloutCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	// Store the ID now
 	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
@@ -130,7 +138,15 @@ func resourceGameServicesGameServerDeploymentRolloutCreate(d *schema.ResourceDat
 }
 
 func resourceGameServicesGameServerDeploymentRolloutRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
 	if err != nil {
@@ -173,7 +189,15 @@ func resourceGameServicesGameServerDeploymentRolloutRead(d *schema.ResourceData,
 }
 
 func resourceGameServicesGameServerDeploymentRolloutUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -244,7 +268,15 @@ func resourceGameServicesGameServerDeploymentRolloutUpdate(d *schema.ResourceDat
 }
 
 func resourceGameServicesGameServerDeploymentRolloutDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

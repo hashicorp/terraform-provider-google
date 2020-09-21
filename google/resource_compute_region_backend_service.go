@@ -811,7 +811,15 @@ Cannot be set for INTERNAL backend services.`,
 }
 
 func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	affinityCookieTtlSecProp, err := expandComputeRegionBackendServiceAffinityCookieTtlSec(d.Get("affinity_cookie_ttl_sec"), d, config)
@@ -987,7 +995,15 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
 	if err != nil {
@@ -1111,7 +1127,15 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 }
 
 func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -1280,7 +1304,15 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeRegionBackendServiceDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

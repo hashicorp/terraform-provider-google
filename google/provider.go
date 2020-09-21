@@ -550,6 +550,13 @@ func Provider() *schema.Provider {
 			BigtableAdminCustomEndpointEntryKey:          BigtableAdminCustomEndpointEntry,
 		},
 
+		ProviderMetaSchema: map[string]*schema.Schema{
+			"module_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+		},
+
 		DataSourcesMap: map[string]*schema.Resource{
 			"google_active_folder":                                dataSourceGoogleActiveFolder(),
 			"google_billing_account":                              dataSourceGoogleBillingAccount(),

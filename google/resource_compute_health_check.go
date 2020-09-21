@@ -640,7 +640,15 @@ consecutive failures. The default value is 2.`,
 }
 
 func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	checkIntervalSecProp, err := expandComputeHealthCheckCheckIntervalSec(d.Get("check_interval_sec"), d, config)
@@ -768,7 +776,15 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
@@ -847,7 +863,15 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -968,7 +992,15 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceComputeHealthCheckDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

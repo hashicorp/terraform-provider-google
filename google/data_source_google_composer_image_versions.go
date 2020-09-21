@@ -44,7 +44,14 @@ func dataSourceGoogleComposerImageVersions() *schema.Resource {
 }
 
 func dataSourceGoogleComposerImageVersionsRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	project, err := getProject(d, config)
 	if err != nil {

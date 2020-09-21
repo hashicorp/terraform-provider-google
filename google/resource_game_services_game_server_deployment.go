@@ -87,7 +87,15 @@ For example,
 }
 
 func resourceGameServicesGameServerDeploymentCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandGameServicesGameServerDeploymentDescription(d.Get("description"), d, config)
@@ -163,7 +171,15 @@ func resourceGameServicesGameServerDeploymentCreate(d *schema.ResourceData, meta
 }
 
 func resourceGameServicesGameServerDeploymentRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
 	if err != nil {
@@ -206,7 +222,15 @@ func resourceGameServicesGameServerDeploymentRead(d *schema.ResourceData, meta i
 }
 
 func resourceGameServicesGameServerDeploymentUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -277,7 +301,15 @@ func resourceGameServicesGameServerDeploymentUpdate(d *schema.ResourceData, meta
 }
 
 func resourceGameServicesGameServerDeploymentDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

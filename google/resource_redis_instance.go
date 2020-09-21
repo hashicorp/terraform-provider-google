@@ -200,7 +200,15 @@ checked before each import/export operation.`,
 }
 
 func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	alternativeLocationIdProp, err := expandRedisInstanceAlternativeLocationId(d.Get("alternative_location_id"), d, config)
@@ -341,7 +349,15 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
@@ -434,7 +450,15 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -530,7 +554,15 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

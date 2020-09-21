@@ -381,7 +381,14 @@ func resourceComposerEnvironment() *schema.Resource {
 }
 
 func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
+	config.clientComposer.UserAgent = fmt.Sprintf("%s %s", config.clientComposer.UserAgent, m.ModuleName)
 
 	envName, err := resourceComposerEnvironmentName(d, config)
 	if err != nil {

@@ -128,7 +128,15 @@ supported asset types.`,
 }
 
 func resourceCloudAssetOrganizationFeedCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	assetNamesProp, err := expandCloudAssetOrganizationFeedAssetNames(d.Get("asset_names"), d, config)
@@ -205,7 +213,15 @@ func resourceCloudAssetOrganizationFeedCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceCloudAssetOrganizationFeedRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{CloudAssetBasePath}}{{name}}")
 	if err != nil {
@@ -248,7 +264,15 @@ func resourceCloudAssetOrganizationFeedRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceCloudAssetOrganizationFeedUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -333,7 +357,15 @@ func resourceCloudAssetOrganizationFeedUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceCloudAssetOrganizationFeedDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

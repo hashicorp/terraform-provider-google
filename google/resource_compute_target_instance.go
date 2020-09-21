@@ -108,7 +108,15 @@ Currently only NO_NAT (default value) is supported. Default value: "NO_NAT" Poss
 }
 
 func resourceComputeTargetInstanceCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandComputeTargetInstanceName(d.Get("name"), d, config)
@@ -189,7 +197,15 @@ func resourceComputeTargetInstanceCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeTargetInstanceRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/targetInstances/{{name}}")
 	if err != nil {
@@ -244,7 +260,15 @@ func resourceComputeTargetInstanceRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeTargetInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

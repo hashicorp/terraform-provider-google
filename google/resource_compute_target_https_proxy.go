@@ -123,7 +123,15 @@ resource will not have any SSL policy configured.`,
 }
 
 func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeTargetHttpsProxyDescription(d.Get("description"), d, config)
@@ -210,7 +218,15 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}")
 	if err != nil {
@@ -271,7 +287,15 @@ func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -426,7 +450,15 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceComputeTargetHttpsProxyDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

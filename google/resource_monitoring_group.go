@@ -85,7 +85,15 @@ groups with no parent, parentName is the empty string, "".`,
 }
 
 func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	parentNameProp, err := expandMonitoringGroupParentName(d.Get("parent_name"), d, config)
@@ -178,7 +186,15 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
@@ -227,7 +243,15 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -294,7 +318,15 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

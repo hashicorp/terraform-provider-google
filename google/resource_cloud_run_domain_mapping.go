@@ -249,7 +249,15 @@ was last processed by the controller.`,
 }
 
 func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	specProp, err := expandCloudRunDomainMappingSpec(d.Get("spec"), d, config)
@@ -354,7 +362,15 @@ func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
 	if err != nil {
@@ -409,7 +425,15 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -377,7 +377,15 @@ Example inputs include: ["22"], ["80","443"], and
 }
 
 func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	allowedProp, err := expandComputeFirewallAllow(d.Get("allow"), d, config)
@@ -518,7 +526,15 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
@@ -603,7 +619,15 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -725,7 +749,15 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

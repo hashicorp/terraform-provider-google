@@ -117,7 +117,15 @@ func accessapprovalOrganizationSettingsEnrolledServicesSchema() *schema.Resource
 }
 
 func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	notificationEmailsProp, err := expandAccessApprovalOrganizationSettingsNotificationEmails(d.Get("notification_emails"), d, config)
@@ -182,7 +190,15 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 }
 
 func resourceAccessApprovalOrganizationSettingsRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
 	if err != nil {
@@ -218,7 +234,15 @@ func resourceAccessApprovalOrganizationSettingsRead(d *schema.ResourceData, meta
 }
 
 func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -275,7 +299,15 @@ func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, me
 }
 
 func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	obj["notificationEmails"] = []string{}

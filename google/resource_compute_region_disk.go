@@ -258,7 +258,15 @@ project/zones/zone/instances/instance`,
 }
 
 func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	labelFingerprintProp, err := expandComputeRegionDiskLabelFingerprint(d.Get("label_fingerprint"), d, config)
@@ -386,7 +394,15 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}")
 	if err != nil {
@@ -486,7 +502,15 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -579,7 +603,15 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

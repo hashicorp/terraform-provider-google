@@ -178,7 +178,15 @@ Format: projects/<Project ID>/agent/intents/<Intent ID>.`,
 }
 
 func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandDialogflowIntentDisplayName(d.Get("display_name"), d, config)
@@ -306,7 +314,15 @@ func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceDialogflowIntentRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
 	if err != nil {
@@ -382,7 +398,15 @@ func resourceDialogflowIntentRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDialogflowIntentUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -478,7 +502,15 @@ func resourceDialogflowIntentUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceDialogflowIntentDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

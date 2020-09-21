@@ -68,13 +68,20 @@ func resourceGoogleFolder() *schema.Resource {
 }
 
 func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
+	config.clientResourceManagerV2Beta1.UserAgent = fmt.Sprintf("%s %s", config.clientResourceManagerV2Beta1.UserAgent, m.ModuleName)
 
 	displayName := d.Get("display_name").(string)
 	parent := d.Get("parent").(string)
 
 	var op *resourceManagerV2Beta1.Operation
-	err := retryTimeDuration(func() error {
+	err = retryTimeDuration(func() error {
 		var reqErr error
 		op, reqErr = config.clientResourceManagerV2Beta1.Folders.Create(&resourceManagerV2Beta1.Folder{
 			DisplayName: displayName,

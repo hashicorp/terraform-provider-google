@@ -410,7 +410,15 @@ office using the hotword regex '(xxx)', where 'xxx' is the area code in question
 }
 
 func resourceDataLossPreventionInspectTemplateCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandDataLossPreventionInspectTemplateDescription(d.Get("description"), d, config)
@@ -471,7 +479,15 @@ func resourceDataLossPreventionInspectTemplateCreate(d *schema.ResourceData, met
 }
 
 func resourceDataLossPreventionInspectTemplateRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
 	if err != nil {
@@ -507,7 +523,15 @@ func resourceDataLossPreventionInspectTemplateRead(d *schema.ResourceData, meta 
 }
 
 func resourceDataLossPreventionInspectTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -579,7 +603,15 @@ func resourceDataLossPreventionInspectTemplateUpdate(d *schema.ResourceData, met
 }
 
 func resourceDataLossPreventionInspectTemplateDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -104,7 +104,15 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 }
 
 func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandSpannerInstanceName(d.Get("name"), d, config)
@@ -216,7 +224,15 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
 	if err != nil {
@@ -280,7 +296,15 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -353,7 +377,15 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

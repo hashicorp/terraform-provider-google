@@ -63,7 +63,15 @@ func dataSourceGoogleIamTestablePermissions() *schema.Resource {
 }
 
 func dataSourceGoogleIamTestablePermissionsRead(d *schema.ResourceData, meta interface{}) (err error) {
+	var m providerMeta
+
+	err = d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+
 	body := make(map[string]interface{})
 	body["pageSize"] = 500
 	permissions := make([]map[string]interface{}, 0)
@@ -95,7 +103,7 @@ func dataSourceGoogleIamTestablePermissionsRead(d *schema.ResourceData, meta int
 		}
 	}
 
-	if err := d.Set("permissions", permissions); err != nil {
+	if err = d.Set("permissions", permissions); err != nil {
 		return fmt.Errorf("Error retrieving permissions: %s", err)
 	}
 

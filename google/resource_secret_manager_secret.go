@@ -131,7 +131,15 @@ An object containing a list of "key": value pairs. Example:
 }
 
 func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandSecretManagerSecretLabels(d.Get("labels"), d, config)
@@ -187,7 +195,15 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret_id}}")
 	if err != nil {
@@ -233,7 +249,15 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -286,7 +310,15 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceSecretManagerSecretDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

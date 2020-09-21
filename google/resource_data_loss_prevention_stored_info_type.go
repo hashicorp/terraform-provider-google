@@ -243,7 +243,15 @@ Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the go
 }
 
 func resourceDataLossPreventionStoredInfoTypeCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandDataLossPreventionStoredInfoTypeDescription(d.Get("description"), d, config)
@@ -357,7 +365,15 @@ func resourceDataLossPreventionStoredInfoTypePollRead(d *schema.ResourceData, me
 }
 
 func resourceDataLossPreventionStoredInfoTypeRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
 	if err != nil {
@@ -411,7 +427,15 @@ func resourceDataLossPreventionStoredInfoTypeRead(d *schema.ResourceData, meta i
 }
 
 func resourceDataLossPreventionStoredInfoTypeUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -473,7 +497,15 @@ func resourceDataLossPreventionStoredInfoTypeUpdate(d *schema.ResourceData, meta
 }
 
 func resourceDataLossPreventionStoredInfoTypeDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

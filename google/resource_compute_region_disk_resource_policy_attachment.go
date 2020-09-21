@@ -72,7 +72,15 @@ creation. Do not specify the self link.`,
 }
 
 func resourceComputeRegionDiskResourcePolicyAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandNestedComputeRegionDiskResourcePolicyAttachmentName(d.Get("name"), d, config)
@@ -134,7 +142,15 @@ func resourceComputeRegionDiskResourcePolicyAttachmentCreate(d *schema.ResourceD
 }
 
 func resourceComputeRegionDiskResourcePolicyAttachmentRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{disk}}")
 	if err != nil {
@@ -195,7 +211,15 @@ func resourceComputeRegionDiskResourcePolicyAttachmentRead(d *schema.ResourceDat
 }
 
 func resourceComputeRegionDiskResourcePolicyAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

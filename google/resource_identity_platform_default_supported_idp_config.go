@@ -99,7 +99,15 @@ func resourceIdentityPlatformDefaultSupportedIdpConfig() *schema.Resource {
 }
 
 func resourceIdentityPlatformDefaultSupportedIdpConfigCreate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	clientIdProp, err := expandIdentityPlatformDefaultSupportedIdpConfigClientId(d.Get("client_id"), d, config)
@@ -161,7 +169,15 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigCreate(d *schema.ResourceD
 }
 
 func resourceIdentityPlatformDefaultSupportedIdpConfigRead(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
@@ -207,7 +223,15 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigRead(d *schema.ResourceDat
 }
 
 func resourceIdentityPlatformDefaultSupportedIdpConfigUpdate(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -280,7 +304,15 @@ func resourceIdentityPlatformDefaultSupportedIdpConfigUpdate(d *schema.ResourceD
 }
 
 func resourceIdentityPlatformDefaultSupportedIdpConfigDelete(d *schema.ResourceData, meta interface{}) error {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
+	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
