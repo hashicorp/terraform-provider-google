@@ -83,7 +83,7 @@ var schemaNodePool = map[string]*schema.Schema{
 				"max_node_count": {
 					Type:         schema.TypeInt,
 					Required:     true,
-					ValidateFunc: validation.IntAtLeast(1),
+					ValidateFunc: validation.IntAtLeast(0),
 					Description:  `Maximum number of nodes in the NodePool. Must be >= min_node_count.`,
 				},
 			},
@@ -551,6 +551,9 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 
 	if v, ok := d.GetOk(prefix + "autoscaling"); ok {
 		autoscaling := v.([]interface{})[0].(map[string]interface{})
+		if autoscaling["max_node_count"].(int) < autoscaling["min_node_count"].(int) {
+			return nil, fmt.Errorf("autoscaling.max_node_count must be >= autoscaling.min_node_count on node pool %s", name)
+		}
 		np.Autoscaling = &containerBeta.NodePoolAutoscaling{
 			Enabled:         true,
 			MinNodeCount:    int64(autoscaling["min_node_count"].(int)),
