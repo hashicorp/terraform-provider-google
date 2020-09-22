@@ -1,4 +1,3 @@
-//
 package google
 
 import (
@@ -229,7 +228,6 @@ func resourceComputeInstance() *schema.Resource {
 							Type:             schema.TypeString,
 							Optional:         true,
 							Computed:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 							Description:      `The name or self_link of the network attached to this interface.`,
 						},
@@ -238,7 +236,6 @@ func resourceComputeInstance() *schema.Resource {
 							Type:             schema.TypeString,
 							Optional:         true,
 							Computed:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 							Description:      `The name or self_link of the subnetwork attached to this interface.`,
 						},
@@ -247,14 +244,12 @@ func resourceComputeInstance() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
-							ForceNew:    true,
 							Description: `The project in which the subnetwork belongs.`,
 						},
 
 						"network_ip": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Computed:    true,
 							Description: `The private IP address assigned to the instance.`,
 						},
@@ -1291,108 +1286,57 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	networkInterfacesCount := d.Get("network_interface.#").(int)
+	networkInterfaces, err := expandNetworkInterfaces(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting network interface from config: %s", err)
+	}
+
 	// Sanity check
-	if networkInterfacesCount != len(instance.NetworkInterfaces) {
+	if len(networkInterfaces) != len(instance.NetworkInterfaces) {
 		return fmt.Errorf("Instance had unexpected number of network interfaces: %d", len(instance.NetworkInterfaces))
 	}
-	for i := 0; i < networkInterfacesCount; i++ {
+
+	var updatesToNIWhileStopped []func() *compute.Operation, error
+	for i := 0; i < len(networkInterfaces); i++ {
 		prefix := fmt.Sprintf("network_interface.%d", i)
+		networkInterface := networkInterfaces[i]
 		instNetworkInterface := instance.NetworkInterfaces[i]
-		networkName := d.Get(prefix + ".name").(string)
+
+		networkName := networkInterface.Name
+		network := networkInterface.Network
+		subnetwork := networkInterface.Subnetwork
+		updateDurringStop := d.HasChange(prefix+".subnetwork") || d.HasChange(prefix+".network") || d.HasChange(prefix+".subnetwork_project") || d.HasChange(prefix+".network_ip")
 
 		// Sanity check
 		if networkName != instNetworkInterface.Name {
 			return fmt.Errorf("Instance networkInterface had unexpected name: %s", instNetworkInterface.Name)
 		}
 
-		if d.HasChange(prefix + ".access_config") {
-
-			// TODO: This code deletes then recreates accessConfigs.  This is bad because it may
-			// leave the machine inaccessible from either ip if the creation part fails (network
-			// timeout etc).  However right now there is a GCE limit of 1 accessConfig so it is
-			// the only way to do it.  In future this should be revised to only change what is
-			// necessary, and also add before removing.
-
-			// Delete any accessConfig that currently exists in instNetworkInterface
-			for _, ac := range instNetworkInterface.AccessConfigs {
-				op, err := config.clientCompute.Instances.DeleteAccessConfig(
-					project, zone, instance.Name, ac.Name, networkName).Do()
+		if d.HasChange(prefix + ".subnetwork") {
+			if !d.HasChange(prefix + ".network") {
+				subnetProjectField := d.Get(prefix + ".subnetwork_project").(string)
+				sf, err := ParseSubnetworkFieldValueWithProjectField(subnetwork, subnetProjectField, d, config)
 				if err != nil {
-					return fmt.Errorf("Error deleting old access_config: %s", err)
+					return fmt.Errorf("cannot determine self_link for subnetwork %q: %s", subnetwork, err)
 				}
-				opErr := computeOperationWaitTime(config, op, project, "old access_config to delete", d.Timeout(schema.TimeoutUpdate))
-				if opErr != nil {
-					return opErr
-				}
-			}
-
-			// Create new ones
-			accessConfigsCount := d.Get(prefix + ".access_config.#").(int)
-			for j := 0; j < accessConfigsCount; j++ {
-				acPrefix := fmt.Sprintf("%s.access_config.%d", prefix, j)
-				ac := &computeBeta.AccessConfig{
-					Type:        "ONE_TO_ONE_NAT",
-					NatIP:       d.Get(acPrefix + ".nat_ip").(string),
-					NetworkTier: d.Get(acPrefix + ".network_tier").(string),
-				}
-				if ptr, ok := d.GetOk(acPrefix + ".public_ptr_domain_name"); ok && ptr != "" {
-					ac.SetPublicPtr = true
-					ac.PublicPtrDomainName = ptr.(string)
-				}
-
-				op, err := config.clientComputeBeta.Instances.AddAccessConfig(
-					project, zone, instance.Name, networkName, ac).Do()
+				resp, err := config.clientCompute.Subnetworks.Get(sf.Project, sf.Region, sf.Name).Do()
 				if err != nil {
-					return fmt.Errorf("Error adding new access_config: %s", err)
+					return errwrap.Wrapf("Error getting subnetwork value: {{err}}", err)
 				}
-				opErr := computeOperationWaitTime(config, op, project, "new access_config to add", d.Timeout(schema.TimeoutUpdate))
-				if opErr != nil {
-					return opErr
-				}
-			}
-		}
-
-		if d.HasChange(prefix + ".alias_ip_range") {
-			rereadFingerprint := false
-
-			// Alias IP ranges cannot be updated; they must be removed and then added.
-			if len(instNetworkInterface.AliasIpRanges) > 0 {
-				ni := &computeBeta.NetworkInterface{
-					Fingerprint:     instNetworkInterface.Fingerprint,
-					ForceSendFields: []string{"AliasIpRanges"},
-				}
-				op, err := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, ni).Do()
+				nf, err := ParseNetworkFieldValue(resp.Network, d, config)
 				if err != nil {
-					return errwrap.Wrapf("Error removing alias_ip_range: {{err}}", err)
+					return fmt.Errorf("cannot determine self_link for network %q: %s", network, err)
 				}
-				opErr := computeOperationWaitTime(config, op, project, "updating alias ip ranges", d.Timeout(schema.TimeoutUpdate))
-				if opErr != nil {
-					return opErr
-				}
-				rereadFingerprint = true
-			}
+				networkInterface.Network = nf.RelativeLink()
 
-			ranges := d.Get(prefix + ".alias_ip_range").([]interface{})
-			if len(ranges) > 0 {
-				if rereadFingerprint {
-					instance, err = config.clientComputeBeta.Instances.Get(project, zone, instance.Name).Do()
+				updateCall := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, networkInterface).Do
+				if updateDurringStop {
+					append(updatesToNIWhileStopped, updateCall)
+				} else {
+					op, err := updateCall()
 					if err != nil {
-						return err
+						return errwrap.Wrapf("Error updating network interface: {{err}}", err)
 					}
-					instNetworkInterface = instance.NetworkInterfaces[i]
-				}
-				ni := &computeBeta.NetworkInterface{
-					AliasIpRanges: expandAliasIpRanges(ranges),
-					Fingerprint:   instNetworkInterface.Fingerprint,
-				}
-				op, err := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, ni).Do()
-				if err != nil {
-					return errwrap.Wrapf("Error adding alias_ip_range: {{err}}", err)
-				}
-				opErr := computeOperationWaitTime(config, op, project, "updating alias ip ranges", d.Timeout(schema.TimeoutUpdate))
-				if opErr != nil {
-					return opErr
 				}
 			}
 		}
@@ -1520,7 +1464,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") || d.HasChange("shielded_instance_config")
+	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") || d.HasChange("shielded_instance_config") || len(updatesToNIWhileStopped) > 0
 
 	if d.HasChange("desired_status") && !needToStopInstanceBeforeUpdating {
 		desiredStatus := d.Get("desired_status").(string)
@@ -1554,7 +1498,8 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		desiredStatus := d.Get("desired_status").(string)
 
 		if statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED" && !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, enable_display, or shielded_instance_config on a started instance requires stopping it. " +
+			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, enable_display, shielded_instance_config, " +
+			  "or network_interface.[#d].(network/subnetwork/subnetwork_project) on a started instance requires stopping it. " +
 				"To acknowledge this, please set allow_stopping_for_update = true in your config. " +
 				"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update.")
 		}
@@ -1655,6 +1600,13 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				"shielded vm config update", d.Timeout(schema.TimeoutUpdate))
 			if opErr != nil {
 				return opErr
+			}
+		}
+
+		for _, updateCall := range updatesToNIWhileStopped {
+			op, err := updateCall()
+				if err != nil {
+						return errwrap.Wrapf("Error updating network interface: {{err}}", err)
 			}
 		}
 
