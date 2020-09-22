@@ -1,4 +1,4 @@
-## 3.40.0 (Unreleased)
+## 3.40.0 (September 21, 2020)
 
 DEPRECATIONS:
 * bigtable: Deprecated `instance_type` for `google_bigtable_instance` - it is now recommended to leave field unspecified. ([#7253](https://github.com/hashicorp/terraform-provider-google/pull/7253))
