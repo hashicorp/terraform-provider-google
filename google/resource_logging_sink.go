@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -28,6 +29,38 @@ func resourceLoggingSinkSchema() map[string]*schema.Schema {
 			Optional:         true,
 			DiffSuppressFunc: optionalSurroundingSpacesSuppress,
 			Description:      `The filter to apply when exporting logs. Only log entries that match the filter are exported.`,
+		},
+
+		"exclusions": {
+			Type:        schema.TypeList,
+			Optional:    true,
+			Computed:    true,
+			Description: `Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both filter and one of exclusion_filters it will not be exported.`,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"name": {
+						Type:        schema.TypeString,
+						Required:    true,
+						Description: `A client-assigned identifier, such as "load-balancer-exclusion". Identifiers are limited to 100 characters and can include only letters, digits, underscores, hyphens, and periods. First character has to be alphanumeric.`,
+					},
+					"description": {
+						Type:        schema.TypeString,
+						Optional:    true,
+						Description: `A description of this exclusion.`,
+					},
+					"filter": {
+						Type:        schema.TypeString,
+						Required:    true,
+						Description: `An advanced logs filter that matches the log entries to be excluded. By using the sample function, you can exclude less than 100% of the matching log entries`,
+					},
+					"disabled": {
+						Type:        schema.TypeString,
+						Optional:    true,
+						Default:     "false",
+						Description: `If set to True, then this exclusion is disabled and it does not exclude any log entries`,
+					},
+				},
+			},
 		},
 
 		"writer_identity": {
@@ -66,6 +99,7 @@ func expandResourceLoggingSink(d *schema.ResourceData, resourceType, resourceId 
 		Name:            d.Get("name").(string),
 		Destination:     d.Get("destination").(string),
 		Filter:          d.Get("filter").(string),
+		Exclusions:      expandLoggingSinkExclusions(d.Get("exclusions")),
 		BigqueryOptions: expandLoggingSinkBigqueryOptions(d.Get("bigquery_options")),
 	}
 	return id, &sink
@@ -83,6 +117,9 @@ func flattenResourceLoggingSink(d *schema.ResourceData, sink *logging.LogSink) e
 	}
 	if err := d.Set("writer_identity", sink.WriterIdentity); err != nil {
 		return fmt.Errorf("Error setting writer_identity: %s", err)
+	}
+	if err := d.Set("exclusions", flattenLoggingSinkExclusion(sink.Exclusions)); err != nil {
+		return fmt.Errorf("Error setting exclusions: %s", err)
 	}
 	if err := d.Set("bigquery_options", flattenLoggingSinkBigqueryOptions(sink.BigqueryOptions)); err != nil {
 		return fmt.Errorf("Error setting bigquery_options: %s", err)
@@ -106,6 +143,10 @@ func expandResourceLoggingSinkForUpdate(d *schema.ResourceData) (sink *logging.L
 	}
 	if d.HasChange("filter") {
 		updateFields = append(updateFields, "filter")
+	}
+	if d.HasChange("exclusions") {
+		sink.Exclusions = expandLoggingSinkExclusions(d.Get("exclusions"))
+		updateFields = append(updateFields, "exclusions")
 	}
 	if d.HasChange("bigquery_options") {
 		sink.BigqueryOptions = expandLoggingSinkBigqueryOptions(d.Get("bigquery_options"))
@@ -139,6 +180,47 @@ func flattenLoggingSinkBigqueryOptions(o *logging.BigQueryOptions) []map[string]
 		"use_partitioned_tables": o.UsePartitionedTables,
 	}
 	return []map[string]interface{}{oMap}
+}
+
+func expandLoggingSinkExclusions(v interface{}) []*logging.LogExclusion {
+	if v == nil {
+		return nil
+	}
+	exclusions := v.([]interface{})
+	if len(exclusions) == 0 {
+		return nil
+	}
+	results := make([]*logging.LogExclusion, 0, len(exclusions))
+	for _, e := range exclusions {
+		exclusion := e.(map[string]interface{})
+		disabled, _ := strconv.ParseBool(exclusion["disabled"].(string))
+		results = append(results, &logging.LogExclusion{
+			Name:        exclusion["name"].(string),
+			Description: exclusion["description"].(string),
+			Filter:      exclusion["filter"].(string),
+			Disabled:    disabled,
+		})
+	}
+	return results
+}
+
+func flattenLoggingSinkExclusion(exclusions []*logging.LogExclusion) []map[string]interface{} {
+	if exclusions == nil {
+		return nil
+	}
+	flattenedExclusions := make([]map[string]interface{}, 0, len(exclusions))
+	for _, e := range exclusions {
+		flattenedExclusion := map[string]interface{}{
+			"name":        e.Name,
+			"description": e.Description,
+			"filter":      e.Filter,
+			"disabled":    strconv.FormatBool(e.Disabled),
+		}
+		flattenedExclusions = append(flattenedExclusions, flattenedExclusion)
+
+	}
+
+	return flattenedExclusions
 }
 
 func resourceLoggingSinkImportState(sinkType string) schema.StateFunc {
