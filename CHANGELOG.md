@@ -1,4 +1,9 @@
 ## 3.41.0 (Unreleased)
+
+IMPROVEMENTS:
+* compute: added `SEV_CAPABLE` option to `guest_os_features` in `google_compute_image` resource. ([#7313](https://github.com/hashicorp/terraform-provider-google/pull/7313))
+* tpu: added `use_service_networking` to `google_tpu_node` which enables Shared VPC Support. ([#7294](https://github.com/hashicorp/terraform-provider-google/pull/7294))
+
 ## 3.40.0 (September 21, 2020)
 
 DEPRECATIONS:
