@@ -208,15 +208,7 @@ reservations that are tied to a commitment.`,
 }
 
 func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeReservationDescription(d.Get("description"), d, config)
@@ -297,15 +289,7 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 	if err != nil {
@@ -366,15 +350,7 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -432,15 +408,7 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceComputeReservationDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

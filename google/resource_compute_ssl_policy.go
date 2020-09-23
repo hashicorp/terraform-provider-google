@@ -159,15 +159,7 @@ object. This field is used in optimistic locking.`,
 }
 
 func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeSslPolicyDescription(d.Get("description"), d, config)
@@ -248,15 +240,7 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies/{{name}}")
 	if err != nil {
@@ -317,15 +301,7 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -392,15 +368,7 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

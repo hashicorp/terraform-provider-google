@@ -56,14 +56,7 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 }
 
 func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientContainerBeta.UserAgent = fmt.Sprintf("%s %s", config.clientContainerBeta.UserAgent, m.ModuleName)
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -120,11 +113,11 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error setting default_cluster_version: %s", err)
 	}
 
-	channels := map[string]string{}
+	m := map[string]string{}
 	for _, v := range resp.Channels {
-		channels[v.Channel] = v.DefaultVersion
+		m[v.Channel] = v.DefaultVersion
 	}
-	if err := d.Set("release_channel_default_version", channels); err != nil {
+	if err := d.Set("release_channel_default_version", m); err != nil {
 		return fmt.Errorf("Error setting release_channel_default_version: %s", err)
 	}
 

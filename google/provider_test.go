@@ -470,38 +470,6 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	})
 }
 
-func TestAccProviderMeta_setModuleName(t *testing.T) {
-	t.Parallel()
-
-	moduleName := "my-module"
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccProviderMeta_setModuleName(moduleName, randString(t, 10)),
-				Check:  testAccCheckConfigAgentModified(t, moduleName),
-			},
-			{
-				ResourceName:      "google_compute_address.default",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccCheckConfigAgentModified(t *testing.T, moduleName string) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
-		if !strings.Contains(config.userAgent, moduleName) {
-			return fmt.Errorf("expected userAgent to contain provider_meta set module_name")
-		}
-		return nil
-	}
-}
-
 func TestAccProviderUserProjectOverride(t *testing.T) {
 	// Parallel fine-grained resource creation
 	skipIfVcr(t)
@@ -600,19 +568,6 @@ provider "google" {
 resource "google_compute_address" "default" {
 	name = "address-test-%s"
 }`, endpoint, name)
-}
-
-func testAccProviderMeta_setModuleName(key, name string) string {
-	return fmt.Sprintf(`
-terraform {
-  provider_meta "google" {
-    module_name = "%s"
-  }
-}
-
-resource "google_compute_address" "default" {
-	name = "address-test-%s"
-}`, key, name)
 }
 
 // Set up two projects. Project 1 has a service account that is used to create a

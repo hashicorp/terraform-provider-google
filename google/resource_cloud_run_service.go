@@ -627,15 +627,7 @@ https://{route-hash}-{project-hash}-{cluster-level-suffix}.a.run.app`,
 }
 
 func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	specProp, err := expandCloudRunServiceSpec(nil, d, config)
@@ -740,15 +732,7 @@ func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) P
 }
 
 func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
@@ -821,15 +805,7 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -887,15 +863,7 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

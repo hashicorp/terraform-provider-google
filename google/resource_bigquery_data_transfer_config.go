@@ -172,15 +172,7 @@ The name is ignored when creating a transfer config.`,
 }
 
 func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandBigqueryDataTransferConfigDisplayName(d.Get("display_name"), d, config)
@@ -295,15 +287,7 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
 	if err != nil {
@@ -376,15 +360,7 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -492,15 +468,7 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

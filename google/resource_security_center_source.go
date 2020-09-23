@@ -77,15 +77,7 @@ lives in.`,
 }
 
 func resourceSecurityCenterSourceCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandSecurityCenterSourceDescription(d.Get("description"), d, config)
@@ -153,15 +145,7 @@ func resourceSecurityCenterSourceCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSecurityCenterSourceRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
 	if err != nil {
@@ -194,15 +178,7 @@ func resourceSecurityCenterSourceRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -259,16 +235,6 @@ func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSecurityCenterSourceDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
-
 	log.Printf("[WARNING] SecurityCenter Source resources"+
 		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
 		" state, but will still be present on the server.", d.Id())

@@ -271,15 +271,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 }
 
 func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandMonitoringUptimeCheckConfigDisplayName(d.Get("display_name"), d, config)
@@ -402,15 +394,7 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
@@ -477,15 +461,7 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 }
 
 func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -595,15 +571,7 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

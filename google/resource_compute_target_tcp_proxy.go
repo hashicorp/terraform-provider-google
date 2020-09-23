@@ -100,15 +100,7 @@ the backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 }
 
 func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeTargetTcpProxyDescription(d.Get("description"), d, config)
@@ -183,15 +175,7 @@ func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies/{{name}}")
 	if err != nil {
@@ -246,15 +230,7 @@ func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -341,15 +317,7 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeTargetTcpProxyDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -84,15 +84,7 @@ contain only English letters, numbers and underscores, and be at most 64 charact
 }
 
 func resourceDataCatalogEntryGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandDataCatalogEntryGroupDisplayName(d.Get("display_name"), d, config)
@@ -148,15 +140,7 @@ func resourceDataCatalogEntryGroupCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceDataCatalogEntryGroupRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
@@ -207,15 +191,7 @@ func resourceDataCatalogEntryGroupRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceDataCatalogEntryGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -278,15 +254,7 @@ func resourceDataCatalogEntryGroupUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceDataCatalogEntryGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

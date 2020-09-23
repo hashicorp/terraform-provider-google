@@ -92,15 +92,7 @@ If it is not provided, the provider region is used.`,
 }
 
 func resourceSQLSourceRepresentationInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandSQLSourceRepresentationInstanceName(d.Get("name"), d, config)
@@ -180,15 +172,7 @@ func resourceSQLSourceRepresentationInstanceCreate(d *schema.ResourceData, meta 
 }
 
 func resourceSQLSourceRepresentationInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{name}}")
 	if err != nil {
@@ -258,15 +242,7 @@ func resourceSQLSourceRepresentationInstanceRead(d *schema.ResourceData, meta in
 }
 
 func resourceSQLSourceRepresentationInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -119,15 +119,7 @@ you create the resource.`,
 }
 
 func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandComputeNetworkEndpointGroupName(d.Get("name"), d, config)
@@ -220,15 +212,7 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
@@ -289,15 +273,7 @@ func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interf
 }
 
 func resourceComputeNetworkEndpointGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -132,15 +132,7 @@ If it is not provided, the provider region is used.`,
 }
 
 func resourceComputeRegionSslCertificateCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	certificateProp, err := expandComputeRegionSslCertificateCertificate(d.Get("certificate"), d, config)
@@ -221,15 +213,7 @@ func resourceComputeRegionSslCertificateCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeRegionSslCertificateRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/sslCertificates/{{name}}")
 	if err != nil {
@@ -284,15 +268,7 @@ func resourceComputeRegionSslCertificateRead(d *schema.ResourceData, meta interf
 }
 
 func resourceComputeRegionSslCertificateDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

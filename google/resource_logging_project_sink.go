@@ -37,14 +37,7 @@ func resourceLoggingProjectSink() *schema.Resource {
 }
 
 func resourceLoggingProjectSinkCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientLogging.UserAgent = fmt.Sprintf("%s %s", config.clientLogging.UserAgent, m.ModuleName)
 
 	project, err := getProject(d, config)
 	if err != nil {

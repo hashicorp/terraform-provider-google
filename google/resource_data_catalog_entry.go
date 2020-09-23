@@ -256,15 +256,7 @@ Note that this Entry and its child resources may not actually be stored in the l
 }
 
 func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	linkedResourceProp, err := expandDataCatalogEntryLinkedResource(d.Get("linked_resource"), d, config)
@@ -354,15 +346,7 @@ func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
@@ -426,15 +410,7 @@ func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -544,15 +520,7 @@ func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceDataCatalogEntryDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

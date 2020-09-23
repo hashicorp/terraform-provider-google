@@ -189,14 +189,7 @@ func flattenDigests(dnsKeyDigests []*dns.DnsKeyDigest) []map[string]interface{} 
 }
 
 func dataSourceDNSKeysRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientDns.UserAgent = fmt.Sprintf("%s %s", config.clientDns.UserAgent, m.ModuleName)
 
 	fv, err := parseProjectFieldValue("managedZones", d.Get("managed_zone").(string), "project", d, config, false)
 	if err != nil {

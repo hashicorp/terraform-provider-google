@@ -81,15 +81,7 @@ this rule can be modified by the user.`,
 }
 
 func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandAppEngineFirewallRuleDescription(d.Get("description"), d, config)
@@ -196,15 +188,7 @@ func resourceAppEngineFirewallRulePollRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
@@ -250,15 +234,7 @@ func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -348,15 +324,7 @@ func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -101,20 +101,14 @@ func resourceGoogleProject() *schema.Resource {
 }
 
 func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientResourceManager.UserAgent = fmt.Sprintf("%s %s", config.clientResourceManager.UserAgent, m.ModuleName)
 
-	if err = resourceGoogleProjectCheckPreRequisites(config, d); err != nil {
+	if err := resourceGoogleProjectCheckPreRequisites(config, d); err != nil {
 		return fmt.Errorf("failed pre-requisites: %v", err)
 	}
 
 	var pid string
+	var err error
 	pid = d.Get("project_id").(string)
 
 	log.Printf("[DEBUG]: Creating new project %q", pid)
@@ -123,7 +117,7 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		Name:      d.Get("name").(string),
 	}
 
-	if err = getParentResourceId(d, project); err != nil {
+	if err := getParentResourceId(d, project); err != nil {
 		return err
 	}
 

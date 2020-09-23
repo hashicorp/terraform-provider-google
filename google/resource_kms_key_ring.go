@@ -67,15 +67,7 @@ A full list of valid locations can be found by running 'gcloud kms locations lis
 }
 
 func resourceKMSKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandKMSKeyRingName(d.Get("name"), d, config)
@@ -133,15 +125,7 @@ func resourceKMSKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceKMSKeyRingRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/locations/{{location}}/keyRings/{{name}}")
 	if err != nil {
@@ -190,16 +174,6 @@ func resourceKMSKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceKMSKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
-
 	log.Printf("[WARNING] KMS KeyRing resources"+
 		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
 		" state, but will still be present on the server.", d.Id())

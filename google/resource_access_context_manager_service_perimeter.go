@@ -283,15 +283,7 @@ bet set to True if any of the fields in the spec are set to non-default values.`
 }
 
 func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	titleProp, err := expandAccessContextManagerServicePerimeterTitle(d.Get("title"), d, config)
@@ -409,15 +401,7 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 }
 
 func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
@@ -468,15 +452,7 @@ func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, me
 }
 
 func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -583,15 +559,7 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 }
 
 func resourceAccessContextManagerServicePerimeterDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

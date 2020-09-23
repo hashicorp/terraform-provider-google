@@ -215,15 +215,7 @@ func getEndpointServiceGRPCConfigSource(serviceConfig, protoConfig string) *serv
 }
 
 func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientServiceMan.UserAgent = fmt.Sprintf("%s %s", config.clientServiceMan.UserAgent, m.ModuleName)
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err

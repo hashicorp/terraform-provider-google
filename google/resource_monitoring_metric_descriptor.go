@@ -184,15 +184,7 @@ func monitoringMetricDescriptorLabelsSchema() *schema.Resource {
 }
 
 func resourceMonitoringMetricDescriptorCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	typeProp, err := expandMonitoringMetricDescriptorType(d.Get("type"), d, config)
@@ -325,15 +317,7 @@ func resourceMonitoringMetricDescriptorPollRead(d *schema.ResourceData, meta int
 }
 
 func resourceMonitoringMetricDescriptorRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
@@ -394,15 +378,7 @@ func resourceMonitoringMetricDescriptorRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceMonitoringMetricDescriptorUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -497,15 +473,7 @@ func resourceMonitoringMetricDescriptorUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceMonitoringMetricDescriptorDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

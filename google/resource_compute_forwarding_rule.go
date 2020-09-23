@@ -282,15 +282,7 @@ This field is only used for INTERNAL load balancing.`,
 }
 
 func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeForwardingRuleDescription(d.Get("description"), d, config)
@@ -437,15 +429,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
@@ -536,15 +520,7 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -631,15 +607,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -114,15 +114,7 @@ client when the resource is created.`,
 }
 
 func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	bucketNameProp, err := expandComputeBackendBucketBucketName(d.Get("bucket_name"), d, config)
@@ -203,15 +195,7 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
 	if err != nil {
@@ -266,15 +250,7 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -348,15 +324,7 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

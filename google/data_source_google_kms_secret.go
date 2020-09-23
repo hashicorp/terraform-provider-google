@@ -36,14 +36,7 @@ func dataSourceGoogleKmsSecret() *schema.Resource {
 }
 
 func dataSourceGoogleKmsSecretRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientKms.UserAgent = fmt.Sprintf("%s %s", config.clientKms.UserAgent, m.ModuleName)
 
 	cryptoKeyId, err := parseKmsCryptoKeyId(d.Get("crypto_key").(string), config)
 

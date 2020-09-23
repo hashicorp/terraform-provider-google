@@ -98,15 +98,7 @@ func resourceSecretManagerSecretVersion() *schema.Resource {
 }
 
 func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	stateProp, err := expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
@@ -171,15 +163,7 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}{{name}}")
 	if err != nil {
@@ -230,15 +214,7 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -94,15 +94,7 @@ func resourceComputeNodeGroup() *schema.Resource {
 }
 
 func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeNodeGroupDescription(d.Get("description"), d, config)
@@ -183,15 +175,7 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeNodeGroupRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
 	if err != nil {
@@ -246,15 +230,7 @@ func resourceComputeNodeGroupRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -307,15 +283,7 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeNodeGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

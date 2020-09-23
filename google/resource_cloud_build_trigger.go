@@ -780,15 +780,7 @@ This field is a regular expression.`,
 }
 
 func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandCloudBuildTriggerName(d.Get("name"), d, config)
@@ -906,15 +898,7 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/triggers/{{trigger_id}}")
 	if err != nil {
@@ -984,15 +968,7 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -1089,15 +1065,7 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceCloudBuildTriggerDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

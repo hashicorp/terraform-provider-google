@@ -226,15 +226,7 @@ func computeImageGuestOsFeaturesSchema() *schema.Resource {
 }
 
 func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeImageDescription(d.Get("description"), d, config)
@@ -357,15 +349,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}")
 	if err != nil {
@@ -441,15 +425,7 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -508,15 +484,7 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

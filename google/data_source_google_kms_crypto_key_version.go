@@ -56,14 +56,7 @@ func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
 }
 
 func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}")
 	if err != nil {

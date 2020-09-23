@@ -163,15 +163,7 @@ func containeranalysisNoteRelatedUrlSchema() *schema.Resource {
 }
 
 func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandContainerAnalysisNoteName(d.Get("name"), d, config)
@@ -266,15 +258,7 @@ func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceContainerAnalysisNoteRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
 	if err != nil {
@@ -350,15 +334,7 @@ func resourceContainerAnalysisNoteRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -473,15 +449,7 @@ func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceContainerAnalysisNoteDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -260,15 +260,7 @@ func loggingMetricMetricDescriptorLabelsSchema() *schema.Resource {
 }
 
 func resourceLoggingMetricCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandLoggingMetricName(d.Get("name"), d, config)
@@ -376,15 +368,7 @@ func resourceLoggingMetricCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceLoggingMetricRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
 	if err != nil {
@@ -439,15 +423,7 @@ func resourceLoggingMetricRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceLoggingMetricUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -532,15 +508,7 @@ func resourceLoggingMetricUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceLoggingMetricDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

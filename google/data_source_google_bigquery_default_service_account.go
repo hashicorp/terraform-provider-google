@@ -23,14 +23,7 @@ func dataSourceGoogleBigqueryDefaultServiceAccount() *schema.Resource {
 }
 
 func dataSourceGoogleBigqueryDefaultServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientBigQuery.UserAgent = fmt.Sprintf("%s %s", config.clientBigQuery.UserAgent, m.ModuleName)
 
 	project, err := getProject(d, config)
 	if err != nil {

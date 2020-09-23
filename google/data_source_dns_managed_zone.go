@@ -49,14 +49,7 @@ func dataSourceDnsManagedZone() *schema.Resource {
 }
 
 func dataSourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientDns.UserAgent = fmt.Sprintf("%s %s", config.clientDns.UserAgent, m.ModuleName)
 
 	project, err := getProject(d, config)
 	if err != nil {

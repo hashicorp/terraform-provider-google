@@ -209,15 +209,7 @@ any of the selector entries.`,
 }
 
 func resourceGameServicesGameServerConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandGameServicesGameServerConfigDescription(d.Get("description"), d, config)
@@ -305,15 +297,7 @@ func resourceGameServicesGameServerConfigCreate(d *schema.ResourceData, meta int
 }
 
 func resourceGameServicesGameServerConfigRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}/configs/{{config_id}}")
 	if err != nil {
@@ -362,15 +346,7 @@ func resourceGameServicesGameServerConfigRead(d *schema.ResourceData, meta inter
 }
 
 func resourceGameServicesGameServerConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -102,15 +102,7 @@ func resourceVPCAccessConnector() *schema.Resource {
 }
 
 func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandVPCAccessConnectorName(d.Get("name"), d, config)
@@ -222,15 +214,7 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{VPCAccessBasePath}}projects/{{project}}/locations/{{region}}/connectors/{{name}}")
 	if err != nil {
@@ -294,15 +278,7 @@ func resourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceVPCAccessConnectorDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

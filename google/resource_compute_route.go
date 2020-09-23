@@ -177,15 +177,7 @@ Default value is 1000. Valid range is 0 through 65535.`,
 }
 
 func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	destRangeProp, err := expandComputeRouteDestRange(d.Get("dest_range"), d, config)
@@ -309,15 +301,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
@@ -402,15 +386,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

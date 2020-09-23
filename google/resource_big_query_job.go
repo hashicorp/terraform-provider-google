@@ -858,15 +858,7 @@ Creation, truncation and append actions occur as one atomic update upon job comp
 }
 
 func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	configurationProp, err := expandBigQueryJobConfiguration(nil, d, config)
@@ -959,15 +951,7 @@ func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollR
 }
 
 func resourceBigQueryJobRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}")
 	if err != nil {

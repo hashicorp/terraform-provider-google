@@ -119,15 +119,7 @@ error in any statement, the database is not created.`,
 }
 
 func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandSpannerDatabaseName(d.Get("name"), d, config)
@@ -222,15 +214,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
@@ -285,15 +269,7 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -351,15 +327,7 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

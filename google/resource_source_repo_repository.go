@@ -122,15 +122,7 @@ If unspecified, it defaults to the compute engine default service account.`,
 }
 
 func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandSourceRepoRepositoryName(d.Get("name"), d, config)
@@ -189,15 +181,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
 	if err != nil {
@@ -243,15 +227,7 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -309,15 +285,7 @@ func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

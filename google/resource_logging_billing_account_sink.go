@@ -27,19 +27,12 @@ func resourceLoggingBillingAccountSink() *schema.Resource {
 }
 
 func resourceLoggingBillingAccountSinkCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientLogging.UserAgent = fmt.Sprintf("%s %s", config.clientLogging.UserAgent, m.ModuleName)
 
 	id, sink := expandResourceLoggingSink(d, "billingAccounts", d.Get("billing_account").(string))
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err = config.clientLogging.BillingAccounts.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
+	_, err := config.clientLogging.BillingAccounts.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
 	}

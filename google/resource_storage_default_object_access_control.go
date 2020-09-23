@@ -118,15 +118,7 @@ func resourceStorageDefaultObjectAccessControl() *schema.Resource {
 }
 
 func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	bucketProp, err := expandStorageDefaultObjectAccessControlBucket(d.Get("bucket"), d, config)
@@ -192,15 +184,7 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 }
 
 func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
@@ -248,15 +232,7 @@ func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta 
 }
 
 func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -317,15 +293,7 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 }
 
 func resourceStorageDefaultObjectAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

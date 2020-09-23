@@ -148,15 +148,7 @@ For example,
 }
 
 func resourceGameServicesGameServerClusterCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandGameServicesGameServerClusterLabels(d.Get("labels"), d, config)
@@ -238,15 +230,7 @@ func resourceGameServicesGameServerClusterCreate(d *schema.ResourceData, meta in
 }
 
 func resourceGameServicesGameServerClusterRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
 	if err != nil {
@@ -292,15 +276,7 @@ func resourceGameServicesGameServerClusterRead(d *schema.ResourceData, meta inte
 }
 
 func resourceGameServicesGameServerClusterUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -371,15 +347,7 @@ func resourceGameServicesGameServerClusterUpdate(d *schema.ResourceData, meta in
 }
 
 func resourceGameServicesGameServerClusterDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

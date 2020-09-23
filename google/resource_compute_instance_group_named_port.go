@@ -80,15 +80,7 @@ long, and comply with RFC1035.`,
 }
 
 func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandNestedComputeInstanceGroupNamedPortName(d.Get("name"), d, config)
@@ -168,15 +160,7 @@ func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta in
 }
 
 func resourceComputeInstanceGroupNamedPortRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
 	if err != nil {
@@ -228,15 +212,7 @@ func resourceComputeInstanceGroupNamedPortRead(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

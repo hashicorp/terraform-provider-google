@@ -151,15 +151,7 @@ This should be formatted like 'projects/{project}/global/networks/{network}' or
 }
 
 func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	alternativeNameServerConfigProp, err := expandDNSPolicyAlternativeNameServerConfig(d.Get("alternative_name_server_config"), d, config)
@@ -236,15 +228,7 @@ func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDNSPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
 	if err != nil {
@@ -296,15 +280,7 @@ func resourceDNSPolicyRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -375,15 +351,7 @@ func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

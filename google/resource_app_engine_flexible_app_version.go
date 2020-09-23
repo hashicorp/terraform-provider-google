@@ -856,15 +856,7 @@ Reserved names,"default", "latest", and any name with the prefix "ah-".`,
 }
 
 func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	idProp, err := expandAppEngineFlexibleAppVersionVersionId(d.Get("version_id"), d, config)
@@ -1071,15 +1063,7 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}/versions/{{version_id}}?view=FULL")
 	if err != nil {
@@ -1187,15 +1171,7 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 }
 
 func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -1395,20 +1371,12 @@ func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceAppEngineFlexibleAppVersionDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	if d.Get("noop_on_destroy") == true {
 		log.Printf("[DEBUG] Keeping the AppVersion %q", d.Id())
 		return nil
 	}
+	config := meta.(*Config)
 
 	project, err := getProject(d, config)
 	if err != nil {

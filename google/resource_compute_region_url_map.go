@@ -1738,15 +1738,7 @@ when you create the resource.`,
 }
 
 func resourceComputeRegionUrlMapCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	defaultServiceProp, err := expandComputeRegionUrlMapDefaultService(d.Get("default_service"), d, config)
@@ -1851,15 +1843,7 @@ func resourceComputeRegionUrlMapCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeRegionUrlMapRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/urlMaps/{{name}}")
 	if err != nil {
@@ -1929,15 +1913,7 @@ func resourceComputeRegionUrlMapRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeRegionUrlMapUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -2035,15 +2011,7 @@ func resourceComputeRegionUrlMapUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeRegionUrlMapDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

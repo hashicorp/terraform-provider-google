@@ -226,15 +226,7 @@ boundaries.`,
 }
 
 func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandNetworkManagementConnectivityTestName(d.Get("name"), d, config)
@@ -340,15 +332,7 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 }
 
 func resourceNetworkManagementConnectivityTestRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
@@ -403,15 +387,7 @@ func resourceNetworkManagementConnectivityTestRead(d *schema.ResourceData, meta 
 }
 
 func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -531,15 +507,7 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 }
 
 func resourceNetworkManagementConnectivityTestDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -213,15 +213,7 @@ specifies that the task should be retried.`,
 }
 
 func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandCloudTasksQueueName(d.Get("name"), d, config)
@@ -286,15 +278,7 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceCloudTasksQueueRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
 	if err != nil {
@@ -340,15 +324,7 @@ func resourceCloudTasksQueueRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -421,15 +397,7 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceCloudTasksQueueDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

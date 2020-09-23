@@ -102,15 +102,7 @@ and is not a valid configuration.`,
 }
 
 func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandPubsubTopicName(d.Get("name"), d, config)
@@ -215,15 +207,7 @@ func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) PollR
 }
 
 func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 	if err != nil {
@@ -269,15 +253,7 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -345,15 +321,7 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

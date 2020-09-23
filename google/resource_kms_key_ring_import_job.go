@@ -128,15 +128,7 @@ for General Considerations and Textual Encoding of Subject Public Key Info.`,
 }
 
 func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	importMethodProp, err := expandKMSKeyRingImportJobImportMethod(d.Get("import_method"), d, config)
@@ -186,15 +178,7 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}{{name}}")
 	if err != nil {
@@ -239,15 +223,7 @@ func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceKMSKeyRingImportJobDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

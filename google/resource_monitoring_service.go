@@ -90,15 +90,7 @@ projects/[PROJECT_ID]/services/[SERVICE_ID].`,
 }
 
 func resourceMonitoringServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandMonitoringServiceDisplayName(d.Get("display_name"), d, config)
@@ -165,15 +157,7 @@ func resourceMonitoringServiceCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceMonitoringServiceRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
@@ -219,15 +203,7 @@ func resourceMonitoringServiceRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceMonitoringServiceUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -295,15 +271,7 @@ func resourceMonitoringServiceUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceMonitoringServiceDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

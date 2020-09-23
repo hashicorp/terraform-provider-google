@@ -307,15 +307,7 @@ to the Internet. When set to 'private', Cloud DNS will always send queries throu
 }
 
 func resourceDNSManagedZoneCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandDNSManagedZoneDescription(d.Get("description"), d, config)
@@ -410,15 +402,7 @@ func resourceDNSManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
@@ -488,15 +472,7 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -568,15 +544,7 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

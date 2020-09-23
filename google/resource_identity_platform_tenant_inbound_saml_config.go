@@ -151,15 +151,7 @@ and accept an authentication assertion issued by a SAML identity provider.`,
 }
 
 func resourceIdentityPlatformTenantInboundSamlConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandIdentityPlatformTenantInboundSamlConfigName(d.Get("name"), d, config)
@@ -230,15 +222,7 @@ func resourceIdentityPlatformTenantInboundSamlConfigCreate(d *schema.ResourceDat
 }
 
 func resourceIdentityPlatformTenantInboundSamlConfigRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/inboundSamlConfigs/{{name}}")
 	if err != nil {
@@ -287,15 +271,7 @@ func resourceIdentityPlatformTenantInboundSamlConfigRead(d *schema.ResourceData,
 }
 
 func resourceIdentityPlatformTenantInboundSamlConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -378,15 +354,7 @@ func resourceIdentityPlatformTenantInboundSamlConfigUpdate(d *schema.ResourceDat
 }
 
 func resourceIdentityPlatformTenantInboundSamlConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

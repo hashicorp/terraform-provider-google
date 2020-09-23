@@ -68,15 +68,7 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}/crypt
 }
 
 func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	plaintextProp, err := expandKMSSecretCiphertextPlaintext(d.Get("plaintext"), d, config)
@@ -142,15 +134,7 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}")
 	if err != nil {
@@ -189,16 +173,6 @@ func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceKMSSecretCiphertextDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
-
 	log.Printf("[WARNING] KMS SecretCiphertext resources"+
 		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
 		" state, but will still be present on the server.", d.Id())

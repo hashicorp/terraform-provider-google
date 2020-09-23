@@ -175,15 +175,7 @@ displayed in chooser dialogs.`,
 }
 
 func resourceBinaryAuthorizationAttestorCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandBinaryAuthorizationAttestorName(d.Get("name"), d, config)
@@ -242,15 +234,7 @@ func resourceBinaryAuthorizationAttestorCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceBinaryAuthorizationAttestorRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
 	if err != nil {
@@ -293,15 +277,7 @@ func resourceBinaryAuthorizationAttestorRead(d *schema.ResourceData, meta interf
 }
 
 func resourceBinaryAuthorizationAttestorUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -355,15 +331,7 @@ func resourceBinaryAuthorizationAttestorUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceBinaryAuthorizationAttestorDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

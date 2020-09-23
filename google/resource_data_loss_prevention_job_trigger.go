@@ -440,15 +440,7 @@ be based on the time of the execution of the last run of the JobTrigger.`,
 }
 
 func resourceDataLossPreventionJobTriggerCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandDataLossPreventionJobTriggerDescription(d.Get("description"), d, config)
@@ -521,15 +513,7 @@ func resourceDataLossPreventionJobTriggerCreate(d *schema.ResourceData, meta int
 }
 
 func resourceDataLossPreventionJobTriggerRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
 	if err != nil {
@@ -574,15 +558,7 @@ func resourceDataLossPreventionJobTriggerRead(d *schema.ResourceData, meta inter
 }
 
 func resourceDataLossPreventionJobTriggerUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -674,15 +650,7 @@ func resourceDataLossPreventionJobTriggerUpdate(d *schema.ResourceData, meta int
 }
 
 func resourceDataLossPreventionJobTriggerDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

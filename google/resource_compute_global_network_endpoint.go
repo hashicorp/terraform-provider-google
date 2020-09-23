@@ -77,15 +77,7 @@ This can only be specified when network_endpoint_type of the NEG is INTERNET_FQD
 }
 
 func resourceComputeGlobalNetworkEndpointCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	portProp, err := expandNestedComputeGlobalNetworkEndpointPort(d.Get("port"), d, config)
@@ -166,15 +158,7 @@ func resourceComputeGlobalNetworkEndpointCreate(d *schema.ResourceData, meta int
 }
 
 func resourceComputeGlobalNetworkEndpointRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{global_network_endpoint_group}}/listNetworkEndpoints")
 	if err != nil {
@@ -241,15 +225,7 @@ func resourceComputeGlobalNetworkEndpointRead(d *schema.ResourceData, meta inter
 }
 
 func resourceComputeGlobalNetworkEndpointDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -112,15 +112,7 @@ If it is not provided, the provider region is used.`,
 }
 
 func resourceComputeRegionTargetHttpsProxyCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeRegionTargetHttpsProxyDescription(d.Get("description"), d, config)
@@ -201,15 +193,7 @@ func resourceComputeRegionTargetHttpsProxyCreate(d *schema.ResourceData, meta in
 }
 
 func resourceComputeRegionTargetHttpsProxyRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetHttpsProxies/{{name}}")
 	if err != nil {
@@ -267,15 +251,7 @@ func resourceComputeRegionTargetHttpsProxyRead(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -362,15 +338,7 @@ func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta in
 }
 
 func resourceComputeRegionTargetHttpsProxyDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

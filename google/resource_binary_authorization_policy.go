@@ -219,15 +219,7 @@ policy will be subject to the project admission policy. Possible values: ["ENABL
 }
 
 func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandBinaryAuthorizationPolicyDescription(d.Get("description"), d, config)
@@ -298,15 +290,7 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceBinaryAuthorizationPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
 	if err != nil {
@@ -355,15 +339,7 @@ func resourceBinaryAuthorizationPolicyRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceBinaryAuthorizationPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -429,15 +405,7 @@ func resourceBinaryAuthorizationPolicyUpdate(d *schema.ResourceData, meta interf
 }
 
 func resourceBinaryAuthorizationPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

@@ -279,15 +279,7 @@ is 1,024 characters.`,
 }
 
 func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	datasetIdProp, err := expandNestedBigQueryDatasetAccessDatasetId(d.Get("dataset_id"), d, config)
@@ -416,15 +408,7 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
@@ -491,15 +475,7 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceBigQueryDatasetAccessDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

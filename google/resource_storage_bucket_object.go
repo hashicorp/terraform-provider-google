@@ -186,14 +186,7 @@ func objectGetId(object *storage.Object) string {
 }
 
 func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientStorage.UserAgent = fmt.Sprintf("%s %s", config.clientStorage.UserAgent, m.ModuleName)
 
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
@@ -246,7 +239,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	insertCall.Name(name)
 	insertCall.Media(media)
 
-	_, err = insertCall.Do()
+	_, err := insertCall.Do()
 
 	if err != nil {
 		return fmt.Errorf("Error uploading object %s: %s", name, err)

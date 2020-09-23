@@ -299,15 +299,7 @@ It must be in format "HH:MM", where HH : [00-23] and MM : [00-00] GMT.`,
 }
 
 func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandComputeResourcePolicyName(d.Get("name"), d, config)
@@ -382,15 +374,7 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
 	if err != nil {
@@ -439,15 +423,7 @@ func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeResourcePolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

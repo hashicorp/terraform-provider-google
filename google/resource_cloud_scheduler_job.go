@@ -433,15 +433,7 @@ The value of this field must be a time zone name from the tz database.`,
 }
 
 func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandCloudSchedulerJobName(d.Get("name"), d, config)
@@ -536,15 +528,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
@@ -613,15 +597,7 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

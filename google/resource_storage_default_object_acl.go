@@ -34,14 +34,7 @@ func resourceStorageDefaultObjectAcl() *schema.Resource {
 }
 
 func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientStorage.UserAgent = fmt.Sprintf("%s %s", config.clientStorage.UserAgent, m.ModuleName)
 
 	bucket := d.Get("bucket").(string)
 	defaultObjectAcl := []*storage.ObjectAccessControl{}

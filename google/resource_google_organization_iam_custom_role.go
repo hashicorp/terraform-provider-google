@@ -72,14 +72,7 @@ func resourceGoogleOrganizationIamCustomRole() *schema.Resource {
 }
 
 func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
 	config := meta.(*Config)
-	config.clientIAM.UserAgent = fmt.Sprintf("%s %s", config.clientIAM.UserAgent, m.ModuleName)
 
 	org := d.Get("org_id").(string)
 	roleId := fmt.Sprintf("organizations/%s/roles/%s", org, d.Get("role_id").(string))

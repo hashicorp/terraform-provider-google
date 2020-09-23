@@ -90,15 +90,7 @@ a value of 'en_US.UTF8' at creation time.`,
 }
 
 func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	charsetProp, err := expandSQLDatabaseCharset(d.Get("charset"), d, config)
@@ -180,15 +172,7 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
@@ -237,15 +221,7 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -320,15 +296,7 @@ func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

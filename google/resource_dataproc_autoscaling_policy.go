@@ -241,15 +241,7 @@ only on primary workers, the cluster will use primary workers only and no second
 }
 
 func resourceDataprocAutoscalingPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	idProp, err := expandDataprocAutoscalingPolicyPolicyId(d.Get("policy_id"), d, config)
@@ -317,15 +309,7 @@ func resourceDataprocAutoscalingPolicyCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceDataprocAutoscalingPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{DataprocBasePath}}projects/{{project}}/locations/{{location}}/autoscalingPolicies/{{policy_id}}")
 	if err != nil {
@@ -374,15 +358,7 @@ func resourceDataprocAutoscalingPolicyRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceDataprocAutoscalingPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -442,15 +418,7 @@ func resourceDataprocAutoscalingPolicyUpdate(d *schema.ResourceData, meta interf
 }
 
 func resourceDataprocAutoscalingPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 

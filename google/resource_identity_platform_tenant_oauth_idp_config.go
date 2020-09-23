@@ -90,15 +90,7 @@ func resourceIdentityPlatformTenantOauthIdpConfig() *schema.Resource {
 }
 
 func resourceIdentityPlatformTenantOauthIdpConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandIdentityPlatformTenantOauthIdpConfigName(d.Get("name"), d, config)
@@ -175,15 +167,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigCreate(d *schema.ResourceData, 
 }
 
 func resourceIdentityPlatformTenantOauthIdpConfigRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
 	if err != nil {
@@ -235,15 +219,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigRead(d *schema.ResourceData, me
 }
 
 func resourceIdentityPlatformTenantOauthIdpConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
@@ -336,15 +312,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigUpdate(d *schema.ResourceData, 
 }
 
 func resourceIdentityPlatformTenantOauthIdpConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
-	if err != nil {
-		return err
-	}
-
 	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	billingProject := ""
 
