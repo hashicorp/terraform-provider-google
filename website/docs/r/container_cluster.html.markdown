@@ -282,7 +282,7 @@ clusters with private nodes. Structure is documented below.
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `release_channel` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `release_channel` - (Optional)
 Configuration options for the [Release channel](https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels)
 feature, which provide more control over automatic upgrades of your GKE clusters.
 When updating this field, GKE imposes specific version requirements. See
