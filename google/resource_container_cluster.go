@@ -167,6 +167,38 @@ func resourceContainerCluster() *schema.Resource {
 				Description: `The list of zones in which the cluster's nodes are located. Nodes must be in the region of their regional cluster or in the same region as their cluster's zone for zonal clusters. If this is specified for a zonal cluster, omit the cluster's zone.`,
 			},
 
+			"notification_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Description: `The notification config for sending cluster upgrade notifications`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pubsub": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							MaxItems:    1,
+							Description: `Notification config for pubsub`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether or not the notification config is enabled`,
+									},
+									"topic": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The pubsub topic to send the notification to, must be in the format: projects/{project}/topics/{topic}`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			"addons_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -1034,9 +1066,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         d.Get("enable_shielded_nodes").(bool),
 			ForceSendFields: []string{"Enabled"},
 		},
-		ReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
-		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
-		ResourceLabels: expandStringMap(d, "resource_labels"),
+		ReleaseChannel:     expandReleaseChannel(d.Get("release_channel")),
+		MasterAuth:         expandMasterAuth(d.Get("master_auth")),
+		ResourceLabels:     expandStringMap(d, "resource_labels"),
+		NotificationConfig: expandNotificationConfig(d.Get("notification_config")),
 	}
 
 	if v, ok := d.GetOk("default_max_pods_per_node"); ok {
@@ -2434,6 +2467,27 @@ func expandAuthenticatorGroupsConfig(configured interface{}) *containerBeta.Auth
 		result.SecurityGroup = securityGroup.(string)
 	}
 	return result
+}
+
+func expandNotificationConfig(configured interface{}) *containerBeta.NotificationConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return &containerBeta.NotificationConfig{
+			Pubsub: &containerBeta.PubSub{
+				Enabled: false,
+			},
+		}
+	}
+
+	notificationConfig := l[0].(map[string]interface{})
+	pubsub := notificationConfig["pubsub"].(map[string]interface{})
+
+	return &containerBeta.NotificationConfig{
+		Pubsub: &containerBeta.PubSub{
+			Enabled: pubsub["enabled"].(bool),
+			Topic:   pubsub["topic"].(string),
+		},
+	}
 }
 
 func expandMasterAuth(configured interface{}) *containerBeta.MasterAuth {

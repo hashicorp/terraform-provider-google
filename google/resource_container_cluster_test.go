@@ -173,6 +173,66 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNotificationConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	topic := "projects/test-project/topic/test-topic"
+	newTopic := "projects/test-project/topic/test-topic-2"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNotificationConfig(clusterName, topic),
+			},
+			{
+				ResourceName:      "google_container_cluster.notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_updateNotificationConfig(clusterName, newTopic),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.notification_config", "notification_config.pubsub.enabled", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.notification_config", "notification_config.pubsub.topic", newTopic),
+				),
+			},
+			{
+				ResourceName:      "google_container_cluster.notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_disableNotificationConfig(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.notification_config", "notification_config.pubsub.enabled", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.notification_config", "notification_config.pubsub.topic", ""),
+				),
+			},
+			{
+				ResourceName:      "google_container_cluster.notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_updateNotificationConfig(clusterName, newTopic),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.notification_config", "notification_config.pubsub.enabled", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.notification_config", "notification_config.pubsub.topic", newTopic),
+				),
+			},
+			{
+				ResourceName:      "google_container_cluster.notification_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
 	t.Parallel()
 
@@ -424,6 +484,23 @@ func TestAccContainerCluster_withReleaseChannelEnabledDefaultVersion(t *testing.
 
 func TestAccContainerCluster_withInvalidReleaseChannel(t *testing.T) {
 	// This is essentially a unit test, no interactions
+	skipIfVcr(t)
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccContainerCluster_withReleaseChannelEnabled(clusterName, "CANARY"),
+				ExpectError: regexp.MustCompile(`expected release_channel\.0\.channel to be one of \[UNSPECIFIED RAPID REGULAR STABLE\], got CANARY`),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withNotificationChannel(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
@@ -1859,6 +1936,56 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, projectID, clusterName)
+}
+
+func testAccContainerCluster_withNotificationConfig(clusterName string, topic string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "notification_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+
+  notification_config {
+	pubsub {
+	  enabled = true,
+	  topic = %s  
+	}
+  }
+}
+`, clusterName, topic)
+}
+
+func testAccContainerCluster_updateNotificationConfig(clusterName string, topic string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "notification_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+
+  notification_config {
+	pubsub {
+	  enabled = true,
+	  topic = %s  
+	}
+  }
+}
+`, clusterName, topic)
+}
+
+func testAccContainerCluster_disableNotificationConfig(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "notification_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+
+  notification_config {
+	pubsub {
+	  enabled = false,
+	}
+  }
+}
+`, clusterName)
 }
 
 func testAccContainerCluster_withMasterAuth(clusterName string) string {
