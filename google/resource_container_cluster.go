@@ -2480,12 +2480,22 @@ func expandNotificationConfig(configured interface{}) *containerBeta.Notificatio
 	}
 
 	notificationConfig := l[0].(map[string]interface{})
-	pubsub := notificationConfig["pubsub"].(map[string]interface{})
+	if v, ok := notificationConfig["pubsub"]; ok {
+		if len(v.([]interface{})) > 0 {
+			pubsub := notificationConfig["pubsub"].([]interface{})[0].(map[string]interface{})
+
+			return &containerBeta.NotificationConfig{
+				Pubsub: &containerBeta.PubSub{
+					Enabled: pubsub["enabled"].(bool),
+					Topic:   pubsub["topic"].(string),
+				},
+			}
+		}
+	}
 
 	return &containerBeta.NotificationConfig{
 		Pubsub: &containerBeta.PubSub{
-			Enabled: pubsub["enabled"].(bool),
-			Topic:   pubsub["topic"].(string),
+			Enabled: false,
 		},
 	}
 }

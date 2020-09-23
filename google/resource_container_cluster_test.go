@@ -1947,8 +1947,8 @@ resource "google_container_cluster" "notification_config" {
 
   notification_config {
 	pubsub {
-	  enabled = true,
-	  topic = %s  
+	  enabled = true
+	  topic = "%s"  
 	}
   }
 }
@@ -1964,8 +1964,8 @@ resource "google_container_cluster" "notification_config" {
 
   notification_config {
 	pubsub {
-	  enabled = true,
-	  topic = %s  
+	  enabled = true
+	  topic = "%s"  
 	}
   }
 }
@@ -1981,7 +1981,7 @@ resource "google_container_cluster" "notification_config" {
 
   notification_config {
 	pubsub {
-	  enabled = false,
+	  enabled = false
 	}
   }
 }
