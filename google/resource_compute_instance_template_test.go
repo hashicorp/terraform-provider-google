@@ -821,6 +821,26 @@ func TestAccComputeInstanceTemplate_invalidDiskType(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_withScratchDisk(t *testing.T) {
+	t.Parallel()
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_withScratchDisk(randString(t, 10)),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name_prefix"},
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_imageResourceTest(t *testing.T) {
 	// Multiple fine-grained resources
 	skipIfVcr(t)
@@ -1534,6 +1554,34 @@ resource "google_compute_instance_template" "foobar" {
   }
 }
 `, suffix, suffix)
+}
+
+func testAccComputeInstanceTemplate_withScratchDisk(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "centos-7"
+	project = "gce-uefi-images"
+}
+resource "google_compute_instance_template" "foobar" {
+  name           = "instancet-test-%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  disk {
+    source_image = data.google_compute_image.my_image.name
+    auto_delete  = true
+    boot         = true
+  }
+  disk {
+    auto_delete  = true
+    disk_size_gb = 375
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+  }
+  network_interface {
+    network = "default"
+  }
+}
+`, suffix)
 }
 
 func testAccComputeInstanceTemplate_regionDisks(suffix string) string {
