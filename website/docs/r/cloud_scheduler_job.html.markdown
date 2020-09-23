@@ -218,6 +218,7 @@ The following arguments are supported:
   The allowed duration for this deadline is:
   * For HTTP targets, between 15 seconds and 30 minutes.
   * For App Engine HTTP targets, between 15 seconds and 24 hours.
+  * **Note**: For PubSub targets, this field is ignored - setting it will introduce an unresolvable diff.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s"
 
 * `retry_config` -
