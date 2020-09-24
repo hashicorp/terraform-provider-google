@@ -90,7 +90,8 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("settings.0.disk_size", isDiskShrinkage),
-			privateNetworkCustomizeDiff),
+			privateNetworkCustomizeDiff,
+			pitrPostgresOnlyCustomizeDiff),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -601,6 +602,19 @@ func privateNetworkCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta
 		}
 	}
 
+	return nil
+}
+
+// Point in time recovery for MySQL database instances needs binary_log_enabled set to true and
+// not point_in_time_recovery_enabled, which is confusing to users. This checks for
+// point_in_time_recovery_enabled being set to a non-PostgreSQL database instance and suggests
+// binary_log_enabled.
+func pitrPostgresOnlyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	pitr := diff.Get("settings.0.backup_configuration.0.point_in_time_recovery_enabled").(bool)
+	dbVersion := diff.Get("database_version").(string)
+	if pitr && !strings.Contains(dbVersion, "POSTGRES") {
+		return fmt.Errorf("point_in_time_recovery_enabled is only available for Postgres. You may want to consider using binary_log_enabled instead.")
+	}
 	return nil
 }
 
