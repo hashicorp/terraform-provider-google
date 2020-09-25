@@ -31,6 +31,9 @@ func JSONBytesEqual(a, b []byte) (bool, error) {
 	if err := json.Unmarshal(a, &j); err != nil {
 		return false, err
 	}
+	if j == nil {
+		return false, fmt.Errorf("The old schema value was nil")
+	}
 	jList := j.([]interface{})
 	if err := checkNameExists(jList); err != nil {
 		return false, err
@@ -40,6 +43,9 @@ func JSONBytesEqual(a, b []byte) (bool, error) {
 	})
 	if err := json.Unmarshal(b, &j2); err != nil {
 		return false, err
+	}
+	if j2 == nil {
+		return false, fmt.Errorf("The new schema value was nil")
 	}
 	j2List := j2.([]interface{})
 	if err := checkNameExists(j2List); err != nil {
@@ -53,6 +59,11 @@ func JSONBytesEqual(a, b []byte) (bool, error) {
 
 // Compare the JSON strings are equal
 func bigQueryTableSchemaDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	// The API can return an empty schema which gets encoded to "null"
+	// during read.
+	if old == "null" {
+		old = "[]"
+	}
 	oldBytes := []byte(old)
 	newBytes := []byte(new)
 
