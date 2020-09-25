@@ -1849,6 +1849,28 @@ func TestAccComputeInstance_resourcePolicyCollocate(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_subnetworkUpdate(t *testing.T) {
+	t.Parallel()
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	suffix := fmt.Sprintf("%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_subnetworkUpdate(suffix, instanceName),
+			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_subnetworkUpdateTwo(suffix, instanceName),
+			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -4659,4 +4681,153 @@ resource "google_compute_resource_policy" "foo" {
 }
 
 `, instance, instance, suffix)
+}
+
+func testAccComputeInstance_subnetworkUpdate(suffix, instance string) string {
+	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
+	resource "google_compute_network" "inst-test-network" {
+		name = "tf-test-network-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_network" "inst-test-network2" {
+		name = "tf-test-network2-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork" {
+		name          = "tf-test-compute-subnet-%s"
+		ip_cidr_range = "10.0.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network.id
+		secondary_ip_range {
+			range_name    = "inst-test-secondary"
+			ip_cidr_range = "172.16.0.0/20"
+		}
+		secondary_ip_range {
+			range_name    = "inst-test-tertiary"
+			ip_cidr_range = "10.1.0.0/16"
+		}
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork2" {
+		name          = "tf-test-compute-subnet2-%s"
+		ip_cidr_range = "10.3.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network2.id
+		secondary_ip_range {
+			range_name    = "inst-test-secondary2"
+			ip_cidr_range = "173.16.0.0/20"
+		}
+		secondary_ip_range {
+			range_name    = "inst-test-tertiary2"
+			ip_cidr_range = "10.4.0.0/16"
+		}
+	}
+
+	resource "google_compute_instance" "foobar" {
+		name         = "%s"
+		machine_type = "n1-standard-1"
+		zone         = "us-east1-d"
+		allow_stopping_for_update = true
+
+		boot_disk {
+			initialize_params {
+				image = data.google_compute_image.my_image.id
+			}
+		}
+
+		network_interface {
+			subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+			access_config {
+				network_tier = "STANDARD"
+			}
+			alias_ip_range {
+				subnetwork_range_name = google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range[0].range_name
+				ip_cidr_range         = "172.16.0.0/24"
+			}
+
+			alias_ip_range {
+				subnetwork_range_name = google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range[1].range_name
+				ip_cidr_range         = "10.1.0.0/20"
+			}
+		}
+	}
+`, suffix, suffix, suffix, suffix, instance)
+}
+
+func testAccComputeInstance_subnetworkUpdateTwo(suffix, instance string) string {
+	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
+	resource "google_compute_network" "inst-test-network" {
+		name = "tf-test-network-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_network" "inst-test-network2" {
+		name = "tf-test-network2-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork" {
+		name          = "tf-test-compute-subnet-%s"
+		ip_cidr_range = "10.0.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network.id
+		secondary_ip_range {
+			range_name    = "inst-test-secondary"
+			ip_cidr_range = "172.16.0.0/20"
+		}
+		secondary_ip_range {
+			range_name    = "inst-test-tertiary"
+			ip_cidr_range = "10.1.0.0/16"
+		}
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork2" {
+		name          = "tf-test-compute-subnet2-%s"
+		ip_cidr_range = "10.3.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network2.id
+		secondary_ip_range {
+			range_name    = "inst-test-secondary2"
+			ip_cidr_range = "173.16.0.0/20"
+		}
+		secondary_ip_range {
+			range_name    = "inst-test-tertiary2"
+			ip_cidr_range = "10.4.0.0/16"
+		}
+	}
+
+	resource "google_compute_instance" "foobar" {
+		name         = "%s"
+		machine_type = "n1-standard-1"
+		zone         = "us-east1-d"
+		allow_stopping_for_update = true
+
+		boot_disk {
+			initialize_params {
+				image = data.google_compute_image.my_image.id
+			}
+		}
+
+		network_interface {
+			subnetwork = google_compute_subnetwork.inst-test-subnetwork2.id
+
+			alias_ip_range {
+				subnetwork_range_name = google_compute_subnetwork.inst-test-subnetwork2.secondary_ip_range[0].range_name
+				ip_cidr_range         = "173.16.0.0/24"
+			}
+		}
+	}
+`, suffix, suffix, suffix, suffix, instance)
 }
