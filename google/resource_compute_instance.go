@@ -19,6 +19,7 @@ import (
 	"github.com/mitchellh/hashstructure"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/googleapi"
 )
 
 var (
@@ -229,7 +230,6 @@ func resourceComputeInstance() *schema.Resource {
 							Type:             schema.TypeString,
 							Optional:         true,
 							Computed:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 							Description:      `The name or self_link of the network attached to this interface.`,
 						},
@@ -238,7 +238,6 @@ func resourceComputeInstance() *schema.Resource {
 							Type:             schema.TypeString,
 							Optional:         true,
 							Computed:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
 							Description:      `The name or self_link of the subnetwork attached to this interface.`,
 						},
@@ -247,7 +246,6 @@ func resourceComputeInstance() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
-							ForceNew:    true,
 							Description: `The project in which the subnetwork belongs.`,
 						},
 
@@ -1291,19 +1289,55 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	networkInterfacesCount := d.Get("network_interface.#").(int)
+	networkInterfaces, err := expandNetworkInterfaces(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting network interface from config: %s", err)
+	}
+
 	// Sanity check
-	if networkInterfacesCount != len(instance.NetworkInterfaces) {
+	if len(networkInterfaces) != len(instance.NetworkInterfaces) {
 		return fmt.Errorf("Instance had unexpected number of network interfaces: %d", len(instance.NetworkInterfaces))
 	}
-	for i := 0; i < networkInterfacesCount; i++ {
+
+	var updatesToNIWhileStopped []func(...googleapi.CallOption) (*computeBeta.Operation, error)
+	for i := 0; i < len(networkInterfaces); i++ {
 		prefix := fmt.Sprintf("network_interface.%d", i)
+		networkInterface := networkInterfaces[i]
 		instNetworkInterface := instance.NetworkInterfaces[i]
+
 		networkName := d.Get(prefix + ".name").(string)
+		subnetwork := networkInterface.Subnetwork
+		updateDuringStop := d.HasChange(prefix+".subnetwork") || d.HasChange(prefix+".network") || d.HasChange(prefix+".subnetwork_project")
 
 		// Sanity check
 		if networkName != instNetworkInterface.Name {
 			return fmt.Errorf("Instance networkInterface had unexpected name: %s", instNetworkInterface.Name)
+		}
+
+		// On creation the network is inferred if only subnetwork is given.
+		// Unforunately for us there is no way to determine if the user is
+		// explicitly assigning network or we are reusing the one that was inferred
+		// from state. So here we check if subnetwork changed and network did not.
+		// In this scenario we assume network was inferred and attempt to figure out
+		// the new corresponding network.
+
+		if d.HasChange(prefix + ".subnetwork") {
+			if !d.HasChange(prefix + ".network") {
+				subnetProjectField := prefix + ".subnetwork_project"
+				sf, err := ParseSubnetworkFieldValueWithProjectField(subnetwork, subnetProjectField, d, config)
+				if err != nil {
+					return fmt.Errorf("Cannot determine self_link for subnetwork %q: %s", subnetwork, err)
+				}
+				resp, err := config.clientCompute.Subnetworks.Get(sf.Project, sf.Region, sf.Name).Do()
+				if err != nil {
+					return errwrap.Wrapf("Error getting subnetwork value: {{err}}", err)
+				}
+				nf, err := ParseNetworkFieldValue(resp.Network, d, config)
+				if err != nil {
+					return fmt.Errorf("Cannot determine self_link for network %q: %s", resp.Network, err)
+				}
+				networkInterface.Network = nf.RelativeLink()
+			}
 		}
 
 		if d.HasChange(prefix + ".access_config") {
@@ -1351,12 +1385,22 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return opErr
 				}
 			}
+
+			// re-read fingerprint
+			instance, err = config.clientComputeBeta.Instances.Get(project, zone, instance.Name).Do()
+			if err != nil {
+				return err
+			}
+			instNetworkInterface = instance.NetworkInterfaces[i]
 		}
 
-		if d.HasChange(prefix + ".alias_ip_range") {
-			rereadFingerprint := false
-
-			// Alias IP ranges cannot be updated; they must be removed and then added.
+		// Setting NetworkIP to empty and AccessConfigs to nil.
+		// This will opt them out from being modified in the patch call.
+		networkInterface.NetworkIP = ""
+		networkInterface.AccessConfigs = nil
+		if !updateDuringStop && d.HasChange(prefix+".alias_ip_range") {
+			// Alias IP ranges cannot be updated; they must be removed and then added
+			// unless you are changing subnetwork/network
 			if len(instNetworkInterface.AliasIpRanges) > 0 {
 				ni := &computeBeta.NetworkInterface{
 					Fingerprint:     instNetworkInterface.Fingerprint,
@@ -1370,31 +1414,29 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if opErr != nil {
 					return opErr
 				}
-				rereadFingerprint = true
+				// re-read fingerprint
+				instance, err = config.clientComputeBeta.Instances.Get(project, zone, instance.Name).Do()
+				if err != nil {
+					return err
+				}
+				instNetworkInterface = instance.NetworkInterfaces[i]
 			}
 
-			ranges := d.Get(prefix + ".alias_ip_range").([]interface{})
-			if len(ranges) > 0 {
-				if rereadFingerprint {
-					instance, err = config.clientComputeBeta.Instances.Get(project, zone, instance.Name).Do()
-					if err != nil {
-						return err
-					}
-					instNetworkInterface = instance.NetworkInterfaces[i]
-				}
-				ni := &computeBeta.NetworkInterface{
-					AliasIpRanges: expandAliasIpRanges(ranges),
-					Fingerprint:   instNetworkInterface.Fingerprint,
-				}
-				op, err := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, ni).Do()
-				if err != nil {
-					return errwrap.Wrapf("Error adding alias_ip_range: {{err}}", err)
-				}
-				opErr := computeOperationWaitTime(config, op, project, "updating alias ip ranges", d.Timeout(schema.TimeoutUpdate))
-				if opErr != nil {
-					return opErr
-				}
+			networkInterface.Fingerprint = instNetworkInterface.Fingerprint
+			updateCall := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, networkInterface).Do
+			op, err := updateCall()
+			if err != nil {
+				return errwrap.Wrapf("Error updating network interface: {{err}}", err)
 			}
+			opErr := computeOperationWaitTime(config, op, project, "network interface to update", d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
+		} else {
+
+			networkInterface.Fingerprint = instNetworkInterface.Fingerprint
+			updateCall := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, networkInterface).Do
+			updatesToNIWhileStopped = append(updatesToNIWhileStopped, updateCall)
 		}
 	}
 
@@ -1520,7 +1562,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") || d.HasChange("shielded_instance_config")
+	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") || d.HasChange("shielded_instance_config") || len(updatesToNIWhileStopped) > 0
 
 	if d.HasChange("desired_status") && !needToStopInstanceBeforeUpdating {
 		desiredStatus := d.Get("desired_status").(string)
@@ -1554,7 +1596,8 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		desiredStatus := d.Get("desired_status").(string)
 
 		if statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED" && !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, enable_display, or shielded_instance_config on a started instance requires stopping it. " +
+			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, enable_display, shielded_instance_config, " +
+				"or network_interface.[#d].(network/subnetwork/subnetwork_project) on a started instance requires stopping it. " +
 				"To acknowledge this, please set allow_stopping_for_update = true in your config. " +
 				"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update.")
 		}
@@ -1653,6 +1696,17 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			opErr := computeOperationWaitTime(config, op, project,
 				"shielded vm config update", d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
+		}
+
+		for _, updateCall := range updatesToNIWhileStopped {
+			op, err := updateCall()
+			if err != nil {
+				return errwrap.Wrapf("Error updating network interface: {{err}}", err)
+			}
+			opErr := computeOperationWaitTime(config, op, project, "network interface to update", d.Timeout(schema.TimeoutUpdate))
 			if opErr != nil {
 				return opErr
 			}
