@@ -32,6 +32,8 @@ var (
 	}
 )
 
+var REQUIRED_SCRATCH_DISK_SIZE_GB = 375
+
 func resourceComputeInstanceTemplate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceTemplateCreate,
@@ -127,6 +129,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							ForceNew:    true,
+							Computed:    true,
 							Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be exactly 375GB.`,
 						},
 
@@ -640,8 +643,8 @@ func resourceComputeInstanceTemplateScratchDiskCustomizeDiffFunc(diff TerraformR
 		}
 
 		diskSize := diff.Get(fmt.Sprintf("disk.%d.disk_size_gb", i)).(int)
-		if typee == "SCRATCH" && diskSize != 375 {
-			return fmt.Errorf("SCRATCH disks must be exactly 375GB, disk %d is %d", i, diskSize)
+		if typee == "SCRATCH" && diskSize != REQUIRED_SCRATCH_DISK_SIZE_GB {
+			return fmt.Errorf("SCRATCH disks must be exactly %dGB, disk %d is %d", REQUIRED_SCRATCH_DISK_SIZE_GB, i, diskSize)
 		}
 	}
 
@@ -919,8 +922,14 @@ func flattenDisk(disk *computeBeta.AttachedDisk, defaultProject string) (map[str
 		}
 		diskMap["disk_type"] = disk.InitializeParams.DiskType
 		diskMap["disk_name"] = disk.InitializeParams.DiskName
-		diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
 		diskMap["labels"] = disk.InitializeParams.Labels
+		// The API does not return a disk size value for scratch disks. They can only be one size,
+		// so we can assume that size here.
+		if disk.InitializeParams.DiskSizeGb == 0 && disk.Type == "SCRATCH" {
+			diskMap["disk_size_gb"] = REQUIRED_SCRATCH_DISK_SIZE_GB
+		} else {
+			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
+		}
 	}
 
 	if disk.DiskEncryptionKey != nil {
