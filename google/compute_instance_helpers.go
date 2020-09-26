@@ -200,15 +200,16 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInt
 func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
 	acs := make([]*computeBeta.AccessConfig, len(configs))
 	for i, raw := range configs {
-		data := raw.(map[string]interface{})
-		acs[i] = &computeBeta.AccessConfig{
-			Type:        "ONE_TO_ONE_NAT",
-			NatIP:       data["nat_ip"].(string),
-			NetworkTier: data["network_tier"].(string),
-		}
-		if ptr, ok := data["public_ptr_domain_name"]; ok && ptr != "" {
-			acs[i].SetPublicPtr = true
-			acs[i].PublicPtrDomainName = ptr.(string)
+		acs[i] = &computeBeta.AccessConfig{}
+		acs[i].Type = "ONE_TO_ONE_NAT"
+		if raw != nil {
+			data := raw.(map[string]interface{})
+			acs[i].NatIP = data["nat_ip"].(string)
+			acs[i].NetworkTier = data["network_tier"].(string)
+			if ptr, ok := data["public_ptr_domain_name"]; ok && ptr != "" {
+				acs[i].SetPublicPtr = true
+				acs[i].PublicPtrDomainName = ptr.(string)
+			}
 		}
 	}
 	return acs

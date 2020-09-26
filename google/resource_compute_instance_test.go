@@ -1465,6 +1465,8 @@ func TestAccComputeInstance_updateRunning_desiredStatusRunning_allowStoppingForU
 	})
 }
 
+const errorAllowStoppingMsg = "Changing the machine_type, min_cpu_platform, service_account, enable_display, shielded_instance_config, or network_interface.\\[#d\\].\\(network/subnetwork/subnetwork_project\\) on a started instance requires stopping it. To acknowledge this, please set allow_stopping_for_update = true in your config. You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update."
+
 func TestAccComputeInstance_updateRunning_desiredStatusNotSet_notAllowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -1485,12 +1487,8 @@ func TestAccComputeInstance_updateRunning_desiredStatusNotSet_notAllowStoppingFo
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "", false),
-				ExpectError: regexp.MustCompile("Changing the machine_type, min_cpu_platform, service_account, " +
-					"enable_display, or shielded_instance_config on a started instance requires stopping it. To acknowledge this, please set " +
-					"allow_stopping_for_update = true in your config. " +
-					"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not " +
-					"be restarted after the update."),
+				Config:      testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "", false),
+				ExpectError: regexp.MustCompile(errorAllowStoppingMsg),
 			},
 		},
 	})
@@ -1516,12 +1514,8 @@ func TestAccComputeInstance_updateRunning_desiredStatusRunning_notAllowStoppingF
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "RUNNING", false),
-				ExpectError: regexp.MustCompile("Changing the machine_type, min_cpu_platform, service_account, " +
-					"enable_display, or shielded_instance_config on a started instance requires stopping it. To acknowledge this, please set " +
-					"allow_stopping_for_update = true in your config. " +
-					"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not " +
-					"be restarted after the update."),
+				Config:      testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "RUNNING", false),
+				ExpectError: regexp.MustCompile(errorAllowStoppingMsg),
 			},
 		},
 	})
