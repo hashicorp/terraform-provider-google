@@ -1432,8 +1432,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if opErr != nil {
 				return opErr
 			}
-		} else {
-
+		} else if updateDuringStop {
 			networkInterface.Fingerprint = instNetworkInterface.Fingerprint
 			updateCall := config.clientComputeBeta.Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, networkInterface).Do
 			updatesToNIWhileStopped = append(updatesToNIWhileStopped, updateCall)
