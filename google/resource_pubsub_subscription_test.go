@@ -284,7 +284,7 @@ func testAccCheckPubsubSubscriptionCache404(t *testing.T, subName string) resour
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 		url := fmt.Sprintf("%sprojects/%s/subscriptions/%s", config.PubsubBasePath, getTestProjectFromEnv(), subName)
-		resp, err := sendRequest(config, "GET", "", url, nil)
+		resp, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
 		if err == nil {
 			return fmt.Errorf("Expected Pubsub Subscription %q not to exist, was found", resp["name"])
 		}

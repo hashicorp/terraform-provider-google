@@ -60,7 +60,7 @@ func testAccCheckAccessContextManagerServicePerimetersDestroyProducer(t *testing
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ServicePerimeters still exists at %s", url)
 			}

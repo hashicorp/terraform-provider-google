@@ -63,14 +63,11 @@ func dataSourceGoogleIamTestablePermissions() *schema.Resource {
 }
 
 func dataSourceGoogleIamTestablePermissionsRead(d *schema.ResourceData, meta interface{}) (err error) {
-	var m providerMeta
-
-	err = d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	body := make(map[string]interface{})
 	body["pageSize"] = 500
@@ -88,7 +85,7 @@ func dataSourceGoogleIamTestablePermissionsRead(d *schema.ResourceData, meta int
 	for {
 		url := "https://iam.googleapis.com/v1/permissions:queryTestablePermissions"
 		body["fullResourceName"] = d.Get("full_resource_name").(string)
-		res, err := sendRequest(config, "POST", "", url, body)
+		res, err := sendRequest(config, "POST", "", url, userAgent, body)
 		if err != nil {
 			return fmt.Errorf("Error retrieving permissions: %s", err)
 		}

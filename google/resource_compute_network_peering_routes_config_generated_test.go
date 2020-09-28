@@ -190,7 +190,7 @@ func testAccCheckComputeNetworkPeeringRoutesConfigDestroyProducer(t *testing.T) 
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeNetworkPeeringRoutesConfig still exists at %s", url)
 			}

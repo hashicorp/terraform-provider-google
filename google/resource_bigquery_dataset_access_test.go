@@ -224,7 +224,7 @@ func testAccCheckBigQueryDatasetAccess(t *testing.T, n string, expected map[stri
 			return err
 		}
 
-		ds, err := sendRequest(config, "GET", "", url, nil)
+		ds, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
 		if err != nil {
 			return err
 		}

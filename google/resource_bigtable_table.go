@@ -74,14 +74,12 @@ func resourceBigtableTable() *schema.Resource {
 }
 
 func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	// Need to set UserAgent
+	config.bigtableClientFactory.UserAgent = userAgent
 
 	ctx := context.Background()
 
@@ -144,6 +142,11 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.bigtableClientFactory.UserAgent = userAgent
 	ctx := context.Background()
 
 	project, err := getProject(d, config)
@@ -179,6 +182,11 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.bigtableClientFactory.UserAgent = userAgent
 	ctx := context.Background()
 
 	project, err := getProject(d, config)
@@ -227,6 +235,12 @@ func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.bigtableClientFactory.UserAgent = userAgent
+
 	ctx := context.Background()
 
 	project, err := getProject(d, config)

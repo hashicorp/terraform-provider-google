@@ -80,7 +80,7 @@ func testAccCheckStorageHmacKeyDestroyProducer(t *testing.T) func(s *terraform.S
 				return err
 			}
 
-			res, err := sendRequest(config, "GET", "", url, nil)
+			res, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err != nil {
 				return nil
 			}

@@ -118,14 +118,12 @@ func resourceGoogleProjectServiceImport(d *schema.ResourceData, m interface{}) (
 }
 
 func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -164,6 +162,11 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 
 func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientResourceManager.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -220,6 +223,11 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientServiceUsage.UserAgent = userAgent
 
 	if disable := d.Get("disable_on_destroy"); !(disable.(bool)) {
 		log.Printf("[WARN] Project service %q disable_on_destroy is false, skip disabling service", d.Id())
@@ -252,6 +260,11 @@ func resourceGoogleProjectServiceUpdate(d *schema.ResourceData, meta interface{}
 // Disables a project service.
 func disableServiceUsageProjectService(service, project string, d *schema.ResourceData, config *Config, disableDependentServices bool) error {
 	err := retryTimeDuration(func() error {
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return err
+		}
+
 		name := fmt.Sprintf("projects/%s/services/%s", project, service)
 		servicesDisableCall := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{
 			DisableDependentServices: disableDependentServices,
@@ -264,7 +277,7 @@ func disableServiceUsageProjectService(service, project string, d *schema.Resour
 			return err
 		}
 		// Wait for the operation to complete
-		waitErr := serviceUsageOperationWait(config, sop, project, "api to disable", d.Timeout(schema.TimeoutDelete))
+		waitErr := serviceUsageOperationWait(config, sop, project, "api to disable", userAgent, d.Timeout(schema.TimeoutDelete))
 		if waitErr != nil {
 			return waitErr
 		}

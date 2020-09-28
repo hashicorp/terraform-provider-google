@@ -60,14 +60,12 @@ func dataSourceGoogleSQLCaCerts() *schema.Resource {
 }
 
 func dataSourceGoogleSQLCaCertsRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientSqlAdmin.UserAgent = fmt.Sprintf("%s %s", config.clientSqlAdmin.UserAgent, m.ModuleName)
+	config.clientSqlAdmin.UserAgent = userAgent
 
 	fv, err := parseProjectFieldValue("instances", d.Get("instance").(string), "project", d, config, false)
 	if err != nil {

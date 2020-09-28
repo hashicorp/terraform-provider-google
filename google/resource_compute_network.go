@@ -112,15 +112,11 @@ is selected by GCP.`,
 }
 
 func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeNetworkDescription(d.Get("description"), d, config)
@@ -167,7 +163,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Network: %s", err)
 	}
@@ -180,7 +176,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Network",
+		config, res, project, "Creating Network", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -212,7 +208,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 				if err != nil {
 					return fmt.Errorf("Error deleting route: %s", err)
 				}
-				err = computeOperationWaitTime(config, op, project, "Deleting Route", d.Timeout(schema.TimeoutCreate))
+				err = computeOperationWaitTime(config, op, project, "Deleting Route", userAgent, d.Timeout(schema.TimeoutCreate))
 				if err != nil {
 					return err
 				}
@@ -227,15 +223,11 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{name}}")
 	if err != nil {
@@ -255,7 +247,7 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, nil)
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetwork %q", d.Id()))
 	}
@@ -305,15 +297,12 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -345,7 +334,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 			billingProject = bp
 		}
 
-		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Network %q: %s", d.Id(), err)
 		} else {
@@ -353,7 +342,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Network",
+			config, res, project, "Updating Network", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
@@ -366,15 +355,12 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -397,13 +383,13 @@ func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Network")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Network",
+		config, res, project, "Deleting Network", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

@@ -33,6 +33,7 @@ var bigqueryAccessPrimitiveToRoleMap = map[string]string{
 type BigqueryDatasetIamUpdater struct {
 	project   string
 	datasetId string
+	d         *schema.ResourceData
 	Config    *Config
 }
 
@@ -49,6 +50,7 @@ func NewBigqueryDatasetIamUpdater(d *schema.ResourceData, config *Config) (Resou
 	return &BigqueryDatasetIamUpdater{
 		project:   project,
 		datasetId: d.Get("dataset_id").(string),
+		d:         d,
 		Config:    config,
 	}, nil
 }
@@ -74,7 +76,12 @@ func BigqueryDatasetIdParseFunc(d *schema.ResourceData, config *Config) error {
 func (u *BigqueryDatasetIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	url := fmt.Sprintf("%s%s", u.Config.BigQueryBasePath, u.GetResourceId())
 
-	res, err := sendRequest(u.Config, "GET", u.project, url, nil)
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := sendRequest(u.Config, "GET", u.project, url, userAgent, nil)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -97,7 +104,12 @@ func (u *BigqueryDatasetIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		"access": access,
 	}
 
-	_, err = sendRequest(u.Config, "PATCH", u.project, url, obj)
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = sendRequest(u.Config, "PATCH", u.project, url, userAgent, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating DatasetAccess: %s", err)
 	}

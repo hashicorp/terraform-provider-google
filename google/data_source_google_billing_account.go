@@ -45,14 +45,12 @@ func dataSourceGoogleBillingAccount() *schema.Resource {
 }
 
 func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientBilling.UserAgent = fmt.Sprintf("%s %s", config.clientBilling.UserAgent, m.ModuleName)
+	config.clientBilling.UserAgent = userAgent
 
 	open, openOk := d.GetOkExists("open")
 

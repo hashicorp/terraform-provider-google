@@ -128,7 +128,7 @@ func testAccCheckComputeImageDestroyProducer(t *testing.T) func(s *terraform.Sta
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeImage still exists at %s", url)
 			}

@@ -34,14 +34,12 @@ func resourceStorageDefaultObjectAcl() *schema.Resource {
 }
 
 func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientStorage.UserAgent = fmt.Sprintf("%s %s", config.clientStorage.UserAgent, m.ModuleName)
+	config.clientStorage.UserAgent = userAgent
 
 	bucket := d.Get("bucket").(string)
 	defaultObjectAcl := []*storage.ObjectAccessControl{}
@@ -84,6 +82,11 @@ func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta in
 
 func resourceStorageDefaultObjectAclRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	bucket := d.Get("bucket").(string)
 	res, err := config.clientStorage.Buckets.Get(bucket).Projection("full").Do()
@@ -109,6 +112,11 @@ func resourceStorageDefaultObjectAclRead(d *schema.ResourceData, meta interface{
 
 func resourceStorageDefaultObjectAclDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {

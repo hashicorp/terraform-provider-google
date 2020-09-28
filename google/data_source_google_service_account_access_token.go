@@ -55,14 +55,12 @@ func dataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 }
 
 func dataSourceGoogleServiceAccountAccessTokenRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientIamCredentials.UserAgent = fmt.Sprintf("%s %s", config.clientIamCredentials.UserAgent, m.ModuleName)
+	config.clientIamCredentials.UserAgent = userAgent
 
 	log.Printf("[INFO] Acquire Service Account AccessToken for %s", d.Get("target_service_account").(string))
 

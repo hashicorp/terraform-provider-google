@@ -72,14 +72,12 @@ func resourceGoogleOrganizationIamCustomRole() *schema.Resource {
 }
 
 func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientIAM.UserAgent = fmt.Sprintf("%s %s", config.clientIAM.UserAgent, m.ModuleName)
+	config.clientIAM.UserAgent = userAgent
 
 	org := d.Get("org_id").(string)
 	roleId := fmt.Sprintf("organizations/%s/roles/%s", org, d.Get("role_id").(string))
@@ -127,6 +125,11 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 
 func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	role, err := config.clientIAM.Organizations.Roles.Get(d.Id()).Do()
 	if err != nil {
@@ -168,6 +171,11 @@ func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta in
 
 func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	d.Partial(true)
 
@@ -204,6 +212,11 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 
 func resourceGoogleOrganizationIamCustomRoleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	r, err := config.clientIAM.Organizations.Roles.Get(d.Id()).Do()
 	if err == nil && r != nil && r.Deleted && d.Get("deleted").(bool) {

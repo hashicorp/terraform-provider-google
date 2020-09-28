@@ -145,7 +145,7 @@ func testAccCheckMonitoringMetricDescriptorDestroyProducer(t *testing.T) func(s 
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil, isMonitoringConcurrentEditError)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil, isMonitoringConcurrentEditError)
 			if err == nil {
 				return fmt.Errorf("MonitoringMetricDescriptor still exists at %s", url)
 			}

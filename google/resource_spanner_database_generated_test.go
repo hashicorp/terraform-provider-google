@@ -87,7 +87,7 @@ func testAccCheckSpannerDatabaseDestroyProducer(t *testing.T) func(s *terraform.
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("SpannerDatabase still exists at %s", url)
 			}

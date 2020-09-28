@@ -81,15 +81,7 @@ func ResourceIamBindingWithBatching(parentSpecificSchema map[string]*schema.Sche
 
 func resourceIamBindingCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, meta interface{}) error {
-		var m providerMeta
-
-		err := d.GetProviderMeta(&m)
-		if err != nil {
-			return err
-		}
 		config := meta.(*Config)
-		config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
-
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err
@@ -124,6 +116,11 @@ func resourceIamBindingCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc, en
 func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return err
+		}
+		config.userAgent = userAgent
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err
@@ -257,6 +254,11 @@ func iamBindingImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser
 func resourceIamBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return err
+		}
+		config.userAgent = userAgent
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err

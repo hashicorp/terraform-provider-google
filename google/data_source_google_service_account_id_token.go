@@ -62,14 +62,12 @@ func dataSourceGoogleServiceAccountIdToken() *schema.Resource {
 }
 
 func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientIamCredentials.UserAgent = fmt.Sprintf("%s %s", config.clientIamCredentials.UserAgent, m.ModuleName)
+	config.clientIamCredentials.UserAgent = userAgent
 
 	targetAudience := d.Get("target_audience").(string)
 	creds, err := config.GetCredentials([]string{userInfoScope})

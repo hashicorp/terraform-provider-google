@@ -208,15 +208,11 @@ reservations that are tied to a commitment.`,
 }
 
 func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeReservationDescription(d.Get("description"), d, config)
@@ -269,7 +265,7 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Reservation: %s", err)
 	}
@@ -282,7 +278,7 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Reservation",
+		config, res, project, "Creating Reservation", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -297,15 +293,11 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 	if err != nil {
@@ -325,7 +317,7 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, nil)
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeReservation %q", d.Id()))
 	}
@@ -366,15 +358,12 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -411,7 +400,7 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 			billingProject = bp
 		}
 
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Reservation %q: %s", d.Id(), err)
 		} else {
@@ -419,7 +408,7 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Reservation",
+			config, res, project, "Updating Reservation", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
@@ -432,15 +421,12 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceComputeReservationDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -463,13 +449,13 @@ func resourceComputeReservationDelete(d *schema.ResourceData, meta interface{}) 
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Reservation")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Reservation",
+		config, res, project, "Deleting Reservation", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

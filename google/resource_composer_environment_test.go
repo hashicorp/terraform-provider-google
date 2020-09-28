@@ -609,7 +609,7 @@ func testSweepComposerEnvironments(config *Config) error {
 				allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete environment %q: %s", e.Name, deleteErr))
 				continue
 			}
-			waitErr := composerOperationWaitTime(config, op, config.Project, "Sweeping old test environments", 10*time.Minute)
+			waitErr := composerOperationWaitTime(config, op, config.Project, "Sweeping old test environments", config.userAgent, 10*time.Minute)
 			if waitErr != nil {
 				allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete environment %q: %s", e.Name, waitErr))
 			}
@@ -711,7 +711,7 @@ func testAccCheckClearComposerEnvironmentFirewalls(t *testing.T, networkName str
 			}
 
 			waitErr := computeOperationWaitTime(config, op, config.Project,
-				"Sweeping test composer environment firewalls", 10)
+				"Sweeping test composer environment firewalls", config.userAgent, 10)
 			if waitErr != nil {
 				allErrors = multierror.Append(allErrors,
 					fmt.Errorf("Error while waiting to delete firewall %q: %s", firewall.Name, waitErr))

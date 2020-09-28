@@ -87,14 +87,12 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 }
 
 func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientIAM.UserAgent = fmt.Sprintf("%s %s", config.clientIAM.UserAgent, m.ModuleName)
+	config.clientIAM.UserAgent = userAgent
 
 	serviceAccountName, err := serviceAccountFQN(d.Get("service_account_id").(string), d, config)
 	if err != nil {
@@ -143,6 +141,11 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 
 func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	publicKeyType := d.Get("public_key_type").(string)
 
@@ -177,8 +180,13 @@ func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{
 
 func resourceGoogleServiceAccountKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
-	_, err := config.clientIAM.Projects.ServiceAccounts.Keys.Delete(d.Id()).Do()
+	_, err = config.clientIAM.Projects.ServiceAccounts.Keys.Delete(d.Id()).Do()
 
 	if err != nil {
 		if err = handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id())); err == nil {

@@ -352,14 +352,12 @@ func isPolicyLocked(_ context.Context, old, new, _ interface{}) bool {
 }
 
 func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientStorage.UserAgent = fmt.Sprintf("%s %s", config.clientStorage.UserAgent, m.ModuleName)
+	config.clientStorage.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -472,6 +470,11 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	sb := &storage.Bucket{}
 
@@ -601,6 +604,11 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
@@ -710,6 +718,11 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	// Get the bucket
 	bucket := d.Get("name").(string)
@@ -783,7 +796,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// remove empty bucket
-	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
+	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 		err := config.clientStorage.Buckets.Delete(bucket).Do()
 		if err == nil {
 			return nil
