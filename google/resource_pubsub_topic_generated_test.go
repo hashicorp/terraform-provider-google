@@ -120,7 +120,7 @@ func testAccCheckPubsubTopicDestroyProducer(t *testing.T) func(s *terraform.Stat
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil, pubsubTopicProjectNotReady)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil, pubsubTopicProjectNotReady)
 			if err == nil {
 				return fmt.Errorf("PubsubTopic still exists at %s", url)
 			}

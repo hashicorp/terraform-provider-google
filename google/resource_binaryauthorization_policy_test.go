@@ -44,7 +44,7 @@ func testAccCheckBinaryAuthorizationPolicyDefault(t *testing.T, pid string) reso
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 		url := fmt.Sprintf("https://binaryauthorization.googleapis.com/v1beta1/projects/%s/policy", pid)
-		pol, err := sendRequest(config, "GET", "", url, nil)
+		pol, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
 		if err != nil {
 			return err
 		}

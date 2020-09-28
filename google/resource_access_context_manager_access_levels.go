@@ -292,15 +292,11 @@ custom access levels - https://cloud.google.com/access-context-manager/docs/cust
 }
 
 func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	accessLevelsProp, err := expandAccessContextManagerAccessLevelsAccessLevels(d.Get("access_levels"), d, config)
@@ -323,7 +319,7 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating AccessLevels: %s", err)
 	}
@@ -336,7 +332,7 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 	d.SetId(id)
 
 	err = accessContextManagerOperationWaitTime(
-		config, res, "Creating AccessLevels",
+		config, res, "Creating AccessLevels", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -351,15 +347,11 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 }
 
 func resourceAccessContextManagerAccessLevelsRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels")
 	if err != nil {
@@ -373,7 +365,7 @@ func resourceAccessContextManagerAccessLevelsRead(d *schema.ResourceData, meta i
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, nil)
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAccessLevels %q", d.Id()))
 	}
@@ -386,15 +378,12 @@ func resourceAccessContextManagerAccessLevelsRead(d *schema.ResourceData, meta i
 }
 
 func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -418,7 +407,7 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating AccessLevels %q: %s", d.Id(), err)
@@ -427,7 +416,7 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 	}
 
 	err = accessContextManagerOperationWaitTime(
-		config, res, "Updating AccessLevels",
+		config, res, "Updating AccessLevels", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -438,15 +427,12 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 }
 
 func resourceAccessContextManagerAccessLevelsDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	obj := make(map[string]interface{})
 	obj["accessLevels"] = []string{}
@@ -457,7 +443,7 @@ func resourceAccessContextManagerAccessLevelsDelete(d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Deleting AccessLevels %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "POST", "", url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error deleting AccessLevels %q: %s", d.Id(), err)
@@ -466,7 +452,7 @@ func resourceAccessContextManagerAccessLevelsDelete(d *schema.ResourceData, meta
 	}
 
 	err = accessContextManagerOperationWaitTime(
-		config, res, "Updating AccessLevels",
+		config, res, "Updating AccessLevels", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {

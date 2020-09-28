@@ -27,14 +27,12 @@ func resourceLoggingBillingAccountSink() *schema.Resource {
 }
 
 func resourceLoggingBillingAccountSinkCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientLogging.UserAgent = fmt.Sprintf("%s %s", config.clientLogging.UserAgent, m.ModuleName)
+	config.clientLogging.UserAgent = userAgent
 
 	id, sink := expandResourceLoggingSink(d, "billingAccounts", d.Get("billing_account").(string))
 
@@ -50,6 +48,11 @@ func resourceLoggingBillingAccountSinkCreate(d *schema.ResourceData, meta interf
 
 func resourceLoggingBillingAccountSinkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientLogging.UserAgent = userAgent
 
 	sink, err := config.clientLogging.BillingAccounts.Sinks.Get(d.Id()).Do()
 	if err != nil {
@@ -65,11 +68,16 @@ func resourceLoggingBillingAccountSinkRead(d *schema.ResourceData, meta interfac
 
 func resourceLoggingBillingAccountSinkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientLogging.UserAgent = userAgent
 
 	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err := config.clientLogging.BillingAccounts.Sinks.Patch(d.Id(), sink).
+	_, err = config.clientLogging.BillingAccounts.Sinks.Patch(d.Id(), sink).
 		UpdateMask(updateMask).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
@@ -80,8 +88,13 @@ func resourceLoggingBillingAccountSinkUpdate(d *schema.ResourceData, meta interf
 
 func resourceLoggingBillingAccountSinkDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientLogging.UserAgent = userAgent
 
-	_, err := config.clientLogging.Projects.Sinks.Delete(d.Id()).Do()
+	_, err = config.clientLogging.Projects.Sinks.Delete(d.Id()).Do()
 	if err != nil {
 		return err
 	}

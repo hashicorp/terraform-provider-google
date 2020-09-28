@@ -75,14 +75,12 @@ func resourceGoogleProjectIamCustomRole() *schema.Resource {
 }
 
 func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientIAM.UserAgent = fmt.Sprintf("%s %s", config.clientIAM.UserAgent, m.ModuleName)
+	config.clientIAM.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -135,6 +133,11 @@ func extractProjectFromProjectIamCustomRoleID(id string) string {
 
 func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	project := extractProjectFromProjectIamCustomRoleID(d.Id())
 
@@ -173,6 +176,11 @@ func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interfa
 
 func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	d.Partial(true)
 
@@ -208,8 +216,13 @@ func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta inter
 
 func resourceGoogleProjectIamCustomRoleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
-	_, err := config.clientIAM.Projects.Roles.Delete(d.Id()).Do()
+	_, err = config.clientIAM.Projects.Roles.Delete(d.Id()).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting the custom project role %s: %s", d.Get("title").(string), err)
 	}

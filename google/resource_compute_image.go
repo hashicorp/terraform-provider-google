@@ -226,15 +226,11 @@ func computeImageGuestOsFeaturesSchema() *schema.Resource {
 }
 
 func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeImageDescription(d.Get("description"), d, config)
@@ -329,7 +325,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Image: %s", err)
 	}
@@ -342,7 +338,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Image",
+		config, res, project, "Creating Image", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -357,15 +353,11 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}")
 	if err != nil {
@@ -385,7 +377,7 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, nil)
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeImage %q", d.Id()))
 	}
@@ -441,15 +433,12 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -487,7 +476,7 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 			billingProject = bp
 		}
 
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Image %q: %s", d.Id(), err)
 		} else {
@@ -495,7 +484,7 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Image",
+			config, res, project, "Updating Image", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
@@ -508,15 +497,12 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -539,13 +525,13 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Image")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Image",
+		config, res, project, "Deleting Image", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

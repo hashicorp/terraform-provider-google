@@ -132,7 +132,7 @@ func testAccCheckMonitoringDashboardDestroyProducer(t *testing.T) func(s *terraf
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil, isMonitoringConcurrentEditError)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil, isMonitoringConcurrentEditError)
 			if err == nil {
 				return fmt.Errorf("MonitoringDashboard still exists at %s", url)
 			}

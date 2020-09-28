@@ -254,14 +254,12 @@ func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePo
 }
 
 func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientContainerBeta.UserAgent = fmt.Sprintf("%s %s", config.clientContainerBeta.UserAgent, m.ModuleName)
+	config.clientContainerBeta.UserAgent = userAgent
 
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
@@ -341,6 +339,11 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientContainerBeta.UserAgent = userAgent
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return err
@@ -380,6 +383,11 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientContainerBeta.UserAgent = userAgent
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return err
@@ -407,6 +415,11 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientContainerBeta.UserAgent = userAgent
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return err

@@ -20,8 +20,9 @@ import (
 )
 
 type SpannerOperationWaiter struct {
-	Config  *Config
-	Project string
+	Config    *Config
+	UserAgent string
+	Project   string
 	CommonOperationWaiter
 }
 
@@ -31,17 +32,19 @@ func (w *SpannerOperationWaiter) QueryOp() (interface{}, error) {
 	}
 	// Returns the proper get.
 	url := fmt.Sprintf("https://spanner.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
-	return sendRequest(w.Config, "GET", w.Project, url, nil)
+
+	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createSpannerWaiter(config *Config, op map[string]interface{}, project, activity string) (*SpannerOperationWaiter, error) {
+func createSpannerWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*SpannerOperationWaiter, error) {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil, nil
 	}
 	w := &SpannerOperationWaiter{
-		Config:  config,
-		Project: project,
+		Config:    config,
+		UserAgent: userAgent,
+		Project:   project,
 	}
 	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
 		return nil, err
@@ -50,8 +53,8 @@ func createSpannerWaiter(config *Config, op map[string]interface{}, project, act
 }
 
 // nolint: deadcode,unused
-func spannerOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity string, timeout time.Duration) error {
-	w, err := createSpannerWaiter(config, op, project, activity)
+func spannerOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+	w, err := createSpannerWaiter(config, op, project, activity, userAgent)
 	if err != nil || w == nil {
 		// If w is nil, the op was synchronous.
 		return err
@@ -62,8 +65,8 @@ func spannerOperationWaitTimeWithResponse(config *Config, op map[string]interfac
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func spannerOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeout time.Duration) error {
-	w, err := createSpannerWaiter(config, op, project, activity)
+func spannerOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+	w, err := createSpannerWaiter(config, op, project, activity, userAgent)
 	if err != nil || w == nil {
 		// If w is nil, the op was synchronous.
 		return err

@@ -56,14 +56,12 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 }
 
 func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientContainerBeta.UserAgent = fmt.Sprintf("%s %s", config.clientContainerBeta.UserAgent, m.ModuleName)
+	config.clientContainerBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {

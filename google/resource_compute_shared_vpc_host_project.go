@@ -34,14 +34,12 @@ func resourceComputeSharedVpcHostProject() *schema.Resource {
 }
 
 func resourceComputeSharedVpcHostProjectCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientComputeBeta.UserAgent = fmt.Sprintf("%s %s", config.clientComputeBeta.UserAgent, m.ModuleName)
+	config.clientComputeBeta.UserAgent = userAgent
 
 	hostProject := d.Get("project").(string)
 	op, err := config.clientComputeBeta.Projects.EnableXpnHost(hostProject).Do()
@@ -51,7 +49,7 @@ func resourceComputeSharedVpcHostProjectCreate(d *schema.ResourceData, meta inte
 
 	d.SetId(hostProject)
 
-	err = computeOperationWaitTime(config, op, hostProject, "Enabling Shared VPC Host", d.Timeout(schema.TimeoutCreate))
+	err = computeOperationWaitTime(config, op, hostProject, "Enabling Shared VPC Host", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return err
@@ -62,6 +60,11 @@ func resourceComputeSharedVpcHostProjectCreate(d *schema.ResourceData, meta inte
 
 func resourceComputeSharedVpcHostProjectRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComputeBeta.UserAgent = userAgent
 
 	hostProject := d.Id()
 
@@ -84,6 +87,11 @@ func resourceComputeSharedVpcHostProjectRead(d *schema.ResourceData, meta interf
 
 func resourceComputeSharedVpcHostProjectDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComputeBeta.UserAgent = userAgent
 	hostProject := d.Get("project").(string)
 
 	op, err := config.clientComputeBeta.Projects.DisableXpnHost(hostProject).Do()
@@ -91,7 +99,7 @@ func resourceComputeSharedVpcHostProjectDelete(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error disabling Shared VPC Host %q: %s", hostProject, err)
 	}
 
-	err = computeOperationWaitTime(config, op, hostProject, "Disabling Shared VPC Host", d.Timeout(schema.TimeoutDelete))
+	err = computeOperationWaitTime(config, op, hostProject, "Disabling Shared VPC Host", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

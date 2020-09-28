@@ -101,15 +101,11 @@ If it is not provided, the provider region is used.`,
 }
 
 func resourceComputeRegionTargetHttpProxyCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeRegionTargetHttpProxyDescription(d.Get("description"), d, config)
@@ -156,7 +152,7 @@ func resourceComputeRegionTargetHttpProxyCreate(d *schema.ResourceData, meta int
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating RegionTargetHttpProxy: %s", err)
 	}
@@ -169,7 +165,7 @@ func resourceComputeRegionTargetHttpProxyCreate(d *schema.ResourceData, meta int
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating RegionTargetHttpProxy",
+		config, res, project, "Creating RegionTargetHttpProxy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -184,15 +180,11 @@ func resourceComputeRegionTargetHttpProxyCreate(d *schema.ResourceData, meta int
 }
 
 func resourceComputeRegionTargetHttpProxyRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetHttpProxies/{{name}}")
 	if err != nil {
@@ -212,7 +204,7 @@ func resourceComputeRegionTargetHttpProxyRead(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, nil)
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionTargetHttpProxy %q", d.Id()))
 	}
@@ -247,15 +239,12 @@ func resourceComputeRegionTargetHttpProxyRead(d *schema.ResourceData, meta inter
 }
 
 func resourceComputeRegionTargetHttpProxyUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -287,7 +276,7 @@ func resourceComputeRegionTargetHttpProxyUpdate(d *schema.ResourceData, meta int
 			billingProject = bp
 		}
 
-		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating RegionTargetHttpProxy %q: %s", d.Id(), err)
 		} else {
@@ -295,7 +284,7 @@ func resourceComputeRegionTargetHttpProxyUpdate(d *schema.ResourceData, meta int
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating RegionTargetHttpProxy",
+			config, res, project, "Updating RegionTargetHttpProxy", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
@@ -308,15 +297,12 @@ func resourceComputeRegionTargetHttpProxyUpdate(d *schema.ResourceData, meta int
 }
 
 func resourceComputeRegionTargetHttpProxyDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -339,13 +325,13 @@ func resourceComputeRegionTargetHttpProxyDelete(d *schema.ResourceData, meta int
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "RegionTargetHttpProxy")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting RegionTargetHttpProxy",
+		config, res, project, "Deleting RegionTargetHttpProxy", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

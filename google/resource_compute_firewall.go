@@ -377,15 +377,11 @@ Example inputs include: ["22"], ["80","443"], and
 }
 
 func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	obj := make(map[string]interface{})
 	allowedProp, err := expandComputeFirewallAllow(d.Get("allow"), d, config)
@@ -498,7 +494,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Firewall: %s", err)
 	}
@@ -511,7 +507,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Firewall",
+		config, res, project, "Creating Firewall", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -526,15 +522,11 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
@@ -554,7 +546,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, nil)
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeFirewall %q", d.Id()))
 	}
@@ -619,15 +611,12 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -729,7 +718,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Firewall %q: %s", d.Id(), err)
@@ -738,7 +727,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Updating Firewall",
+		config, res, project, "Updating Firewall", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -749,15 +738,12 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -780,13 +766,13 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Firewall")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Firewall",
+		config, res, project, "Deleting Firewall", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

@@ -41,14 +41,12 @@ func dataSourceGoogleServiceAccount() *schema.Resource {
 }
 
 func dataSourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientIAM.UserAgent = fmt.Sprintf("%s %s", config.clientIAM.UserAgent, m.ModuleName)
+	config.clientIAM.UserAgent = userAgent
 
 	serviceAccountName, err := serviceAccountFQN(d.Get("account_id").(string), d, config)
 	if err != nil {

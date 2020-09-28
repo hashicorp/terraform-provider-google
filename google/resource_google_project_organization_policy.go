@@ -74,10 +74,15 @@ func resourceGoogleProjectOrganizationPolicyCreate(d *schema.ResourceData, meta 
 
 func resourceGoogleProjectOrganizationPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientResourceManager.UserAgent = userAgent
 	project := prefixedProject(d.Get("project").(string))
 
 	var policy *cloudresourcemanager.OrgPolicy
-	err := retryTimeDuration(func() (readErr error) {
+	err = retryTimeDuration(func() (readErr error) {
 		policy, readErr = config.clientResourceManager.Projects.GetOrgPolicy(project, &cloudresourcemanager.GetOrgPolicyRequest{
 			Constraint: canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 		}).Do()
@@ -126,6 +131,11 @@ func resourceGoogleProjectOrganizationPolicyUpdate(d *schema.ResourceData, meta 
 
 func resourceGoogleProjectOrganizationPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientResourceManager.UserAgent = userAgent
 	project := prefixedProject(d.Get("project").(string))
 
 	return retryTimeDuration(func() error {
@@ -137,14 +147,12 @@ func resourceGoogleProjectOrganizationPolicyDelete(d *schema.ResourceData, meta 
 }
 
 func setProjectOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientResourceManager.UserAgent = fmt.Sprintf("%s %s", config.clientResourceManager.UserAgent, m.ModuleName)
+	config.clientResourceManager.UserAgent = userAgent
 
 	project := prefixedProject(d.Get("project").(string))
 

@@ -36,14 +36,11 @@ func dataSourceMonitoringServiceType(
 // It takes the list query filter (i.e. ?filter=$listFilter) and a ReadFunc to handle reading any type-specific schema.
 func dataSourceMonitoringServiceTypeReadFromList(listFilter string, typeStateSetter monitoringServiceTypeStateSetter) schema.ReadFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
-		var m providerMeta
-
-		err := d.GetProviderMeta(&m)
+		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
 		if err != nil {
 			return err
 		}
-		config := meta.(*Config)
-		config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 		project, err := getProject(d, config)
 		if err != nil {
@@ -61,7 +58,7 @@ func dataSourceMonitoringServiceTypeReadFromList(listFilter string, typeStateSet
 			return err
 		}
 
-		resp, err := sendRequest(config, "GET", project, url, nil, isMonitoringConcurrentEditError)
+		resp, err := sendRequest(config, "GET", project, url, userAgent, nil, isMonitoringConcurrentEditError)
 		if err != nil {
 			return fmt.Errorf("unable to list Monitoring Service for data source: %v", err)
 		}

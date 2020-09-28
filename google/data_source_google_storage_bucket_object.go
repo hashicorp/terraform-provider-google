@@ -22,14 +22,11 @@ func dataSourceGoogleStorageBucketObject() *schema.Resource {
 }
 
 func dataSourceGoogleStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
@@ -43,7 +40,7 @@ func dataSourceGoogleStorageBucketObjectRead(d *schema.ResourceData, meta interf
 	// Using REST apis because the storage go client doesn't support folders
 	url := fmt.Sprintf("https://www.googleapis.com/storage/v1/b/%s/o/%s", bucket, name)
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	res, err := sendRequest(config, "GET", "", url, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error retrieving storage bucket object: %s", err)
 	}

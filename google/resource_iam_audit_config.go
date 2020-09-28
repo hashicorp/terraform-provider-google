@@ -135,14 +135,12 @@ func iamAuditConfigImport(resourceIdParser resourceIdParserFunc) schema.StateFun
 
 func resourceIamAuditConfigCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, meta interface{}) error {
-		var m providerMeta
-
-		err := d.GetProviderMeta(&m)
+		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
 		if err != nil {
 			return err
 		}
-		config := meta.(*Config)
-		config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
+		config.userAgent = userAgent
 
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
@@ -172,6 +170,11 @@ func resourceIamAuditConfigCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc
 func resourceIamAuditConfigDelete(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return err
+		}
+		config.userAgent = userAgent
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err

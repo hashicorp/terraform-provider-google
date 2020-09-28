@@ -59,7 +59,7 @@ func testAccCheckAccessContextManagerServicePerimeterResourceDestroyProducer(t *
 				return err
 			}
 
-			res, err := sendRequest(config, "GET", "", url, nil)
+			res, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err != nil {
 				return err
 			}

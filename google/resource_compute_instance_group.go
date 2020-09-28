@@ -135,14 +135,12 @@ func validInstanceURLs(instanceUrls []string) bool {
 }
 
 func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientCompute.UserAgent = fmt.Sprintf("%s %s", config.clientCompute.UserAgent, m.ModuleName)
+	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -184,7 +182,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instanceGroups/%s", project, zone, name))
 
 	// Wait for the operation to complete
-	err = computeOperationWaitTime(config, op, project, "Creating InstanceGroup", d.Timeout(schema.TimeoutCreate))
+	err = computeOperationWaitTime(config, op, project, "Creating InstanceGroup", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return err
@@ -218,7 +216,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 		}
 
 		// Wait for the operation to complete
-		err = computeOperationWaitTime(config, op, project, "Adding instances to InstanceGroup", d.Timeout(schema.TimeoutCreate))
+		err = computeOperationWaitTime(config, op, project, "Adding instances to InstanceGroup", userAgent, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
 		}
@@ -229,6 +227,11 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 
 func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -302,6 +305,11 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 }
 func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -348,7 +356,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 				}
 			} else {
 				// Wait for the operation to complete
-				err = computeOperationWaitTime(config, removeOp, project, "Updating InstanceGroup", d.Timeout(schema.TimeoutUpdate))
+				err = computeOperationWaitTime(config, removeOp, project, "Updating InstanceGroup", userAgent, d.Timeout(schema.TimeoutUpdate))
 				if err != nil {
 					return err
 				}
@@ -369,7 +377,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			}
 
 			// Wait for the operation to complete
-			err = computeOperationWaitTime(config, addOp, project, "Updating InstanceGroup", d.Timeout(schema.TimeoutUpdate))
+			err = computeOperationWaitTime(config, addOp, project, "Updating InstanceGroup", userAgent, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return err
 			}
@@ -390,7 +398,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			return fmt.Errorf("Error updating named ports for InstanceGroup: %s", err)
 		}
 
-		err = computeOperationWaitTime(config, op, project, "Updating InstanceGroup", d.Timeout(schema.TimeoutUpdate))
+		err = computeOperationWaitTime(config, op, project, "Updating InstanceGroup", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -403,6 +411,11 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -419,7 +432,7 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error deleting InstanceGroup: %s", err)
 	}
 
-	err = computeOperationWaitTime(config, op, project, "Deleting InstanceGroup", d.Timeout(schema.TimeoutDelete))
+	err = computeOperationWaitTime(config, op, project, "Deleting InstanceGroup", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

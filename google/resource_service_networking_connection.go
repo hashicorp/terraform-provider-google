@@ -65,14 +65,12 @@ func resourceServiceNetworkingConnection() *schema.Resource {
 }
 
 func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientServiceNetworking.UserAgent = fmt.Sprintf("%s %s", config.clientServiceNetworking.UserAgent, m.ModuleName)
+	config.clientServiceNetworking.UserAgent = userAgent
 
 	network := d.Get("network").(string)
 	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
@@ -105,7 +103,7 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	if err := serviceNetworkingOperationWaitTime(config, op, "Create Service Networking Connection", d.Timeout(schema.TimeoutCreate)); err != nil {
+	if err := serviceNetworkingOperationWaitTime(config, op, "Create Service Networking Connection", userAgent, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return err
 	}
 
@@ -120,6 +118,11 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 
 func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientServiceNetworking.UserAgent = userAgent
 
 	connectionId, err := parseConnectionId(d.Id())
 	if err != nil {
@@ -169,6 +172,11 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 
 func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientServiceNetworking.UserAgent = userAgent
 
 	connectionId, err := parseConnectionId(d.Id())
 	if err != nil {
@@ -195,7 +203,7 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		if err := serviceNetworkingOperationWaitTime(config, op, "Update Service Networking Connection", d.Timeout(schema.TimeoutUpdate)); err != nil {
+		if err := serviceNetworkingOperationWaitTime(config, op, "Update Service Networking Connection", userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return err
 		}
 	}
@@ -204,6 +212,10 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 
 func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	network := d.Get("network").(string)
 	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
@@ -222,7 +234,7 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	project := networkFieldValue.Project
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ServiceNetworkingConnection %q", d.Id()))
 	}
@@ -234,7 +246,7 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	err = computeOperationWaitTime(
-		config, op, project, "Updating Network", d.Timeout(schema.TimeoutDelete))
+		config, op, project, "Updating Network", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

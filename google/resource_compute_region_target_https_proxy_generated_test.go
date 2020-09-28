@@ -126,7 +126,7 @@ func testAccCheckComputeRegionTargetHttpsProxyDestroyProducer(t *testing.T) func
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeRegionTargetHttpsProxy still exists at %s", url)
 			}

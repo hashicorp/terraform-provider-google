@@ -215,14 +215,12 @@ func getEndpointServiceGRPCConfigSource(serviceConfig, protoConfig string) *serv
 }
 
 func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientServiceMan.UserAgent = fmt.Sprintf("%s %s", config.clientServiceMan.UserAgent, m.ModuleName)
+	config.clientServiceMan.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -253,7 +251,7 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 
-		_, err = serviceManagementOperationWaitTime(config, op, "Creating new ManagedService.", d.Timeout(schema.TimeoutCreate))
+		_, err = serviceManagementOperationWaitTime(config, op, "Creating new ManagedService.", userAgent, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return err
 		}
@@ -294,6 +292,12 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	// we currently only support full rollouts - anyone trying to do incremental
 	// rollouts or A/B testing is going to need a more precise tool than this resource.
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientServiceMan.UserAgent = userAgent
+
 	serviceName := d.Get("service_name").(string)
 
 	log.Printf("[DEBUG] Updating ManagedService %q", serviceName)
@@ -318,7 +322,7 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	s, err := serviceManagementOperationWaitTime(config, op, "Submitting service config.", d.Timeout(schema.TimeoutUpdate))
+	s, err := serviceManagementOperationWaitTime(config, op, "Submitting service config.", userAgent, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -340,7 +344,7 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	_, err = serviceManagementOperationWaitTime(config, op, "Performing service rollout.", d.Timeout(schema.TimeoutUpdate))
+	_, err = serviceManagementOperationWaitTime(config, op, "Performing service rollout.", userAgent, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -350,6 +354,11 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceEndpointsServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientServiceMan.UserAgent = userAgent
 
 	log.Printf("[DEBUG] Deleting ManagedService %q", d.Id())
 
@@ -357,13 +366,18 @@ func resourceEndpointsServiceDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	_, err = serviceManagementOperationWaitTime(config, op, "Deleting service.", d.Timeout(schema.TimeoutDelete))
+	_, err = serviceManagementOperationWaitTime(config, op, "Deleting service.", userAgent, d.Timeout(schema.TimeoutDelete))
 	d.SetId("")
 	return err
 }
 
 func resourceEndpointsServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientServiceMan.UserAgent = userAgent
 
 	log.Printf("[DEBUG] Reading ManagedService %q", d.Id())
 

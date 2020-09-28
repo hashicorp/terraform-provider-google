@@ -19,16 +19,13 @@ func dataSourceGoogleClientOpenIDUserinfo() *schema.Resource {
 }
 
 func dataSourceGoogleClientOpenIDUserinfoRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.userAgent = fmt.Sprintf("%s %s", config.userAgent, m.ModuleName)
 
-	email, err := GetCurrentUserEmail(config)
+	email, err := GetCurrentUserEmail(config, userAgent)
 	if err != nil {
 		return err
 	}

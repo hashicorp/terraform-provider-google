@@ -29,14 +29,12 @@ func dataSourceGoogleStorageProjectServiceAccount() *schema.Resource {
 }
 
 func dataSourceGoogleStorageProjectServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
-	var m providerMeta
-
-	err := d.GetProviderMeta(&m)
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
-	config := meta.(*Config)
-	config.clientStorage.UserAgent = fmt.Sprintf("%s %s", config.clientStorage.UserAgent, m.ModuleName)
+	config.clientStorage.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {

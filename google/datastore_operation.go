@@ -20,8 +20,9 @@ import (
 )
 
 type DatastoreOperationWaiter struct {
-	Config  *Config
-	Project string
+	Config    *Config
+	UserAgent string
+	Project   string
 	CommonOperationWaiter
 }
 
@@ -31,17 +32,19 @@ func (w *DatastoreOperationWaiter) QueryOp() (interface{}, error) {
 	}
 	// Returns the proper get.
 	url := fmt.Sprintf("https://datastore.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
-	return sendRequest(w.Config, "GET", w.Project, url, nil, datastoreIndex409Contention)
+
+	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil, datastoreIndex409Contention)
 }
 
-func createDatastoreWaiter(config *Config, op map[string]interface{}, project, activity string) (*DatastoreOperationWaiter, error) {
+func createDatastoreWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*DatastoreOperationWaiter, error) {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil, nil
 	}
 	w := &DatastoreOperationWaiter{
-		Config:  config,
-		Project: project,
+		Config:    config,
+		UserAgent: userAgent,
+		Project:   project,
 	}
 	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
 		return nil, err
@@ -50,8 +53,8 @@ func createDatastoreWaiter(config *Config, op map[string]interface{}, project, a
 }
 
 // nolint: deadcode,unused
-func datastoreOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity string, timeout time.Duration) error {
-	w, err := createDatastoreWaiter(config, op, project, activity)
+func datastoreOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+	w, err := createDatastoreWaiter(config, op, project, activity, userAgent)
 	if err != nil || w == nil {
 		// If w is nil, the op was synchronous.
 		return err
@@ -62,8 +65,8 @@ func datastoreOperationWaitTimeWithResponse(config *Config, op map[string]interf
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func datastoreOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeout time.Duration) error {
-	w, err := createDatastoreWaiter(config, op, project, activity)
+func datastoreOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+	w, err := createDatastoreWaiter(config, op, project, activity, userAgent)
 	if err != nil || w == nil {
 		// If w is nil, the op was synchronous.
 		return err

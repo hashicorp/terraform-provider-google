@@ -163,7 +163,7 @@ func testAccCheckComputeRouteDestroyProducer(t *testing.T) func(s *terraform.Sta
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil, isPeeringOperationInProgress)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil, isPeeringOperationInProgress)
 			if err == nil {
 				return fmt.Errorf("ComputeRoute still exists at %s", url)
 			}
