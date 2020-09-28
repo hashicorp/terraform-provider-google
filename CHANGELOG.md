@@ -1,3 +1,4 @@
+## 3.42.0 (Unreleased)
 ## 3.41.0 (September 28, 2020)
 
 IMPROVEMENTS:
