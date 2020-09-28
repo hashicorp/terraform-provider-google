@@ -1,4 +1,4 @@
-## 3.41.0 (Unreleased)
+## 3.41.0 (September 28, 2020)
 
 IMPROVEMENTS:
 * compute: added `SEV_CAPABLE` option to `guest_os_features` in `google_compute_image` resource. ([#7313](https://github.com/hashicorp/terraform-provider-google/pull/7313))
