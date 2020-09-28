@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -38,7 +37,7 @@ func dataSourceGoogleClientConfig() *schema.Resource {
 func dataSourceClientConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	d.SetId(time.Now().UTC().String())
+	d.SetId(fmt.Sprintf("projects/%s/regions/%s/zones/%s", config.Project, config.Region, config.Zone))
 	if err := d.Set("project", config.Project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}

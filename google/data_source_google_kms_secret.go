@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
-	"time"
 )
 
 func dataSourceGoogleKmsSecret() *schema.Resource {
@@ -78,7 +77,7 @@ func dataSourceGoogleKmsSecretRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("plaintext", string(plaintext[:])); err != nil {
 		return fmt.Errorf("Error setting plaintext: %s", err)
 	}
-	d.SetId(time.Now().UTC().String())
+	d.SetId(fmt.Sprintf("%s:%s", d.Get("crypto_key").(string), ciphertext))
 
 	return nil
 }

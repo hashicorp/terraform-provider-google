@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -56,7 +55,7 @@ func dataSourceGoogleMonitoringUptimeCheckIpsRead(d *schema.ResourceData, meta i
 	if err := d.Set("uptime_check_ips", uptimeCheckIps); err != nil {
 		return fmt.Errorf("Error retrieving monitoring uptime check ips: %s", err)
 	}
-	d.SetId(time.Now().UTC().String())
+	d.SetId("uptime_check_ips_id")
 	return nil
 }
 

@@ -3,7 +3,6 @@ package google
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -84,7 +83,7 @@ func dataSourceGoogleComposerImageVersionsRead(d *schema.ResourceData, meta inte
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	d.SetId(time.Now().UTC().String())
+	d.SetId(fmt.Sprintf("projects/%s/regions/%s", project, region))
 
 	return nil
 }
