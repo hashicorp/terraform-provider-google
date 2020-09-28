@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -70,7 +69,7 @@ func dataSourceGoogleKmsSecretCiphertextRead(d *schema.ResourceData, meta interf
 	if err := d.Set("ciphertext", encryptResponse.Ciphertext); err != nil {
 		return fmt.Errorf("Error setting ciphertext: %s", err)
 	}
-	d.SetId(time.Now().UTC().String())
+	d.SetId(d.Get("crypto_key").(string))
 
 	return nil
 }

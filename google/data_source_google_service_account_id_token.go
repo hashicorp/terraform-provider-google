@@ -1,8 +1,6 @@
 package google
 
 import (
-	"time"
-
 	"fmt"
 	"strings"
 
@@ -97,7 +95,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 			return fmt.Errorf("error calling iamcredentials.GenerateIdToken: %v", err)
 		}
 
-		d.SetId(time.Now().UTC().String())
+		d.SetId(d.Get("target_service_account").(string))
 		if err := d.Set("id_token", at.Token); err != nil {
 			return fmt.Errorf("Error setting id_token: %s", err)
 		}
@@ -129,7 +127,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("unable to retrieve Token: %v", err)
 	}
 
-	d.SetId(time.Now().UTC().String())
+	d.SetId(targetAudience)
 	if err := d.Set("id_token", idToken.AccessToken); err != nil {
 		return fmt.Errorf("Error setting id_token: %s", err)
 	}
