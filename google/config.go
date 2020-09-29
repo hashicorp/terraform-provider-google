@@ -141,8 +141,6 @@ type Config struct {
 	ComposerBasePath string
 	clientComposer   *composer.Service
 
-	clientCompute *compute.Service
-
 	ComputeBetaBasePath string
 	clientComputeBeta   *computeBeta.Service
 
@@ -331,14 +329,6 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	// while most only want the host URL, some older ones also want the version and some
 	// of those "projects" as well. You can find out if this is required by looking at
 	// the basePath value in the client library file.
-	computeClientBasePath := c.ComputeBasePath + "projects/"
-	log.Printf("[INFO] Instantiating GCE client for path %s", computeClientBasePath)
-	c.clientCompute, err = compute.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientCompute.UserAgent = c.userAgent
-	c.clientCompute.BasePath = computeClientBasePath
 
 	computeBetaClientBasePath := c.ComputeBetaBasePath + "projects/"
 	log.Printf("[INFO] Instantiating GCE Beta client for path %s", computeBetaClientBasePath)
@@ -713,6 +703,21 @@ func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, erro
 		return nil, fmt.Errorf("%s", err)
 	}
 	return creds.TokenSource, nil
+}
+
+// methods to create new services from config
+func (c *Config) NewComputeClient(userAgent string) *compute.Service {
+	computeClientBasePath := c.ComputeBasePath + "projects/"
+	log.Printf("[INFO] Instantiating GCE client for path %s", computeClientBasePath)
+	clientCompute, err := compute.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client compute: %s", err)
+		return nil
+	}
+	clientCompute.UserAgent = userAgent
+	clientCompute.BasePath = computeClientBasePath
+
+	return clientCompute
 }
 
 // staticTokenSource is used to be able to identify static token sources without reflection.

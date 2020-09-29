@@ -100,7 +100,7 @@ func computeOperationWaitTime(config *Config, res interface{}, project, activity
 	}
 
 	w := &ComputeOperationWaiter{
-		Service: config.clientCompute,
+		Service: config.NewComputeClient(userAgent),
 		Context: config.context,
 		Op:      op,
 		Project: project,

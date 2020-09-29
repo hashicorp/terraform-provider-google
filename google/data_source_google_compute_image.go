@@ -110,7 +110,6 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -120,11 +119,11 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 	var image *compute.Image
 	if v, ok := d.GetOk("name"); ok {
 		log.Printf("[DEBUG] Fetching image %s", v.(string))
-		image, err = config.clientCompute.Images.Get(project, v.(string)).Do()
+		image, err = config.NewComputeClient(userAgent).Images.Get(project, v.(string)).Do()
 		log.Printf("[DEBUG] Fetched image %s", v.(string))
 	} else if v, ok := d.GetOk("family"); ok {
 		log.Printf("[DEBUG] Fetching latest non-deprecated image from family %s", v.(string))
-		image, err = config.clientCompute.Images.GetFromFamily(project, v.(string)).Do()
+		image, err = config.NewComputeClient(userAgent).Images.GetFromFamily(project, v.(string)).Do()
 		log.Printf("[DEBUG] Fetched latest non-deprecated image from family %s", v.(string))
 	} else {
 		return fmt.Errorf("one of name or family must be set")

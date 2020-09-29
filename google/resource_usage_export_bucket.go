@@ -53,14 +53,13 @@ func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	p, err := config.clientCompute.Projects.Get(project).Do()
+	p, err := config.NewComputeClient(userAgent).Projects.Get(project).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Project data for project %s", project))
 	}
@@ -89,14 +88,13 @@ func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	op, err := config.clientCompute.Projects.SetUsageExportBucket(project, &compute.UsageExportLocation{
+	op, err := config.NewComputeClient(userAgent).Projects.SetUsageExportBucket(project, &compute.UsageExportLocation{
 		ReportNamePrefix: d.Get("prefix").(string),
 		BucketName:       d.Get("bucket_name").(string),
 	}).Do()
@@ -123,14 +121,13 @@ func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	op, err := config.clientCompute.Projects.SetUsageExportBucket(project, nil).Do()
+	op, err := config.NewComputeClient(userAgent).Projects.SetUsageExportBucket(project, nil).Do()
 	if err != nil {
 		return err
 	}

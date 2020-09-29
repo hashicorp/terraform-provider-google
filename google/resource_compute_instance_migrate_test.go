@@ -103,7 +103,7 @@ func TestAccComputeInstanceMigrateState(t *testing.T) {
 			},
 		},
 	}
-	op, err := config.clientCompute.Instances.Insert(config.Project, config.Zone, instance).Do()
+	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, config.Zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
@@ -175,7 +175,7 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 			},
 		},
 	}
-	op, err := config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
 
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
@@ -243,7 +243,7 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 			},
 		},
 	}
-	op, err := config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
 
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
@@ -297,7 +297,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 		SourceImage: "projects/debian-cloud/global/images/family/debian-9",
 		Zone:        zone,
 	}
-	op, err := config.clientCompute.Disks.Insert(config.Project, zone, disk).Do()
+	op, err := config.NewComputeClient(config.userAgent).Disks.Insert(config.Project, zone, disk).Do()
 	if err != nil {
 		t.Fatalf("Error creating disk: %s", err)
 	}
@@ -329,7 +329,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 			},
 		},
 	}
-	op, err = config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	op, err = config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
@@ -378,7 +378,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 		SourceImage: "projects/debian-cloud/global/images/family/debian-9",
 		Zone:        zone,
 	}
-	op, err := config.clientCompute.Disks.Insert(config.Project, zone, disk).Do()
+	op, err := config.NewComputeClient(config.userAgent).Disks.Insert(config.Project, zone, disk).Do()
 	if err != nil {
 		t.Fatalf("Error creating disk: %s", err)
 	}
@@ -410,7 +410,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 			},
 		},
 	}
-	op, err = config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	op, err = config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
@@ -479,7 +479,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 			},
 		},
 	}
-	op, err := config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
@@ -548,7 +548,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 			},
 		},
 	}
-	op, err := config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
@@ -619,7 +619,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 			},
 		},
 	}
-	op, err := config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
@@ -692,7 +692,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 			},
 		},
 	}
-	op, err := config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
@@ -760,7 +760,7 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 			},
 		},
 	}
-	op, err := config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
@@ -825,7 +825,7 @@ func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
 			},
 		},
 	}
-	op, err := config.clientCompute.Instances.Insert(config.Project, zone, instance).Do()
+	op, err := config.NewComputeClient(config.userAgent).Instances.Insert(config.Project, zone, instance).Do()
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
@@ -901,7 +901,7 @@ func runInstanceMigrateTest(t *testing.T, id, testName string, version int, attr
 }
 
 func cleanUpInstance(config *Config, instanceName, zone string) {
-	op, err := config.clientCompute.Instances.Delete(config.Project, zone, instanceName).Do()
+	op, err := config.NewComputeClient(config.userAgent).Instances.Delete(config.Project, zone, instanceName).Do()
 	if err != nil {
 		log.Printf("[WARNING] Error deleting instance %q, dangling resources may exist: %s", instanceName, err)
 		return
@@ -915,7 +915,7 @@ func cleanUpInstance(config *Config, instanceName, zone string) {
 }
 
 func cleanUpDisk(config *Config, diskName, zone string) {
-	op, err := config.clientCompute.Disks.Delete(config.Project, zone, diskName).Do()
+	op, err := config.NewComputeClient(config.userAgent).Disks.Delete(config.Project, zone, diskName).Do()
 	if err != nil {
 		log.Printf("[WARNING] Error deleting disk %q, dangling resources may exist: %s", diskName, err)
 		return

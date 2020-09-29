@@ -53,7 +53,6 @@ func dataSourceGoogleComputeVpnGatewayRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -67,7 +66,7 @@ func dataSourceGoogleComputeVpnGatewayRead(d *schema.ResourceData, meta interfac
 
 	name := d.Get("name").(string)
 
-	vpnGatewaysService := compute.NewTargetVpnGatewaysService(config.clientCompute)
+	vpnGatewaysService := compute.NewTargetVpnGatewaysService(config.NewComputeClient(userAgent))
 
 	gateway, err := vpnGatewaysService.Get(project, region, name).Do()
 	if err != nil {

@@ -371,9 +371,9 @@ func paginatedListRequest(project, baseUrl, userAgent string, config *Config, fl
 	return ls, nil
 }
 
-func getInterconnectAttachmentLink(config *Config, project, region, ic string) (string, error) {
+func getInterconnectAttachmentLink(config *Config, project, region, ic, userAgent string) (string, error) {
 	if !strings.Contains(ic, "/") {
-		icData, err := config.clientCompute.InterconnectAttachments.Get(
+		icData, err := config.NewComputeClient(userAgent).InterconnectAttachments.Get(
 			project, region, ic).Do()
 		if err != nil {
 			return "", fmt.Errorf("Error reading interconnect attachment: %s", err)

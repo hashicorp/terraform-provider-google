@@ -1097,7 +1097,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
 		}
-		op, err := config.clientCompute.BackendServices.SetSecurityPolicy(
+		op, err := config.NewComputeClient(userAgent).BackendServices.SetSecurityPolicy(
 			project, obj["name"].(string), &compute.SecurityPolicyReference{
 				SecurityPolicy: pol.RelativeLink(),
 			}).Do()
@@ -1437,7 +1437,7 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
 		}
-		op, err := config.clientCompute.BackendServices.SetSecurityPolicy(
+		op, err := config.NewComputeClient(userAgent).BackendServices.SetSecurityPolicy(
 			project, obj["name"].(string), &compute.SecurityPolicyReference{
 				SecurityPolicy: pol.RelativeLink(),
 			}).Do()

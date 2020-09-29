@@ -184,7 +184,6 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -219,7 +218,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 		tpool.FailoverRatio = d.Get("failover_ratio").(float64)
 	}
 	log.Printf("[DEBUG] TargetPool insert request: %#v", tpool)
-	op, err := config.clientCompute.TargetPools.Insert(
+	op, err := config.NewComputeClient(userAgent).TargetPools.Insert(
 		project, region, tpool).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 && strings.Contains(gerr.Message, "httpHealthChecks") {
@@ -248,7 +247,6 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -283,7 +281,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		for i, v := range remove {
 			removeReq.HealthChecks[i] = &compute.HealthCheckReference{HealthCheck: v}
 		}
-		op, err := config.clientCompute.TargetPools.RemoveHealthCheck(
+		op, err := config.NewComputeClient(userAgent).TargetPools.RemoveHealthCheck(
 			project, region, name, removeReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating health_check: %s", err)
@@ -299,7 +297,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		for i, v := range add {
 			addReq.HealthChecks[i] = &compute.HealthCheckReference{HealthCheck: v}
 		}
-		op, err = config.clientCompute.TargetPools.AddHealthCheck(
+		op, err = config.NewComputeClient(userAgent).TargetPools.AddHealthCheck(
 			project, region, name, addReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating health_check: %s", err)
@@ -332,7 +330,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		for i, v := range addUrls {
 			addReq.Instances[i] = &compute.InstanceReference{Instance: v}
 		}
-		op, err := config.clientCompute.TargetPools.AddInstance(
+		op, err := config.NewComputeClient(userAgent).TargetPools.AddInstance(
 			project, region, name, addReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating instances: %s", err)
@@ -348,7 +346,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		for i, v := range removeUrls {
 			removeReq.Instances[i] = &compute.InstanceReference{Instance: v}
 		}
-		op, err = config.clientCompute.TargetPools.RemoveInstance(
+		op, err = config.NewComputeClient(userAgent).TargetPools.RemoveInstance(
 			project, region, name, removeReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating instances: %s", err)
@@ -364,7 +362,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		tref := &compute.TargetReference{
 			Target: bpool_name,
 		}
-		op, err := config.clientCompute.TargetPools.SetBackup(
+		op, err := config.NewComputeClient(userAgent).TargetPools.SetBackup(
 			project, region, name, tref).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating backup_pool: %s", err)
@@ -397,7 +395,6 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -409,7 +406,7 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	tpool, err := config.clientCompute.TargetPools.Get(
+	tpool, err := config.NewComputeClient(userAgent).TargetPools.Get(
 		project, region, d.Get("name").(string)).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Target Pool %q", d.Get("name").(string)))
@@ -460,7 +457,6 @@ func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -473,7 +469,7 @@ func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Delete the TargetPool
-	op, err := config.clientCompute.TargetPools.Delete(
+	op, err := config.NewComputeClient(userAgent).TargetPools.Delete(
 		project, region, d.Get("name").(string)).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting TargetPool: %s", err)

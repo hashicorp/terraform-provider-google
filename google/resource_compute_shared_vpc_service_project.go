@@ -81,7 +81,6 @@ func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	split := strings.Split(d.Id(), "/")
 	if len(split) != 2 {
@@ -90,7 +89,7 @@ func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta int
 	hostProject := split[0]
 	serviceProject := split[1]
 
-	associatedHostProject, err := config.clientCompute.Projects.GetXpnHost(serviceProject).Do()
+	associatedHostProject, err := config.NewComputeClient(userAgent).Projects.GetXpnHost(serviceProject).Do()
 	if err != nil {
 		log.Printf("[WARN] Removing shared VPC service. The service project is not associated with any host")
 

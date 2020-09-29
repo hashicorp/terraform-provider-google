@@ -46,14 +46,13 @@ func dataSourceGoogleComputeGlobalAddressRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 	name := d.Get("name").(string)
-	address, err := config.clientCompute.GlobalAddresses.Get(project, name).Do()
+	address, err := config.NewComputeClient(userAgent).GlobalAddresses.Get(project, name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Global Address Not Found : %s", name))
 	}

@@ -60,7 +60,7 @@ func testAccCheckComputeHttpHealthCheckExists(t *testing.T, n string, healthChec
 
 		config := googleProviderConfig(t)
 
-		found, err := config.clientCompute.HttpHealthChecks.Get(
+		found, err := config.NewComputeClient(config.userAgent).HttpHealthChecks.Get(
 			config.Project, rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err

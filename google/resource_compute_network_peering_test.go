@@ -68,7 +68,7 @@ func testAccComputeNetworkPeeringDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			_, err := config.clientCompute.Networks.Get(
+			_, err := config.NewComputeClient(config.userAgent).Networks.Get(
 				config.Project, rs.Primary.ID).Do()
 			if err == nil {
 				return fmt.Errorf("Network peering still exists")

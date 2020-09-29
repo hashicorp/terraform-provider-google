@@ -470,7 +470,7 @@ func forceDeleteComputeNetwork(d *schema.ResourceData, config *Config, projectId
 
 	// Read the network from the API so we can get the correct self link format. We can't construct it from the
 	// base path because it might not line up exactly (compute.googleapis.com vs www.googleapis.com)
-	net, err := config.clientCompute.Networks.Get(projectId, networkName).Do()
+	net, err := config.NewComputeClient(userAgent).Networks.Get(projectId, networkName).Do()
 	if err != nil {
 		return err
 	}
@@ -478,7 +478,7 @@ func forceDeleteComputeNetwork(d *schema.ResourceData, config *Config, projectId
 	token := ""
 	for paginate := true; paginate; {
 		filter := fmt.Sprintf("network eq %s", net.SelfLink)
-		resp, err := config.clientCompute.Firewalls.List(projectId).Filter(filter).Do()
+		resp, err := config.NewComputeClient(userAgent).Firewalls.List(projectId).Filter(filter).Do()
 		if err != nil {
 			return errwrap.Wrapf("Error listing firewall rules in proj: {{err}}", err)
 		}
@@ -486,7 +486,7 @@ func forceDeleteComputeNetwork(d *schema.ResourceData, config *Config, projectId
 		log.Printf("[DEBUG] Found %d firewall rules in %q network", len(resp.Items), networkName)
 
 		for _, firewall := range resp.Items {
-			op, err := config.clientCompute.Firewalls.Delete(projectId, firewall.Name).Do()
+			op, err := config.NewComputeClient(userAgent).Firewalls.Delete(projectId, firewall.Name).Do()
 			if err != nil {
 				return errwrap.Wrapf("Error deleting firewall: {{err}}", err)
 			}
@@ -546,7 +546,7 @@ func updateProjectBillingAccount(d *schema.ResourceData, config *Config) error {
 }
 
 func deleteComputeNetwork(project, network, userAgent string, config *Config) error {
-	op, err := config.clientCompute.Networks.Delete(
+	op, err := config.NewComputeClient(userAgent).Networks.Delete(
 		project, network).Do()
 	if err != nil {
 		return errwrap.Wrapf("Error deleting network: {{err}}", err)

@@ -61,7 +61,6 @@ func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	projectID, err := getProject(d, config)
 	if err != nil {
@@ -87,7 +86,6 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	projectID, err := getProject(d, config)
 	if err != nil {
@@ -95,7 +93,7 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 	}
 
 	log.Printf("[DEBUG] Loading project metadata: %s", projectID)
-	project, err := config.clientCompute.Projects.Get(projectID).Do()
+	project, err := config.NewComputeClient(userAgent).Projects.Get(projectID).Do()
 	if err != nil {
 		return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 	}
@@ -127,7 +125,6 @@ func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	projectID, err := getProject(d, config)
 	if err != nil {
@@ -153,7 +150,6 @@ func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	projectID, err := getProject(d, config)
 	if err != nil {
@@ -174,7 +170,7 @@ func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta inter
 func updateComputeCommonInstanceMetadata(config *Config, projectID, key, userAgent string, afterVal *string, timeout time.Duration, failIfPresent metadataPresentBehavior) error {
 	updateMD := func() error {
 		log.Printf("[DEBUG] Loading project metadata: %s", projectID)
-		project, err := config.clientCompute.Projects.Get(projectID).Do()
+		project, err := config.NewComputeClient(userAgent).Projects.Get(projectID).Do()
 		if err != nil {
 			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 		}
@@ -205,7 +201,7 @@ func updateComputeCommonInstanceMetadata(config *Config, projectID, key, userAge
 		}
 
 		// Attempt to write the new value now
-		op, err := config.clientCompute.Projects.SetCommonInstanceMetadata(
+		op, err := config.NewComputeClient(userAgent).Projects.SetCommonInstanceMetadata(
 			projectID,
 			&compute.Metadata{
 				Fingerprint: project.CommonInstanceMetadata.Fingerprint,

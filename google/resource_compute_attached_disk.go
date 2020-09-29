@@ -80,7 +80,6 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
@@ -106,7 +105,7 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 		DeviceName: d.Get("device_name").(string),
 	}
 
-	op, err := config.clientCompute.Instances.AttachDisk(zv.Project, zv.Zone, zv.Name, &attachedDisk).Do()
+	op, err := config.NewComputeClient(userAgent).Instances.AttachDisk(zv.Project, zv.Zone, zv.Name, &attachedDisk).Do()
 	if err != nil {
 		return err
 	}
@@ -129,7 +128,6 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
@@ -144,7 +142,7 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
-	instance, err := config.clientCompute.Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
+	instance, err := config.NewComputeClient(userAgent).Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AttachedDisk %q", d.Id()))
 	}
@@ -190,7 +188,6 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
@@ -199,7 +196,7 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
-	instance, err := config.clientCompute.Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
+	instance, err := config.NewComputeClient(userAgent).Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
 	if err != nil {
 		return err
 	}
@@ -211,7 +208,7 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 		return nil
 	}
 
-	op, err := config.clientCompute.Instances.DetachDisk(zv.Project, zv.Zone, zv.Name, ad.DeviceName).Do()
+	op, err := config.NewComputeClient(userAgent).Instances.DetachDisk(zv.Project, zv.Zone, zv.Name, ad.DeviceName).Do()
 	if err != nil {
 		return err
 	}

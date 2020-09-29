@@ -107,7 +107,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 	log.Printf("[DEBUG] Loading zone: %s", z)
-	zone, err := config.clientCompute.Zones.Get(project, z).Do()
+	zone, err := config.NewComputeClient(userAgent).Zones.Get(project, z).Do()
 	if err != nil {
 		return fmt.Errorf("Error loading zone '%s': %s", z, err)
 	}

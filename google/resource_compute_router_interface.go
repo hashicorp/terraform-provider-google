@@ -89,7 +89,6 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -108,7 +107,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	mutexKV.Lock(routerLock)
 	defer mutexKV.Unlock(routerLock)
 
-	routersService := config.clientCompute.Routers
+	routersService := config.NewComputeClient(userAgent).Routers
 	router, err := routersService.Get(project, region, routerName).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
@@ -136,7 +135,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	}
 
 	if vpnVal, ok := d.GetOk("vpn_tunnel"); ok {
-		vpnTunnel, err := getVpnTunnelLink(config, project, region, vpnVal.(string))
+		vpnTunnel, err := getVpnTunnelLink(config, project, region, vpnVal.(string), userAgent)
 		if err != nil {
 			return err
 		}
@@ -144,7 +143,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	}
 
 	if icVal, ok := d.GetOk("interconnect_attachment"); ok {
-		interconnectAttachment, err := getInterconnectAttachmentLink(config, project, region, icVal.(string))
+		interconnectAttachment, err := getInterconnectAttachmentLink(config, project, region, icVal.(string), userAgent)
 		if err != nil {
 			return err
 		}
@@ -178,7 +177,6 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -193,7 +191,7 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 	routerName := d.Get("router").(string)
 	ifaceName := d.Get("name").(string)
 
-	routersService := config.clientCompute.Routers
+	routersService := config.NewComputeClient(userAgent).Routers
 	router, err := routersService.Get(project, region, routerName).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
@@ -240,7 +238,6 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -259,7 +256,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 	mutexKV.Lock(routerLock)
 	defer mutexKV.Unlock(routerLock)
 
-	routersService := config.clientCompute.Routers
+	routersService := config.NewComputeClient(userAgent).Routers
 	router, err := routersService.Get(project, region, routerName).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {

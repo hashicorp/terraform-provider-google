@@ -43,7 +43,7 @@ func testSweepComputeInstance(region string) error {
 		return err
 	}
 
-	found, err := config.clientCompute.Instances.AggregatedList(config.Project).Do()
+	found, err := config.NewComputeClient(config.userAgent).Instances.AggregatedList(config.Project).Do()
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request: %s", err)
 		return nil
@@ -59,7 +59,7 @@ func testSweepComputeInstance(region string) error {
 			}
 
 			// Don't wait on operations as we may have a lot to delete
-			_, err := config.clientCompute.Instances.Delete(config.Project, GetResourceNameFromSelfLink(zone), instance.Name).Do()
+			_, err := config.NewComputeClient(config.userAgent).Instances.Delete(config.Project, GetResourceNameFromSelfLink(zone), instance.Name).Do()
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, instance.Name, err)
 			} else {
@@ -1878,7 +1878,7 @@ func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resour
 
 		config := googleProviderConfig(t)
 
-		op, err := config.clientCompute.Instances.Stop(config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
+		op, err := config.NewComputeClient(config.userAgent).Instances.Stop(config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
@@ -1891,7 +1891,7 @@ func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resour
 			MachineType: "zones/us-central1-a/machineTypes/f1-micro",
 		}
 
-		op, err = config.clientCompute.Instances.SetMachineType(
+		op, err = config.NewComputeClient(config.userAgent).Instances.SetMachineType(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"], &machineType).Do()
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
@@ -1913,7 +1913,7 @@ func testAccCheckComputeInstanceDestroyProducer(t *testing.T) func(s *terraform.
 				continue
 			}
 
-			_, err := config.clientCompute.Instances.Get(
+			_, err := config.NewComputeClient(config.userAgent).Instances.Get(
 				config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("Instance still exists")
@@ -1952,7 +1952,7 @@ func testAccCheckComputeInstanceExistsInProject(t *testing.T, n, p string, insta
 
 		config := googleProviderConfig(t)
 
-		found, err := config.clientCompute.Instances.Get(
+		found, err := config.NewComputeClient(config.userAgent).Instances.Get(
 			p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -2119,7 +2119,7 @@ func testAccCheckComputeInstanceBootDiskType(t *testing.T, instanceName string, 
 		config := googleProviderConfig(t)
 
 		// boot disk is named the same as the Instance
-		disk, err := config.clientCompute.Disks.Get(config.Project, "us-central1-a", instanceName).Do()
+		disk, err := config.NewComputeClient(config.userAgent).Disks.Get(config.Project, "us-central1-a", instanceName).Do()
 		if err != nil {
 			return err
 		}

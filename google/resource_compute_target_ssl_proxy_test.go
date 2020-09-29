@@ -54,7 +54,7 @@ func testAccCheckComputeTargetSslProxy(t *testing.T, n, proxyHeader, sslCert str
 		config := googleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
-		found, err := config.clientCompute.TargetSslProxies.Get(
+		found, err := config.NewComputeClient(config.userAgent).TargetSslProxies.Get(
 			config.Project, name).Do()
 		if err != nil {
 			return err

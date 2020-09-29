@@ -630,7 +630,7 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 				return err
 			}
 
-			i, err := config.clientCompute.Instances.Get(instanceProject, instanceZone, instanceName).Do()
+			i, err := config.NewComputeClient(userAgent).Instances.Get(instanceProject, instanceZone, instanceName).Do()
 			if err != nil {
 				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 					log.Printf("[WARN] instance %q not found, not bothering to detach disks", instance)
@@ -651,7 +651,7 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 		}
 
 		for _, call := range detachCalls {
-			op, err := config.clientCompute.Instances.DetachDisk(call.project, call.zone, call.instance, call.deviceName).Do()
+			op, err := config.NewComputeClient(userAgent).Instances.DetachDisk(call.project, call.zone, call.instance, call.deviceName).Do()
 			if err != nil {
 				return fmt.Errorf("Error detaching disk %s from instance %s/%s/%s: %s", call.deviceName, call.project,
 					call.zone, call.instance, err.Error())
@@ -1005,6 +1005,12 @@ func resourceComputeRegionDiskEncoder(d *schema.ResourceData, meta interface{}, 
 	if err != nil {
 		return nil, err
 	}
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	if v, ok := d.GetOk("type"); ok {
 		log.Printf("[DEBUG] Loading disk type: %s", v.(string))
 		diskType, err := readRegionDiskType(config, d, v.(string))
@@ -1019,7 +1025,7 @@ func resourceComputeRegionDiskEncoder(d *schema.ResourceData, meta interface{}, 
 
 	if v, ok := d.GetOk("image"); ok {
 		log.Printf("[DEBUG] Resolving image name: %s", v.(string))
-		imageUrl, err := resolveImage(config, project, v.(string))
+		imageUrl, err := resolveImage(config, project, v.(string), userAgent)
 		if err != nil {
 			return nil, fmt.Errorf(
 				"Error resolving image name '%s': %s",
