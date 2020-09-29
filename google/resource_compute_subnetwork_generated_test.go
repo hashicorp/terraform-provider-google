@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_subnetworkBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})
@@ -75,17 +79,21 @@ func TestAccComputeSubnetwork_subnetworkLoggingConfigExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_subnetworkLoggingConfigExample(context),
 			},
 			{
-				ResourceName:      "google_compute_subnetwork.subnet-with-logging",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_subnetwork.subnet-with-logging",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})
@@ -130,7 +138,7 @@ func testAccCheckComputeSubnetworkDestroyProducer(t *testing.T) func(s *terrafor
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeSubnetwork still exists at %s", url)
 			}

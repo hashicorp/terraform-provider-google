@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/pubsub/v1"
 )
@@ -44,7 +44,9 @@ func NewPubsubSubscriptionIamUpdater(d *schema.ResourceData, config *Config) (Re
 }
 
 func PubsubSubscriptionIdParseFunc(d *schema.ResourceData, _ *Config) error {
-	d.Set("subscription", d.Id())
+	if err := d.Set("subscription", d.Id()); err != nil {
+		return fmt.Errorf("Error setting subscription: %s", err)
+	}
 	return nil
 }
 

@@ -34,13 +34,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"google.golang.org/api/googleapi"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"google.golang.org/api/googleapi"
 )
 
 const defaultRetryTransportTimeoutSec = 30

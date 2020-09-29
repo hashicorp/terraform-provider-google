@@ -6,18 +6,20 @@ import (
 	"os"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/version"
 
 	googleoauth "golang.org/x/oauth2/google"
 )
 
-// Global MutexKV
-var mutexKV = mutexkv.NewMutexKV()
+const TestEnvVar = "TF_ACC"
 
-// Provider returns a terraform.ResourceProvider.
-func Provider() terraform.ResourceProvider {
+// Global MutexKV
+var mutexKV = NewMutexKV()
+
+// Provider returns a *schema.Provider.
+func Provider() *schema.Provider {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"credentials": {
@@ -48,6 +50,14 @@ func Provider() terraform.ResourceProvider {
 					"GOOGLE_CLOUD_PROJECT",
 					"GCLOUD_PROJECT",
 					"CLOUDSDK_CORE_PROJECT",
+				}, nil),
+			},
+
+			"billing_project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_BILLING_PROJECT",
 				}, nil),
 			},
 
@@ -101,6 +111,9 @@ func Provider() terraform.ResourceProvider {
 			"user_project_override": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"USER_PROJECT_OVERRIDE",
+				}, nil),
 			},
 
 			"request_timeout": {
@@ -252,6 +265,14 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_DATA_CATALOG_CUSTOM_ENDPOINT",
 				}, DataCatalogDefaultBasePath),
+			},
+			"data_loss_prevention_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DATA_LOSS_PREVENTION_CUSTOM_ENDPOINT",
+				}, DataLossPreventionDefaultBasePath),
 			},
 			"dataproc_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -529,6 +550,13 @@ func Provider() terraform.ResourceProvider {
 			BigtableAdminCustomEndpointEntryKey:          BigtableAdminCustomEndpointEntry,
 		},
 
+		ProviderMetaSchema: map[string]*schema.Schema{
+			"module_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+		},
+
 		DataSourcesMap: map[string]*schema.Resource{
 			"google_active_folder":                                dataSourceGoogleActiveFolder(),
 			"google_billing_account":                              dataSourceGoogleBillingAccount(),
@@ -553,6 +581,7 @@ func Provider() terraform.ResourceProvider {
 			"google_compute_node_types":                           dataSourceGoogleComputeNodeTypes(),
 			"google_compute_regions":                              dataSourceGoogleComputeRegions(),
 			"google_compute_region_instance_group":                dataSourceGoogleComputeRegionInstanceGroup(),
+			"google_compute_region_ssl_certificate":               dataSourceGoogleRegionComputeSslCertificate(),
 			"google_compute_router":                               dataSourceGoogleComputeRouter(),
 			"google_compute_ssl_certificate":                      dataSourceGoogleComputeSslCertificate(),
 			"google_compute_ssl_policy":                           dataSourceGoogleComputeSslPolicy(),
@@ -602,22 +631,16 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: ResourceMap(),
 	}
 
-	provider.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
-		terraformVersion := provider.TerraformVersion
-		if terraformVersion == "" {
-			// Terraform 0.12 introduced this field to the protocol
-			// We can therefore assume that if it's missing it's 0.10 or 0.11
-			terraformVersion = "0.11+compatible"
-		}
-		return providerConfigure(d, provider, terraformVersion)
+	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		return providerConfigure(ctx, d, provider)
 	}
 
 	return provider
 }
 
-// Generated resources: 155
-// Generated IAM resources: 63
-// Total generated resources: 218
+// Generated resources: 160
+// Generated IAM resources: 69
+// Total generated resources: 229
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -682,6 +705,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_region_disk_resource_policy_attachment":        resourceComputeRegionDiskResourcePolicyAttachment(),
 			"google_compute_disk_resource_policy_attachment":               resourceComputeDiskResourcePolicyAttachment(),
 			"google_compute_disk":                                          resourceComputeDisk(),
+			"google_compute_disk_iam_binding":                              ResourceIamBinding(ComputeDiskIamSchema, ComputeDiskIamUpdaterProducer, ComputeDiskIdParseFunc),
+			"google_compute_disk_iam_member":                               ResourceIamMember(ComputeDiskIamSchema, ComputeDiskIamUpdaterProducer, ComputeDiskIdParseFunc),
+			"google_compute_disk_iam_policy":                               ResourceIamPolicy(ComputeDiskIamSchema, ComputeDiskIamUpdaterProducer, ComputeDiskIdParseFunc),
 			"google_compute_firewall":                                      resourceComputeFirewall(),
 			"google_compute_forwarding_rule":                               resourceComputeForwardingRule(),
 			"google_compute_global_address":                                resourceComputeGlobalAddress(),
@@ -708,6 +734,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_node_template":                                 resourceComputeNodeTemplate(),
 			"google_compute_region_autoscaler":                             resourceComputeRegionAutoscaler(),
 			"google_compute_region_disk":                                   resourceComputeRegionDisk(),
+			"google_compute_region_disk_iam_binding":                       ResourceIamBinding(ComputeRegionDiskIamSchema, ComputeRegionDiskIamUpdaterProducer, ComputeRegionDiskIdParseFunc),
+			"google_compute_region_disk_iam_member":                        ResourceIamMember(ComputeRegionDiskIamSchema, ComputeRegionDiskIamUpdaterProducer, ComputeRegionDiskIdParseFunc),
+			"google_compute_region_disk_iam_policy":                        ResourceIamPolicy(ComputeRegionDiskIamSchema, ComputeRegionDiskIamUpdaterProducer, ComputeRegionDiskIdParseFunc),
 			"google_compute_region_url_map":                                resourceComputeRegionUrlMap(),
 			"google_compute_region_health_check":                           resourceComputeRegionHealthCheck(),
 			"google_compute_resource_policy":                               resourceComputeResourcePolicy(),
@@ -734,6 +763,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_vpn_gateway":                                   resourceComputeVpnGateway(),
 			"google_compute_url_map":                                       resourceComputeUrlMap(),
 			"google_compute_vpn_tunnel":                                    resourceComputeVpnTunnel(),
+			"google_compute_target_grpc_proxy":                             resourceComputeTargetGrpcProxy(),
 			"google_container_analysis_note":                               resourceContainerAnalysisNote(),
 			"google_container_analysis_occurrence":                         resourceContainerAnalysisOccurrence(),
 			"google_data_catalog_entry_group":                              resourceDataCatalogEntryGroup(),
@@ -743,6 +773,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_data_catalog_entry":                                    resourceDataCatalogEntry(),
 			"google_data_catalog_tag_template":                             resourceDataCatalogTagTemplate(),
 			"google_data_catalog_tag":                                      resourceDataCatalogTag(),
+			"google_data_loss_prevention_job_trigger":                      resourceDataLossPreventionJobTrigger(),
+			"google_data_loss_prevention_inspect_template":                 resourceDataLossPreventionInspectTemplate(),
+			"google_data_loss_prevention_stored_info_type":                 resourceDataLossPreventionStoredInfoType(),
+			"google_data_loss_prevention_deidentify_template":              resourceDataLossPreventionDeidentifyTemplate(),
 			"google_dataproc_autoscaling_policy":                           resourceDataprocAutoscalingPolicy(),
 			"google_datastore_index":                                       resourceDatastoreIndex(),
 			"google_deployment_manager_deployment":                         resourceDeploymentManagerDeployment(),
@@ -975,20 +1009,21 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	)
 }
 
-func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVersion string) (interface{}, error) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider) (interface{}, diag.Diagnostics) {
 	config := Config{
 		Project:             d.Get("project").(string),
 		Region:              d.Get("region").(string),
 		Zone:                d.Get("zone").(string),
 		UserProjectOverride: d.Get("user_project_override").(bool),
-		terraformVersion:    terraformVersion,
+		BillingProject:      d.Get("billing_project").(string),
+		userAgent:           p.UserAgent("terraform-provider-google", version.ProviderVersion),
 	}
 
 	if v, ok := d.GetOk("request_timeout"); ok {
 		var err error
 		config.RequestTimeout, err = time.ParseDuration(v.(string))
 		if err != nil {
-			return nil, err
+			return nil, diag.FromErr(err)
 		}
 	}
 	// Add credential source
@@ -1008,7 +1043,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 
 	batchCfg, err := expandProviderBatchingConfig(d.Get("batching"))
 	if err != nil {
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 	config.BatchingConfig = batchCfg
 
@@ -1031,6 +1066,7 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 	config.ComputeBasePath = d.Get("compute_custom_endpoint").(string)
 	config.ContainerAnalysisBasePath = d.Get("container_analysis_custom_endpoint").(string)
 	config.DataCatalogBasePath = d.Get("data_catalog_custom_endpoint").(string)
+	config.DataLossPreventionBasePath = d.Get("data_loss_prevention_custom_endpoint").(string)
 	config.DataprocBasePath = d.Get("dataproc_custom_endpoint").(string)
 	config.DatastoreBasePath = d.Get("datastore_custom_endpoint").(string)
 	config.DeploymentManagerBasePath = d.Get("deployment_manager_custom_endpoint").(string)
@@ -1083,8 +1119,12 @@ func providerConfigure(d *schema.ResourceData, p *schema.Provider, terraformVers
 	config.StorageTransferBasePath = d.Get(StorageTransferCustomEndpointEntryKey).(string)
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
 
-	if err := config.LoadAndValidate(p.StopContext()); err != nil {
-		return nil, err
+	stopCtx, ok := schema.StopContext(ctx)
+	if !ok {
+		stopCtx = ctx
+	}
+	if err := config.LoadAndValidate(stopCtx); err != nil {
+		return nil, diag.FromErr(err)
 	}
 
 	return &config, nil

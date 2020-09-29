@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"log"
 	"sort"
-	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceTpuTensorflowVersions() *schema.Resource {
@@ -34,6 +33,10 @@ func dataSourceTpuTensorflowVersions() *schema.Resource {
 
 func dataSourceTpuTensorFlowVersionsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -50,7 +53,7 @@ func dataSourceTpuTensorFlowVersionsRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	versionsRaw, err := paginatedListRequest(project, url, config, flattenTpuTensorflowVersions)
+	versionsRaw, err := paginatedListRequest(project, url, userAgent, config, flattenTpuTensorflowVersions)
 	if err != nil {
 		return fmt.Errorf("Error listing TPU Tensorflow versions: %s", err)
 	}
@@ -63,10 +66,16 @@ func dataSourceTpuTensorFlowVersionsRead(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Received Google TPU Tensorflow Versions: %q", versions)
 
-	d.Set("versions", versions)
-	d.Set("zone", zone)
-	d.Set("project", project)
-	d.SetId(time.Now().UTC().String())
+	if err := d.Set("versions", versions); err != nil {
+		return fmt.Errorf("Error setting versions: %s", err)
+	}
+	if err := d.Set("zone", zone); err != nil {
+		return fmt.Errorf("Error setting zone: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	d.SetId(fmt.Sprintf("projects/%s/zones/%s", project, zone))
 
 	return nil
 }

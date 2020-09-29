@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	compute "google.golang.org/api/compute/v1"
 )
 
@@ -76,6 +76,11 @@ func resourceComputeAttachedDisk() *schema.Resource {
 
 func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
@@ -109,7 +114,7 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s/%s", zv.Project, zv.Zone, zv.Name, diskName))
 
 	waitErr := computeOperationWaitTime(config, op, zv.Project,
-		"disk to attach", d.Timeout(schema.TimeoutCreate))
+		"disk to attach", userAgent, d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		d.SetId("")
 		return waitErr
@@ -120,13 +125,22 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
 		return err
 	}
-	d.Set("project", zv.Project)
-	d.Set("zone", zv.Zone)
+	if err := d.Set("project", zv.Project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("zone", zv.Zone); err != nil {
+		return fmt.Errorf("Error setting zone: %s", err)
+	}
 
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
@@ -144,26 +158,39 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	d.Set("device_name", ad.DeviceName)
-	d.Set("mode", ad.Mode)
+	if err := d.Set("device_name", ad.DeviceName); err != nil {
+		return fmt.Errorf("Error setting device_name: %s", err)
+	}
+	if err := d.Set("mode", ad.Mode); err != nil {
+		return fmt.Errorf("Error setting mode: %s", err)
+	}
 
 	// Force the referenced resources to a self-link in state because it's more specific then name.
 	instancePath, err := getRelativePath(instance.SelfLink)
 	if err != nil {
 		return err
 	}
-	d.Set("instance", instancePath)
+	if err := d.Set("instance", instancePath); err != nil {
+		return fmt.Errorf("Error setting instance: %s", err)
+	}
 	diskPath, err := getRelativePath(ad.Source)
 	if err != nil {
 		return err
 	}
-	d.Set("disk", diskPath)
+	if err := d.Set("disk", diskPath); err != nil {
+		return fmt.Errorf("Error setting disk: %s", err)
+	}
 
 	return nil
 }
 
 func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
@@ -190,7 +217,7 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	waitErr := computeOperationWaitTime(config, op, zv.Project,
-		fmt.Sprintf("Detaching disk from %s", zv.Name), d.Timeout(schema.TimeoutDelete))
+		fmt.Sprintf("Detaching disk from %s", zv.Name), userAgent, d.Timeout(schema.TimeoutDelete))
 	if waitErr != nil {
 		return waitErr
 	}

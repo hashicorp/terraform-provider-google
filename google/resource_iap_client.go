@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceIapClient() *schema.Resource {
@@ -71,6 +71,10 @@ is attached to. The format is
 
 func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandIapClientDisplayName(d.Get("display_name"), d, config)
@@ -86,7 +90,14 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new Client: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Client: %s", err)
 	}
@@ -103,7 +114,9 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 	brand := d.Get("brand")
 	clientId := flattenIapClientClientId(res["name"], d, config)
 
-	d.Set("client_id", clientId)
+	if err := d.Set("client_id", clientId); err != nil {
+		return fmt.Errorf("Error setting client_id: %s", err)
+	}
 	d.SetId(fmt.Sprintf("%s/identityAwareProxyClients/%s", brand, clientId))
 
 	return resourceIapClientRead(d, meta)
@@ -111,13 +124,24 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IapClient %q", d.Id()))
 	}
@@ -137,6 +161,13 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIapClientDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	url, err := replaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
 	if err != nil {
@@ -146,7 +177,12 @@ func resourceIapClientDelete(d *schema.ResourceData, meta interface{}) error {
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Client %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Client")
 	}
@@ -172,8 +208,12 @@ func resourceIapClientImport(d *schema.ResourceData, meta interface{}) ([]*schem
 		)
 	}
 
-	d.Set("brand", fmt.Sprintf("projects/%s/brands/%s", nameParts[1], nameParts[3]))
-	d.Set("client_id", nameParts[5])
+	if err := d.Set("brand", fmt.Sprintf("projects/%s/brands/%s", nameParts[1], nameParts[3])); err != nil {
+		return nil, fmt.Errorf("Error setting brand: %s", err)
+	}
+	if err := d.Set("client_id", nameParts[5]); err != nil {
+		return nil, fmt.Errorf("Error setting client_id: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

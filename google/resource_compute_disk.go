@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -22,13 +23,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
 // Is the new disk size smaller than the old one?
-func isDiskShrinkage(old, new, _ interface{}) bool {
+func isDiskShrinkage(_ context.Context, old, new, _ interface{}) bool {
 	// It's okay to remove size entirely.
 	if old == nil || new == nil {
 		return false
@@ -288,6 +289,13 @@ in the cloud console. Your project's Compute Engine System service account
 'roles/cloudkms.cryptoKeyEncrypterDecrypter' to use this feature.
 See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
 						},
+						"kms_key_service_account": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The service account used for the encryption request for the given KMS key.
+If absent, the Compute Engine Service Agent service account is used.`,
+						},
 						"raw_key": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -385,6 +393,13 @@ in the cloud console. Your project's Compute Engine System service account
 'roles/cloudkms.cryptoKeyEncrypterDecrypter' to use this feature.
 See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
 						},
+						"kms_key_service_account": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The service account used for the encryption request for the given KMS key.
+If absent, the Compute Engine Service Agent service account is used.`,
+						},
 						"raw_key": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -421,6 +436,13 @@ in the cloud console. Your project's Compute Engine System service account
 ('service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com') must have
 'roles/cloudkms.cryptoKeyEncrypterDecrypter' to use this feature.
 See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys`,
+						},
+						"kms_key_service_account": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The service account used for the encryption request for the given KMS key. 
+If absent, the Compute Engine Service Agent service account is used.`,
 						},
 						"raw_key": {
 							Type:     schema.TypeString,
@@ -521,6 +543,10 @@ project/zones/zone/instances/instance`,
 
 func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	labelFingerprintProp, err := expandComputeDiskLabelFingerprint(d.Get("label_fingerprint"), d, config)
@@ -613,11 +639,20 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new Disk: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Disk: %s", err)
 	}
@@ -630,7 +665,7 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Disk",
+		config, res, project, "Creating Disk", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -646,17 +681,30 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeDisk %q", d.Id()))
 	}
@@ -743,11 +791,19 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	d.Partial(true)
 
@@ -771,7 +827,13 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
 		} else {
@@ -779,14 +841,11 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Disk",
+			config, res, project, "Updating Disk", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("label_fingerprint")
-		d.SetPartial("labels")
 	}
 	if d.HasChange("size") {
 		obj := make(map[string]interface{})
@@ -802,7 +861,13 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
 		} else {
@@ -810,13 +875,11 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Disk",
+			config, res, project, "Updating Disk", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("size")
 	}
 
 	d.Partial(false)
@@ -826,11 +889,19 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}")
 	if err != nil {
@@ -838,7 +909,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var obj map[string]interface{}
-	readRes, err := sendRequest(config, "GET", project, url, nil)
+	readRes, err := sendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeDisk %q", d.Id()))
 	}
@@ -882,7 +953,7 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 					call.zone, call.instance, err.Error())
 			}
 			err = computeOperationWaitTime(config, op, call.project,
-				fmt.Sprintf("Detaching disk from %s/%s/%s", call.project, call.zone, call.instance), d.Timeout(schema.TimeoutDelete))
+				fmt.Sprintf("Detaching disk from %s/%s/%s", call.project, call.zone, call.instance), userAgent, d.Timeout(schema.TimeoutDelete))
 			if err != nil {
 				if opErr, ok := err.(ComputeOperationError); ok && len(opErr.Errors) == 1 && opErr.Errors[0].Code == "RESOURCE_NOT_FOUND" {
 					log.Printf("[WARN] instance %q was deleted while awaiting detach", call.instance)
@@ -894,13 +965,18 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	log.Printf("[DEBUG] Deleting Disk %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Disk")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Disk",
+		config, res, project, "Deleting Disk", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -1034,6 +1110,8 @@ func flattenComputeDiskSourceImageEncryptionKey(v interface{}, d *schema.Resourc
 		flattenComputeDiskSourceImageEncryptionKeySha256(original["sha256"], d, config)
 	transformed["kms_key_self_link"] =
 		flattenComputeDiskSourceImageEncryptionKeyKmsKeySelfLink(original["kmsKeyName"], d, config)
+	transformed["kms_key_service_account"] =
+		flattenComputeDiskSourceImageEncryptionKeyKmsKeyServiceAccount(original["kmsKeyServiceAccount"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeDiskSourceImageEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1045,6 +1123,10 @@ func flattenComputeDiskSourceImageEncryptionKeySha256(v interface{}, d *schema.R
 }
 
 func flattenComputeDiskSourceImageEncryptionKeyKmsKeySelfLink(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeDiskSourceImageEncryptionKeyKmsKeyServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1067,6 +1149,8 @@ func flattenComputeDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData, 
 		flattenComputeDiskDiskEncryptionKeySha256(original["sha256"], d, config)
 	transformed["kms_key_self_link"] =
 		flattenComputeDiskDiskEncryptionKeyKmsKeySelfLink(original["kmsKeyName"], d, config)
+	transformed["kms_key_service_account"] =
+		flattenComputeDiskDiskEncryptionKeyKmsKeyServiceAccount(original["kmsKeyServiceAccount"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeDiskDiskEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1078,6 +1162,10 @@ func flattenComputeDiskDiskEncryptionKeySha256(v interface{}, d *schema.Resource
 }
 
 func flattenComputeDiskDiskEncryptionKeyKmsKeySelfLink(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeDiskDiskEncryptionKeyKmsKeyServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1103,6 +1191,8 @@ func flattenComputeDiskSourceSnapshotEncryptionKey(v interface{}, d *schema.Reso
 		flattenComputeDiskSourceSnapshotEncryptionKeyKmsKeySelfLink(original["kmsKeyName"], d, config)
 	transformed["sha256"] =
 		flattenComputeDiskSourceSnapshotEncryptionKeySha256(original["sha256"], d, config)
+	transformed["kms_key_service_account"] =
+		flattenComputeDiskSourceSnapshotEncryptionKeyKmsKeyServiceAccount(original["kmsKeyServiceAccount"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeDiskSourceSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1114,6 +1204,10 @@ func flattenComputeDiskSourceSnapshotEncryptionKeyKmsKeySelfLink(v interface{}, 
 }
 
 func flattenComputeDiskSourceSnapshotEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeDiskSourceSnapshotEncryptionKeyKmsKeyServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1202,6 +1296,13 @@ func expandComputeDiskSourceImageEncryptionKey(v interface{}, d TerraformResourc
 		transformed["kmsKeyName"] = transformedKmsKeySelfLink
 	}
 
+	transformedKmsKeyServiceAccount, err := expandComputeDiskSourceImageEncryptionKeyKmsKeyServiceAccount(original["kms_key_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyServiceAccount); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyServiceAccount"] = transformedKmsKeyServiceAccount
+	}
+
 	return transformed, nil
 }
 
@@ -1214,6 +1315,10 @@ func expandComputeDiskSourceImageEncryptionKeySha256(v interface{}, d TerraformR
 }
 
 func expandComputeDiskSourceImageEncryptionKeyKmsKeySelfLink(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskSourceImageEncryptionKeyKmsKeyServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1247,6 +1352,13 @@ func expandComputeDiskDiskEncryptionKey(v interface{}, d TerraformResourceData, 
 		transformed["kmsKeyName"] = transformedKmsKeySelfLink
 	}
 
+	transformedKmsKeyServiceAccount, err := expandComputeDiskDiskEncryptionKeyKmsKeyServiceAccount(original["kms_key_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyServiceAccount); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyServiceAccount"] = transformedKmsKeyServiceAccount
+	}
+
 	return transformed, nil
 }
 
@@ -1259,6 +1371,10 @@ func expandComputeDiskDiskEncryptionKeySha256(v interface{}, d TerraformResource
 }
 
 func expandComputeDiskDiskEncryptionKeyKmsKeySelfLink(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskDiskEncryptionKeyKmsKeyServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1300,6 +1416,13 @@ func expandComputeDiskSourceSnapshotEncryptionKey(v interface{}, d TerraformReso
 		transformed["sha256"] = transformedSha256
 	}
 
+	transformedKmsKeyServiceAccount, err := expandComputeDiskSourceSnapshotEncryptionKeyKmsKeyServiceAccount(original["kms_key_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyServiceAccount); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyServiceAccount"] = transformedKmsKeyServiceAccount
+	}
+
 	return transformed, nil
 }
 
@@ -1312,6 +1435,10 @@ func expandComputeDiskSourceSnapshotEncryptionKeyKmsKeySelfLink(v interface{}, d
 }
 
 func expandComputeDiskSourceSnapshotEncryptionKeySha256(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskSourceSnapshotEncryptionKeyKmsKeyServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1364,6 +1491,10 @@ func resourceComputeDiskDecoder(d *schema.ResourceData, meta interface{}, res ma
 			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
 		}
 
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
+		}
+
 		res["diskEncryptionKey"] = transformed
 	}
 
@@ -1380,6 +1511,10 @@ func resourceComputeDiskDecoder(d *schema.ResourceData, meta interface{}, res ma
 			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
 		}
 
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
+		}
+
 		res["sourceImageEncryptionKey"] = transformed
 	}
 
@@ -1394,6 +1529,10 @@ func resourceComputeDiskDecoder(d *schema.ResourceData, meta interface{}, res ma
 			// The response for crypto keys often includes the version of the key which needs to be removed
 			// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
 			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
+		}
+
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
 		}
 
 		res["sourceSnapshotEncryptionKey"] = transformed

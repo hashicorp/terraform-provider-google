@@ -2,6 +2,7 @@ package google
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -12,11 +13,10 @@ import (
 	"time"
 
 	"github.com/gammazero/workerpool"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
@@ -162,12 +162,6 @@ func resourceStorageBucket() *schema.Resource {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
-									},
-									"is_live": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Removed:  "Please use `with_state` instead",
-										Computed: true,
 									},
 									"with_state": {
 										Type:         schema.TypeString,
@@ -325,17 +319,26 @@ func resourceStorageBucket() *schema.Resource {
 				Description: `The bucket's Access & Storage Logs configuration.`,
 			},
 			"bucket_policy_only": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Computed:    true,
-				Description: `Enables Bucket Policy Only access to a bucket.`,
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Computed:      true,
+				Description:   `Enables Bucket Policy Only access to a bucket.`,
+				Deprecated:    `Please use the uniform_bucket_level_access as this field has been renamed by Google.`,
+				ConflictsWith: []string{"uniform_bucket_level_access"},
+			},
+			"uniform_bucket_level_access": {
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Computed:      true,
+				Description:   `Enables uniform bucket-level access on a bucket.`,
+				ConflictsWith: []string{"bucket_policy_only"},
 			},
 		},
 	}
 }
 
 // Is the old bucket retention policy locked?
-func isPolicyLocked(old, new, _ interface{}) bool {
+func isPolicyLocked(_ context.Context, old, new, _ interface{}) bool {
 	if old == nil || new == nil {
 		return false
 	}
@@ -350,6 +353,11 @@ func isPolicyLocked(old, new, _ interface{}) bool {
 
 func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -462,6 +470,11 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	sb := &storage.Bucket{}
 
@@ -550,6 +563,9 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("bucket_policy_only") {
 		sb.IamConfiguration = expandIamConfiguration(d)
 	}
+	if d.HasChange("uniform_bucket_level_access") {
+		sb.IamConfiguration = expandIamConfiguration(d)
+	}
 
 	res, err := config.clientStorage.Buckets.Patch(d.Get("name").(string), sb).Do()
 
@@ -558,7 +574,9 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Assign the bucket ID as the resource ID
-	d.Set("self_link", res.SelfLink)
+	if err := d.Set("self_link", res.SelfLink); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
 
 	if d.HasChange("retention_policy") {
 		if v, ok := d.GetOk("retention_policy"); ok {
@@ -586,6 +604,11 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
@@ -606,7 +629,9 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	// from the projectNumber which is included in the bucket API response
 	if d.Get("project") == "" {
 		project, _ := getProject(d, config)
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
 	}
 	if d.Get("project") == "" {
 		proj, err := config.clientCompute.Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
@@ -614,34 +639,77 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 		log.Printf("[DEBUG] Bucket %v is in project number %v, which is project ID %s.\n", res.Name, res.ProjectNumber, proj.Name)
-		d.Set("project", proj.Name)
+		if err := d.Set("project", proj.Name); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
 	}
 
 	// Update the bucket ID according to the resource ID
-	d.Set("self_link", res.SelfLink)
-	d.Set("url", fmt.Sprintf("gs://%s", bucket))
-	d.Set("storage_class", res.StorageClass)
-	d.Set("encryption", flattenBucketEncryption(res.Encryption))
-	d.Set("location", res.Location)
-	d.Set("cors", flattenCors(res.Cors))
-	d.Set("default_event_based_hold", res.DefaultEventBasedHold)
-	d.Set("logging", flattenBucketLogging(res.Logging))
-	d.Set("versioning", flattenBucketVersioning(res.Versioning))
-	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
-	d.Set("labels", res.Labels)
-	d.Set("website", flattenBucketWebsite(res.Website))
-	d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy))
+	if err := d.Set("self_link", res.SelfLink); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("url", fmt.Sprintf("gs://%s", bucket)); err != nil {
+		return fmt.Errorf("Error setting url: %s", err)
+	}
+	if err := d.Set("storage_class", res.StorageClass); err != nil {
+		return fmt.Errorf("Error setting storage_class: %s", err)
+	}
+	if err := d.Set("encryption", flattenBucketEncryption(res.Encryption)); err != nil {
+		return fmt.Errorf("Error setting encryption: %s", err)
+	}
+	if err := d.Set("location", res.Location); err != nil {
+		return fmt.Errorf("Error setting location: %s", err)
+	}
+	if err := d.Set("cors", flattenCors(res.Cors)); err != nil {
+		return fmt.Errorf("Error setting cors: %s", err)
+	}
+	if err := d.Set("default_event_based_hold", res.DefaultEventBasedHold); err != nil {
+		return fmt.Errorf("Error setting default_event_based_hold: %s", err)
+	}
+	if err := d.Set("logging", flattenBucketLogging(res.Logging)); err != nil {
+		return fmt.Errorf("Error setting logging: %s", err)
+	}
+	if err := d.Set("versioning", flattenBucketVersioning(res.Versioning)); err != nil {
+		return fmt.Errorf("Error setting versioning: %s", err)
+	}
+	if err := d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle)); err != nil {
+		return fmt.Errorf("Error setting lifecycle_rule: %s", err)
+	}
+	if err := d.Set("labels", res.Labels); err != nil {
+		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := d.Set("website", flattenBucketWebsite(res.Website)); err != nil {
+		return fmt.Errorf("Error setting website: %s", err)
+	}
+	if err := d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy)); err != nil {
+		return fmt.Errorf("Error setting retention_policy: %s", err)
+	}
 
-	if res.IamConfiguration != nil && res.IamConfiguration.BucketPolicyOnly != nil {
-		d.Set("bucket_policy_only", res.IamConfiguration.BucketPolicyOnly.Enabled)
+	// Delete the bucket_policy_only field in the next major version of the provider.
+	if res.IamConfiguration != nil && res.IamConfiguration.UniformBucketLevelAccess != nil {
+		if err := d.Set("uniform_bucket_level_access", res.IamConfiguration.UniformBucketLevelAccess.Enabled); err != nil {
+			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
+		}
+		if err := d.Set("bucket_policy_only", res.IamConfiguration.BucketPolicyOnly.Enabled); err != nil {
+			return fmt.Errorf("Error setting bucket_policy_only: %s", err)
+		}
 	} else {
-		d.Set("bucket_policy_only", false)
+		if err := d.Set("bucket_policy_only", false); err != nil {
+			return fmt.Errorf("Error setting bucket_policy_only: %s", err)
+		}
+		if err := d.Set("uniform_bucket_level_access", false); err != nil {
+			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
+		}
 	}
 
 	if res.Billing == nil {
-		d.Set("requester_pays", nil)
+		if err := d.Set("requester_pays", nil); err != nil {
+			return fmt.Errorf("Error setting requester_pays: %s", err)
+		}
 	} else {
-		d.Set("requester_pays", res.Billing.RequesterPays)
+		if err := d.Set("requester_pays", res.Billing.RequesterPays); err != nil {
+			return fmt.Errorf("Error setting requester_pays: %s", err)
+		}
 	}
 
 	d.SetId(res.Id)
@@ -650,6 +718,11 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	// Get the bucket
 	bucket := d.Get("name").(string)
@@ -723,7 +796,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// remove empty bucket
-	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
+	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 		err := config.clientStorage.Buckets.Delete(bucket).Do()
 		if err == nil {
 			return nil
@@ -755,13 +828,21 @@ func resourceStorageBucketStateImporter(d *schema.ResourceData, meta interface{}
 	// is a valid state as the project_id will be retrieved in READ
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) == 1 {
-		d.Set("name", parts[0])
+		if err := d.Set("name", parts[0]); err != nil {
+			return nil, fmt.Errorf("Error setting name: %s", err)
+		}
 	} else if len(parts) > 1 {
-		d.Set("project", parts[0])
-		d.Set("name", parts[1])
+		if err := d.Set("project", parts[0]); err != nil {
+			return nil, fmt.Errorf("Error setting project: %s", err)
+		}
+		if err := d.Set("name", parts[1]); err != nil {
+			return nil, fmt.Errorf("Error setting name: %s", err)
+		}
 	}
 
-	d.Set("force_destroy", false)
+	if err := d.Set("force_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting force_destroy: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -995,19 +1076,40 @@ func expandBucketWebsite(v interface{}) *storage.BucketWebsite {
 	if v := website["main_page_suffix"]; v != "" {
 		w.MainPageSuffix = v.(string)
 	}
-
 	return w
 }
 
+// remove this on next major release of the provider.
 func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfiguration {
+	// We are checking for a change because the last else block is only executed on Create.
+	enabled := false
+	if d.HasChange("bucket_policy_only") {
+		enabled = d.Get("bucket_policy_only").(bool)
+	} else if d.HasChange("uniform_bucket_level_access") {
+		enabled = d.Get("uniform_bucket_level_access").(bool)
+	} else {
+		enabled = d.Get("bucket_policy_only").(bool) || d.Get("uniform_bucket_level_access").(bool)
+	}
+
 	return &storage.BucketIamConfiguration{
-		ForceSendFields: []string{"BucketPolicyOnly"},
-		BucketPolicyOnly: &storage.BucketIamConfigurationBucketPolicyOnly{
-			Enabled:         d.Get("bucket_policy_only").(bool),
+		ForceSendFields: []string{"UniformBucketLevelAccess"},
+		UniformBucketLevelAccess: &storage.BucketIamConfigurationUniformBucketLevelAccess{
+			Enabled:         enabled,
 			ForceSendFields: []string{"Enabled"},
 		},
 	}
 }
+
+// Uncomment once the previous function is removed.
+// func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfiguration {
+// 	return &storage.BucketIamConfiguration{
+// 		ForceSendFields: []string{"UniformBucketLevelAccess"},
+// 		UniformBucketLevelAccess: &storage.BucketIamConfigurationUniformBucketLevelAccess{
+// 			Enabled:         d.Get("uniform_bucket_level_access").(bool),
+// 			ForceSendFields: []string{"Enabled"},
+// 		},
+// 	}
+// }
 
 func expandStorageBucketLifecycle(v interface{}) (*storage.BucketLifecycle, error) {
 	if v == nil {
@@ -1158,7 +1260,7 @@ func resourceGCSBucketLifecycleRuleActionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 
-	return hashcode.String(buf.String())
+	return hashcode(buf.String())
 }
 
 func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
@@ -1198,7 +1300,7 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
 	}
 
-	return hashcode.String(buf.String())
+	return hashcode(buf.String())
 }
 
 func lockRetentionPolicy(bucketsService *storage.BucketsService, bucketName string, metageneration int64) error {

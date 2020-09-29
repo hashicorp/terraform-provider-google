@@ -218,6 +218,7 @@ The following arguments are supported:
   The allowed duration for this deadline is:
   * For HTTP targets, between 15 seconds and 30 minutes.
   * For App Engine HTTP targets, between 15 seconds and 24 hours.
+  * **Note**: For PubSub targets, this field is ignored - setting it will introduce an unresolvable diff.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s"
 
 * `retry_config` -
@@ -438,9 +439,6 @@ $ terraform import google_cloud_scheduler_job.default {{project}}/{{region}}/{{n
 $ terraform import google_cloud_scheduler_job.default {{region}}/{{name}}
 $ terraform import google_cloud_scheduler_job.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

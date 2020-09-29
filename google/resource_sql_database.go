@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceSQLDatabase() *schema.Resource {
@@ -91,6 +91,10 @@ a value of 'en_US.UTF8' at creation time.`,
 
 func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	charsetProp, err := expandSQLDatabaseCharset(d.Get("charset"), d, config)
@@ -131,11 +135,20 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new Database: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Database: %s", err)
 	}
@@ -148,7 +161,7 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(id)
 
 	err = sqlAdminOperationWaitTime(
-		config, res, project, "Creating Database",
+		config, res, project, "Creating Database", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -164,17 +177,30 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(transformSQLDatabaseReadError(err), d, fmt.Sprintf("SQLDatabase %q", d.Id()))
 	}
@@ -204,11 +230,19 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	charsetProp, err := expandSQLDatabaseCharset(d.Get("charset"), d, config)
@@ -249,7 +283,13 @@ func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Updating Database %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
@@ -258,7 +298,7 @@ func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	err = sqlAdminOperationWaitTime(
-		config, res, project, "Updating Database",
+		config, res, project, "Updating Database", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -270,11 +310,19 @@ func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
 	if err != nil {
@@ -291,13 +339,18 @@ func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Database %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Database")
 	}
 
 	err = sqlAdminOperationWaitTime(
-		config, res, project, "Deleting Database",
+		config, res, project, "Deleting Database", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

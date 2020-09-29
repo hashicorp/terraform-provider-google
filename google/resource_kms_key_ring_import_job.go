@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceKMSKeyRingImportJob() *schema.Resource {
@@ -76,7 +76,6 @@ versionTemplate on the CryptoKey you attempt to import into. Possible values: ["
 				Description: `Statement that was generated and signed by the key creator (for example, an HSM) at key creation time.
 Use this statement to verify attributes of the key as stored on the HSM, independently of Google.
 Only present if the chosen ImportMethod is one with a protection level of HSM.`,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"content": {
@@ -108,7 +107,6 @@ This is in RFC3339 text format.`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The public key with which to wrap key material prior to import. Only returned if state is 'ACTIVE'.`,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"pem": {
@@ -131,6 +129,10 @@ for General Considerations and Textual Encoding of Subject Public Key Info.`,
 
 func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	importMethodProp, err := expandKMSKeyRingImportJobImportMethod(d.Get("import_method"), d, config)
@@ -152,7 +154,14 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Creating new KeyRingImportJob: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating KeyRingImportJob: %s", err)
 	}
@@ -174,13 +183,24 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 
 func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("KMSKeyRingImportJob %q", d.Id()))
 	}
@@ -212,6 +232,13 @@ func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceKMSKeyRingImportJobDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}{{name}}")
 	if err != nil {
@@ -221,7 +248,12 @@ func resourceKMSKeyRingImportJobDelete(d *schema.ResourceData, meta interface{})
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting KeyRingImportJob %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "KeyRingImportJob")
 	}
@@ -248,8 +280,12 @@ func resourceKMSKeyRingImportJobImport(d *schema.ResourceData, meta interface{})
 		)
 	}
 
-	d.Set("key_ring", stringParts[3])
-	d.Set("import_job_id", stringParts[5])
+	if err := d.Set("key_ring", stringParts[3]); err != nil {
+		return nil, fmt.Errorf("Error setting key_ring: %s", err)
+	}
+	if err := d.Set("import_job_id", stringParts[5]); err != nil {
+		return nil, fmt.Errorf("Error setting import_job_id: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

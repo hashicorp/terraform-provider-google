@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *test
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionBackendService_regionBackendServiceBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})
@@ -77,17 +81,21 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})
@@ -121,17 +129,21 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(t
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})
@@ -181,17 +193,21 @@ func TestAccComputeRegionBackendService_regionBackendServiceBalancingModeExample
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionBackendService_regionBackendServiceBalancingModeExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
 			},
 		},
 	})
@@ -290,7 +306,7 @@ func testAccCheckComputeRegionBackendServiceDestroyProducer(t *testing.T) func(s
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeRegionBackendService still exists at %s", url)
 			}

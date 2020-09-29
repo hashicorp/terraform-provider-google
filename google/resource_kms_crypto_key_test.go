@@ -1,12 +1,13 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestCryptoKeyIdParsing(t *testing.T) {
@@ -148,7 +149,7 @@ func TestCryptoKeyStateUpgradeV0(t *testing.T) {
 	}
 	for tn, tc := range cases {
 		t.Run(tn, func(t *testing.T) {
-			actual, err := resourceKMSCryptoKeyUpgradeV0(tc.Attributes, tc.Meta)
+			actual, err := resourceKMSCryptoKeyUpgradeV0(context.Background(), tc.Attributes, tc.Meta)
 
 			if err != nil {
 				t.Error(err)

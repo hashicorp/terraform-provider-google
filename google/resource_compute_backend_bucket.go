@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceComputeBackendBucket() *schema.Resource {
@@ -115,6 +115,10 @@ client when the resource is created.`,
 
 func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	bucketNameProp, err := expandComputeBackendBucketBucketName(d.Get("bucket_name"), d, config)
@@ -154,11 +158,20 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Creating new BackendBucket: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating BackendBucket: %s", err)
 	}
@@ -171,7 +184,7 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating BackendBucket",
+		config, res, project, "Creating BackendBucket", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -187,17 +200,30 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 
 func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeBackendBucket %q", d.Id()))
 	}
@@ -233,11 +259,19 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	bucketNameProp, err := expandComputeBackendBucketBucketName(d.Get("bucket_name"), d, config)
@@ -277,7 +311,13 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Updating BackendBucket %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating BackendBucket %q: %s", d.Id(), err)
@@ -286,7 +326,7 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Updating BackendBucket",
+		config, res, project, "Updating BackendBucket", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -298,11 +338,19 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
 	if err != nil {
@@ -312,13 +360,18 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting BackendBucket %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "BackendBucket")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting BackendBucket",
+		config, res, project, "Deleting BackendBucket", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

@@ -15,17 +15,18 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
-func revisionNameCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
+func revisionNameCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	autogen := diff.Get("autogenerate_revision_name").(bool)
 	if autogen && diff.HasChange("template.0.metadata.0.name") {
 		return fmt.Errorf("google_cloud_run_service: `template.metadata.name` cannot be set while `autogenerate_revision_name` is true. Please remove the field or set `autogenerate_revision_name` to false.")
@@ -546,7 +547,6 @@ More info: http://kubernetes.io/docs/user-guide/identifiers#uids`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The current status of the Service.`,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"conditions": {
@@ -628,6 +628,10 @@ https://{route-hash}-{project-hash}-{cluster-level-suffix}.a.run.app`,
 
 func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	specProp, err := expandCloudRunServiceSpec(nil, d, config)
@@ -654,11 +658,20 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Creating new Service: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Service: %s", err)
 	}
@@ -689,11 +702,25 @@ func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) P
 			return nil, err
 		}
 
+		billingProject := ""
+
 		project, err := getProject(d, config)
 		if err != nil {
 			return nil, err
 		}
-		res, err := sendRequest(config, "GET", project, url, nil)
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 		if err != nil {
 			return res, err
 		}
@@ -715,17 +742,30 @@ func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) P
 
 func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudRunService %q", d.Id()))
 	}
@@ -744,7 +784,9 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOk("autogenerate_revision_name"); !ok {
-		d.Set("autogenerate_revision_name", false)
+		if err := d.Set("autogenerate_revision_name", false); err != nil {
+			return fmt.Errorf("Error setting autogenerate_revision_name: %s", err)
+		}
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
@@ -759,7 +801,9 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
-				d.Set(k, v)
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
 			}
 		}
 	}
@@ -775,11 +819,19 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	specProp, err := expandCloudRunServiceSpec(nil, d, config)
@@ -806,7 +858,13 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Service %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Service %q: %s", d.Id(), err)
@@ -824,11 +882,19 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
@@ -838,7 +904,12 @@ func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) err
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Service %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Service")
 	}
@@ -865,7 +936,9 @@ func resourceCloudRunServiceImport(d *schema.ResourceData, meta interface{}) ([]
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	d.Set("autogenerate_revision_name", false)
+	if err := d.Set("autogenerate_revision_name", false); err != nil {
+		return nil, fmt.Errorf("Error setting autogenerate_revision_name: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

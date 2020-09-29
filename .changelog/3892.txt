@@ -1,0 +1,6 @@
+```release-note:enhancement
+
+container  : added project override support to `google_container_cluster` and `google_container_nodepool`
+servicemanagement : added project override support to `google_project_service`
+
+```

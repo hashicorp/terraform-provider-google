@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -23,11 +24,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Both oidc and oauth headers cannot be set
-func validateAuthHeaders(diff *schema.ResourceDiff, v interface{}) error {
+func validateAuthHeaders(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	httpBlock := diff.Get("http_target.0").(map[string]interface{})
 
 	if httpBlock != nil {
@@ -193,6 +194,7 @@ execution logs. Cloud Scheduler will retry the job according to the RetryConfig.
 The allowed duration for this deadline is:
 * For HTTP targets, between 15 seconds and 30 minutes.
 * For App Engine HTTP targets, between 15 seconds and 24 hours.
+* **Note**: For PubSub targets, this field is ignored - setting it will introduce an unresolvable diff.
 A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s"`,
 				Default: "180s",
 			},
@@ -433,6 +435,10 @@ The value of this field must be a time zone name from the tz database.`,
 
 func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandCloudSchedulerJobName(d.Get("name"), d, config)
@@ -496,11 +502,20 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Creating new Job: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Job: %s", err)
 	}
@@ -519,17 +534,30 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudSchedulerJob %q", d.Id()))
 	}
@@ -579,11 +607,19 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
@@ -593,7 +629,12 @@ func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) e
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Job %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Job")
 	}

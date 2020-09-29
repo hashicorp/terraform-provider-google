@@ -41,7 +41,7 @@ To get more information about Hl7V2Store, see:
 
 
 ```hcl
-resource "google_healthcare_hl7_v2_store" "default" {
+resource "google_healthcare_hl7_v2_store" "store" {
   name    = "example-hl7-v2-store"
   dataset = google_healthcare_dataset.dataset.id
 
@@ -72,7 +72,7 @@ resource "google_healthcare_dataset" "dataset" {
 
 
 ```hcl
-resource "google_healthcare_hl7_v2_store" "default" {
+resource "google_healthcare_hl7_v2_store" "store" {
   provider = google-beta
   name    = "example-hl7-v2-store"
   dataset = google_healthcare_dataset.dataset.id
@@ -160,6 +160,33 @@ resource "google_healthcare_hl7_v2_store" "default" {
   "ignoreMinOccurs": true
 }
 EOF
+  }
+}
+
+resource "google_healthcare_dataset" "dataset" {
+  provider = google-beta
+  name     = "example-dataset"
+  location = "us-central1"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=healthcare_hl7_v2_store_unschematized&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Healthcare Hl7 V2 Store Unschematized
+
+
+```hcl
+resource "google_healthcare_hl7_v2_store" "store" {
+  provider = google-beta
+  name    = "example-hl7-v2-store"
+  dataset = google_healthcare_dataset.dataset.id
+
+  parser_config {
+    allow_null_header  = false
+    segment_terminator = "Jw=="
+    version            = "V2"
   }
 }
 
@@ -280,6 +307,3 @@ Hl7V2Store can be imported using any of these accepted formats:
 $ terraform import google_healthcare_hl7_v2_store.default {{dataset}}/hl7V2Stores/{{name}}
 $ terraform import google_healthcare_hl7_v2_store.default {{dataset}}/{{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.

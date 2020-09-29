@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
@@ -31,8 +31,11 @@ func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -67,8 +70,11 @@ func TestAccPubsubTopic_pubsubTopicGeoRestrictedExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -114,7 +120,7 @@ func testAccCheckPubsubTopicDestroyProducer(t *testing.T) func(s *terraform.Stat
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil, pubsubTopicProjectNotReady)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil, pubsubTopicProjectNotReady)
 			if err == nil {
 				return fmt.Errorf("PubsubTopic still exists at %s", url)
 			}

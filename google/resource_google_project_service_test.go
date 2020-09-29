@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // Test that services can be enabled and disabled on a project
@@ -39,7 +39,7 @@ func TestAccProjectService_basic(t *testing.T) {
 				ResourceName:            "google_project_service.test2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
+				ImportStateVerifyIgnore: []string{"disable_on_destroy", "project"},
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			{
@@ -103,8 +103,8 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
 			},
 			{
-				Config:             testAccProjectService_dependencyRemoved(services, pid, pname, org, billingId),
-				ExpectNonEmptyPlan: true,
+				Config:      testAccProjectService_dependencyRemoved(services, pid, pname, org, billingId),
+				ExpectError: regexp.MustCompile("service .* not in enabled services for project"),
 			},
 		},
 	})
@@ -187,6 +187,9 @@ func testAccCheckProjectService(t *testing.T, services []string, pid string, exp
 
 func testAccProjectService_basic(services []string, pid, name, org string) string {
 	return fmt.Sprintf(`
+provider "google" {
+  user_project_override = true
+}
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
@@ -199,7 +202,7 @@ resource "google_project_service" "test" {
 }
 
 resource "google_project_service" "test2" {
-  project = google_project.acceptance.project_id
+  project = google_project.acceptance.id
   service = "%s"
 }
 `, pid, name, org, services[0], services[1])

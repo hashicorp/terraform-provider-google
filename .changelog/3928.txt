@@ -1,0 +1,3 @@
+```release-note:enhancement
+`compute`: Added graceful termination to `google_compute_instance_group_manager` create calls so that partially created instance group managers will resume the original operation if the Terraform process is killed mid create.
+```

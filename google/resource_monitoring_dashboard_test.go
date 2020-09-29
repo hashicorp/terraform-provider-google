@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccMonitoringDashboard_basic(t *testing.T) {
@@ -132,7 +132,7 @@ func testAccCheckMonitoringDashboardDestroyProducer(t *testing.T) func(s *terraf
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil, isMonitoringConcurrentEditError)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil, isMonitoringConcurrentEditError)
 			if err == nil {
 				return fmt.Errorf("MonitoringDashboard still exists at %s", url)
 			}

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -95,19 +95,18 @@ func resourceComputeNetworkPeering() *schema.Resource {
 				Computed:    true,
 				Description: `Details about the current state of the peering.`,
 			},
-
-			"auto_create_routes": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Removed:  "auto_create_routes has been removed because it's redundant and not user-configurable. It can safely be removed from your config",
-				Computed: true,
-			},
 		},
 	}
 }
 
 func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
+
 	networkFieldValue, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
 	if err != nil {
 		return err
@@ -133,7 +132,7 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error adding network peering: %s", err)
 	}
 
-	err = computeOperationWaitTime(config, addOp, networkFieldValue.Project, "Adding Network Peering", d.Timeout(schema.TimeoutCreate))
+	err = computeOperationWaitTime(config, addOp, networkFieldValue.Project, "Adding Network Peering", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -145,6 +144,11 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 
 func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	peeringName := d.Get("name").(string)
 	networkFieldValue, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
@@ -164,20 +168,41 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 		return nil
 	}
 
-	d.Set("peer_network", peering.Network)
-	d.Set("name", peering.Name)
-	d.Set("import_custom_routes", peering.ImportCustomRoutes)
-	d.Set("export_custom_routes", peering.ExportCustomRoutes)
-	d.Set("import_subnet_routes_with_public_ip", peering.ImportSubnetRoutesWithPublicIp)
-	d.Set("export_subnet_routes_with_public_ip", peering.ExportSubnetRoutesWithPublicIp)
-	d.Set("state", peering.State)
-	d.Set("state_details", peering.StateDetails)
+	if err := d.Set("peer_network", peering.Network); err != nil {
+		return fmt.Errorf("Error setting peer_network: %s", err)
+	}
+	if err := d.Set("name", peering.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("import_custom_routes", peering.ImportCustomRoutes); err != nil {
+		return fmt.Errorf("Error setting import_custom_routes: %s", err)
+	}
+	if err := d.Set("export_custom_routes", peering.ExportCustomRoutes); err != nil {
+		return fmt.Errorf("Error setting export_custom_routes: %s", err)
+	}
+	if err := d.Set("import_subnet_routes_with_public_ip", peering.ImportSubnetRoutesWithPublicIp); err != nil {
+		return fmt.Errorf("Error setting import_subnet_routes_with_public_ip: %s", err)
+	}
+	if err := d.Set("export_subnet_routes_with_public_ip", peering.ExportSubnetRoutesWithPublicIp); err != nil {
+		return fmt.Errorf("Error setting export_subnet_routes_with_public_ip: %s", err)
+	}
+	if err := d.Set("state", peering.State); err != nil {
+		return fmt.Errorf("Error setting state: %s", err)
+	}
+	if err := d.Set("state_details", peering.StateDetails); err != nil {
+		return fmt.Errorf("Error setting state_details: %s", err)
+	}
 
 	return nil
 }
 
 func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	// Remove the `network` to `peer_network` peering
 	name := d.Get("name").(string)
@@ -210,7 +235,7 @@ func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error removing peering `%s` from network `%s`: %s", name, networkFieldValue.Name, err)
 		}
 	} else {
-		err = computeOperationWaitTime(config, removeOp, networkFieldValue.Project, "Removing Network Peering", d.Timeout(schema.TimeoutDelete))
+		err = computeOperationWaitTime(config, removeOp, networkFieldValue.Project, "Removing Network Peering", userAgent, d.Timeout(schema.TimeoutDelete))
 		if err != nil {
 			return err
 		}
@@ -268,8 +293,12 @@ func resourceComputeNetworkPeeringImport(d *schema.ResourceData, meta interface{
 		return nil, handleNotFoundError(err, d, fmt.Sprintf("Network %q", splits[1]))
 	}
 
-	d.Set("network", ConvertSelfLinkToV1(net.SelfLink))
-	d.Set("name", name)
+	if err := d.Set("network", ConvertSelfLinkToV1(net.SelfLink)); err != nil {
+		return nil, fmt.Errorf("Error setting network: %s", err)
+	}
+	if err := d.Set("name", name); err != nil {
+		return nil, fmt.Errorf("Error setting name: %s", err)
+	}
 
 	// Replace import id for the resource id
 	id := fmt.Sprintf("%s/%s", network, name)

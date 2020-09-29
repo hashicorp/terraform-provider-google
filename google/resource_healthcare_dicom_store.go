@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceHealthcareDicomStore() *schema.Resource {
@@ -106,6 +106,10 @@ Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that s
 
 func resourceHealthcareDicomStoreCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandHealthcareDicomStoreName(d.Get("name"), d, config)
@@ -133,7 +137,14 @@ func resourceHealthcareDicomStoreCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Creating new DicomStore: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating DicomStore: %s", err)
 	}
@@ -152,13 +163,24 @@ func resourceHealthcareDicomStoreCreate(d *schema.ResourceData, meta interface{}
 
 func resourceHealthcareDicomStoreRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/dicomStores/{{name}}")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("HealthcareDicomStore %q", d.Id()))
 	}
@@ -190,6 +212,13 @@ func resourceHealthcareDicomStoreRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceHealthcareDicomStoreUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandHealthcareDicomStoreLabels(d.Get("labels"), d, config)
@@ -226,7 +255,13 @@ func resourceHealthcareDicomStoreUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating DicomStore %q: %s", d.Id(), err)
@@ -239,6 +274,13 @@ func resourceHealthcareDicomStoreUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceHealthcareDicomStoreDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/dicomStores/{{name}}")
 	if err != nil {
@@ -248,7 +290,12 @@ func resourceHealthcareDicomStoreDelete(d *schema.ResourceData, meta interface{}
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting DicomStore %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "DicomStore")
 	}
@@ -266,8 +313,12 @@ func resourceHealthcareDicomStoreImport(d *schema.ResourceData, meta interface{}
 		return nil, err
 	}
 
-	d.Set("dataset", dicomStoreId.DatasetId.datasetId())
-	d.Set("name", dicomStoreId.Name)
+	if err := d.Set("dataset", dicomStoreId.DatasetId.datasetId()); err != nil {
+		return nil, fmt.Errorf("Error setting dataset: %s", err)
+	}
+	if err := d.Set("name", dicomStoreId.Name); err != nil {
+		return nil, fmt.Errorf("Error setting name: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -341,7 +392,9 @@ func resourceHealthcareDicomStoreDecoder(d *schema.ResourceData, meta interface{
 	// We can't just ignore_read on `name` as the linter will
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
-	d.Set("self_link", res["name"].(string))
+	if err := d.Set("self_link", res["name"].(string)); err != nil {
+		return nil, fmt.Errorf("Error setting self_link: %s", err)
+	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
 }

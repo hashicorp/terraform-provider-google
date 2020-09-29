@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/iam/v1"
 )
@@ -31,7 +31,9 @@ func NewServiceAccountIamUpdater(d *schema.ResourceData, config *Config) (Resour
 }
 
 func ServiceAccountIdParseFunc(d *schema.ResourceData, _ *Config) error {
-	d.Set("service_account_id", d.Id())
+	if err := d.Set("service_account_id", d.Id()); err != nil {
+		return fmt.Errorf("Error setting service_account_id: %s", err)
+	}
 	return nil
 }
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	runtimeconfig "google.golang.org/api/runtimeconfig/v1beta1"
 )
 
@@ -65,6 +65,12 @@ func resourceRuntimeconfigVariable() *schema.Resource {
 
 func resourceRuntimeconfigVariableCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientRuntimeconfig.UserAgent = userAgent
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -86,6 +92,11 @@ func resourceRuntimeconfigVariableCreate(d *schema.ResourceData, meta interface{
 
 func resourceRuntimeconfigVariableRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientRuntimeconfig.UserAgent = userAgent
 
 	fullName := d.Id()
 	createdVariable, err := config.clientRuntimeconfig.Projects.Configs.Variables.Get(fullName).Do()
@@ -98,6 +109,11 @@ func resourceRuntimeconfigVariableRead(d *schema.ResourceData, meta interface{})
 
 func resourceRuntimeconfigVariableUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientRuntimeconfig.UserAgent = userAgent
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -121,10 +137,16 @@ func resourceRuntimeconfigVariableUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceRuntimeconfigVariableDelete(d *schema.ResourceData, meta interface{}) error {
-	fullName := d.Id()
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientRuntimeconfig.UserAgent = userAgent
 
-	_, err := config.clientRuntimeconfig.Projects.Configs.Variables.Delete(fullName).Do()
+	fullName := d.Id()
+
+	_, err = config.clientRuntimeconfig.Projects.Configs.Variables.Delete(fullName).Do()
 	if err != nil {
 		return err
 	}
@@ -203,12 +225,24 @@ func setRuntimeConfigVariableToResourceData(d *schema.ResourceData, variable run
 	if err != nil {
 		return err
 	}
-	d.Set("name", name)
-	d.Set("parent", parent)
-	d.Set("project", varProject)
-	d.Set("value", variable.Value)
-	d.Set("text", variable.Text)
-	d.Set("update_time", variable.UpdateTime)
+	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("parent", parent); err != nil {
+		return fmt.Errorf("Error setting parent: %s", err)
+	}
+	if err := d.Set("project", varProject); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("value", variable.Value); err != nil {
+		return fmt.Errorf("Error setting value: %s", err)
+	}
+	if err := d.Set("text", variable.Text); err != nil {
+		return fmt.Errorf("Error setting text: %s", err)
+	}
+	if err := d.Set("update_time", variable.UpdateTime); err != nil {
+		return fmt.Errorf("Error setting update_time: %s", err)
+	}
 
 	return nil
 }

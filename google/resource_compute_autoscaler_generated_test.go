@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAutoscaler_autoscalerBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_autoscaler.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_autoscaler.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"target", "zone"},
 			},
 		},
 	})
@@ -130,7 +134,7 @@ func testAccCheckComputeAutoscalerDestroyProducer(t *testing.T) func(s *terrafor
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeAutoscaler still exists at %s", url)
 			}

@@ -1,7 +1,8 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleComputeInstanceSerialPort() *schema.Resource {
@@ -36,16 +37,26 @@ func dataSourceGoogleComputeInstanceSerialPort() *schema.Resource {
 
 func computeInstanceSerialPortRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	d.Set("project", project)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 	zone, err := getZone(d, config)
 	if err != nil {
 		return err
 	}
-	d.Set("zone", zone)
+	if err := d.Set("zone", zone); err != nil {
+		return fmt.Errorf("Error setting zone: %s", err)
+	}
 
 	port := int64(d.Get("port").(int))
 	output, err := config.clientCompute.Instances.GetSerialPortOutput(project, zone, d.Get("instance").(string)).Port(port).Do()
@@ -53,7 +64,9 @@ func computeInstanceSerialPortRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	d.Set("contents", output.Contents)
+	if err := d.Set("contents", output.Contents); err != nil {
+		return fmt.Errorf("Error setting contents: %s", err)
+	}
 	d.SetId(output.SelfLink)
 	return nil
 }

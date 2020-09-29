@@ -17,7 +17,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -48,7 +48,9 @@ func ComputeImageIamUpdaterProducer(d *schema.ResourceData, config *Config) (Res
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return nil, fmt.Errorf("Error setting project: %s", err)
+		}
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("image"); ok {
@@ -72,8 +74,12 @@ func ComputeImageIamUpdaterProducer(d *schema.ResourceData, config *Config) (Res
 		Config:  config,
 	}
 
-	d.Set("project", u.project)
-	d.Set("image", u.GetResourceId())
+	if err := d.Set("project", u.project); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("image", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error setting image: %s", err)
+	}
 
 	return u, nil
 }
@@ -101,7 +107,9 @@ func ComputeImageIdParseFunc(d *schema.ResourceData, config *Config) error {
 		d:       d,
 		Config:  config,
 	}
-	d.Set("image", u.GetResourceId())
+	if err := d.Set("image", u.GetResourceId()); err != nil {
+		return fmt.Errorf("Error setting image: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }
@@ -122,7 +130,12 @@ func (u *ComputeImageIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.P
 		return nil, err
 	}
 
-	policy, err := sendRequest(u.Config, "GET", project, url, obj)
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	policy, err := sendRequest(u.Config, "GET", project, url, userAgent, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -154,7 +167,12 @@ func (u *ComputeImageIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanag
 		return err
 	}
 
-	_, err = sendRequestWithTimeout(u.Config, "POST", project, url, obj, u.d.Timeout(schema.TimeoutCreate))
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = sendRequestWithTimeout(u.Config, "POST", project, url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

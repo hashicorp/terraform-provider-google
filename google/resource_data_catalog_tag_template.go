@@ -23,8 +23,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDataCatalogTagTemplate() *schema.Resource {
@@ -174,6 +174,10 @@ func datacatalogTagTemplateFieldsFieldsTypeEnumTypeAllowedValuesSchema() *schema
 
 func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandDataCatalogTagTemplateDisplayName(d.Get("display_name"), d, config)
@@ -195,11 +199,20 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 	}
 
 	log.Printf("[DEBUG] Creating new TagTemplate: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating TagTemplate: %s", err)
 	}
@@ -221,17 +234,30 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 
 func resourceDataCatalogTagTemplateRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DataCatalogTagTemplate %q", d.Id()))
 	}
@@ -263,11 +289,19 @@ func resourceDataCatalogTagTemplateRead(d *schema.ResourceData, meta interface{}
 
 func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandDataCatalogTagTemplateDisplayName(d.Get("display_name"), d, config)
@@ -294,7 +328,13 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating TagTemplate %q: %s", d.Id(), err)
@@ -307,11 +347,19 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 
 func resourceDataCatalogTagTemplateDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}?force={{force_delete}}")
 	if err != nil {
@@ -321,7 +369,12 @@ func resourceDataCatalogTagTemplateDelete(d *schema.ResourceData, meta interface
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting TagTemplate %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "TagTemplate")
 	}
@@ -345,9 +398,15 @@ func resourceDataCatalogTagTemplateImport(d *schema.ResourceData, meta interface
 	if len(parts) != 4 {
 		return nil, fmt.Errorf("tag template name does not fit the format %s", egRegex)
 	}
-	d.Set("project", parts[1])
-	d.Set("region", parts[2])
-	d.Set("tag_template_id", parts[3])
+	if err := d.Set("project", parts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("region", parts[2]); err != nil {
+		return nil, fmt.Errorf("Error setting region: %s", err)
+	}
+	if err := d.Set("tag_template_id", parts[3]); err != nil {
+		return nil, fmt.Errorf("Error setting tag_template_id: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

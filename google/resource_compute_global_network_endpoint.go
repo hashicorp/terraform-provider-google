@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceComputeGlobalNetworkEndpoint() *schema.Resource {
@@ -78,6 +78,10 @@ This can only be specified when network_endpoint_type of the NEG is INTERNET_FQD
 
 func resourceComputeGlobalNetworkEndpointCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	portProp, err := expandNestedComputeGlobalNetworkEndpointPort(d.Get("port"), d, config)
@@ -117,11 +121,20 @@ func resourceComputeGlobalNetworkEndpointCreate(d *schema.ResourceData, meta int
 	}
 
 	log.Printf("[DEBUG] Creating new GlobalNetworkEndpoint: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating GlobalNetworkEndpoint: %s", err)
 	}
@@ -134,7 +147,7 @@ func resourceComputeGlobalNetworkEndpointCreate(d *schema.ResourceData, meta int
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating GlobalNetworkEndpoint",
+		config, res, project, "Creating GlobalNetworkEndpoint", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -150,17 +163,30 @@ func resourceComputeGlobalNetworkEndpointCreate(d *schema.ResourceData, meta int
 
 func resourceComputeGlobalNetworkEndpointRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{global_network_endpoint_group}}/listNetworkEndpoints")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "POST", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "POST", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeGlobalNetworkEndpoint %q", d.Id()))
 	}
@@ -208,11 +234,19 @@ func resourceComputeGlobalNetworkEndpointRead(d *schema.ResourceData, meta inter
 
 func resourceComputeGlobalNetworkEndpointDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "networkEndpoint/{{project}}/{{global_network_endpoint_group}}")
 	if err != nil {
@@ -257,13 +291,18 @@ func resourceComputeGlobalNetworkEndpointDelete(d *schema.ResourceData, meta int
 	}
 	log.Printf("[DEBUG] Deleting GlobalNetworkEndpoint %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "GlobalNetworkEndpoint")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting GlobalNetworkEndpoint",
+		config, res, project, "Deleting GlobalNetworkEndpoint", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -325,7 +364,9 @@ func expandNestedComputeGlobalNetworkEndpointFqdn(v interface{}, d TerraformReso
 
 func resourceComputeGlobalNetworkEndpointEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// Network Endpoint Group is a URL parameter only, so replace self-link/path with resource name only.
-	d.Set("global_network_endpoint_group", GetResourceNameFromSelfLink(d.Get("global_network_endpoint_group").(string)))
+	if err := d.Set("global_network_endpoint_group", GetResourceNameFromSelfLink(d.Get("global_network_endpoint_group").(string))); err != nil {
+		return nil, fmt.Errorf("Error setting global_network_endpoint_group: %s", err)
+	}
 
 	wrappedReq := map[string]interface{}{
 		"networkEndpoints": []interface{}{obj},

@@ -121,9 +121,6 @@ $ terraform import google_identity_platform_tenant_oauth_idp_config.default {{pr
 $ terraform import google_identity_platform_tenant_oauth_idp_config.default {{tenant}}/{{name}}
 ```
 
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
-
 ## User Project Overrides
 
 This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

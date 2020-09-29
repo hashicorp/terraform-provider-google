@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/logging/v2"
 )
 
@@ -43,7 +43,9 @@ func folderLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) error 
 		return fmt.Errorf("Error importing logging exclusion, invalid resourceType %#v", loggingExclusionId.resourceType)
 	}
 
-	d.Set("folder", loggingExclusionId.resourceId)
+	if err := d.Set("folder", loggingExclusionId.resourceId); err != nil {
+		return fmt.Errorf("Error setting folder: %s", err)
+	}
 	return nil
 }
 

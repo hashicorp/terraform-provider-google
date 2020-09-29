@@ -17,7 +17,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -59,7 +59,9 @@ func ServiceManagementServiceIamUpdaterProducer(d *schema.ResourceData, config *
 		Config:      config,
 	}
 
-	d.Set("service_name", u.GetResourceId())
+	if err := d.Set("service_name", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error setting service_name: %s", err)
+	}
 
 	return u, nil
 }
@@ -81,7 +83,9 @@ func ServiceManagementServiceIdParseFunc(d *schema.ResourceData, config *Config)
 		d:           d,
 		Config:      config,
 	}
-	d.Set("service_name", u.GetResourceId())
+	if err := d.Set("service_name", u.GetResourceId()); err != nil {
+		return fmt.Errorf("Error setting service_name: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }
@@ -94,7 +98,12 @@ func (u *ServiceManagementServiceIamUpdater) GetResourceIamPolicy() (*cloudresou
 
 	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "POST", "", url, obj)
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	policy, err := sendRequest(u.Config, "POST", "", url, userAgent, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -122,7 +131,12 @@ func (u *ServiceManagementServiceIamUpdater) SetResourceIamPolicy(policy *cloudr
 		return err
 	}
 
-	_, err = sendRequestWithTimeout(u.Config, "POST", "", url, obj, u.d.Timeout(schema.TimeoutCreate))
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = sendRequestWithTimeout(u.Config, "POST", "", url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

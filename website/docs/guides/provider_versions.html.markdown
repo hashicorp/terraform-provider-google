@@ -112,7 +112,7 @@ with the `-provider` flag, similarly to if you were using a provider alias.
 
 
 ```bash
-terraform import -provider=google-beta google_compute_instance.beta-instance my-instance
+terraform import google_compute_instance.beta-instance my-instance
 ```
 
 ## Converting resources between versions

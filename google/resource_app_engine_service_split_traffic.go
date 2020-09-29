@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceAppEngineServiceSplitTraffic() *schema.Resource {
@@ -87,6 +87,10 @@ func resourceAppEngineServiceSplitTraffic() *schema.Resource {
 
 func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	idProp, err := expandAppEngineServiceSplitTrafficService(d.Get("service"), d, config)
@@ -115,11 +119,20 @@ func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta int
 	}
 
 	log.Printf("[DEBUG] Creating new ServiceSplitTraffic: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ServiceSplitTraffic: %s", err)
 	}
@@ -132,7 +145,7 @@ func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta int
 	d.SetId(id)
 
 	err = appEngineOperationWaitTime(
-		config, res, project, "Creating ServiceSplitTraffic",
+		config, res, project, "Creating ServiceSplitTraffic", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -148,17 +161,30 @@ func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta int
 
 func resourceAppEngineServiceSplitTrafficRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineServiceSplitTraffic %q", d.Id()))
 	}
@@ -176,11 +202,19 @@ func resourceAppEngineServiceSplitTrafficRead(d *schema.ResourceData, meta inter
 
 func resourceAppEngineServiceSplitTrafficUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	idProp, err := expandAppEngineServiceSplitTrafficService(d.Get("service"), d, config)
@@ -224,7 +258,13 @@ func resourceAppEngineServiceSplitTrafficUpdate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ServiceSplitTraffic %q: %s", d.Id(), err)
@@ -233,7 +273,7 @@ func resourceAppEngineServiceSplitTrafficUpdate(d *schema.ResourceData, meta int
 	}
 
 	err = appEngineOperationWaitTime(
-		config, res, project, "Updating ServiceSplitTraffic",
+		config, res, project, "Updating ServiceSplitTraffic", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -244,6 +284,13 @@ func resourceAppEngineServiceSplitTrafficUpdate(d *schema.ResourceData, meta int
 }
 
 func resourceAppEngineServiceSplitTrafficDelete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
 	log.Printf("[WARNING] AppEngine ServiceSplitTraffic resources"+
 		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
 		" state, but will still be present on the server.", d.Id())

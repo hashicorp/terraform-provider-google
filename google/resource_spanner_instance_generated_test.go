@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
@@ -32,17 +32,21 @@ func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerInstance_spannerInstanceBasicExample(context),
 			},
 			{
-				ResourceName:      "google_spanner_instance.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_spanner_instance.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config"},
 			},
 		},
 	})
@@ -53,6 +57,48 @@ func testAccSpannerInstance_spannerInstanceBasicExample(context map[string]inter
 resource "google_spanner_instance" "example" {
   config       = "regional-us-central1"
   display_name = "Test Spanner Instance"
+  num_nodes    = 2
+  labels = {
+    "foo" = "bar"
+  }
+}
+`, context)
+}
+
+func TestAccSpannerInstance_spannerInstanceMultiRegionalExample(t *testing.T) {
+	skipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_spannerInstanceMultiRegionalExample(context),
+			},
+			{
+				ResourceName:            "google_spanner_instance.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config"},
+			},
+		},
+	})
+}
+
+func testAccSpannerInstance_spannerInstanceMultiRegionalExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_spanner_instance" "example" {
+  config       = "nam-eur-asia1"
+  display_name = "Multi Regional Instance"
   num_nodes    = 2
   labels = {
     "foo" = "bar"
@@ -78,7 +124,7 @@ func testAccCheckSpannerInstanceDestroyProducer(t *testing.T) func(s *terraform.
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("SpannerInstance still exists at %s", url)
 			}

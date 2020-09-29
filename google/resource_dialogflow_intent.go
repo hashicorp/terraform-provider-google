@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDialogflowIntent() *schema.Resource {
@@ -179,6 +179,10 @@ Format: projects/<Project ID>/agent/intents/<Intent ID>.`,
 
 func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandDialogflowIntentDisplayName(d.Get("display_name"), d, config)
@@ -254,11 +258,20 @@ func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Creating new Intent: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Intent: %s", err)
 	}
@@ -288,7 +301,9 @@ func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 		}
 	}
-	d.Set("name", name.(string))
+	if err := d.Set("name", name.(string)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name.(string))
 
 	return resourceDialogflowIntentRead(d, meta)
@@ -296,17 +311,30 @@ func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceDialogflowIntentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DialogflowIntent %q", d.Id()))
 	}
@@ -363,11 +391,19 @@ func resourceDialogflowIntentRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceDialogflowIntentUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandDialogflowIntentDisplayName(d.Get("display_name"), d, config)
@@ -437,7 +473,13 @@ func resourceDialogflowIntentUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Updating Intent %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Intent %q: %s", d.Id(), err)
@@ -450,11 +492,19 @@ func resourceDialogflowIntentUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceDialogflowIntentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
 	if err != nil {
@@ -464,7 +514,12 @@ func resourceDialogflowIntentDelete(d *schema.ResourceData, meta interface{}) er
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Intent %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Intent")
 	}
@@ -490,7 +545,9 @@ func resourceDialogflowIntentImport(d *schema.ResourceData, meta interface{}) ([
 		)
 	}
 
-	d.Set("project", stringParts[1])
+	if err := d.Set("project", stringParts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

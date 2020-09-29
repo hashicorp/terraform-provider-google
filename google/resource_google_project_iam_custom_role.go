@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -76,6 +76,11 @@ func resourceGoogleProjectIamCustomRole() *schema.Resource {
 
 func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -128,6 +133,11 @@ func extractProjectFromProjectIamCustomRoleID(id string) string {
 
 func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	project := extractProjectFromProjectIamCustomRoleID(d.Id())
 
@@ -136,20 +146,41 @@ func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interfa
 		return handleNotFoundError(err, d, d.Id())
 	}
 
-	d.Set("role_id", GetResourceNameFromSelfLink(role.Name))
-	d.Set("title", role.Title)
-	d.Set("name", role.Name)
-	d.Set("description", role.Description)
-	d.Set("permissions", role.IncludedPermissions)
-	d.Set("stage", role.Stage)
-	d.Set("deleted", role.Deleted)
-	d.Set("project", project)
+	if err := d.Set("role_id", GetResourceNameFromSelfLink(role.Name)); err != nil {
+		return fmt.Errorf("Error setting role_id: %s", err)
+	}
+	if err := d.Set("title", role.Title); err != nil {
+		return fmt.Errorf("Error setting title: %s", err)
+	}
+	if err := d.Set("name", role.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("description", role.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("permissions", role.IncludedPermissions); err != nil {
+		return fmt.Errorf("Error setting permissions: %s", err)
+	}
+	if err := d.Set("stage", role.Stage); err != nil {
+		return fmt.Errorf("Error setting stage: %s", err)
+	}
+	if err := d.Set("deleted", role.Deleted); err != nil {
+		return fmt.Errorf("Error setting deleted: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 
 	return nil
 }
 
 func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	d.Partial(true)
 
@@ -164,8 +195,6 @@ func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta inter
 		if err != nil {
 			return fmt.Errorf("Error undeleting the custom project role %s: %s", d.Get("title").(string), err)
 		}
-
-		d.SetPartial("deleted")
 	}
 
 	if d.HasChange("title") || d.HasChange("description") || d.HasChange("stage") || d.HasChange("permissions") {
@@ -179,10 +208,6 @@ func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta inter
 		if err != nil {
 			return fmt.Errorf("Error updating the custom project role %s: %s", d.Get("title").(string), err)
 		}
-		d.SetPartial("title")
-		d.SetPartial("description")
-		d.SetPartial("stage")
-		d.SetPartial("permissions")
 	}
 
 	d.Partial(false)
@@ -191,8 +216,13 @@ func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta inter
 
 func resourceGoogleProjectIamCustomRoleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
-	_, err := config.clientIAM.Projects.Roles.Delete(d.Id()).Do()
+	_, err = config.clientIAM.Projects.Roles.Delete(d.Id()).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting the custom project role %s: %s", d.Get("title").(string), err)
 	}

@@ -15,16 +15,17 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func sslPolicyCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
+func sslPolicyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	profile := diff.Get("profile")
 	customFeaturesCount := diff.Get("custom_features.#")
 
@@ -159,6 +160,10 @@ object. This field is used in optimistic locking.`,
 
 func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeSslPolicyDescription(d.Get("description"), d, config)
@@ -198,11 +203,20 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Creating new SslPolicy: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating SslPolicy: %s", err)
 	}
@@ -215,7 +229,7 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating SslPolicy",
+		config, res, project, "Creating SslPolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -231,17 +245,30 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeSslPolicy %q", d.Id()))
 	}
@@ -283,11 +310,19 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	profileProp, err := expandComputeSslPolicyProfile(d.Get("profile"), d, config)
@@ -320,7 +355,13 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Updating SslPolicy %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating SslPolicy %q: %s", d.Id(), err)
@@ -329,7 +370,7 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Updating SslPolicy",
+		config, res, project, "Updating SslPolicy", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -341,11 +382,19 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies/{{name}}")
 	if err != nil {
@@ -355,13 +404,18 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting SslPolicy %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "SslPolicy")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting SslPolicy",
+		config, res, project, "Deleting SslPolicy", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

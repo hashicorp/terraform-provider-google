@@ -6,8 +6,8 @@ import (
 
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeBackendBucketSignedUrlKey_basic(t *testing.T) {
@@ -95,7 +95,7 @@ func checkComputeBackendBucketSignedUrlKeyExists(t *testing.T, s *terraform.Stat
 			return false, err
 		}
 
-		res, err := sendRequest(config, "GET", "", url, nil)
+		res, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
 		if err != nil {
 			return false, err
 		}

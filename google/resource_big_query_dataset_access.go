@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -280,6 +280,10 @@ is 1,024 characters.`,
 
 func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	datasetIdProp, err := expandNestedBigQueryDatasetAccessDatasetId(d.Get("dataset_id"), d, config)
@@ -349,11 +353,20 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating DatasetAccess: %s", err)
 	}
@@ -368,7 +381,9 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Finished creating DatasetAccess %q: %#v", d.Id(), res)
 
 	// by default, we are not updating the member
-	d.Set("api_updated_member", false)
+	if err := d.Set("api_updated_member", false); err != nil {
+		return fmt.Errorf("Error setting api_updated_member: %s", err)
+	}
 
 	// iam_member is a generalized attribute, if the API can map it to a different member type on the backend, it will return
 	// the correct member_type in the response. If it cannot be mapped to a different member type, it will stay in iam_member.
@@ -381,9 +396,15 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 		// if the member type changed, we set that member_type in state (it's already in the response) and we clear iam_member
 		// and we set "api_updated_member" to true to acknowledge that we are making this change
 		if member_type != "" {
-			d.Set(member_type, member.(string))
-			d.Set("iam_member", "")
-			d.Set("api_updated_member", true)
+			if err := d.Set(member_type, member.(string)); err != nil {
+				return fmt.Errorf("Error setting member_type: %s", err)
+			}
+			if err := d.Set("iam_member", ""); err != nil {
+				return fmt.Errorf("Error setting iam_member: %s", err)
+			}
+			if err := d.Set("api_updated_member", true); err != nil {
+				return fmt.Errorf("Error setting api_updated_member: %s", err)
+			}
 		}
 	}
 
@@ -392,17 +413,30 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 
 func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigQueryDatasetAccess %q", d.Id()))
 	}
@@ -450,11 +484,19 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 
 func resourceBigQueryDatasetAccessDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "{{dataset_id}}")
 	if err != nil {
@@ -476,7 +518,12 @@ func resourceBigQueryDatasetAccessDelete(d *schema.ResourceData, meta interface{
 	}
 	log.Printf("[DEBUG] Deleting DatasetAccess %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "DatasetAccess")
 	}
@@ -802,7 +849,13 @@ func resourceBigQueryDatasetAccessListForPatch(d *schema.ResourceData, meta inte
 	if err != nil {
 		return nil, err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := sendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

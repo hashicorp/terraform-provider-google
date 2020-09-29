@@ -9,6 +9,9 @@ description: |-
 
 # google\_container\_cluster
 
+-> Visit the [Provision a GKE Cluster (Google Cloud)](https://learn.hashicorp.com/tutorials/terraform/gke?in=terraform/kubernetes&utm_source=WEBSITE&utm_medium=WEB_IO&utm_offer=ARTICLE_PAGE&utm_content=DOCS) Learn tutorial to learn how to provision and interact
+with a GKE cluster.
+
 -> See the [Using GKE with Terraform](/docs/providers/google/guides/using_gke_with_terraform.html)
 guide for more information about using GKE with Terraform.
 
@@ -279,7 +282,7 @@ clusters with private nodes. Structure is documented below.
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `release_channel` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `release_channel` - (Optional)
 Configuration options for the [Release channel](https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels)
 feature, which provide more control over automatic upgrades of your GKE clusters.
 When updating this field, GKE imposes specific version requirements. See
@@ -297,7 +300,7 @@ channel. Structure is documented below.
 
 * `resource_labels` - (Optional) The GCE resource labels (a map of key/value pairs) to be applied to the cluster.
 
-* `resource_usage_export_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for the
+* `resource_usage_export_config` - (Optional) Configuration for the
     [ResourceUsageExportConfig](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-usage-metering) feature.
     Structure is documented below.
 
@@ -308,7 +311,7 @@ subnetwork in which the cluster's instances are launched.
     Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it.
     Structure is documented below.
 
-* `workload_identity_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `workload_identity_config` - (Optional)
     Workload Identity allows Kubernetes service accounts to act as a user-managed
     [Google IAM Service Account](https://cloud.google.com/iam/docs/service-accounts#user-managed_service_accounts).
     Structure is documented below.
@@ -347,9 +350,7 @@ The `addons_config` block supports:
     It can only be disabled if the nodes already do not have network policies enabled.
     Defaults to disabled; set `disabled = false` to enable.
 
-* `cloudrun_config` - (Optional).
-    The status of the CloudRun addon. It is disabled by default.
-    Set `disabled = false` to enable.
+* `cloudrun_config` - (Optional). Structure is documented below.
 
 * `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
     Structure is documented below.
@@ -362,7 +363,7 @@ The `addons_config` block supports:
     All cluster nodes running GKE 1.15 and higher are recreated.**
 
 * `gce_persistent_disk_csi_driver_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
-    Whether this cluster should enable the Google Compute Engine Persistent Disk Container Storage Interface (CSI) Driver. Defaults to disabled; set `enabled = true` to enable. 
+    Whether this cluster should enable the Google Compute Engine Persistent Disk Container Storage Interface (CSI) Driver. Defaults to disabled; set `enabled = true` to enable.
 
 * `kalm_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/ provider_versions.html)).
     Configuration for the KALM addon, which manages the lifecycle of k8s. It is disabled by default; Set `enabled = true` to enable.
@@ -389,6 +390,13 @@ The `database_encryption` block supports:
 * `state` - (Required) `ENCRYPTED` or `DECRYPTED`
 
 * `key_name` - (Required) the key to use to encrypt/decrypt secrets.  See the [DatabaseEncryption definition](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#Cluster.DatabaseEncryption) for more information.
+
+The `cloudrun_config` block supports:
+
+* `disabled` - (Optional) The status of the CloudRun addon. It is disabled by default. Set `disabled=false` to enable.
+
+* `load_balancer_type` - (Optional) The load balancer type of CloudRun ingress service. It is external load balancer by default.
+    Set `load_balancer_type=LOAD_BALANCER_TYPE_INTERNAL` to configure it as internal load balancer.
 
 The `istio_config` block supports:
 
@@ -554,7 +562,7 @@ The `node_config` block supports:
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB.
 
 * `disk_type` - (Optional) Type of the disk attached to each node
-    (e.g. 'pd-standard' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+    (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
 
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance.
     Structure documented below.
@@ -564,7 +572,8 @@ The `node_config` block supports:
 * `image_type` - (Optional) The image type to use for this node. Note that changing the image type
     will delete and recreate all nodes in the node pool.
 
-* `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node.
+* `labels` - (Optional) The Kubernetes labels (key/value pairs) to be applied to each node. The kubernetes.io/ and k8s.io/ prefixes are
+    reserved by Kubernetes Core components and cannot be specified.
 
 * `local_ssd_count` - (Optional) The amount of local SSD disks that will be
     attached to each cluster node. Defaults to 0.
@@ -630,9 +639,9 @@ Kubernetes (eg. through `kubectl`), and it's recommended that you do not use
 this field to manage taints. If you do, `lifecycle.ignore_changes` is
 recommended. Structure is documented below.
 
-* `workload_metadata_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Metadata configuration to expose to workloads on the node pool.
+* `workload_metadata_config` - (Optional) Metadata configuration to expose to workloads on the node pool.
     Structure is documented below.
-    
+
 * `kubelet_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
 Kubelet configuration, currently supported attributes can be found [here](https://cloud.google.com/sdk/gcloud/reference/beta/container/node-pools/create#--system-config-from-file).
 Structure is documented below.
@@ -813,7 +822,7 @@ The `linux_node_config` block supports:
 
 * `sysctls` - (Required)  The Linux kernel parameters to be applied to the nodes
 and all pods running on the nodes. Specified as a map from the key, such as
-`net.core.wmem_max`, to a string value. 
+`net.core.wmem_max`, to a string value.
 
 The `vertical_pod_autoscaling` block supports:
 
@@ -825,6 +834,8 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{zone}}/clusters/{{name}}`
+
+* `self_link` - The server-defined URL for the resource.
 
 * `endpoint` - The IP address of this cluster's Kubernetes master.
 

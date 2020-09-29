@@ -6,7 +6,7 @@ import (
 	healthcare "google.golang.org/api/healthcare/v1"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -43,7 +43,9 @@ func DatasetIdParseFunc(d *schema.ResourceData, config *Config) error {
 		return err
 	}
 
-	d.Set("dataset_id", datasetId.datasetId())
+	if err := d.Set("dataset_id", datasetId.datasetId()); err != nil {
+		return fmt.Errorf("Error setting dataset_id: %s", err)
+	}
 	d.SetId(datasetId.datasetId())
 	return nil
 }

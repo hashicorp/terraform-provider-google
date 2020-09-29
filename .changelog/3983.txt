@@ -1,0 +1,3 @@
+```release-note:enhancement
+healthcare: Added field `parser_config.version` to `google_healthcare_hl7_v2_store`
+```

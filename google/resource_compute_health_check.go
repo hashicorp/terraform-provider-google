@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -22,8 +23,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // Whether the port should be set or not
@@ -53,7 +54,7 @@ func validatePortSpec(diff *schema.ResourceDiff, blockName string) error {
 	return nil
 }
 
-func healthCheckCustomizeDiff(diff *schema.ResourceDiff, v interface{}) error {
+func healthCheckCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	if diff.Get("http_health_check") != nil {
 		return validatePortSpec(diff, "http_health_check")
 	}
@@ -640,6 +641,10 @@ consecutive failures. The default value is 2.`,
 
 func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	checkIntervalSecProp, err := expandComputeHealthCheckCheckIntervalSec(d.Get("check_interval_sec"), d, config)
@@ -726,11 +731,20 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Creating new HealthCheck: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating HealthCheck: %s", err)
 	}
@@ -743,7 +757,7 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating HealthCheck",
+		config, res, project, "Creating HealthCheck", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -759,17 +773,30 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeHealthCheck %q", d.Id()))
 	}
@@ -829,11 +856,19 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	checkIntervalSecProp, err := expandComputeHealthCheckCheckIntervalSec(d.Get("check_interval_sec"), d, config)
@@ -920,7 +955,13 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Updating HealthCheck %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating HealthCheck %q: %s", d.Id(), err)
@@ -929,7 +970,7 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Updating HealthCheck",
+		config, res, project, "Updating HealthCheck", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -941,11 +982,19 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeHealthCheckDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
@@ -955,13 +1004,18 @@ func resourceComputeHealthCheckDelete(d *schema.ResourceData, meta interface{}) 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting HealthCheck %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "HealthCheck")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting HealthCheck",
+		config, res, project, "Deleting HealthCheck", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeTargetTcpProxy_targetTcpProxyBasicExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccComputeTargetTcpProxy_targetTcpProxyBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeTargetTcpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetTcpProxy_targetTcpProxyBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_target_tcp_proxy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_target_tcp_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service"},
 			},
 		},
 	})
@@ -91,7 +95,7 @@ func testAccCheckComputeTargetTcpProxyDestroyProducer(t *testing.T) func(s *terr
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeTargetTcpProxy still exists at %s", url)
 			}

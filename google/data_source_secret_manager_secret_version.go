@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"log"
 	"regexp"
-	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceSecretManagerSecretVersion() *schema.Resource {
@@ -56,6 +55,10 @@ func dataSourceSecretManagerSecretVersion() *schema.Resource {
 
 func dataSourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	fv, err := parseProjectFieldValue("secrets", d.Get("secret").(string), "project", d, config, false)
 	if err != nil {
@@ -65,8 +68,12 @@ func dataSourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("The project set on this secret version (%s) is not equal to the project where this secret exists (%s).", d.Get("project").(string), fv.Project)
 	}
 	project := fv.Project
-	d.Set("project", project)
-	d.Set("secret", fv.Name)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("secret", fv.Name); err != nil {
+		return fmt.Errorf("Error setting secret: %s", err)
+	}
 
 	var url string
 	versionNum := d.Get("version")
@@ -84,7 +91,7 @@ func dataSourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta inter
 	}
 
 	var version map[string]interface{}
-	version, err = sendRequest(config, "GET", project, url, nil)
+	version, err = sendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error retrieving available secret manager secret versions: %s", err.Error())
 	}
@@ -99,28 +106,40 @@ func dataSourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Received Google SecretManager Version: %q", version)
 
-	d.Set("version", parts[3])
+	if err := d.Set("version", parts[3]); err != nil {
+		return fmt.Errorf("Error setting version: %s", err)
+	}
 
 	url = fmt.Sprintf("%s:access", url)
-	resp, err := sendRequest(config, "GET", project, url, nil)
+	resp, err := sendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error retrieving available secret manager secret version access: %s", err.Error())
 	}
 
-	d.Set("create_time", version["createTime"].(string))
-	if version["destroyTime"] != nil {
-		d.Set("destroy_time", version["destroyTime"].(string))
+	if err := d.Set("create_time", version["createTime"].(string)); err != nil {
+		return fmt.Errorf("Error setting create_time: %s", err)
 	}
-	d.Set("name", version["name"].(string))
-	d.Set("enabled", true)
+	if version["destroyTime"] != nil {
+		if err := d.Set("destroy_time", version["destroyTime"].(string)); err != nil {
+			return fmt.Errorf("Error setting destroy_time: %s", err)
+		}
+	}
+	if err := d.Set("name", version["name"].(string)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("enabled", true); err != nil {
+		return fmt.Errorf("Error setting enabled: %s", err)
+	}
 
 	data := resp["payload"].(map[string]interface{})
 	secretData, err := base64.StdEncoding.DecodeString(data["data"].(string))
 	if err != nil {
 		return fmt.Errorf("Error decoding secret manager secret version data: %s", err.Error())
 	}
-	d.Set("secret_data", string(secretData))
+	if err := d.Set("secret_data", string(secretData)); err != nil {
+		return fmt.Errorf("Error setting secret_data: %s", err)
+	}
 
-	d.SetId(time.Now().UTC().String())
+	d.SetId(version["name"].(string))
 	return nil
 }

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func dataSourceGoogleIamTestablePermissions() *schema.Resource {
@@ -64,6 +64,11 @@ func dataSourceGoogleIamTestablePermissions() *schema.Resource {
 
 func dataSourceGoogleIamTestablePermissionsRead(d *schema.ResourceData, meta interface{}) (err error) {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	body := make(map[string]interface{})
 	body["pageSize"] = 500
 	permissions := make([]map[string]interface{}, 0)
@@ -80,7 +85,7 @@ func dataSourceGoogleIamTestablePermissionsRead(d *schema.ResourceData, meta int
 	for {
 		url := "https://iam.googleapis.com/v1/permissions:queryTestablePermissions"
 		body["fullResourceName"] = d.Get("full_resource_name").(string)
-		res, err := sendRequest(config, "POST", "", url, body)
+		res, err := sendRequest(config, "POST", "", url, userAgent, body)
 		if err != nil {
 			return fmt.Errorf("Error retrieving permissions: %s", err)
 		}
@@ -95,7 +100,7 @@ func dataSourceGoogleIamTestablePermissionsRead(d *schema.ResourceData, meta int
 		}
 	}
 
-	if err := d.Set("permissions", permissions); err != nil {
+	if err = d.Set("permissions", permissions); err != nil {
 		return fmt.Errorf("Error retrieving permissions: %s", err)
 	}
 

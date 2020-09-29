@@ -15,14 +15,15 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -45,7 +46,7 @@ func resourceNameSetFromSelfLinkSet(v interface{}) *schema.Set {
 // so this customizeDiff func makes sure drainNatIps values:
 //   - aren't set at creation time
 //   - are in old value of nat_ips but not in new values
-func resourceComputeRouterNatDrainNatIpsCustomDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceComputeRouterNatDrainNatIpsCustomDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	o, n := diff.GetChange("drain_nat_ips")
 	oSet := resourceNameSetFromSelfLinkSet(o)
 	nSet := resourceNameSetFromSelfLinkSet(n)
@@ -301,6 +302,10 @@ sourceIpRangesToNat`,
 
 func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandNestedComputeRouterNatName(d.Get("name"), d, config)
@@ -394,11 +399,20 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating RouterNat: %s", err)
 	}
@@ -411,7 +425,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating RouterNat",
+		config, res, project, "Creating RouterNat", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -427,17 +441,30 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRouterNat %q", d.Id()))
 	}
@@ -500,11 +527,19 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	natIpAllocateOptionProp, err := expandNestedComputeRouterNatNatIpAllocateOption(d.Get("nat_ip_allocate_option"), d, config)
@@ -592,7 +627,13 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating RouterNat %q: %s", d.Id(), err)
@@ -601,7 +642,7 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Updating RouterNat",
+		config, res, project, "Updating RouterNat", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -613,11 +654,19 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
@@ -639,13 +688,18 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 	}
 	log.Printf("[DEBUG] Deleting RouterNat %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "RouterNat")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting RouterNat",
+		config, res, project, "Deleting RouterNat", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -1145,7 +1199,13 @@ func resourceComputeRouterNatListForPatch(d *schema.ResourceData, meta interface
 	if err != nil {
 		return nil, err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := sendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

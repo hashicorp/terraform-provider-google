@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
@@ -656,7 +656,7 @@ func TestAccComputeInstance_scratchDisk(t *testing.T) {
 				Config: testAccComputeInstance_scratchDisk(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						t, "google_compute_instance.scratch", &instance),
+						t, "google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME", "SCSI"}),
 				),
 			},
@@ -1257,7 +1257,7 @@ func TestAccComputeInstance_hostname(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_shieldedVmConfig1(t *testing.T) {
+func TestAccComputeInstance_shieldedVmConfig(t *testing.T) {
 	t.Parallel()
 
 	var instance computeBeta.Instance
@@ -1275,22 +1275,7 @@ func TestAccComputeInstance_shieldedVmConfig1(t *testing.T) {
 					testAccCheckComputeInstanceHasShieldedVmConfig(&instance, true, true, true),
 				),
 			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
-		},
-	})
-}
-
-func TestAccComputeInstance_shieldedVmConfig2(t *testing.T) {
-	t.Parallel()
-
-	var instance computeBeta.Instance
-	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
 			{
 				Config: testAccComputeInstance_shieldedVmConfig(instanceName, true, true, false),
 				Check: resource.ComposeTestCheckFunc(
@@ -1298,7 +1283,7 @@ func TestAccComputeInstance_shieldedVmConfig2(t *testing.T) {
 					testAccCheckComputeInstanceHasShieldedVmConfig(&instance, true, true, false),
 				),
 			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
 		},
 	})
 }
@@ -1480,6 +1465,8 @@ func TestAccComputeInstance_updateRunning_desiredStatusRunning_allowStoppingForU
 	})
 }
 
+const errorAllowStoppingMsg = "Changing the machine_type, min_cpu_platform, service_account, enable_display, shielded_instance_config, or network_interface.\\[#d\\].\\(network/subnetwork/subnetwork_project\\) on a started instance requires stopping it. To acknowledge this, please set allow_stopping_for_update = true in your config. You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update."
+
 func TestAccComputeInstance_updateRunning_desiredStatusNotSet_notAllowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -1500,12 +1487,8 @@ func TestAccComputeInstance_updateRunning_desiredStatusNotSet_notAllowStoppingFo
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "", false),
-				ExpectError: regexp.MustCompile("Changing the machine_type, min_cpu_platform, service_account, " +
-					"or enable display on a started instance requires stopping it. To acknowledge this, please set " +
-					"allow_stopping_for_update = true in your config. " +
-					"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not " +
-					"be restarted after the update."),
+				Config:      testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "", false),
+				ExpectError: regexp.MustCompile(errorAllowStoppingMsg),
 			},
 		},
 	})
@@ -1531,12 +1514,8 @@ func TestAccComputeInstance_updateRunning_desiredStatusRunning_notAllowStoppingF
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "RUNNING", false),
-				ExpectError: regexp.MustCompile("Changing the machine_type, min_cpu_platform, service_account, " +
-					"or enable display on a started instance requires stopping it. To acknowledge this, please set " +
-					"allow_stopping_for_update = true in your config. " +
-					"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not " +
-					"be restarted after the update."),
+				Config:      testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "RUNNING", false),
+				ExpectError: regexp.MustCompile(errorAllowStoppingMsg),
 			},
 		},
 	})
@@ -1864,6 +1843,28 @@ func TestAccComputeInstance_resourcePolicyCollocate(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_subnetworkUpdate(t *testing.T) {
+	t.Parallel()
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	suffix := fmt.Sprintf("%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_subnetworkUpdate(suffix, instanceName),
+			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_subnetworkUpdateTwo(suffix, instanceName),
+			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -1881,7 +1882,7 @@ func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resour
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
-		err = computeOperationWaitTime(config, op, config.Project, "Waiting on stop", 20*time.Minute)
+		err = computeOperationWaitTime(config, op, config.Project, "Waiting on stop", config.userAgent, 20*time.Minute)
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
@@ -1895,7 +1896,7 @@ func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resour
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
 		}
-		err = computeOperationWaitTime(config, op, config.Project, "Waiting machine type change", 20*time.Minute)
+		err = computeOperationWaitTime(config, op, config.Project, "Waiting machine type change", config.userAgent, 20*time.Minute)
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
 		}
@@ -3546,7 +3547,7 @@ data "google_compute_image" "my_image" {
   project = "debian-cloud"
 }
 
-resource "google_compute_instance" "scratch" {
+resource "google_compute_instance" "foobar" {
   name         = "%s"
   machine_type = "n1-standard-1"
   zone         = "us-central1-a"
@@ -4454,6 +4455,8 @@ resource "google_compute_instance" "foobar" {
     enable_vtpm                 = %t
     enable_integrity_monitoring = %t
   }
+
+  allow_stopping_for_update = true
 }
 `, instance, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
 }
@@ -4672,4 +4675,153 @@ resource "google_compute_resource_policy" "foo" {
 }
 
 `, instance, instance, suffix)
+}
+
+func testAccComputeInstance_subnetworkUpdate(suffix, instance string) string {
+	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
+	resource "google_compute_network" "inst-test-network" {
+		name = "tf-test-network-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_network" "inst-test-network2" {
+		name = "tf-test-network2-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork" {
+		name          = "tf-test-compute-subnet-%s"
+		ip_cidr_range = "10.0.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network.id
+		secondary_ip_range {
+			range_name    = "inst-test-secondary"
+			ip_cidr_range = "172.16.0.0/20"
+		}
+		secondary_ip_range {
+			range_name    = "inst-test-tertiary"
+			ip_cidr_range = "10.1.0.0/16"
+		}
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork2" {
+		name          = "tf-test-compute-subnet2-%s"
+		ip_cidr_range = "10.3.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network2.id
+		secondary_ip_range {
+			range_name    = "inst-test-secondary2"
+			ip_cidr_range = "173.16.0.0/20"
+		}
+		secondary_ip_range {
+			range_name    = "inst-test-tertiary2"
+			ip_cidr_range = "10.4.0.0/16"
+		}
+	}
+
+	resource "google_compute_instance" "foobar" {
+		name         = "%s"
+		machine_type = "n1-standard-1"
+		zone         = "us-east1-d"
+		allow_stopping_for_update = true
+
+		boot_disk {
+			initialize_params {
+				image = data.google_compute_image.my_image.id
+			}
+		}
+
+		network_interface {
+			subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+			access_config {
+				network_tier = "STANDARD"
+			}
+			alias_ip_range {
+				subnetwork_range_name = google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range[0].range_name
+				ip_cidr_range         = "172.16.0.0/24"
+			}
+
+			alias_ip_range {
+				subnetwork_range_name = google_compute_subnetwork.inst-test-subnetwork.secondary_ip_range[1].range_name
+				ip_cidr_range         = "10.1.0.0/20"
+			}
+		}
+	}
+`, suffix, suffix, suffix, suffix, instance)
+}
+
+func testAccComputeInstance_subnetworkUpdateTwo(suffix, instance string) string {
+	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-9"
+		project = "debian-cloud"
+	}
+
+	resource "google_compute_network" "inst-test-network" {
+		name = "tf-test-network-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_network" "inst-test-network2" {
+		name = "tf-test-network2-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork" {
+		name          = "tf-test-compute-subnet-%s"
+		ip_cidr_range = "10.0.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network.id
+		secondary_ip_range {
+			range_name    = "inst-test-secondary"
+			ip_cidr_range = "172.16.0.0/20"
+		}
+		secondary_ip_range {
+			range_name    = "inst-test-tertiary"
+			ip_cidr_range = "10.1.0.0/16"
+		}
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork2" {
+		name          = "tf-test-compute-subnet2-%s"
+		ip_cidr_range = "10.3.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network2.id
+		secondary_ip_range {
+			range_name    = "inst-test-secondary2"
+			ip_cidr_range = "173.16.0.0/20"
+		}
+		secondary_ip_range {
+			range_name    = "inst-test-tertiary2"
+			ip_cidr_range = "10.4.0.0/16"
+		}
+	}
+
+	resource "google_compute_instance" "foobar" {
+		name         = "%s"
+		machine_type = "n1-standard-1"
+		zone         = "us-east1-d"
+		allow_stopping_for_update = true
+
+		boot_disk {
+			initialize_params {
+				image = data.google_compute_image.my_image.id
+			}
+		}
+
+		network_interface {
+			subnetwork = google_compute_subnetwork.inst-test-subnetwork2.id
+
+			alias_ip_range {
+				subnetwork_range_name = google_compute_subnetwork.inst-test-subnetwork2.secondary_ip_range[0].range_name
+				ip_cidr_range         = "173.16.0.0/24"
+			}
+		}
+	}
+`, suffix, suffix, suffix, suffix, instance)
 }

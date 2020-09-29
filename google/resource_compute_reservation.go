@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeReservation() *schema.Resource {
@@ -209,6 +209,10 @@ reservations that are tied to a commitment.`,
 
 func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeReservationDescription(d.Get("description"), d, config)
@@ -248,11 +252,20 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Creating new Reservation: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Reservation: %s", err)
 	}
@@ -265,7 +278,7 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Reservation",
+		config, res, project, "Creating Reservation", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -281,17 +294,30 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeReservation %q", d.Id()))
 	}
@@ -333,11 +359,19 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	d.Partial(true)
 
@@ -360,7 +394,13 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Reservation %q: %s", d.Id(), err)
 		} else {
@@ -368,13 +408,11 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Reservation",
+			config, res, project, "Updating Reservation", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("specific_reservation")
 	}
 
 	d.Partial(false)
@@ -384,11 +422,19 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeReservationDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 	if err != nil {
@@ -398,13 +444,18 @@ func resourceComputeReservationDelete(d *schema.ResourceData, meta interface{}) 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Reservation %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Reservation")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Reservation",
+		config, res, project, "Deleting Reservation", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	strcase "github.com/stoewer/go-strcase"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	compute "google.golang.org/api/compute/v1"
@@ -62,7 +62,7 @@ func computeInstanceFromTemplateSchema() map[string]*schema.Schema {
 
 		// Make non-required fields computed since they'll be set by the template.
 		// Leave deprecated and removed fields alone because we don't set them.
-		if !field.Required && !(field.Deprecated != "" || field.Removed != "") {
+		if !field.Required && !(field.Deprecated != "") {
 			field.Computed = true
 		}
 	})
@@ -90,6 +90,11 @@ func recurseOnSchema(s map[string]*schema.Schema, f func(*schema.Schema)) {
 
 func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComputeBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -164,7 +169,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 
 	// Wait for the operation to complete
 	waitErr := computeOperationWaitTime(config, op, project,
-		"instance to create", d.Timeout(schema.TimeoutCreate))
+		"instance to create", userAgent, d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")

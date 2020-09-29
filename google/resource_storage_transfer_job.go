@@ -2,9 +2,9 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/storagetransfer/v1"
 	"log"
 	"strings"
@@ -374,6 +374,11 @@ func diffSuppressEmptyStartTimeOfDay(k, old, new string, d *schema.ResourceData)
 
 func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorageTransfer.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -400,7 +405,9 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	d.Set("name", res.Name)
+	if err := d.Set("name", res.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 
 	name := GetResourceNameFromSelfLink(res.Name)
 	d.SetId(fmt.Sprintf("%s/%s", project, name))
@@ -410,6 +417,11 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 
 func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorageTransfer.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -423,12 +435,24 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 	}
 	log.Printf("[DEBUG] Read transfer job: %v in project: %v \n\n", res.Name, res.ProjectId)
 
-	d.Set("project", res.ProjectId)
-	d.Set("description", res.Description)
-	d.Set("status", res.Status)
-	d.Set("last_modification_time", res.LastModificationTime)
-	d.Set("creation_time", res.CreationTime)
-	d.Set("deletion_time", res.DeletionTime)
+	if err := d.Set("project", res.ProjectId); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("description", res.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("status", res.Status); err != nil {
+		return fmt.Errorf("Error setting status: %s", err)
+	}
+	if err := d.Set("last_modification_time", res.LastModificationTime); err != nil {
+		return fmt.Errorf("Error setting last_modification_time: %s", err)
+	}
+	if err := d.Set("creation_time", res.CreationTime); err != nil {
+		return fmt.Errorf("Error setting creation_time: %s", err)
+	}
+	if err := d.Set("deletion_time", res.DeletionTime); err != nil {
+		return fmt.Errorf("Error setting deletion_time: %s", err)
+	}
 
 	err = d.Set("schedule", flattenTransferSchedule(res.Schedule))
 	if err != nil {
@@ -445,6 +469,11 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorageTransfer.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -500,6 +529,11 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 
 func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorageTransfer.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -546,8 +580,12 @@ func resourceStorageTransferJobStateImporter(d *schema.ResourceData, meta interf
 	parts := strings.Split(d.Id(), "/")
 	switch len(parts) {
 	case 2:
-		d.Set("project", parts[0])
-		d.Set("name", fmt.Sprintf("transferJobs/%s", parts[1]))
+		if err := d.Set("project", parts[0]); err != nil {
+			return nil, fmt.Errorf("Error setting project: %s", err)
+		}
+		if err := d.Set("name", fmt.Sprintf("transferJobs/%s", parts[1])); err != nil {
+			return nil, fmt.Errorf("Error setting name: %s", err)
+		}
 	default:
 		return nil, fmt.Errorf("Invalid transfer job specifier. Expecting {projectId}/{transferJobName}")
 	}

@@ -2,13 +2,13 @@ package google
 
 import (
 	"encoding/json"
+	"fmt"
 	"regexp"
 	"sort"
 	"strconv"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -155,8 +155,10 @@ func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	}
 	pstring := string(pjson)
 
-	d.Set("policy_data", pstring)
-	d.SetId(strconv.Itoa(hashcode.String(pstring)))
+	if err := d.Set("policy_data", pstring); err != nil {
+		return fmt.Errorf("Error setting policy_data: %s", err)
+	}
+	d.SetId(strconv.Itoa(hashcode(pstring)))
 
 	return nil
 }

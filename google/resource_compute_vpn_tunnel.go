@@ -24,7 +24,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // validatePeerAddr returns false if a tunnel's peer_ip property
@@ -274,6 +274,10 @@ associated.`,
 
 func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandComputeVpnTunnelName(d.Get("name"), d, config)
@@ -348,11 +352,20 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Creating new VpnTunnel: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating VpnTunnel: %s", err)
 	}
@@ -365,7 +378,7 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating VpnTunnel",
+		config, res, project, "Creating VpnTunnel", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -381,17 +394,30 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeVpnTunnel %q", d.Id()))
 	}
@@ -448,11 +474,19 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceComputeVpnTunnelDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}")
 	if err != nil {
@@ -462,13 +496,18 @@ func resourceComputeVpnTunnelDelete(d *schema.ResourceData, meta interface{}) er
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting VpnTunnel %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "VpnTunnel")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting VpnTunnel",
+		config, res, project, "Deleting VpnTunnel", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -650,10 +689,14 @@ func resourceComputeVpnTunnelEncoder(d *schema.ResourceData, meta interface{}, o
 		return nil, err
 	}
 	if _, ok := d.GetOk("project"); !ok {
-		d.Set("project", f.Project)
+		if err := d.Set("project", f.Project); err != nil {
+			return nil, fmt.Errorf("Error setting project: %s", err)
+		}
 	}
 	if _, ok := d.GetOk("region"); !ok {
-		d.Set("region", f.Region)
+		if err := d.Set("region", f.Region); err != nil {
+			return nil, fmt.Errorf("Error setting region: %s", err)
+		}
 	}
 	return obj, nil
 }

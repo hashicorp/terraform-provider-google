@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
@@ -204,7 +204,7 @@ func testAccComputeNetworkEndpointsListEndpointPorts(t *testing.T, negId string)
 	config := googleProviderConfig(t)
 
 	url := fmt.Sprintf("https://www.googleapis.com/compute/beta/%s/listNetworkEndpoints", negId)
-	res, err := sendRequest(config, "POST", "", url, nil)
+	res, err := sendRequest(config, "POST", "", url, config.userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceRedisInstance() *schema.Resource {
@@ -201,6 +201,10 @@ checked before each import/export operation.`,
 
 func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	alternativeLocationIdProp, err := expandRedisInstanceAlternativeLocationId(d.Get("alternative_location_id"), d, config)
@@ -287,11 +291,20 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Creating new Instance: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Instance: %s", err)
 	}
@@ -307,7 +320,7 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = redisOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Instance",
+		config, res, &opRes, project, "Creating Instance", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
@@ -333,17 +346,30 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("RedisInstance %q", d.Id()))
 	}
@@ -417,11 +443,19 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandRedisInstanceDisplayName(d.Get("display_name"), d, config)
@@ -483,7 +517,13 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
@@ -492,7 +532,7 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	err = redisOperationWaitTime(
-		config, res, project, "Updating Instance",
+		config, res, project, "Updating Instance", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -504,11 +544,19 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
@@ -518,13 +566,18 @@ func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Instance")
 	}
 
 	err = redisOperationWaitTime(
-		config, res, project, "Deleting Instance",
+		config, res, project, "Deleting Instance", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -725,6 +778,8 @@ func resourceRedisInstanceEncoder(d *schema.ResourceData, meta interface{}, obj 
 	if err != nil {
 		return nil, err
 	}
-	d.Set("region", region)
+	if err := d.Set("region", region); err != nil {
+		return nil, fmt.Errorf("Error setting region: %s", err)
+	}
 	return obj, nil
 }

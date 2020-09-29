@@ -19,7 +19,7 @@ func (w *ComposerOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 
-func composerOperationWaitTime(config *Config, op *composer.Operation, project, activity string, timeout time.Duration) error {
+func composerOperationWaitTime(config *Config, op *composer.Operation, project, activity, userAgent string, timeout time.Duration) error {
 	w := &ComposerOperationWaiter{
 		Service: config.clientComposer.Projects.Locations,
 	}

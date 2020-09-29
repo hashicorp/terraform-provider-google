@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccBigQueryDatasetAccess_basic(t *testing.T) {
@@ -224,7 +224,7 @@ func testAccCheckBigQueryDatasetAccess(t *testing.T, n string, expected map[stri
 			return err
 		}
 
-		ds, err := sendRequest(config, "GET", "", url, nil)
+		ds, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
 		if err != nil {
 			return err
 		}

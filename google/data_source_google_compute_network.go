@@ -3,7 +3,7 @@ package google
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleComputeNetwork() *schema.Resource {
@@ -47,6 +47,11 @@ func dataSourceGoogleComputeNetwork() *schema.Resource {
 
 func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -57,10 +62,18 @@ func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Network Not Found : %s", name))
 	}
-	d.Set("gateway_ipv4", network.GatewayIPv4)
-	d.Set("self_link", network.SelfLink)
-	d.Set("description", network.Description)
-	d.Set("subnetworks_self_links", network.Subnetworks)
+	if err := d.Set("gateway_ipv4", network.GatewayIPv4); err != nil {
+		return fmt.Errorf("Error setting gateway_ipv4: %s", err)
+	}
+	if err := d.Set("self_link", network.SelfLink); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("description", network.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("subnetworks_self_links", network.Subnetworks); err != nil {
+		return fmt.Errorf("Error setting subnetworks_self_links: %s", err)
+	}
 	d.SetId(fmt.Sprintf("projects/%s/global/networks/%s", project, network.Name))
 	return nil
 }

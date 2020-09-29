@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func expandCloudIotDeviceRegistryHTTPConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -344,50 +344,18 @@ If it is not provided, the provider region is used.`,
 				Type:        schema.TypeMap,
 				Description: `A PubSub topic to publish device state updates.`,
 				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"pubsub_topic_name": {
-							Type:             schema.TypeString,
-							Description:      `PubSub topic name to publish device state updates.`,
-							Required:         true,
-							DiffSuppressFunc: compareSelfLinkOrResourceName,
-						},
-					},
-				},
 			},
 			"mqtt_config": {
 				Type:        schema.TypeMap,
 				Description: `Activate or deactivate MQTT.`,
 				Computed:    true,
 				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"mqtt_enabled_state": {
-							Type:        schema.TypeString,
-							Description: `The field allows MQTT_ENABLED or MQTT_DISABLED`,
-							Required:    true,
-							ValidateFunc: validation.StringInSlice(
-								[]string{"MQTT_DISABLED", "MQTT_ENABLED"}, false),
-						},
-					},
-				},
 			},
 			"http_config": {
 				Type:        schema.TypeMap,
 				Description: `Activate or deactivate HTTP.`,
 				Computed:    true,
 				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"http_enabled_state": {
-							Type:        schema.TypeString,
-							Description: `The field allows HTTP_ENABLED or HTTP_DISABLED`,
-							Required:    true,
-							ValidateFunc: validation.StringInSlice(
-								[]string{"HTTP_DISABLED", "HTTP_ENABLED"}, false),
-						},
-					},
-				},
 			},
 			"credentials": {
 				Type:        schema.TypeList,
@@ -400,22 +368,6 @@ If it is not provided, the provider region is used.`,
 							Type:        schema.TypeMap,
 							Description: `A public key certificate format and data.`,
 							Required:    true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"format": {
-										Type:        schema.TypeString,
-										Description: `The field allows only X509_CERTIFICATE_PEM.`,
-										Required:    true,
-										ValidateFunc: validation.StringInSlice(
-											[]string{"X509_CERTIFICATE_PEM"}, false),
-									},
-									"certificate": {
-										Type:        schema.TypeString,
-										Description: `The certificate data.`,
-										Required:    true,
-									},
-								},
-							},
 						},
 					},
 				},
@@ -432,6 +384,10 @@ If it is not provided, the provider region is used.`,
 
 func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	idProp, err := expandCloudIotDeviceRegistryName(d.Get("name"), d, config)
@@ -464,11 +420,20 @@ func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface
 	}
 
 	log.Printf("[DEBUG] Creating new DeviceRegistry: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating DeviceRegistry: %s", err)
 	}
@@ -487,17 +452,30 @@ func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface
 
 func resourceCloudIotDeviceRegistryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudIotDeviceRegistry %q", d.Id()))
 	}
@@ -541,11 +519,19 @@ func resourceCloudIotDeviceRegistryRead(d *schema.ResourceData, meta interface{}
 
 func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	eventNotificationConfigsProp, err := expandCloudIotDeviceRegistryEventNotificationConfigs(d.Get("event_notification_configs"), d, config)
@@ -622,7 +608,13 @@ func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface
 	}
 
 	log.Printf("[DEBUG] Update URL %q: %v", d.Id(), url)
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating DeviceRegistry %q: %s", d.Id(), err)
@@ -635,11 +627,19 @@ func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface
 
 func resourceCloudIotDeviceRegistryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
@@ -649,7 +649,12 @@ func resourceCloudIotDeviceRegistryDelete(d *schema.ResourceData, meta interface
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting DeviceRegistry %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "DeviceRegistry")
 	}

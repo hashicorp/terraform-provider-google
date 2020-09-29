@@ -2,9 +2,8 @@ package google
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleMonitoringUptimeCheckIps() *schema.Resource {
@@ -38,10 +37,14 @@ func dataSourceGoogleMonitoringUptimeCheckIps() *schema.Resource {
 
 func dataSourceGoogleMonitoringUptimeCheckIpsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url := "https://monitoring.googleapis.com/v3/uptimeCheckIps"
 
-	uptimeCheckIps, err := paginatedListRequest("", url, config, flattenUptimeCheckIpsList)
+	uptimeCheckIps, err := paginatedListRequest("", url, userAgent, config, flattenUptimeCheckIpsList)
 	if err != nil {
 		return fmt.Errorf("Error retrieving monitoring uptime check ips: %s", err)
 	}
@@ -49,7 +52,7 @@ func dataSourceGoogleMonitoringUptimeCheckIpsRead(d *schema.ResourceData, meta i
 	if err := d.Set("uptime_check_ips", uptimeCheckIps); err != nil {
 		return fmt.Errorf("Error retrieving monitoring uptime check ips: %s", err)
 	}
-	d.SetId(time.Now().UTC().String())
+	d.SetId("uptime_check_ips_id")
 	return nil
 }
 

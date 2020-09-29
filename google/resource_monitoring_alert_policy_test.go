@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // Stackdriver tests cannot be run in parallel otherwise they will error out with:
@@ -122,7 +122,7 @@ func testAccCheckAlertPolicyDestroyProducer(t *testing.T) func(s *terraform.Stat
 			name := rs.Primary.Attributes["name"]
 
 			url := fmt.Sprintf("https://monitoring.googleapis.com/v3/%s", name)
-			_, err := sendRequest(config, "GET", "", url, nil)
+			_, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
 
 			if err == nil {
 				return fmt.Errorf("Error, alert policy %s still exists", name)

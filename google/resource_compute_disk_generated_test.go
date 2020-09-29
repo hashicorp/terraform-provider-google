@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeDisk_diskBasicExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_diskBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_disk.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_disk.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"type", "zone", "snapshot"},
 			},
 		},
 	})
@@ -53,7 +57,7 @@ resource "google_compute_disk" "default" {
   name  = "tf-test-test-disk%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-8-jessie-v20170523"
+  image = "debian-9-stretch-v20200805"
   labels = {
     environment = "dev"
   }
@@ -79,7 +83,7 @@ func testAccCheckComputeDiskDestroyProducer(t *testing.T) func(s *terraform.Stat
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeDisk still exists at %s", url)
 			}

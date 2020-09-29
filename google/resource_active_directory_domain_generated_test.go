@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccActiveDirectoryDomain_activeDirectoryDomainBasicExample(t *testing.T) {
@@ -31,8 +31,11 @@ func TestAccActiveDirectoryDomain_activeDirectoryDomainBasicExample(t *testing.T
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckActiveDirectoryDomainDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -51,7 +54,7 @@ func TestAccActiveDirectoryDomain_activeDirectoryDomainBasicExample(t *testing.T
 func testAccActiveDirectoryDomain_activeDirectoryDomainBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_active_directory_domain" "ad-domain" {
-  domain_name       = "name%{random_suffix}.org.com"
+  domain_name       = "tfgen%{random_suffix}.org.com"
   locations         = ["us-central1"]
   reserved_ip_range = "192.168.255.0/24" 
 }
@@ -75,7 +78,7 @@ func testAccCheckActiveDirectoryDomainDestroyProducer(t *testing.T) func(s *terr
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ActiveDirectoryDomain still exists at %s", url)
 			}

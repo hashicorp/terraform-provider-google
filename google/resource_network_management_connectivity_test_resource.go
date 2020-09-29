@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetworkManagementConnectivityTest() *schema.Resource {
@@ -227,6 +227,10 @@ boundaries.`,
 
 func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandNetworkManagementConnectivityTestName(d.Get("name"), d, config)
@@ -278,11 +282,20 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Creating new ConnectivityTest: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ConnectivityTest: %s", err)
 	}
@@ -298,7 +311,7 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = networkManagementOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating ConnectivityTest",
+		config, res, &opRes, project, "Creating ConnectivityTest", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
@@ -324,17 +337,30 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 
 func resourceNetworkManagementConnectivityTestRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("NetworkManagementConnectivityTest %q", d.Id()))
 	}
@@ -370,11 +396,19 @@ func resourceNetworkManagementConnectivityTestRead(d *schema.ResourceData, meta 
 
 func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandNetworkManagementConnectivityTestDescription(d.Get("description"), d, config)
@@ -460,7 +494,13 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ConnectivityTest %q: %s", d.Id(), err)
@@ -469,7 +509,7 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 	}
 
 	err = networkManagementOperationWaitTime(
-		config, res, project, "Updating ConnectivityTest",
+		config, res, project, "Updating ConnectivityTest", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -481,11 +521,19 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 
 func resourceNetworkManagementConnectivityTestDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
@@ -495,13 +543,18 @@ func resourceNetworkManagementConnectivityTestDelete(d *schema.ResourceData, met
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ConnectivityTest %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "ConnectivityTest")
 	}
 
 	err = networkManagementOperationWaitTime(
-		config, res, project, "Deleting ConnectivityTest",
+		config, res, project, "Deleting ConnectivityTest", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

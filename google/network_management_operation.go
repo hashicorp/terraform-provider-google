@@ -20,8 +20,9 @@ import (
 )
 
 type NetworkManagementOperationWaiter struct {
-	Config  *Config
-	Project string
+	Config    *Config
+	UserAgent string
+	Project   string
 	CommonOperationWaiter
 }
 
@@ -31,17 +32,19 @@ func (w *NetworkManagementOperationWaiter) QueryOp() (interface{}, error) {
 	}
 	// Returns the proper get.
 	url := fmt.Sprintf("https://networkmanagement.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
-	return sendRequest(w.Config, "GET", w.Project, url, nil)
+
+	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createNetworkManagementWaiter(config *Config, op map[string]interface{}, project, activity string) (*NetworkManagementOperationWaiter, error) {
+func createNetworkManagementWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*NetworkManagementOperationWaiter, error) {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil, nil
 	}
 	w := &NetworkManagementOperationWaiter{
-		Config:  config,
-		Project: project,
+		Config:    config,
+		UserAgent: userAgent,
+		Project:   project,
 	}
 	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
 		return nil, err
@@ -50,8 +53,8 @@ func createNetworkManagementWaiter(config *Config, op map[string]interface{}, pr
 }
 
 // nolint: deadcode,unused
-func networkManagementOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity string, timeout time.Duration) error {
-	w, err := createNetworkManagementWaiter(config, op, project, activity)
+func networkManagementOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+	w, err := createNetworkManagementWaiter(config, op, project, activity, userAgent)
 	if err != nil || w == nil {
 		// If w is nil, the op was synchronous.
 		return err
@@ -62,8 +65,8 @@ func networkManagementOperationWaitTimeWithResponse(config *Config, op map[strin
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func networkManagementOperationWaitTime(config *Config, op map[string]interface{}, project, activity string, timeout time.Duration) error {
-	w, err := createNetworkManagementWaiter(config, op, project, activity)
+func networkManagementOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+	w, err := createNetworkManagementWaiter(config, op, project, activity, userAgent)
 	if err != nil || w == nil {
 		// If w is nil, the op was synchronous.
 		return err

@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceCloudAssetOrganizationFeed() *schema.Resource {
@@ -129,6 +129,10 @@ supported asset types.`,
 
 func resourceCloudAssetOrganizationFeedCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	assetNamesProp, err := expandCloudAssetOrganizationFeedAssetNames(d.Get("asset_names"), d, config)
@@ -167,27 +171,21 @@ func resourceCloudAssetOrganizationFeedCreate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Creating new OrganizationFeed: %#v", obj)
-	var project string
+	billingProject := ""
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	// This should never happen, but the linter complains otherwise with ineffectual assignment to `project`
-	if project == "dummy lint" {
-		log.Printf("[DEBUG] Found project in url: %s", project)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
 	}
+
 	// Send the project ID in the X-Goog-User-Project header.
 	origUserProjectOverride := config.UserProjectOverride
 	config.UserProjectOverride = true
-	// If we have a billing project, use that one in the header.
-	bp, bpok := d.GetOk("billing_project")
-	if bpok && bp != "" {
-		project = bp.(string)
-	} else {
-		// otherwise, use the resource's project
-		rp, _ := d.GetOk("project")
-		project = rp.(string)
-	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating OrganizationFeed: %s", err)
 	}
@@ -212,17 +210,28 @@ func resourceCloudAssetOrganizationFeedCreate(d *schema.ResourceData, meta inter
 
 func resourceCloudAssetOrganizationFeedRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{CloudAssetBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
-	var project string
+	billingProject := ""
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudAssetOrganizationFeed %q", d.Id()))
 	}
@@ -248,6 +257,13 @@ func resourceCloudAssetOrganizationFeedRead(d *schema.ResourceData, meta interfa
 
 func resourceCloudAssetOrganizationFeedUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	assetNamesProp, err := expandCloudAssetOrganizationFeedAssetNames(d.Get("asset_names"), d, config)
@@ -309,11 +325,16 @@ func resourceCloudAssetOrganizationFeedUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	var project string
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating OrganizationFeed %q: %s", d.Id(), err)
@@ -326,6 +347,13 @@ func resourceCloudAssetOrganizationFeedUpdate(d *schema.ResourceData, meta inter
 
 func resourceCloudAssetOrganizationFeedDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	url, err := replaceVars(d, config, "{{CloudAssetBasePath}}{{name}}")
 	if err != nil {
@@ -333,13 +361,19 @@ func resourceCloudAssetOrganizationFeedDelete(d *schema.ResourceData, meta inter
 	}
 
 	var obj map[string]interface{}
-	var project string
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
+
 	log.Printf("[DEBUG] Deleting OrganizationFeed %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "OrganizationFeed")
 	}
@@ -458,7 +492,9 @@ func expandCloudAssetOrganizationFeedFeedOutputConfigPubsubDestinationTopic(v in
 func resourceCloudAssetOrganizationFeedEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// Remove the "folders/" prefix from the folder ID
 	if folder, ok := d.GetOkExists("folder"); ok {
-		d.Set("folder_id", strings.TrimPrefix(folder.(string), "folders/"))
+		if err := d.Set("folder_id", strings.TrimPrefix(folder.(string), "folders/")); err != nil {
+			return nil, fmt.Errorf("Error setting folder_id: %s", err)
+		}
 	}
 	// The feed object must be under the "feed" attribute on the request.
 	newObj := make(map[string]interface{})

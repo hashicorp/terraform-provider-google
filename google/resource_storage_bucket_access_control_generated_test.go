@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExa
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckStorageBucketAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExample(context),
 			},
 			{
-				ResourceName:      "google_storage_bucket_access_control.public_rule",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket_access_control.public_rule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"bucket"},
 			},
 		},
 	})
@@ -78,7 +82,7 @@ func testAccCheckStorageBucketAccessControlDestroyProducer(t *testing.T) func(s 
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("StorageBucketAccessControl still exists at %s", url)
 			}

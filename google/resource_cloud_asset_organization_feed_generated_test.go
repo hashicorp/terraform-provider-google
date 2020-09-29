@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccCloudAssetOrganizationFeed_cloudAssetOrganizationFeedExample(t *testing.T) {
@@ -33,8 +33,11 @@ func TestAccCloudAssetOrganizationFeed_cloudAssetOrganizationFeedExample(t *test
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckCloudAssetOrganizationFeedDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -117,7 +120,7 @@ func testAccCheckCloudAssetOrganizationFeedDestroyProducer(t *testing.T) func(s 
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("CloudAssetOrganizationFeed still exists at %s", url)
 			}

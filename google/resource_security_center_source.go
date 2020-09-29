@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceSecurityCenterSource() *schema.Resource {
@@ -78,6 +78,10 @@ lives in.`,
 
 func resourceSecurityCenterSourceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandSecurityCenterSourceDescription(d.Get("description"), d, config)
@@ -99,7 +103,14 @@ func resourceSecurityCenterSourceCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Creating new Source: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Source: %s", err)
 	}
@@ -129,7 +140,9 @@ func resourceSecurityCenterSourceCreate(d *schema.ResourceData, meta interface{}
 			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 		}
 	}
-	d.Set("name", name.(string))
+	if err := d.Set("name", name.(string)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name.(string))
 
 	return resourceSecurityCenterSourceRead(d, meta)
@@ -137,13 +150,24 @@ func resourceSecurityCenterSourceCreate(d *schema.ResourceData, meta interface{}
 
 func resourceSecurityCenterSourceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SecurityCenterSource %q", d.Id()))
 	}
@@ -163,6 +187,13 @@ func resourceSecurityCenterSourceRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandSecurityCenterSourceDescription(d.Get("description"), d, config)
@@ -199,7 +230,13 @@ func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Source %q: %s", d.Id(), err)
@@ -211,6 +248,13 @@ func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSecurityCenterSourceDelete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
 	log.Printf("[WARNING] SecurityCenter Source resources"+
 		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
 		" state, but will still be present on the server.", d.Id())
@@ -236,7 +280,9 @@ func resourceSecurityCenterSourceImport(d *schema.ResourceData, meta interface{}
 		)
 	}
 
-	d.Set("organization", stringParts[1])
+	if err := d.Set("organization", stringParts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting organization: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

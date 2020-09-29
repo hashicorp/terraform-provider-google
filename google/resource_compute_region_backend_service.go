@@ -15,14 +15,15 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -91,7 +92,7 @@ func validateInternalBackendServiceBackends(backends []interface{}, d *schema.Re
 	return nil
 }
 
-func customDiffRegionBackendService(d *schema.ResourceDiff, meta interface{}) error {
+func customDiffRegionBackendService(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	v, ok := d.GetOk("backend")
 	if !ok {
 		return nil
@@ -619,10 +620,10 @@ Must be omitted when the loadBalancingScheme is INTERNAL (Internal TCP/UDP Load 
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC", ""}, false),
 				Description: `The protocol this RegionBackendService uses to communicate with backends.
 The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
-types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP"]`,
+types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP", "GRPC"]`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -811,6 +812,10 @@ Cannot be set for INTERNAL backend services.`,
 
 func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	affinityCookieTtlSecProp, err := expandComputeRegionBackendServiceAffinityCookieTtlSec(d.Get("affinity_cookie_ttl_sec"), d, config)
@@ -945,11 +950,20 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new RegionBackendService: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating RegionBackendService: %s", err)
 	}
@@ -962,7 +976,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating RegionBackendService",
+		config, res, project, "Creating RegionBackendService", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -978,17 +992,30 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 
 func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionBackendService %q", d.Id()))
 	}
@@ -1030,7 +1057,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
-				d.Set(k, v)
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
 			}
 		}
 	}
@@ -1091,11 +1120,19 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 
 func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	affinityCookieTtlSecProp, err := expandComputeRegionBackendServiceAffinityCookieTtlSec(d.Get("affinity_cookie_ttl_sec"), d, config)
@@ -1230,7 +1267,13 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Updating RegionBackendService %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating RegionBackendService %q: %s", d.Id(), err)
@@ -1239,7 +1282,7 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Updating RegionBackendService",
+		config, res, project, "Updating RegionBackendService", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -1251,11 +1294,19 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 
 func resourceComputeRegionBackendServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
 	if err != nil {
@@ -1265,13 +1316,18 @@ func resourceComputeRegionBackendServiceDelete(d *schema.ResourceData, meta inte
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting RegionBackendService %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "RegionBackendService")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting RegionBackendService",
+		config, res, project, "Deleting RegionBackendService", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

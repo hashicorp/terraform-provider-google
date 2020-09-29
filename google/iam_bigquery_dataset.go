@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -33,6 +33,7 @@ var bigqueryAccessPrimitiveToRoleMap = map[string]string{
 type BigqueryDatasetIamUpdater struct {
 	project   string
 	datasetId string
+	d         *schema.ResourceData
 	Config    *Config
 }
 
@@ -42,11 +43,14 @@ func NewBigqueryDatasetIamUpdater(d *schema.ResourceData, config *Config) (Resou
 		return nil, err
 	}
 
-	d.Set("project", project)
+	if err := d.Set("project", project); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
 
 	return &BigqueryDatasetIamUpdater{
 		project:   project,
 		datasetId: d.Get("dataset_id").(string),
+		d:         d,
 		Config:    config,
 	}, nil
 }
@@ -57,8 +61,12 @@ func BigqueryDatasetIdParseFunc(d *schema.ResourceData, config *Config) error {
 		return err
 	}
 
-	d.Set("project", fv.Project)
-	d.Set("dataset_id", fv.Name)
+	if err := d.Set("project", fv.Project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("dataset_id", fv.Name); err != nil {
+		return fmt.Errorf("Error setting dataset_id: %s", err)
+	}
 
 	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
 	d.SetId(fv.RelativeLink())
@@ -68,7 +76,12 @@ func BigqueryDatasetIdParseFunc(d *schema.ResourceData, config *Config) error {
 func (u *BigqueryDatasetIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	url := fmt.Sprintf("%s%s", u.Config.BigQueryBasePath, u.GetResourceId())
 
-	res, err := sendRequest(u.Config, "GET", u.project, url, nil)
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := sendRequest(u.Config, "GET", u.project, url, userAgent, nil)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -91,7 +104,12 @@ func (u *BigqueryDatasetIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		"access": access,
 	}
 
-	_, err = sendRequest(u.Config, "PATCH", u.project, url, obj)
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = sendRequest(u.Config, "PATCH", u.project, url, userAgent, obj)
 	if err != nil {
 		return fmt.Errorf("Error creating DatasetAccess: %s", err)
 	}

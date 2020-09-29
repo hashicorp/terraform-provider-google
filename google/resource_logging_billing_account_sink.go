@@ -3,7 +3,7 @@ package google
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceLoggingBillingAccountSink() *schema.Resource {
@@ -28,11 +28,16 @@ func resourceLoggingBillingAccountSink() *schema.Resource {
 
 func resourceLoggingBillingAccountSinkCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientLogging.UserAgent = userAgent
 
 	id, sink := expandResourceLoggingSink(d, "billingAccounts", d.Get("billing_account").(string))
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err := config.clientLogging.BillingAccounts.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
+	_, err = config.clientLogging.BillingAccounts.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
 	}
@@ -43,24 +48,36 @@ func resourceLoggingBillingAccountSinkCreate(d *schema.ResourceData, meta interf
 
 func resourceLoggingBillingAccountSinkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientLogging.UserAgent = userAgent
 
 	sink, err := config.clientLogging.BillingAccounts.Sinks.Get(d.Id()).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Billing Logging Sink %s", d.Get("name").(string)))
 	}
 
-	flattenResourceLoggingSink(d, sink)
-	return nil
+	if err := flattenResourceLoggingSink(d, sink); err != nil {
+		return err
+	}
 
+	return nil
 }
 
 func resourceLoggingBillingAccountSinkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientLogging.UserAgent = userAgent
 
 	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err := config.clientLogging.BillingAccounts.Sinks.Patch(d.Id(), sink).
+	_, err = config.clientLogging.BillingAccounts.Sinks.Patch(d.Id(), sink).
 		UpdateMask(updateMask).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
@@ -71,8 +88,13 @@ func resourceLoggingBillingAccountSinkUpdate(d *schema.ResourceData, meta interf
 
 func resourceLoggingBillingAccountSinkDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientLogging.UserAgent = userAgent
 
-	_, err := config.clientLogging.Projects.Sinks.Delete(d.Id()).Do()
+	_, err = config.clientLogging.Projects.Sinks.Delete(d.Id()).Do()
 	if err != nil {
 		return err
 	}

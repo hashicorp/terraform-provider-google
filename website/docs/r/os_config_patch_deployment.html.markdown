@@ -48,18 +48,8 @@ resource "google_os_config_patch_deployment" "patch" {
     all = true
   }
 
-  recurring_schedule {
-    time_zone {
-      id = "America/New_York"
-    }
-
-    time_of_day {
-      hours = 1
-    }
-
-    weekly {
-      day_of_week = "MONDAY"
-    }
+  one_time_schedule {
+    execute_time = "2020-10-10T10:10:10.045123456Z"
   }
 }
 ```
@@ -237,6 +227,13 @@ resource "google_os_config_patch_deployment" "patch" {
       }
     }
   }
+
+  rollout {
+    mode = "ZONE_BY_ZONE"
+    disruption_budget {
+      fixed = 1
+    }
+  }
 }
 ```
 
@@ -318,6 +315,11 @@ The `group_labels` block supports:
 * `recurring_schedule` -
   (Optional)
   Schedule recurring executions.
+  Structure is documented below.
+
+* `rollout` -
+  (Optional)
+  Rollout strategy of the patch job.
   Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -733,6 +735,33 @@ The `week_day_of_month` block supports:
   A day of the week.
   Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
 
+The `rollout` block supports:
+
+* `mode` -
+  (Required)
+  Mode of the patch rollout.
+  Possible values are `ZONE_BY_ZONE` and `CONCURRENT_ZONES`.
+
+* `disruption_budget` -
+  (Required)
+  The maximum number (or percentage) of VMs per zone to disrupt at any given moment. The number of VMs calculated from multiplying the percentage by the total number of VMs in a zone is rounded up.
+  During patching, a VM is considered disrupted from the time the agent is notified to begin until patching has completed. This disruption time includes the time to complete reboot and any post-patch steps.
+  A VM contributes to the disruption budget if its patching operation fails either when applying the patches, running pre or post patch steps, or if it fails to respond with a success notification before timing out. VMs that are not running or do not have an active agent do not count toward this disruption budget.
+  For zone-by-zone rollouts, if the disruption budget in a zone is exceeded, the patch job stops, because continuing to the next zone requires completion of the patch process in the previous zone.
+  For example, if the disruption budget has a fixed value of 10, and 8 VMs fail to patch in the current zone, the patch job continues to patch 2 VMs at a time until the zone is completed. When that zone is completed successfully, patching begins with 10 VMs at a time in the next zone. If 10 VMs in the next zone fail to patch, the patch job stops.
+  Structure is documented below.
+
+
+The `disruption_budget` block supports:
+
+* `fixed` -
+  (Optional)
+  Specifies a fixed value.
+
+* `percentage` -
+  (Optional)
+  Specifies the relative value defined as a percentage, which will be multiplied by a reference value.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -773,9 +802,6 @@ $ terraform import google_os_config_patch_deployment.default projects/{{project}
 $ terraform import google_os_config_patch_deployment.default {{project}}/{{name}}
 $ terraform import google_os_config_patch_deployment.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

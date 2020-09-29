@@ -20,8 +20,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceAccessContextManagerAccessLevels() *schema.Resource {
@@ -293,6 +293,10 @@ custom access levels - https://cloud.google.com/access-context-manager/docs/cust
 
 func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	accessLevelsProp, err := expandAccessContextManagerAccessLevelsAccessLevels(d.Get("access_levels"), d, config)
@@ -308,7 +312,14 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Creating new AccessLevels: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating AccessLevels: %s", err)
 	}
@@ -321,7 +332,7 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 	d.SetId(id)
 
 	err = accessContextManagerOperationWaitTime(
-		config, res, "Creating AccessLevels",
+		config, res, "Creating AccessLevels", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -337,13 +348,24 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 
 func resourceAccessContextManagerAccessLevelsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAccessLevels %q", d.Id()))
 	}
@@ -357,6 +379,13 @@ func resourceAccessContextManagerAccessLevelsRead(d *schema.ResourceData, meta i
 
 func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	accessLevelsProp, err := expandAccessContextManagerAccessLevelsAccessLevels(d.Get("access_levels"), d, config)
@@ -372,7 +401,13 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Updating AccessLevels %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating AccessLevels %q: %s", d.Id(), err)
@@ -381,7 +416,7 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 	}
 
 	err = accessContextManagerOperationWaitTime(
-		config, res, "Updating AccessLevels",
+		config, res, "Updating AccessLevels", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -393,6 +428,11 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 
 func resourceAccessContextManagerAccessLevelsDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
 
 	obj := make(map[string]interface{})
 	obj["accessLevels"] = []string{}
@@ -403,7 +443,7 @@ func resourceAccessContextManagerAccessLevelsDelete(d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Deleting AccessLevels %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "POST", "", url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error deleting AccessLevels %q: %s", d.Id(), err)
@@ -412,7 +452,7 @@ func resourceAccessContextManagerAccessLevelsDelete(d *schema.ResourceData, meta
 	}
 
 	err = accessContextManagerOperationWaitTime(
-		config, res, "Updating AccessLevels",
+		config, res, "Updating AccessLevels", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -431,7 +471,9 @@ func resourceAccessContextManagerAccessLevelsImport(d *schema.ResourceData, meta
 		return nil, err
 	}
 
-	d.Set("parent", fmt.Sprintf("accessPolicies/%s", parts["accessPolicy"]))
+	if err := d.Set("parent", fmt.Sprintf("accessPolicies/%s", parts["accessPolicy"])); err != nil {
+		return nil, fmt.Errorf("Error setting parent: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

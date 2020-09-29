@@ -29,6 +29,11 @@ manually created via the GCP console. This restriction is due to the existing AP
 in this tool.
 
 
+To get more information about Client, see:
+
+* [API documentation](https://cloud.google.com/iap/docs/reference/rest/v1/projects.brands.identityAwareProxyClients)
+* How-to Guides
+    * [Setting up IAP Client](https://cloud.google.com/iap/docs/authentication-howto)
 
 ~> **Warning:** All arguments including `secret` will be stored in the raw
 state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
@@ -117,6 +122,3 @@ Client can be imported using any of these accepted formats:
 $ terraform import google_iap_client.default {{brand}}/identityAwareProxyClients/{{client_id}}
 $ terraform import google_iap_client.default {{brand}}/{{client_id}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.

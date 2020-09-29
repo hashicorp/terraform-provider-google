@@ -304,7 +304,7 @@ The following arguments are supported:
   The protocol this BackendService uses to communicate with backends.
   The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
   types and may result in errors if used with the GA API.
-  Possible values are `HTTP`, `HTTPS`, `HTTP2`, `TCP`, and `SSL`.
+  Possible values are `HTTP`, `HTTPS`, `HTTP2`, `TCP`, `SSL`, and `GRPC`.
 
 * `security_policy` -
   (Optional)
@@ -728,9 +728,6 @@ $ terraform import google_compute_backend_service.default projects/{{project}}/g
 $ terraform import google_compute_backend_service.default {{project}}/{{name}}
 $ terraform import google_compute_backend_service.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

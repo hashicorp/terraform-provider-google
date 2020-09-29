@@ -18,7 +18,7 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -57,7 +57,9 @@ func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Conf
 
 	project, _ := getProject(d, config)
 	if project != "" {
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return nil, fmt.Errorf("Error setting project: %s", err)
+		}
 	}
 	values["project"] = project
 	if v, ok := d.GetOk("repository"); ok {
@@ -81,8 +83,12 @@ func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Conf
 		Config:     config,
 	}
 
-	d.Set("project", u.project)
-	d.Set("repository", u.GetResourceId())
+	if err := d.Set("project", u.project); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("repository", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error setting repository: %s", err)
+	}
 
 	return u, nil
 }
@@ -110,7 +116,9 @@ func SourceRepoRepositoryIdParseFunc(d *schema.ResourceData, config *Config) err
 		d:          d,
 		Config:     config,
 	}
-	d.Set("repository", u.GetResourceId())
+	if err := d.Set("repository", u.GetResourceId()); err != nil {
+		return fmt.Errorf("Error setting repository: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }
@@ -127,7 +135,12 @@ func (u *SourceRepoRepositoryIamUpdater) GetResourceIamPolicy() (*cloudresourcem
 	}
 	var obj map[string]interface{}
 
-	policy, err := sendRequest(u.Config, "GET", project, url, obj)
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	policy, err := sendRequest(u.Config, "GET", project, url, userAgent, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -159,7 +172,12 @@ func (u *SourceRepoRepositoryIamUpdater) SetResourceIamPolicy(policy *cloudresou
 		return err
 	}
 
-	_, err = sendRequestWithTimeout(u.Config, "POST", project, url, obj, u.d.Timeout(schema.TimeoutCreate))
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = sendRequestWithTimeout(u.Config, "POST", project, url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

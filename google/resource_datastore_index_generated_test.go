@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDatastoreIndex_datastoreIndexExample(t *testing.T) {
@@ -31,8 +31,11 @@ func TestAccDatastoreIndex_datastoreIndexExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckDatastoreIndexDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -80,7 +83,7 @@ func testAccCheckDatastoreIndexDestroyProducer(t *testing.T) func(s *terraform.S
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil, datastoreIndex409Contention)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil, datastoreIndex409Contention)
 			if err == nil {
 				return fmt.Errorf("DatastoreIndex still exists at %s", url)
 			}

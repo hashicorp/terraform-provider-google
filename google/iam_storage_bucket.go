@@ -17,7 +17,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -63,7 +63,9 @@ func StorageBucketIamUpdaterProducer(d *schema.ResourceData, config *Config) (Re
 		Config: config,
 	}
 
-	d.Set("bucket", u.GetResourceId())
+	if err := d.Set("bucket", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error setting bucket: %s", err)
+	}
 
 	return u, nil
 }
@@ -85,7 +87,9 @@ func StorageBucketIdParseFunc(d *schema.ResourceData, config *Config) error {
 		d:      d,
 		Config: config,
 	}
-	d.Set("bucket", u.GetResourceId())
+	if err := d.Set("bucket", u.GetResourceId()); err != nil {
+		return fmt.Errorf("Error setting bucket: %s", err)
+	}
 	d.SetId(u.GetResourceId())
 	return nil
 }
@@ -102,7 +106,12 @@ func (u *StorageBucketIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 		return nil, err
 	}
 
-	policy, err := sendRequest(u.Config, "GET", "", url, obj, isStoragePreconditionError)
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	policy, err := sendRequest(u.Config, "GET", "", url, userAgent, obj, isStoragePreconditionError)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -129,7 +138,12 @@ func (u *StorageBucketIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 		return err
 	}
 
-	_, err = sendRequestWithTimeout(u.Config, "PUT", "", url, obj, u.d.Timeout(schema.TimeoutCreate), isStoragePreconditionError)
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = sendRequestWithTimeout(u.Config, "PUT", "", url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate), isStoragePreconditionError)
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

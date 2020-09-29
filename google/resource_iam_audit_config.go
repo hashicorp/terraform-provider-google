@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -89,12 +89,16 @@ func resourceIamAuditConfigRead(newUpdaterFunc newResourceIamUpdaterFunc) schema
 			return nil
 		}
 
-		d.Set("etag", p.Etag)
+		if err := d.Set("etag", p.Etag); err != nil {
+			return fmt.Errorf("Error setting etag: %s", err)
+		}
 		err = d.Set("audit_log_config", flattenAuditLogConfigs(ac.AuditLogConfigs))
 		if err != nil {
 			return fmt.Errorf("Error flattening audit log config: %s", err)
 		}
-		d.Set("service", ac.Service)
+		if err := d.Set("service", ac.Service); err != nil {
+			return fmt.Errorf("Error setting service: %s", err)
+		}
 		return nil
 	}
 }
@@ -114,7 +118,9 @@ func iamAuditConfigImport(resourceIdParser resourceIdParserFunc) schema.StateFun
 
 		// Set the ID only to the first part so all IAM types can share the same resourceIdParserFunc.
 		d.SetId(id)
-		d.Set("service", service)
+		if err := d.Set("service", service); err != nil {
+			return nil, fmt.Errorf("Error setting service: %s", err)
+		}
 		err := resourceIdParser(d, config)
 		if err != nil {
 			return nil, err
@@ -130,6 +136,12 @@ func iamAuditConfigImport(resourceIdParser resourceIdParserFunc) schema.StateFun
 func resourceIamAuditConfigCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return err
+		}
+		config.userAgent = userAgent
+
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err
@@ -158,6 +170,11 @@ func resourceIamAuditConfigCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc
 func resourceIamAuditConfigDelete(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return err
+		}
+		config.userAgent = userAgent
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err

@@ -1,0 +1,3 @@
+```release-note:bug
+datacatalog: fixed error when trying to set `bool_value` to false on `google_data_catalog_tag`
+```

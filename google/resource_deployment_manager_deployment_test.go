@@ -3,8 +3,8 @@ package google
 import (
 	"bytes"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"io/ioutil"
 	"regexp"
 	"strings"
@@ -400,7 +400,7 @@ func testAccCheckDeploymentManagerDestroyInvalidDeployment(t *testing.T, deploym
 
 		config := googleProviderConfig(t)
 		url := fmt.Sprintf("%sprojects/%s/global/deployments/%s", config.DeploymentManagerBasePath, getTestProjectFromEnv(), deploymentName)
-		_, err := sendRequest(config, "GET", "", url, nil)
+		_, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
 		if !isGoogleApiErrorWithCode(err, 404) {
 			return fmt.Errorf("Unexpected error while trying to confirm DeploymentManagerDeployment deleted: %v", err)
 		}
@@ -428,7 +428,7 @@ func testAccCheckDeploymentManagerDeploymentDestroyProducer(t *testing.T) func(s
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("DeploymentManagerDeployment still exists at %s", url)
 			}

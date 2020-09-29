@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -93,6 +93,10 @@ If it is not provided, the provider region is used.`,
 
 func resourceSQLSourceRepresentationInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandSQLSourceRepresentationInstanceName(d.Get("name"), d, config)
@@ -131,11 +135,20 @@ func resourceSQLSourceRepresentationInstanceCreate(d *schema.ResourceData, meta 
 	}
 
 	log.Printf("[DEBUG] Creating new SourceRepresentationInstance: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating SourceRepresentationInstance: %s", err)
 	}
@@ -148,7 +161,7 @@ func resourceSQLSourceRepresentationInstanceCreate(d *schema.ResourceData, meta 
 	d.SetId(id)
 
 	err = sqlAdminOperationWaitTime(
-		config, res, project, "Creating SourceRepresentationInstance",
+		config, res, project, "Creating SourceRepresentationInstance", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -164,17 +177,30 @@ func resourceSQLSourceRepresentationInstanceCreate(d *schema.ResourceData, meta 
 
 func resourceSQLSourceRepresentationInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQLSourceRepresentationInstance %q", d.Id()))
 	}
@@ -213,7 +239,9 @@ func resourceSQLSourceRepresentationInstanceRead(d *schema.ResourceData, meta in
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
-				d.Set(k, v)
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
 			}
 		}
 	}
@@ -223,11 +251,19 @@ func resourceSQLSourceRepresentationInstanceRead(d *schema.ResourceData, meta in
 
 func resourceSQLSourceRepresentationInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{name}}")
 	if err != nil {
@@ -237,13 +273,18 @@ func resourceSQLSourceRepresentationInstanceDelete(d *schema.ResourceData, meta 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting SourceRepresentationInstance %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "SourceRepresentationInstance")
 	}
 
 	err = sqlAdminOperationWaitTime(
-		config, res, project, "Deleting SourceRepresentationInstance",
+		config, res, project, "Deleting SourceRepresentationInstance", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

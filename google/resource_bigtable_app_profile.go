@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/bigtableadmin/v2"
 )
 
@@ -79,7 +79,6 @@ consistency to improve availability.`,
 			"single_cluster_routing": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Use a single-cluster routing policy.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -116,6 +115,10 @@ It is unsafe to send these requests to the same table/row/column in multiple clu
 
 func resourceBigtableAppProfileCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandBigtableAppProfileDescription(d.Get("description"), d, config)
@@ -148,11 +151,20 @@ func resourceBigtableAppProfileCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Creating new AppProfile: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating AppProfile: %s", err)
 	}
@@ -174,17 +186,30 @@ func resourceBigtableAppProfileCreate(d *schema.ResourceData, meta interface{}) 
 
 func resourceBigtableAppProfileRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigtableAppProfile %q", d.Id()))
 	}
@@ -211,11 +236,19 @@ func resourceBigtableAppProfileRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceBigtableAppProfileUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandBigtableAppProfileDescription(d.Get("description"), d, config)
@@ -223,6 +256,12 @@ func resourceBigtableAppProfileUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	singleClusterRoutingProp, err := expandBigtableAppProfileSingleClusterRouting(d.Get("single_cluster_routing"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("single_cluster_routing"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, singleClusterRoutingProp)) {
+		obj["singleClusterRouting"] = singleClusterRoutingProp
 	}
 
 	obj, err = resourceBigtableAppProfileEncoder(d, meta, obj)
@@ -241,13 +280,23 @@ func resourceBigtableAppProfileUpdate(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
 	}
+
+	if d.HasChange("single_cluster_routing") {
+		updateMask = append(updateMask, "singleClusterRouting")
+	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
 	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating AppProfile %q: %s", d.Id(), err)
@@ -260,11 +309,19 @@ func resourceBigtableAppProfileUpdate(d *schema.ResourceData, meta interface{}) 
 
 func resourceBigtableAppProfileDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}?ignoreWarnings={{ignore_warnings}}")
 	if err != nil {
@@ -274,7 +331,12 @@ func resourceBigtableAppProfileDelete(d *schema.ResourceData, meta interface{}) 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting AppProfile %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "AppProfile")
 	}
@@ -386,6 +448,8 @@ func expandBigtableAppProfileSingleClusterRoutingAllowTransactionalWrites(v inte
 
 func resourceBigtableAppProfileEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// Instance is a URL parameter only, so replace self-link/path with resource name only.
-	d.Set("instance", GetResourceNameFromSelfLink(d.Get("instance").(string)))
+	if err := d.Set("instance", GetResourceNameFromSelfLink(d.Get("instance").(string))); err != nil {
+		return nil, fmt.Errorf("Error setting instance: %s", err)
+	}
 	return obj, nil
 }

@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -178,8 +178,8 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(resource.TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	if os.Getenv(TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
 	}
 
 	config := getInitializedConfig(t)

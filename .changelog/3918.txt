@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed updating `google_compute_instance.shielded_instance_config` by adding it to the `allow_stopping_for_update` list
+```

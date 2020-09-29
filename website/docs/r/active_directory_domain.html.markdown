@@ -41,7 +41,7 @@ To get more information about Domain, see:
 
 ```hcl
 resource "google_active_directory_domain" "ad-domain" {
-  domain_name       = "name.org.com"
+  domain_name       = "tfgen.org.com"
   locations         = ["us-central1"]
   reserved_ip_range = "192.168.255.0/24" 
 }
@@ -119,9 +119,6 @@ Domain can be imported using any of these accepted formats:
 ```
 $ terraform import google_active_directory_domain.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

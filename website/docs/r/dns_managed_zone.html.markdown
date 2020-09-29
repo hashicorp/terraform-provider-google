@@ -277,7 +277,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-
+* `force_destroy` - (Optional) Set this true to delete all records in the zone.
 The `dnssec_config` block supports:
 
 * `kind` -
@@ -417,9 +417,6 @@ $ terraform import google_dns_managed_zone.default projects/{{project}}/managedZ
 $ terraform import google_dns_managed_zone.default {{project}}/{{name}}
 $ terraform import google_dns_managed_zone.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

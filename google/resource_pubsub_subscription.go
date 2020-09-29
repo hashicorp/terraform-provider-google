@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -288,6 +288,33 @@ messages are not expunged from the subscription's backlog, even if
 they are acknowledged, until they fall out of the
 messageRetentionDuration window.`,
 			},
+			"retry_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A policy that specifies how Pub/Sub retries message delivery for this subscription.
+
+If not set, the default retry policy is applied. This generally implies that messages will be retried as soon as possible for healthy subscribers. 
+RetryPolicy will be triggered on NACKs or acknowledgement deadline exceeded events for a given message`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"maximum_backoff": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Description: `The maximum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 600 seconds. 
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+						},
+						"minimum_backoff": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Description: `The minimum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 10 seconds.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+						},
+					},
+				},
+			},
 			"path": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -304,6 +331,10 @@ messageRetentionDuration window.`,
 
 func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandPubsubSubscriptionName(d.Get("name"), d, config)
@@ -366,6 +397,12 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
 		obj["deadLetterPolicy"] = deadLetterPolicyProp
 	}
+	retryPolicyProp, err := expandPubsubSubscriptionRetryPolicy(d.Get("retry_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("retry_policy"); !isEmptyValue(reflect.ValueOf(retryPolicyProp)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
+		obj["retryPolicy"] = retryPolicyProp
+	}
 	enableMessageOrderingProp, err := expandPubsubSubscriptionEnableMessageOrdering(d.Get("enable_message_ordering"), d, config)
 	if err != nil {
 		return err
@@ -384,11 +421,20 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	log.Printf("[DEBUG] Creating new Subscription: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Subscription: %s", err)
 	}
@@ -419,11 +465,25 @@ func resourcePubsubSubscriptionPollRead(d *schema.ResourceData, meta interface{}
 			return nil, err
 		}
 
+		billingProject := ""
+
 		project, err := getProject(d, config)
 		if err != nil {
 			return nil, err
 		}
-		res, err := sendRequest(config, "GET", project, url, nil)
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 		if err != nil {
 			return res, err
 		}
@@ -445,17 +505,30 @@ func resourcePubsubSubscriptionPollRead(d *schema.ResourceData, meta interface{}
 
 func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("PubsubSubscription %q", d.Id()))
 	}
@@ -506,6 +579,9 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("dead_letter_policy", flattenPubsubSubscriptionDeadLetterPolicy(res["deadLetterPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
+	if err := d.Set("retry_policy", flattenPubsubSubscriptionRetryPolicy(res["retryPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
 	if err := d.Set("enable_message_ordering", flattenPubsubSubscriptionEnableMessageOrdering(res["enableMessageOrdering"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
@@ -515,11 +591,19 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 
 func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandPubsubSubscriptionLabels(d.Get("labels"), d, config)
@@ -563,6 +647,12 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("dead_letter_policy"); ok || !reflect.DeepEqual(v, deadLetterPolicyProp) {
 		obj["deadLetterPolicy"] = deadLetterPolicyProp
+	}
+	retryPolicyProp, err := expandPubsubSubscriptionRetryPolicy(d.Get("retry_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("retry_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
+		obj["retryPolicy"] = retryPolicyProp
 	}
 	enableMessageOrderingProp, err := expandPubsubSubscriptionEnableMessageOrdering(d.Get("enable_message_ordering"), d, config)
 	if err != nil {
@@ -612,6 +702,10 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 		updateMask = append(updateMask, "deadLetterPolicy")
 	}
 
+	if d.HasChange("retry_policy") {
+		updateMask = append(updateMask, "retryPolicy")
+	}
+
 	if d.HasChange("enable_message_ordering") {
 		updateMask = append(updateMask, "enableMessageOrdering")
 	}
@@ -621,7 +715,13 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Subscription %q: %s", d.Id(), err)
@@ -634,11 +734,19 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 
 func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {
@@ -648,7 +756,12 @@ func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Subscription %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Subscription")
 	}
@@ -822,6 +935,29 @@ func flattenPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{},
 	return v // let terraform core handle it otherwise
 }
 
+func flattenPubsubSubscriptionRetryPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["minimum_backoff"] =
+		flattenPubsubSubscriptionRetryPolicyMinimumBackoff(original["minimumBackoff"], d, config)
+	transformed["maximum_backoff"] =
+		flattenPubsubSubscriptionRetryPolicyMaximumBackoff(original["maximumBackoff"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubSubscriptionRetryPolicyMinimumBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionRetryPolicyMaximumBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenPubsubSubscriptionEnableMessageOrdering(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -845,7 +981,9 @@ func expandPubsubSubscriptionTopic(v interface{}, d TerraformResourceData, confi
 	} else {
 		// If no full topic given, we expand it to a full topic on the same project
 		fullTopic := fmt.Sprintf("projects/%s/topics/%s", project, topic)
-		d.Set("topic", fullTopic)
+		if err := d.Set("topic", fullTopic); err != nil {
+			return nil, fmt.Errorf("Error setting topic: %s", err)
+		}
 		return fullTopic, nil
 	}
 }
@@ -1021,6 +1159,40 @@ func expandPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{}, 
 	return v, nil
 }
 
+func expandPubsubSubscriptionRetryPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMinimumBackoff, err := expandPubsubSubscriptionRetryPolicyMinimumBackoff(original["minimum_backoff"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinimumBackoff); val.IsValid() && !isEmptyValue(val) {
+		transformed["minimumBackoff"] = transformedMinimumBackoff
+	}
+
+	transformedMaximumBackoff, err := expandPubsubSubscriptionRetryPolicyMaximumBackoff(original["maximum_backoff"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaximumBackoff); val.IsValid() && !isEmptyValue(val) {
+		transformed["maximumBackoff"] = transformedMaximumBackoff
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionRetryPolicyMinimumBackoff(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionRetryPolicyMaximumBackoff(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandPubsubSubscriptionEnableMessageOrdering(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1040,7 +1212,9 @@ func resourcePubsubSubscriptionDecoder(d *schema.ResourceData, meta interface{},
 
 	// path is a derived field from the API-side `name`
 	path := fmt.Sprintf("projects/%s/subscriptions/%s", d.Get("project"), d.Get("name"))
-	d.Set("path", path)
+	if err := d.Set("path", path); err != nil {
+		return nil, fmt.Errorf("Error setting path: %s", err)
+	}
 
 	return res, nil
 }

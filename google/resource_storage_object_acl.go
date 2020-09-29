@@ -1,11 +1,12 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/storage/v1"
 )
 
@@ -56,7 +57,7 @@ func resourceStorageObjectAcl() *schema.Resource {
 // Suppressing it means their configs won't be *strictly* correct as they will be missing the object
 // owner having OWNER. It's impossible to remove that permission though, so this custom diff
 // makes configs with or without that line indistinguishable.
-func resourceStorageObjectAclDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceStorageObjectAclDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	config := meta.(*Config)
 	bucket, ok := diff.GetOk("bucket")
 	if !ok {
@@ -110,6 +111,11 @@ func getObjectAclId(object string) string {
 
 func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
@@ -164,6 +170,11 @@ func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
@@ -184,6 +195,11 @@ func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
@@ -235,6 +251,11 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceStorageObjectAclDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)

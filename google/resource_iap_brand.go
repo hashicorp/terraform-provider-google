@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceIapBrand() *schema.Resource {
@@ -81,6 +81,10 @@ brand per project can be created.`,
 
 func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	supportEmailProp, err := expandIapBrandSupportEmail(d.Get("support_email"), d, config)
@@ -102,11 +106,20 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new Brand: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Brand: %s", err)
 	}
@@ -141,7 +154,9 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 		}
 	}
-	d.Set("name", name.(string))
+	if err := d.Set("name", name.(string)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name.(string))
 
 	return resourceIapBrandRead(d, meta)
@@ -156,11 +171,25 @@ func resourceIapBrandPollRead(d *schema.ResourceData, meta interface{}) PollRead
 			return nil, err
 		}
 
+		billingProject := ""
+
 		project, err := getProject(d, config)
 		if err != nil {
 			return nil, err
 		}
-		res, err := sendRequest(config, "GET", project, url, nil)
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 		if err != nil {
 			return res, err
 		}
@@ -170,17 +199,30 @@ func resourceIapBrandPollRead(d *schema.ResourceData, meta interface{}) PollRead
 
 func resourceIapBrandRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{IapBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IapBrand %q", d.Id()))
 	}
@@ -206,6 +248,13 @@ func resourceIapBrandRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIapBrandDelete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
 	log.Printf("[WARNING] Iap Brand resources"+
 		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
 		" state, but will still be present on the server.", d.Id())
@@ -231,7 +280,9 @@ func resourceIapBrandImport(d *schema.ResourceData, meta interface{}) ([]*schema
 		)
 	}
 
-	d.Set("project", nameParts[1])
+	if err := d.Set("project", nameParts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

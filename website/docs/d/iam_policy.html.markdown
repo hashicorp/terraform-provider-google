@@ -61,6 +61,12 @@ from another resource is the only way to apply an IAM policy to a resource.
 
 The following arguments are supported:
 
+* `audit_config` (Optional) - A nested configuration block that defines logging additional configuration for your project.
+  * `service` (Required) Defines a service that will be enabled for audit logging. For example, `storage.googleapis.com`, `cloudsql.googleapis.com`. `allServices` is a special value that covers all services.
+  * `audit_log_configs` (Required) A nested block that defines the operations you'd like to log.
+    * `log_type` (Required) Defines the logging level. `DATA_READ`, `DATA_WRITE` and `ADMIN_READ` capture different types of events. See [the audit configuration documentation](https://cloud.google.com/resource-manager/reference/rest/Shared.Types/AuditConfig) for more details.
+    * `exempted_members` (Optional) Specifies the identities that are exempt from these types of logging operations. Follows the same format of the `members` array for `binding`.
+
 * `binding` (Required) - A nested configuration block (described below)
   defining a binding to be included in the policy document. Multiple
   `binding` arguments are supported.
@@ -80,12 +86,6 @@ each accept the following arguments:
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
-
-* `audit_config` (Optional) - A nested configuration block that defines logging additional configuration for your project.
-  * `service` (Required) Defines a service that will be enabled for audit logging. For example, `storage.googleapis.com`, `cloudsql.googleapis.com`. `allServices` is a special value that covers all services.
-  * `audit_log_configs` (Required) A nested block that defines the operations you'd like to log.
-    * `log_type` (Required) Defines the logging level. `DATA_READ`, `DATA_WRITE` and `ADMIN_READ` capture different types of events. See [the audit configuration documentation](https://cloud.google.com/resource-manager/reference/rest/Shared.Types/AuditConfig) for more details.
-    * `exempted_members` (Optional) Specifies the identities that are exempt from these types of logging operations. Follows the same format of the `members` array for `binding`.
 
 * `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding. Structure is documented below.
 

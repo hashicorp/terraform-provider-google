@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceStorageObjectAccessControl() *schema.Resource {
@@ -97,7 +97,6 @@ func resourceStorageObjectAccessControl() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The project team associated with the entity`,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"project_number": {
@@ -120,6 +119,10 @@ func resourceStorageObjectAccessControl() *schema.Resource {
 
 func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	bucketProp, err := expandStorageObjectAccessControlBucket(d.Get("bucket"), d, config)
@@ -160,7 +163,14 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Creating new ObjectAccessControl: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ObjectAccessControl: %s", err)
 	}
@@ -179,13 +189,24 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 
 func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("StorageObjectAccessControl %q", d.Id()))
 	}
@@ -223,6 +244,13 @@ func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interfa
 
 func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	bucketProp, err := expandStorageObjectAccessControlBucket(d.Get("bucket"), d, config)
@@ -263,7 +291,13 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Updating ObjectAccessControl %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating ObjectAccessControl %q: %s", d.Id(), err)
@@ -276,6 +310,13 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 
 func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
 	if err != nil {
@@ -292,7 +333,12 @@ func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta inter
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ObjectAccessControl %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "ObjectAccessControl")
 	}

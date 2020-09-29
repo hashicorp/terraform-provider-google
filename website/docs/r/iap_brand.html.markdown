@@ -27,11 +27,17 @@ programatically via API. To convert it into an external brands
 please use the GCP Console.
 
 
-~> **Note:** Brands can be created only once for a Google Cloud Platform
-project and cannot be deleted. Destroying a Terraform-managed Brand
-will remove it from state but *will not delete the resource on the server.*
+~> **Note:** Brands can only be created once for a Google Cloud 
+project and the underlying Google API doesn't not support DELETE or PATCH methods. 
+Destroying a Terraform-managed Brand will remove it from state 
+but *will not delete it from Google Cloud.*
 
 
+To get more information about Brand, see:
+
+* [API documentation](https://cloud.google.com/iap/docs/reference/rest/v1/projects.brands)
+* How-to Guides
+    * [Setting up IAP Brand](https://cloud.google.com/iap/docs/tutorial-gce#set_up_iap)
 
 ## Example Usage - Iap Brand
 
@@ -111,9 +117,6 @@ Brand can be imported using any of these accepted formats:
 ```
 $ terraform import google_iap_brand.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

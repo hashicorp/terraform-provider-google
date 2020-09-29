@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
@@ -762,6 +762,35 @@ func TestAccStorageBucket_bucketPolicyOnly(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_uniformBucketAccessOnly(t *testing.T) {
+	t.Parallel()
+
+	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_uniformBucketAccessOnly(bucketName, true),
+			},
+			{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccStorageBucket_uniformBucketAccessOnly(bucketName, false),
+			},
+			{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_labels(t *testing.T) {
 	t.Parallel()
 
@@ -835,7 +864,7 @@ func TestAccStorageBucket_website(t *testing.T) {
 	t.Parallel()
 
 	bucketSuffix := fmt.Sprintf("tf-website-test-%d", randInt(t))
-	errRe := regexp.MustCompile("one of `((website.0.main_page_suffix,website.0.not_found_page)|(website.0.not_found_page,website.0.main_page_suffix))` must be specified")
+	errRe := regexp.MustCompile("one of\n`website.0.main_page_suffix,website.0.not_found_page` must be specified")
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -1371,6 +1400,15 @@ func testAccStorageBucket_bucketPolicyOnly(bucketName string, enabled bool) stri
 resource "google_storage_bucket" "bucket" {
   name               = "%s"
   bucket_policy_only = %t
+}
+`, bucketName, enabled)
+}
+
+func testAccStorageBucket_uniformBucketAccessOnly(bucketName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name               = "%s"
+  uniform_bucket_level_access = %t
 }
 `, bucketName, enabled)
 }

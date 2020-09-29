@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -306,6 +306,10 @@ is 1,024 characters.`,
 
 func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	accessProp, err := expandBigQueryDatasetAccess(d.Get("access"), d, config)
@@ -369,11 +373,20 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Creating new Dataset: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Dataset: %s", err)
 	}
@@ -392,24 +405,39 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigQueryDataset %q", d.Id()))
 	}
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOk("delete_contents_on_destroy"); !ok {
-		d.Set("delete_contents_on_destroy", false)
+		if err := d.Set("delete_contents_on_destroy", false); err != nil {
+			return fmt.Errorf("Error setting delete_contents_on_destroy: %s", err)
+		}
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
@@ -430,7 +458,9 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
-				d.Set(k, v)
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
 			}
 		}
 	}
@@ -470,11 +500,19 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	accessProp, err := expandBigQueryDatasetAccess(d.Get("access"), d, config)
@@ -538,7 +576,13 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Dataset %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Dataset %q: %s", d.Id(), err)
@@ -551,11 +595,19 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}?deleteContents={{delete_contents_on_destroy}}")
 	if err != nil {
@@ -565,7 +617,12 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Dataset %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Dataset")
 	}
@@ -592,7 +649,9 @@ func resourceBigQueryDatasetImport(d *schema.ResourceData, meta interface{}) ([]
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	d.Set("delete_contents_on_destroy", false)
+	if err := d.Set("delete_contents_on_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting delete_contents_on_destroy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

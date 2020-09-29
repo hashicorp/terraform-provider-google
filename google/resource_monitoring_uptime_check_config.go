@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceMonitoringUptimeCheckConfig() *schema.Resource {
@@ -260,52 +260,6 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Computed:    true,
 				Description: `The id of the uptime check`,
 			},
-			"is_internal": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Removed:  "This field never worked, and will be removed in 3.0.0.",
-				Computed: true,
-			},
-			"internal_checkers": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Removed:  "This field never worked, and will be removed in 3.0.0.",
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"display_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Removed:  "This field never worked, and will be removed in 3.0.0.",
-							Computed: true,
-						},
-						"gcp_zone": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Removed:  "This field never worked, and will be removed in 3.0.0.",
-							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Removed:  "This field never worked, and will be removed in 3.0.0.",
-							Computed: true,
-						},
-						"network": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Removed:  "This field never worked, and will be removed in 3.0.0.",
-							Computed: true,
-						},
-						"peer_project_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Removed:  "This field never worked, and will be removed in 3.0.0.",
-							Computed: true,
-						},
-					},
-				},
-			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -318,6 +272,10 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 
 func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandMonitoringUptimeCheckConfigDisplayName(d.Get("display_name"), d, config)
@@ -388,11 +346,20 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new UptimeCheckConfig: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating UptimeCheckConfig: %s", err)
 	}
@@ -422,7 +389,9 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 		}
 	}
-	d.Set("name", name.(string))
+	if err := d.Set("name", name.(string)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name.(string))
 
 	return resourceMonitoringUptimeCheckConfigRead(d, meta)
@@ -430,17 +399,30 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 
 func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringConcurrentEditError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringUptimeCheckConfig %q", d.Id()))
 	}
@@ -488,11 +470,19 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 
 func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandMonitoringUptimeCheckConfigDisplayName(d.Get("display_name"), d, config)
@@ -576,7 +566,13 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating UptimeCheckConfig %q: %s", d.Id(), err)
@@ -589,11 +585,19 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 
 func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "stackdriver/groups/{{project}}")
 	if err != nil {
@@ -610,7 +614,12 @@ func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta inte
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting UptimeCheckConfig %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, "UptimeCheckConfig")
 	}

@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeGlobalNetworkEndpointGroup() *schema.Resource {
@@ -91,6 +91,10 @@ you create the resource.`,
 
 func resourceComputeGlobalNetworkEndpointGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandComputeGlobalNetworkEndpointGroupName(d.Get("name"), d, config)
@@ -124,11 +128,20 @@ func resourceComputeGlobalNetworkEndpointGroupCreate(d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Creating new GlobalNetworkEndpointGroup: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating GlobalNetworkEndpointGroup: %s", err)
 	}
@@ -141,7 +154,7 @@ func resourceComputeGlobalNetworkEndpointGroupCreate(d *schema.ResourceData, met
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating GlobalNetworkEndpointGroup",
+		config, res, project, "Creating GlobalNetworkEndpointGroup", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -157,17 +170,30 @@ func resourceComputeGlobalNetworkEndpointGroupCreate(d *schema.ResourceData, met
 
 func resourceComputeGlobalNetworkEndpointGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeGlobalNetworkEndpointGroup %q", d.Id()))
 	}
@@ -197,11 +223,19 @@ func resourceComputeGlobalNetworkEndpointGroupRead(d *schema.ResourceData, meta 
 
 func resourceComputeGlobalNetworkEndpointGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{name}}")
 	if err != nil {
@@ -211,13 +245,18 @@ func resourceComputeGlobalNetworkEndpointGroupDelete(d *schema.ResourceData, met
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting GlobalNetworkEndpointGroup %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "GlobalNetworkEndpointGroup")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting GlobalNetworkEndpointGroup",
+		config, res, project, "Deleting GlobalNetworkEndpointGroup", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

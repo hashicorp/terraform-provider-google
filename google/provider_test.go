@@ -2,6 +2,7 @@ package google
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,16 +21,15 @@ import (
 
 	"github.com/dnaeon/go-vcr/cassette"
 	"github.com/dnaeon/go-vcr/recorder"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/terraform-providers/terraform-provider-random/random"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-var testAccProviders map[string]terraform.ResourceProvider
+var testAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
-var testAccRandomProvider *schema.Provider
 
 var credsEnvVars = []string{
 	"GOOGLE_CREDENTIALS",
@@ -93,11 +93,9 @@ var sources map[string]VcrSource
 func init() {
 	configs = make(map[string]*Config)
 	sources = make(map[string]VcrSource)
-	testAccProvider = Provider().(*schema.Provider)
-	testAccRandomProvider = random.Provider().(*schema.Provider)
-	testAccProviders = map[string]terraform.ResourceProvider{
+	testAccProvider = Provider()
+	testAccProviders = map[string]*schema.Provider{
 		"google": testAccProvider,
-		"random": testAccRandomProvider,
 	}
 }
 
@@ -107,13 +105,13 @@ func init() {
 // ConfigureFunc on our provider creates a new HTTP client and sets base paths (config.go LoadAndValidate)
 // VCR requires a single HTTP client to handle all interactions so it can record and replay responses so
 // this caches HTTP clients per test by replacing ConfigureFunc
-func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.ResourceData) (interface{}, error), testName string) (*Config, error) {
+func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc schema.ConfigureContextFunc, testName string) (*Config, diag.Diagnostics) {
 	if v, ok := configs[testName]; ok {
 		return v, nil
 	}
-	c, err := configureFunc(d)
-	if err != nil {
-		return nil, err
+	c, diags := configureFunc(ctx, d)
+	if diags.HasError() {
+		return nil, diags
 	}
 	config := c.(*Config)
 	var vcrMode recorder.Mode
@@ -138,7 +136,7 @@ func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.Resour
 
 	rec, err := recorder.NewAsMode(path, vcrMode, config.client.Transport)
 	if err != nil {
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 	// Defines how VCR will match requests to responses.
 	rec.SetMatcher(func(r *http.Request, i cassette.Request) bool {
@@ -186,7 +184,7 @@ func getCachedConfig(d *schema.ResourceData, configureFunc func(d *schema.Resour
 	config.wrappedPubsubClient.Transport = rec
 	config.wrappedBigQueryClient.Transport = rec
 	configs[testName] = config
-	return config, err
+	return config, nil
 }
 
 // We need to explicitly close the VCR recorder to save the cassette
@@ -221,21 +219,19 @@ func googleProviderConfig(t *testing.T) *Config {
 	return testAccProvider.Meta().(*Config)
 }
 
-func getTestAccProviders(testName string) map[string]terraform.ResourceProvider {
-	prov := Provider().(*schema.Provider)
-	provRand := random.Provider().(*schema.Provider)
+func getTestAccProviders(testName string) map[string]*schema.Provider {
+	prov := Provider()
 	if isVcrEnabled() {
-		old := prov.ConfigureFunc
-		prov.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
-			return getCachedConfig(d, old, testName)
+		old := prov.ConfigureContextFunc
+		prov.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+			return getCachedConfig(ctx, d, old, testName)
 		}
 	} else {
 		log.Print("[DEBUG] VCR_PATH or VCR_MODE not set, skipping VCR")
 	}
-	return map[string]terraform.ResourceProvider{
+	return map[string]*schema.Provider{
 		"google":      prov,
 		"google-beta": prov,
-		"random":      provRand,
 	}
 }
 
@@ -364,13 +360,13 @@ func randInt(t *testing.T) int {
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
+	if err := Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProvider_impl(t *testing.T) {
-	var _ terraform.ResourceProvider = Provider()
+	var _ *schema.Provider = Provider()
 }
 
 func TestProvider_noDuplicatesInResourceMap(t *testing.T) {
@@ -474,6 +470,38 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	})
 }
 
+func TestAccProviderMeta_setModuleName(t *testing.T) {
+	t.Parallel()
+
+	moduleName := "my-module"
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProviderMeta_setModuleName(moduleName, randString(t, 10)),
+				Check:  testAccCheckConfigAgentModified(t, moduleName),
+			},
+			{
+				ResourceName:      "google_compute_address.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCheckConfigAgentModified(t *testing.T, moduleName string) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
+		if !strings.Contains(config.userAgent, moduleName) {
+			return fmt.Errorf("expected userAgent to contain provider_meta set module_name")
+		}
+		return nil
+	}
+}
+
 func TestAccProviderUserProjectOverride(t *testing.T) {
 	// Parallel fine-grained resource creation
 	skipIfVcr(t)
@@ -572,6 +600,19 @@ provider "google" {
 resource "google_compute_address" "default" {
 	name = "address-test-%s"
 }`, endpoint, name)
+}
+
+func testAccProviderMeta_setModuleName(key, name string) string {
+	return fmt.Sprintf(`
+terraform {
+  provider_meta "google" {
+    module_name = "%s"
+  }
+}
+
+resource "google_compute_address" "default" {
+	name = "address-test-%s"
+}`, key, name)
 }
 
 // Set up two projects. Project 1 has a service account that is used to create a

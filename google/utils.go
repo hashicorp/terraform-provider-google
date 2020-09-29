@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/googleapi"
 )
 
@@ -28,6 +28,7 @@ type TerraformResourceDiff interface {
 	GetChange(string) (interface{}, interface{})
 	Get(string) interface{}
 	Clear(string) error
+	ForceNew(string) error
 }
 
 // getRegionFromZone returns the region from a zone for Google cloud.
@@ -53,6 +54,12 @@ func getRegion(d TerraformResourceData, config *Config) (string, error) {
 // given, an error is returned.
 func getProject(d TerraformResourceData, config *Config) (string, error) {
 	return getProjectFromSchema("project", d, config)
+}
+
+// getBillingProject reads the "billing_project" field from the given resource data and falls
+// back to the provider's value if not given. If no value is found, an error is returned.
+func getBillingProject(d TerraformResourceData, config *Config) (string, error) {
+	return getBillingProjectFromSchema("billing_project", d, config)
 }
 
 // getProjectFromDiff reads the "project" field from the given diff and falls
@@ -340,8 +347,8 @@ func serviceAccountFQN(serviceAccount string, d TerraformResourceData, config *C
 	return fmt.Sprintf("projects/-/serviceAccounts/%s@%s.iam.gserviceaccount.com", serviceAccount, project), nil
 }
 
-func paginatedListRequest(project, baseUrl string, config *Config, flattener func(map[string]interface{}) []interface{}) ([]interface{}, error) {
-	res, err := sendRequest(config, "GET", project, baseUrl, nil)
+func paginatedListRequest(project, baseUrl, userAgent string, config *Config, flattener func(map[string]interface{}) []interface{}) ([]interface{}, error) {
+	res, err := sendRequest(config, "GET", project, baseUrl, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -353,7 +360,7 @@ func paginatedListRequest(project, baseUrl string, config *Config, flattener fun
 			break
 		}
 		url := fmt.Sprintf("%s?pageToken=%s", baseUrl, pageToken.(string))
-		res, err = sendRequest(config, "GET", project, url, nil)
+		res, err = sendRequest(config, "GET", project, url, userAgent, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -439,4 +446,15 @@ func changeFieldSchemaToForceNew(sch *schema.Schema) {
 			}
 		}
 	}
+}
+
+func generateUserAgentString(d *schema.ResourceData, currentUserAgent string) (string, error) {
+	var m providerMeta
+
+	err := d.GetProviderMeta(&m)
+	if err != nil {
+		return currentUserAgent, err
+	}
+
+	return strings.Join([]string{currentUserAgent, m.ModuleName}, " "), nil
 }

@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeResourcePolicy_resourcePolicyBasicExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccComputeResourcePolicy_resourcePolicyBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeResourcePolicy_resourcePolicyBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_resource_policy.foo",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_resource_policy.foo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -72,17 +76,21 @@ func TestAccComputeResourcePolicy_resourcePolicyFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeResourcePolicy_resourcePolicyFullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_resource_policy.bar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_resource_policy.bar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -124,17 +132,21 @@ func TestAccComputeResourcePolicy_resourcePolicyPlacementPolicyExample(t *testin
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeResourcePolicy_resourcePolicyPlacementPolicyExample(context),
 			},
 			{
-				ResourceName:      "google_compute_resource_policy.baz",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_resource_policy.baz",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -170,7 +182,7 @@ func testAccCheckComputeResourcePolicyDestroyProducer(t *testing.T) func(s *terr
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeResourcePolicy still exists at %s", url)
 			}

@@ -110,9 +110,6 @@ $ terraform import google_identity_platform_default_supported_idp_config.default
 $ terraform import google_identity_platform_default_supported_idp_config.default {{idp_id}}
 ```
 
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
-
 ## User Project Overrides
 
 This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

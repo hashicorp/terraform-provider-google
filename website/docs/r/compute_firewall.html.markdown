@@ -217,7 +217,7 @@ The `allow` block supports:
   The IP protocol to which this rule applies. The protocol type is
   required when creating a firewall rule. This value can either be
   one of the following well known protocol strings (tcp, udp,
-  icmp, esp, ah, sctp, ipip), or the IP protocol number.
+  icmp, esp, ah, sctp, ipip, all), or the IP protocol number.
 
 * `ports` -
   (Optional)
@@ -235,7 +235,7 @@ The `deny` block supports:
   The IP protocol to which this rule applies. The protocol type is
   required when creating a firewall rule. This value can either be
   one of the following well known protocol strings (tcp, udp,
-  icmp, esp, ah, sctp, ipip), or the IP protocol number.
+  icmp, esp, ah, sctp, ipip, all), or the IP protocol number.
 
 * `ports` -
   (Optional)
@@ -282,9 +282,6 @@ $ terraform import google_compute_firewall.default projects/{{project}}/global/f
 $ terraform import google_compute_firewall.default {{project}}/{{name}}
 $ terraform import google_compute_firewall.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

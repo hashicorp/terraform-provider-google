@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	dataproc "google.golang.org/api/dataproc/v1beta2"
 	"google.golang.org/api/googleapi"
@@ -639,6 +639,35 @@ func TestAccDataprocCluster_withKerberos(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withAutoscalingPolicy(t *testing.T) {
+	t.Parallel()
+
+	rnd := randString(t, 10)
+
+	var cluster dataproc.Cluster
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withAutoscalingPolicy(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
+					testAccCheckDataprocClusterAutoscaling(t, &cluster, true),
+				),
+			},
+			{
+				Config: testAccDataprocCluster_removeAutoscalingPolicy(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
+					testAccCheckDataprocClusterAutoscaling(t, &cluster, false),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDataprocClusterDestroy(t *testing.T) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -685,6 +714,18 @@ func testAccCheckDataprocClusterHasServiceScopes(t *testing.T, cluster *dataproc
 			return fmt.Errorf("Cluster does not contain expected set of service account scopes : %v : instead %v",
 				scopes, cluster.Config.GceClusterConfig.ServiceAccountScopes)
 		}
+		return nil
+	}
+}
+
+func testAccCheckDataprocClusterAutoscaling(t *testing.T, cluster *dataproc.Cluster, expectAutoscaling bool) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		if cluster.Config.AutoscalingConfig == nil && expectAutoscaling {
+			return fmt.Errorf("Cluster does not contain AutoscalingConfig, expected it would")
+		} else if cluster.Config.AutoscalingConfig != nil && !expectAutoscaling {
+			return fmt.Errorf("Cluster contains AutoscalingConfig, expected it not to")
+		}
+
 		return nil
 	}
 }
@@ -1407,4 +1448,68 @@ resource "google_dataproc_cluster" "kerb" {
   }
 }
 `, rnd, rnd, rnd, kmsKey)
+}
+
+func testAccDataprocCluster_withAutoscalingPolicy(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+  name     = "tf-test-dataproc-policy-%s"
+  region   = "us-central1"
+
+  cluster_config {
+    autoscaling_config {
+      policy_uri = google_dataproc_autoscaling_policy.asp.id
+    }
+  }
+}
+  
+resource "google_dataproc_autoscaling_policy" "asp" {
+  policy_id = "tf-test-dataproc-policy-%s"
+  location  = "us-central1"
+
+  worker_config {
+    max_instances = 3
+  }
+
+  basic_algorithm {
+    yarn_config {
+      graceful_decommission_timeout = "30s"
+      scale_up_factor   = 0.5
+      scale_down_factor = 0.5
+    }
+  }
+}
+`, rnd, rnd)
+}
+
+func testAccDataprocCluster_removeAutoscalingPolicy(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "basic" {
+  name     = "tf-test-dataproc-policy-%s"
+  region   = "us-central1"
+
+  cluster_config {
+    autoscaling_config {
+      policy_uri = ""
+    }
+  }
+}
+  
+resource "google_dataproc_autoscaling_policy" "asp" {
+  policy_id = "tf-test-dataproc-policy-%s"
+  location  = "us-central1"
+
+  worker_config {
+    max_instances = 3
+  }
+
+  basic_algorithm {
+    yarn_config {
+      graceful_decommission_timeout = "30s"
+      scale_up_factor   = 0.5
+      scale_down_factor = 0.5
+    }
+  }
+}
+`, rnd, rnd)
 }

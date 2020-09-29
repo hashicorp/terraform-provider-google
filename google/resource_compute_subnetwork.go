@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -22,13 +23,13 @@ import (
 	"time"
 
 	"github.com/apparentlymart/go-cidr/cidr"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // Whether the IP CIDR change shrinks the block.
-func isShrinkageIpCidr(old, new, _ interface{}) bool {
+func isShrinkageIpCidr(_ context.Context, old, new, _ interface{}) bool {
 	_, oldCidr, oldErr := net.ParseCIDR(old.(string))
 	_, newCidr, newErr := net.ParseCIDR(new.(string))
 
@@ -126,7 +127,15 @@ Toggles the aggregation interval for collecting flow logs. Increasing the
 interval time will reduce the amount of generated flow logs for long
 lasting connections. Default is an interval of 5 seconds per connection. Default value: "INTERVAL_5_SEC" Possible values: ["INTERVAL_5_SEC", "INTERVAL_30_SEC", "INTERVAL_1_MIN", "INTERVAL_5_MIN", "INTERVAL_10_MIN", "INTERVAL_15_MIN"]`,
 							Default:      "INTERVAL_5_SEC",
-							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata"},
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
+						},
+						"filter_expr": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Export filter used to define which VPC flow logs should be logged, as as CEL expression. See
+https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.`,
+							Default:      "true",
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
 						},
 						"flow_sampling": {
 							Type:     schema.TypeFloat,
@@ -137,17 +146,27 @@ flow logs within the subnetwork where 1.0 means all collected logs are
 reported and 0.0 means no logs are reported. Default is 0.5 which means
 half of all collected logs are reported.`,
 							Default:      0.5,
-							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata"},
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
 						},
 						"metadata": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", ""}, false),
+							ValidateFunc: validation.StringInSlice([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", "CUSTOM_METADATA", ""}, false),
 							Description: `Can only be specified if VPC flow logging for this subnetwork is enabled.
 Configures whether metadata fields should be added to the reported VPC
-flow logs. Default value: "INCLUDE_ALL_METADATA" Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"]`,
+flow logs. Default value: "INCLUDE_ALL_METADATA" Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", "CUSTOM_METADATA"]`,
 							Default:      "INCLUDE_ALL_METADATA",
-							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata"},
+							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
+						},
+						"metadata_fields": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Description: `List of metadata fields that should be added to reported logs.
+Can only be specified if VPC flow logs for this subnetwork is enabled and "metadata" is set to CUSTOM_METADATA.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Set: schema.HashString,
 						},
 					},
 				},
@@ -215,12 +234,6 @@ must be unique within the subnetwork.`,
 				Description: `The gateway address for default routes to reach destination addresses
 outside this subnetwork.`,
 			},
-			"enable_flow_logs": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
-				Removed:  "This field is being removed in favor of log_config. If log_config is present, flow logs are enabled. Please remove this field",
-			},
 			"fingerprint": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -241,7 +254,7 @@ outside this subnetwork.`,
 	}
 }
 
-func resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	keys := diff.GetChangedKeysPrefix("secondary_ip_range")
 	if len(keys) == 0 {
 		return nil
@@ -285,6 +298,10 @@ func resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff(diff *schema.Resource
 
 func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeSubnetworkDescription(d.Get("description"), d, config)
@@ -342,11 +359,20 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Creating new Subnetwork: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Subnetwork: %s", err)
 	}
@@ -359,7 +385,7 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Subnetwork",
+		config, res, project, "Creating Subnetwork", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -375,17 +401,30 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
 	}
@@ -433,11 +472,19 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	d.Partial(true)
 
@@ -455,7 +502,13 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
 		} else {
@@ -463,13 +516,11 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Subnetwork",
+			config, res, project, "Updating Subnetwork", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("ip_cidr_range")
 	}
 	if d.HasChange("private_ip_google_access") {
 		obj := make(map[string]interface{})
@@ -485,7 +536,13 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
 		} else {
@@ -493,13 +550,11 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Subnetwork",
+			config, res, project, "Updating Subnetwork", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("private_ip_google_access")
 	}
 	if d.HasChange("log_config") {
 		obj := make(map[string]interface{})
@@ -508,7 +563,13 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		getRes, err := sendRequest(config, "GET", billingProject, getUrl, userAgent, nil)
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
 		}
@@ -526,7 +587,13 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
 		} else {
@@ -534,13 +601,11 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Subnetwork",
+			config, res, project, "Updating Subnetwork", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("log_config")
 	}
 	if d.HasChange("secondary_ip_range") {
 		obj := make(map[string]interface{})
@@ -549,7 +614,13 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		getRes, err := sendRequest(config, "GET", billingProject, getUrl, userAgent, nil)
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
 		}
@@ -567,7 +638,13 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
 		} else {
@@ -575,13 +652,11 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Subnetwork",
+			config, res, project, "Updating Subnetwork", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("secondary_ip_range")
 	}
 
 	d.Partial(false)
@@ -591,11 +666,19 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeSubnetworkDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
 	if err != nil {
@@ -605,13 +688,18 @@ func resourceComputeSubnetworkDelete(d *schema.ResourceData, meta interface{}) e
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Subnetwork %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Subnetwork")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Subnetwork",
+		config, res, project, "Deleting Subnetwork", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -726,6 +814,18 @@ func flattenComputeSubnetworkLogConfig(v interface{}, d *schema.ResourceData, co
 	transformed["flow_sampling"] = original["flowSampling"]
 	transformed["aggregation_interval"] = original["aggregationInterval"]
 	transformed["metadata"] = original["metadata"]
+	if original["metadata"].(string) == "CUSTOM_METADATA" {
+		transformed["metadata_fields"] = original["metadataFields"]
+	} else {
+		// MetadataFields can only be set when metadata is CUSTOM_METADATA. However, when updating
+		// from custom to include/exclude, the API will return the previous values of the metadata fields,
+		// despite not actually having any custom fields at the moment. The API team has confirmed
+		// this as WAI (b/162771344), so we work around it by clearing the response if metadata is
+		// not custom.
+		transformed["metadata_fields"] = nil
+	}
+	transformed["filter_expr"] = original["filterExpr"]
+
 	return []interface{}{transformed}
 }
 
@@ -821,6 +921,10 @@ func expandComputeSubnetworkLogConfig(v interface{}, d TerraformResourceData, co
 	transformed["aggregationInterval"] = original["aggregation_interval"]
 	transformed["flowSampling"] = original["flow_sampling"]
 	transformed["metadata"] = original["metadata"]
+	transformed["filterExpr"] = original["filter_expr"]
+
+	// make it JSON marshallable
+	transformed["metadataFields"] = original["metadata_fields"].(*schema.Set).List()
 
 	return transformed, nil
 }

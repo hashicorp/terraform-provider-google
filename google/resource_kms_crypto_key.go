@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -22,8 +23,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceKMSCryptoKey() *schema.Resource {
@@ -127,6 +128,10 @@ See the [algorithm reference](https://cloud.google.com/kms/docs/reference/rest/v
 
 func resourceKMSCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandKMSCryptoKeyLabels(d.Get("labels"), d, config)
@@ -165,11 +170,18 @@ func resourceKMSCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	log.Printf("[DEBUG] Creating new CryptoKey: %#v", obj)
-	var project string
+	billingProject := ""
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating CryptoKey: %s", err)
 	}
@@ -188,17 +200,28 @@ func resourceKMSCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
 	if err != nil {
 		return err
 	}
 
-	var project string
+	billingProject := ""
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("KMSCryptoKey %q", d.Id()))
 	}
@@ -233,6 +256,13 @@ func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKMSCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandKMSCryptoKeyLabels(d.Get("labels"), d, config)
@@ -285,11 +315,16 @@ func resourceKMSCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	var project string
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating CryptoKey %q: %s", d.Id(), err)
@@ -302,6 +337,11 @@ func resourceKMSCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceKMSCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
 
 	cryptoKeyId, err := parseKmsCryptoKeyId(d.Id(), config)
 	if err != nil {
@@ -339,8 +379,12 @@ func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 		return nil, err
 	}
 
-	d.Set("key_ring", cryptoKeyId.KeyRingId.keyRingId())
-	d.Set("name", cryptoKeyId.Name)
+	if err := d.Set("key_ring", cryptoKeyId.KeyRingId.keyRingId()); err != nil {
+		return nil, fmt.Errorf("Error setting key_ring: %s", err)
+	}
+	if err := d.Set("name", cryptoKeyId.Name); err != nil {
+		return nil, fmt.Errorf("Error setting name: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -471,7 +515,9 @@ func resourceKMSCryptoKeyDecoder(d *schema.ResourceData, meta interface{}, res m
 	// We can't just ignore_read on `name` as the linter will
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
-	d.Set("self_link", res["name"].(string))
+	if err := d.Set("self_link", res["name"].(string)); err != nil {
+		return nil, fmt.Errorf("Error setting self_link: %s", err)
+	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
 }
@@ -502,7 +548,7 @@ func resourceKMSCryptoKeyResourceV0() *schema.Resource {
 	}
 }
 
-func resourceKMSCryptoKeyUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceKMSCryptoKeyUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
 
 	config := meta.(*Config)

@@ -337,7 +337,7 @@ The following arguments are supported:
   The protocol this RegionBackendService uses to communicate with backends.
   The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
   types and may result in errors if used with the GA API.
-  Possible values are `HTTP`, `HTTPS`, `HTTP2`, `SSL`, `TCP`, and `UDP`.
+  Possible values are `HTTP`, `HTTPS`, `HTTP2`, `SSL`, `TCP`, `UDP`, and `GRPC`.
 
 * `session_affinity` -
   (Optional)
@@ -741,9 +741,6 @@ $ terraform import google_compute_region_backend_service.default {{project}}/{{r
 $ terraform import google_compute_region_backend_service.default {{region}}/{{name}}
 $ terraform import google_compute_region_backend_service.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

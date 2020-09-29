@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-version"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	composer "google.golang.org/api/composer/v1beta1"
 )
 
@@ -382,6 +382,11 @@ func resourceComposerEnvironment() *schema.Resource {
 
 func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComposer.UserAgent = userAgent
 
 	envName, err := resourceComposerEnvironmentName(d, config)
 	if err != nil {
@@ -416,7 +421,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	d.SetId(id)
 
 	waitErr := composerOperationWaitTime(
-		config, op, envName.Project, "Creating Environment",
+		config, op, envName.Project, "Creating Environment", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if waitErr != nil {
@@ -444,6 +449,11 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 
 func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComposer.UserAgent = userAgent
 
 	envName, err := resourceComposerEnvironmentName(d, config)
 	if err != nil {
@@ -457,26 +467,31 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 
 	// Set from getProject(d)
 	if err := d.Set("project", envName.Project); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	// Set from getRegion(d)
 	if err := d.Set("region", envName.Region); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	if err := d.Set("name", GetResourceNameFromSelfLink(res.Name)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	if err := d.Set("config", flattenComposerEnvironmentConfig(res.Config)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	if err := d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	return nil
 }
 
 func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	tfConfig := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, tfConfig.userAgent)
+	if err != nil {
+		return err
+	}
+	tfConfig.clientComposer.UserAgent = userAgent
 
 	d.Partial(true)
 
@@ -503,7 +518,6 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			if err != nil {
 				return err
 			}
-			d.SetPartial("config")
 		}
 
 		if d.HasChange("config.0.software_config.0.airflow_config_overrides") {
@@ -523,7 +537,6 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			if err != nil {
 				return err
 			}
-			d.SetPartial("config")
 		}
 
 		if d.HasChange("config.0.software_config.0.env_variables") {
@@ -542,7 +555,6 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			if err != nil {
 				return err
 			}
-			d.SetPartial("config")
 		}
 
 		if d.HasChange("config.0.software_config.0.pypi_packages") {
@@ -561,7 +573,6 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			if err != nil {
 				return err
 			}
-			d.SetPartial("config")
 		}
 
 		if d.HasChange("config.0.node_count") {
@@ -573,7 +584,6 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			if err != nil {
 				return err
 			}
-			d.SetPartial("config")
 		}
 
 		// If web_server_network_access_control has more fields added it may require changes here.
@@ -587,8 +597,8 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			if err != nil {
 				return err
 			}
-			d.SetPartial("config")
 		}
+
 	}
 
 	if d.HasChange("labels") {
@@ -597,7 +607,6 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return err
 		}
-		d.SetPartial("labels")
 	}
 
 	d.Partial(false)
@@ -619,13 +628,17 @@ func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment
 		}
 
 		log.Printf("[DEBUG] Finish update to Environment %q post create for update only fields", d.Id())
-		d.SetPartial("config")
 	}
 	d.Partial(false)
 	return resourceComposerEnvironmentRead(d, cfg)
 }
 
 func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Environment, d *schema.ResourceData, config *Config) error {
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	envJson, _ := env.MarshalJSON()
 	log.Printf("[DEBUG] Updating Environment %q (updateMask = %q): %s", d.Id(), updateMask, string(envJson))
 	envName, err := resourceComposerEnvironmentName(d, config)
@@ -641,7 +654,7 @@ func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Envi
 	}
 
 	waitErr := composerOperationWaitTime(
-		config, op, envName.Project, "Updating newly created Environment",
+		config, op, envName.Project, "Updating newly created Environment", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		// The resource didn't actually update.
@@ -654,6 +667,11 @@ func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Envi
 
 func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComposer.UserAgent = userAgent
 
 	envName, err := resourceComposerEnvironmentName(d, config)
 	if err != nil {
@@ -667,7 +685,7 @@ func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	err = composerOperationWaitTime(
-		config, op, envName.Project, "Deleting Environment",
+		config, op, envName.Project, "Deleting Environment", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
@@ -1111,6 +1129,11 @@ func validateComposerEnvironmentEnvVariables(v interface{}, k string) (ws []stri
 }
 
 func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvironmentName, d *schema.ResourceData, config *Config) error {
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	log.Printf("[WARNING] Creation operation for Composer Environment %q failed, check Environment isn't still running", id)
 	// Try to get possible created but invalid environment.
 	env, err := config.clientComposer.Projects.Locations.Environments.Get(envName.resourceName()).Do()
@@ -1135,7 +1158,7 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvi
 
 	waitErr := composerOperationWaitTime(
 		config, op, envName.Project,
-		fmt.Sprintf("Deleting invalid created Environment with state %q", env.State),
+		fmt.Sprintf("Deleting invalid created Environment with state %q", env.State), userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		return fmt.Errorf("Error waiting to delete invalid Environment with state %q: %s", env.State, waitErr)

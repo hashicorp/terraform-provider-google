@@ -1,7 +1,7 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"encoding/json"
 	"errors"
@@ -54,12 +54,18 @@ func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdate
 func ResourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return err
+		}
+		config.userAgent = userAgent
+
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err
 		}
 
-		if err := setIamPolicyData(d, updater); err != nil {
+		if err = setIamPolicyData(d, updater); err != nil {
 			return err
 		}
 
@@ -71,6 +77,12 @@ func ResourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.Cr
 func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return err
+		}
+		config.userAgent = userAgent
+
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err
@@ -81,8 +93,12 @@ func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 			return handleNotFoundError(err, d, fmt.Sprintf("Resource %q with IAM Policy", updater.DescribeResource()))
 		}
 
-		d.Set("etag", policy.Etag)
-		d.Set("policy_data", marshalIamPolicy(policy))
+		if err := d.Set("etag", policy.Etag); err != nil {
+			return fmt.Errorf("Error setting etag: %s", err)
+		}
+		if err := d.Set("policy_data", marshalIamPolicy(policy)); err != nil {
+			return fmt.Errorf("Error setting policy_data: %s", err)
+		}
 
 		return nil
 	}
@@ -91,6 +107,12 @@ func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 func ResourceIamPolicyUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.UpdateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return err
+		}
+		config.userAgent = userAgent
+
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err
@@ -109,6 +131,12 @@ func ResourceIamPolicyUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.Up
 func ResourceIamPolicyDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return err
+		}
+		config.userAgent = userAgent
+
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err

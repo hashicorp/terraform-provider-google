@@ -1,7 +1,8 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleStorageTransferProjectServiceAccount() *schema.Resource {
@@ -23,6 +24,11 @@ func dataSourceGoogleStorageTransferProjectServiceAccount() *schema.Resource {
 
 func dataSourceGoogleStorageTransferProjectServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorageTransfer.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -35,7 +41,11 @@ func dataSourceGoogleStorageTransferProjectServiceAccountRead(d *schema.Resource
 	}
 
 	d.SetId(serviceAccount.AccountEmail)
-	d.Set("email", serviceAccount.AccountEmail)
-	d.Set("project", project)
+	if err := d.Set("email", serviceAccount.AccountEmail); err != nil {
+		return fmt.Errorf("Error setting email: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 	return nil
 }

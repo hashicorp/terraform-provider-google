@@ -3,8 +3,8 @@ package google
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -73,6 +73,11 @@ func resourceGoogleOrganizationIamCustomRole() *schema.Resource {
 
 func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	org := d.Get("org_id").(string)
 	roleId := fmt.Sprintf("organizations/%s/roles/%s", org, d.Get("role_id").(string))
@@ -120,6 +125,11 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 
 func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	role, err := config.clientIAM.Organizations.Roles.Get(d.Id()).Do()
 	if err != nil {
@@ -131,20 +141,41 @@ func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	d.Set("role_id", parsedRoleName.Name)
-	d.Set("org_id", parsedRoleName.OrgId)
-	d.Set("title", role.Title)
-	d.Set("name", role.Name)
-	d.Set("description", role.Description)
-	d.Set("permissions", role.IncludedPermissions)
-	d.Set("stage", role.Stage)
-	d.Set("deleted", role.Deleted)
+	if err := d.Set("role_id", parsedRoleName.Name); err != nil {
+		return fmt.Errorf("Error setting role_id: %s", err)
+	}
+	if err := d.Set("org_id", parsedRoleName.OrgId); err != nil {
+		return fmt.Errorf("Error setting org_id: %s", err)
+	}
+	if err := d.Set("title", role.Title); err != nil {
+		return fmt.Errorf("Error setting title: %s", err)
+	}
+	if err := d.Set("name", role.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("description", role.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("permissions", role.IncludedPermissions); err != nil {
+		return fmt.Errorf("Error setting permissions: %s", err)
+	}
+	if err := d.Set("stage", role.Stage); err != nil {
+		return fmt.Errorf("Error setting stage: %s", err)
+	}
+	if err := d.Set("deleted", role.Deleted); err != nil {
+		return fmt.Errorf("Error setting deleted: %s", err)
+	}
 
 	return nil
 }
 
 func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	d.Partial(true)
 
@@ -160,8 +191,6 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 		if err != nil {
 			return fmt.Errorf("Error undeleting the custom organization role %s: %s", d.Get("title").(string), err)
 		}
-
-		d.SetPartial("deleted")
 	}
 
 	if d.HasChange("title") || d.HasChange("description") || d.HasChange("stage") || d.HasChange("permissions") {
@@ -175,11 +204,6 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 		if err != nil {
 			return fmt.Errorf("Error updating the custom organization role %s: %s", d.Get("title").(string), err)
 		}
-
-		d.SetPartial("title")
-		d.SetPartial("description")
-		d.SetPartial("stage")
-		d.SetPartial("permissions")
 	}
 
 	d.Partial(false)
@@ -188,6 +212,11 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 
 func resourceGoogleOrganizationIamCustomRoleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientIAM.UserAgent = userAgent
 
 	r, err := config.clientIAM.Organizations.Roles.Get(d.Id()).Do()
 	if err == nil && r != nil && r.Deleted && d.Get("deleted").(bool) {

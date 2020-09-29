@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
 )
@@ -34,7 +34,9 @@ func FolderIdParseFunc(d *schema.ResourceData, _ *Config) error {
 	if !strings.HasPrefix(d.Id(), "folders/") {
 		d.SetId(fmt.Sprintf("folders/%s", d.Id()))
 	}
-	d.Set("folder", d.Id())
+	if err := d.Set("folder", d.Id()); err != nil {
+		return fmt.Errorf("Error setting folder: %s", err)
+	}
 	return nil
 }
 

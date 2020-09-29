@@ -22,8 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceDNSPolicy() *schema.Resource {
@@ -69,11 +68,11 @@ are not available when an alternative name server is specified.`,
 							Set: func(v interface{}) int {
 								raw := v.(map[string]interface{})
 								if address, ok := raw["ipv4_address"]; ok {
-									hashcode.String(address.(string))
+									hashcode(address.(string))
 								}
 								var buf bytes.Buffer
 								schema.SerializeResourceForHash(&buf, raw, dnsPolicyAlternativeNameServerConfigTargetNameServersSchema())
-								return hashcode.String(buf.String())
+								return hashcode(buf.String())
 							},
 						},
 					},
@@ -111,7 +110,7 @@ Defaults to no logging if not set.`,
 					}
 					var buf bytes.Buffer
 					schema.SerializeResourceForHash(&buf, raw, dnsPolicyNetworksSchema())
-					return hashcode.String(buf.String())
+					return hashcode(buf.String())
 				},
 			},
 			"project": {
@@ -153,6 +152,10 @@ This should be formatted like 'projects/{project}/global/networks/{network}' or
 
 func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	alternativeNameServerConfigProp, err := expandDNSPolicyAlternativeNameServerConfig(d.Get("alternative_name_server_config"), d, config)
@@ -198,11 +201,20 @@ func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new Policy: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Policy: %s", err)
 	}
@@ -221,17 +233,30 @@ func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDNSPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DNSPolicy %q", d.Id()))
 	}
@@ -264,11 +289,19 @@ func resourceDNSPolicyRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	d.Partial(true)
 
@@ -310,18 +343,19 @@ func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Policy %q: %s", d.Id(), err)
 		} else {
 			log.Printf("[DEBUG] Finished updating Policy %q: %#v", d.Id(), res)
 		}
 
-		d.SetPartial("alternative_name_server_config")
-		d.SetPartial("description")
-		d.SetPartial("enable_inbound_forwarding")
-		d.SetPartial("enable_logging")
-		d.SetPartial("networks")
 	}
 
 	d.Partial(false)
@@ -331,11 +365,19 @@ func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
 	if err != nil {
@@ -353,14 +395,19 @@ func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 
-		_, err = sendRequestWithTimeout(config, "PATCH", project, url, patched, d.Timeout(schema.TimeoutUpdate))
+		_, err = sendRequestWithTimeout(config, "PATCH", project, url, userAgent, patched, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Policy %q: %s", d.Id(), err)
 		}
 	}
 	log.Printf("[DEBUG] Deleting Policy %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Policy")
 	}
@@ -410,11 +457,11 @@ func flattenDNSPolicyAlternativeNameServerConfigTargetNameServers(v interface{},
 	transformed := schema.NewSet(func(v interface{}) int {
 		raw := v.(map[string]interface{})
 		if address, ok := raw["ipv4_address"]; ok {
-			hashcode.String(address.(string))
+			hashcode(address.(string))
 		}
 		var buf bytes.Buffer
 		schema.SerializeResourceForHash(&buf, raw, dnsPolicyAlternativeNameServerConfigTargetNameServersSchema())
-		return hashcode.String(buf.String())
+		return hashcode(buf.String())
 	}, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
@@ -460,7 +507,7 @@ func flattenDNSPolicyNetworks(v interface{}, d *schema.ResourceData, config *Con
 		}
 		var buf bytes.Buffer
 		schema.SerializeResourceForHash(&buf, raw, dnsPolicyNetworksSchema())
-		return hashcode.String(buf.String())
+		return hashcode(buf.String())
 	}, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})

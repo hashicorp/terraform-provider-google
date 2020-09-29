@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func init() {
@@ -72,6 +72,7 @@ func TestAccContainerCluster_basic(t *testing.T) {
 				Config: testAccContainerCluster_basic(clusterName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "services_ipv4_cidr"),
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "self_link"),
 				),
 			},
 			{
@@ -152,6 +153,15 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 			},
 			{
 				Config: testAccContainerCluster_updateAddons(pid, clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_withInternalLoadBalancer(pid, clusterName),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -424,7 +434,7 @@ func TestAccContainerCluster_withInvalidReleaseChannel(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccContainerCluster_withReleaseChannelEnabled(clusterName, "CANARY"),
-				ExpectError: regexp.MustCompile(`config is invalid: expected release_channel\.0\.channel to be one of \[UNSPECIFIED RAPID REGULAR STABLE\], got CANARY`),
+				ExpectError: regexp.MustCompile(`expected release_channel\.0\.channel to be one of \[UNSPECIFIED RAPID REGULAR STABLE\], got CANARY`),
 			},
 		},
 	})
@@ -736,6 +746,33 @@ func TestAccContainerCluster_withNodeConfigShieldedInstanceConfig(t *testing.T) 
 				ResourceName:      "google_container_cluster.with_node_config",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withWorkloadMetadataConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withWorkloadMetadataConfig(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_workload_metadata_config",
+						"node_config.0.workload_metadata_config.0.node_metadata", "SECURE"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_workload_metadata_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
 			},
 		},
 	})
@@ -1578,6 +1615,13 @@ func checkMatch(attributes map[string]string, attr string, gcp interface{}) stri
 }
 
 func checkListMatch(attributes map[string]string, attr string, gcpList []string) string {
+	// A bunch of the TestAccDataprocJob_* tests fail without this. It's likely an inaccuracy that happens when shimming the terraform-json
+	// representation of state back to the old framework's representation of state. So, in the past we would get x.# = 0 whereas now we get x.# = ''.
+	// It's likely not intentional, however, shouldn't be a big problem - but if we notice it is the sdk team can address it.
+	if attributes[attr+".#"] == "" {
+		attributes[attr+".#"] = "0"
+	}
+
 	num, err := strconv.Atoi(attributes[attr+".#"])
 	if err != nil {
 		return fmt.Sprintf("Error in number conversion for attribute %s: %s", attr, err)
@@ -1596,6 +1640,13 @@ func checkListMatch(attributes map[string]string, attr string, gcpList []string)
 }
 
 func checkMapMatch(attributes map[string]string, attr string, gcpMap map[string]string) string {
+	// A bunch of the TestAccDataprocJob_* tests fail without this. It's likely an inaccuracy that happens when shimming the terraform-json
+	// representation of state back to the old framework's representation of state. So, in the past we would get x.# = 0 whereas now we get x.# = ''.
+	// It's likely not intentional, however, shouldn't be a big problem - but if we notice it is the sdk team can address it.
+	if attributes[attr+".%"] == "" {
+		attributes[attr+".%"] = "0"
+	}
+
 	num, err := strconv.Atoi(attributes[attr+".%"])
 	if err != nil {
 		return fmt.Sprintf("Error in number conversion for attribute %s: %s", attr, err)
@@ -1768,6 +1819,42 @@ resource "google_container_cluster" "primary" {
     }
     cloudrun_config {
       disabled = false
+    }
+  }
+}
+`, projectID, clusterName)
+}
+
+func testAccContainerCluster_withInternalLoadBalancer(projectID string, clusterName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  min_master_version = "latest"
+
+  workload_identity_config {
+    identity_namespace = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+
+  addons_config {
+    http_load_balancing {
+      disabled = false
+    }
+    horizontal_pod_autoscaling {
+      disabled = false
+    }
+    network_policy_config {
+      disabled = false
+    }
+    cloudrun_config {
+	  disabled = false
+	  load_balancer_type = "LOAD_BALANCER_TYPE_INTERNAL"
     }
   }
 }
@@ -2267,6 +2354,32 @@ resource "google_container_cluster" "with_node_config" {
     shielded_instance_config {
       enable_secure_boot          = true
       enable_integrity_monitoring = true
+    }
+  }
+}
+`, clusterName)
+}
+
+func testAccContainerCluster_withWorkloadMetadataConfig(clusterName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_workload_metadata_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    workload_metadata_config {
+      node_metadata = "SECURE"
     }
   }
 }
@@ -2784,6 +2897,9 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
 
 func testAccContainerCluster_withResourceUsageExportConfig(clusterName, datasetId, enableMetering string) string {
 	return fmt.Sprintf(`
+provider "google" {
+  user_project_override = true
+}
 resource "google_bigquery_dataset" "default" {
   dataset_id                 = "%s"
   description                = "gke resource usage dataset tests"

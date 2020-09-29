@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeRegionSslCertificate_regionSslCertificateBasicExample(t *testing.T) {
@@ -32,8 +32,11 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateBasicExample(t *test
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -43,7 +46,7 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateBasicExample(t *test
 				ResourceName:            "google_compute_region_ssl_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"private_key", "name_prefix"},
+				ImportStateVerifyIgnore: []string{"private_key", "region", "name_prefix"},
 			},
 		},
 	})
@@ -74,8 +77,11 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateRandomProviderExampl
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -85,7 +91,7 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateRandomProviderExampl
 				ResourceName:            "google_compute_region_ssl_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"private_key"},
+				ImportStateVerifyIgnore: []string{"private_key", "region"},
 			},
 		},
 	})
@@ -130,8 +136,11 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesEx
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -141,7 +150,7 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesEx
 				ResourceName:            "google_compute_region_ssl_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"private_key", "name_prefix"},
+				ImportStateVerifyIgnore: []string{"private_key", "region", "name_prefix"},
 			},
 		},
 	})
@@ -236,7 +245,7 @@ func testAccCheckComputeRegionSslCertificateDestroyProducer(t *testing.T) func(s
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeRegionSslCertificate still exists at %s", url)
 			}

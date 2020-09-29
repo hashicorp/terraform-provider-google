@@ -10,6 +10,7 @@ import (
 
 type DeploymentManagerOperationWaiter struct {
 	Config       *Config
+	UserAgent    string
 	Project      string
 	OperationUrl string
 	ComputeOperationWaiter
@@ -23,7 +24,8 @@ func (w *DeploymentManagerOperationWaiter) QueryOp() (interface{}, error) {
 	if w == nil || w.Op == nil || w.Op.SelfLink == "" {
 		return nil, fmt.Errorf("cannot query unset/nil operation")
 	}
-	resp, err := sendRequest(w.Config, "GET", w.Project, w.Op.SelfLink, nil)
+
+	resp, err := sendRequest(w.Config, "GET", w.Project, w.Op.SelfLink, w.UserAgent, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +36,7 @@ func (w *DeploymentManagerOperationWaiter) QueryOp() (interface{}, error) {
 	return op, nil
 }
 
-func deploymentManagerOperationWaitTime(config *Config, resp interface{}, project, activity string, timeout time.Duration) error {
+func deploymentManagerOperationWaitTime(config *Config, resp interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	op := &compute.Operation{}
 	err := Convert(resp, op)
 	if err != nil {
@@ -43,6 +45,7 @@ func deploymentManagerOperationWaitTime(config *Config, resp interface{}, projec
 
 	w := &DeploymentManagerOperationWaiter{
 		Config:       config,
+		UserAgent:    userAgent,
 		OperationUrl: op.SelfLink,
 		ComputeOperationWaiter: ComputeOperationWaiter{
 			Project: project,

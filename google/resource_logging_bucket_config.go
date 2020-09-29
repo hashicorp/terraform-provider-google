@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 var loggingBucketConfigSchema = map[string]*schema.Schema{
@@ -88,11 +88,17 @@ func resourceLoggingBucketConfigImportState(parent string) schema.StateFunc {
 				loggingSinkResourceTypes)
 		}
 
-		d.Set(parent, parts[1]+"/"+parts[2])
+		if err := d.Set(parent, parts[1]+"/"+parts[2]); err != nil {
+			return nil, fmt.Errorf("Error setting parent: %s", err)
+		}
 
-		d.Set("location", parts[3])
+		if err := d.Set("location", parts[3]); err != nil {
+			return nil, fmt.Errorf("Error setting location: %s", err)
+		}
 
-		d.Set("bucket_id", parts[4])
+		if err := d.Set("bucket_id", parts[4]); err != nil {
+			return nil, fmt.Errorf("Error setting bucket_id: %s", err)
+		}
 
 		return []*schema.ResourceData{d}, nil
 	}
@@ -115,6 +121,10 @@ func resourceLoggingBucketConfigAcquire(iDFunc loggingBucketConfigIDFunc) func(*
 
 func resourceLoggingBucketConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] Fetching logging bucket config: %#v", d.Id())
 
@@ -123,7 +133,7 @@ func resourceLoggingBucketConfigRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	res, err := sendRequest(config, "GET", "", url, userAgent, nil)
 	if err != nil {
 		log.Printf("[WARN] Unable to acquire logging bucket config at %s", d.Id())
 
@@ -131,17 +141,28 @@ func resourceLoggingBucketConfigRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	d.Set("name", res["name"])
-	d.Set("description", res["description"])
-	d.Set("lifecycle_state", res["lifecycleState"])
-	d.Set("retention_days", res["retentionDays"])
+	if err := d.Set("name", res["name"]); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("description", res["description"]); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("lifecycle_state", res["lifecycleState"]); err != nil {
+		return fmt.Errorf("Error setting lifecycle_state: %s", err)
+	}
+	if err := d.Set("retention_days", res["retentionDays"]); err != nil {
+		return fmt.Errorf("Error setting retention_days: %s", err)
+	}
 
 	return nil
-
 }
 
 func resourceLoggingBucketConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 
@@ -165,7 +186,7 @@ func resourceLoggingBucketConfigUpdate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	_, err = sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = sendRequestWithTimeout(config, "PATCH", "", url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return fmt.Errorf("Error updating Logging Bucket Config %q: %s", d.Id(), err)
 	}

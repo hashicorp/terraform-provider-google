@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(t *testing.T) {
@@ -46,7 +46,7 @@ func TestAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(t 
 func testAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_active_directory_domain_trust" "ad-domain-trust" {
-    domain     = "test-managed-ad.com"
+    domain     = "ci-managed-ad.com"
     target_domain_name = "example-gcp.com"
     target_dns_ip_addresses = ["10.1.0.100"]
     trust_direction         = "OUTBOUND"
@@ -59,7 +59,7 @@ resource "google_active_directory_domain_trust" "ad-domain-trust" {
 func testAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustUpdate(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_active_directory_domain_trust" "ad-domain-trust" {
-    domain     = "test-managed-ad.com"
+    domain     = "ci-managed-ad.com"
     target_domain_name = "example-gcp.com"
     target_dns_ip_addresses = ["10.2.0.100"]
     trust_direction         = "OUTBOUND"
@@ -86,7 +86,7 @@ func testAccCheckActiveDirectoryDomainTrustDestroyProducer(t *testing.T) func(s 
 				return err
 			}
 
-			res, _ := sendRequest(config, "GET", "", url, nil)
+			res, _ := sendRequest(config, "GET", "", url, config.userAgent, nil)
 
 			var v interface{}
 			var ok bool

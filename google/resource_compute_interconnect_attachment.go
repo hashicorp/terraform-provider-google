@@ -21,9 +21,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 // waitForAttachmentToBeProvisioned waits for an attachment to leave the
@@ -211,7 +211,6 @@ they configured BGP on behalf of the customer.`,
 				Computed: true,
 				Description: `Information specific to an InterconnectAttachment. This property
 is populated if the interconnect that this is attached to is of type DEDICATED.`,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"tag8021q": {
@@ -244,6 +243,10 @@ Google and the customer, going to and from this network and region.`,
 
 func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	adminEnabledProp, err := expandComputeInterconnectAttachmentAdminEnabled(d.Get("admin_enabled"), d, config)
@@ -319,11 +322,20 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Creating new InterconnectAttachment: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating InterconnectAttachment: %s", err)
 	}
@@ -336,7 +348,7 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating InterconnectAttachment",
+		config, res, project, "Creating InterconnectAttachment", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -356,17 +368,30 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 
 func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeInterconnectAttachment %q", d.Id()))
 	}
@@ -438,11 +463,19 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 
 func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	adminEnabledProp, err := expandComputeInterconnectAttachmentAdminEnabled(d.Get("admin_enabled"), d, config)
@@ -470,7 +503,13 @@ func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Updating InterconnectAttachment %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating InterconnectAttachment %q: %s", d.Id(), err)
@@ -479,7 +518,7 @@ func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta in
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Updating InterconnectAttachment",
+		config, res, project, "Updating InterconnectAttachment", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -491,11 +530,19 @@ func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta in
 
 func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}")
 	if err != nil {
@@ -508,13 +555,18 @@ func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta in
 	}
 	log.Printf("[DEBUG] Deleting InterconnectAttachment %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "InterconnectAttachment")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting InterconnectAttachment",
+		config, res, project, "Deleting InterconnectAttachment", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

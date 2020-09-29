@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -42,7 +42,9 @@ func KeyRingIdParseFunc(d *schema.ResourceData, config *Config) error {
 		return err
 	}
 
-	d.Set("key_ring_id", keyRingId.keyRingId())
+	if err := d.Set("key_ring_id", keyRingId.keyRingId()); err != nil {
+		return fmt.Errorf("Error setting key_ring_id: %s", err)
+	}
 	d.SetId(keyRingId.keyRingId())
 	return nil
 }

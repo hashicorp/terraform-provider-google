@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
@@ -38,7 +38,6 @@ func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
 			"public_key": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"algorithm": {
@@ -58,6 +57,10 @@ func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
 
 func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}")
 	if err != nil {
@@ -70,22 +73,22 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", cryptoKeyId.KeyRingId.Project, url, nil)
+	res, err := sendRequest(config, "GET", cryptoKeyId.KeyRingId.Project, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("KmsCryptoKeyVersion %q", d.Id()))
 	}
 
 	if err := d.Set("version", flattenKmsCryptoKeyVersionVersion(res["name"], d)); err != nil {
-		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+		return fmt.Errorf("Error setting CryptoKeyVersion: %s", err)
 	}
 	if err := d.Set("state", flattenKmsCryptoKeyVersionState(res["state"], d)); err != nil {
-		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+		return fmt.Errorf("Error setting CryptoKeyVersion: %s", err)
 	}
 	if err := d.Set("protection_level", flattenKmsCryptoKeyVersionProtectionLevel(res["protectionLevel"], d)); err != nil {
-		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+		return fmt.Errorf("Error setting CryptoKeyVersion: %s", err)
 	}
 	if err := d.Set("algorithm", flattenKmsCryptoKeyVersionAlgorithm(res["algorithm"], d)); err != nil {
-		return fmt.Errorf("Error reading CryptoKeyVersion: %s", err)
+		return fmt.Errorf("Error setting CryptoKeyVersion: %s", err)
 	}
 
 	url, err = replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}")
@@ -94,7 +97,7 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 	}
 
 	log.Printf("[DEBUG] Getting purpose of CryptoKey: %#v", url)
-	res, err = sendRequest(config, "GET", cryptoKeyId.KeyRingId.Project, url, nil)
+	res, err = sendRequest(config, "GET", cryptoKeyId.KeyRingId.Project, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("KmsCryptoKey %q", d.Id()))
 	}
@@ -106,7 +109,7 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 		}
 		log.Printf("[DEBUG] Getting public key of CryptoKeyVersion: %#v", url)
 
-		res, err = sendRequestWithTimeout(config, "GET", cryptoKeyId.KeyRingId.Project, url, nil, d.Timeout(schema.TimeoutRead), isCryptoKeyVersionsPendingGeneration)
+		res, err = sendRequestWithTimeout(config, "GET", cryptoKeyId.KeyRingId.Project, url, userAgent, nil, d.Timeout(schema.TimeoutRead), isCryptoKeyVersionsPendingGeneration)
 
 		if err != nil {
 			log.Printf("Error generating public key: %s", err)
@@ -114,7 +117,7 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 		}
 
 		if err := d.Set("public_key", flattenKmsCryptoKeyVersionPublicKey(res, d)); err != nil {
-			return fmt.Errorf("Error reading CryptoKeyVersion public key: %s", err)
+			return fmt.Errorf("Error setting CryptoKeyVersion public key: %s", err)
 		}
 	}
 	d.SetId(fmt.Sprintf("//cloudkms.googleapis.com/v1/%s/cryptoKeyVersions/%d", d.Get("crypto_key"), d.Get("version")))

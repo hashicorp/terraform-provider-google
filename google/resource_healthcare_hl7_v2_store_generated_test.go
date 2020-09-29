@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccHealthcareHl7V2Store_healthcareHl7V2StoreBasicExample(t *testing.T) {
@@ -31,15 +31,18 @@ func TestAccHealthcareHl7V2Store_healthcareHl7V2StoreBasicExample(t *testing.T) 
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckHealthcareHl7V2StoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccHealthcareHl7V2Store_healthcareHl7V2StoreBasicExample(context),
 			},
 			{
-				ResourceName:            "google_healthcare_hl7_v2_store.default",
+				ResourceName:            "google_healthcare_hl7_v2_store.store",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"self_link", "dataset"},
@@ -50,7 +53,7 @@ func TestAccHealthcareHl7V2Store_healthcareHl7V2StoreBasicExample(t *testing.T) 
 
 func testAccHealthcareHl7V2Store_healthcareHl7V2StoreBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_healthcare_hl7_v2_store" "default" {
+resource "google_healthcare_hl7_v2_store" "store" {
   name    = "tf-test-example-hl7-v2-store%{random_suffix}"
   dataset = google_healthcare_dataset.dataset.id
 
@@ -91,7 +94,7 @@ func testAccCheckHealthcareHl7V2StoreDestroyProducer(t *testing.T) func(s *terra
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("HealthcareHl7V2Store still exists at %s", url)
 			}

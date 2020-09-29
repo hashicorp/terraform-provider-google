@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1"
 )
@@ -82,10 +82,11 @@ func resourceGoogleProjectService() *schema.Resource {
 				ValidateFunc: StringNotInSlice(append(ignoredProjectServices, bannedProjectServices...), false),
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareResourceNames,
 			},
 
 			"disable_dependent_services": {
@@ -107,24 +108,31 @@ func resourceGoogleProjectServiceImport(d *schema.ResourceData, m interface{}) (
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("Invalid google_project_service id format for import, expecting `{project}/{service}`, found %s", d.Id())
 	}
-	d.Set("project", parts[0])
-	d.Set("service", parts[1])
+	if err := d.Set("project", parts[0]); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("service", parts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting service: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 
 func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	project = GetResourceNameFromSelfLink(project)
 
 	srv := d.Get("service").(string)
-	id, err := replaceVars(d, config, "{{project}}/{{service}}")
-	if err != nil {
-		return fmt.Errorf("unable to construct ID: %s", err)
-	}
+	id := project + "/" + srv
 
 	// Check if the service has already been enabled
 	servicesRaw, err := BatchRequestReadServices(project, d, config)
@@ -135,8 +143,12 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	if _, ok := servicesList[srv]; ok {
 		log.Printf("[DEBUG] service %s was already found to be enabled in project %s", srv, project)
 		d.SetId(id)
-		d.Set("project", project)
-		d.Set("service", srv)
+		if err := d.Set("project", project); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+		if err := d.Set("service", srv); err != nil {
+			return fmt.Errorf("Error setting service: %s", err)
+		}
 		return nil
 	}
 
@@ -150,14 +162,25 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 
 func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientResourceManager.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	project = GetResourceNameFromSelfLink(project)
 
 	// Verify project for services still exists
-	p, err := config.clientResourceManager.Projects.Get(project).Do()
+	projectGetCall := config.clientResourceManager.Projects.Get(project)
+	if config.UserProjectOverride {
+		projectGetCall.Header().Add("X-Goog-User-Project", project)
+	}
+	p, err := projectGetCall.Do()
+
 	if err == nil && p.LifecycleState == "DELETE_REQUESTED" {
 		// Construct a 404 error for handleNotFoundError
 		err = &googleapi.Error{
@@ -177,19 +200,34 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 
 	srv := d.Get("service").(string)
 	if _, ok := servicesList[srv]; ok {
-		d.Set("project", project)
-		d.Set("service", srv)
+		if err := d.Set("project", project); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
+		if err := d.Set("service", srv); err != nil {
+			return fmt.Errorf("Error setting service: %s", err)
+		}
 		return nil
 	}
 
-	// The service is was not found in enabled services - remove it from state
-	log.Printf("[DEBUG] service %s not in enabled services for project %s, removing from state", srv, project)
-	d.SetId("")
+	// If we get here due to eventual consistency, the next apply will fix things
+	// instead of re-creating the resource and if we didn't get here by error,
+	// the next apply will (correctly) remove it from state, anyways. Seeing as
+	// no downstreams can possibly get the result, as we're halting execution,
+	// it's safe to rely on refresh for putting the state back in order.
+	if !d.IsNewResource() {
+		// The service is was not found in enabled services - return an error
+		return fmt.Errorf("service %s not in enabled services for project %s", srv, project)
+	}
 	return nil
 }
 
 func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientServiceUsage.UserAgent = userAgent
 
 	if disable := d.Get("disable_on_destroy"); !(disable.(bool)) {
 		log.Printf("[WARN] Project service %q disable_on_destroy is false, skip disabling service", d.Id())
@@ -201,6 +239,7 @@ func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	project = GetResourceNameFromSelfLink(project)
 
 	service := d.Get("service").(string)
 	disableDependencies := d.Get("disable_dependent_services").(bool)
@@ -221,15 +260,24 @@ func resourceGoogleProjectServiceUpdate(d *schema.ResourceData, meta interface{}
 // Disables a project service.
 func disableServiceUsageProjectService(service, project string, d *schema.ResourceData, config *Config, disableDependentServices bool) error {
 	err := retryTimeDuration(func() error {
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return err
+		}
+
 		name := fmt.Sprintf("projects/%s/services/%s", project, service)
-		sop, err := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{
+		servicesDisableCall := config.clientServiceUsage.Services.Disable(name, &serviceusage.DisableServiceRequest{
 			DisableDependentServices: disableDependentServices,
-		}).Do()
+		})
+		if config.UserProjectOverride {
+			servicesDisableCall.Header().Add("X-Goog-User-Project", project)
+		}
+		sop, err := servicesDisableCall.Do()
 		if err != nil {
 			return err
 		}
 		// Wait for the operation to complete
-		waitErr := serviceUsageOperationWait(config, sop, project, "api to disable", d.Timeout(schema.TimeoutDelete))
+		waitErr := serviceUsageOperationWait(config, sop, project, "api to disable", userAgent, d.Timeout(schema.TimeoutDelete))
 		if waitErr != nil {
 			return waitErr
 		}

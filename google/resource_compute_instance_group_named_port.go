@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -81,6 +81,10 @@ long, and comply with RFC1035.`,
 
 func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandNestedComputeInstanceGroupNamedPortName(d.Get("name"), d, config)
@@ -119,11 +123,20 @@ func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating InstanceGroupNamedPort: %s", err)
 	}
@@ -136,7 +149,7 @@ func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta in
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating InstanceGroupNamedPort",
+		config, res, project, "Creating InstanceGroupNamedPort", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -152,17 +165,30 @@ func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta in
 
 func resourceComputeInstanceGroupNamedPortRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeInstanceGroupNamedPort %q", d.Id()))
 	}
@@ -195,11 +221,19 @@ func resourceComputeInstanceGroupNamedPortRead(d *schema.ResourceData, meta inte
 
 func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
 	if err != nil {
@@ -221,13 +255,18 @@ func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta in
 	}
 	log.Printf("[DEBUG] Deleting InstanceGroupNamedPort %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "InstanceGroupNamedPort")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting InstanceGroupNamedPort",
+		config, res, project, "Deleting InstanceGroupNamedPort", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -295,9 +334,15 @@ func resourceComputeInstanceGroupNamedPortEncoder(d *schema.ResourceData, meta i
 		return nil, err
 	}
 
-	d.Set("group", ig.Name)
-	d.Set("zone", ig.Zone)
-	d.Set("project", ig.Project)
+	if err := d.Set("group", ig.Name); err != nil {
+		return nil, fmt.Errorf("Error setting group: %s", err)
+	}
+	if err := d.Set("zone", ig.Zone); err != nil {
+		return nil, fmt.Errorf("Error setting zone: %s", err)
+	}
+	if err := d.Set("project", ig.Project); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
 
 	return obj, nil
 }
@@ -431,7 +476,13 @@ func resourceComputeInstanceGroupNamedPortListForPatch(d *schema.ResourceData, m
 	if err != nil {
 		return nil, err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := sendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

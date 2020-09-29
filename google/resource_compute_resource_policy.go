@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeResourcePolicy() *schema.Resource {
@@ -300,6 +300,10 @@ It must be in format "HH:MM", where HH : [00-23] and MM : [00-00] GMT.`,
 
 func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandComputeResourcePolicyName(d.Get("name"), d, config)
@@ -333,11 +337,20 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new ResourcePolicy: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ResourcePolicy: %s", err)
 	}
@@ -350,7 +363,7 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating ResourcePolicy",
+		config, res, project, "Creating ResourcePolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -366,17 +379,30 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 
 func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeResourcePolicy %q", d.Id()))
 	}
@@ -406,11 +432,19 @@ func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{})
 
 func resourceComputeResourcePolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
 	if err != nil {
@@ -420,13 +454,18 @@ func resourceComputeResourcePolicyDelete(d *schema.ResourceData, meta interface{
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ResourcePolicy %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "ResourcePolicy")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting ResourcePolicy",
+		config, res, project, "Deleting ResourcePolicy", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

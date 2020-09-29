@@ -7,7 +7,7 @@ import (
 
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -84,8 +84,12 @@ func resourceComputeRouterInterface() *schema.Resource {
 }
 
 func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface{}) error {
-
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -159,7 +163,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
-	err = computeOperationWaitTime(config, op, project, "Patching router", d.Timeout(schema.TimeoutCreate))
+	err = computeOperationWaitTime(config, op, project, "Patching router", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
@@ -169,8 +173,12 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}) error {
-
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -202,11 +210,21 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 
 		if iface.Name == ifaceName {
 			d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
-			d.Set("vpn_tunnel", iface.LinkedVpnTunnel)
-			d.Set("interconnect_attachment", iface.LinkedInterconnectAttachment)
-			d.Set("ip_range", iface.IpRange)
-			d.Set("region", region)
-			d.Set("project", project)
+			if err := d.Set("vpn_tunnel", iface.LinkedVpnTunnel); err != nil {
+				return fmt.Errorf("Error setting vpn_tunnel: %s", err)
+			}
+			if err := d.Set("interconnect_attachment", iface.LinkedInterconnectAttachment); err != nil {
+				return fmt.Errorf("Error setting interconnect_attachment: %s", err)
+			}
+			if err := d.Set("ip_range", iface.IpRange); err != nil {
+				return fmt.Errorf("Error setting ip_range: %s", err)
+			}
+			if err := d.Set("region", region); err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+			if err := d.Set("project", project); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 			return nil
 		}
 	}
@@ -217,8 +235,12 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface{}) error {
-
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -284,7 +306,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 
-	err = computeOperationWaitTime(config, op, project, "Patching router", d.Timeout(schema.TimeoutDelete))
+	err = computeOperationWaitTime(config, op, project, "Patching router", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
 	}
@@ -299,9 +321,15 @@ func resourceComputeRouterInterfaceImportState(d *schema.ResourceData, meta inte
 		return nil, fmt.Errorf("Invalid router interface specifier. Expecting {region}/{router}/{interface}")
 	}
 
-	d.Set("region", parts[0])
-	d.Set("router", parts[1])
-	d.Set("name", parts[2])
+	if err := d.Set("region", parts[0]); err != nil {
+		return nil, fmt.Errorf("Error setting region: %s", err)
+	}
+	if err := d.Set("router", parts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting router: %s", err)
+	}
+	if err := d.Set("name", parts[2]); err != nil {
+		return nil, fmt.Errorf("Error setting name: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

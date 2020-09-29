@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/servicenetworking/v1"
 )
@@ -66,6 +66,11 @@ func resourceServiceNetworkingConnection() *schema.Resource {
 
 func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientServiceNetworking.UserAgent = userAgent
 
 	network := d.Get("network").(string)
 	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
@@ -98,7 +103,7 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	if err := serviceNetworkingOperationWaitTime(config, op, "Create Service Networking Connection", d.Timeout(schema.TimeoutCreate)); err != nil {
+	if err := serviceNetworkingOperationWaitTime(config, op, "Create Service Networking Connection", userAgent, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return err
 	}
 
@@ -113,6 +118,11 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 
 func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientServiceNetworking.UserAgent = userAgent
 
 	connectionId, err := parseConnectionId(d.Id())
 	if err != nil {
@@ -145,15 +155,28 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 		return nil
 	}
 
-	d.Set("network", connectionId.Network)
-	d.Set("service", connectionId.Service)
-	d.Set("peering", connection.Peering)
-	d.Set("reserved_peering_ranges", connection.ReservedPeeringRanges)
+	if err := d.Set("network", connectionId.Network); err != nil {
+		return fmt.Errorf("Error setting network: %s", err)
+	}
+	if err := d.Set("service", connectionId.Service); err != nil {
+		return fmt.Errorf("Error setting service: %s", err)
+	}
+	if err := d.Set("peering", connection.Peering); err != nil {
+		return fmt.Errorf("Error setting peering: %s", err)
+	}
+	if err := d.Set("reserved_peering_ranges", connection.ReservedPeeringRanges); err != nil {
+		return fmt.Errorf("Error setting reserved_peering_ranges: %s", err)
+	}
 	return nil
 }
 
 func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientServiceNetworking.UserAgent = userAgent
 
 	connectionId, err := parseConnectionId(d.Id())
 	if err != nil {
@@ -180,7 +203,7 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		if err := serviceNetworkingOperationWaitTime(config, op, "Update Service Networking Connection", d.Timeout(schema.TimeoutUpdate)); err != nil {
+		if err := serviceNetworkingOperationWaitTime(config, op, "Update Service Networking Connection", userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return err
 		}
 	}
@@ -189,6 +212,10 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 
 func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	network := d.Get("network").(string)
 	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
@@ -207,7 +234,7 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	project := networkFieldValue.Project
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ServiceNetworkingConnection %q", d.Id()))
 	}
@@ -219,7 +246,7 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	err = computeOperationWaitTime(
-		config, op, project, "Updating Network", d.Timeout(schema.TimeoutDelete))
+		config, op, project, "Updating Network", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}
@@ -236,8 +263,12 @@ func resourceServiceNetworkingConnectionImportState(d *schema.ResourceData, meta
 		return nil, err
 	}
 
-	d.Set("network", connectionId.Network)
-	d.Set("service", connectionId.Service)
+	if err := d.Set("network", connectionId.Network); err != nil {
+		return nil, fmt.Errorf("Error setting network: %s", err)
+	}
+	if err := d.Set("service", connectionId.Service); err != nil {
+		return nil, fmt.Errorf("Error setting service: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

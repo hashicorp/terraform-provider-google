@@ -7,8 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Compare only the resource name of two self links/paths.
@@ -57,7 +56,7 @@ func compareSelfLinkOrResourceName(_, old, new string, _ *schema.ResourceData) b
 // Hash the relative path of a self link.
 func selfLinkRelativePathHash(selfLink interface{}) int {
 	path, _ := getRelativePath(selfLink.(string))
-	return hashcode.String(path)
+	return hashcode(path)
 }
 
 func getRelativePath(selfLink string) (string, error) {
@@ -72,7 +71,7 @@ func getRelativePath(selfLink string) (string, error) {
 // Hash the name path of a self link.
 func selfLinkNameHash(selfLink interface{}) int {
 	name := GetResourceNameFromSelfLink(selfLink.(string))
-	return hashcode.String(name)
+	return hashcode(name)
 }
 
 func ConvertSelfLinkToV1(link string) string {

@@ -102,6 +102,7 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import
@@ -114,9 +115,6 @@ $ terraform import google_spanner_database.default instances/{{instance}}/databa
 $ terraform import google_spanner_database.default {{project}}/{{instance}}/{{name}}
 $ terraform import google_spanner_database.default {{instance}}/{{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

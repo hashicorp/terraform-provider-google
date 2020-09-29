@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeRoute_routeBasicExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRouteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRoute_routeBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_route.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_route.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "next_hop_instance", "next_hop_vpn_tunnel", "next_hop_ilb"},
 			},
 		},
 	})
@@ -71,17 +75,21 @@ func TestAccComputeRoute_routeIlbExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRouteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRoute_routeIlbExample(context),
 			},
 			{
-				ResourceName:      "google_compute_route.route-ilb",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_route.route-ilb",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "next_hop_instance", "next_hop_vpn_tunnel", "next_hop_ilb"},
 			},
 		},
 	})
@@ -155,7 +163,7 @@ func testAccCheckComputeRouteDestroyProducer(t *testing.T) func(s *terraform.Sta
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil, isPeeringOperationInProgress)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil, isPeeringOperationInProgress)
 			if err == nil {
 				return fmt.Errorf("ComputeRoute still exists at %s", url)
 			}

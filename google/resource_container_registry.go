@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceContainerRegistry() *schema.Resource {
@@ -44,6 +44,10 @@ func resourceContainerRegistry() *schema.Resource {
 
 func resourceContainerRegistryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -64,7 +68,7 @@ func resourceContainerRegistryCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	_, err = sendRequestWithTimeout(config, "GET", project, url, nil, d.Timeout(schema.TimeoutCreate))
+	_, err = sendRequestWithTimeout(config, "GET", project, url, userAgent, nil, d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		return err
@@ -74,6 +78,11 @@ func resourceContainerRegistryCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceContainerRegistryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientStorage.UserAgent = userAgent
 
 	location := d.Get("location").(string)
 	project, err := getProject(d, config)
@@ -94,7 +103,9 @@ func resourceContainerRegistryRead(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
 
 	// Update the ID according to the bucket ID
-	d.Set("bucket_self_link", res.SelfLink)
+	if err := d.Set("bucket_self_link", res.SelfLink); err != nil {
+		return fmt.Errorf("Error setting bucket_self_link: %s", err)
+	}
 
 	d.SetId(res.Id)
 	return nil

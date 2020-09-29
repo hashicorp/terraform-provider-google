@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func monitoringDashboardDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
@@ -52,7 +52,7 @@ func resourceMonitoringDashboard() *schema.Resource {
 			"dashboard_json": {
 				Type:             schema.TypeString,
 				Required:         true,
-				ValidateFunc:     validation.ValidateJsonString,
+				ValidateFunc:     validation.StringIsJSON,
 				DiffSuppressFunc: monitoringDashboardDiffSuppress,
 				StateFunc: func(v interface{}) string {
 					json, _ := structure.NormalizeJsonString(v)
@@ -73,6 +73,10 @@ func resourceMonitoringDashboard() *schema.Resource {
 
 func resourceMonitoringDashboardCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj, err := structure.ExpandJsonFromString(d.Get("dashboard_json").(string))
 	if err != nil {
@@ -88,7 +92,7 @@ func resourceMonitoringDashboardCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
+	res, err := sendRequestWithTimeout(config, "POST", project, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating Dashboard: %s", err)
 	}
@@ -104,6 +108,10 @@ func resourceMonitoringDashboardCreate(d *schema.ResourceData, meta interface{})
 
 func resourceMonitoringDashboardRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url := config.MonitoringBasePath + "v1/" + d.Id()
 
@@ -112,13 +120,13 @@ func resourceMonitoringDashboardRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringConcurrentEditError)
+	res, err := sendRequest(config, "GET", project, url, userAgent, nil, isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringDashboard %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Dashboard: %s", err)
+		return fmt.Errorf("Error setting Dashboard: %s", err)
 	}
 
 	str, err := structure.FlattenJsonToString(res)
@@ -134,6 +142,10 @@ func resourceMonitoringDashboardRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceMonitoringDashboardUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	o, n := d.GetChange("dashboard_json")
 	oObj, err := structure.ExpandJsonFromString(o.(string))
@@ -153,7 +165,7 @@ func resourceMonitoringDashboardUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	url := config.MonitoringBasePath + "v1/" + d.Id()
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, nObj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
+	_, err = sendRequestWithTimeout(config, "PATCH", project, url, userAgent, nObj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error updating Dashboard %q: %s", d.Id(), err)
 	}
@@ -163,6 +175,10 @@ func resourceMonitoringDashboardUpdate(d *schema.ResourceData, meta interface{})
 
 func resourceMonitoringDashboardDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url := config.MonitoringBasePath + "v1/" + d.Id()
 
@@ -171,7 +187,7 @@ func resourceMonitoringDashboardDelete(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	_, err = sendRequestWithTimeout(config, "DELETE", project, url, nil, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
+	_, err = sendRequestWithTimeout(config, "DELETE", project, userAgent, url, nil, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringDashboard %q", d.Id()))
 	}
@@ -188,7 +204,9 @@ func resourceMonitoringDashboardImport(d *schema.ResourceData, meta interface{})
 		return nil, err
 	}
 
-	d.Set("project", parts["project"])
+	if err := d.Set("project", parts["project"]); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
 	d.SetId(fmt.Sprintf("projects/%s/dashboards/%s", parts["project"], parts["id"]))
 
 	return []*schema.ResourceData{d}, nil

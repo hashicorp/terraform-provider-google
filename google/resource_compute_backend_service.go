@@ -24,9 +24,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -140,8 +139,8 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%v-", v.(bool)))
 	}
 
-	log.Printf("[DEBUG] computed hash value of %v from %v", hashcode.String(buf.String()), buf.String())
-	return hashcode.String(buf.String())
+	log.Printf("[DEBUG] computed hash value of %v from %v", hashcode(buf.String()), buf.String())
+	return hashcode(buf.String())
 }
 
 func resourceComputeBackendService() *schema.Resource {
@@ -728,10 +727,10 @@ scheme is EXTERNAL.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS", "HTTP2", "TCP", "SSL", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "GRPC", ""}, false),
 				Description: `The protocol this BackendService uses to communicate with backends.
 The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
-types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "TCP", "SSL"]`,
+types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "GRPC"]`,
 			},
 			"security_policy": {
 				Type:             schema.TypeString,
@@ -905,6 +904,10 @@ range is [0.0, 1.0].`,
 
 func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	affinityCookieTtlSecProp, err := expandComputeBackendServiceAffinityCookieTtlSec(d.Get("affinity_cookie_ttl_sec"), d, config)
@@ -1051,11 +1054,20 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new BackendService: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating BackendService: %s", err)
 	}
@@ -1068,7 +1080,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating BackendService",
+		config, res, project, "Creating BackendService", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -1093,7 +1105,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 			return errwrap.Wrapf("Error setting Backend Service security policy: {{err}}", err)
 		}
 		// This uses the create timeout for simplicity, though technically this code appears in both create and update
-		waitErr := computeOperationWaitTime(config, op, project, "Setting Backend Service Security Policy", d.Timeout(schema.TimeoutCreate))
+		waitErr := computeOperationWaitTime(config, op, project, "Setting Backend Service Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))
 		if waitErr != nil {
 			return waitErr
 		}
@@ -1104,17 +1116,30 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 
 func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeBackendService %q", d.Id()))
 	}
@@ -1159,7 +1184,9 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
-				d.Set(k, v)
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
 			}
 		}
 	}
@@ -1223,11 +1250,19 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 
 func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	affinityCookieTtlSecProp, err := expandComputeBackendServiceAffinityCookieTtlSec(d.Get("affinity_cookie_ttl_sec"), d, config)
@@ -1374,7 +1409,13 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Updating BackendService %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating BackendService %q: %s", d.Id(), err)
@@ -1383,7 +1424,7 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Updating BackendService",
+		config, res, project, "Updating BackendService", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -1404,7 +1445,7 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 			return errwrap.Wrapf("Error setting Backend Service security policy: {{err}}", err)
 		}
 		// This uses the create timeout for simplicity, though technically this code appears in both create and update
-		waitErr := computeOperationWaitTime(config, op, project, "Setting Backend Service Security Policy", d.Timeout(schema.TimeoutCreate))
+		waitErr := computeOperationWaitTime(config, op, project, "Setting Backend Service Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))
 		if waitErr != nil {
 			return waitErr
 		}
@@ -1414,11 +1455,19 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 
 func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
 	if err != nil {
@@ -1428,13 +1477,18 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting BackendService %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "BackendService")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting BackendService",
+		config, res, project, "Deleting BackendService", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

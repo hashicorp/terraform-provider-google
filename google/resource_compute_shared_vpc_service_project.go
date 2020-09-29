@@ -9,7 +9,7 @@ import (
 
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -46,6 +46,11 @@ func resourceComputeSharedVpcServiceProject() *schema.Resource {
 
 func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComputeBeta.UserAgent = userAgent
 
 	hostProject := d.Get("host_project").(string)
 	serviceProject := d.Get("service_project").(string)
@@ -60,7 +65,7 @@ func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
-	err = computeOperationWaitTime(config, op, hostProject, "Enabling Shared VPC Resource", d.Timeout(schema.TimeoutCreate))
+	err = computeOperationWaitTime(config, op, hostProject, "Enabling Shared VPC Resource", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -72,6 +77,11 @@ func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta i
 
 func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	split := strings.Split(d.Id(), "/")
 	if len(split) != 2 {
@@ -94,14 +104,23 @@ func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta int
 		return nil
 	}
 
-	d.Set("host_project", hostProject)
-	d.Set("service_project", serviceProject)
+	if err := d.Set("host_project", hostProject); err != nil {
+		return fmt.Errorf("Error setting host_project: %s", err)
+	}
+	if err := d.Set("service_project", serviceProject); err != nil {
+		return fmt.Errorf("Error setting service_project: %s", err)
+	}
 
 	return nil
 }
 
 func resourceComputeSharedVpcServiceProjectDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComputeBeta.UserAgent = userAgent
 	hostProject := d.Get("host_project").(string)
 	serviceProject := d.Get("service_project").(string)
 
@@ -116,6 +135,11 @@ func resourceComputeSharedVpcServiceProjectDelete(d *schema.ResourceData, meta i
 }
 
 func disableXpnResource(d *schema.ResourceData, config *Config, hostProject, project string) error {
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	req := &computeBeta.ProjectsDisableXpnResourceRequest{
 		XpnResource: &computeBeta.XpnResourceId{
 			Id:   project,
@@ -126,7 +150,7 @@ func disableXpnResource(d *schema.ResourceData, config *Config, hostProject, pro
 	if err != nil {
 		return err
 	}
-	err = computeOperationWaitTime(config, op, hostProject, "Disabling Shared VPC Resource", d.Timeout(schema.TimeoutDelete))
+	err = computeOperationWaitTime(config, op, hostProject, "Disabling Shared VPC Resource", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

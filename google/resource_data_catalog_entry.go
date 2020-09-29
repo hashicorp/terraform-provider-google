@@ -24,9 +24,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDataCatalogEntry() *schema.Resource {
@@ -132,7 +132,7 @@ this field is optional and defaults to an empty string.`,
 			"schema": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.ValidateJsonString,
+				ValidateFunc: validation.StringIsJSON,
 				StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 				Description: `Schema of the entry (e.g. BigQuery, GoogleSQL, Avro schema), as a json string. An entry might not have any schema
 attached to it. See
@@ -172,7 +172,6 @@ numbers, and underscores; are case insensitive; must be at least 1 character and
 				Computed: true,
 				Description: `Specification for a group of BigQuery tables with name pattern [prefix]YYYYMMDD.
 Context: https://cloud.google.com/bigquery/docs/partitioned-tables#partitioning_versus_sharding.`,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"dataset": {
@@ -199,7 +198,6 @@ for example, for shard MyTable20180101, the tablePrefix is MyTable.`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `Specification that applies to a BigQuery table. This is only valid on entries of type TABLE.`,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"table_source_type": {
@@ -211,7 +209,6 @@ for example, for shard MyTable20180101, the tablePrefix is MyTable.`,
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: `Spec of a BigQuery table. This field should only be populated if tableSourceType is BIGQUERY_TABLE.`,
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"grouped_entry": {
@@ -229,7 +226,6 @@ Otherwise, groupedEntry is empty.`,
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: `Table view specification. This field should only be populated if tableSourceType is BIGQUERY_VIEW.`,
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"view_query": {
@@ -261,6 +257,10 @@ Note that this Entry and its child resources may not actually be stored in the l
 
 func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	linkedResourceProp, err := expandDataCatalogEntryLinkedResource(d.Get("linked_resource"), d, config)
@@ -318,11 +318,18 @@ func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Creating new Entry: %#v", obj)
-	var project string
+	billingProject := ""
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Entry: %s", err)
 	}
@@ -344,17 +351,28 @@ func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
-	var project string
+	billingProject := ""
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DataCatalogEntry %q", d.Id()))
 	}
@@ -401,6 +419,13 @@ func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	linkedResourceProp, err := expandDataCatalogEntryLinkedResource(d.Get("linked_resource"), d, config)
@@ -487,11 +512,16 @@ func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	var project string
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Entry %q: %s", d.Id(), err)
@@ -504,6 +534,13 @@ func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceDataCatalogEntryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
@@ -511,13 +548,19 @@ func resourceDataCatalogEntryDelete(d *schema.ResourceData, meta interface{}) er
 	}
 
 	var obj map[string]interface{}
-	var project string
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
+
 	log.Printf("[DEBUG] Deleting Entry %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Entry")
 	}
@@ -541,8 +584,12 @@ func resourceDataCatalogEntryImport(d *schema.ResourceData, meta interface{}) ([
 	if len(parts) != 3 {
 		return nil, fmt.Errorf("entry name does not fit the format %s", egRegex)
 	}
-	d.Set("entry_group", parts[1])
-	d.Set("entry_id", parts[2])
+	if err := d.Set("entry_group", parts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting entry_group: %s", err)
+	}
+	if err := d.Set("entry_id", parts[2]); err != nil {
+		return nil, fmt.Errorf("Error setting entry_id: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

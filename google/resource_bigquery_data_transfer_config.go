@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -22,8 +23,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+var sensitiveParams = []string{"secret_access_key"}
+
+func sensitiveParamCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	for _, sp := range sensitiveParams {
+		mapLabel := diff.Get("params." + sp).(string)
+		authLabel := diff.Get("sensitive_params.0." + sp).(string)
+		if mapLabel != "" && authLabel != "" {
+			return fmt.Errorf("Sensitive param [%s] cannot be set in both `params` and the `sensitive_params` block.", sp)
+		}
+	}
+	return nil
+}
 
 func resourceBigqueryDataTransferConfig() *schema.Resource {
 	return &schema.Resource{
@@ -41,6 +55,8 @@ func resourceBigqueryDataTransferConfig() *schema.Resource {
 			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
+
+		CustomizeDiff: sensitiveParamCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"data_source_id": {
@@ -88,6 +104,12 @@ Set the value to 0 to use the default value.`,
 Examples: US, EU, asia-northeast1. The default value is US.`,
 				Default: "US",
 			},
+			"notification_pubsub_topic": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Pub/Sub topic where notifications will be sent after transfer runs
+associated with this transfer config finish.`,
+			},
 			"schedule": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -99,6 +121,28 @@ jun 13:15, and first sunday of quarter 00:00. See more explanation
 about the format here:
 https://cloud.google.com/appengine/docs/flexible/python/scheduling-jobs-with-cron-yaml#the_schedule_format
 NOTE: the granularity should be at least 8 hours, or less frequent.`,
+			},
+			"sensitive_params": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Different parameters are configured primarily using the the 'params' field on this
+resource. This block contains the parameters which contain secrets or passwords so that they can be marked
+sensitive and hidden from plan output. The name of the field, eg: secret_access_key, will be the key
+in the 'params' map in the api request.
+
+Credentials may not be specified in both locations and will cause an error. Changing from one location
+to a different credential configuration in the config will require an apply to update state.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"secret_access_key": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The Secret Access Key of the AWS account transferring data from.`,
+							Sensitive:   true,
+						},
+					},
+				},
 			},
 			"service_account_name": {
 				Type:     schema.TypeString,
@@ -129,6 +173,10 @@ The name is ignored when creating a transfer config.`,
 
 func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandBigqueryDataTransferConfigDisplayName(d.Get("display_name"), d, config)
@@ -155,6 +203,12 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("schedule"); !isEmptyValue(reflect.ValueOf(scheduleProp)) && (ok || !reflect.DeepEqual(v, scheduleProp)) {
 		obj["schedule"] = scheduleProp
 	}
+	notificationPubsubTopicProp, err := expandBigqueryDataTransferConfigNotificationPubsubTopic(d.Get("notification_pubsub_topic"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("notification_pubsub_topic"); !isEmptyValue(reflect.ValueOf(notificationPubsubTopicProp)) && (ok || !reflect.DeepEqual(v, notificationPubsubTopicProp)) {
+		obj["notificationPubsubTopic"] = notificationPubsubTopicProp
+	}
 	dataRefreshWindowDaysProp, err := expandBigqueryDataTransferConfigDataRefreshWindowDays(d.Get("data_refresh_window_days"), d, config)
 	if err != nil {
 		return err
@@ -174,17 +228,31 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 		obj["params"] = paramsProp
 	}
 
+	obj, err = resourceBigqueryDataTransferConfigEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}projects/{{project}}/locations/{{location}}/transferConfigs?serviceAccountName={{service_account_name}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new Config: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), iamMemberMissing)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), iamMemberMissing)
 	if err != nil {
 		return fmt.Errorf("Error creating Config: %s", err)
 	}
@@ -214,7 +282,9 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 		}
 	}
-	d.Set("name", name.(string))
+	if err := d.Set("name", name.(string)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name.(string))
 
 	return resourceBigqueryDataTransferConfigRead(d, meta)
@@ -222,19 +292,44 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 
 func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil, iamMemberMissing)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, iamMemberMissing)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigqueryDataTransferConfig %q", d.Id()))
+	}
+
+	res, err = resourceBigqueryDataTransferConfigDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing BigqueryDataTransferConfig because it no longer exists.")
+		d.SetId("")
+		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -256,6 +351,9 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 	if err := d.Set("schedule", flattenBigqueryDataTransferConfigSchedule(res["schedule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
+	if err := d.Set("notification_pubsub_topic", flattenBigqueryDataTransferConfigNotificationPubsubTopic(res["notificationPubsubTopic"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
 	if err := d.Set("data_refresh_window_days", flattenBigqueryDataTransferConfigDataRefreshWindowDays(res["dataRefreshWindowDays"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
@@ -271,11 +369,19 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 
 func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	destinationDatasetIdProp, err := expandBigqueryDataTransferConfigDestinationDatasetId(d.Get("destination_dataset_id"), d, config)
@@ -289,6 +395,12 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("schedule"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scheduleProp)) {
 		obj["schedule"] = scheduleProp
+	}
+	notificationPubsubTopicProp, err := expandBigqueryDataTransferConfigNotificationPubsubTopic(d.Get("notification_pubsub_topic"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("notification_pubsub_topic"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, notificationPubsubTopicProp)) {
+		obj["notificationPubsubTopic"] = notificationPubsubTopicProp
 	}
 	dataRefreshWindowDaysProp, err := expandBigqueryDataTransferConfigDataRefreshWindowDays(d.Get("data_refresh_window_days"), d, config)
 	if err != nil {
@@ -309,6 +421,11 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 		obj["params"] = paramsProp
 	}
 
+	obj, err = resourceBigqueryDataTransferConfigEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
 	if err != nil {
 		return err
@@ -323,6 +440,10 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("schedule") {
 		updateMask = append(updateMask, "schedule")
+	}
+
+	if d.HasChange("notification_pubsub_topic") {
+		updateMask = append(updateMask, "notificationPubsubTopic")
 	}
 
 	if d.HasChange("data_refresh_window_days") {
@@ -342,7 +463,13 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), iamMemberMissing)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), iamMemberMissing)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Config %q: %s", d.Id(), err)
@@ -355,11 +482,19 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 
 func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
 	if err != nil {
@@ -369,7 +504,12 @@ func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta inter
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Config %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), iamMemberMissing)
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), iamMemberMissing)
 	if err != nil {
 		return handleNotFoundError(err, d, "Config")
 	}
@@ -407,6 +547,10 @@ func flattenBigqueryDataTransferConfigDataSourceId(v interface{}, d *schema.Reso
 }
 
 func flattenBigqueryDataTransferConfigSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -461,6 +605,10 @@ func expandBigqueryDataTransferConfigSchedule(v interface{}, d TerraformResource
 	return v, nil
 }
 
+func expandBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -478,4 +626,41 @@ func expandBigqueryDataTransferConfigParams(v interface{}, d TerraformResourceDa
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceBigqueryDataTransferConfigEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	paramMap, ok := obj["params"]
+	if !ok {
+		paramMap = make(map[string]string)
+	}
+
+	var params map[string]string
+	params = paramMap.(map[string]string)
+
+	for _, sp := range sensitiveParams {
+		if auth, _ := d.GetOkExists("sensitive_params.0." + sp); auth != "" {
+			params[sp] = auth.(string)
+		}
+	}
+
+	obj["params"] = params
+
+	return obj, nil
+}
+
+func resourceBigqueryDataTransferConfigDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	if paramMap, ok := res["params"]; ok {
+		params := paramMap.(map[string]interface{})
+		for _, sp := range sensitiveParams {
+			if _, apiOk := params[sp]; apiOk {
+				if _, exists := d.GetOkExists("sensitive_params.0." + sp); exists {
+					delete(params, sp)
+				} else {
+					params[sp] = d.Get("params." + sp)
+				}
+			}
+		}
+	}
+
+	return res, nil
 }

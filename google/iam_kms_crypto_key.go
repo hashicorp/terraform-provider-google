@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -41,7 +41,9 @@ func CryptoIdParseFunc(d *schema.ResourceData, config *Config) error {
 	if err != nil {
 		return err
 	}
-	d.Set("crypto_key_id", cryptoKeyId.cryptoKeyId())
+	if err := d.Set("crypto_key_id", cryptoKeyId.cryptoKeyId()); err != nil {
+		return fmt.Errorf("Error setting crypto_key_id: %s", err)
+	}
 	d.SetId(cryptoKeyId.cryptoKeyId())
 	return nil
 }

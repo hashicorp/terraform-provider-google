@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceComputeNetworkEndpoint() *schema.Resource {
@@ -89,6 +89,10 @@ range).`,
 
 func resourceComputeNetworkEndpointCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	instanceProp, err := expandNestedComputeNetworkEndpointInstance(d.Get("instance"), d, config)
@@ -128,11 +132,20 @@ func resourceComputeNetworkEndpointCreate(d *schema.ResourceData, meta interface
 	}
 
 	log.Printf("[DEBUG] Creating new NetworkEndpoint: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating NetworkEndpoint: %s", err)
 	}
@@ -145,7 +158,7 @@ func resourceComputeNetworkEndpointCreate(d *schema.ResourceData, meta interface
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating NetworkEndpoint",
+		config, res, project, "Creating NetworkEndpoint", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -161,17 +174,30 @@ func resourceComputeNetworkEndpointCreate(d *schema.ResourceData, meta interface
 
 func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}/listNetworkEndpoints")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "POST", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "POST", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkEndpoint %q", d.Id()))
 	}
@@ -219,11 +245,19 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 
 func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "networkEndpoint/{{project}}/{{zone}}/{{network_endpoint_group}}")
 	if err != nil {
@@ -262,13 +296,18 @@ func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface
 	}
 	log.Printf("[DEBUG] Deleting NetworkEndpoint %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "NetworkEndpoint")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting NetworkEndpoint",
+		config, res, project, "Deleting NetworkEndpoint", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -333,7 +372,9 @@ func expandNestedComputeNetworkEndpointIpAddress(v interface{}, d TerraformResou
 
 func resourceComputeNetworkEndpointEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// Network Endpoint Group is a URL parameter only, so replace self-link/path with resource name only.
-	d.Set("network_endpoint_group", GetResourceNameFromSelfLink(d.Get("network_endpoint_group").(string)))
+	if err := d.Set("network_endpoint_group", GetResourceNameFromSelfLink(d.Get("network_endpoint_group").(string))); err != nil {
+		return nil, fmt.Errorf("Error setting network_endpoint_group: %s", err)
+	}
 
 	wrappedReq := map[string]interface{}{
 		"networkEndpoints": []interface{}{obj},

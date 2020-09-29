@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -143,17 +147,21 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRouteExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorRouteExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -255,17 +263,21 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(t *testing.T)
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -338,17 +350,21 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorPathExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -470,17 +486,21 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(t *testing.T) 
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -571,17 +591,21 @@ func TestAccComputeUrlMap_urlMapHeaderBasedRoutingExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapHeaderBasedRoutingExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -674,17 +698,21 @@ func TestAccComputeUrlMap_urlMapParameterBasedRoutingExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapParameterBasedRoutingExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -786,7 +814,7 @@ func testAccCheckComputeUrlMapDestroyProducer(t *testing.T) func(s *terraform.St
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeUrlMap still exists at %s", url)
 			}

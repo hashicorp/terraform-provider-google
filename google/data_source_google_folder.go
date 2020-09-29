@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleFolder() *schema.Resource {
@@ -70,7 +70,9 @@ func dataSourceFolderRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 
-		d.Set("organization", organization)
+		if err := d.Set("organization", organization); err != nil {
+			return fmt.Errorf("Error setting organization: %s", err)
+		}
 	}
 
 	return nil

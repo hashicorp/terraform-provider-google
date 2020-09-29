@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeVpnTunnel_vpnTunnelBasicExample(t *testing.T) {
@@ -31,8 +31,11 @@ func TestAccComputeVpnTunnel_vpnTunnelBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeVpnTunnelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -42,7 +45,7 @@ func TestAccComputeVpnTunnel_vpnTunnelBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_vpn_tunnel.tunnel1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"shared_secret"},
+				ImportStateVerifyIgnore: []string{"target_vpn_gateway", "router", "shared_secret", "region"},
 			},
 		},
 	})
@@ -128,7 +131,7 @@ func testAccCheckComputeVpnTunnelDestroyProducer(t *testing.T) func(s *terraform
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeVpnTunnel still exists at %s", url)
 			}

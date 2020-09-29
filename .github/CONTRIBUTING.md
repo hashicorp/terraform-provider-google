@@ -73,22 +73,33 @@ resource.TestStep{
 },
 ```
 
-## Running a local copy of the provider
-If you are building Terraform from source with a Google provider built from source, Terraform will automatically use the
-local `terraform-provider-google` and `terraform-provider-google-beta` plugins in `$GOPATH/bin`.
+## Instructing terraform to use a local copy of the provider
 
-In order to use a release copy of Terrafom with a local provider, you can use the [provider discovery directory](https://www.terraform.io/docs/extend/how-terraform-works.html#discovery)
-at `~/.terraform.d/plugins`. When a copy of the Google provider is present in the discovery directory, `terraform init` will
-use that copy instead of downloading a release version. If you've already used a release version of a provider in a given directory by running `terraform init`, Terraform will not use the locally built copy; remove the release version from the `./.terraform/` to start using your locally build copy.
+There are three different consumption strategies you can utilize
 
-To use a single locally built version, such as one built by a CI or build server, you can copy a `google` or `google-beta`
-binary into the discovery directory. If you're testing a local provider in active development and want the new binary each
-time you run `make build`, you can symlink the built binary into the directory:
+* Using a local version of terraform
 
-```bash
-ln -s $GOPATH/bin/terraform-provider-google ~/.terraform.d/plugins/terraform-provider-google
-ln -s $GOPATH/bin/terraform-provider-google-beta ~/.terraform.d/plugins/terraform-provider-google-beta
-```
+  1. If you are building Terraform from source with a Google provider built from source, Terraform will automatically use the
+  local `terraform-provider-google` and `terraform-provider-google-beta` plugins in `$GOPATH/bin`.
+
+* Using a release version of terraform
+
+  2. When you run `terraform init` supply the binary output location using the [-plugin-dir](https://www.terraform.io/docs/commands/init.html#plugin-dir-path) parameter. ie `terraform init -plugin-dir=$GOPATH/bin`
+      * note: terraform will not download additional providers remotely. All requested providers should be in the -plugin-dir
+      * note: each time you rebuild the binary you will have to rerun `terraform init -plugin-dir=<your-binary-location>` as the hash is invalidated.
+  3. Use the [provider discovery directory](https://www.terraform.io/docs/extend/how-terraform-works.html#discovery) at `~/.terraform.d/plugins`. Terraform will attempt to use the binaries here as a provider before trying to pull the provider remotely.
+      * note: you can either copy the provider binary to this location or do a symlink to the build output
+      * note: you will need to delete this binary or syslink to pull the provider remotely
+        ```bash
+        # helpful bash to system link to binary path.
+        # this allows the binary to stay in sync whenever you run make build
+        ln -s $GOPATH/bin/terraform-provider-google ~/.terraform.d/plugins/terraform-provider-google
+        ln -s $GOPATH/bin/terraform-provider-google-beta ~/.terraform.d/plugins/terraform-provider-google-beta
+        ```
+### FAQ
+
+* Why isn't it using my local provider?? I did everything right!
+  * If you've already used a release version of a provider in a given directory by running `terraform init`, Terraform will not use the locally built copy; remove the release version from the `./.terraform/` to start using your locally built copy.
 
 # Maintainer-specific information
 

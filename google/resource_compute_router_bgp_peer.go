@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
 
@@ -184,6 +184,10 @@ or deleted.`,
 
 func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandNestedComputeRouterBgpPeerName(d.Get("name"), d, config)
@@ -253,11 +257,20 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating RouterBgpPeer: %s", err)
 	}
@@ -270,7 +283,7 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating RouterBgpPeer",
+		config, res, project, "Creating RouterBgpPeer", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -286,17 +299,30 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 
 func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRouterBgpPeer %q", d.Id()))
 	}
@@ -353,11 +379,19 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	advertisedRoutePriorityProp, err := expandNestedComputeRouterBgpPeerAdvertisedRoutePriority(d.Get("advertised_route_priority"), d, config)
@@ -391,7 +425,13 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating RouterBgpPeer %q: %s", d.Id(), err)
@@ -400,7 +440,7 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Updating RouterBgpPeer",
+		config, res, project, "Updating RouterBgpPeer", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -412,11 +452,19 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceComputeRouterBgpPeerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
@@ -438,13 +486,18 @@ func resourceComputeRouterBgpPeerDelete(d *schema.ResourceData, meta interface{}
 	}
 	log.Printf("[DEBUG] Deleting RouterBgpPeer %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "RouterBgpPeer")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting RouterBgpPeer",
+		config, res, project, "Deleting RouterBgpPeer", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -784,7 +837,13 @@ func resourceComputeRouterBgpPeerListForPatch(d *schema.ResourceData, meta inter
 	if err != nil {
 		return nil, err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := sendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

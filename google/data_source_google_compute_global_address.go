@@ -3,7 +3,7 @@ package google
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleComputeGlobalAddress() *schema.Resource {
@@ -42,6 +42,11 @@ func dataSourceGoogleComputeGlobalAddress() *schema.Resource {
 
 func dataSourceGoogleComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -53,10 +58,18 @@ func dataSourceGoogleComputeGlobalAddressRead(d *schema.ResourceData, meta inter
 		return handleNotFoundError(err, d, fmt.Sprintf("Global Address Not Found : %s", name))
 	}
 
-	d.Set("address", address.Address)
-	d.Set("status", address.Status)
-	d.Set("self_link", address.SelfLink)
-	d.Set("project", project)
+	if err := d.Set("address", address.Address); err != nil {
+		return fmt.Errorf("Error setting address: %s", err)
+	}
+	if err := d.Set("status", address.Status); err != nil {
+		return fmt.Errorf("Error setting status: %s", err)
+	}
+	if err := d.Set("self_link", address.SelfLink); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 	d.SetId(fmt.Sprintf("projects/%s/global/addresses/%s", project, name))
 	return nil
 }

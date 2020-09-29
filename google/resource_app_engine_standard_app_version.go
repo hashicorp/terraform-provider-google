@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceAppEngineStandardAppVersion() *schema.Resource {
@@ -448,6 +448,10 @@ Please see the app.yaml reference for valid values at https://cloud.google.com/a
 
 func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	idProp, err := expandAppEngineStandardAppVersionVersionId(d.Get("version_id"), d, config)
@@ -554,11 +558,20 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new StandardAppVersion: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isAppEngineRetryableError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isAppEngineRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating StandardAppVersion: %s", err)
 	}
@@ -571,7 +584,7 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	d.SetId(id)
 
 	err = appEngineOperationWaitTime(
-		config, res, project, "Creating StandardAppVersion",
+		config, res, project, "Creating StandardAppVersion", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -587,27 +600,44 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 
 func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}/versions/{{version_id}}?view=FULL")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil, isAppEngineRetryableError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, isAppEngineRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineStandardAppVersion %q", d.Id()))
 	}
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOk("noop_on_destroy"); !ok {
-		d.Set("noop_on_destroy", false)
+		if err := d.Set("noop_on_destroy", false); err != nil {
+			return fmt.Errorf("Error setting noop_on_destroy: %s", err)
+		}
 	}
 	if _, ok := d.GetOk("delete_service_on_destroy"); !ok {
-		d.Set("delete_service_on_destroy", false)
+		if err := d.Set("delete_service_on_destroy", false); err != nil {
+			return fmt.Errorf("Error setting delete_service_on_destroy: %s", err)
+		}
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
@@ -655,11 +685,19 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 
 func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	idProp, err := expandAppEngineStandardAppVersionVersionId(d.Get("version_id"), d, config)
@@ -766,7 +804,13 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Updating StandardAppVersion %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate), isAppEngineRetryableError)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isAppEngineRetryableError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating StandardAppVersion %q: %s", d.Id(), err)
@@ -775,7 +819,7 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 	}
 
 	err = appEngineOperationWaitTime(
-		config, res, project, "Updating StandardAppVersion",
+		config, res, project, "Updating StandardAppVersion", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -786,12 +830,17 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
 
 	if d.Get("noop_on_destroy") == true {
 		log.Printf("[DEBUG] Keeping the AppVersion %q", d.Id())
 		return nil
 	}
-	config := meta.(*Config)
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -812,12 +861,12 @@ func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta inte
 		}
 		var obj map[string]interface{}
 		log.Printf("[DEBUG] Deleting Service %q", d.Id())
-		res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isAppEngineRetryableError)
+		res, err := sendRequestWithTimeout(config, "DELETE", project, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isAppEngineRetryableError)
 		if err != nil {
 			return handleNotFoundError(err, d, "Service")
 		}
 		err = appEngineOperationWaitTime(
-			config, res, project, "Deleting Service",
+			config, res, project, "Deleting Service", userAgent,
 			d.Timeout(schema.TimeoutDelete))
 
 		if err != nil {
@@ -832,12 +881,12 @@ func resourceAppEngineStandardAppVersionDelete(d *schema.ResourceData, meta inte
 		}
 		var obj map[string]interface{}
 		log.Printf("[DEBUG] Deleting AppVersion %q", d.Id())
-		res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isAppEngineRetryableError)
+		res, err := sendRequestWithTimeout(config, "DELETE", project, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isAppEngineRetryableError)
 		if err != nil {
 			return handleNotFoundError(err, d, "AppVersion")
 		}
 		err = appEngineOperationWaitTime(
-			config, res, project, "Deleting AppVersion",
+			config, res, project, "Deleting AppVersion", userAgent,
 			d.Timeout(schema.TimeoutDelete))
 
 		if err != nil {
@@ -867,8 +916,12 @@ func resourceAppEngineStandardAppVersionImport(d *schema.ResourceData, meta inte
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	d.Set("noop_on_destroy", false)
-	d.Set("delete_service_on_destroy", false)
+	if err := d.Set("noop_on_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting noop_on_destroy: %s", err)
+	}
+	if err := d.Set("delete_service_on_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting delete_service_on_destroy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

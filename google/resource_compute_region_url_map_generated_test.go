@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeRegionUrlMap_regionUrlMapBasicExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccComputeRegionUrlMap_regionUrlMapBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionUrlMap_regionUrlMapBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_url_map.regionurlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_url_map.regionurlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
 		},
 	})
@@ -126,17 +130,21 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_url_map.regionurlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_url_map.regionurlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
 		},
 	})
@@ -256,17 +264,21 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(t *testing.T
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_url_map.regionurlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_url_map.regionurlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
 		},
 	})
@@ -354,17 +366,21 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_url_map.regionurlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_url_map.regionurlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
 		},
 	})
@@ -465,17 +481,21 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(t *testing.
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(context),
 			},
 			{
-				ResourceName:      "google_compute_region_url_map.regionurlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_url_map.regionurlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service", "region"},
 			},
 		},
 	})
@@ -560,7 +580,7 @@ func testAccCheckComputeRegionUrlMapDestroyProducer(t *testing.T) func(s *terraf
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeRegionUrlMap still exists at %s", url)
 			}

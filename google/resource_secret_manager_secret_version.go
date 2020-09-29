@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -99,6 +99,10 @@ func resourceSecretManagerSecretVersion() *schema.Resource {
 
 func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	stateProp, err := expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
@@ -120,7 +124,14 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Creating new SecretVersion: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating SecretVersion: %s", err)
 	}
@@ -142,7 +153,9 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 	if !ok {
 		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 	}
-	d.Set("name", name.(string))
+	if err := d.Set("name", name.(string)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name.(string))
 
 	_, err = expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
@@ -155,13 +168,24 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 
 func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SecretManagerSecretVersion %q", d.Id()))
 	}
@@ -187,7 +211,9 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
-				d.Set(k, v)
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
 			}
 		}
 	}
@@ -197,6 +223,13 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 
 func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}{{name}}:destroy")
 	if err != nil {
@@ -206,7 +239,12 @@ func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta inter
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting SecretVersion %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "SecretVersion")
 	}
@@ -230,7 +268,9 @@ func resourceSecretManagerSecretVersionImport(d *schema.ResourceData, meta inter
 	if len(parts) != 2 {
 		panic(fmt.Sprintf("Version name doesn not fit the format `projects/{{project}}/secrets/{{secret}}/versions{{version}}`"))
 	}
-	d.Set("secret", parts[1])
+	if err := d.Set("secret", parts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting secret: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -272,7 +312,12 @@ func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceD
 	parts := strings.Split(d.Get("name").(string), "/")
 	project := parts[1]
 
-	accessRes, err := sendRequest(config, "GET", project, url, nil)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	accessRes, err := sendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return err
 	}
@@ -305,7 +350,12 @@ func expandSecretManagerSecretVersionEnabled(v interface{}, d TerraformResourceD
 	parts := strings.Split(name, "/")
 	project := parts[1]
 
-	_, err = sendRequest(config, "POST", project, url, nil)
+	userAgent, err := generateUserAgentString(d.(*schema.ResourceData), config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = sendRequest(config, "POST", project, url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

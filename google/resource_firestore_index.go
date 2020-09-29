@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceFirestoreIndex() *schema.Resource {
@@ -118,6 +118,10 @@ Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCEN
 
 func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	databaseProp, err := expandFirestoreIndexDatabase(d.Get("database"), d, config)
@@ -156,11 +160,20 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Creating new Index: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Index: %s", err)
 	}
@@ -176,7 +189,7 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = firestoreOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Index",
+		config, res, &opRes, project, "Creating Index", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
@@ -202,7 +215,9 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	metadata := res["metadata"].(map[string]interface{})
 	name := metadata["index"].(string)
 	log.Printf("[DEBUG] Setting Index name, id to %s", name)
-	d.Set("name", name)
+	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name)
 
 	return resourceFirestoreIndexRead(d, meta)
@@ -210,17 +225,30 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("FirestoreIndex %q", d.Id()))
 	}
@@ -244,11 +272,19 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
@@ -258,13 +294,18 @@ func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Index %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Index")
 	}
 
 	err = firestoreOperationWaitTime(
-		config, res, project, "Deleting Index",
+		config, res, project, "Deleting Index", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -293,9 +334,15 @@ func resourceFirestoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*
 		)
 	}
 
-	d.Set("project", stringParts[1])
-	d.Set("database", stringParts[3])
-	d.Set("collection", stringParts[5])
+	if err := d.Set("project", stringParts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("database", stringParts[3]); err != nil {
+		return nil, fmt.Errorf("Error setting database: %s", err)
+	}
+	if err := d.Set("collection", stringParts[5]); err != nil {
+		return nil, fmt.Errorf("Error setting collection: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 

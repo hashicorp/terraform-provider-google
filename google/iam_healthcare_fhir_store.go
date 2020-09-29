@@ -6,7 +6,7 @@ import (
 	healthcare "google.golang.org/api/healthcare/v1"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -42,7 +42,9 @@ func FhirStoreIdParseFunc(d *schema.ResourceData, config *Config) error {
 	if err != nil {
 		return err
 	}
-	d.Set("fhir_store_id", fhirStoreId.fhirStoreId())
+	if err := d.Set("fhir_store_id", fhirStoreId.fhirStoreId()); err != nil {
+		return fmt.Errorf("Error setting fhir_store_id: %s", err)
+	}
 	d.SetId(fhirStoreId.fhirStoreId())
 	return nil
 }

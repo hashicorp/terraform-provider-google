@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: fixed issues where updating `google_dataproc_cluster.cluster_config.autoscaling_policy` would do nothing, and where there was no way to remove a policy.
+```

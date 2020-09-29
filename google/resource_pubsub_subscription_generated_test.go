@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscription_pubsubSubscriptionPullExample(context),
 			},
 			{
-				ResourceName:      "google_pubsub_subscription.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_pubsub_subscription.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"topic"},
 			},
 		},
 	})
@@ -70,6 +74,9 @@ resource "google_pubsub_subscription" "example" {
   expiration_policy {
     ttl = "300000.5s"
   }
+  retry_policy {
+    minimum_backoff = "10s"
+  }
 
   enable_message_ordering    = false
 }
@@ -84,17 +91,21 @@ func TestAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(t *testing.T)
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(context),
 			},
 			{
-				ResourceName:      "google_pubsub_subscription.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_pubsub_subscription.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"topic"},
 			},
 		},
 	})
@@ -139,7 +150,7 @@ func testAccCheckPubsubSubscriptionDestroyProducer(t *testing.T) func(s *terrafo
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("PubsubSubscription still exists at %s", url)
 			}

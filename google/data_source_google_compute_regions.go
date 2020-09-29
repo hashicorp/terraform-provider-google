@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"log"
 	"sort"
-	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -36,6 +35,11 @@ func dataSourceGoogleComputeRegions() *schema.Resource {
 
 func dataSourceGoogleComputeRegionsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -56,9 +60,13 @@ func dataSourceGoogleComputeRegionsRead(d *schema.ResourceData, meta interface{}
 	regions := flattenRegions(resp.Items)
 	log.Printf("[DEBUG] Received Google Compute Regions: %q", regions)
 
-	d.Set("names", regions)
-	d.Set("project", project)
-	d.SetId(time.Now().UTC().String())
+	if err := d.Set("names", regions); err != nil {
+		return fmt.Errorf("Error setting names: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	d.SetId(fmt.Sprintf("projects/%s", project))
 
 	return nil
 }

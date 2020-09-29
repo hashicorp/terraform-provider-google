@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeAddress_addressBasicExample(t *testing.T) {
@@ -31,17 +31,21 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_address.ip_address",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_address.ip_address",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
 			},
 		},
 	})
@@ -63,17 +67,21 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressWithSubnetworkExample(context),
 			},
 			{
-				ResourceName:      "google_compute_address.internal_with_subnet_and_address",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_address.internal_with_subnet_and_address",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
 			},
 		},
 	})
@@ -110,17 +118,21 @@ func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressWithGceEndpointExample(context),
 			},
 			{
-				ResourceName:      "google_compute_address.internal_with_gce_endpoint",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_address.internal_with_gce_endpoint",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
 			},
 		},
 	})
@@ -144,17 +156,21 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_instanceWithIpExample(context),
 			},
 			{
-				ResourceName:      "google_compute_address.static",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_address.static",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
 			},
 		},
 	})
@@ -209,7 +225,7 @@ func testAccCheckComputeAddressDestroyProducer(t *testing.T) func(s *terraform.S
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeAddress still exists at %s", url)
 			}

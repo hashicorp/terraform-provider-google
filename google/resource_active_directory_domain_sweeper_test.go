@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func init() {
@@ -61,14 +61,14 @@ func testSweepActiveDirectoryDomain(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://managedidentities.googleapis.com/v1/projects/{{project}}/locations/global/domains?domainName={{domain_name}}", "?")[0]
+	listTemplate := strings.Split("https://managedidentities.googleapis.com/v1/projects/{{project}}/locations/global/domains", "?")[0]
 	listUrl, err := replaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
 	}
 
-	res, err := sendRequest(config, "GET", config.Project, listUrl, nil)
+	res, err := sendRequest(config, "GET", config.Project, listUrl, config.userAgent, nil)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
 		return nil
@@ -108,7 +108,7 @@ func testSweepActiveDirectoryDomain(region string) error {
 		deleteUrl = deleteUrl + name
 
 		// Don't wait on operations as we may have a lot to delete
-		_, err = sendRequest(config, "DELETE", config.Project, deleteUrl, nil)
+		_, err = sendRequest(config, "DELETE", config.Project, deleteUrl, config.userAgent, nil)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 		} else {

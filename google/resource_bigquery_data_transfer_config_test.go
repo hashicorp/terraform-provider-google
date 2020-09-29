@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // The service account TF uses needs the permission granted in the configs
@@ -135,7 +135,7 @@ func testAccCheckBigqueryDataTransferConfigDestroyProducer(t *testing.T) func(s 
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("BigqueryDataTransferConfig still exists at %s", url)
 			}
@@ -164,6 +164,10 @@ resource "google_bigquery_dataset" "my_dataset" {
   location      = "asia-northeast1"
 }
 
+resource "google_pubsub_topic" "my_topic" {
+  name = "tf-test-my-topic-%s"
+}
+
 resource "google_bigquery_data_transfer_config" "query_config" {
   depends_on = [google_project_iam_member.permissions]
 
@@ -172,13 +176,14 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   data_source_id         = "scheduled_query"
   schedule               = "%s sunday of quarter 00:00"
   destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  notification_pubsub_topic = google_pubsub_topic.my_topic.id
   params = {
     destination_table_name_template = "my_table"
     write_disposition               = "WRITE_APPEND"
     query                           = "SELECT name FROM tabl WHERE x = '%s'"
   }
 }
-`, random_suffix, random_suffix, schedule, letter)
+`, random_suffix, random_suffix, random_suffix, schedule, letter)
 }
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_service_account(random_suffix string) string {

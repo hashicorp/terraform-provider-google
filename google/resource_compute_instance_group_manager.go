@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
@@ -36,14 +36,6 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `The base instance name to use for instances in this group. The value must be a valid RFC1035 name. Supported characters are lowercase letters, numbers, and hyphens (-). Instances are named by appending a hyphen and a random four-character string to the base instance name.`,
-			},
-
-			"instance_template": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Removed:     "This field has been replaced by `version.instance_template`",
-				Description: `The full URL to an instance template from which all new instances of this version will be created.`,
 			},
 
 			"version": {
@@ -160,12 +152,6 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Description: `The URL of the created resource.`,
 			},
 
-			"update_strategy": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Removed:  "This field has been replaced by `update_policy`",
-			},
-
 			"target_pools": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -277,6 +263,10 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Default:     false,
 				Description: `Whether to wait for all instances to be created/updated before returning. Note that if this is set to true and the operation does not succeed, Terraform will continue trying until it times out.`,
 			},
+			"operation": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -309,6 +299,11 @@ func getNamedPortsBeta(nps []interface{}) []*computeBeta.NamedPort {
 
 func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComputeBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -351,8 +346,22 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	d.SetId(id)
 
 	// Wait for the operation to complete
-	err = computeOperationWaitTime(config, op, project, "Creating InstanceGroupManager", d.Timeout(schema.TimeoutCreate))
+	err = computeOperationWaitTime(config, op, project, "Creating InstanceGroupManager", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
+		// Check if the create operation failed because Terraform was prematurely terminated. If it was we can persist the
+		// operation id to state so that a subsequent refresh of this resource will wait until the operation has terminated
+		// before attempting to Read the state of the manager. This allows a graceful resumption of a Create that was killed
+		// by the upstream Terraform process exiting early such as a sigterm.
+		select {
+		case <-config.context.Done():
+			log.Printf("[DEBUG] Persisting %s so this operation can be resumed \n", op.Name)
+			if err := d.Set("operation", op.Name); err != nil {
+				return fmt.Errorf("Error setting operation: %s", err)
+			}
+			return nil
+		default:
+			// leaving default case to ensure this is non blocking
+		}
 		return err
 	}
 
@@ -425,9 +434,34 @@ func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.Instance
 
 func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComputeBeta.UserAgent = userAgent
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
+	}
+
+	operation := d.Get("operation").(string)
+	if operation != "" {
+		log.Printf("[DEBUG] in progress operation detected at %v, attempting to resume", operation)
+		zone, _ := getZone(d, config)
+		op := &computeBeta.Operation{
+			Name: operation,
+			Zone: zone,
+		}
+		if err := d.Set("operation", op.Name); err != nil {
+			return fmt.Errorf("Error setting operation: %s", err)
+		}
+		err = computeOperationWaitTime(config, op, project, "Creating InstanceGroupManager", userAgent, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			// remove from state to allow refresh to finish
+			log.Printf("[DEBUG] Resumed operation returned an error, removing from state: %s", err)
+			d.SetId("")
+			return nil
+		}
 	}
 
 	manager, err := getManager(d, meta)
@@ -440,21 +474,39 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 		return nil
 	}
 
-	d.Set("base_instance_name", manager.BaseInstanceName)
-	d.Set("name", manager.Name)
-	d.Set("zone", GetResourceNameFromSelfLink(manager.Zone))
-	d.Set("description", manager.Description)
-	d.Set("project", project)
-	d.Set("target_size", manager.TargetSize)
+	if err := d.Set("base_instance_name", manager.BaseInstanceName); err != nil {
+		return fmt.Errorf("Error setting base_instance_name: %s", err)
+	}
+	if err := d.Set("name", manager.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("zone", GetResourceNameFromSelfLink(manager.Zone)); err != nil {
+		return fmt.Errorf("Error setting zone: %s", err)
+	}
+	if err := d.Set("description", manager.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("target_size", manager.TargetSize); err != nil {
+		return fmt.Errorf("Error setting target_size: %s", err)
+	}
 	if err = d.Set("target_pools", mapStringArr(manager.TargetPools, ConvertSelfLinkToV1)); err != nil {
 		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
 	}
 	if err = d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts)); err != nil {
 		return fmt.Errorf("Error setting named_port in state: %s", err.Error())
 	}
-	d.Set("fingerprint", manager.Fingerprint)
-	d.Set("instance_group", ConvertSelfLinkToV1(manager.InstanceGroup))
-	d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink))
+	if err := d.Set("fingerprint", manager.Fingerprint); err != nil {
+		return fmt.Errorf("Error setting fingerprint: %s", err)
+	}
+	if err := d.Set("instance_group", ConvertSelfLinkToV1(manager.InstanceGroup)); err != nil {
+		return fmt.Errorf("Error setting instance_group: %s", err)
+	}
+	if err := d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink)); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
 
 	if err = d.Set("auto_healing_policies", flattenAutoHealingPolicies(manager.AutoHealingPolicies)); err != nil {
 		return fmt.Errorf("Error setting auto_healing_policies in state: %s", err.Error())
@@ -484,6 +536,11 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 
 func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComputeBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -528,7 +585,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 			return fmt.Errorf("Error updating managed group instances: %s", err)
 		}
 
-		err = computeOperationWaitTime(config, op, project, "Updating managed group instances", d.Timeout(schema.TimeoutUpdate))
+		err = computeOperationWaitTime(config, op, project, "Updating managed group instances", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -554,11 +611,10 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		// Wait for the operation to complete:
-		err = computeOperationWaitTime(config, op, project, "Updating InstanceGroupManager", d.Timeout(schema.TimeoutUpdate))
+		err = computeOperationWaitTime(config, op, project, "Updating InstanceGroupManager", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-		d.SetPartial("named_port")
 	}
 
 	// target_size should be updated through resize
@@ -574,11 +630,10 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		// Wait for the operation to complete
-		err = computeOperationWaitTime(config, op, project, "Updating InstanceGroupManager", d.Timeout(schema.TimeoutUpdate))
+		err = computeOperationWaitTime(config, op, project, "Updating InstanceGroupManager", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-		d.SetPartial("target_size")
 	}
 
 	d.Partial(false)
@@ -588,6 +643,11 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComputeBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -612,7 +672,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	currentSize := int64(d.Get("target_size").(int))
 
 	// Wait for the operation to complete
-	err = computeOperationWaitTime(config, op, project, "Deleting InstanceGroupManager", d.Timeout(schema.TimeoutDelete))
+	err = computeOperationWaitTime(config, op, project, "Deleting InstanceGroupManager", userAgent, d.Timeout(schema.TimeoutDelete))
 
 	for err != nil && currentSize > 0 {
 		if !strings.Contains(err.Error(), "timeout") {
@@ -633,7 +693,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 
 		log.Printf("[INFO] timeout occurred, but instance group is shrinking (%d < %d)", instanceGroupSize, currentSize)
 		currentSize = instanceGroupSize
-		err = computeOperationWaitTime(config, op, project, "Deleting InstanceGroupManager", d.Timeout(schema.TimeoutDelete))
+		err = computeOperationWaitTime(config, op, project, "Deleting InstanceGroupManager", userAgent, d.Timeout(schema.TimeoutDelete))
 	}
 
 	d.SetId("")
@@ -771,7 +831,9 @@ func flattenUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpdatePol
 }
 
 func resourceInstanceGroupManagerStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	d.Set("wait_for_instances", false)
+	if err := d.Set("wait_for_instances", false); err != nil {
+		return nil, fmt.Errorf("Error setting wait_for_instances: %s", err)
+	}
 	config := meta.(*Config)
 	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instanceGroupManagers/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err

@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(t *testing.T) {
@@ -31,8 +31,11 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -73,8 +76,11 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBuildExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -123,6 +129,30 @@ resource "google_cloudbuild_trigger" "build-trigger" {
         PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
       }
     }
+    artifacts {
+      images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+      objects {
+        location = "gs://bucket/path/to/somewhere/"
+        paths = ["path"]
+      }
+    }
+    options {
+      source_provenance_hash = ["MD5"]
+      requested_verify_option = "VERIFIED"
+      machine_type = "N1_HIGHCPU_8"
+      disk_size_gb = 100
+      substitution_option = "ALLOW_LOOSE"
+      dynamic_substitutions = true
+      log_streaming_option = "STREAM_OFF"
+      worker_pool = "pool"
+      logging = "LEGACY"
+      env = ["ekey = evalue"]
+      secret_env = ["secretenv = svalue"]
+      volumes {
+        name = "v1"
+        path = "v1"
+      }
+    }
   }  
 }
 `, context)
@@ -145,7 +175,7 @@ func testAccCheckCloudBuildTriggerDestroyProducer(t *testing.T) func(s *terrafor
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("CloudBuildTrigger still exists at %s", url)
 			}

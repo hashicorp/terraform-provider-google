@@ -2,16 +2,17 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 )
@@ -30,6 +31,8 @@ var (
 		"shielded_instance_config.0.enable_integrity_monitoring",
 	}
 )
+
+var REQUIRED_SCRATCH_DISK_SIZE_GB = 375
 
 func resourceComputeInstanceTemplate() *schema.Resource {
 	return &schema.Resource{
@@ -126,6 +129,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							ForceNew:    true,
+							Computed:    true,
 							Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be exactly 375GB.`,
 						},
 
@@ -134,7 +138,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Computed:    true,
-							Description: `The GCE disk type. Can be either "pd-ssd", "local-ssd", or "pd-standard".`,
+							Description: `The GCE disk type. Can be either "pd-ssd", "local-ssd", "pd-balanced" or "pd-standard".`,
 						},
 
 						"labels": {
@@ -572,7 +576,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 	}
 }
 
-func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceComputeInstanceTemplateSourceImageCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	config := meta.(*Config)
 
 	numDisks := diff.Get("disk.#").(int)
@@ -619,7 +623,7 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.Resour
 	return nil
 }
 
-func resourceComputeInstanceTemplateScratchDiskCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceComputeInstanceTemplateScratchDiskCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	// separate func to allow unit testing
 	return resourceComputeInstanceTemplateScratchDiskCustomizeDiffFunc(diff)
 }
@@ -639,15 +643,15 @@ func resourceComputeInstanceTemplateScratchDiskCustomizeDiffFunc(diff TerraformR
 		}
 
 		diskSize := diff.Get(fmt.Sprintf("disk.%d.disk_size_gb", i)).(int)
-		if typee == "SCRATCH" && diskSize != 375 {
-			return fmt.Errorf("SCRATCH disks must be exactly 375GB, disk %d is %d", i, diskSize)
+		if typee == "SCRATCH" && diskSize != REQUIRED_SCRATCH_DISK_SIZE_GB {
+			return fmt.Errorf("SCRATCH disks must be exactly %dGB, disk %d is %d", REQUIRED_SCRATCH_DISK_SIZE_GB, i, diskSize)
 		}
 	}
 
 	return nil
 }
 
-func resourceComputeInstanceTemplateBootDiskCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceComputeInstanceTemplateBootDiskCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	numDisks := diff.Get("disk.#").(int)
 	// No disk except the first can be the boot disk
 	for i := 1; i < numDisks; i++ {
@@ -784,6 +788,11 @@ func expandInstanceTemplateGuestAccelerators(d TerraformResourceData, config *Co
 
 func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComputeBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -852,7 +861,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	// Store the ID now
 	d.SetId(fmt.Sprintf("projects/%s/global/instanceTemplates/%s", project, instanceTemplate.Name))
 
-	err = computeOperationWaitTime(config, op, project, "Creating Instance Template", d.Timeout(schema.TimeoutCreate))
+	err = computeOperationWaitTime(config, op, project, "Creating Instance Template", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -911,8 +920,14 @@ func flattenDisk(disk *computeBeta.AttachedDisk, defaultProject string) (map[str
 		}
 		diskMap["disk_type"] = disk.InitializeParams.DiskType
 		diskMap["disk_name"] = disk.InitializeParams.DiskName
-		diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
 		diskMap["labels"] = disk.InitializeParams.Labels
+		// The API does not return a disk size value for scratch disks. They can only be one size,
+		// so we can assume that size here.
+		if disk.InitializeParams.DiskSizeGb == 0 && disk.Type == "SCRATCH" {
+			diskMap["disk_size_gb"] = REQUIRED_SCRATCH_DISK_SIZE_GB
+		} else {
+			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
+		}
 	}
 
 	if disk.DiskEncryptionKey != nil {
@@ -1067,6 +1082,11 @@ func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData, def
 
 func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientComputeBeta.UserAgent = userAgent
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -1105,10 +1125,14 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
 	} else {
-		d.Set("tags_fingerprint", "")
+		if err := d.Set("tags_fingerprint", ""); err != nil {
+			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
+		}
 	}
 	if instanceTemplate.Properties.Labels != nil {
-		d.Set("labels", instanceTemplate.Properties.Labels)
+		if err := d.Set("labels", instanceTemplate.Properties.Labels); err != nil {
+			return fmt.Errorf("Error setting labels: %s", err)
+		}
 	}
 	if err = d.Set("self_link", instanceTemplate.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
@@ -1201,6 +1225,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 
 func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1214,7 +1243,7 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error deleting instance template: %s", err)
 	}
 
-	err = computeOperationWaitTime(config, op, project, "Deleting Instance Template", d.Timeout(schema.TimeoutDelete))
+	err = computeOperationWaitTime(config, op, project, "Deleting Instance Template", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

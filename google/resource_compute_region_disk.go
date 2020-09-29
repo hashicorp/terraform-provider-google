@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -259,6 +259,10 @@ project/zones/zone/instances/instance`,
 
 func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	labelFingerprintProp, err := expandComputeRegionDiskLabelFingerprint(d.Get("label_fingerprint"), d, config)
@@ -345,11 +349,20 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Creating new RegionDisk: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating RegionDisk: %s", err)
 	}
@@ -362,7 +375,7 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating RegionDisk",
+		config, res, project, "Creating RegionDisk", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -378,17 +391,30 @@ func resourceComputeRegionDiskCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRegionDisk %q", d.Id()))
 	}
@@ -469,11 +495,19 @@ func resourceComputeRegionDiskRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	d.Partial(true)
 
@@ -497,7 +531,13 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
 		} else {
@@ -505,14 +545,11 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating RegionDisk",
+			config, res, project, "Updating RegionDisk", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("label_fingerprint")
-		d.SetPartial("labels")
 	}
 	if d.HasChange("size") {
 		obj := make(map[string]interface{})
@@ -528,7 +565,13 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating RegionDisk %q: %s", d.Id(), err)
 		} else {
@@ -536,13 +579,11 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating RegionDisk",
+			config, res, project, "Updating RegionDisk", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("size")
 	}
 
 	d.Partial(false)
@@ -552,11 +593,19 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}")
 	if err != nil {
@@ -564,7 +613,7 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	var obj map[string]interface{}
-	readRes, err := sendRequest(config, "GET", project, url, nil)
+	readRes, err := sendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeDisk %q", d.Id()))
 	}
@@ -608,7 +657,7 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 					call.zone, call.instance, err.Error())
 			}
 			err = computeOperationWaitTime(config, op, call.project,
-				fmt.Sprintf("Detaching disk from %s/%s/%s", call.project, call.zone, call.instance), d.Timeout(schema.TimeoutDelete))
+				fmt.Sprintf("Detaching disk from %s/%s/%s", call.project, call.zone, call.instance), userAgent, d.Timeout(schema.TimeoutDelete))
 			if err != nil {
 				if opErr, ok := err.(ComputeOperationError); ok && len(opErr.Errors) == 1 && opErr.Errors[0].Code == "RESOURCE_NOT_FOUND" {
 					log.Printf("[WARN] instance %q was deleted while awaiting detach", call.instance)
@@ -620,13 +669,18 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	log.Printf("[DEBUG] Deleting RegionDisk %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "RegionDisk")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting RegionDisk",
+		config, res, project, "Deleting RegionDisk", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -993,6 +1047,10 @@ func resourceComputeRegionDiskDecoder(d *schema.ResourceData, meta interface{}, 
 			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
 		}
 
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
+		}
+
 		res["diskEncryptionKey"] = transformed
 	}
 
@@ -1009,6 +1067,10 @@ func resourceComputeRegionDiskDecoder(d *schema.ResourceData, meta interface{}, 
 			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
 		}
 
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
+		}
+
 		res["sourceImageEncryptionKey"] = transformed
 	}
 
@@ -1023,6 +1085,10 @@ func resourceComputeRegionDiskDecoder(d *schema.ResourceData, meta interface{}, 
 			// The response for crypto keys often includes the version of the key which needs to be removed
 			// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
 			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
+		}
+
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
 		}
 
 		res["sourceSnapshotEncryptionKey"] = transformed

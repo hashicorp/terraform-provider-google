@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccTPUNode_tpuNodeBasicExample(t *testing.T) {
@@ -31,8 +31,11 @@ func TestAccTPUNode_tpuNodeBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckTPUNodeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -73,8 +76,11 @@ func TestAccTPUNode_tpuNodeFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckTPUNodeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -102,11 +108,11 @@ resource "google_tpu_node" "tpu" {
 
   accelerator_type = "v3-8"
 
-  cidr_block         = "10.3.0.0/29"
   tensorflow_version = data.google_tpu_tensorflow_versions.available.versions[0]
 
   description = "Terraform Google Provider test TPU"
-  network = "default"
+  use_service_networking = true
+  network = google_service_networking_connection.private_service_connection.network
 
   labels = {
     foo = "bar"
@@ -115,6 +121,24 @@ resource "google_tpu_node" "tpu" {
   scheduling_config {
     preemptible = true
   }
+}
+
+data "google_compute_network" "network" {
+  name = "default"
+}
+
+resource "google_compute_global_address" "service_range" {
+  name          = "tf-test%{random_suffix}"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = data.google_compute_network.network.id
+}
+
+resource "google_service_networking_connection" "private_service_connection" {
+  network                 = data.google_compute_network.network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
 `, context)
 }
@@ -136,7 +160,7 @@ func testAccCheckTPUNodeDestroyProducer(t *testing.T) func(s *terraform.State) e
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("TPUNode still exists at %s", url)
 			}

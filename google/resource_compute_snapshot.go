@@ -19,9 +19,10 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceComputeSnapshot() *schema.Resource {
@@ -82,9 +83,22 @@ source snapshot is protected by a customer-supplied encryption key.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"kms_key_self_link": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The name of the encryption key that is stored in Google Cloud KMS.`,
+						},
+						"kms_key_service_account": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The service account used for the encryption request for the given KMS key.
+If absent, the Compute Engine Service Agent service account is used.`,
+						},
 						"raw_key": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 							ForceNew: true,
 							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
 RFC 4648 base64 to either encrypt or decrypt this resource.`,
@@ -109,6 +123,13 @@ key.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"kms_key_service_account": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The service account used for the encryption request for the given KMS key.
+If absent, the Compute Engine Service Agent service account is used.`,
+						},
 						"raw_key": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -118,6 +139,16 @@ RFC 4648 base64 to either encrypt or decrypt this resource.`,
 							Sensitive: true,
 						},
 					},
+				},
+			},
+			"storage_locations": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Cloud Storage bucket storage location of the snapshot (regional or multi-regional).`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
 				},
 			},
 			"zone": {
@@ -188,6 +219,10 @@ creation/deletion.`,
 
 func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandComputeSnapshotName(d.Get("name"), d, config)
@@ -201,6 +236,12 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	storageLocationsProp, err := expandComputeSnapshotStorageLocations(d.Get("storage_locations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("storage_locations"); !isEmptyValue(reflect.ValueOf(storageLocationsProp)) && (ok || !reflect.DeepEqual(v, storageLocationsProp)) {
+		obj["storageLocations"] = storageLocationsProp
 	}
 	labelsProp, err := expandComputeSnapshotLabels(d.Get("labels"), d, config)
 	if err != nil {
@@ -245,11 +286,20 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Creating new Snapshot: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Snapshot: %s", err)
 	}
@@ -262,7 +312,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Snapshot",
+		config, res, project, "Creating Snapshot", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -278,17 +328,30 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/snapshots/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeSnapshot %q", d.Id()))
 	}
@@ -327,6 +390,9 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("storage_bytes", flattenComputeSnapshotStorageBytes(res["storageBytes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
+	if err := d.Set("storage_locations", flattenComputeSnapshotStorageLocations(res["storageLocations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Snapshot: %s", err)
+	}
 	if err := d.Set("licenses", flattenComputeSnapshotLicenses(res["licenses"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Snapshot: %s", err)
 	}
@@ -351,11 +417,19 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	d.Partial(true)
 
@@ -379,7 +453,13 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Snapshot %q: %s", d.Id(), err)
 		} else {
@@ -387,14 +467,11 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Snapshot",
+			config, res, project, "Updating Snapshot", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("labels")
-		d.SetPartial("label_fingerprint")
 	}
 
 	d.Partial(false)
@@ -404,11 +481,19 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/snapshots/{{name}}")
 	if err != nil {
@@ -418,13 +503,18 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Snapshot %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Snapshot")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Snapshot",
+		config, res, project, "Deleting Snapshot", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -518,6 +608,10 @@ func flattenComputeSnapshotStorageBytes(v interface{}, d *schema.ResourceData, c
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeSnapshotStorageLocations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeSnapshotLicenses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -553,6 +647,10 @@ func flattenComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.Resour
 		flattenComputeSnapshotSnapshotEncryptionKeyRawKey(original["rawKey"], d, config)
 	transformed["sha256"] =
 		flattenComputeSnapshotSnapshotEncryptionKeySha256(original["sha256"], d, config)
+	transformed["kms_key_self_link"] =
+		flattenComputeSnapshotSnapshotEncryptionKeyKmsKeySelfLink(original["kmsKeyName"], d, config)
+	transformed["kms_key_service_account"] =
+		flattenComputeSnapshotSnapshotEncryptionKeyKmsKeyServiceAccount(original["kmsKeyServiceAccount"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -563,11 +661,23 @@ func flattenComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d *schema.
 	return v
 }
 
+func flattenComputeSnapshotSnapshotEncryptionKeyKmsKeySelfLink(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeSnapshotSnapshotEncryptionKeyKmsKeyServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandComputeSnapshotName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandComputeSnapshotDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSnapshotStorageLocations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -625,6 +735,20 @@ func expandComputeSnapshotSnapshotEncryptionKey(v interface{}, d TerraformResour
 		transformed["sha256"] = transformedSha256
 	}
 
+	transformedKmsKeySelfLink, err := expandComputeSnapshotSnapshotEncryptionKeyKmsKeySelfLink(original["kms_key_self_link"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeySelfLink); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeySelfLink
+	}
+
+	transformedKmsKeyServiceAccount, err := expandComputeSnapshotSnapshotEncryptionKeyKmsKeyServiceAccount(original["kms_key_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyServiceAccount); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyServiceAccount"] = transformedKmsKeyServiceAccount
+	}
+
 	return transformed, nil
 }
 
@@ -633,6 +757,14 @@ func expandComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d Terraform
 }
 
 func expandComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSnapshotSnapshotEncryptionKeyKmsKeySelfLink(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSnapshotSnapshotEncryptionKeyKmsKeyServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -652,6 +784,13 @@ func expandComputeSnapshotSourceDiskEncryptionKey(v interface{}, d TerraformReso
 		transformed["rawKey"] = transformedRawKey
 	}
 
+	transformedKmsKeyServiceAccount, err := expandComputeSnapshotSourceDiskEncryptionKeyKmsKeyServiceAccount(original["kms_key_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyServiceAccount); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyServiceAccount"] = transformedKmsKeyServiceAccount
+	}
+
 	return transformed, nil
 }
 
@@ -659,7 +798,53 @@ func expandComputeSnapshotSourceDiskEncryptionKeyRawKey(v interface{}, d Terrafo
 	return v, nil
 }
 
+func expandComputeSnapshotSourceDiskEncryptionKeyKmsKeyServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceComputeSnapshotDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	d.Set("source_disk_link", ConvertSelfLinkToV1(res["sourceDisk"].(string)))
+	if v, ok := res["snapshotEncryptionKey"]; ok {
+		original := v.(map[string]interface{})
+		transformed := make(map[string]interface{})
+		// The raw key won't be returned, so we need to use the original.
+		transformed["rawKey"] = d.Get("snapshot_encryption_key.0.raw_key")
+		transformed["sha256"] = original["sha256"]
+
+		if kmsKeyName, ok := original["kmsKeyName"]; ok {
+			// The response for crypto keys often includes the version of the key which needs to be removed
+			// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
+			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
+		}
+
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
+		}
+
+		res["snapshotEncryptionKey"] = transformed
+	}
+
+	if v, ok := res["sourceDiskEncryptionKey"]; ok {
+		original := v.(map[string]interface{})
+		transformed := make(map[string]interface{})
+		// The raw key won't be returned, so we need to use the original.
+		transformed["rawKey"] = d.Get("source_disk_encryption_key.0.raw_key")
+		transformed["sha256"] = original["sha256"]
+
+		if kmsKeyName, ok := original["kmsKeyName"]; ok {
+			// The response for crypto keys often includes the version of the key which needs to be removed
+			// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
+			transformed["kmsKeyName"] = strings.Split(kmsKeyName.(string), "/cryptoKeyVersions")[0]
+		}
+
+		if kmsKeyServiceAccount, ok := original["kmsKeyServiceAccount"]; ok {
+			transformed["kmsKeyServiceAccount"] = kmsKeyServiceAccount
+		}
+
+		res["sourceDiskEncryptionKey"] = transformed
+	}
+
+	if err := d.Set("source_disk_link", ConvertSelfLinkToV1(res["sourceDisk"].(string))); err != nil {
+		return nil, fmt.Errorf("Error setting source_disk_link: %s", err)
+	}
 	return res, nil
 }

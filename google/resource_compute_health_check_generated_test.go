@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeHealthCheck_healthCheckTcpExample(t *testing.T) {
@@ -31,8 +31,11 @@ func TestAccComputeHealthCheck_healthCheckTcpExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -70,8 +73,11 @@ func TestAccComputeHealthCheck_healthCheckTcpFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -116,8 +122,11 @@ func TestAccComputeHealthCheck_healthCheckSslExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -155,8 +164,11 @@ func TestAccComputeHealthCheck_healthCheckSslFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -201,8 +213,11 @@ func TestAccComputeHealthCheck_healthCheckHttpExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -240,8 +255,11 @@ func TestAccComputeHealthCheck_healthCheckHttpFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -287,8 +305,11 @@ func TestAccComputeHealthCheck_healthCheckHttpsExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -326,8 +347,11 @@ func TestAccComputeHealthCheck_healthCheckHttpsFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -373,8 +397,11 @@ func TestAccComputeHealthCheck_healthCheckHttp2Example(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -412,8 +439,11 @@ func TestAccComputeHealthCheck_healthCheckHttp2FullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -459,8 +489,11 @@ func TestAccComputeHealthCheck_healthCheckGrpcExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -498,8 +531,11 @@ func TestAccComputeHealthCheck_healthCheckGrpcFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -548,7 +584,7 @@ func testAccCheckComputeHealthCheckDestroyProducer(t *testing.T) func(s *terrafo
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeHealthCheck still exists at %s", url)
 			}

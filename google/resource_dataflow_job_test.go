@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -826,6 +826,10 @@ resource "google_dataflow_job" "pubsub_stream" {
 	parameters = {
 	  inputFilePattern = "${google_storage_bucket.bucket1.url}/*.json"
 	  outputTopic    = google_pubsub_topic.topic.id
+	}
+	transform_name_mapping = {
+		name = "test_job"
+		env = "test"
 	}
 	on_delete = "cancel"
 }

@@ -178,7 +178,7 @@ The `guest_os_features` block supports:
 * `type` -
   (Required)
   The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
-  Possible values are `MULTI_IP_SUBNET`, `SECURE_BOOT`, `UEFI_COMPATIBLE`, `VIRTIO_SCSI_MULTIQUEUE`, and `WINDOWS`.
+  Possible values are `MULTI_IP_SUBNET`, `SECURE_BOOT`, `SEV_CAPABLE`, `UEFI_COMPATIBLE`, `VIRTIO_SCSI_MULTIQUEUE`, and `WINDOWS`.
 
 The `raw_disk` block supports:
 
@@ -239,9 +239,6 @@ $ terraform import google_compute_image.default projects/{{project}}/global/imag
 $ terraform import google_compute_image.default {{project}}/{{name}}
 $ terraform import google_compute_image.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

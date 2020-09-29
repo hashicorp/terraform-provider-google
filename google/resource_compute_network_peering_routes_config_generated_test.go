@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(t *testing.T) {
@@ -31,8 +31,11 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExa
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeNetworkPeeringRoutesConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -93,8 +96,11 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExamp
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeNetworkPeeringRoutesConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -184,7 +190,7 @@ func testAccCheckComputeNetworkPeeringRoutesConfigDestroyProducer(t *testing.T) 
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, nil)
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeNetworkPeeringRoutesConfig still exists at %s", url)
 			}

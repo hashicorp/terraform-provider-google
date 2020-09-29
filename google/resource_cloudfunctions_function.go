@@ -3,8 +3,8 @@ package google
 import (
 	"regexp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/cloudfunctions/v1"
 
 	"fmt"
@@ -15,11 +15,6 @@ import (
 	"time"
 )
 
-// Min is 1 second, max is 9 minutes 540 sec
-const functionTimeOutMax = 540
-const functionTimeOutMin = 1
-const functionDefaultTimeout = 60
-
 var functionAllowedMemory = map[int]bool{
 	128:  true,
 	256:  true,
@@ -28,10 +23,9 @@ var functionAllowedMemory = map[int]bool{
 	2048: true,
 }
 
-const functionDefaultAllowedMemoryMb = 256
-
 var allowedIngressSettings = []string{
 	"ALLOW_ALL",
+	"ALLOW_INTERNAL_AND_GCLB",
 	"ALLOW_INTERNAL_ONLY",
 }
 
@@ -39,8 +33,6 @@ var allowedVpcConnectorEgressSettings = []string{
 	"ALL_TRAFFIC",
 	"PRIVATE_RANGES_ONLY",
 }
-
-const functionDefaultIngressSettings = "ALLOW_ALL"
 
 type cloudFunctionId struct {
 	Project string
@@ -179,7 +171,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"available_memory_mb": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     functionDefaultAllowedMemoryMb,
+				Default:     256,
 				Description: `Memory (in MB), available to the function. Default value is 256MB. Allowed values are: 128MB, 256MB, 512MB, 1024MB, and 2048MB.`,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					availableMemoryMB := v.(int)
@@ -195,8 +187,8 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"timeout": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Default:      functionDefaultTimeout,
-				ValidateFunc: validation.IntBetween(functionTimeOutMin, functionTimeOutMax),
+				Default:      60,
+				ValidateFunc: validation.IntBetween(1, 540),
 				Description:  `Timeout (in seconds) for the function. Default value is 60 seconds. Cannot be more than 540 seconds.`,
 			},
 
@@ -210,7 +202,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"ingress_settings": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      functionDefaultIngressSettings,
+				Default:      "ALLOW_ALL",
 				ValidateFunc: validation.StringInSlice(allowedIngressSettings, true),
 				Description:  `String value that controls what traffic can reach the function. Allowed values are ALLOW_ALL and ALLOW_INTERNAL_ONLY. Changes to this field will recreate the cloud function.`,
 			},
@@ -341,6 +333,11 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 
 func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCloudFunctions.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -454,6 +451,11 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCloudFunctions.UserAgent = userAgent
 
 	cloudFuncId, err := parseCloudFunctionId(d, config)
 	if err != nil {
@@ -465,23 +467,47 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		return handleNotFoundError(err, d, fmt.Sprintf("Target CloudFunctions Function %q", cloudFuncId.Name))
 	}
 
-	d.Set("name", cloudFuncId.Name)
-	d.Set("description", function.Description)
-	d.Set("entry_point", function.EntryPoint)
-	d.Set("available_memory_mb", function.AvailableMemoryMb)
+	if err := d.Set("name", cloudFuncId.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("description", function.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("entry_point", function.EntryPoint); err != nil {
+		return fmt.Errorf("Error setting entry_point: %s", err)
+	}
+	if err := d.Set("available_memory_mb", function.AvailableMemoryMb); err != nil {
+		return fmt.Errorf("Error setting available_memory_mb: %s", err)
+	}
 	sRemoved := strings.Replace(function.Timeout, "s", "", -1)
 	timeout, err := strconv.Atoi(sRemoved)
 	if err != nil {
 		return err
 	}
-	d.Set("timeout", timeout)
-	d.Set("ingress_settings", function.IngressSettings)
-	d.Set("labels", function.Labels)
-	d.Set("runtime", function.Runtime)
-	d.Set("service_account_email", function.ServiceAccountEmail)
-	d.Set("environment_variables", function.EnvironmentVariables)
-	d.Set("vpc_connector", function.VpcConnector)
-	d.Set("vpc_connector_egress_settings", function.VpcConnectorEgressSettings)
+	if err := d.Set("timeout", timeout); err != nil {
+		return fmt.Errorf("Error setting timeout: %s", err)
+	}
+	if err := d.Set("ingress_settings", function.IngressSettings); err != nil {
+		return fmt.Errorf("Error setting ingress_settings: %s", err)
+	}
+	if err := d.Set("labels", function.Labels); err != nil {
+		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := d.Set("runtime", function.Runtime); err != nil {
+		return fmt.Errorf("Error setting runtime: %s", err)
+	}
+	if err := d.Set("service_account_email", function.ServiceAccountEmail); err != nil {
+		return fmt.Errorf("Error setting service_account_email: %s", err)
+	}
+	if err := d.Set("environment_variables", function.EnvironmentVariables); err != nil {
+		return fmt.Errorf("Error setting environment_variables: %s", err)
+	}
+	if err := d.Set("vpc_connector", function.VpcConnector); err != nil {
+		return fmt.Errorf("Error setting vpc_connector: %s", err)
+	}
+	if err := d.Set("vpc_connector_egress_settings", function.VpcConnectorEgressSettings); err != nil {
+		return fmt.Errorf("Error setting vpc_connector_egress_settings: %s", err)
+	}
 	if function.SourceArchiveUrl != "" {
 		// sourceArchiveUrl should always be a Google Cloud Storage URL (e.g. gs://bucket/object)
 		// https://cloud.google.com/functions/docs/reference/rest/v1/projects.locations.functions
@@ -491,20 +517,38 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		}
 		bucket := sourceURL.Host
 		object := strings.TrimLeft(sourceURL.Path, "/")
-		d.Set("source_archive_bucket", bucket)
-		d.Set("source_archive_object", object)
+		if err := d.Set("source_archive_bucket", bucket); err != nil {
+			return fmt.Errorf("Error setting source_archive_bucket: %s", err)
+		}
+		if err := d.Set("source_archive_object", object); err != nil {
+			return fmt.Errorf("Error setting source_archive_object: %s", err)
+		}
 	}
-	d.Set("source_repository", flattenSourceRepository(function.SourceRepository))
+	if err := d.Set("source_repository", flattenSourceRepository(function.SourceRepository)); err != nil {
+		return fmt.Errorf("Error setting source_repository: %s", err)
+	}
 
 	if function.HttpsTrigger != nil {
-		d.Set("trigger_http", true)
-		d.Set("https_trigger_url", function.HttpsTrigger.Url)
+		if err := d.Set("trigger_http", true); err != nil {
+			return fmt.Errorf("Error setting trigger_http: %s", err)
+		}
+		if err := d.Set("https_trigger_url", function.HttpsTrigger.Url); err != nil {
+			return fmt.Errorf("Error setting https_trigger_url: %s", err)
+		}
 	}
 
-	d.Set("event_trigger", flattenEventTrigger(function.EventTrigger))
-	d.Set("max_instances", function.MaxInstances)
-	d.Set("region", cloudFuncId.Region)
-	d.Set("project", cloudFuncId.Project)
+	if err := d.Set("event_trigger", flattenEventTrigger(function.EventTrigger)); err != nil {
+		return fmt.Errorf("Error setting event_trigger: %s", err)
+	}
+	if err := d.Set("max_instances", function.MaxInstances); err != nil {
+		return fmt.Errorf("Error setting max_instances: %s", err)
+	}
+	if err := d.Set("region", cloudFuncId.Region); err != nil {
+		return fmt.Errorf("Error setting region: %s", err)
+	}
+	if err := d.Set("project", cloudFuncId.Project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 
 	return nil
 }
@@ -512,6 +556,11 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG]: Updating google_cloudfunctions_function")
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCloudFunctions.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -621,6 +670,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceCloudFunctionsDestroy(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.clientCloudFunctions.UserAgent = userAgent
 
 	cloudFuncId, err := parseCloudFunctionId(d, config)
 	if err != nil {

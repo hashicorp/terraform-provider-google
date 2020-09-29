@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/logging/v2"
 )
 
@@ -42,7 +42,9 @@ func billingAccountLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config
 		return fmt.Errorf("Error importing logging exclusion, invalid resourceType %#v", loggingExclusionId.resourceType)
 	}
 
-	d.Set("billing_account", loggingExclusionId.resourceId)
+	if err := d.Set("billing_account", loggingExclusionId.resourceId); err != nil {
+		return fmt.Errorf("Error setting billing_account: %s", err)
+	}
 	return nil
 }
 

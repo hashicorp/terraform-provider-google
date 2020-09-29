@@ -20,8 +20,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceActiveDirectoryDomainTrust() *schema.Resource {
@@ -102,6 +102,10 @@ https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locatio
 
 func resourceActiveDirectoryDomainTrustCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	targetDomainNameProp, err := expandNestedActiveDirectoryDomainTrustTargetDomainName(d.Get("target_domain_name"), d, config)
@@ -152,11 +156,20 @@ func resourceActiveDirectoryDomainTrustCreate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Creating new DomainTrust: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating DomainTrust: %s", err)
 	}
@@ -172,7 +185,7 @@ func resourceActiveDirectoryDomainTrustCreate(d *schema.ResourceData, meta inter
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = activeDirectoryOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating DomainTrust",
+		config, res, &opRes, project, "Creating DomainTrust", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
@@ -216,17 +229,30 @@ func resourceActiveDirectoryDomainTrustCreate(d *schema.ResourceData, meta inter
 
 func resourceActiveDirectoryDomainTrustRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains/{{domain}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ActiveDirectoryDomainTrust %q", d.Id()))
 	}
@@ -280,11 +306,19 @@ func resourceActiveDirectoryDomainTrustRead(d *schema.ResourceData, meta interfa
 
 func resourceActiveDirectoryDomainTrustUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	targetDomainNameProp, err := expandNestedActiveDirectoryDomainTrustTargetDomainName(d.Get("target_domain_name"), d, config)
@@ -335,7 +369,13 @@ func resourceActiveDirectoryDomainTrustUpdate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Updating DomainTrust %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating DomainTrust %q: %s", d.Id(), err)
@@ -344,7 +384,7 @@ func resourceActiveDirectoryDomainTrustUpdate(d *schema.ResourceData, meta inter
 	}
 
 	err = activeDirectoryOperationWaitTime(
-		config, res, project, "Updating DomainTrust",
+		config, res, project, "Updating DomainTrust", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -356,6 +396,11 @@ func resourceActiveDirectoryDomainTrustUpdate(d *schema.ResourceData, meta inter
 
 func resourceActiveDirectoryDomainTrustDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -412,13 +457,13 @@ func resourceActiveDirectoryDomainTrustDelete(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Deleting DomainTrust %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "DomainTrust")
 	}
 
 	err = activeDirectoryOperationWaitTime(
-		config, res, project, "Deleting DomainTrust",
+		config, res, project, "Deleting DomainTrust", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

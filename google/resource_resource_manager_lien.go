@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceResourceManagerLien() *schema.Resource {
@@ -94,6 +94,10 @@ e.g. ['resourcemanager.projects.delete']`,
 
 func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	reasonProp, err := expandNestedResourceManagerLienReason(d.Get("reason"), d, config)
@@ -127,7 +131,14 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Creating new Lien: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Lien: %s", err)
 	}
@@ -152,20 +163,33 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	// trying to fetch, and the only way to know that is to capture
 	// it here.  The following two lines do that.
 	d.SetId(flattenNestedResourceManagerLienName(res["name"], d, config).(string))
-	d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config))
+	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 
 	return resourceResourceManagerLienRead(d, meta)
 }
 
 func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ResourceManagerLien %q", d.Id()))
 	}
@@ -218,6 +242,13 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	url, err := replaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
 	if err != nil {
@@ -235,7 +266,12 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 	}
 	log.Printf("[DEBUG] Deleting Lien %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Lien")
 	}
@@ -263,7 +299,9 @@ func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return nil, err
 	}
-	d.Set("parent", parent)
+	if err := d.Set("parent", parent); err != nil {
+		return nil, fmt.Errorf("Error setting parent: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

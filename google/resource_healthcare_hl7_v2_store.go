@@ -22,9 +22,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceHealthcareHl7V2Store() *schema.Resource {
@@ -81,7 +81,6 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 			"notification_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Removed:     "This field has been replaced by notificationConfigs",
 				Description: `A nested object resource`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -153,7 +152,7 @@ Fields/functions available for filtering are:
 						"schema": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.ValidateJsonString,
+							ValidateFunc: validation.StringIsJSON,
 							StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 							Description: `JSON encoded string for schemas used to parse messages in this
 store if schematized parsing is desired.`,
@@ -181,6 +180,10 @@ A base64-encoded string.`,
 
 func resourceHealthcareHl7V2StoreCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandHealthcareHl7V2StoreName(d.Get("name"), d, config)
@@ -220,7 +223,14 @@ func resourceHealthcareHl7V2StoreCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Creating new Hl7V2Store: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Hl7V2Store: %s", err)
 	}
@@ -239,13 +249,24 @@ func resourceHealthcareHl7V2StoreCreate(d *schema.ResourceData, meta interface{}
 
 func resourceHealthcareHl7V2StoreRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores/{{name}}")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("HealthcareHl7V2Store %q", d.Id()))
 	}
@@ -283,6 +304,13 @@ func resourceHealthcareHl7V2StoreRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	parserConfigProp, err := expandHealthcareHl7V2StoreParserConfig(d.Get("parser_config"), d, config)
@@ -339,7 +367,13 @@ func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Hl7V2Store %q: %s", d.Id(), err)
@@ -352,6 +386,13 @@ func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceHealthcareHl7V2StoreDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	config.userAgent = userAgent
+
+	billingProject := ""
 
 	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores/{{name}}")
 	if err != nil {
@@ -361,7 +402,12 @@ func resourceHealthcareHl7V2StoreDelete(d *schema.ResourceData, meta interface{}
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Hl7V2Store %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Hl7V2Store")
 	}
@@ -379,8 +425,12 @@ func resourceHealthcareHl7V2StoreImport(d *schema.ResourceData, meta interface{}
 		return nil, err
 	}
 
-	d.Set("dataset", hl7v2StoreId.DatasetId.datasetId())
-	d.Set("name", hl7v2StoreId.Name)
+	if err := d.Set("dataset", hl7v2StoreId.DatasetId.datasetId()); err != nil {
+		return nil, fmt.Errorf("Error setting dataset: %s", err)
+	}
+	if err := d.Set("name", hl7v2StoreId.Name); err != nil {
+		return nil, fmt.Errorf("Error setting name: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -608,7 +658,9 @@ func resourceHealthcareHl7V2StoreDecoder(d *schema.ResourceData, meta interface{
 	// We can't just ignore_read on `name` as the linter will
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
-	d.Set("self_link", res["name"].(string))
+	if err := d.Set("self_link", res["name"].(string)); err != nil {
+		return nil, fmt.Errorf("Error setting self_link: %s", err)
+	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
 }
