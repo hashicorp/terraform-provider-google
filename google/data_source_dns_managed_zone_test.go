@@ -25,6 +25,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 						"private_visibility_config.#": {},
 						"peering_config.#":            {},
 						"forwarding_config.#":         {},
+						"force_destroy":               {},
 					},
 				),
 			},
