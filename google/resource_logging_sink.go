@@ -54,9 +54,9 @@ func resourceLoggingSinkSchema() map[string]*schema.Schema {
 						Description: `An advanced logs filter that matches the log entries to be excluded. By using the sample function, you can exclude less than 100% of the matching log entries`,
 					},
 					"disabled": {
-						Type:        schema.TypeString,
+						Type:        schema.TypeBool,
 						Optional:    true,
-						Default:     "false",
+						Default:     false,
 						Description: `If set to True, then this exclusion is disabled and it does not exclude any log entries`,
 					},
 				},
@@ -193,7 +193,7 @@ func expandLoggingSinkExclusions(v interface{}) []*logging.LogExclusion {
 	results := make([]*logging.LogExclusion, 0, len(exclusions))
 	for _, e := range exclusions {
 		exclusion := e.(map[string]interface{})
-		disabled, _ := strconv.ParseBool(exclusion["disabled"].(string))
+		disabled, _ := exclusion["disabled"].(bool)
 		results = append(results, &logging.LogExclusion{
 			Name:        exclusion["name"].(string),
 			Description: exclusion["description"].(string),
