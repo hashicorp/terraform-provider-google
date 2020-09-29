@@ -909,7 +909,9 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	if res.MaterializedView != nil {
 		materialized_view := flattenMaterializedView(res.MaterializedView)
 
-		d.Set("materialized_view", materialized_view)
+		if err := d.Set("materialized_view", materialized_view); err != nil {
+			return fmt.Errorf("Error setting materialized view: %s", err)
+		}
 	}
 
 	return nil
