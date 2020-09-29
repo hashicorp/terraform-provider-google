@@ -229,7 +229,7 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 	}
 
 	log.Printf("[DEBUG] Getting shared test network %q", networkName)
-	_, err := config.clientCompute.Networks.Get(project, networkName).Do()
+	_, err := config.NewComputeClient(config.userAgent).Networks.Get(project, networkName).Do()
 	if err != nil && isGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Network %q not found, bootstrapping", networkName)
 		url := fmt.Sprintf("%sprojects/%s/global/networks", config.ComputeBasePath, project)
@@ -250,7 +250,7 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 		}
 	}
 
-	network, err := config.clientCompute.Networks.Get(project, networkName).Do()
+	network, err := config.NewComputeClient(config.userAgent).Networks.Get(project, networkName).Do()
 	if err != nil {
 		t.Errorf("Error getting shared test network %q: %s", networkName, err)
 	}

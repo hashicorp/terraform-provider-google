@@ -713,7 +713,12 @@ func getDisk(diskUri string, d *schema.ResourceData, config *Config) (*compute.D
 		return nil, err
 	}
 
-	disk, err := config.clientCompute.Disks.Get(source.Project, source.Zone, source.Name).Do()
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	disk, err := config.NewComputeClient(userAgent).Disks.Get(source.Project, source.Zone, source.Name).Do()
 	if err != nil {
 		return nil, err
 	}
@@ -881,7 +886,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 	log.Printf("[DEBUG] Loading zone: %s", z)
-	zone, err := config.clientCompute.Zones.Get(
+	zone, err := config.NewComputeClient(userAgent).Zones.Get(
 		project, z).Do()
 	if err != nil {
 		return fmt.Errorf("Error loading zone '%s': %s", z, err)
@@ -1179,8 +1184,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
-	config.clientComputeBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1225,7 +1228,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 				metadataV1.Fingerprint = instance.Metadata.Fingerprint
 
-				op, err := config.clientCompute.Instances.SetMetadata(project, zone, instance.Name, metadataV1).Do()
+				op, err := config.NewComputeClient(userAgent).Instances.SetMetadata(project, zone, instance.Name, metadataV1).Do()
 				if err != nil {
 					return fmt.Errorf("Error updating metadata: %s", err)
 				}
@@ -1250,7 +1253,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if err := Convert(tags, tagsV1); err != nil {
 			return err
 		}
-		op, err := config.clientCompute.Instances.SetTags(
+		op, err := config.NewComputeClient(userAgent).Instances.SetTags(
 			project, zone, d.Get("name").(string), tagsV1).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating tags: %s", err)
@@ -1267,7 +1270,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		labelFingerprint := d.Get("label_fingerprint").(string)
 		req := compute.InstancesSetLabelsRequest{Labels: labels, LabelFingerprint: labelFingerprint}
 
-		op, err := config.clientCompute.Instances.SetLabels(project, zone, instance.Name, &req).Do()
+		op, err := config.NewComputeClient(userAgent).Instances.SetLabels(project, zone, instance.Name, &req).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating labels: %s", err)
 		}
@@ -1337,7 +1340,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				if err != nil {
 					return fmt.Errorf("Cannot determine self_link for subnetwork %q: %s", subnetwork, err)
 				}
-				resp, err := config.clientCompute.Subnetworks.Get(sf.Project, sf.Region, sf.Name).Do()
+				resp, err := config.NewComputeClient(userAgent).Subnetworks.Get(sf.Project, sf.Region, sf.Name).Do()
 				if err != nil {
 					return errwrap.Wrapf("Error getting subnetwork value: {{err}}", err)
 				}
@@ -1359,7 +1362,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			// Delete any accessConfig that currently exists in instNetworkInterface
 			for _, ac := range instNetworkInterface.AccessConfigs {
-				op, err := config.clientCompute.Instances.DeleteAccessConfig(
+				op, err := config.NewComputeClient(userAgent).Instances.DeleteAccessConfig(
 					project, zone, instance.Name, ac.Name, networkName).Do()
 				if err != nil {
 					return fmt.Errorf("Error deleting old access_config: %s", err)
@@ -1512,7 +1515,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		// Detach the old disks.
 		for hash, deviceName := range oDisks {
 			if _, ok := nDisks[hash]; !ok {
-				op, err := config.clientCompute.Instances.DetachDisk(project, zone, instance.Name, deviceName).Do()
+				op, err := config.NewComputeClient(userAgent).Instances.DetachDisk(project, zone, instance.Name, deviceName).Do()
 				if err != nil {
 					return errwrap.Wrapf("Error detaching disk: %s", err)
 				}
@@ -1527,7 +1530,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		// Attach the new disks
 		for _, disk := range attach {
-			op, err := config.clientCompute.Instances.AttachDisk(project, zone, instance.Name, disk).Do()
+			op, err := config.NewComputeClient(userAgent).Instances.AttachDisk(project, zone, instance.Name, disk).Do()
 			if err != nil {
 				return errwrap.Wrapf("Error attaching disk : {{err}}", err)
 			}
@@ -1559,7 +1562,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("deletion_protection") {
 		nDeletionProtection := d.Get("deletion_protection").(bool)
 
-		op, err := config.clientCompute.Instances.SetDeletionProtection(project, zone, d.Get("name").(string)).DeletionProtection(nDeletionProtection).Do()
+		op, err := config.NewComputeClient(userAgent).Instances.SetDeletionProtection(project, zone, d.Get("name").(string)).DeletionProtection(nDeletionProtection).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating deletion protection flag: %s", err)
 		}
@@ -1584,7 +1587,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return errwrap.Wrapf("Error starting instance: {{err}}", err)
 				}
 			} else if desiredStatus == "TERMINATED" {
-				op, err = config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+				op, err = config.NewComputeClient(userAgent).Instances.Stop(project, zone, instance.Name).Do()
 				if err != nil {
 					return err
 				}
@@ -1611,7 +1614,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		if statusBeforeUpdate != "TERMINATED" {
-			op, err := config.clientCompute.Instances.Stop(project, zone, instance.Name).Do()
+			op, err := config.NewComputeClient(userAgent).Instances.Stop(project, zone, instance.Name).Do()
 			if err != nil {
 				return errwrap.Wrapf("Error stopping instance: {{err}}", err)
 			}
@@ -1630,7 +1633,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			req := &compute.InstancesSetMachineTypeRequest{
 				MachineType: mt.RelativeLink(),
 			}
-			op, err := config.clientCompute.Instances.SetMachineType(project, zone, instance.Name, req).Do()
+			op, err := config.NewComputeClient(userAgent).Instances.SetMachineType(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1651,7 +1654,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			req := &compute.InstancesSetMinCpuPlatformRequest{
 				MinCpuPlatform: minCpuPlatform.(string),
 			}
-			op, err := config.clientCompute.Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
+			op, err := config.NewComputeClient(userAgent).Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1669,7 +1672,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				req.Email = saMap["email"].(string)
 				req.Scopes = canonicalizeServiceScopes(convertStringSet(saMap["scopes"].(*schema.Set)))
 			}
-			op, err := config.clientCompute.Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
+			op, err := config.NewComputeClient(userAgent).Instances.SetServiceAccount(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return err
 			}
@@ -1684,7 +1687,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				EnableDisplay:   d.Get("enable_display").(bool),
 				ForceSendFields: []string{"EnableDisplay"},
 			}
-			op, err := config.clientCompute.Instances.UpdateDisplayDevice(project, zone, instance.Name, req).Do()
+			op, err := config.NewComputeClient(userAgent).Instances.UpdateDisplayDevice(project, zone, instance.Name, req).Do()
 			if err != nil {
 				return fmt.Errorf("Error updating display device: %s", err)
 			}
@@ -1752,6 +1755,11 @@ func startInstanceOperation(d *schema.ResourceData, config *Config) (*compute.Op
 		return nil, err
 	}
 
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	// Use beta api directly in order to read network_interface.fingerprint without having to put it in the schema.
 	// Change back to getInstance(config, d) once updating alias ips is GA.
 	instance, err := config.clientComputeBeta.Instances.Get(project, zone, d.Get("name").(string)).Do()
@@ -1778,9 +1786,9 @@ func startInstanceOperation(d *schema.ResourceData, config *Config) (*compute.Op
 
 	if len(encrypted) > 0 {
 		request := compute.InstancesStartWithEncryptionKeyRequest{Disks: encrypted}
-		op, err = config.clientCompute.Instances.StartWithEncryptionKey(project, zone, instance.Name, &request).Do()
+		op, err = config.NewComputeClient(userAgent).Instances.StartWithEncryptionKey(project, zone, instance.Name, &request).Do()
 	} else {
-		op, err = config.clientCompute.Instances.Start(project, zone, instance.Name).Do()
+		op, err = config.NewComputeClient(userAgent).Instances.Start(project, zone, instance.Name).Do()
 	}
 
 	return op, err
@@ -1934,7 +1942,6 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1950,7 +1957,7 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("Cannot delete instance %s: instance Deletion Protection is enabled. Set deletion_protection to false for this resource and run \"terraform apply\" before attempting to delete it.", d.Get("name").(string))
 	} else {
-		op, err := config.clientCompute.Instances.Delete(project, zone, d.Get("name").(string)).Do()
+		op, err := config.NewComputeClient(userAgent).Instances.Delete(project, zone, d.Get("name").(string)).Do()
 		if err != nil {
 			return fmt.Errorf("Error deleting instance: %s", err)
 		}
@@ -1987,6 +1994,11 @@ func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}
 }
 
 func expandBootDisk(d *schema.ResourceData, config *Config, project string) (*computeBeta.AttachedDisk, error) {
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	disk := &computeBeta.AttachedDisk{
 		AutoDelete: d.Get("boot_disk.0.auto_delete").(bool),
 		Boot:       true,
@@ -2038,7 +2050,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, project string) (*co
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image"); ok {
 			imageName := v.(string)
-			imageUrl, err := resolveImage(config, project, imageName)
+			imageUrl, err := resolveImage(config, project, imageName, userAgent)
 			if err != nil {
 				return nil, fmt.Errorf("Error resolving image name '%s': %s", imageName, err)
 			}

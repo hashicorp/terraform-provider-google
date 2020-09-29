@@ -55,7 +55,7 @@ func testAccCheckComputeTargetHttpProxyExists(t *testing.T, n string) resource.T
 		config := googleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
-		found, err := config.clientCompute.TargetHttpProxies.Get(
+		found, err := config.NewComputeClient(config.userAgent).TargetHttpProxies.Get(
 			config.Project, name).Do()
 		if err != nil {
 			return err

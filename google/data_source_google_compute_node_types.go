@@ -38,7 +38,6 @@ func dataSourceGoogleComputeNodeTypesRead(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -50,7 +49,7 @@ func dataSourceGoogleComputeNodeTypesRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Please specify zone to get appropriate node types for zone. Unable to get zone: %s", err)
 	}
 
-	resp, err := config.clientCompute.NodeTypes.List(project, zone).Do()
+	resp, err := config.NewComputeClient(userAgent).NodeTypes.List(project, zone).Do()
 	if err != nil {
 		return err
 	}

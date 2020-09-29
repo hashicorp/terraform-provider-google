@@ -59,7 +59,6 @@ func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -71,7 +70,7 @@ func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}
 	}
 	name := d.Get("name").(string)
 
-	address, err := config.clientCompute.Addresses.Get(project, region, name).Do()
+	address, err := config.NewComputeClient(userAgent).Addresses.Get(project, region, name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Address Not Found : %s", name))
 	}

@@ -140,7 +140,6 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -172,7 +171,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] InstanceGroup insert request: %#v", instanceGroup)
-	op, err := config.clientCompute.InstanceGroups.Insert(
+	op, err := config.NewComputeClient(userAgent).InstanceGroups.Insert(
 		project, zone, instanceGroup).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating InstanceGroup: %s", err)
@@ -209,7 +208,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 		}
 
 		log.Printf("[DEBUG] InstanceGroup add instances request: %#v", addInstanceReq)
-		op, err := config.clientCompute.InstanceGroups.AddInstances(
+		op, err := config.NewComputeClient(userAgent).InstanceGroups.AddInstances(
 			project, zone, name, addInstanceReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error adding instances to InstanceGroup: %s", err)
@@ -231,7 +230,6 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -245,7 +243,7 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 	name := d.Get("name").(string)
 
 	// retrieve instance group
-	instanceGroup, err := config.clientCompute.InstanceGroups.Get(
+	instanceGroup, err := config.NewComputeClient(userAgent).InstanceGroups.Get(
 		project, zone, name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance Group %q", name))
@@ -253,7 +251,7 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 
 	// retrieve instance group members
 	var memberUrls []string
-	members, err := config.clientCompute.InstanceGroups.ListInstances(
+	members, err := config.NewComputeClient(userAgent).InstanceGroups.ListInstances(
 		project, zone, name, &compute.InstanceGroupsListInstancesRequest{
 			InstanceState: "ALL",
 		}).Do()
@@ -309,7 +307,6 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -346,7 +343,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			}
 
 			log.Printf("[DEBUG] InstanceGroup remove instances request: %#v", removeReq)
-			removeOp, err := config.clientCompute.InstanceGroups.RemoveInstances(
+			removeOp, err := config.NewComputeClient(userAgent).InstanceGroups.RemoveInstances(
 				project, zone, name, removeReq).Do()
 			if err != nil {
 				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
@@ -370,7 +367,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 			}
 
 			log.Printf("[DEBUG] InstanceGroup adding instances request: %#v", addReq)
-			addOp, err := config.clientCompute.InstanceGroups.AddInstances(
+			addOp, err := config.NewComputeClient(userAgent).InstanceGroups.AddInstances(
 				project, zone, name, addReq).Do()
 			if err != nil {
 				return fmt.Errorf("Error adding instances from InstanceGroup: %s", err)
@@ -392,7 +389,7 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 		}
 
 		log.Printf("[DEBUG] InstanceGroup updating named ports request: %#v", namedPortsReq)
-		op, err := config.clientCompute.InstanceGroups.SetNamedPorts(
+		op, err := config.NewComputeClient(userAgent).InstanceGroups.SetNamedPorts(
 			project, zone, name, namedPortsReq).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating named ports for InstanceGroup: %s", err)
@@ -415,7 +412,6 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -427,7 +423,7 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 		return err
 	}
 	name := d.Get("name").(string)
-	op, err := config.clientCompute.InstanceGroups.Delete(project, zone, name).Do()
+	op, err := config.NewComputeClient(userAgent).InstanceGroups.Delete(project, zone, name).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting InstanceGroup: %s", err)
 	}

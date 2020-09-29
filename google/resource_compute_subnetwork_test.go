@@ -345,7 +345,7 @@ func testAccCheckComputeSubnetworkExists(t *testing.T, n string, subnetwork *com
 		region := rs.Primary.Attributes["region"]
 		subnet_name := rs.Primary.Attributes["name"]
 
-		found, err := config.clientCompute.Subnetworks.Get(
+		found, err := config.NewComputeClient(config.userAgent).Subnetworks.Get(
 			config.Project, region, subnet_name).Do()
 		if err != nil {
 			return err

@@ -634,7 +634,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	if d.Get("project") == "" {
-		proj, err := config.clientCompute.Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
+		proj, err := config.NewComputeClient(userAgent).Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
 		if err != nil {
 			return err
 		}

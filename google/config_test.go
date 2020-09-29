@@ -84,7 +84,7 @@ func TestAccConfigLoadValidate_credentials(t *testing.T) {
 		t.Fatalf("error: %v", err)
 	}
 
-	_, err = config.clientCompute.Zones.Get(proj, "us-central1-a").Do()
+	_, err = config.NewComputeClient(config.userAgent).Zones.Get(proj, "us-central1-a").Do()
 	if err != nil {
 		t.Fatalf("expected call with loaded config client to work, got error: %s", err)
 	}
@@ -122,7 +122,7 @@ func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 		t.Fatalf("error: %v", err)
 	}
 
-	_, err = config.clientCompute.Zones.Get(proj, "us-central1-a").Do()
+	_, err = config.NewComputeClient(config.userAgent).Zones.Get(proj, "us-central1-a").Do()
 	if err != nil {
 		t.Fatalf("expected API call with loaded config to work, got error: %s", err)
 	}

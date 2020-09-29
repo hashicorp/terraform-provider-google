@@ -153,7 +153,7 @@ func testAccCheckDataSourceComputeAddressDestroy(t *testing.T, name string) reso
 				return err
 			}
 
-			_, err = config.clientCompute.Addresses.Get(
+			_, err = config.NewComputeClient(config.userAgent).Addresses.Get(
 				config.Project, addressId.Region, addressId.Name).Do()
 			if err == nil {
 				return fmt.Errorf("Address still exists")

@@ -40,14 +40,13 @@ func dataSourceGoogleComputeDefaultServiceAccountRead(d *schema.ResourceData, me
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	projectCompResource, err := config.clientCompute.Projects.Get(project).Do()
+	projectCompResource, err := config.NewComputeClient(userAgent).Projects.Get(project).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, "GCE default service account")
 	}

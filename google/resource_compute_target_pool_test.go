@@ -88,7 +88,7 @@ func testAccCheckComputeTargetPoolDestroyProducer(t *testing.T) func(s *terrafor
 				continue
 			}
 
-			_, err := config.clientCompute.TargetPools.Get(
+			_, err := config.NewComputeClient(config.userAgent).TargetPools.Get(
 				config.Project, config.Region, rs.Primary.Attributes["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("TargetPool still exists")
@@ -112,7 +112,7 @@ func testAccCheckComputeTargetPoolExists(t *testing.T, n string) resource.TestCh
 
 		config := googleProviderConfig(t)
 
-		found, err := config.clientCompute.TargetPools.Get(
+		found, err := config.NewComputeClient(config.userAgent).TargetPools.Get(
 			config.Project, config.Region, rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err

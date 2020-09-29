@@ -124,7 +124,7 @@ func testAccCheckComputeRouterNatDestroyProducer(t *testing.T) func(s *terraform
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		routersService := config.clientCompute.Routers
+		routersService := config.NewComputeClient(config.userAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router" {

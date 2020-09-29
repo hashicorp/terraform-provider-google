@@ -63,7 +63,7 @@ func testAccCheckComputeRouterPeerDestroyProducer(t *testing.T) func(s *terrafor
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		routersService := config.clientCompute.Routers
+		routersService := config.NewComputeClient(config.userAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router" {
@@ -98,7 +98,7 @@ func testAccCheckComputeRouterPeerDelete(t *testing.T, n string) resource.TestCh
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		routersService := config.clientCompute.Routers
+		routersService := config.NewComputeClient(config.userAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router_peer" {
@@ -163,7 +163,7 @@ func testAccCheckComputeRouterPeerExists(t *testing.T, n string) resource.TestCh
 		name := rs.Primary.Attributes["name"]
 		routerName := rs.Primary.Attributes["router"]
 
-		routersService := config.clientCompute.Routers
+		routersService := config.NewComputeClient(config.userAgent).Routers
 		router, err := routersService.Get(project, region, routerName).Do()
 
 		if err != nil {

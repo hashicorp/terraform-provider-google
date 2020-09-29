@@ -51,7 +51,6 @@ func resourceComputeProjectMetadataCreateOrUpdate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	projectID, err := getProject(d, config)
 	if err != nil {
@@ -78,7 +77,6 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	// At import time, we have no state to draw from. We'll wrongly pull the
 	// provider default project if we use a normal getProject, so we need to
@@ -91,7 +89,7 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 	// but would create metadata for the provider project on a destroy/create.
 	projectId := d.Id()
 
-	project, err := config.clientCompute.Projects.Get(projectId).Do()
+	project, err := config.NewComputeClient(userAgent).Projects.Get(projectId).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectId))
 	}
@@ -114,7 +112,6 @@ func resourceComputeProjectMetadataDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	projectID, err := getProject(d, config)
 	if err != nil {
@@ -133,13 +130,13 @@ func resourceComputeProjectMetadataDelete(d *schema.ResourceData, meta interface
 func resourceComputeProjectMetadataSet(projectID, userAgent string, config *Config, md *compute.Metadata, timeout time.Duration) error {
 	createMD := func() error {
 		log.Printf("[DEBUG] Loading project service: %s", projectID)
-		project, err := config.clientCompute.Projects.Get(projectID).Do()
+		project, err := config.NewComputeClient(userAgent).Projects.Get(projectID).Do()
 		if err != nil {
 			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 		}
 
 		md.Fingerprint = project.CommonInstanceMetadata.Fingerprint
-		op, err := config.clientCompute.Projects.SetCommonInstanceMetadata(projectID, md).Do()
+		op, err := config.NewComputeClient(userAgent).Projects.SetCommonInstanceMetadata(projectID, md).Do()
 		if err != nil {
 			return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
 		}

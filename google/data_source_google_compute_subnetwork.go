@@ -78,14 +78,13 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, region, name, err := GetRegionalResourcePropertiesFromSelfLinkOrSchema(d, config)
 	if err != nil {
 		return err
 	}
 
-	subnetwork, err := config.clientCompute.Subnetworks.Get(project, region, name).Do()
+	subnetwork, err := config.NewComputeClient(userAgent).Subnetworks.Get(project, region, name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork Not Found : %s", name))
 	}

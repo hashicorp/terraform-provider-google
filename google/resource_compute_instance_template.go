@@ -595,7 +595,7 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(_ context.Context, 
 			if err != nil {
 				return err
 			}
-			oldResolved, err := resolveImage(config, project, old.(string))
+			oldResolved, err := resolveImage(config, project, old.(string), config.userAgent)
 			if err != nil {
 				return err
 			}
@@ -603,7 +603,7 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(_ context.Context, 
 			if err != nil {
 				return err
 			}
-			newResolved, err := resolveImage(config, project, new.(string))
+			newResolved, err := resolveImage(config, project, new.(string), config.userAgent)
 			if err != nil {
 				return err
 			}
@@ -671,6 +671,11 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 		return nil, err
 	}
 
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	disksCount := d.Get("disk.#").(int)
 
 	disks := make([]*computeBeta.AttachedDisk, 0, disksCount)
@@ -724,7 +729,7 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 
 			if v, ok := d.GetOk(prefix + ".source_image"); ok {
 				imageName := v.(string)
-				imageUrl, err := resolveImage(config, project, imageName)
+				imageUrl, err := resolveImage(config, project, imageName, userAgent)
 				if err != nil {
 					return nil, fmt.Errorf(
 						"Error resolving image name '%s': %s",
@@ -792,7 +797,6 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	config.clientComputeBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1229,7 +1233,6 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	config.clientCompute.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1237,7 +1240,7 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 	}
 
 	splits := strings.Split(d.Id(), "/")
-	op, err := config.clientCompute.InstanceTemplates.Delete(
+	op, err := config.NewComputeClient(userAgent).InstanceTemplates.Delete(
 		project, splits[len(splits)-1]).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting instance template: %s", err)

@@ -179,7 +179,7 @@ func testAccComputeInstanceGroup_destroyProducer(t *testing.T) func(s *terraform
 			if rs.Type != "google_compute_instance_group" {
 				continue
 			}
-			_, err := config.clientCompute.InstanceGroups.Get(
+			_, err := config.NewComputeClient(config.userAgent).InstanceGroups.Get(
 				config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("InstanceGroup still exists")
@@ -203,7 +203,7 @@ func testAccComputeInstanceGroup_exists(t *testing.T, n string, instanceGroup *c
 
 		config := googleProviderConfig(t)
 
-		found, err := config.clientCompute.InstanceGroups.Get(
+		found, err := config.NewComputeClient(config.userAgent).InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -228,7 +228,7 @@ func testAccComputeInstanceGroup_updated(t *testing.T, n string, size int64, ins
 
 		config := googleProviderConfig(t)
 
-		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
+		instanceGroup, err := config.NewComputeClient(config.userAgent).InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -257,7 +257,7 @@ func testAccComputeInstanceGroup_named_ports(t *testing.T, n string, np map[stri
 
 		config := googleProviderConfig(t)
 
-		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
+		instanceGroup, err := config.NewComputeClient(config.userAgent).InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -291,7 +291,7 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(t *testing.T, nInstanceGroup 
 		if rsInstanceGroup.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		instanceGroup, err := config.clientCompute.InstanceGroups.Get(
+		instanceGroup, err := config.NewComputeClient(config.userAgent).InstanceGroups.Get(
 			config.Project, rsInstanceGroup.Primary.Attributes["zone"], rsInstanceGroup.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -304,7 +304,7 @@ func testAccComputeInstanceGroup_hasCorrectNetwork(t *testing.T, nInstanceGroup 
 		if rsNetwork.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		network, err := config.clientCompute.Networks.Get(
+		network, err := config.NewComputeClient(config.userAgent).Networks.Get(
 			config.Project, rsNetwork.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
