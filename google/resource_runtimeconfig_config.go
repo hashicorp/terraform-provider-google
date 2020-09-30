@@ -53,7 +53,6 @@ func resourceRuntimeconfigConfigCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientRuntimeconfig.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -70,7 +69,7 @@ func resourceRuntimeconfigConfigCreate(d *schema.ResourceData, meta interface{})
 		runtimeConfig.Description = val.(string)
 	}
 
-	_, err = config.clientRuntimeconfig.Projects.Configs.Create("projects/"+project, &runtimeConfig).Do()
+	_, err = config.NewRuntimeconfigClient(userAgent).Projects.Configs.Create("projects/"+project, &runtimeConfig).Do()
 
 	if err != nil {
 		return err
@@ -86,10 +85,9 @@ func resourceRuntimeconfigConfigRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.clientRuntimeconfig.UserAgent = userAgent
 
 	fullName := d.Id()
-	runConfig, err := config.clientRuntimeconfig.Projects.Configs.Get(fullName).Do()
+	runConfig, err := config.NewRuntimeconfigClient(userAgent).Projects.Configs.Get(fullName).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("RuntimeConfig %q", d.Id()))
 	}
@@ -128,7 +126,6 @@ func resourceRuntimeconfigConfigUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientRuntimeconfig.UserAgent = userAgent
 
 	// Update works more like an 'overwrite' method - we build a new runtimeconfig.RuntimeConfig struct and it becomes
 	// the new config. This means our Update logic looks an awful lot like Create (and hence, doesn't use
@@ -141,7 +138,7 @@ func resourceRuntimeconfigConfigUpdate(d *schema.ResourceData, meta interface{})
 		runtimeConfig.Description = v.(string)
 	}
 
-	_, err = config.clientRuntimeconfig.Projects.Configs.Update(fullName, &runtimeConfig).Do()
+	_, err = config.NewRuntimeconfigClient(userAgent).Projects.Configs.Update(fullName, &runtimeConfig).Do()
 	if err != nil {
 		return err
 	}
@@ -154,11 +151,10 @@ func resourceRuntimeconfigConfigDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientRuntimeconfig.UserAgent = userAgent
 
 	fullName := d.Id()
 
-	_, err = config.clientRuntimeconfig.Projects.Configs.Delete(fullName).Do()
+	_, err = config.NewRuntimeconfigClient(userAgent).Projects.Configs.Delete(fullName).Do()
 	if err != nil {
 		return err
 	}

@@ -94,7 +94,7 @@ func testAccCheckGoogleFolderDestroyProducer(t *testing.T) func(s *terraform.Sta
 				continue
 			}
 
-			folder, err := config.clientResourceManagerV2Beta1.Folders.Get(rs.Primary.ID).Do()
+			folder, err := config.NewResourceManagerV2Beta1Client(config.userAgent).Folders.Get(rs.Primary.ID).Do()
 			if err != nil || folder.LifecycleState != "DELETE_REQUESTED" {
 				return fmt.Errorf("Folder '%s' hasn't been marked for deletion", rs.Primary.Attributes["display_name"])
 			}
@@ -117,7 +117,7 @@ func testAccCheckGoogleFolderExists(t *testing.T, n string, folder *resourceMana
 
 		config := googleProviderConfig(t)
 
-		found, err := config.clientResourceManagerV2Beta1.Folders.Get(rs.Primary.ID).Do()
+		found, err := config.NewResourceManagerV2Beta1Client(config.userAgent).Folders.Get(rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}

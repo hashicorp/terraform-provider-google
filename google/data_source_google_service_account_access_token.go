@@ -60,11 +60,10 @@ func dataSourceGoogleServiceAccountAccessTokenRead(d *schema.ResourceData, meta 
 	if err != nil {
 		return err
 	}
-	config.clientIamCredentials.UserAgent = userAgent
 
 	log.Printf("[INFO] Acquire Service Account AccessToken for %s", d.Get("target_service_account").(string))
 
-	service := config.clientIamCredentials
+	service := config.NewIamCredentialsClient(userAgent)
 
 	name := fmt.Sprintf("projects/-/serviceAccounts/%s", d.Get("target_service_account").(string))
 	tokenRequest := &iamcredentials.GenerateAccessTokenRequest{

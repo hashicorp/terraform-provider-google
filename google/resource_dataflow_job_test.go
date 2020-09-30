@@ -300,7 +300,7 @@ func testAccCheckDataflowJobDestroyProducer(t *testing.T) func(s *terraform.Stat
 			}
 
 			config := googleProviderConfig(t)
-			job, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
+			job, err := config.NewDataflowClient(config.userAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 			if job != nil {
 				if _, ok := dataflowTerminalStatesMap[job.CurrentState]; !ok {
 					return fmt.Errorf("Job still present")
@@ -322,7 +322,7 @@ func testAccCheckDataflowJobRegionDestroyProducer(t *testing.T) func(s *terrafor
 			}
 
 			config := googleProviderConfig(t)
-			job, err := config.clientDataflow.Projects.Locations.Jobs.Get(config.Project, "us-central1", rs.Primary.ID).Do()
+			job, err := config.NewDataflowClient(config.userAgent).Projects.Locations.Jobs.Get(config.Project, "us-central1", rs.Primary.ID).Do()
 			if job != nil {
 				if _, ok := dataflowTerminalStatesMap[job.CurrentState]; !ok {
 					return fmt.Errorf("Job still present")
@@ -347,7 +347,7 @@ func testAccDataflowJobExists(t *testing.T, resource string) resource.TestCheckF
 		}
 
 		config := googleProviderConfig(t)
-		_, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
+		_, err := config.NewDataflowClient(config.userAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 		if err != nil {
 			return fmt.Errorf("could not confirm Dataflow Job %q exists: %v", rs.Primary.ID, err)
 		}
@@ -486,7 +486,7 @@ func testAccRegionalDataflowJobExists(t *testing.T, res, region string) resource
 			return fmt.Errorf("No ID is set")
 		}
 		config := googleProviderConfig(t)
-		_, err := config.clientDataflow.Projects.Locations.Jobs.Get(config.Project, region, rs.Primary.ID).Do()
+		_, err := config.NewDataflowClient(config.userAgent).Projects.Locations.Jobs.Get(config.Project, region, rs.Primary.ID).Do()
 		if err != nil {
 			return fmt.Errorf("Job does not exist")
 		}
@@ -507,7 +507,7 @@ func testAccDataflowJobHasLabels(t *testing.T, res, key string) resource.TestChe
 		}
 		config := googleProviderConfig(t)
 
-		job, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
+		job, err := config.NewDataflowClient(config.userAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 		if err != nil {
 			return fmt.Errorf("dataflow job does not exist")
 		}
@@ -532,7 +532,7 @@ func testAccDataflowJobHasExperiments(t *testing.T, res string, experiments []st
 		}
 		config := googleProviderConfig(t)
 
-		job, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).View("JOB_VIEW_ALL").Do()
+		job, err := config.NewDataflowClient(config.userAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).View("JOB_VIEW_ALL").Do()
 		if err != nil {
 			return fmt.Errorf("dataflow job does not exist")
 		}
@@ -565,7 +565,7 @@ func testAccDataflowJobHasTempLocation(t *testing.T, res, targetLocation string)
 		}
 		config := googleProviderConfig(t)
 
-		job, err := config.clientDataflow.Projects.Jobs.Get(config.Project, rs.Primary.ID).View("JOB_VIEW_ALL").Do()
+		job, err := config.NewDataflowClient(config.userAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).View("JOB_VIEW_ALL").Do()
 		if err != nil {
 			return fmt.Errorf("dataflow job does not exist")
 		}

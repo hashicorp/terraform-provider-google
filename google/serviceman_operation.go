@@ -22,7 +22,7 @@ func (w *ServiceManagementOperationWaiter) QueryOp() (interface{}, error) {
 
 func serviceManagementOperationWaitTime(config *Config, op *servicemanagement.Operation, activity, userAgent string, timeout time.Duration) (googleapi.RawMessage, error) {
 	w := &ServiceManagementOperationWaiter{
-		Service: config.clientServiceMan,
+		Service: config.NewServiceManClient(userAgent),
 	}
 
 	if err := w.SetOp(op); err != nil {

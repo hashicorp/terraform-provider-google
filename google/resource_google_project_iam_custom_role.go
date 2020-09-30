@@ -80,7 +80,6 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -88,7 +87,7 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 	}
 
 	roleId := fmt.Sprintf("projects/%s/roles/%s", project, d.Get("role_id").(string))
-	r, err := config.clientIAM.Projects.Roles.Get(roleId).Do()
+	r, err := config.NewIamClient(userAgent).Projects.Roles.Get(roleId).Do()
 	if err == nil {
 		if r.Deleted {
 			// This role was soft-deleted; update to match new state.
@@ -104,7 +103,7 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 		}
 	} else if err := handleNotFoundError(err, d, fmt.Sprintf("Custom Project Role %q", roleId)); err == nil {
 		// If no role is found, actually create a new role.
-		role, err := config.clientIAM.Projects.Roles.Create("projects/"+project, &iam.CreateRoleRequest{
+		role, err := config.NewIamClient(userAgent).Projects.Roles.Create("projects/"+project, &iam.CreateRoleRequest{
 			RoleId: d.Get("role_id").(string),
 			Role: &iam.Role{
 				Title:               d.Get("title").(string),
@@ -137,11 +136,10 @@ func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
 	project := extractProjectFromProjectIamCustomRoleID(d.Id())
 
-	role, err := config.clientIAM.Projects.Roles.Get(d.Id()).Do()
+	role, err := config.NewIamClient(userAgent).Projects.Roles.Get(d.Id()).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, d.Id())
 	}
@@ -180,25 +178,24 @@ func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
 	d.Partial(true)
 
 	// We want to update the role to some undeleted state.
 	// Make sure the role with given ID exists and is un-deleted before patching.
-	r, err := config.clientIAM.Projects.Roles.Get(d.Id()).Do()
+	r, err := config.NewIamClient(userAgent).Projects.Roles.Get(d.Id()).Do()
 	if err != nil {
 		return fmt.Errorf("unable to find custom project role %s to update: %v", d.Id(), err)
 	}
 	if r.Deleted {
-		_, err := config.clientIAM.Projects.Roles.Undelete(d.Id(), &iam.UndeleteRoleRequest{}).Do()
+		_, err := config.NewIamClient(userAgent).Projects.Roles.Undelete(d.Id(), &iam.UndeleteRoleRequest{}).Do()
 		if err != nil {
 			return fmt.Errorf("Error undeleting the custom project role %s: %s", d.Get("title").(string), err)
 		}
 	}
 
 	if d.HasChange("title") || d.HasChange("description") || d.HasChange("stage") || d.HasChange("permissions") {
-		_, err := config.clientIAM.Projects.Roles.Patch(d.Id(), &iam.Role{
+		_, err := config.NewIamClient(userAgent).Projects.Roles.Patch(d.Id(), &iam.Role{
 			Title:               d.Get("title").(string),
 			Description:         d.Get("description").(string),
 			Stage:               d.Get("stage").(string),
@@ -220,9 +217,8 @@ func resourceGoogleProjectIamCustomRoleDelete(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
-	_, err = config.clientIAM.Projects.Roles.Delete(d.Id()).Do()
+	_, err = config.NewIamClient(userAgent).Projects.Roles.Delete(d.Id()).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting the custom project role %s: %s", d.Get("title").(string), err)
 	}

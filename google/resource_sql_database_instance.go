@@ -624,7 +624,6 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientSqlAdmin.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -671,7 +670,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	var op *sqladmin.Operation
 	err = retryTimeDuration(func() (operr error) {
-		op, operr = config.clientSqlAdmin.Instances.Insert(project, instance).Do()
+		op, operr = config.NewSqlAdminClient(userAgent).Instances.Insert(project, instance).Do()
 		return operr
 	}, d.Timeout(schema.TimeoutCreate), isSqlOperationInProgressError)
 	if err != nil {
@@ -700,7 +699,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	if sqlDatabaseIsMaster(d) {
 		var users *sqladmin.UsersListResponse
 		err = retryTimeDuration(func() error {
-			users, err = config.clientSqlAdmin.Users.List(project, instance.Name).Do()
+			users, err = config.NewSqlAdminClient(userAgent).Users.List(project, instance.Name).Do()
 			return err
 		}, d.Timeout(schema.TimeoutRead), isSqlOperationInProgressError)
 		if err != nil {
@@ -709,7 +708,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		for _, u := range users.Items {
 			if u.Name == "root" && u.Host == "%" {
 				err = retry(func() error {
-					op, err = config.clientSqlAdmin.Users.Delete(project, instance.Name).Host(u.Host).Name(u.Name).Do()
+					op, err = config.NewSqlAdminClient(userAgent).Users.Delete(project, instance.Name).Host(u.Host).Name(u.Name).Do()
 					if err == nil {
 						err = sqlAdminOperationWaitTime(config, op, project, "Delete default root User", userAgent, d.Timeout(schema.TimeoutCreate))
 					}
@@ -886,7 +885,6 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.clientSqlAdmin.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -895,7 +893,7 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 
 	var instance *sqladmin.DatabaseInstance
 	err = retryTimeDuration(func() (rerr error) {
-		instance, rerr = config.clientSqlAdmin.Instances.Get(project, d.Get("name").(string)).Do()
+		instance, rerr = config.NewSqlAdminClient(userAgent).Instances.Get(project, d.Get("name").(string)).Do()
 		return rerr
 	}, d.Timeout(schema.TimeoutRead), isSqlOperationInProgressError)
 	if err != nil {
@@ -979,7 +977,6 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientSqlAdmin.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1000,7 +997,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	var op *sqladmin.Operation
 	err = retryTimeDuration(func() (rerr error) {
-		op, rerr = config.clientSqlAdmin.Instances.Update(project, d.Get("name").(string), instance).Do()
+		op, rerr = config.NewSqlAdminClient(userAgent).Instances.Update(project, d.Get("name").(string), instance).Do()
 		return rerr
 	}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
 	if err != nil {
@@ -1021,7 +1018,6 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientSqlAdmin.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1037,7 +1033,7 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 
 	var op *sqladmin.Operation
 	err = retryTimeDuration(func() (rerr error) {
-		op, rerr = config.clientSqlAdmin.Instances.Delete(project, d.Get("name").(string)).Do()
+		op, rerr = config.NewSqlAdminClient(userAgent).Instances.Delete(project, d.Get("name").(string)).Do()
 		if rerr != nil {
 			return rerr
 		}

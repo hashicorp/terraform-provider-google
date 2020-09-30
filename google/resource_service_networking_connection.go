@@ -73,7 +73,7 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 	config.clientServiceNetworking.UserAgent = userAgent
 
 	network := d.Get("network").(string)
-	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
+	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
 	if err != nil {
 		return errwrap.Wrapf("Failed to find Service Networking Connection, err: {{err}}", err)
 	}
@@ -129,7 +129,7 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 		return errwrap.Wrapf("Unable to parse Service Networking Connection id, err: {{err}}", err)
 	}
 
-	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, connectionId.Network)
+	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, connectionId.Network, userAgent)
 	if err != nil {
 		return errwrap.Wrapf("Failed to find Service Networking Connection, err: {{err}}", err)
 	}
@@ -187,7 +187,7 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("reserved_peering_ranges") {
 		network := d.Get("network").(string)
-		serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
+		serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
 		if err != nil {
 			return errwrap.Wrapf("Failed to find Service Networking Connection, err: {{err}}", err)
 		}
@@ -218,7 +218,7 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	network := d.Get("network").(string)
-	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
+	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
 	if err != nil {
 		return err
 	}
@@ -313,7 +313,7 @@ func parseConnectionId(id string) (*connectionId, error) {
 // NOTE(craigatgoogle): An out of band aspect of this API is that it uses a unique formatting of network
 // different from the standard self_link URI. It requires a call to the resource manager to get the project
 // number for the current project.
-func retrieveServiceNetworkingNetworkName(d *schema.ResourceData, config *Config, network string) (string, error) {
+func retrieveServiceNetworkingNetworkName(d *schema.ResourceData, config *Config, network, userAgent string) (string, error) {
 	networkFieldValue, err := ParseNetworkFieldValue(network, d, config)
 	if err != nil {
 		return "", errwrap.Wrapf("Failed to retrieve network field value, err: {{err}}", err)
@@ -324,7 +324,7 @@ func retrieveServiceNetworkingNetworkName(d *schema.ResourceData, config *Config
 		return "", fmt.Errorf("Could not determine project")
 	}
 
-	project, err := config.clientResourceManager.Projects.Get(pid).Do()
+	project, err := config.NewResourceManagerClient(userAgent).Projects.Get(pid).Do()
 	if err != nil {
 		return "", fmt.Errorf("Failed to retrieve project, pid: %s, err: %s", pid, err)
 	}

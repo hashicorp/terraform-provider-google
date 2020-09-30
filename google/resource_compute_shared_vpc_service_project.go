@@ -50,7 +50,6 @@ func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
-	config.clientComputeBeta.UserAgent = userAgent
 
 	hostProject := d.Get("host_project").(string)
 	serviceProject := d.Get("service_project").(string)
@@ -61,7 +60,7 @@ func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta i
 			Type: "PROJECT",
 		},
 	}
-	op, err := config.clientComputeBeta.Projects.EnableXpnResource(hostProject, req).Do()
+	op, err := config.NewComputeBetaClient(userAgent).Projects.EnableXpnResource(hostProject, req).Do()
 	if err != nil {
 		return err
 	}
@@ -115,11 +114,6 @@ func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta int
 
 func resourceComputeSharedVpcServiceProjectDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-	config.clientComputeBeta.UserAgent = userAgent
 	hostProject := d.Get("host_project").(string)
 	serviceProject := d.Get("service_project").(string)
 
@@ -145,7 +139,7 @@ func disableXpnResource(d *schema.ResourceData, config *Config, hostProject, pro
 			Type: "PROJECT",
 		},
 	}
-	op, err := config.clientComputeBeta.Projects.DisableXpnResource(hostProject, req).Do()
+	op, err := config.NewComputeBetaClient(userAgent).Projects.DisableXpnResource(hostProject, req).Do()
 	if err != nil {
 		return err
 	}

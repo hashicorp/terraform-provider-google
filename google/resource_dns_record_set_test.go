@@ -220,7 +220,7 @@ func testAccCheckDnsRecordSetDestroyProducer(t *testing.T) func(s *terraform.Sta
 		for _, rs := range s.RootModule().Resources {
 			// Deletion of the managed_zone implies everything is gone
 			if rs.Type == "google_dns_managed_zone" {
-				_, err := config.clientDns.ManagedZones.Get(
+				_, err := config.NewDnsClient(config.userAgent).ManagedZones.Get(
 					config.Project, rs.Primary.ID).Do()
 				if err == nil {
 					return fmt.Errorf("DNS ManagedZone still exists")
@@ -248,7 +248,7 @@ func testAccCheckDnsRecordSetExists(t *testing.T, resourceType, resourceName str
 
 		config := googleProviderConfig(t)
 
-		resp, err := config.clientDns.ResourceRecordSets.List(
+		resp, err := config.NewDnsClient(config.userAgent).ResourceRecordSets.List(
 			config.Project, resourceName).Name(dnsName).Type(dnsType).Do()
 		if err != nil {
 			return fmt.Errorf("Error confirming DNS RecordSet existence: %#v", err)

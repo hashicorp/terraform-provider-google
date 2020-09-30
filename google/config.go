@@ -75,7 +75,6 @@ type Config struct {
 
 	client                *http.Client
 	wrappedBigQueryClient *http.Client
-	wrappedPubsubClient   *http.Client
 	context               context.Context
 	userAgent             string
 
@@ -142,13 +141,10 @@ type Config struct {
 	clientComposer   *composer.Service
 
 	ComputeBetaBasePath string
-	clientComputeBeta   *computeBeta.Service
 
 	ContainerBasePath string
-	clientContainer   *container.Service
 
 	ContainerBetaBasePath string
-	clientContainerBeta   *containerBeta.Service
 
 	clientDataproc *dataproc.Service
 
@@ -156,47 +152,22 @@ type Config struct {
 	clientDataprocBeta   *dataprocBeta.Service
 
 	DataflowBasePath string
-	clientDataflow   *dataflow.Service
-
-	clientDns *dns.Service
 
 	DnsBetaBasePath string
-	clientDnsBeta   *dnsBeta.Service
 
 	clientFilestore *file.Service
 
 	IamCredentialsBasePath string
-	clientIamCredentials   *iamcredentials.Service
-
-	clientKms *cloudkms.Service
-
-	clientLogging *cloudlogging.Service
-
-	clientPubsub *pubsub.Service
-
-	clientResourceManager *cloudresourcemanager.Service
 
 	ResourceManagerV2Beta1BasePath string
-	clientResourceManagerV2Beta1   *resourceManagerV2Beta1.Service
-
-	clientRuntimeconfig *runtimeconfig.Service
 
 	clientSpanner *spanner.Service
 
 	clientSourceRepo *sourcerepo.Service
 
-	clientStorage *storage.Service
-
-	clientSqlAdmin *sqladmin.Service
-
 	IAMBasePath string
-	clientIAM   *iam.Service
 
 	clientHealthcare *healthcare.Service
-
-	clientServiceMan *servicemanagement.APIService
-
-	clientServiceUsage *serviceusage.Service
 
 	clientBigQuery *bigquery.Service
 
@@ -329,173 +300,6 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	// while most only want the host URL, some older ones also want the version and some
 	// of those "projects" as well. You can find out if this is required by looking at
 	// the basePath value in the client library file.
-
-	computeBetaClientBasePath := c.ComputeBetaBasePath + "projects/"
-	log.Printf("[INFO] Instantiating GCE Beta client for path %s", computeBetaClientBasePath)
-	c.clientComputeBeta, err = computeBeta.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientComputeBeta.UserAgent = c.userAgent
-	c.clientComputeBeta.BasePath = computeBetaClientBasePath
-
-	containerClientBasePath := removeBasePathVersion(c.ContainerBasePath)
-	log.Printf("[INFO] Instantiating GKE client for path %s", containerClientBasePath)
-	c.clientContainer, err = container.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientContainer.UserAgent = c.userAgent
-	c.clientContainer.BasePath = containerClientBasePath
-
-	containerBetaClientBasePath := removeBasePathVersion(c.ContainerBetaBasePath)
-	log.Printf("[INFO] Instantiating GKE Beta client for path %s", containerBetaClientBasePath)
-	c.clientContainerBeta, err = containerBeta.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientContainerBeta.UserAgent = c.userAgent
-	c.clientContainerBeta.BasePath = containerBetaClientBasePath
-
-	dnsClientBasePath := removeBasePathVersion(c.DNSBasePath)
-	dnsClientBasePath = strings.ReplaceAll(dnsClientBasePath, "/dns/", "")
-	log.Printf("[INFO] Instantiating Google Cloud DNS client for path %s", dnsClientBasePath)
-	c.clientDns, err = dns.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientDns.UserAgent = c.userAgent
-	c.clientDns.BasePath = dnsClientBasePath
-
-	dnsBetaClientBasePath := removeBasePathVersion(c.DnsBetaBasePath)
-	dnsBetaClientBasePath = strings.ReplaceAll(dnsBetaClientBasePath, "/dns/", "")
-	log.Printf("[INFO] Instantiating Google Cloud DNS Beta client for path %s", dnsBetaClientBasePath)
-	c.clientDnsBeta, err = dnsBeta.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientDnsBeta.UserAgent = c.userAgent
-	c.clientDnsBeta.BasePath = dnsBetaClientBasePath
-
-	kmsClientBasePath := removeBasePathVersion(c.KMSBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud KMS client for path %s", kmsClientBasePath)
-	c.clientKms, err = cloudkms.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientKms.UserAgent = c.userAgent
-	c.clientKms.BasePath = kmsClientBasePath
-
-	loggingClientBasePath := removeBasePathVersion(c.LoggingBasePath)
-	log.Printf("[INFO] Instantiating Google Stackdriver Logging client for path %s", loggingClientBasePath)
-	c.clientLogging, err = cloudlogging.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientLogging.UserAgent = c.userAgent
-	c.clientLogging.BasePath = loggingClientBasePath
-
-	storageClientBasePath := c.StorageBasePath
-	log.Printf("[INFO] Instantiating Google Storage client for path %s", storageClientBasePath)
-	c.clientStorage, err = storage.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientStorage.UserAgent = c.userAgent
-	c.clientStorage.BasePath = storageClientBasePath
-
-	sqlClientBasePath := removeBasePathVersion(removeBasePathVersion(c.SQLBasePath))
-	log.Printf("[INFO] Instantiating Google SqlAdmin client for path %s", sqlClientBasePath)
-	c.clientSqlAdmin, err = sqladmin.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientSqlAdmin.UserAgent = c.userAgent
-	c.clientSqlAdmin.BasePath = sqlClientBasePath
-
-	pubsubClientBasePath := removeBasePathVersion(c.PubsubBasePath)
-	log.Printf("[INFO] Instantiating Google Pubsub client for path %s", pubsubClientBasePath)
-	wrappedPubsubClient := ClientWithAdditionalRetries(client, retryTransport, pubsubTopicProjectNotReady)
-	c.wrappedPubsubClient = wrappedPubsubClient
-	c.clientPubsub, err = pubsub.NewService(ctx, option.WithHTTPClient(wrappedPubsubClient))
-	if err != nil {
-		return err
-	}
-	c.clientPubsub.UserAgent = c.userAgent
-	c.clientPubsub.BasePath = pubsubClientBasePath
-
-	dataflowClientBasePath := removeBasePathVersion(c.DataflowBasePath)
-	log.Printf("[INFO] Instantiating Google Dataflow client for path %s", dataflowClientBasePath)
-	c.clientDataflow, err = dataflow.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientDataflow.UserAgent = c.userAgent
-	c.clientDataflow.BasePath = dataflowClientBasePath
-
-	resourceManagerBasePath := removeBasePathVersion(c.ResourceManagerBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud ResourceManager client for path %s", resourceManagerBasePath)
-	c.clientResourceManager, err = cloudresourcemanager.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientResourceManager.UserAgent = c.userAgent
-	c.clientResourceManager.BasePath = resourceManagerBasePath
-
-	resourceManagerV2Beta1BasePath := removeBasePathVersion(c.ResourceManagerV2Beta1BasePath)
-	log.Printf("[INFO] Instantiating Google Cloud ResourceManager V client for path %s", resourceManagerV2Beta1BasePath)
-	c.clientResourceManagerV2Beta1, err = resourceManagerV2Beta1.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientResourceManagerV2Beta1.UserAgent = c.userAgent
-	c.clientResourceManagerV2Beta1.BasePath = resourceManagerV2Beta1BasePath
-
-	runtimeConfigClientBasePath := removeBasePathVersion(c.RuntimeConfigBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Runtimeconfig client for path %s", runtimeConfigClientBasePath)
-	c.clientRuntimeconfig, err = runtimeconfig.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientRuntimeconfig.UserAgent = c.userAgent
-	c.clientRuntimeconfig.BasePath = runtimeConfigClientBasePath
-
-	iamClientBasePath := removeBasePathVersion(c.IAMBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud IAM client for path %s", iamClientBasePath)
-	c.clientIAM, err = iam.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientIAM.UserAgent = c.userAgent
-	c.clientIAM.BasePath = iamClientBasePath
-
-	iamCredentialsClientBasePath := removeBasePathVersion(c.IamCredentialsBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud IAMCredentials client for path %s", iamCredentialsClientBasePath)
-	c.clientIamCredentials, err = iamcredentials.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientIamCredentials.UserAgent = c.userAgent
-	c.clientIamCredentials.BasePath = iamCredentialsClientBasePath
-
-	serviceManagementClientBasePath := removeBasePathVersion(c.ServiceManagementBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Service Management client for path %s", serviceManagementClientBasePath)
-	c.clientServiceMan, err = servicemanagement.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientServiceMan.UserAgent = c.userAgent
-	c.clientServiceMan.BasePath = serviceManagementClientBasePath
-
-	serviceUsageClientBasePath := removeBasePathVersion(c.ServiceUsageBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Service Usage client for path %s", serviceUsageClientBasePath)
-	c.clientServiceUsage, err = serviceusage.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientServiceUsage.UserAgent = c.userAgent
-	c.clientServiceUsage.BasePath = serviceUsageClientBasePath
-
 	cloudBillingClientBasePath := removeBasePathVersion(c.CloudBillingBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Billing client for path %s", cloudBillingClientBasePath)
 	c.clientBilling, err = cloudbilling.NewService(ctx, option.WithHTTPClient(client))
@@ -516,7 +320,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 
 	bigQueryClientBasePath := c.BigQueryBasePath
 	log.Printf("[INFO] Instantiating Google Cloud BigQuery client for path %s", bigQueryClientBasePath)
-	wrappedBigQueryClient := ClientWithAdditionalRetries(client, retryTransport, iamMemberMissing)
+	wrappedBigQueryClient := ClientWithAdditionalRetries(client, iamMemberMissing)
 	c.wrappedBigQueryClient = wrappedBigQueryClient
 	c.clientBigQuery, err = bigquery.NewService(ctx, option.WithHTTPClient(wrappedBigQueryClient))
 	if err != nil {
@@ -718,6 +522,261 @@ func (c *Config) NewComputeClient(userAgent string) *compute.Service {
 	clientCompute.BasePath = computeClientBasePath
 
 	return clientCompute
+}
+
+func (c *Config) NewComputeBetaClient(userAgent string) *computeBeta.Service {
+	computeBetaClientBasePath := c.ComputeBetaBasePath + "projects/"
+	log.Printf("[INFO] Instantiating GCE Beta client for path %s", computeBetaClientBasePath)
+	clientComputeBeta, err := computeBeta.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client compute beta: %s", err)
+		return nil
+	}
+	clientComputeBeta.UserAgent = userAgent
+	clientComputeBeta.BasePath = computeBetaClientBasePath
+
+	return clientComputeBeta
+}
+
+func (c *Config) NewContainerClient(userAgent string) *container.Service {
+	containerClientBasePath := removeBasePathVersion(c.ContainerBasePath)
+	log.Printf("[INFO] Instantiating GKE client for path %s", containerClientBasePath)
+	clientContainer, err := container.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client container: %s", err)
+		return nil
+	}
+	clientContainer.UserAgent = userAgent
+	clientContainer.BasePath = containerClientBasePath
+
+	return clientContainer
+}
+
+func (c *Config) NewContainerBetaClient(userAgent string) *containerBeta.Service {
+	containerBetaClientBasePath := removeBasePathVersion(c.ContainerBetaBasePath)
+	log.Printf("[INFO] Instantiating GKE Beta client for path %s", containerBetaClientBasePath)
+	clientContainerBeta, err := containerBeta.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client container beta: %s", err)
+		return nil
+	}
+	clientContainerBeta.UserAgent = userAgent
+	clientContainerBeta.BasePath = containerBetaClientBasePath
+
+	return clientContainerBeta
+}
+
+func (c *Config) NewDnsClient(userAgent string) *dns.Service {
+	dnsClientBasePath := removeBasePathVersion(c.DNSBasePath)
+	dnsClientBasePath = strings.ReplaceAll(dnsClientBasePath, "/dns/", "")
+	log.Printf("[INFO] Instantiating Google Cloud DNS client for path %s", dnsClientBasePath)
+	clientDns, err := dns.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client dns: %s", err)
+		return nil
+	}
+	clientDns.UserAgent = userAgent
+	clientDns.BasePath = dnsClientBasePath
+
+	return clientDns
+}
+
+func (c *Config) NewDnsBetaClient(userAgent string) *dnsBeta.Service {
+	dnsBetaClientBasePath := removeBasePathVersion(c.DnsBetaBasePath)
+	dnsBetaClientBasePath = strings.ReplaceAll(dnsBetaClientBasePath, "/dns/", "")
+	log.Printf("[INFO] Instantiating Google Cloud DNS Beta client for path %s", dnsBetaClientBasePath)
+	clientDnsBeta, err := dnsBeta.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client dns beta: %s", err)
+		return nil
+	}
+	clientDnsBeta.UserAgent = userAgent
+	clientDnsBeta.BasePath = dnsBetaClientBasePath
+
+	return clientDnsBeta
+}
+
+func (c *Config) NewKmsClient(userAgent string) *cloudkms.Service {
+	kmsClientBasePath := removeBasePathVersion(c.KMSBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud KMS client for path %s", kmsClientBasePath)
+	clientKms, err := cloudkms.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client kms: %s", err)
+		return nil
+	}
+	clientKms.UserAgent = userAgent
+	clientKms.BasePath = kmsClientBasePath
+
+	return clientKms
+}
+
+func (c *Config) NewLoggingClient(userAgent string) *cloudlogging.Service {
+	loggingClientBasePath := removeBasePathVersion(c.LoggingBasePath)
+	log.Printf("[INFO] Instantiating Google Stackdriver Logging client for path %s", loggingClientBasePath)
+	clientLogging, err := cloudlogging.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client logging: %s", err)
+		return nil
+	}
+	clientLogging.UserAgent = userAgent
+	clientLogging.BasePath = loggingClientBasePath
+
+	return clientLogging
+}
+
+func (c *Config) NewStorageClient(userAgent string) *storage.Service {
+	storageClientBasePath := c.StorageBasePath
+	log.Printf("[INFO] Instantiating Google Storage client for path %s", storageClientBasePath)
+	clientStorage, err := storage.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client storage: %s", err)
+		return nil
+	}
+	clientStorage.UserAgent = userAgent
+	clientStorage.BasePath = storageClientBasePath
+
+	return clientStorage
+}
+
+func (c *Config) NewSqlAdminClient(userAgent string) *sqladmin.Service {
+	sqlClientBasePath := removeBasePathVersion(removeBasePathVersion(c.SQLBasePath))
+	log.Printf("[INFO] Instantiating Google SqlAdmin client for path %s", sqlClientBasePath)
+	clientSqlAdmin, err := sqladmin.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client storage: %s", err)
+		return nil
+	}
+	clientSqlAdmin.UserAgent = userAgent
+	clientSqlAdmin.BasePath = sqlClientBasePath
+
+	return clientSqlAdmin
+}
+
+func (c *Config) NewPubsubClient(userAgent string) *pubsub.Service {
+	pubsubClientBasePath := removeBasePathVersion(c.PubsubBasePath)
+	log.Printf("[INFO] Instantiating Google Pubsub client for path %s", pubsubClientBasePath)
+	wrappedPubsubClient := ClientWithAdditionalRetries(c.client, pubsubTopicProjectNotReady)
+	clientPubsub, err := pubsub.NewService(c.context, option.WithHTTPClient(wrappedPubsubClient))
+	if err != nil {
+		log.Printf("[WARN] Error creating client pubsub: %s", err)
+		return nil
+	}
+	clientPubsub.UserAgent = userAgent
+	clientPubsub.BasePath = pubsubClientBasePath
+
+	return clientPubsub
+}
+
+func (c *Config) NewDataflowClient(userAgent string) *dataflow.Service {
+	dataflowClientBasePath := removeBasePathVersion(c.DataflowBasePath)
+	log.Printf("[INFO] Instantiating Google Dataflow client for path %s", dataflowClientBasePath)
+	clientDataflow, err := dataflow.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client dataflow: %s", err)
+		return nil
+	}
+	clientDataflow.UserAgent = userAgent
+	clientDataflow.BasePath = dataflowClientBasePath
+
+	return clientDataflow
+}
+
+func (c *Config) NewResourceManagerClient(userAgent string) *cloudresourcemanager.Service {
+	resourceManagerBasePath := removeBasePathVersion(c.ResourceManagerBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud ResourceManager client for path %s", resourceManagerBasePath)
+	clientResourceManager, err := cloudresourcemanager.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client resource manager: %s", err)
+		return nil
+	}
+	clientResourceManager.UserAgent = userAgent
+	clientResourceManager.BasePath = resourceManagerBasePath
+
+	return clientResourceManager
+}
+
+func (c *Config) NewResourceManagerV2Beta1Client(userAgent string) *resourceManagerV2Beta1.Service {
+	resourceManagerV2Beta1BasePath := removeBasePathVersion(c.ResourceManagerV2Beta1BasePath)
+	log.Printf("[INFO] Instantiating Google Cloud ResourceManager V client for path %s", resourceManagerV2Beta1BasePath)
+	clientResourceManagerV2Beta1, err := resourceManagerV2Beta1.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client resource manager v2beta1: %s", err)
+		return nil
+	}
+	clientResourceManagerV2Beta1.UserAgent = userAgent
+	clientResourceManagerV2Beta1.BasePath = resourceManagerV2Beta1BasePath
+
+	return clientResourceManagerV2Beta1
+}
+
+func (c *Config) NewRuntimeconfigClient(userAgent string) *runtimeconfig.Service {
+	runtimeConfigClientBasePath := removeBasePathVersion(c.RuntimeConfigBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Runtimeconfig client for path %s", runtimeConfigClientBasePath)
+	clientRuntimeconfig, err := runtimeconfig.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client resource manager v2beta1: %s", err)
+		return nil
+	}
+	clientRuntimeconfig.UserAgent = userAgent
+	clientRuntimeconfig.BasePath = runtimeConfigClientBasePath
+
+	return clientRuntimeconfig
+}
+
+func (c *Config) NewIamClient(userAgent string) *iam.Service {
+	iamClientBasePath := removeBasePathVersion(c.IAMBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud IAM client for path %s", iamClientBasePath)
+	clientIAM, err := iam.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client iam: %s", err)
+		return nil
+	}
+	clientIAM.UserAgent = userAgent
+	clientIAM.BasePath = iamClientBasePath
+
+	return clientIAM
+}
+
+func (c *Config) NewIamCredentialsClient(userAgent string) *iamcredentials.Service {
+	iamCredentialsClientBasePath := removeBasePathVersion(c.IamCredentialsBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud IAMCredentials client for path %s", iamCredentialsClientBasePath)
+	clientIamCredentials, err := iamcredentials.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client iam credentials: %s", err)
+		return nil
+	}
+	clientIamCredentials.UserAgent = userAgent
+	clientIamCredentials.BasePath = iamCredentialsClientBasePath
+
+	return clientIamCredentials
+}
+
+func (c *Config) NewServiceManClient(userAgent string) *servicemanagement.APIService {
+	serviceManagementClientBasePath := removeBasePathVersion(c.ServiceManagementBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Service Management client for path %s", serviceManagementClientBasePath)
+	clientServiceMan, err := servicemanagement.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client service management: %s", err)
+		return nil
+	}
+	clientServiceMan.UserAgent = userAgent
+	clientServiceMan.BasePath = serviceManagementClientBasePath
+
+	return clientServiceMan
+}
+
+func (c *Config) NewServiceUsageClient(userAgent string) *serviceusage.Service {
+	serviceUsageClientBasePath := removeBasePathVersion(c.ServiceUsageBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Service Usage client for path %s", serviceUsageClientBasePath)
+	clientServiceUsage, err := serviceusage.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client service management: %s", err)
+		return nil
+	}
+	clientServiceUsage.UserAgent = userAgent
+	clientServiceUsage.BasePath = serviceUsageClientBasePath
+
+	return clientServiceUsage
 }
 
 // staticTokenSource is used to be able to identify static token sources without reflection.

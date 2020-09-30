@@ -106,7 +106,7 @@ func testAccEncryptSecretDataWithCryptoKey(t *testing.T, s *terraform.State, cry
 		kmsEncryptRequest.AdditionalAuthenticatedData = base64.StdEncoding.EncodeToString([]byte(aad))
 	}
 
-	encryptResponse, err := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.Encrypt(cryptoKeyId.cryptoKeyId(), kmsEncryptRequest).Do()
+	encryptResponse, err := config.NewKmsClient(config.userAgent).Projects.Locations.KeyRings.CryptoKeys.Encrypt(cryptoKeyId.cryptoKeyId(), kmsEncryptRequest).Do()
 
 	if err != nil {
 		return "", nil, fmt.Errorf("Error encrypting plaintext: %s", err)

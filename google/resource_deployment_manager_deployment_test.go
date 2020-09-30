@@ -379,7 +379,7 @@ func testDeploymentManagerDeploymentVerifyServiceAccountExists(t *testing.T, acc
 }
 
 func testCheckDeploymentServiceAccountExists(accountId string, config *Config) (exists bool, err error) {
-	_, err = config.clientIAM.Projects.ServiceAccounts.Get(
+	_, err = config.NewIamClient(config.userAgent).Projects.ServiceAccounts.Get(
 		fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", getTestProjectFromEnv(), accountId, getTestProjectFromEnv())).Do()
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {

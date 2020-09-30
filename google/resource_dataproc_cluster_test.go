@@ -731,7 +731,7 @@ func testAccCheckDataprocClusterAutoscaling(t *testing.T, cluster *dataproc.Clus
 }
 
 func validateBucketExists(bucket string, config *Config) (bool, error) {
-	_, err := config.clientStorage.Buckets.Get(bucket).Do()
+	_, err := config.NewStorageClient(config.userAgent).Buckets.Get(bucket).Do()
 
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == http.StatusNotFound {
@@ -777,7 +777,7 @@ func testAccCheckDataprocClusterInitActionSucceeded(t *testing.T, bucket, object
 	// Ensure it exists
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
-		_, err := config.clientStorage.Objects.Get(bucket, object).Do()
+		_, err := config.NewStorageClient(config.userAgent).Objects.Get(bucket, object).Do()
 		if err != nil {
 			return fmt.Errorf("Unable to verify init action success: Error reading object %s in bucket %s: %v", object, bucket, err)
 		}

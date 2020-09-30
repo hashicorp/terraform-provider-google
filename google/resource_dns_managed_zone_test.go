@@ -200,13 +200,13 @@ func testAccCheckManagedZoneCreateRRs(t *testing.T, zoneSuffix string, project s
 			},
 		}
 
-		chg, err := config.clientDns.Changes.Create(project, zone, chg).Do()
+		chg, err := config.NewDnsClient(config.userAgent).Changes.Create(project, zone, chg).Do()
 		if err != nil {
 			return fmt.Errorf("Error creating DNS RecordSet: %s", err)
 		}
 
 		w := &DnsChangeWaiter{
-			Service:     config.clientDns,
+			Service:     config.NewDnsClient(config.userAgent),
 			Change:      chg,
 			Project:     project,
 			ManagedZone: zone,

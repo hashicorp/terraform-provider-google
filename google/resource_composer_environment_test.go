@@ -620,7 +620,7 @@ func testSweepComposerEnvironments(config *Config) error {
 
 func testSweepComposerEnvironmentBuckets(config *Config) error {
 	artifactsBName := fmt.Sprintf("artifacts.%s.appspot.com", config.Project)
-	artifactBucket, err := config.clientStorage.Buckets.Get(artifactsBName).Do()
+	artifactBucket, err := config.NewStorageClient(config.userAgent).Buckets.Get(artifactsBName).Do()
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {
 			log.Printf("composer environment bucket %q not found, doesn't need to be cleaned up", artifactsBName)
@@ -631,7 +631,7 @@ func testSweepComposerEnvironmentBuckets(config *Config) error {
 		return err
 	}
 
-	found, err := config.clientStorage.Buckets.List(config.Project).Prefix(config.Region).Do()
+	found, err := config.NewStorageClient(config.userAgent).Buckets.List(config.Project).Prefix(config.Region).Do()
 	if err != nil {
 		return fmt.Errorf("error listing storage buckets created when testing composer environment: %s", err)
 	}
@@ -653,20 +653,20 @@ func testSweepComposerEnvironmentBuckets(config *Config) error {
 
 func testSweepComposerEnvironmentCleanUpBucket(config *Config, bucket *storage.Bucket) error {
 	var allErrors error
-	objList, err := config.clientStorage.Objects.List(bucket.Name).Do()
+	objList, err := config.NewStorageClient(config.userAgent).Objects.List(bucket.Name).Do()
 	if err != nil {
 		allErrors = multierror.Append(allErrors,
 			fmt.Errorf("Unable to list objects to delete for bucket %q: %s", bucket.Name, err))
 	}
 
 	for _, o := range objList.Items {
-		if err := config.clientStorage.Objects.Delete(bucket.Name, o.Name).Do(); err != nil {
+		if err := config.NewStorageClient(config.userAgent).Objects.Delete(bucket.Name, o.Name).Do(); err != nil {
 			allErrors = multierror.Append(allErrors,
 				fmt.Errorf("Unable to delete object %q from bucket %q: %s", o.Name, bucket.Name, err))
 		}
 	}
 
-	if err := config.clientStorage.Buckets.Delete(bucket.Name).Do(); err != nil {
+	if err := config.NewStorageClient(config.userAgent).Buckets.Delete(bucket.Name).Do(); err != nil {
 		allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete bucket %q: %s", bucket.Name, err))
 	}
 

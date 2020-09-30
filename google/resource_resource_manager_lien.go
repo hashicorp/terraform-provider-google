@@ -417,6 +417,12 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 	// 2) if either is non-numeric, a project with that ID exists.
 	// 3) the project IDs represented by both the new and old values are the same.
 	config := meta.(*Config)
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	new := res["parent"].(string)
 	old := d.Get("parent").(string)
 	if strings.HasPrefix(new, "projects/") {
@@ -438,7 +444,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 		log.Printf("[DEBUG] The old value was a real number: %d", oldVal)
 		oldProjId = oldVal
 	} else {
-		pOld, err := config.clientResourceManager.Projects.Get(old).Do()
+		pOld, err := config.NewResourceManagerClient(userAgent).Projects.Get(old).Do()
 		if err != nil {
 			return res, nil
 		}
@@ -448,7 +454,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 		log.Printf("[DEBUG] The new value was a real number: %d", newVal)
 		newProjId = newVal
 	} else {
-		pNew, err := config.clientResourceManager.Projects.Get(new).Do()
+		pNew, err := config.NewResourceManagerClient(userAgent).Projects.Get(new).Do()
 		if err != nil {
 			return res, nil
 		}

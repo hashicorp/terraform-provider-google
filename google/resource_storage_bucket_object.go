@@ -191,7 +191,6 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientStorage.UserAgent = userAgent
 
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
@@ -209,7 +208,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error, either \"content\" or \"source\" must be specified")
 	}
 
-	objectsService := storage.NewObjectsService(config.clientStorage)
+	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
 	object := &storage.Object{Bucket: bucket}
 
 	if v, ok := d.GetOk("cache_control"); ok {
@@ -259,12 +258,11 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.clientStorage.UserAgent = userAgent
 
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
 
-	objectsService := storage.NewObjectsService(config.clientStorage)
+	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
 	getCall := objectsService.Get(bucket, name)
 
 	res, err := getCall.Do()
@@ -324,12 +322,11 @@ func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientStorage.UserAgent = userAgent
 
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
 
-	objectsService := storage.NewObjectsService(config.clientStorage)
+	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
 
 	DeleteCall := objectsService.Delete(bucket, name)
 	err = DeleteCall.Do()

@@ -109,7 +109,7 @@ func testAccCheckComputeSecurityPolicyDestroyProducer(t *testing.T) func(s *terr
 
 			pol := rs.Primary.Attributes["name"]
 
-			_, err := config.clientComputeBeta.SecurityPolicies.Get(config.Project, pol).Do()
+			_, err := config.NewComputeBetaClient(config.userAgent).SecurityPolicies.Get(config.Project, pol).Do()
 			if err == nil {
 				return fmt.Errorf("Security policy %q still exists", pol)
 			}

@@ -259,7 +259,7 @@ func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config
 	searchRequest := &resourceManagerV2Beta1.SearchFoldersRequest{
 		Query: queryString,
 	}
-	searchResponse, err := config.clientResourceManagerV2Beta1.Folders.Search(searchRequest).Do()
+	searchResponse, err := config.NewResourceManagerV2Beta1Client(config.userAgent).Folders.Search(searchRequest).Do()
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {
 			return nil, fmt.Errorf("Folder not found: %s,%s", parent, displayName)
@@ -273,7 +273,7 @@ func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config
 		return nil, fmt.Errorf("expected exactly 1 folder, found %d", len(folders))
 	}
 
-	return getFolderIamPolicyByFolderName(folders[0].Name, config)
+	return getFolderIamPolicyByFolderName(folders[0].Name, config.userAgent, config)
 }
 
 func testAccFolderIamBasic(org, fname string) string {

@@ -89,7 +89,7 @@ func testAccCheckGoogleSqlUserExists(t *testing.T, n string) resource.TestCheckF
 		name := rs.Primary.Attributes["name"]
 		instance := rs.Primary.Attributes["instance"]
 		host := rs.Primary.Attributes["host"]
-		users, err := config.clientSqlAdmin.Users.List(config.Project,
+		users, err := config.NewSqlAdminClient(config.userAgent).Users.List(config.Project,
 			instance).Do()
 
 		if err != nil {
@@ -117,7 +117,7 @@ func testAccSqlUserDestroyProducer(t *testing.T) func(s *terraform.State) error 
 			name := rs.Primary.Attributes["name"]
 			instance := rs.Primary.Attributes["instance"]
 			host := rs.Primary.Attributes["host"]
-			users, err := config.clientSqlAdmin.Users.List(config.Project,
+			users, err := config.NewSqlAdminClient(config.userAgent).Users.List(config.Project,
 				instance).Do()
 
 			for _, user := range users.Items {

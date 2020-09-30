@@ -77,7 +77,6 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
 	org := d.Get("org_id").(string)
 	roleId := fmt.Sprintf("organizations/%s/roles/%s", org, d.Get("role_id").(string))
@@ -86,7 +85,7 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 	// Look for role with given ID.
 	// If it exists in deleted state, update to match "created" role state
 	// If it exists and and is enabled, return error - we should not try to recreate.
-	r, err := config.clientIAM.Organizations.Roles.Get(roleId).Do()
+	r, err := config.NewIamClient(userAgent).Organizations.Roles.Get(roleId).Do()
 	if err == nil {
 		if r.Deleted {
 			// This role was soft-deleted; update to match new state.
@@ -102,7 +101,7 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 		}
 	} else if err := handleNotFoundError(err, d, fmt.Sprintf("Custom Organization Role %q", roleId)); err == nil {
 		// If no role was found, actually create a new role.
-		role, err := config.clientIAM.Organizations.Roles.Create(orgId, &iam.CreateRoleRequest{
+		role, err := config.NewIamClient(userAgent).Organizations.Roles.Create(orgId, &iam.CreateRoleRequest{
 			RoleId: d.Get("role_id").(string),
 			Role: &iam.Role{
 				Title:               d.Get("title").(string),
@@ -129,9 +128,8 @@ func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
-	role, err := config.clientIAM.Organizations.Roles.Get(d.Id()).Do()
+	role, err := config.NewIamClient(userAgent).Organizations.Roles.Get(d.Id()).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, d.Id())
 	}
@@ -175,26 +173,25 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
 	d.Partial(true)
 
 	// We want to update the role to some undeleted state.
 	// Make sure the role with given ID exists and is un-deleted before patching.
-	r, err := config.clientIAM.Organizations.Roles.Get(d.Id()).Do()
+	r, err := config.NewIamClient(userAgent).Organizations.Roles.Get(d.Id()).Do()
 	if err != nil {
 		return fmt.Errorf("unable to find custom project role %s to update: %v", d.Id(), err)
 	}
 
 	if r.Deleted {
-		_, err := config.clientIAM.Organizations.Roles.Undelete(d.Id(), &iam.UndeleteRoleRequest{}).Do()
+		_, err := config.NewIamClient(userAgent).Organizations.Roles.Undelete(d.Id(), &iam.UndeleteRoleRequest{}).Do()
 		if err != nil {
 			return fmt.Errorf("Error undeleting the custom organization role %s: %s", d.Get("title").(string), err)
 		}
 	}
 
 	if d.HasChange("title") || d.HasChange("description") || d.HasChange("stage") || d.HasChange("permissions") {
-		_, err := config.clientIAM.Organizations.Roles.Patch(d.Id(), &iam.Role{
+		_, err := config.NewIamClient(userAgent).Organizations.Roles.Patch(d.Id(), &iam.Role{
 			Title:               d.Get("title").(string),
 			Description:         d.Get("description").(string),
 			Stage:               d.Get("stage").(string),
@@ -216,15 +213,14 @@ func resourceGoogleOrganizationIamCustomRoleDelete(d *schema.ResourceData, meta 
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
-	r, err := config.clientIAM.Organizations.Roles.Get(d.Id()).Do()
+	r, err := config.NewIamClient(userAgent).Organizations.Roles.Get(d.Id()).Do()
 	if err == nil && r != nil && r.Deleted && d.Get("deleted").(bool) {
 		// This role has already been deleted, don't try again.
 		return nil
 	}
 
-	_, err = config.clientIAM.Organizations.Roles.Delete(d.Id()).Do()
+	_, err = config.NewIamClient(userAgent).Organizations.Roles.Delete(d.Id()).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting the custom organization role %s: %s", d.Get("title").(string), err)
 	}

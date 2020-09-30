@@ -46,7 +46,7 @@ func testSweepDatabases(region string) error {
 		log.Fatalf("error loading: %s", err)
 	}
 
-	found, err := config.clientSqlAdmin.Instances.List(config.Project).Do()
+	found, err := config.NewSqlAdminClient(config.userAgent).Instances.List(config.Project).Do()
 	if err != nil {
 		log.Printf("error listing databases: %s", err)
 		return nil
@@ -97,7 +97,7 @@ func testSweepDatabases(region string) error {
 			}
 
 			// need to stop replication before being able to destroy a database
-			op, err := config.clientSqlAdmin.Instances.StopReplica(config.Project, replicaName).Do()
+			op, err := config.NewSqlAdminClient(config.userAgent).Instances.StopReplica(config.Project, replicaName).Do()
 
 			if err != nil {
 				log.Printf("error, failed to stop replica instance (%s) for instance (%s): %s", replicaName, d.Name, err)
@@ -122,7 +122,7 @@ func testSweepDatabases(region string) error {
 
 		for _, db := range ordering {
 			// destroy instances, replicas first
-			op, err := config.clientSqlAdmin.Instances.Delete(config.Project, db).Do()
+			op, err := config.NewSqlAdminClient(config.userAgent).Instances.Delete(config.Project, db).Do()
 
 			if err != nil {
 				if strings.Contains(err.Error(), "409") {
@@ -253,7 +253,7 @@ func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 						Host:     "%",
 						Password: randString(t, 26),
 					}
-					op, err := config.clientSqlAdmin.Users.Insert(config.Project, databaseName, &user).Do()
+					op, err := config.NewSqlAdminClient(config.userAgent).Users.Insert(config.Project, databaseName, &user).Do()
 					if err != nil {
 						t.Errorf("Error while inserting root@%% user: %s", err)
 						return
@@ -598,7 +598,7 @@ func testAccSqlDatabaseInstanceDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			_, err := config.clientSqlAdmin.Instances.Get(config.Project,
+			_, err := config.NewSqlAdminClient(config.userAgent).Instances.Get(config.Project,
 				rs.Primary.Attributes["name"]).Do()
 			if err == nil {
 				return fmt.Errorf("Database Instance still exists")
@@ -613,7 +613,7 @@ func testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(t *testing.T, instance st
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		users, err := config.clientSqlAdmin.Users.List(config.Project, instance).Do()
+		users, err := config.NewSqlAdminClient(config.userAgent).Users.List(config.Project, instance).Do()
 
 		if err != nil {
 			return fmt.Errorf("Could not list database users for %q: %s", instance, err)

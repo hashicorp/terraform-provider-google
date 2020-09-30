@@ -92,7 +92,6 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
 	serviceAccountName, err := serviceAccountFQN(d.Get("service_account_id").(string), d, config)
 	if err != nil {
@@ -105,7 +104,7 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 		ru := &iam.UploadServiceAccountKeyRequest{
 			PublicKeyData: d.Get("public_key_data").(string),
 		}
-		sak, err = config.clientIAM.Projects.ServiceAccounts.Keys.Upload(serviceAccountName, ru).Do()
+		sak, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Keys.Upload(serviceAccountName, ru).Do()
 		if err != nil {
 			return fmt.Errorf("Error creating service account key: %s", err)
 		}
@@ -114,7 +113,7 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 			KeyAlgorithm:   d.Get("key_algorithm").(string),
 			PrivateKeyType: d.Get("private_key_type").(string),
 		}
-		sak, err = config.clientIAM.Projects.ServiceAccounts.Keys.Create(serviceAccountName, rc).Do()
+		sak, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Keys.Create(serviceAccountName, rc).Do()
 		if err != nil {
 			return fmt.Errorf("Error creating service account key: %s", err)
 		}
@@ -132,7 +131,7 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error setting private_key: %s", err)
 	}
 
-	err = serviceAccountKeyWaitTime(config.clientIAM.Projects.ServiceAccounts.Keys, d.Id(), d.Get("public_key_type").(string), "Creating Service account key", 4*time.Minute)
+	err = serviceAccountKeyWaitTime(config.NewIamClient(userAgent).Projects.ServiceAccounts.Keys, d.Id(), d.Get("public_key_type").(string), "Creating Service account key", 4*time.Minute)
 	if err != nil {
 		return err
 	}
@@ -145,12 +144,11 @@ func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
 	publicKeyType := d.Get("public_key_type").(string)
 
 	// Confirm the service account key exists
-	sak, err := config.clientIAM.Projects.ServiceAccounts.Keys.Get(d.Id()).PublicKeyType(publicKeyType).Do()
+	sak, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Keys.Get(d.Id()).PublicKeyType(publicKeyType).Do()
 	if err != nil {
 		if err = handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id())); err == nil {
 			return nil
@@ -184,9 +182,8 @@ func resourceGoogleServiceAccountKeyDelete(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
-	_, err = config.clientIAM.Projects.ServiceAccounts.Keys.Delete(d.Id()).Do()
+	_, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Keys.Delete(d.Id()).Do()
 
 	if err != nil {
 		if err = handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id())); err == nil {

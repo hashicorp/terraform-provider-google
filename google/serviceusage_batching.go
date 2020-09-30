@@ -64,12 +64,17 @@ func tryEnableRenamedService(service, altName string, project string, d *schema.
 }
 
 func BatchRequestReadServices(project string, d *schema.ResourceData, config *Config) (interface{}, error) {
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	req := &BatchRequest{
 		ResourceName: project,
 		Body:         nil,
 		// Use empty CombineF since the request is exactly the same no matter how many services we read.
 		CombineF: func(body interface{}, toAdd interface{}) (interface{}, error) { return nil, nil },
-		SendF:    sendListServices(config, d.Timeout(schema.TimeoutRead)),
+		SendF:    sendListServices(config, userAgent, d.Timeout(schema.TimeoutRead)),
 		DebugId:  fmt.Sprintf("List Project Services %s", project),
 	}
 
@@ -102,8 +107,8 @@ func sendBatchFuncEnableServices(config *Config, userAgent string, timeout time.
 	}
 }
 
-func sendListServices(config *Config, timeout time.Duration) BatcherSendFunc {
+func sendListServices(config *Config, userAgent string, timeout time.Duration) BatcherSendFunc {
 	return func(project string, _ interface{}) (interface{}, error) {
-		return listCurrentlyEnabledServices(project, config, timeout)
+		return listCurrentlyEnabledServices(project, userAgent, config, timeout)
 	}
 }

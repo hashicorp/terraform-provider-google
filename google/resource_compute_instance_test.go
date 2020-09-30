@@ -1981,7 +1981,7 @@ func testAccCheckComputeBetaInstanceExistsInProject(t *testing.T, n, p string, i
 
 		config := googleProviderConfig(t)
 
-		found, err := config.clientComputeBeta.Instances.Get(
+		found, err := config.NewComputeBetaClient(config.userAgent).Instances.Get(
 			p, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err

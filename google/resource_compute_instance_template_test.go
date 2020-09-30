@@ -959,7 +959,7 @@ func testAccCheckComputeBetaInstanceTemplateExistsInProject(t *testing.T, n, p s
 
 		splits := strings.Split(rs.Primary.ID, "/")
 		templateName := splits[len(splits)-1]
-		found, err := config.clientComputeBeta.InstanceTemplates.Get(
+		found, err := config.NewComputeBetaClient(config.userAgent).InstanceTemplates.Get(
 			p, templateName).Do()
 		if err != nil {
 			return err

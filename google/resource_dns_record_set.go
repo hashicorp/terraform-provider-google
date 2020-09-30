@@ -84,7 +84,6 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	config.clientDns.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -112,7 +111,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 	// delete them, before adding in the changes requested.  Normally this would
 	// result in an AlreadyExistsError.
 	log.Printf("[DEBUG] DNS record list request for %q", zone)
-	res, err := config.clientDns.ResourceRecordSets.List(project, zone).Do()
+	res, err := config.NewDnsClient(userAgent).ResourceRecordSets.List(project, zone).Do()
 	if err != nil {
 		return fmt.Errorf("Error retrieving record sets for %q: %s", zone, err)
 	}
@@ -129,7 +128,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	log.Printf("[DEBUG] DNS Record create request: %#v", chg)
-	chg, err = config.clientDns.Changes.Create(project, zone, chg).Do()
+	chg, err = config.NewDnsClient(userAgent).Changes.Create(project, zone, chg).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating DNS RecordSet: %s", err)
 	}
@@ -137,7 +136,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(fmt.Sprintf("%s/%s/%s", zone, name, rType))
 
 	w := &DnsChangeWaiter{
-		Service:     config.clientDns,
+		Service:     config.NewDnsClient(userAgent),
 		Change:      chg,
 		Project:     project,
 		ManagedZone: zone,
@@ -156,7 +155,6 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.clientDns.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -172,7 +170,7 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 	var resp *dns.ResourceRecordSetsListResponse
 	err = retry(func() error {
 		var reqErr error
-		resp, reqErr = config.clientDns.ResourceRecordSets.List(
+		resp, reqErr = config.NewDnsClient(userAgent).ResourceRecordSets.List(
 			project, zone).Name(name).Type(dnsType).Do()
 		return reqErr
 	})
@@ -211,7 +209,6 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	config.clientDns.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -228,7 +225,7 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	// check if what we're looking at is a subdomain, and only not delete
 	// if it's not actually a subdomain
 	if d.Get("type").(string) == "NS" {
-		mz, err := config.clientDns.ManagedZones.Get(project, zone).Do()
+		mz, err := config.NewDnsClient(userAgent).ManagedZones.Get(project, zone).Do()
 		if err != nil {
 			return fmt.Errorf("Error retrieving managed zone %q from %q: %s", zone, project, err)
 		}
@@ -253,13 +250,13 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	log.Printf("[DEBUG] DNS Record delete request: %#v", chg)
-	chg, err = config.clientDns.Changes.Create(project, zone, chg).Do()
+	chg, err = config.NewDnsClient(userAgent).Changes.Create(project, zone, chg).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, "google_dns_record_set")
 	}
 
 	w := &DnsChangeWaiter{
-		Service:     config.clientDns,
+		Service:     config.NewDnsClient(userAgent),
 		Change:      chg,
 		Project:     project,
 		ManagedZone: zone,
@@ -279,7 +276,6 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	config.clientDns.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -320,13 +316,13 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 		chg.Deletions[0].Rrdatas[i] = oldRR.(string)
 	}
 	log.Printf("[DEBUG] DNS Record change request: %#v old: %#v new: %#v", chg, chg.Deletions[0], chg.Additions[0])
-	chg, err = config.clientDns.Changes.Create(project, zone, chg).Do()
+	chg, err = config.NewDnsClient(userAgent).Changes.Create(project, zone, chg).Do()
 	if err != nil {
 		return fmt.Errorf("Error changing DNS RecordSet: %s", err)
 	}
 
 	w := &DnsChangeWaiter{
-		Service:     config.clientDns,
+		Service:     config.NewDnsClient(userAgent),
 		Change:      chg,
 		Project:     project,
 		ManagedZone: zone,

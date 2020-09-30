@@ -173,7 +173,7 @@ func testAccCheckGoogleStorageBucketAclDelete(t *testing.T, bucket, roleEntityS 
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
 		config := googleProviderConfig(t)
 
-		_, err := config.clientStorage.BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
+		_, err := config.NewStorageClient(config.userAgent).BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
 
 		if err != nil {
 			return nil
@@ -188,7 +188,7 @@ func testAccCheckGoogleStorageBucketAcl(t *testing.T, bucket, roleEntityS string
 		roleEntity, _ := getRoleEntityPair(roleEntityS)
 		config := googleProviderConfig(t)
 
-		res, err := config.clientStorage.BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
+		res, err := config.NewStorageClient(config.userAgent).BucketAccessControls.Get(bucket, roleEntity.Entity).Do()
 
 		if err != nil {
 			return fmt.Errorf("Error retrieving contents of acl for bucket %s: %s", bucket, err)
@@ -213,7 +213,7 @@ func testAccStorageBucketAclDestroyProducer(t *testing.T) func(s *terraform.Stat
 
 			bucket := rs.Primary.Attributes["bucket"]
 
-			_, err := config.clientStorage.BucketAccessControls.List(bucket).Do()
+			_, err := config.NewStorageClient(config.userAgent).BucketAccessControls.List(bucket).Do()
 
 			if err == nil {
 				return fmt.Errorf("Acl for bucket %s still exists", bucket)

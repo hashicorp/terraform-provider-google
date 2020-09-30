@@ -161,7 +161,7 @@ func testAccCheckProjectService(t *testing.T, services []string, pid string, exp
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config, time.Minute*10)
+		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config.userAgent, config, time.Minute*10)
 		if err != nil {
 			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
 		}

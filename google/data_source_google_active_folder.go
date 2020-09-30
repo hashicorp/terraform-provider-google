@@ -34,7 +34,6 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.clientResourceManagerV2Beta1.UserAgent = userAgent
 
 	parent := d.Get("parent").(string)
 	displayName := d.Get("display_name").(string)
@@ -43,7 +42,7 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 	searchRequest := &resourceManagerV2Beta1.SearchFoldersRequest{
 		Query: queryString,
 	}
-	searchResponse, err := config.clientResourceManagerV2Beta1.Folders.Search(searchRequest).Do()
+	searchResponse, err := config.NewResourceManagerV2Beta1Client(userAgent).Folders.Search(searchRequest).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Folder Not Found : %s", displayName))
 	}

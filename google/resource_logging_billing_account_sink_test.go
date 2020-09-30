@@ -155,7 +155,7 @@ func testAccCheckLoggingBillingAccountSinkDestroyProducer(t *testing.T) func(s *
 
 			attributes := rs.Primary.Attributes
 
-			_, err := config.clientLogging.BillingAccounts.Sinks.Get(attributes["id"]).Do()
+			_, err := config.NewLoggingClient(config.userAgent).BillingAccounts.Sinks.Get(attributes["id"]).Do()
 			if err == nil {
 				return fmt.Errorf("billing sink still exists")
 			}
@@ -173,7 +173,7 @@ func testAccCheckLoggingBillingAccountSinkExists(t *testing.T, n string, sink *l
 		}
 		config := googleProviderConfig(t)
 
-		si, err := config.clientLogging.BillingAccounts.Sinks.Get(attributes["id"]).Do()
+		si, err := config.NewLoggingClient(config.userAgent).BillingAccounts.Sinks.Get(attributes["id"]).Do()
 		if err != nil {
 			return err
 		}
