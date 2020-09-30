@@ -26,17 +26,14 @@ data "google_cloud_run_service" "run-service" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of a Cloud Function.
-* `location` - (Required) The name of a Cloud Function.
+* `name` - (Required) The name of a Cloud Run.
+* `location` - (Required) The name of a Cloud Run.
 
 - - -
 
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 
-* `region` - (Optional) The region in which the resource belongs. If it
-    is not provided, the provider region is used.
-
 ## Attributes Reference
 
-TBD
+See [google_cloud_run_service](https://www.terraform.io/docs/providers/google/r/cloud_run_service.html#argument-reference) resource for details of the available attributes.

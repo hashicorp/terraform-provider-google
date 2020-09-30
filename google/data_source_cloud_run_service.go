@@ -10,6 +10,7 @@ func dataSourceGoogleCloudRunService() *schema.Resource {
 
 	dsSchema := datasourceSchemaFromResourceSchema(resourceCloudRunService().Schema)
 	addRequiredFieldsToSchema(dsSchema, "name", "location")
+	addOptionalFieldsToSchema(dsSchema, "project")
 
 	return &schema.Resource{
 		Read:   dataSourceGoogleCloudRunServiceRead,
