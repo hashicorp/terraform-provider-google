@@ -19,6 +19,7 @@ var IamKmsCryptoKeySchema = map[string]*schema.Schema{
 
 type KmsCryptoKeyIamUpdater struct {
 	resourceId string
+	d          *schema.ResourceData
 	Config     *Config
 }
 
@@ -32,6 +33,7 @@ func NewKmsCryptoKeyIamUpdater(d *schema.ResourceData, config *Config) (Resource
 
 	return &KmsCryptoKeyIamUpdater{
 		resourceId: cryptoKeyId.cryptoKeyId(),
+		d:          d,
 		Config:     config,
 	}, nil
 }
@@ -49,7 +51,12 @@ func CryptoIdParseFunc(d *schema.ResourceData, config *Config) error {
 }
 
 func (u *KmsCryptoKeyIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	p, err := u.Config.clientKms.Projects.Locations.KeyRings.CryptoKeys.GetIamPolicy(u.resourceId).OptionsRequestedPolicyVersion(iamPolicyVersion).Do()
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys.GetIamPolicy(u.resourceId).OptionsRequestedPolicyVersion(iamPolicyVersion).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
@@ -65,13 +72,18 @@ func (u *KmsCryptoKeyIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.P
 }
 
 func (u *KmsCryptoKeyIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	kmsPolicy, err := resourceManagerToKmsPolicy(policy)
 
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
-	_, err = u.Config.clientKms.Projects.Locations.KeyRings.CryptoKeys.SetIamPolicy(u.resourceId, &cloudkms.SetIamPolicyRequest{
+	_, err = u.Config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys.SetIamPolicy(u.resourceId, &cloudkms.SetIamPolicyRequest{
 		Policy: kmsPolicy,
 	}).Do()
 

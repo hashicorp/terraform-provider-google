@@ -584,12 +584,12 @@ func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 		for paginate := true; paginate; {
 			var resp *dns.ResourceRecordSetsListResponse
 			if token == "" {
-				resp, err = config.clientDns.ResourceRecordSets.List(project, zone).Do()
+				resp, err = config.NewDnsClient(userAgent).ResourceRecordSets.List(project, zone).Do()
 				if err != nil {
 					return fmt.Errorf("Error reading ResourceRecordSets: %s", err)
 				}
 			} else {
-				resp, err = config.clientDns.ResourceRecordSets.List(project, zone).PageToken(token).Do()
+				resp, err = config.NewDnsClient(userAgent).ResourceRecordSets.List(project, zone).PageToken(token).Do()
 				if err != nil {
 					return fmt.Errorf("Error reading ResourceRecordSets: %s", err)
 				}
@@ -609,7 +609,7 @@ func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 				}
 
 				if rr.Type == "NS" {
-					mz, err := config.clientDns.ManagedZones.Get(project, zone).Do()
+					mz, err := config.NewDnsClient(userAgent).ManagedZones.Get(project, zone).Do()
 					if err != nil {
 						return fmt.Errorf("Error retrieving managed zone %q from %q: %s", zone, project, err)
 					}
@@ -627,13 +627,13 @@ func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 				}
 
 				log.Printf("[DEBUG] DNS Record delete request via MZ: %#v", chg)
-				chg, err = config.clientDns.Changes.Create(project, zone, chg).Do()
+				chg, err = config.NewDnsClient(userAgent).Changes.Create(project, zone, chg).Do()
 				if err != nil {
 					return fmt.Errorf("Unable to delete ResourceRecordSets: %s", err)
 				}
 
 				w := &DnsChangeWaiter{
-					Service:     config.clientDns,
+					Service:     config.NewDnsClient(userAgent),
 					Change:      chg,
 					Project:     project,
 					ManagedZone: zone,

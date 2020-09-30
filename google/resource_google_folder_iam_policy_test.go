@@ -75,7 +75,7 @@ func testAccCheckGoogleFolderIamPolicyDestroyProducer(t *testing.T) func(s *terr
 			}
 
 			folder := rs.Primary.Attributes["folder"]
-			policy, err := config.clientResourceManagerV2Beta1.Folders.GetIamPolicy(folder, &resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()
+			policy, err := config.NewResourceManagerV2Beta1Client(config.userAgent).Folders.GetIamPolicy(folder, &resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()
 
 			if err != nil && len(policy.Bindings) > 0 {
 				return fmt.Errorf("Folder '%s' policy hasn't been deleted.", folder)

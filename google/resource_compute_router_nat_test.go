@@ -158,7 +158,7 @@ func testAccCheckComputeRouterNatDelete(t *testing.T, n string) resource.TestChe
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
-		routersService := config.clientComputeBeta.Routers
+		routersService := config.NewComputeBetaClient(config.userAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router_nat" {

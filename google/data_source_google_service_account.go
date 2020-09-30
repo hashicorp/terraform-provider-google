@@ -46,14 +46,13 @@ func dataSourceGoogleServiceAccountRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	config.clientIAM.UserAgent = userAgent
 
 	serviceAccountName, err := serviceAccountFQN(d.Get("account_id").(string), d, config)
 	if err != nil {
 		return err
 	}
 
-	sa, err := config.clientIAM.Projects.ServiceAccounts.Get(serviceAccountName).Do()
+	sa, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Get(serviceAccountName).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Service Account %q", serviceAccountName))
 	}

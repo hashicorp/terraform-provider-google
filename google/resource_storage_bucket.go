@@ -357,7 +357,6 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	config.clientStorage.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -434,7 +433,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	var res *storage.Bucket
 
 	err = retry(func() error {
-		res, err = config.clientStorage.Buckets.Insert(project, sb).Do()
+		res, err = config.NewStorageClient(userAgent).Buckets.Insert(project, sb).Do()
 		return err
 	})
 
@@ -456,7 +455,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		retentionPolicy := retention_policies[0].(map[string]interface{})
 
 		if locked, ok := retentionPolicy["is_locked"]; ok && locked.(bool) {
-			err = lockRetentionPolicy(config.clientStorage.Buckets, bucket, res.Metageneration)
+			err = lockRetentionPolicy(config.NewStorageClient(userAgent).Buckets, bucket, res.Metageneration)
 			if err != nil {
 				return err
 			}
@@ -474,7 +473,6 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	config.clientStorage.UserAgent = userAgent
 
 	sb := &storage.Bucket{}
 
@@ -567,7 +565,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		sb.IamConfiguration = expandIamConfiguration(d)
 	}
 
-	res, err := config.clientStorage.Buckets.Patch(d.Get("name").(string), sb).Do()
+	res, err := config.NewStorageClient(userAgent).Buckets.Patch(d.Get("name").(string), sb).Do()
 
 	if err != nil {
 		return err
@@ -587,7 +585,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 			retentionPolicy := retention_policies[0].(map[string]interface{})
 
 			if locked, ok := retentionPolicy["is_locked"]; ok && locked.(bool) && d.HasChange("retention_policy.0.is_locked") {
-				err = lockRetentionPolicy(config.clientStorage.Buckets, d.Get("name").(string), res.Metageneration)
+				err = lockRetentionPolicy(config.NewStorageClient(userAgent).Buckets, d.Get("name").(string), res.Metageneration)
 				if err != nil {
 					return err
 				}
@@ -608,11 +606,10 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.clientStorage.UserAgent = userAgent
 
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
-	res, err := config.clientStorage.Buckets.Get(bucket).Do()
+	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
 	}
@@ -722,14 +719,13 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	config.clientStorage.UserAgent = userAgent
 
 	// Get the bucket
 	bucket := d.Get("name").(string)
 
 	var listError, deleteObjectError error
 	for deleteObjectError == nil {
-		res, err := config.clientStorage.Objects.List(bucket).Versions(true).Do()
+		res, err := config.NewStorageClient(userAgent).Objects.List(bucket).Versions(true).Do()
 		if err != nil {
 			log.Printf("Error listing contents of bucket %s: %v", bucket, err)
 			// If we can't list the contents, try deleting the bucket anyway in case it's empty
@@ -782,7 +778,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 
 			wp.Submit(func() {
 				log.Printf("[TRACE] Attempting to delete %s", object.Name)
-				if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
+				if err := config.NewStorageClient(userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
 					deleteObjectError = err
 					log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
 				} else {
@@ -797,7 +793,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 
 	// remove empty bucket
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
-		err := config.clientStorage.Buckets.Delete(bucket).Do()
+		err := config.NewStorageClient(userAgent).Buckets.Delete(bucket).Do()
 		if err == nil {
 			return nil
 		}

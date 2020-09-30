@@ -26,6 +26,7 @@ var IamPubsubSubscriptionSchema = map[string]*schema.Schema{
 
 type PubsubSubscriptionIamUpdater struct {
 	subscription string
+	d            *schema.ResourceData
 	Config       *Config
 }
 
@@ -39,6 +40,7 @@ func NewPubsubSubscriptionIamUpdater(d *schema.ResourceData, config *Config) (Re
 
 	return &PubsubSubscriptionIamUpdater{
 		subscription: subscription,
+		d:            d,
 		Config:       config,
 	}, nil
 }
@@ -51,7 +53,12 @@ func PubsubSubscriptionIdParseFunc(d *schema.ResourceData, _ *Config) error {
 }
 
 func (u *PubsubSubscriptionIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	p, err := u.Config.clientPubsub.Projects.Subscriptions.GetIamPolicy(u.subscription).Do()
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewPubsubClient(userAgent).Projects.Subscriptions.GetIamPolicy(u.subscription).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
@@ -66,12 +73,17 @@ func (u *PubsubSubscriptionIamUpdater) GetResourceIamPolicy() (*cloudresourceman
 }
 
 func (u *PubsubSubscriptionIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	pubsubPolicy, err := resourceManagerToPubsubPolicy(policy)
 	if err != nil {
 		return err
 	}
 
-	_, err = u.Config.clientPubsub.Projects.Subscriptions.SetIamPolicy(u.subscription, &pubsub.SetIamPolicyRequest{
+	_, err = u.Config.NewPubsubClient(userAgent).Projects.Subscriptions.SetIamPolicy(u.subscription, &pubsub.SetIamPolicyRequest{
 		Policy: pubsubPolicy,
 	}).Do()
 

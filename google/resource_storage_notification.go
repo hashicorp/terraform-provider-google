@@ -93,7 +93,6 @@ func resourceStorageNotificationCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientStorage.UserAgent = userAgent
 
 	bucket := d.Get("bucket").(string)
 
@@ -115,7 +114,7 @@ func resourceStorageNotificationCreate(d *schema.ResourceData, meta interface{})
 		Topic:            computedTopicName,
 	}
 
-	res, err := config.clientStorage.Notifications.Insert(bucket, storageNotification).Do()
+	res, err := config.NewStorageClient(userAgent).Notifications.Insert(bucket, storageNotification).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating notification config for bucket %s: %v", bucket, err)
 	}
@@ -131,11 +130,10 @@ func resourceStorageNotificationRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.clientStorage.UserAgent = userAgent
 
 	bucket, notificationID := resourceStorageNotificationParseID(d.Id())
 
-	res, err := config.clientStorage.Notifications.Get(bucket, notificationID).Do()
+	res, err := config.NewStorageClient(userAgent).Notifications.Get(bucket, notificationID).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Notification configuration %s for bucket %s", notificationID, bucket))
 	}
@@ -174,11 +172,10 @@ func resourceStorageNotificationDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientStorage.UserAgent = userAgent
 
 	bucket, notificationID := resourceStorageNotificationParseID(d.Id())
 
-	err = config.clientStorage.Notifications.Delete(bucket, notificationID).Do()
+	err = config.NewStorageClient(userAgent).Notifications.Delete(bucket, notificationID).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting notification configuration %s for bucket %s: %v", notificationID, bucket, err)
 	}

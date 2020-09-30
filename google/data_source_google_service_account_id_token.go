@@ -67,7 +67,6 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	config.clientIamCredentials.UserAgent = userAgent
 
 	targetAudience := d.Get("target_audience").(string)
 	creds, err := config.GetCredentials([]string{userInfoScope})
@@ -81,7 +80,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 	if _, ok := ts.(staticTokenSource); ok {
 		// Use
 		// https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateIdToken
-		service := config.clientIamCredentials
+		service := config.NewIamCredentialsClient(userAgent)
 		name := fmt.Sprintf("projects/-/serviceAccounts/%s", d.Get("target_service_account").(string))
 		tokenRequest := &iamcredentials.GenerateIdTokenRequest{
 			Audience:     targetAudience,

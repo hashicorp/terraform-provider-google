@@ -303,7 +303,6 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	config.clientComputeBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -331,7 +330,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] InstanceGroupManager insert request: %#v", manager)
-	op, err := config.clientComputeBeta.InstanceGroupManagers.Insert(
+	op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Insert(
 		project, zone, manager).Do()
 
 	if err != nil {
@@ -413,10 +412,15 @@ func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.Instance
 		return nil, err
 	}
 
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	zone, _ := getZone(d, config)
 	name := d.Get("name").(string)
 
-	manager, err := config.clientComputeBeta.InstanceGroupManagers.Get(project, zone, name).Do()
+	manager, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Get(project, zone, name).Do()
 	if err != nil {
 		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance Group Manager %q", name))
 	}
@@ -438,7 +442,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
-	config.clientComputeBeta.UserAgent = userAgent
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -540,7 +544,6 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	config.clientComputeBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -580,7 +583,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 	}
 
 	if change {
-		op, err := config.clientComputeBeta.InstanceGroupManagers.Patch(project, zone, d.Get("name").(string), updatedManager).Do()
+		op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Patch(project, zone, d.Get("name").(string), updatedManager).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating managed group instances: %s", err)
 		}
@@ -603,7 +606,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		}
 
 		// Make the request:
-		op, err := config.clientComputeBeta.InstanceGroups.SetNamedPorts(
+		op, err := config.NewComputeBetaClient(userAgent).InstanceGroups.SetNamedPorts(
 			project, zone, d.Get("name").(string), setNamedPorts).Do()
 
 		if err != nil {
@@ -622,7 +625,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		d.Partial(true)
 
 		targetSize := int64(d.Get("target_size").(int))
-		op, err := config.clientComputeBeta.InstanceGroupManagers.Resize(
+		op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Resize(
 			project, zone, d.Get("name").(string), targetSize).Do()
 
 		if err != nil {
@@ -647,7 +650,6 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	config.clientComputeBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -657,12 +659,12 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	zone, _ := getZone(d, config)
 	name := d.Get("name").(string)
 
-	op, err := config.clientComputeBeta.InstanceGroupManagers.Delete(project, zone, name).Do()
+	op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
 	attempt := 0
 	for err != nil && attempt < 20 {
 		attempt++
 		time.Sleep(2000 * time.Millisecond)
-		op, err = config.clientComputeBeta.InstanceGroupManagers.Delete(project, zone, name).Do()
+		op, err = config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
 	}
 
 	if err != nil {
@@ -679,7 +681,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 			return err
 		}
 
-		instanceGroup, igErr := config.clientComputeBeta.InstanceGroups.Get(
+		instanceGroup, igErr := config.NewComputeBetaClient(userAgent).InstanceGroups.Get(
 			project, zone, name).Do()
 		if igErr != nil {
 			return fmt.Errorf("Error getting instance group size: %s", err)

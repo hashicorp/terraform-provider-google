@@ -857,7 +857,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Name:        itName,
 	}
 
-	op, err := config.clientComputeBeta.InstanceTemplates.Insert(project, instanceTemplate).Do()
+	op, err := config.NewComputeBetaClient(userAgent).InstanceTemplates.Insert(project, instanceTemplate).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance template: %s", err)
 	}
@@ -1090,14 +1090,14 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.clientComputeBeta.UserAgent = userAgent
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
 	splits := strings.Split(d.Id(), "/")
-	instanceTemplate, err := config.clientComputeBeta.InstanceTemplates.Get(project, splits[len(splits)-1]).Do()
+	instanceTemplate, err := config.NewComputeBetaClient(userAgent).InstanceTemplates.Get(project, splits[len(splits)-1]).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
 	}

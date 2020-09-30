@@ -192,12 +192,11 @@ func resourceGoogleOrganizationPolicyRead(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.clientResourceManager.UserAgent = userAgent
 	org := "organizations/" + d.Get("org_id").(string)
 
 	var policy *cloudresourcemanager.OrgPolicy
 	err = retryTimeDuration(func() (readErr error) {
-		policy, readErr = config.clientResourceManager.Organizations.GetOrgPolicy(org, &cloudresourcemanager.GetOrgPolicyRequest{
+		policy, readErr = config.NewResourceManagerClient(userAgent).Organizations.GetOrgPolicy(org, &cloudresourcemanager.GetOrgPolicyRequest{
 			Constraint: canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 		}).Do()
 		return readErr
@@ -249,11 +248,10 @@ func resourceGoogleOrganizationPolicyDelete(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
-	config.clientResourceManager.UserAgent = userAgent
 	org := "organizations/" + d.Get("org_id").(string)
 
 	err = retryTimeDuration(func() error {
-		_, dErr := config.clientResourceManager.Organizations.ClearOrgPolicy(org, &cloudresourcemanager.ClearOrgPolicyRequest{
+		_, dErr := config.NewResourceManagerClient(userAgent).Organizations.ClearOrgPolicy(org, &cloudresourcemanager.ClearOrgPolicyRequest{
 			Constraint: canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 		}).Do()
 		return dErr
@@ -300,7 +298,6 @@ func setOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.clientResourceManager.UserAgent = userAgent
 
 	org := "organizations/" + d.Get("org_id").(string)
 
@@ -315,7 +312,7 @@ func setOrganizationPolicy(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	err = retryTimeDuration(func() (setErr error) {
-		_, setErr = config.clientResourceManager.Organizations.SetOrgPolicy(org, &cloudresourcemanager.SetOrgPolicyRequest{
+		_, setErr = config.NewResourceManagerClient(userAgent).Organizations.SetOrgPolicy(org, &cloudresourcemanager.SetOrgPolicyRequest{
 			Policy: &cloudresourcemanager.OrgPolicy{
 				Constraint:     canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 				BooleanPolicy:  expandBooleanOrganizationPolicy(d.Get("boolean_policy").([]interface{})),

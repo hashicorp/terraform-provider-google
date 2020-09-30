@@ -18,12 +18,14 @@ var IamOrganizationSchema = map[string]*schema.Schema{
 
 type OrganizationIamUpdater struct {
 	resourceId string
+	d          *schema.ResourceData
 	Config     *Config
 }
 
 func NewOrganizationIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &OrganizationIamUpdater{
 		resourceId: d.Get("org_id").(string),
+		d:          d,
 		Config:     config,
 	}, nil
 }
@@ -36,7 +38,12 @@ func OrgIdParseFunc(d *schema.ResourceData, _ *Config) error {
 }
 
 func (u *OrganizationIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	p, err := u.Config.clientResourceManager.Organizations.GetIamPolicy("organizations/"+u.resourceId, &cloudresourcemanager.GetIamPolicyRequest{}).Do()
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewResourceManagerClient(userAgent).Organizations.GetIamPolicy("organizations/"+u.resourceId, &cloudresourcemanager.GetIamPolicyRequest{}).Do()
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -45,7 +52,12 @@ func (u *OrganizationIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.P
 }
 
 func (u *OrganizationIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
-	_, err := u.Config.clientResourceManager.Organizations.SetIamPolicy("organizations/"+u.resourceId, &cloudresourcemanager.SetIamPolicyRequest{
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.Config.NewResourceManagerClient(userAgent).Organizations.SetIamPolicy("organizations/"+u.resourceId, &cloudresourcemanager.SetIamPolicyRequest{
 		Policy:     policy,
 		UpdateMask: "bindings,etag,auditConfigs",
 	}).Do()

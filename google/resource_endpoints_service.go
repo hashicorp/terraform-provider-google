@@ -220,7 +220,6 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.clientServiceMan.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -239,10 +238,10 @@ func resourceEndpointsServiceCreate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Create Endpoint Service %q", serviceName)
 
 	log.Printf("[DEBUG] Checking for existing ManagedService %q", serviceName)
-	_, err = config.clientServiceMan.Services.Get(serviceName).Do()
+	_, err = config.NewServiceManClient(userAgent).Services.Get(serviceName).Do()
 	if err != nil {
 		log.Printf("[DEBUG] Creating new ServiceManagement ManagedService %q", serviceName)
-		op, err := config.clientServiceMan.Services.Create(
+		op, err := config.NewServiceManClient(userAgent).Services.Create(
 			&servicemanagement.ManagedService{
 				ProducerProjectId: project,
 				ServiceName:       serviceName,
@@ -296,7 +295,6 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.clientServiceMan.UserAgent = userAgent
 
 	serviceName := d.Get("service_name").(string)
 
@@ -314,7 +312,7 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	// with any new features that arise - this is why you provide a YAML config
 	// instead of providing the config in HCL.
 	log.Printf("[DEBUG] Submitting config for ManagedService %q", serviceName)
-	op, err := config.clientServiceMan.Services.Configs.Submit(
+	op, err := config.NewServiceManClient(userAgent).Services.Configs.Submit(
 		serviceName,
 		&servicemanagement.SubmitConfigSourceRequest{
 			ConfigSource: cfgSource,
@@ -340,7 +338,7 @@ func resourceEndpointsServiceUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Creating new rollout for ManagedService %q", serviceName)
-	op, err = config.clientServiceMan.Services.Rollouts.Create(serviceName, &rollout).Do()
+	op, err = config.NewServiceManClient(userAgent).Services.Rollouts.Create(serviceName, &rollout).Do()
 	if err != nil {
 		return err
 	}
@@ -358,11 +356,10 @@ func resourceEndpointsServiceDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.clientServiceMan.UserAgent = userAgent
 
 	log.Printf("[DEBUG] Deleting ManagedService %q", d.Id())
 
-	op, err := config.clientServiceMan.Services.Delete(d.Get("service_name").(string)).Do()
+	op, err := config.NewServiceManClient(userAgent).Services.Delete(d.Get("service_name").(string)).Do()
 	if err != nil {
 		return err
 	}
@@ -377,11 +374,10 @@ func resourceEndpointsServiceRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.clientServiceMan.UserAgent = userAgent
 
 	log.Printf("[DEBUG] Reading ManagedService %q", d.Id())
 
-	service, err := config.clientServiceMan.Services.GetConfig(d.Get("service_name").(string)).Do()
+	service, err := config.NewServiceManClient(userAgent).Services.GetConfig(d.Get("service_name").(string)).Do()
 	if err != nil {
 		return err
 	}

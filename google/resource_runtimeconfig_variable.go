@@ -69,7 +69,6 @@ func resourceRuntimeconfigVariableCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.clientRuntimeconfig.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -81,7 +80,7 @@ func resourceRuntimeconfigVariableCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	createdVariable, err := config.clientRuntimeconfig.Projects.Configs.Variables.Create(resourceRuntimeconfigFullName(project, parent), variable).Do()
+	createdVariable, err := config.NewRuntimeconfigClient(userAgent).Projects.Configs.Variables.Create(resourceRuntimeconfigFullName(project, parent), variable).Do()
 	if err != nil {
 		return err
 	}
@@ -96,10 +95,9 @@ func resourceRuntimeconfigVariableRead(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientRuntimeconfig.UserAgent = userAgent
 
 	fullName := d.Id()
-	createdVariable, err := config.clientRuntimeconfig.Projects.Configs.Variables.Get(fullName).Do()
+	createdVariable, err := config.NewRuntimeconfigClient(userAgent).Projects.Configs.Variables.Get(fullName).Do()
 	if err != nil {
 		return err
 	}
@@ -113,7 +111,6 @@ func resourceRuntimeconfigVariableUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.clientRuntimeconfig.UserAgent = userAgent
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -128,7 +125,7 @@ func resourceRuntimeconfigVariableUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	createdVariable, err := config.clientRuntimeconfig.Projects.Configs.Variables.Update(variable.Name, variable).Do()
+	createdVariable, err := config.NewRuntimeconfigClient(userAgent).Projects.Configs.Variables.Update(variable.Name, variable).Do()
 	if err != nil {
 		return err
 	}
@@ -142,11 +139,10 @@ func resourceRuntimeconfigVariableDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.clientRuntimeconfig.UserAgent = userAgent
 
 	fullName := d.Id()
 
-	_, err = config.clientRuntimeconfig.Projects.Configs.Variables.Delete(fullName).Do()
+	_, err = config.NewRuntimeconfigClient(userAgent).Projects.Configs.Variables.Delete(fullName).Do()
 	if err != nil {
 		return err
 	}

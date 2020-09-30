@@ -353,13 +353,13 @@ func resourceKMSCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error 
 and all its CryptoKeyVersions will be destroyed, but it will still be present on the server.`, cryptoKeyId.cryptoKeyId())
 
 	// Delete all versions of the key
-	if err := clearCryptoKeyVersions(cryptoKeyId, config); err != nil {
+	if err := clearCryptoKeyVersions(cryptoKeyId, userAgent, config); err != nil {
 		return err
 	}
 
 	// Make sure automatic key rotation is disabled if set
 	if d.Get("rotation_period") != "" {
-		if err := disableCryptoKeyRotation(cryptoKeyId, config); err != nil {
+		if err := disableCryptoKeyRotation(cryptoKeyId, userAgent, config); err != nil {
 			return fmt.Errorf(
 				"While cryptoKeyVersions were cleared, Terraform was unable to disable automatic rotation of key due to an error: %s."+
 					"Please retry or manually disable automatic rotation to prevent creation of a new version of this key.", err)

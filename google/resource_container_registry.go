@@ -82,7 +82,6 @@ func resourceContainerRegistryRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.clientStorage.UserAgent = userAgent
 
 	location := d.Get("location").(string)
 	project, err := getProject(d, config)
@@ -96,7 +95,7 @@ func resourceContainerRegistryRead(d *schema.ResourceData, meta interface{}) err
 		name = fmt.Sprintf("artifacts.%s.appspot.com", project)
 	}
 
-	res, err := config.clientStorage.Buckets.Get(name).Do()
+	res, err := config.NewStorageClient(userAgent).Buckets.Get(name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Container Registry Storage Bucket %q", name))
 	}

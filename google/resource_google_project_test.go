@@ -46,7 +46,7 @@ func testSweepProject(region string) error {
 	for paginate := true; paginate; {
 		// Filter for projects with test prefix
 		filter := "id:" + testPrefix + "*"
-		found, err := config.clientResourceManager.Projects.List().Filter(filter).PageToken(token).Do()
+		found, err := config.NewResourceManagerClient(config.userAgent).Projects.List().Filter(filter).PageToken(token).Do()
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error listing projects: %s", err)
 			return nil
@@ -57,7 +57,7 @@ func testSweepProject(region string) error {
 			}
 			log.Printf("[INFO][SWEEPER_LOG] Sweeping Project id: %s", project.ProjectId)
 
-			_, err := config.clientResourceManager.Projects.Delete(project.ProjectId).Do()
+			_, err := config.NewResourceManagerClient(config.userAgent).Projects.Delete(project.ProjectId).Do()
 
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error, failed to delete project %s: %s", project.Name, err)
@@ -301,7 +301,7 @@ func testAccCheckGoogleProjectHasLabels(t *testing.T, r, pid string, expected ma
 		// Actual value in API should match state and expected
 		config := googleProviderConfig(t)
 
-		found, err := config.clientResourceManager.Projects.Get(pid).Do()
+		found, err := config.NewResourceManagerClient(config.userAgent).Projects.Get(pid).Do()
 		if err != nil {
 			return err
 		}
@@ -343,7 +343,7 @@ func testAccCheckGoogleProjectHasNoLabels(t *testing.T, r, pid string) resource.
 		// Actual value in API should match state and expected
 		config := googleProviderConfig(t)
 
-		found, err := config.clientResourceManager.Projects.Get(pid).Do()
+		found, err := config.NewResourceManagerClient(config.userAgent).Projects.Get(pid).Do()
 		if err != nil {
 			return err
 		}

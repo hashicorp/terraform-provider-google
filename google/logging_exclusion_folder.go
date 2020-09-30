@@ -20,15 +20,22 @@ var FolderLoggingExclusionSchema = map[string]*schema.Schema{
 type FolderLoggingExclusionUpdater struct {
 	resourceType string
 	resourceId   string
+	userAgent    string
 	Config       *Config
 }
 
 func NewFolderLoggingExclusionUpdater(d *schema.ResourceData, config *Config) (ResourceLoggingExclusionUpdater, error) {
 	folder := parseFolderId(d.Get("folder"))
 
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	return &FolderLoggingExclusionUpdater{
 		resourceType: "folders",
 		resourceId:   folder,
+		userAgent:    userAgent,
 		Config:       config,
 	}, nil
 }
@@ -50,7 +57,7 @@ func folderLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) error 
 }
 
 func (u *FolderLoggingExclusionUpdater) CreateLoggingExclusion(parent string, exclusion *logging.LogExclusion) error {
-	_, err := u.Config.clientLogging.Folders.Exclusions.Create(parent, exclusion).Do()
+	_, err := u.Config.NewLoggingClient(u.userAgent).Folders.Exclusions.Create(parent, exclusion).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error creating logging exclusion for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -59,7 +66,7 @@ func (u *FolderLoggingExclusionUpdater) CreateLoggingExclusion(parent string, ex
 }
 
 func (u *FolderLoggingExclusionUpdater) ReadLoggingExclusion(id string) (*logging.LogExclusion, error) {
-	exclusion, err := u.Config.clientLogging.Folders.Exclusions.Get(id).Do()
+	exclusion, err := u.Config.NewLoggingClient(u.userAgent).Folders.Exclusions.Get(id).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving logging exclusion for %s: {{err}}", u.DescribeResource()), err)
@@ -69,7 +76,7 @@ func (u *FolderLoggingExclusionUpdater) ReadLoggingExclusion(id string) (*loggin
 }
 
 func (u *FolderLoggingExclusionUpdater) UpdateLoggingExclusion(id string, exclusion *logging.LogExclusion, updateMask string) error {
-	_, err := u.Config.clientLogging.Folders.Exclusions.Patch(id, exclusion).UpdateMask(updateMask).Do()
+	_, err := u.Config.NewLoggingClient(u.userAgent).Folders.Exclusions.Patch(id, exclusion).UpdateMask(updateMask).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error updating logging exclusion for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -78,7 +85,7 @@ func (u *FolderLoggingExclusionUpdater) UpdateLoggingExclusion(id string, exclus
 }
 
 func (u *FolderLoggingExclusionUpdater) DeleteLoggingExclusion(id string) error {
-	_, err := u.Config.clientLogging.Folders.Exclusions.Delete(id).Do()
+	_, err := u.Config.NewLoggingClient(u.userAgent).Folders.Exclusions.Delete(id).Do()
 	if err != nil {
 		return errwrap.Wrap(fmt.Errorf("Error deleting logging exclusion for %s.", u.DescribeResource()), err)
 	}

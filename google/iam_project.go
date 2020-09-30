@@ -31,6 +31,7 @@ var IamPolicyProjectSchema = map[string]*schema.Schema{
 
 type ProjectIamUpdater struct {
 	resourceId string
+	d          *schema.ResourceData
 	Config     *Config
 }
 
@@ -46,6 +47,7 @@ func NewProjectIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUp
 
 	return &ProjectIamUpdater{
 		resourceId: pid,
+		d:          d,
 		Config:     config,
 	}, nil
 }
@@ -55,6 +57,7 @@ func NewProjectIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUp
 func NewProjectIamPolicyUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &ProjectIamUpdater{
 		resourceId: d.Get("project").(string),
+		d:          d,
 		Config:     config,
 	}, nil
 }
@@ -68,7 +71,13 @@ func ProjectIdParseFunc(d *schema.ResourceData, _ *Config) error {
 
 func (u *ProjectIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	projectId := GetResourceNameFromSelfLink(u.resourceId)
-	p, err := u.Config.clientResourceManager.Projects.GetIamPolicy(projectId,
+
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewResourceManagerClient(userAgent).Projects.GetIamPolicy(projectId,
 		&cloudresourcemanager.GetIamPolicyRequest{
 			Options: &cloudresourcemanager.GetPolicyOptions{
 				RequestedPolicyVersion: iamPolicyVersion,
@@ -84,7 +93,13 @@ func (u *ProjectIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy
 
 func (u *ProjectIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
 	projectId := GetResourceNameFromSelfLink(u.resourceId)
-	_, err := u.Config.clientResourceManager.Projects.SetIamPolicy(projectId,
+
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.Config.NewResourceManagerClient(userAgent).Projects.SetIamPolicy(projectId,
 		&cloudresourcemanager.SetIamPolicyRequest{
 			Policy:     policy,
 			UpdateMask: "bindings,etag,auditConfigs",

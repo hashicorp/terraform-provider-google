@@ -56,7 +56,7 @@ func dataSourceGoogleComputeDefaultServiceAccountRead(d *schema.ResourceData, me
 		return err
 	}
 
-	sa, err := config.clientIAM.Projects.ServiceAccounts.Get(serviceAccountName).Do()
+	sa, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Get(serviceAccountName).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Service Account %q", serviceAccountName))
 	}

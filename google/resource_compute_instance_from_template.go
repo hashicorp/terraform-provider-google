@@ -94,7 +94,6 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	config.clientComputeBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -122,7 +121,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	it, err := config.clientComputeBeta.InstanceTemplates.Get(project, tpl.Name).Do()
+	it, err := config.NewComputeBetaClient(userAgent).InstanceTemplates.Get(project, tpl.Name).Do()
 	if err != nil {
 		return err
 	}
@@ -159,7 +158,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
-	op, err := config.clientComputeBeta.Instances.Insert(project, zone.Name, instance).SourceInstanceTemplate(tpl.RelativeLink()).Do()
+	op, err := config.NewComputeBetaClient(userAgent).Instances.Insert(project, zone.Name, instance).SourceInstanceTemplate(tpl.RelativeLink()).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance: %s", err)
 	}

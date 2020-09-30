@@ -188,7 +188,7 @@ func testAccCheckComputeRegionDiskExists(t *testing.T, n string, disk *computeBe
 
 		config := googleProviderConfig(t)
 
-		found, err := config.clientComputeBeta.RegionDisks.Get(
+		found, err := config.NewComputeBetaClient(config.userAgent).RegionDisks.Get(
 			p, rs.Primary.Attributes["region"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err

@@ -97,7 +97,6 @@ func resourceSqlSslCertCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.clientSqlAdmin.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -113,7 +112,7 @@ func resourceSqlSslCertCreate(d *schema.ResourceData, meta interface{}) error {
 
 	mutexKV.Lock(instanceMutexKey(project, instance))
 	defer mutexKV.Unlock(instanceMutexKey(project, instance))
-	resp, err := config.clientSqlAdmin.SslCerts.Insert(project, instance, sslCertsInsertRequest).Do()
+	resp, err := config.NewSqlAdminClient(userAgent).SslCerts.Insert(project, instance, sslCertsInsertRequest).Do()
 	if err != nil {
 		return fmt.Errorf("Error, failed to insert "+
 			"ssl cert %s into instance %s: %s", commonName, instance, err)
@@ -148,7 +147,6 @@ func resourceSqlSslCertRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.clientSqlAdmin.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -159,7 +157,7 @@ func resourceSqlSslCertRead(d *schema.ResourceData, meta interface{}) error {
 	commonName := d.Get("common_name").(string)
 	fingerprint := d.Get("sha1_fingerprint").(string)
 
-	sslCerts, err := config.clientSqlAdmin.SslCerts.Get(project, instance, fingerprint).Do()
+	sslCerts, err := config.NewSqlAdminClient(userAgent).SslCerts.Get(project, instance, fingerprint).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SQL Ssl Cert %q in instance %q", commonName, instance))
 	}
@@ -206,7 +204,6 @@ func resourceSqlSslCertDelete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.clientSqlAdmin.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -219,7 +216,7 @@ func resourceSqlSslCertDelete(d *schema.ResourceData, meta interface{}) error {
 
 	mutexKV.Lock(instanceMutexKey(project, instance))
 	defer mutexKV.Unlock(instanceMutexKey(project, instance))
-	op, err := config.clientSqlAdmin.SslCerts.Delete(project, instance, fingerprint).Do()
+	op, err := config.NewSqlAdminClient(userAgent).SslCerts.Delete(project, instance, fingerprint).Do()
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete "+
