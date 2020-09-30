@@ -48,6 +48,26 @@ func TestAccDataSourceGoogleActiveFolder_space(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceGoogleActiveFolder_dash(t *testing.T) {
+	org := getTestOrgFromEnv(t)
+
+	parent := fmt.Sprintf("organizations/%s", org)
+	displayName := "terraform - test " + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceGoogleActiveFolderConfig(parent, displayName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceGoogleActiveFolderCheck("data.google_active_folder.my_folder", "google_folder.foobar"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceGoogleActiveFolderCheck(data_source_name string, resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[data_source_name]
