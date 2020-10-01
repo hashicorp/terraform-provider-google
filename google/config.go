@@ -191,7 +191,8 @@ type Config struct {
 	// the base service object. To imitate most other handwritten clients,
 	// we expose those directly instead of providing the `Service` object
 	// as a factory.
-	clientBigtableProjectsInstances *bigtableadmin.ProjectsInstancesService
+	clientBigtableProjectsInstances       *bigtableadmin.ProjectsInstancesService
+	clientBigtableProjectsInstancesTables *bigtableadmin.ProjectsInstancesTablesService
 
 	requestBatcherServiceUsage *RequestBatcher
 	requestBatcherIam          *RequestBatcher
@@ -353,6 +354,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	clientBigtable.UserAgent = c.userAgent
 	clientBigtable.BasePath = bigtableAdminBasePath
 	c.clientBigtableProjectsInstances = bigtableadmin.NewProjectsInstancesService(clientBigtable)
+	c.clientBigtableProjectsInstancesTables = bigtableadmin.NewProjectsInstancesTablesService(clientBigtable)
 
 	sourceRepoClientBasePath := removeBasePathVersion(c.SourceRepoBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud Source Repo client for path %s", sourceRepoClientBasePath)

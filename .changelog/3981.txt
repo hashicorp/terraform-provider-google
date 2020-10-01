@@ -1,0 +1,3 @@
+```release-note:new-resource
+bigtable: added google_bigtable_table_iam_* resources which can set IAM policies on Bigtable Tables.
+```
