@@ -163,6 +163,11 @@ func resourceDataCatalogTagCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["column"] = columnProp
 	}
 
+	obj, err = resourceDataCatalogTagEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{parent}}/tags")
 	if err != nil {
 		return err
@@ -273,6 +278,11 @@ func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("column"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, columnProp)) {
 		obj["column"] = columnProp
+	}
+
+	obj, err = resourceDataCatalogTagEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
@@ -493,7 +503,7 @@ func expandNestedDataCatalogTagFields(v interface{}, d TerraformResourceData, co
 		transformedBoolValue, err := expandNestedDataCatalogTagFieldsBoolValue(original["bool_value"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedBoolValue); val.IsValid() && !isEmptyValue(val) {
+		} else {
 			transformed["boolValue"] = transformedBoolValue
 		}
 
@@ -557,6 +567,26 @@ func expandNestedDataCatalogTagFieldsEnumValue(v interface{}, d TerraformResourc
 
 func expandNestedDataCatalogTagColumn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceDataCatalogTagEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	if obj["fields"] != nil {
+		// isEmptyValue() does not work for a boolean as it shows
+		// false when it is 'empty'. Filter boolValue here based on
+		// the rule api does not take more than 1 'value'
+		fields := obj["fields"].(map[string]interface{})
+		for _, elements := range fields {
+			values := elements.(map[string]interface{})
+			if len(values) > 1 {
+				for val := range values {
+					if val == "boolValue" {
+						delete(values, "boolValue")
+					}
+				}
+			}
+		}
+	}
+	return obj, nil
 }
 
 func flattenNestedDataCatalogTag(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {

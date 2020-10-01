@@ -1,0 +1,3 @@
+```release-note:bug
+datacatalog: fixed an error in `google_data_catalog_tag` when trying to set boolean field to `false`
+```
