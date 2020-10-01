@@ -70,6 +70,10 @@ func resourceAppEngineApplication() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"CLOUD_FIRESTORE",
 					"CLOUD_DATASTORE_COMPATIBILITY",
+					// NOTE: this is provided for compatibility with instances from
+					// before CLOUD_DATASTORE_COMPATIBILITY - it cannot be set
+					// for new instances.
+					"CLOUD_DATASTORE",
 				}, false),
 				Computed: true,
 			},
