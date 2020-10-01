@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: fixed an issue in `google_cloud_run_domain_mapping` where labels provided by Google would cause a diff
+```

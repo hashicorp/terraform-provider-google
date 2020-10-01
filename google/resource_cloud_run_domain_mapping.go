@@ -19,12 +19,30 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 )
+
+const domainMappingGoogleProvidedLabel = "cloud.googleapis.com/location"
+
+func domainMappingLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the label provided by Google
+	if strings.Contains(k, domainMappingGoogleProvidedLabel) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.Contains(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
 
 func resourceCloudRunDomainMapping() *schema.Resource {
 	return &schema.Resource{
@@ -74,10 +92,11 @@ info: http://kubernetes.io/docs/user-guide/annotations`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"labels": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: domainMappingLabelDiffSuppress,
 							Description: `Map of string keys and values that can be used to organize and categorize
 (scope and select) objects. May match selectors of replication controllers
 and routes.
