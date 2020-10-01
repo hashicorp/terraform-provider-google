@@ -221,6 +221,89 @@ func TestAccBigQueryTable_updateView(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryTable_MaterializedView_DailyTimePartioning_Basic(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	materialized_viewID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	query := fmt.Sprintf("SELECT count(some_string) as count, some_int, ts FROM `%s.%s` WHERE DATE(ts) = '2019-01-01' GROUP BY some_int, ts", datasetID, tableID)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithMatViewDailyTimePartitioning_basic(datasetID, tableID, materialized_viewID, query),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+			},
+			{
+				ResourceName:            "google_bigquery_table.mv_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+			},
+		},
+	})
+}
+
+func TestAccBigQueryTable_MaterializedView_DailyTimePartioning_Update(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	materialized_viewID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	query := fmt.Sprintf("SELECT count(some_string) as count, some_int, ts FROM `%s.%s` WHERE DATE(ts) = '2019-01-01' GROUP BY some_int, ts", datasetID, tableID)
+
+	enable_refresh := "false"
+	refresh_interval_ms := "3600000"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithMatViewDailyTimePartitioning_basic(datasetID, tableID, materialized_viewID, query),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+			},
+			{
+				ResourceName:            "google_bigquery_table.mv_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+			},
+			{
+				Config: testAccBigQueryTableWithMatViewDailyTimePartitioning(datasetID, tableID, materialized_viewID, enable_refresh, refresh_interval_ms, query),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+			},
+			{
+				ResourceName:            "google_bigquery_table.mv_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryExternalDataTable_CSV(t *testing.T) {
 	t.Parallel()
 
@@ -654,6 +737,158 @@ resource "google_bigquery_table" "test" {
 	}
 }
 `, datasetID, tableID, "SELECT state FROM `lookerdata.cdc.project_tycho_reports`")
+}
+
+func testAccBigQueryTableWithMatViewDailyTimePartitioning_basic(datasetID, tableID, mViewID, query string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+	dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+	table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+
+	time_partitioning {
+		type                     = "DAY"
+		field                    = "ts"
+		require_partition_filter = true
+	}
+	clustering = ["some_int", "some_string"]
+	schema     = <<EOH
+[
+	{
+		"name": "ts",
+		"type": "TIMESTAMP"
+	},
+	{
+		"name": "some_string",
+		"type": "STRING"
+	},
+	{
+		"name": "some_int",
+		"type": "INTEGER"
+	},
+	{
+		"name": "city",
+		"type": "RECORD",
+		"fields": [
+	{
+		"name": "id",
+		"type": "INTEGER"
+	},
+	{
+		"name": "coord",
+		"type": "RECORD",
+		"fields": [
+		{
+		"name": "lon",
+		"type": "FLOAT"
+		}
+		]
+	}
+		]
+	}
+]
+EOH
+
+}
+
+resource "google_bigquery_table" "mv_test" {
+	table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+
+	time_partitioning {
+		type    = "DAY"
+		field   = "ts"
+	}
+
+	materialized_view {
+		query          = "%s"
+	}
+
+	depends_on = [
+    google_bigquery_table.test,
+  ]
+}
+`, datasetID, tableID, mViewID, query)
+}
+
+func testAccBigQueryTableWithMatViewDailyTimePartitioning(datasetID, tableID, mViewID, enable_refresh, refresh_interval, query string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+	dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+	table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+
+	time_partitioning {
+		type                     = "DAY"
+		field                    = "ts"
+		require_partition_filter = true
+	}
+	clustering = ["some_int", "some_string"]
+	schema     = <<EOH
+[
+	{
+		"name": "ts",
+		"type": "TIMESTAMP"
+	},
+	{
+		"name": "some_string",
+		"type": "STRING"
+	},
+	{
+		"name": "some_int",
+		"type": "INTEGER"
+	},
+	{
+		"name": "city",
+		"type": "RECORD",
+		"fields": [
+	{
+		"name": "id",
+		"type": "INTEGER"
+	},
+	{
+		"name": "coord",
+		"type": "RECORD",
+		"fields": [
+		{
+		"name": "lon",
+		"type": "FLOAT"
+		}
+		]
+	}
+		]
+	}
+]
+EOH
+
+}
+
+resource "google_bigquery_table" "mv_test" {
+	table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+
+	time_partitioning {
+		type    = "DAY"
+		field   = "ts"
+	}
+
+	materialized_view {
+		enable_refresh = "%s"
+		refresh_interval_ms = "%s"
+		query          = "%s"
+	}
+
+	depends_on = [
+    google_bigquery_table.test,
+  ]
+}
+`, datasetID, tableID, mViewID, enable_refresh, refresh_interval, query)
 }
 
 func testAccBigQueryTableUpdated(datasetID, tableID string) string {
