@@ -467,10 +467,10 @@ maintenance_policy {
 * `recurring_window` - (Optional) Time window for
 recurring maintenance operations.
 
-Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) date format.  The start time's date is
+Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) "Zulu" date format.  The start time's date is
 the initial date that the window starts, and the end time is used for calculating duration.  Specify `recurrence` in
 [RFC5545](https://tools.ietf.org/html/rfc5545#section-3.8.5.3) RRULE format, to specify when this recurs.
-UTC time should be used, since GKE returns this format, and will otherwise cause a permanent diff.
+Note that GKE may accept other formats, but will return values in UTC, causing a permanent diff.
 
 Examples:
 ```
