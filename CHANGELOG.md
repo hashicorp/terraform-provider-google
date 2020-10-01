@@ -1,4 +1,17 @@
 ## 3.42.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** google_data_loss_prevention_deidentify_template ([#7378](https://github.com/hashicorp/terraform-provider-google/pull/7378))
+
+IMPROVEMENTS:
+* compute: added support for updating `network_interface.[d].network` and `network_interface.[d].subnetwork` properties on `google_compute_instance`. ([#7358](https://github.com/hashicorp/terraform-provider-google/pull/7358))
+* healthcare: added field `parser_config.version` to `google_healthcare_hl7_v2_store` ([#7357](https://github.com/hashicorp/terraform-provider-google/pull/7357))
+
+BUG FIXES:
+* bigquery: fixed an issue where `google_bigquery_table` would crash while reading an empty schema ([#7359](https://github.com/hashicorp/terraform-provider-google/pull/7359))
+* compute: fixed an issue where `google_compute_instance_template` would throw an error for unspecified `disk_size_gb` values while upgrading the provider. ([#7355](https://github.com/hashicorp/terraform-provider-google/pull/7355))
+* resourcemanager: fixed an issue in retrieving `google_active_folder` data source when the display name included whitespace ([#7395](https://github.com/hashicorp/terraform-provider-google/pull/7395))
+
 ## 3.41.0 (September 28, 2020)
 
 IMPROVEMENTS:
