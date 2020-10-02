@@ -50,7 +50,8 @@ resource "google_dns_policy" "example-policy" {
 
   alternative_name_server_config {
     target_name_servers {
-      ipv4_address = "172.16.1.10"
+      ipv4_address    = "172.16.1.10"
+      forwarding_path = "private"
     }
     target_name_servers {
       ipv4_address = "172.16.1.20"
@@ -136,6 +137,13 @@ The `target_name_servers` block supports:
 * `ipv4_address` -
   (Required)
   IPv4 address to forward to.
+
+* `forwarding_path` -
+  (Optional)
+  Forwarding path for this TargetNameServer. If unset or `default` Cloud DNS will make forwarding
+  decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
+  to the Internet. When set to `private`, Cloud DNS will always send queries through VPC for this target
+  Possible values are `default` and `private`.
 
 The `networks` block supports:
 

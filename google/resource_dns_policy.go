@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceDNSPolicy() *schema.Resource {
@@ -130,6 +131,14 @@ func dnsPolicyAlternativeNameServerConfigTargetNameServersSchema() *schema.Resou
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `IPv4 address to forward to.`,
+			},
+			"forwarding_path": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"default", "private", ""}, false),
+				Description: `Forwarding path for this TargetNameServer. If unset or 'default' Cloud DNS will make forwarding
+decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
+to the Internet. When set to 'private', Cloud DNS will always send queries through VPC for this target Possible values: ["default", "private"]`,
 			},
 		},
 	}
@@ -470,12 +479,17 @@ func flattenDNSPolicyAlternativeNameServerConfigTargetNameServers(v interface{},
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"ipv4_address": flattenDNSPolicyAlternativeNameServerConfigTargetNameServersIpv4Address(original["ipv4Address"], d, config),
+			"ipv4_address":    flattenDNSPolicyAlternativeNameServerConfigTargetNameServersIpv4Address(original["ipv4Address"], d, config),
+			"forwarding_path": flattenDNSPolicyAlternativeNameServerConfigTargetNameServersForwardingPath(original["forwardingPath"], d, config),
 		})
 	}
 	return transformed
 }
 func flattenDNSPolicyAlternativeNameServerConfigTargetNameServersIpv4Address(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDNSPolicyAlternativeNameServerConfigTargetNameServersForwardingPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -562,12 +576,23 @@ func expandDNSPolicyAlternativeNameServerConfigTargetNameServers(v interface{}, 
 			transformed["ipv4Address"] = transformedIpv4Address
 		}
 
+		transformedForwardingPath, err := expandDNSPolicyAlternativeNameServerConfigTargetNameServersForwardingPath(original["forwarding_path"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedForwardingPath); val.IsValid() && !isEmptyValue(val) {
+			transformed["forwardingPath"] = transformedForwardingPath
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
 }
 
 func expandDNSPolicyAlternativeNameServerConfigTargetNameServersIpv4Address(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDNSPolicyAlternativeNameServerConfigTargetNameServersForwardingPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
