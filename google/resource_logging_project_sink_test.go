@@ -121,7 +121,6 @@ func TestAccLoggingProjectSink_loggingbucket(t *testing.T) {
 	t.Parallel()
 
 	sinkName := "tf-test-sink-" + randString(t, 10)
-	logBucketID := "tf-test-logbucket-" + randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -129,7 +128,7 @@ func TestAccLoggingProjectSink_loggingbucket(t *testing.T) {
 		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingProjectSink_loggingbucket(sinkName, getTestProjectFromEnv(), logBucketID),
+				Config: testAccLoggingProjectSink_loggingbucket(sinkName, getTestProjectFromEnv()),
 			},
 			{
 				ResourceName:      "google_logging_project_sink.loggingbucket",
@@ -272,12 +271,12 @@ resource "google_bigquery_dataset" "logging_sink" {
 `, sinkName, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
 }
 
-func testAccLoggingProjectSink_loggingbucket(name, project, logBucketID string) string {
+func testAccLoggingProjectSink_loggingbucket(name, project string) string {
 	return fmt.Sprintf(`
 resource "google_logging_project_sink" "loggingbucket" {
   name        = "%s"
   project     = "%s"
-  destination = "logging.googleapis.com/projects/%s/locations/global/buckets/${google_logging_project_bucket_config.logbucket.id}"
+  destination = "logging.googleapis.com/projects/%s/locations/global/buckets/_Default"
   exclusions {
 		name = "ex1"
 		description = "test"
@@ -290,13 +289,8 @@ resource "google_logging_project_sink" "loggingbucket" {
 		filter = "resource.type = k8s_container"
 	}
 
-  unique_writer_identity = false
+  unique_writer_identity = true
 }
 
-resource "google_logging_project_bucket_config" "logbucket" {
-    location  = "global"
-    retention_days = 30
-    bucket_id = "%s"
-}
-`, name, project, project, logBucketID)
+`, name, project, project)
 }
