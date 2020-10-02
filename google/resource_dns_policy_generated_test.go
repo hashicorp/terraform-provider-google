@@ -60,7 +60,8 @@ resource "google_dns_policy" "example-policy" {
 
   alternative_name_server_config {
     target_name_servers {
-      ipv4_address = "172.16.1.10"
+      ipv4_address    = "172.16.1.10"
+      forwarding_path = "private"
     }
     target_name_servers {
       ipv4_address = "172.16.1.20"
