@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed `node_config.image_type` perma-diff when specified in lower case.
+```

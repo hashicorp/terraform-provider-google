@@ -2247,7 +2247,7 @@ resource "google_container_cluster" "with_node_config" {
     }
 
     // Updatable fields
-    image_type = "COS"
+    image_type = "cos"
   }
 }
 `, clusterName)
