@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -58,9 +57,9 @@ func dataSourceGoogleNetblockIpRangesRead(d *schema.ResourceData, meta interface
 	switch rt {
 	// Dynamic ranges
 	case "cloud-netblocks":
-		// https://cloud.google.com/compute/docs/faq#where_can_i_find_product_name_short_ip_ranges
-		const CLOUD_NETBLOCK_DNS = "_cloud-netblocks.googleusercontent.com"
-		CidrBlocks, err := getCidrBlocksFromDns(CLOUD_NETBLOCK_DNS)
+		// https://cloud.google.com/compute/docs/faq#find_ip_range
+		const CLOUD_NETBLOCK_URL = "https://www.gstatic.com/ipranges/cloud.json"
+		CidrBlocks, err := getCidrBlocksFromUrl(CLOUD_NETBLOCK_URL)
 
 		if err != nil {
 			return err
@@ -162,78 +161,6 @@ func dataSourceGoogleNetblockIpRangesRead(d *schema.ResourceData, meta interface
 	d.SetId("netblock-ip-ranges-" + rt)
 
 	return nil
-}
-
-func netblock_request(name string) (string, error) {
-	response, err := http.Get(fmt.Sprintf("https://dns.google.com/resolve?name=%s&type=TXT", name))
-
-	if err != nil {
-		return "", fmt.Errorf("Error from _cloud-netblocks: %s", err)
-	}
-
-	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
-
-	if err != nil {
-		return "", fmt.Errorf("Error to retrieve the domains list: %s", err)
-	}
-
-	return string(body), nil
-}
-
-func getCidrBlocksFromDns(netblock string) (map[string][]string, error) {
-	var dnsNetblockList []string
-	cidrBlocks := make(map[string][]string)
-
-	response, err := netblock_request(netblock)
-
-	if err != nil {
-		return nil, err
-	}
-
-	splitedResponse := strings.Split(response, " ")
-
-	for _, sp := range splitedResponse {
-		if strings.HasPrefix(sp, "include:") {
-			dnsNetblock := strings.Replace(sp, "include:", "", 1)
-			dnsNetblockList = append(dnsNetblockList, dnsNetblock)
-		}
-	}
-
-	for len(dnsNetblockList) > 0 {
-
-		dnsNetblock := dnsNetblockList[0]
-
-		dnsNetblockList[0] = ""
-		dnsNetblockList = dnsNetblockList[1:]
-
-		response, err = netblock_request(dnsNetblock)
-
-		if err != nil {
-			return nil, err
-		}
-
-		splitedResponse = strings.Split(response, " ")
-
-		for _, sp := range splitedResponse {
-			if strings.HasPrefix(sp, "ip4") {
-				cdrBlock := strings.Replace(sp, "ip4:", "", 1)
-				cidrBlocks["cidr_blocks_ipv4"] = append(cidrBlocks["cidr_blocks_ipv4"], cdrBlock)
-				cidrBlocks["cidr_blocks"] = append(cidrBlocks["cidr_blocks"], cdrBlock)
-
-			} else if strings.HasPrefix(sp, "ip6") {
-				cdrBlock := strings.Replace(sp, "ip6:", "", 1)
-				cidrBlocks["cidr_blocks_ipv6"] = append(cidrBlocks["cidr_blocks_ipv6"], cdrBlock)
-				cidrBlocks["cidr_blocks"] = append(cidrBlocks["cidr_blocks"], cdrBlock)
-
-			} else if strings.HasPrefix(sp, "include:") {
-				cidr_block := strings.Replace(sp, "include:", "", 1)
-				dnsNetblockList = append(dnsNetblockList, cidr_block)
-			}
-		}
-	}
-
-	return cidrBlocks, nil
 }
 
 func getCidrBlocksFromUrl(url string) (map[string][]string, error) {
