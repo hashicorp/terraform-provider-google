@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -34,7 +33,6 @@ func resourceLoggingSinkSchema() map[string]*schema.Schema {
 		"exclusions": {
 			Type:        schema.TypeList,
 			Optional:    true,
-			Computed:    true,
 			Description: `Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both filter and one of exclusion_filters it will not be exported.`,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
@@ -193,12 +191,11 @@ func expandLoggingSinkExclusions(v interface{}) []*logging.LogExclusion {
 	results := make([]*logging.LogExclusion, 0, len(exclusions))
 	for _, e := range exclusions {
 		exclusion := e.(map[string]interface{})
-		disabled, _ := exclusion["disabled"].(bool)
 		results = append(results, &logging.LogExclusion{
 			Name:        exclusion["name"].(string),
 			Description: exclusion["description"].(string),
 			Filter:      exclusion["filter"].(string),
-			Disabled:    disabled,
+			Disabled:    exclusion["disabled"].(bool),
 		})
 	}
 	return results
@@ -214,7 +211,7 @@ func flattenLoggingSinkExclusion(exclusions []*logging.LogExclusion) []map[strin
 			"name":        e.Name,
 			"description": e.Description,
 			"filter":      e.Filter,
-			"disabled":    strconv.FormatBool(e.Disabled),
+			"disabled":    e.Disabled,
 		}
 		flattenedExclusions = append(flattenedExclusions, flattenedExclusion)
 
