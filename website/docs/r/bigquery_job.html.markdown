@@ -929,7 +929,10 @@ This resource provides the following
 Job can be imported using any of these accepted formats:
 
 ```
+$ terraform import google_bigquery_job.default projects/{{project}}/jobs/{{job_id}}/location/{{location}}
 $ terraform import google_bigquery_job.default projects/{{project}}/jobs/{{job_id}}
+$ terraform import google_bigquery_job.default {{project}}/{{job_id}}/{{location}}
+$ terraform import google_bigquery_job.default {{job_id}}/{{location}}
 $ terraform import google_bigquery_job.default {{project}}/{{job_id}}
 $ terraform import google_bigquery_job.default {{job_id}}
 ```

@@ -928,7 +928,7 @@ func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollR
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}")
+		url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
 		if err != nil {
 			return nil, err
 		}
@@ -966,7 +966,7 @@ func resourceBigQueryJobRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}")
+	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
 	if err != nil {
 		return err
 	}
@@ -1042,7 +1042,10 @@ func resourceBigQueryJobDelete(d *schema.ResourceData, meta interface{}) error {
 func resourceBigQueryJobImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
+		"projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)/location/(?P<location>[^/]+)",
 		"projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)",
+		"(?P<project>[^/]+)/(?P<job_id>[^/]+)/(?P<location>[^/]+)",
+		"(?P<job_id>[^/]+)/(?P<location>[^/]+)",
 		"(?P<project>[^/]+)/(?P<job_id>[^/]+)",
 		"(?P<job_id>[^/]+)",
 	}, d, config); err != nil {
