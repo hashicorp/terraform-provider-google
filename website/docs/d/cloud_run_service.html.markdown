@@ -2,7 +2,7 @@
 subcategory: "Cloud Run"
 layout: "google"
 page_title: "Google: google_cloud_run_service"
-sidebar_current: "docs-google-cloud-run-service"
+sidebar_current: "docs-google-datasource-cloud-run-service"
 description: |-
   Get information about a Google Cloud Run Service.
 ---
@@ -26,8 +26,9 @@ data "google_cloud_run_service" "run-service" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of a Cloud Run.
-* `location` - (Required) The name of a Cloud Run.
+* `name` - (Required) The name of the Cloud Run Service.
+
+* `location` - (Required) The location of the cloud run instance. eg us-central1
 
 - - -
 
