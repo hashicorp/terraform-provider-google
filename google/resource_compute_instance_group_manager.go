@@ -1,4 +1,3 @@
-//
 package google
 
 import (
@@ -263,6 +262,28 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Default:     false,
 				Description: `Whether to wait for all instances to be created/updated before returning. Note that if this is set to true and the operation does not succeed, Terraform will continue trying until it times out.`,
 			},
+			"stateful_disk": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: `Disks created on the instances that will be preserved on instance delete, update, etc.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"device_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The device name of the disk to be attached.`,
+						},
+
+						"delete_rule": {
+							Type:         schema.TypeString,
+							Default:      "NEVER",
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"NEVER", "ON_PERMANENT_INSTANCE_DELETION"}, true),
+							Description:  `A value that prescribes what should happen to the stateful disk when the VM instance is deleted. The available options are NEVER and ON_PERMANENT_INSTANCE_DELETION. NEVER detatch the disk when the VM is deleted, but not delete the disk. ON_PERMANENT_INSTANCE_DELETION will delete the stateful disk when the VM is permanently deleted from the instance group. The default is NEVER.`,
+						},
+					},
+				},
+			},
 			"operation": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -325,6 +346,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 		AutoHealingPolicies: expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
 		Versions:            expandVersions(d.Get("version").([]interface{})),
 		UpdatePolicy:        expandUpdatePolicy(d.Get("update_policy").([]interface{})),
+		StatefulPolicy:      expandStatefulPolicy(d.Get("stateful_disk").(*schema.Set).List()),
 		// Force send TargetSize to allow a value of 0.
 		ForceSendFields: []string{"TargetSize"},
 	}
@@ -502,6 +524,9 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if err = d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts)); err != nil {
 		return fmt.Errorf("Error setting named_port in state: %s", err.Error())
 	}
+	if err = d.Set("stateful_disk", flattenStatefulPolicy(manager.StatefulPolicy)); err != nil {
+		return fmt.Errorf("Error setting stateful_disk in state: %s", err.Error())
+	}
 	if err := d.Set("fingerprint", manager.Fingerprint); err != nil {
 		return fmt.Errorf("Error setting fingerprint: %s", err)
 	}
@@ -579,6 +604,11 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("update_policy") {
 		updatedManager.UpdatePolicy = expandUpdatePolicy(d.Get("update_policy").([]interface{}))
+		change = true
+	}
+
+	if d.HasChange("stateful_disk") {
+		updatedManager.StatefulPolicy = expandStatefulPolicy(d.Get("stateful_disk").(*schema.Set).List())
 		change = true
 	}
 
@@ -716,6 +746,21 @@ func expandAutoHealingPolicies(configured []interface{}) []*computeBeta.Instance
 	return autoHealingPolicies
 }
 
+func expandStatefulPolicy(configured []interface{}) *computeBeta.StatefulPolicy {
+	disks := make(map[string]computeBeta.StatefulPolicyPreservedStateDiskDevice)
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+		disk := computeBeta.StatefulPolicyPreservedStateDiskDevice{
+			AutoDelete: data["delete_rule"].(string),
+		}
+		disks[data["device_name"].(string)] = disk
+	}
+	if len(disks) > 0 {
+		return &computeBeta.StatefulPolicy{PreservedState: &computeBeta.StatefulPolicyPreservedState{Disks: disks}}
+	}
+	return nil
+}
+
 func expandVersions(configured []interface{}) []*computeBeta.InstanceGroupManagerVersion {
 	versions := make([]*computeBeta.InstanceGroupManagerVersion, 0, len(configured))
 	for _, raw := range configured {
@@ -804,6 +849,22 @@ func flattenAutoHealingPolicies(autoHealingPolicies []*computeBeta.InstanceGroup
 		autoHealingPoliciesSchema = append(autoHealingPoliciesSchema, data)
 	}
 	return autoHealingPoliciesSchema
+}
+
+func flattenStatefulPolicy(statefulPolicy *computeBeta.StatefulPolicy) []map[string]interface{} {
+	if statefulPolicy == nil || statefulPolicy.PreservedState == nil || statefulPolicy.PreservedState.Disks == nil {
+		return make([]map[string]interface{}, 0, 0)
+	}
+	result := make([]map[string]interface{}, 0, len(statefulPolicy.PreservedState.Disks))
+	for deviceName, disk := range statefulPolicy.PreservedState.Disks {
+		data := map[string]interface{}{
+			"device_name": deviceName,
+			"delete_rule": disk.AutoDelete,
+		}
+
+		result = append(result, data)
+	}
+	return result
 }
 
 func flattenUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpdatePolicy) []map[string]interface{} {
