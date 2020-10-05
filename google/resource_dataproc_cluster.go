@@ -703,7 +703,6 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.clientDataprocBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -732,7 +731,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Create the cluster
-	op, err := config.clientDataprocBeta.Projects.Regions.Clusters.Create(
+	op, err := config.NewDataprocBetaClient(userAgent).Projects.Regions.Clusters.Create(
 		project, region, cluster).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating Dataproc cluster: %s", err)
@@ -741,7 +740,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	d.SetId(fmt.Sprintf("projects/%s/regions/%s/clusters/%s", project, region, cluster.ClusterName))
 
 	// Wait until it's created
-	waitErr := dataprocClusterOperationWait(config, op, "creating Dataproc cluster", d.Timeout(schema.TimeoutCreate))
+	waitErr := dataprocClusterOperationWait(config, op, "creating Dataproc cluster", userAgent, d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		// The resource didn't actually create
 		// Note that we do not remove the ID here - this resource tends to leave
@@ -1070,7 +1069,6 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.clientDataprocBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1127,7 +1125,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if len(updMask) > 0 {
-		patch := config.clientDataprocBeta.Projects.Regions.Clusters.Patch(
+		patch := config.NewDataprocBetaClient(userAgent).Projects.Regions.Clusters.Patch(
 			project, region, clusterName, cluster)
 		op, err := patch.UpdateMask(strings.Join(updMask, ",")).Do()
 		if err != nil {
@@ -1135,7 +1133,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		// Wait until it's updated
-		waitErr := dataprocClusterOperationWait(config, op, "updating Dataproc cluster ", d.Timeout(schema.TimeoutUpdate))
+		waitErr := dataprocClusterOperationWait(config, op, "updating Dataproc cluster ", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if waitErr != nil {
 			return waitErr
 		}
@@ -1152,7 +1150,6 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	config.clientDataprocBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1162,7 +1159,7 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	region := d.Get("region").(string)
 	clusterName := d.Get("name").(string)
 
-	cluster, err := config.clientDataprocBeta.Projects.Regions.Clusters.Get(
+	cluster, err := config.NewDataprocBetaClient(userAgent).Projects.Regions.Clusters.Get(
 		project, region, clusterName).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataproc Cluster %q", clusterName))
@@ -1416,7 +1413,6 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.clientDataprocBeta.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1427,14 +1423,14 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	clusterName := d.Get("name").(string)
 
 	log.Printf("[DEBUG] Deleting Dataproc cluster %s", clusterName)
-	op, err := config.clientDataprocBeta.Projects.Regions.Clusters.Delete(
+	op, err := config.NewDataprocBetaClient(userAgent).Projects.Regions.Clusters.Delete(
 		project, region, clusterName).Do()
 	if err != nil {
 		return err
 	}
 
 	// Wait until it's deleted
-	waitErr := dataprocClusterOperationWait(config, op, "deleting Dataproc cluster", d.Timeout(schema.TimeoutDelete))
+	waitErr := dataprocClusterOperationWait(config, op, "deleting Dataproc cluster", userAgent, d.Timeout(schema.TimeoutDelete))
 	if waitErr != nil {
 		return waitErr
 	}

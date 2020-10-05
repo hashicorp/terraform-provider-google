@@ -20,6 +20,7 @@ var IamHealthcareDatasetSchema = map[string]*schema.Schema{
 
 type HealthcareDatasetIamUpdater struct {
 	resourceId string
+	d          *schema.ResourceData
 	Config     *Config
 }
 
@@ -33,6 +34,7 @@ func NewHealthcareDatasetIamUpdater(d *schema.ResourceData, config *Config) (Res
 
 	return &HealthcareDatasetIamUpdater{
 		resourceId: datasetId.datasetId(),
+		d:          d,
 		Config:     config,
 	}, nil
 }
@@ -51,7 +53,12 @@ func DatasetIdParseFunc(d *schema.ResourceData, config *Config) error {
 }
 
 func (u *HealthcareDatasetIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	p, err := u.Config.clientHealthcare.Projects.Locations.Datasets.GetIamPolicy(u.resourceId).Do()
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewHealthcareClient(userAgent).Projects.Locations.Datasets.GetIamPolicy(u.resourceId).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
@@ -73,7 +80,12 @@ func (u *HealthcareDatasetIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
-	_, err = u.Config.clientHealthcare.Projects.Locations.Datasets.SetIamPolicy(u.resourceId, &healthcare.SetIamPolicyRequest{
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.Config.NewHealthcareClient(userAgent).Projects.Locations.Datasets.SetIamPolicy(u.resourceId, &healthcare.SetIamPolicyRequest{
 		Policy: healthcarePolicy,
 	}).Do()
 

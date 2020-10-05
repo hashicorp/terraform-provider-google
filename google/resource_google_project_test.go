@@ -275,7 +275,7 @@ func testAccCheckGoogleProjectHasBillingAccount(t *testing.T, r, pid, billingId 
 		// Actual value in API should match state and expected
 		// Read the billing account
 		config := googleProviderConfig(t)
-		ba, err := config.clientBilling.Projects.GetBillingInfo(prefixedProject(pid)).Do()
+		ba, err := config.NewBillingClient(config.userAgent).Projects.GetBillingInfo(prefixedProject(pid)).Do()
 		if err != nil {
 			return fmt.Errorf("Error reading billing account for project %q: %v", prefixedProject(pid), err)
 		}

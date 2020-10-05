@@ -26,6 +26,7 @@ var IamBigtableInstanceSchema = map[string]*schema.Schema{
 type BigtableInstanceIamUpdater struct {
 	project  string
 	instance string
+	d        *schema.ResourceData
 	Config   *Config
 }
 
@@ -42,6 +43,7 @@ func NewBigtableInstanceUpdater(d *schema.ResourceData, config *Config) (Resourc
 	return &BigtableInstanceIamUpdater{
 		project:  project,
 		instance: d.Get("instance").(string),
+		d:        d,
 		Config:   config,
 	}, nil
 }
@@ -66,7 +68,13 @@ func BigtableInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 
 func (u *BigtableInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	req := &bigtableadmin.GetIamPolicyRequest{}
-	p, err := u.Config.clientBigtableProjectsInstances.GetIamPolicy(u.GetResourceId(), req).Do()
+
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewBigTableProjectsInstancesClient(userAgent).GetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -86,7 +94,13 @@ func (u *BigtableInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcem
 	}
 
 	req := &bigtableadmin.SetIamPolicyRequest{Policy: bigtablePolicy}
-	_, err = u.Config.clientBigtableProjectsInstances.SetIamPolicy(u.GetResourceId(), req).Do()
+
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.Config.NewBigTableProjectsInstancesClient(userAgent).SetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

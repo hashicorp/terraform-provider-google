@@ -364,7 +364,7 @@ func testAccCheckBigQueryExtData(t *testing.T, expectedQuoteChar string) resourc
 			config := googleProviderConfig(t)
 			dataset := rs.Primary.Attributes["dataset_id"]
 			table := rs.Primary.Attributes["table_id"]
-			res, err := config.clientBigQuery.Tables.Get(config.Project, dataset, table).Do()
+			res, err := config.NewBigQueryClient(config.userAgent).Tables.Get(config.Project, dataset, table).Do()
 			if err != nil {
 				return err
 			}
@@ -390,7 +390,7 @@ func testAccCheckBigQueryTableDestroyProducer(t *testing.T) func(s *terraform.St
 			}
 
 			config := googleProviderConfig(t)
-			_, err := config.clientBigQuery.Tables.Get(config.Project, rs.Primary.Attributes["dataset_id"], rs.Primary.Attributes["table_id"]).Do()
+			_, err := config.NewBigQueryClient(config.userAgent).Tables.Get(config.Project, rs.Primary.Attributes["dataset_id"], rs.Primary.Attributes["table_id"]).Do()
 			if err == nil {
 				return fmt.Errorf("Table still present")
 			}

@@ -33,6 +33,7 @@ type DataprocClusterIamUpdater struct {
 	project string
 	region  string
 	cluster string
+	d       *schema.ResourceData
 	Config  *Config
 }
 
@@ -58,6 +59,7 @@ func NewDataprocClusterUpdater(d *schema.ResourceData, config *Config) (Resource
 		project: project,
 		region:  region,
 		cluster: d.Get("cluster").(string),
+		d:       d,
 		Config:  config,
 	}, nil
 }
@@ -85,7 +87,13 @@ func DataprocClusterIdParseFunc(d *schema.ResourceData, config *Config) error {
 
 func (u *DataprocClusterIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	req := &dataproc.GetIamPolicyRequest{}
-	p, err := u.Config.clientDataproc.Projects.Regions.Clusters.GetIamPolicy(u.GetResourceId(), req).Do()
+
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewDataprocClient(userAgent).Projects.Regions.Clusters.GetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -104,8 +112,13 @@ func (u *DataprocClusterIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	req := &dataproc.SetIamPolicyRequest{Policy: dataprocPolicy}
-	_, err = u.Config.clientDataproc.Projects.Regions.Clusters.SetIamPolicy(u.GetResourceId(), req).Do()
+	_, err = u.Config.NewDataprocClient(userAgent).Projects.Regions.Clusters.SetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

@@ -17,7 +17,7 @@ func (w *ServiceNetworkingOperationWaiter) QueryOp() (interface{}, error) {
 
 func serviceNetworkingOperationWaitTime(config *Config, op *servicenetworking.Operation, activity, userAgent string, timeout time.Duration) error {
 	w := &ServiceNetworkingOperationWaiter{
-		Service: config.clientServiceNetworking,
+		Service: config.NewServiceNetworkingClient(userAgent),
 	}
 
 	if err := w.SetOp(op); err != nil {

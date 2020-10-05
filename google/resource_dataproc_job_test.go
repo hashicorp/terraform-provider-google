@@ -287,7 +287,7 @@ func testAccCheckDataprocJobDestroyProducer(t *testing.T) func(s *terraform.Stat
 
 			parts := strings.Split(rs.Primary.ID, "/")
 			job_id := parts[len(parts)-1]
-			_, err = config.clientDataproc.Projects.Regions.Jobs.Get(
+			_, err = config.NewDataprocClient(config.userAgent).Projects.Regions.Jobs.Get(
 				project, attributes["region"], job_id).Do()
 			if err != nil {
 				if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
@@ -317,12 +317,12 @@ func testAccCheckDataprocJobCompletesSuccessfully(t *testing.T, n string, job *d
 
 		jobCompleteTimeoutMins := 5 * time.Minute
 		waitErr := dataprocJobOperationWait(config, region, project, job.Reference.JobId,
-			"Awaiting Dataproc job completion", jobCompleteTimeoutMins)
+			"Awaiting Dataproc job completion", config.userAgent, jobCompleteTimeoutMins)
 		if waitErr != nil {
 			return waitErr
 		}
 
-		completeJob, err := config.clientDataproc.Projects.Regions.Jobs.Get(
+		completeJob, err := config.NewDataprocClient(config.userAgent).Projects.Regions.Jobs.Get(
 			project, region, job.Reference.JobId).Do()
 		if err != nil {
 			return err
@@ -379,7 +379,7 @@ func testAccCheckDataprocJobExists(t *testing.T, n string, job *dataproc.Job) re
 			return err
 		}
 
-		found, err := config.clientDataproc.Projects.Regions.Jobs.Get(
+		found, err := config.NewDataprocClient(config.userAgent).Projects.Regions.Jobs.Get(
 			project, rs.Primary.Attributes["region"], jobId).Do()
 		if err != nil {
 			return err

@@ -28,14 +28,13 @@ func dataSourceGoogleBigqueryDefaultServiceAccountRead(d *schema.ResourceData, m
 	if err != nil {
 		return err
 	}
-	config.clientBigQuery.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	projectResource, err := config.clientBigQuery.Projects.GetServiceAccount(project).Do()
+	projectResource, err := config.NewBigQueryClient(userAgent).Projects.GetServiceAccount(project).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, "BigQuery service account not found")
 	}

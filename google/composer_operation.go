@@ -21,7 +21,7 @@ func (w *ComposerOperationWaiter) QueryOp() (interface{}, error) {
 
 func composerOperationWaitTime(config *Config, op *composer.Operation, project, activity, userAgent string, timeout time.Duration) error {
 	w := &ComposerOperationWaiter{
-		Service: config.clientComposer.Projects.Locations,
+		Service: config.NewComposerClient(userAgent).Projects.Locations,
 	}
 	if err := w.SetOp(op); err != nil {
 		return err

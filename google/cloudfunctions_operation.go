@@ -19,9 +19,9 @@ func (w *CloudFunctionsOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 
-func cloudFunctionsOperationWait(config *Config, op *cloudfunctions.Operation, activity string, timeout time.Duration) error {
+func cloudFunctionsOperationWait(config *Config, op *cloudfunctions.Operation, activity, userAgent string, timeout time.Duration) error {
 	w := &CloudFunctionsOperationWaiter{
-		Service: config.clientCloudFunctions,
+		Service: config.NewCloudFunctionsClient(userAgent),
 	}
 	if err := w.SetOp(op); err != nil {
 		return err

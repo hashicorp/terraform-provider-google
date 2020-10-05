@@ -38,7 +38,7 @@ func appEngineOperationWaitTimeWithResponse(config *Config, res interface{}, res
 	}
 
 	w := &AppEngineOperationWaiter{
-		Service: config.clientAppEngine,
+		Service: config.NewAppEngineClient(userAgent),
 		AppId:   appId,
 	}
 
@@ -59,7 +59,7 @@ func appEngineOperationWaitTime(config *Config, res interface{}, appId, activity
 	}
 
 	w := &AppEngineOperationWaiter{
-		Service: config.clientAppEngine,
+		Service: config.NewAppEngineClient(userAgent),
 		AppId:   appId,
 	}
 

@@ -102,7 +102,6 @@ func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.bigtableClientFactory.UserAgent = userAgent
 
 	ctx := context.Background()
 
@@ -112,7 +111,7 @@ func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
-	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
+	c, err := config.BigQueryClientFactory(userAgent).NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
 	}
@@ -154,7 +153,6 @@ func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.bigtableClientFactory.UserAgent = userAgent
 	ctx := context.Background()
 
 	project, err := getProject(d, config)
@@ -163,7 +161,7 @@ func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
-	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
+	c, err := config.BigQueryClientFactory(userAgent).NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
 	}
@@ -198,7 +196,6 @@ func resourceBigtableGCPolicyDestroy(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.bigtableClientFactory.UserAgent = userAgent
 	ctx := context.Background()
 
 	project, err := getProject(d, config)
@@ -207,7 +204,7 @@ func resourceBigtableGCPolicyDestroy(d *schema.ResourceData, meta interface{}) e
 	}
 
 	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
-	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
+	c, err := config.BigQueryClientFactory(userAgent).NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
 	}
