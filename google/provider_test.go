@@ -181,7 +181,6 @@ func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc 
 		return false
 	})
 	config.client.Transport = rec
-	config.wrappedBigQueryClient.Transport = rec
 	configs[testName] = config
 	return config, nil
 }

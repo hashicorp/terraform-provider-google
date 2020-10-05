@@ -132,67 +132,21 @@ type Config struct {
 	TPUBasePath                  string
 	VPCAccessBasePath            string
 
-	CloudBillingBasePath string
-	clientBilling        *cloudbilling.APIService
-
-	clientBuild *cloudbuild.Service
-
-	ComposerBasePath string
-	clientComposer   *composer.Service
-
-	ComputeBetaBasePath string
-
-	ContainerBasePath string
-
-	ContainerBetaBasePath string
-
-	clientDataproc *dataproc.Service
-
-	DataprocBetaBasePath string
-	clientDataprocBeta   *dataprocBeta.Service
-
-	DataflowBasePath string
-
-	DnsBetaBasePath string
-
-	clientFilestore *file.Service
-
-	IamCredentialsBasePath string
-
+	CloudBillingBasePath           string
+	ComposerBasePath               string
+	ComputeBetaBasePath            string
+	ContainerBasePath              string
+	ContainerBetaBasePath          string
+	DataprocBetaBasePath           string
+	DataflowBasePath               string
+	DnsBetaBasePath                string
+	IamCredentialsBasePath         string
 	ResourceManagerV2Beta1BasePath string
-
-	clientSpanner *spanner.Service
-
-	clientSourceRepo *sourcerepo.Service
-
-	IAMBasePath string
-
-	clientHealthcare *healthcare.Service
-
-	clientBigQuery *bigquery.Service
-
-	clientCloudFunctions *cloudfunctions.Service
-
-	CloudIoTBasePath string
-	clientCloudIoT   *cloudiot.Service
-
-	clientAppEngine *appengine.APIService
-
-	ServiceNetworkingBasePath string
-	clientServiceNetworking   *servicenetworking.APIService
-
-	StorageTransferBasePath string
-	clientStorageTransfer   *storagetransfer.Service
-
-	bigtableClientFactory *BigtableClientFactory
-	BigtableAdminBasePath string
-	// Unlike other clients, the Bigtable Admin client doesn't use a single
-	// service. Instead, there are several distinct services created off
-	// the base service object. To imitate most other handwritten clients,
-	// we expose those directly instead of providing the `Service` object
-	// as a factory.
-	clientBigtableProjectsInstances       *bigtableadmin.ProjectsInstancesService
-	clientBigtableProjectsInstancesTables *bigtableadmin.ProjectsInstancesTablesService
+	IAMBasePath                    string
+	CloudIoTBasePath               string
+	ServiceNetworkingBasePath      string
+	StorageTransferBasePath        string
+	BigtableAdminBasePath          string
 
 	requestBatcherServiceUsage *RequestBatcher
 	requestBatcherIam          *RequestBatcher
@@ -296,166 +250,6 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	c.client = client
 	c.context = ctx
 
-	// This base path and some others below need the version and possibly more of the path
-	// set on them. The client libraries are inconsistent about which values they need;
-	// while most only want the host URL, some older ones also want the version and some
-	// of those "projects" as well. You can find out if this is required by looking at
-	// the basePath value in the client library file.
-	cloudBillingClientBasePath := removeBasePathVersion(c.CloudBillingBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Billing client for path %s", cloudBillingClientBasePath)
-	c.clientBilling, err = cloudbilling.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientBilling.UserAgent = c.userAgent
-	c.clientBilling.BasePath = cloudBillingClientBasePath
-
-	cloudBuildClientBasePath := removeBasePathVersion(c.CloudBuildBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Build client for path %s", cloudBuildClientBasePath)
-	c.clientBuild, err = cloudbuild.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientBuild.UserAgent = c.userAgent
-	c.clientBuild.BasePath = cloudBuildClientBasePath
-
-	bigQueryClientBasePath := c.BigQueryBasePath
-	log.Printf("[INFO] Instantiating Google Cloud BigQuery client for path %s", bigQueryClientBasePath)
-	wrappedBigQueryClient := ClientWithAdditionalRetries(client, iamMemberMissing)
-	c.wrappedBigQueryClient = wrappedBigQueryClient
-	c.clientBigQuery, err = bigquery.NewService(ctx, option.WithHTTPClient(wrappedBigQueryClient))
-	if err != nil {
-		return err
-	}
-	c.clientBigQuery.UserAgent = c.userAgent
-	c.clientBigQuery.BasePath = bigQueryClientBasePath
-
-	cloudFunctionsClientBasePath := removeBasePathVersion(c.CloudFunctionsBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud CloudFunctions Client for path %s", cloudFunctionsClientBasePath)
-	c.clientCloudFunctions, err = cloudfunctions.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientCloudFunctions.UserAgent = c.userAgent
-	c.clientCloudFunctions.BasePath = cloudFunctionsClientBasePath
-
-	c.bigtableClientFactory = &BigtableClientFactory{
-		UserAgent:   c.userAgent,
-		TokenSource: tokenSource,
-	}
-
-	bigtableAdminBasePath := removeBasePathVersion(c.BigtableAdminBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
-
-	clientBigtable, err := bigtableadmin.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	clientBigtable.UserAgent = c.userAgent
-	clientBigtable.BasePath = bigtableAdminBasePath
-	c.clientBigtableProjectsInstances = bigtableadmin.NewProjectsInstancesService(clientBigtable)
-	c.clientBigtableProjectsInstancesTables = bigtableadmin.NewProjectsInstancesTablesService(clientBigtable)
-
-	sourceRepoClientBasePath := removeBasePathVersion(c.SourceRepoBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Source Repo client for path %s", sourceRepoClientBasePath)
-	c.clientSourceRepo, err = sourcerepo.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientSourceRepo.UserAgent = c.userAgent
-	c.clientSourceRepo.BasePath = sourceRepoClientBasePath
-
-	spannerClientBasePath := removeBasePathVersion(c.SpannerBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Spanner client for path %s", spannerClientBasePath)
-	c.clientSpanner, err = spanner.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientSpanner.UserAgent = c.userAgent
-	c.clientSpanner.BasePath = spannerClientBasePath
-
-	dataprocClientBasePath := removeBasePathVersion(c.DataprocBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Dataproc client for path %s", dataprocClientBasePath)
-	c.clientDataproc, err = dataproc.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientDataproc.UserAgent = c.userAgent
-	c.clientDataproc.BasePath = dataprocClientBasePath
-
-	dataprocBetaClientBasePath := removeBasePathVersion(c.DataprocBetaBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Dataproc Beta client for path %s", dataprocBetaClientBasePath)
-	c.clientDataprocBeta, err = dataprocBeta.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientDataprocBeta.UserAgent = c.userAgent
-	c.clientDataprocBeta.BasePath = dataprocClientBasePath
-
-	filestoreClientBasePath := removeBasePathVersion(c.FilestoreBasePath)
-	log.Printf("[INFO] Instantiating Filestore client for path %s", filestoreClientBasePath)
-	c.clientFilestore, err = file.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientFilestore.UserAgent = c.userAgent
-	c.clientFilestore.BasePath = filestoreClientBasePath
-
-	cloudIoTClientBasePath := removeBasePathVersion(c.CloudIoTBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud IoT Core client for path %s", cloudIoTClientBasePath)
-	c.clientCloudIoT, err = cloudiot.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientCloudIoT.UserAgent = c.userAgent
-	c.clientCloudIoT.BasePath = cloudIoTClientBasePath
-
-	appEngineClientBasePath := removeBasePathVersion(c.AppEngineBasePath)
-	log.Printf("[INFO] Instantiating App Engine client for path %s", appEngineClientBasePath)
-	c.clientAppEngine, err = appengine.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientAppEngine.UserAgent = c.userAgent
-	c.clientAppEngine.BasePath = appEngineClientBasePath
-
-	composerClientBasePath := removeBasePathVersion(c.ComposerBasePath)
-	log.Printf("[INFO] Instantiating Cloud Composer client for path %s", composerClientBasePath)
-	c.clientComposer, err = composer.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientComposer.UserAgent = c.userAgent
-	c.clientComposer.BasePath = composerClientBasePath
-
-	serviceNetworkingClientBasePath := removeBasePathVersion(c.ServiceNetworkingBasePath)
-	log.Printf("[INFO] Instantiating Service Networking client for path %s", serviceNetworkingClientBasePath)
-	c.clientServiceNetworking, err = servicenetworking.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientServiceNetworking.UserAgent = c.userAgent
-	c.clientServiceNetworking.BasePath = serviceNetworkingClientBasePath
-
-	storageTransferClientBasePath := removeBasePathVersion(c.StorageTransferBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Storage Transfer client for path %s", storageTransferClientBasePath)
-	c.clientStorageTransfer, err = storagetransfer.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientStorageTransfer.UserAgent = c.userAgent
-	c.clientStorageTransfer.BasePath = storageTransferClientBasePath
-
-	healthcareClientBasePath := removeBasePathVersion(c.HealthcareBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Healthcare client for path %s", healthcareClientBasePath)
-
-	c.clientHealthcare, err = healthcare.NewService(ctx, option.WithHTTPClient(client))
-	if err != nil {
-		return err
-	}
-	c.clientHealthcare.UserAgent = c.userAgent
-	c.clientHealthcare.BasePath = healthcareClientBasePath
-
 	c.Region = GetRegionFromRegionSelfLink(c.Region)
 
 	c.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, c.BatchingConfig)
@@ -511,7 +305,12 @@ func (c *Config) getTokenSource(clientScopes []string) (oauth2.TokenSource, erro
 	return creds.TokenSource, nil
 }
 
-// methods to create new services from config
+// Methods to create new services from config
+// Some base paths below need the version and possibly more of the path
+// set on them. The client libraries are inconsistent about which values they need;
+// while most only want the host URL, some older ones also want the version and some
+// of those "projects" as well. You can find out if this is required by looking at
+// the basePath value in the client library file.
 func (c *Config) NewComputeClient(userAgent string) *compute.Service {
 	computeClientBasePath := c.ComputeBasePath + "projects/"
 	log.Printf("[INFO] Instantiating GCE client for path %s", computeClientBasePath)
@@ -772,13 +571,268 @@ func (c *Config) NewServiceUsageClient(userAgent string) *serviceusage.Service {
 	log.Printf("[INFO] Instantiating Google Cloud Service Usage client for path %s", serviceUsageClientBasePath)
 	clientServiceUsage, err := serviceusage.NewService(c.context, option.WithHTTPClient(c.client))
 	if err != nil {
-		log.Printf("[WARN] Error creating client service management: %s", err)
+		log.Printf("[WARN] Error creating client service usage: %s", err)
 		return nil
 	}
 	clientServiceUsage.UserAgent = userAgent
 	clientServiceUsage.BasePath = serviceUsageClientBasePath
 
 	return clientServiceUsage
+}
+
+func (c *Config) NewBillingClient(userAgent string) *cloudbilling.APIService {
+	cloudBillingClientBasePath := removeBasePathVersion(c.CloudBillingBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Billing client for path %s", cloudBillingClientBasePath)
+	clientBilling, err := cloudbilling.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client billing: %s", err)
+		return nil
+	}
+	clientBilling.UserAgent = userAgent
+	clientBilling.BasePath = cloudBillingClientBasePath
+
+	return clientBilling
+}
+
+func (c *Config) NewBuildClient(userAgent string) *cloudbuild.Service {
+	cloudBuildClientBasePath := removeBasePathVersion(c.CloudBuildBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Build client for path %s", cloudBuildClientBasePath)
+	clientBuild, err := cloudbuild.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client build: %s", err)
+		return nil
+	}
+	clientBuild.UserAgent = userAgent
+	clientBuild.BasePath = cloudBuildClientBasePath
+
+	return clientBuild
+}
+
+func (c *Config) NewCloudFunctionsClient(userAgent string) *cloudfunctions.Service {
+	cloudFunctionsClientBasePath := removeBasePathVersion(c.CloudFunctionsBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud CloudFunctions Client for path %s", cloudFunctionsClientBasePath)
+	clientCloudFunctions, err := cloudfunctions.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client cloud functions: %s", err)
+		return nil
+	}
+	clientCloudFunctions.UserAgent = userAgent
+	clientCloudFunctions.BasePath = cloudFunctionsClientBasePath
+
+	return clientCloudFunctions
+}
+
+func (c *Config) NewSourceRepoClient(userAgent string) *sourcerepo.Service {
+	sourceRepoClientBasePath := removeBasePathVersion(c.SourceRepoBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Source Repo client for path %s", sourceRepoClientBasePath)
+	clientSourceRepo, err := sourcerepo.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client source repo: %s", err)
+		return nil
+	}
+	clientSourceRepo.UserAgent = userAgent
+	clientSourceRepo.BasePath = sourceRepoClientBasePath
+
+	return clientSourceRepo
+}
+
+func (c *Config) NewBigQueryClient(userAgent string) *bigquery.Service {
+	bigQueryClientBasePath := c.BigQueryBasePath
+	log.Printf("[INFO] Instantiating Google Cloud BigQuery client for path %s", bigQueryClientBasePath)
+	wrappedBigQueryClient := ClientWithAdditionalRetries(c.client, iamMemberMissing)
+	clientBigQuery, err := bigquery.NewService(c.context, option.WithHTTPClient(wrappedBigQueryClient))
+	if err != nil {
+		log.Printf("[WARN] Error creating client big query: %s", err)
+		return nil
+	}
+	clientBigQuery.UserAgent = userAgent
+	clientBigQuery.BasePath = bigQueryClientBasePath
+
+	return clientBigQuery
+}
+
+func (c *Config) NewSpannerClient(userAgent string) *spanner.Service {
+	spannerClientBasePath := removeBasePathVersion(c.SpannerBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Spanner client for path %s", spannerClientBasePath)
+	clientSpanner, err := spanner.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client source repo: %s", err)
+		return nil
+	}
+	clientSpanner.UserAgent = userAgent
+	clientSpanner.BasePath = spannerClientBasePath
+
+	return clientSpanner
+}
+
+func (c *Config) NewDataprocClient(userAgent string) *dataproc.Service {
+	dataprocClientBasePath := removeBasePathVersion(c.DataprocBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Dataproc client for path %s", dataprocClientBasePath)
+	clientDataproc, err := dataproc.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client dataproc: %s", err)
+		return nil
+	}
+	clientDataproc.UserAgent = userAgent
+	clientDataproc.BasePath = dataprocClientBasePath
+
+	return clientDataproc
+}
+
+func (c *Config) NewDataprocBetaClient(userAgent string) *dataprocBeta.Service {
+	dataprocBetaClientBasePath := removeBasePathVersion(c.DataprocBetaBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Dataproc Beta client for path %s", dataprocBetaClientBasePath)
+	clientDataprocBeta, err := dataprocBeta.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client dataproc beta: %s", err)
+		return nil
+	}
+	clientDataprocBeta.UserAgent = userAgent
+	clientDataprocBeta.BasePath = dataprocBetaClientBasePath
+
+	return clientDataprocBeta
+}
+
+func (c *Config) NewFilestoreClient(userAgent string) *file.Service {
+	filestoreClientBasePath := removeBasePathVersion(c.FilestoreBasePath)
+	log.Printf("[INFO] Instantiating Filestore client for path %s", filestoreClientBasePath)
+	clientFilestore, err := file.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client filestore: %s", err)
+		return nil
+	}
+	clientFilestore.UserAgent = userAgent
+	clientFilestore.BasePath = filestoreClientBasePath
+
+	return clientFilestore
+}
+
+func (c *Config) NewCloudIoTClient(userAgent string) *cloudiot.Service {
+	cloudIoTClientBasePath := removeBasePathVersion(c.CloudIoTBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud IoT Core client for path %s", cloudIoTClientBasePath)
+	clientCloudIoT, err := cloudiot.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client cloud iot: %s", err)
+		return nil
+	}
+	clientCloudIoT.UserAgent = userAgent
+	clientCloudIoT.BasePath = cloudIoTClientBasePath
+
+	return clientCloudIoT
+}
+
+func (c *Config) NewAppEngineClient(userAgent string) *appengine.APIService {
+	appEngineClientBasePath := removeBasePathVersion(c.AppEngineBasePath)
+	log.Printf("[INFO] Instantiating App Engine client for path %s", appEngineClientBasePath)
+	clientAppEngine, err := appengine.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client appengine: %s", err)
+		return nil
+	}
+	clientAppEngine.UserAgent = userAgent
+	clientAppEngine.BasePath = appEngineClientBasePath
+
+	return clientAppEngine
+}
+
+func (c *Config) NewComposerClient(userAgent string) *composer.Service {
+	composerClientBasePath := removeBasePathVersion(c.ComposerBasePath)
+	log.Printf("[INFO] Instantiating Cloud Composer client for path %s", composerClientBasePath)
+	clientComposer, err := composer.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client composer: %s", err)
+		return nil
+	}
+	clientComposer.UserAgent = userAgent
+	clientComposer.BasePath = composerClientBasePath
+
+	return clientComposer
+}
+
+func (c *Config) NewServiceNetworkingClient(userAgent string) *servicenetworking.APIService {
+	serviceNetworkingClientBasePath := removeBasePathVersion(c.ServiceNetworkingBasePath)
+	log.Printf("[INFO] Instantiating Service Networking client for path %s", serviceNetworkingClientBasePath)
+	clientServiceNetworking, err := servicenetworking.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client service networking: %s", err)
+		return nil
+	}
+	clientServiceNetworking.UserAgent = userAgent
+	clientServiceNetworking.BasePath = serviceNetworkingClientBasePath
+
+	return clientServiceNetworking
+}
+
+func (c *Config) NewStorageTransferClient(userAgent string) *storagetransfer.Service {
+	storageTransferClientBasePath := removeBasePathVersion(c.StorageTransferBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Storage Transfer client for path %s", storageTransferClientBasePath)
+	clientStorageTransfer, err := storagetransfer.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client storage transfer: %s", err)
+		return nil
+	}
+	clientStorageTransfer.UserAgent = userAgent
+	clientStorageTransfer.BasePath = storageTransferClientBasePath
+
+	return clientStorageTransfer
+}
+
+func (c *Config) NewHealthcareClient(userAgent string) *healthcare.Service {
+	healthcareClientBasePath := removeBasePathVersion(c.HealthcareBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud Healthcare client for path %s", healthcareClientBasePath)
+	clientHealthcare, err := healthcare.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client healthcare: %s", err)
+		return nil
+	}
+	clientHealthcare.UserAgent = userAgent
+	clientHealthcare.BasePath = healthcareClientBasePath
+
+	return clientHealthcare
+}
+
+func (c *Config) BigQueryClientFactory(userAgent string) *BigtableClientFactory {
+	bigtableClientFactory := &BigtableClientFactory{
+		UserAgent:   userAgent,
+		TokenSource: c.tokenSource,
+	}
+
+	return bigtableClientFactory
+}
+
+// Unlike other clients, the Bigtable Admin client doesn't use a single
+// service. Instead, there are several distinct services created off
+// the base service object. To imitate most other handwritten clients,
+// we expose those directly instead of providing the `Service` object
+// as a factory.
+func (c *Config) NewBigTableProjectsInstancesClient(userAgent string) *bigtableadmin.ProjectsInstancesService {
+	bigtableAdminBasePath := removeBasePathVersion(c.BigtableAdminBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
+	clientBigtable, err := bigtableadmin.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client big table projects instances: %s", err)
+		return nil
+	}
+	clientBigtable.UserAgent = userAgent
+	clientBigtable.BasePath = bigtableAdminBasePath
+	clientBigtableProjectsInstances := bigtableadmin.NewProjectsInstancesService(clientBigtable)
+
+	return clientBigtableProjectsInstances
+}
+
+func (c *Config) NewBigTableProjectsInstancesTablesClient(userAgent string) *bigtableadmin.ProjectsInstancesTablesService {
+	bigtableAdminBasePath := removeBasePathVersion(c.BigtableAdminBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud BigtableAdmin for path %s", bigtableAdminBasePath)
+	clientBigtable, err := bigtableadmin.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client projects instances tables: %s", err)
+		return nil
+	}
+	clientBigtable.UserAgent = userAgent
+	clientBigtable.BasePath = bigtableAdminBasePath
+	clientBigtableProjectsInstancesTables := bigtableadmin.NewProjectsInstancesTablesService(clientBigtable)
+
+	return clientBigtableProjectsInstancesTables
 }
 
 // staticTokenSource is used to be able to identify static token sources without reflection.

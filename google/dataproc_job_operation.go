@@ -66,9 +66,9 @@ func (w *DataprocJobOperationWaiter) TargetStates() []string {
 	return []string{"CANCELLED", "DONE", "ATTEMPT_FAILURE", "ERROR"}
 }
 
-func dataprocJobOperationWait(config *Config, region, projectId, jobId string, activity string, timeout time.Duration) error {
+func dataprocJobOperationWait(config *Config, region, projectId, jobId, activity, userAgent string, timeout time.Duration) error {
 	w := &DataprocJobOperationWaiter{
-		Service:   config.clientDataproc,
+		Service:   config.NewDataprocClient(userAgent),
 		Region:    region,
 		ProjectId: projectId,
 		JobId:     jobId,
@@ -104,10 +104,10 @@ func (w *DataprocDeleteJobOperationWaiter) QueryOp() (interface{}, error) {
 	return job, err
 }
 
-func dataprocDeleteOperationWait(config *Config, region, projectId, jobId string, activity string, timeout time.Duration) error {
+func dataprocDeleteOperationWait(config *Config, region, projectId, jobId, activity, userAgent string, timeout time.Duration) error {
 	w := &DataprocDeleteJobOperationWaiter{
 		DataprocJobOperationWaiter{
-			Service:   config.clientDataproc,
+			Service:   config.NewDataprocClient(userAgent),
 			Region:    region,
 			ProjectId: projectId,
 			JobId:     jobId,

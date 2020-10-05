@@ -19,9 +19,9 @@ func (w *DataprocClusterOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Projects.Regions.Operations.Get(w.Op.Name).Do()
 }
 
-func dataprocClusterOperationWait(config *Config, op *dataproc.Operation, activity string, timeout time.Duration) error {
+func dataprocClusterOperationWait(config *Config, op *dataproc.Operation, activity, userAgent string, timeout time.Duration) error {
 	w := &DataprocClusterOperationWaiter{
-		Service: config.clientDataprocBeta,
+		Service: config.NewDataprocBetaClient(userAgent),
 	}
 	if err := w.SetOp(op); err != nil {
 		return err

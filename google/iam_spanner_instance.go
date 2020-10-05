@@ -29,6 +29,7 @@ var IamSpannerInstanceSchema = map[string]*schema.Schema{
 type SpannerInstanceIamUpdater struct {
 	project  string
 	instance string
+	d        *schema.ResourceData
 	Config   *Config
 }
 
@@ -41,6 +42,7 @@ func NewSpannerInstanceIamUpdater(d *schema.ResourceData, config *Config) (Resou
 	return &SpannerInstanceIamUpdater{
 		project:  project,
 		instance: d.Get("instance").(string),
+		d:        d,
 		Config:   config,
 	}, nil
 }
@@ -63,7 +65,12 @@ func SpannerInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 }
 
 func (u *SpannerInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	p, err := u.Config.clientSpanner.Projects.Instances.GetIamPolicy(spannerInstanceId{
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewSpannerClient(userAgent).Projects.Instances.GetIamPolicy(spannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
 	}.instanceUri(), &spanner.GetIamPolicyRequest{}).Do()
@@ -88,7 +95,12 @@ func (u *SpannerInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
-	_, err = u.Config.clientSpanner.Projects.Instances.SetIamPolicy(spannerInstanceId{
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.Config.NewSpannerClient(userAgent).Projects.Instances.SetIamPolicy(spannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
 	}.instanceUri(), &spanner.SetIamPolicyRequest{

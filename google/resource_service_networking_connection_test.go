@@ -72,7 +72,7 @@ func testServiceNetworkingConnectionDestroy(t *testing.T, parent, network string
 		parentService := "services/" + parent
 		networkName := fmt.Sprintf("projects/%s/global/networks/%s", getTestProjectFromEnv(), network)
 
-		response, err := config.clientServiceNetworking.Services.Connections.List(parentService).
+		response, err := config.NewServiceNetworkingClient(config.userAgent).Services.Connections.List(parentService).
 			Network(networkName).Do()
 		if err != nil {
 			return err

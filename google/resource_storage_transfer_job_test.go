@@ -103,7 +103,7 @@ func testAccStorageTransferJobDestroyProducer(t *testing.T) func(s *terraform.St
 				return err
 			}
 
-			res, err := config.clientStorageTransfer.TransferJobs.Get(name).ProjectId(project).Do()
+			res, err := config.NewStorageTransferClient(config.userAgent).TransferJobs.Get(name).ProjectId(project).Do()
 			if res.Status != "DELETED" {
 				return fmt.Errorf("Transfer Job not set to DELETED")
 			}

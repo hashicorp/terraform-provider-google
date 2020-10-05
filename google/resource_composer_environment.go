@@ -386,7 +386,6 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientComposer.UserAgent = userAgent
 
 	envName, err := resourceComposerEnvironmentName(d, config)
 	if err != nil {
@@ -408,7 +407,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	updateOnlyEnv := getComposerEnvironmentPostCreateUpdateObj(env)
 
 	log.Printf("[DEBUG] Creating new Environment %q", envName.parentName())
-	op, err := config.clientComposer.Projects.Locations.Environments.Create(envName.parentName(), env).Do()
+	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Create(envName.parentName(), env).Do()
 	if err != nil {
 		return err
 	}
@@ -440,7 +439,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Finished creating Environment %q: %#v", d.Id(), op)
 
-	if err := resourceComposerEnvironmentPostCreateUpdate(updateOnlyEnv, d, config); err != nil {
+	if err := resourceComposerEnvironmentPostCreateUpdate(updateOnlyEnv, d, config, userAgent); err != nil {
 		return err
 	}
 
@@ -453,14 +452,13 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.clientComposer.UserAgent = userAgent
 
 	envName, err := resourceComposerEnvironmentName(d, config)
 	if err != nil {
 		return err
 	}
 
-	res, err := config.clientComposer.Projects.Locations.Environments.Get(envName.resourceName()).Do()
+	res, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Get(envName.resourceName()).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComposerEnvironment %q", d.Id()))
 	}
@@ -491,7 +489,6 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	tfConfig.clientComposer.UserAgent = userAgent
 
 	d.Partial(true)
 
@@ -514,7 +511,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			if config != nil && config.SoftwareConfig != nil {
 				patchObj.Config.SoftwareConfig.ImageVersion = config.SoftwareConfig.ImageVersion
 			}
-			err = resourceComposerEnvironmentPatchField("config.softwareConfig.imageVersion", patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.softwareConfig.imageVersion", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
@@ -533,7 +530,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				patchObj.Config.SoftwareConfig.AirflowConfigOverrides = config.SoftwareConfig.AirflowConfigOverrides
 			}
 
-			err = resourceComposerEnvironmentPatchField("config.softwareConfig.airflowConfigOverrides", patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.softwareConfig.airflowConfigOverrides", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
@@ -551,7 +548,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				patchObj.Config.SoftwareConfig.EnvVariables = config.SoftwareConfig.EnvVariables
 			}
 
-			err = resourceComposerEnvironmentPatchField("config.softwareConfig.envVariables", patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.softwareConfig.envVariables", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
@@ -569,7 +566,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				patchObj.Config.SoftwareConfig.PypiPackages = config.SoftwareConfig.PypiPackages
 			}
 
-			err = resourceComposerEnvironmentPatchField("config.softwareConfig.pypiPackages", patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.softwareConfig.pypiPackages", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
@@ -580,7 +577,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			if config != nil {
 				patchObj.Config.NodeCount = config.NodeCount
 			}
-			err = resourceComposerEnvironmentPatchField("config.nodeCount", patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.nodeCount", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
@@ -593,7 +590,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			if config != nil {
 				patchObj.Config.WebServerNetworkAccessControl = config.WebServerNetworkAccessControl
 			}
-			err = resourceComposerEnvironmentPatchField("config.webServerNetworkAccessControl", patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.webServerNetworkAccessControl", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
@@ -603,7 +600,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("labels") {
 		patchEnv := &composer.Environment{Labels: expandLabels(d)}
-		err := resourceComposerEnvironmentPatchField("labels", patchEnv, d, tfConfig)
+		err := resourceComposerEnvironmentPatchField("labels", userAgent, patchEnv, d, tfConfig)
 		if err != nil {
 			return err
 		}
@@ -613,7 +610,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 	return resourceComposerEnvironmentRead(d, tfConfig)
 }
 
-func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment, d *schema.ResourceData, cfg *Config) error {
+func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment, d *schema.ResourceData, cfg *Config, userAgent string) error {
 	if updateEnv == nil {
 		return nil
 	}
@@ -622,7 +619,7 @@ func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment
 
 	if updateEnv.Config != nil && updateEnv.Config.SoftwareConfig != nil && len(updateEnv.Config.SoftwareConfig.PypiPackages) > 0 {
 		log.Printf("[DEBUG] Running post-create update for Environment %q", d.Id())
-		err := resourceComposerEnvironmentPatchField("config.softwareConfig.pypiPackages", updateEnv, d, cfg)
+		err := resourceComposerEnvironmentPatchField("config.softwareConfig.pypiPackages", userAgent, updateEnv, d, cfg)
 		if err != nil {
 			return err
 		}
@@ -633,12 +630,7 @@ func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment
 	return resourceComposerEnvironmentRead(d, cfg)
 }
 
-func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Environment, d *schema.ResourceData, config *Config) error {
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-
+func resourceComposerEnvironmentPatchField(updateMask, userAgent string, env *composer.Environment, d *schema.ResourceData, config *Config) error {
 	envJson, _ := env.MarshalJSON()
 	log.Printf("[DEBUG] Updating Environment %q (updateMask = %q): %s", d.Id(), updateMask, string(envJson))
 	envName, err := resourceComposerEnvironmentName(d, config)
@@ -646,7 +638,7 @@ func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Envi
 		return err
 	}
 
-	op, err := config.clientComposer.Projects.Locations.Environments.
+	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.
 		Patch(envName.resourceName(), env).
 		UpdateMask(updateMask).Do()
 	if err != nil {
@@ -671,7 +663,6 @@ func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.clientComposer.UserAgent = userAgent
 
 	envName, err := resourceComposerEnvironmentName(d, config)
 	if err != nil {
@@ -679,7 +670,7 @@ func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Deleting Environment %q", d.Id())
-	op, err := config.clientComposer.Projects.Locations.Environments.Delete(envName.resourceName()).Do()
+	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Delete(envName.resourceName()).Do()
 	if err != nil {
 		return err
 	}
@@ -1136,7 +1127,7 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvi
 
 	log.Printf("[WARNING] Creation operation for Composer Environment %q failed, check Environment isn't still running", id)
 	// Try to get possible created but invalid environment.
-	env, err := config.clientComposer.Projects.Locations.Environments.Get(envName.resourceName()).Do()
+	env, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Get(envName.resourceName()).Do()
 	if err != nil {
 		// If error is 401, we don't have to clean up environment, return nil.
 		// Otherwise, we encountered another error.
@@ -1151,7 +1142,7 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvi
 	}
 
 	log.Printf("[WARNING] Environment %q from failed creation operation was created, deleting.", id)
-	op, err := config.clientComposer.Projects.Locations.Environments.Delete(envName.resourceName()).Do()
+	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Delete(envName.resourceName()).Do()
 	if err != nil {
 		return fmt.Errorf("Could not delete the invalid created environment with state %q: %s", env.State, err)
 	}

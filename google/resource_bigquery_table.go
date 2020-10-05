@@ -737,7 +737,6 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	config.clientBigQuery.UserAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -753,7 +752,7 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[INFO] Creating BigQuery table: %s", table.TableReference.TableId)
 
-	res, err := config.clientBigQuery.Tables.Insert(project, datasetID, table).Do()
+	res, err := config.NewBigQueryClient(userAgent).Tables.Insert(project, datasetID, table).Do()
 	if err != nil {
 		return err
 	}
@@ -770,7 +769,6 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.clientBigQuery.UserAgent = userAgent
 
 	log.Printf("[INFO] Reading BigQuery table: %s", d.Id())
 
@@ -782,7 +780,7 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	datasetID := d.Get("dataset_id").(string)
 	tableID := d.Get("table_id").(string)
 
-	res, err := config.clientBigQuery.Tables.Get(project, datasetID, tableID).Do()
+	res, err := config.NewBigQueryClient(userAgent).Tables.Get(project, datasetID, tableID).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigQuery table %q", tableID))
 	}
@@ -923,7 +921,6 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	config.clientBigQuery.UserAgent = userAgent
 
 	table, err := resourceTable(d, meta)
 	if err != nil {
@@ -940,7 +937,7 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 	datasetID := d.Get("dataset_id").(string)
 	tableID := d.Get("table_id").(string)
 
-	if _, err = config.clientBigQuery.Tables.Update(project, datasetID, tableID, table).Do(); err != nil {
+	if _, err = config.NewBigQueryClient(userAgent).Tables.Update(project, datasetID, tableID, table).Do(); err != nil {
 		return err
 	}
 
@@ -953,7 +950,6 @@ func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	config.clientBigQuery.UserAgent = userAgent
 
 	log.Printf("[INFO] Deleting BigQuery table: %s", d.Id())
 
@@ -965,7 +961,7 @@ func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error
 	datasetID := d.Get("dataset_id").(string)
 	tableID := d.Get("table_id").(string)
 
-	if err := config.clientBigQuery.Tables.Delete(project, datasetID, tableID).Do(); err != nil {
+	if err := config.NewBigQueryClient(userAgent).Tables.Delete(project, datasetID, tableID).Do(); err != nil {
 		return err
 	}
 
