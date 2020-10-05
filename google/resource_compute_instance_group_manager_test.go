@@ -332,6 +332,39 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 	})
 }
 
+func TestAccInstanceGroupManager_stateful(t *testing.T) {
+	t.Parallel()
+
+	template := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+	target := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+	igm := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+	hck := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccInstanceGroupManager_stateful(template, target, igm, hck),
+			},
+			{
+				ResourceName:      "google_compute_instance_group_manager.igm-basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccInstanceGroupManager_statefulUpdated(template, target, igm, hck),
+			},
+			{
+				ResourceName:      "google_compute_instance_group_manager.igm-basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckInstanceGroupManagerDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -1182,4 +1215,153 @@ resource "google_compute_instance_group_manager" "igm-basic" {
   }
 }
 `, primaryTemplate, canaryTemplate, igm)
+}
+
+func testAccInstanceGroupManager_stateful(template, target, igm, hck string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "my-stateful-disk"
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    device_name  = "non-stateful"
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    device_name  = "my-stateful-disk2"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_target_pool" "igm-basic" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
+
+resource "google_compute_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "prod"
+  }
+  target_pools       = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name = "igm-basic"
+  zone               = "us-central1-c"
+  target_size        = 2
+  stateful_disk {
+    device_name = "my-stateful-disk"
+    delete_rule = "NEVER"
+  }
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, template, target, igm, hck)
+}
+
+func testAccInstanceGroupManager_statefulUpdated(template, target, igm, hck string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "n1-standard-1"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "my-stateful-disk"
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    device_name  = "non-stateful"
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    device_name  = "my-stateful-disk2"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_target_pool" "igm-basic" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
+
+resource "google_compute_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "prod"
+  }
+  target_pools       = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name = "igm-basic"
+  zone               = "us-central1-c"
+  target_size        = 2
+  stateful_disk {
+    device_name = "my-stateful-disk"
+    delete_rule = "NEVER"
+  }
+
+  stateful_disk {
+    device_name = "my-stateful-disk2"
+    delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
+  }
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, template, target, igm, hck)
 }

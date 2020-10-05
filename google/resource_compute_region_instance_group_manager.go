@@ -1,4 +1,3 @@
-//
 package google
 
 import (
@@ -283,6 +282,29 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
+
+			"stateful_disk": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: `Disks created on the instances that will be preserved on instance delete, update, etc. Structure is documented below. For more information see the official documentation. Proactive cross zone instance redistribution must be disabled before you can update stateful disks on existing instance group managers. This can be controlled via the update_policy.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"device_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The device name of the disk to be attached.`,
+						},
+
+						"delete_rule": {
+							Type:         schema.TypeString,
+							Default:      "NEVER",
+							Optional:     true,
+							Description:  `A value that prescribes what should happen to the stateful disk when the VM instance is deleted. The available options are NEVER and ON_PERMANENT_INSTANCE_DELETION. NEVER detatch the disk when the VM is deleted, but not delete the disk. ON_PERMANENT_INSTANCE_DELETION will delete the stateful disk when the VM is permanently deleted from the instance group. The default is NEVER.`,
+							ValidateFunc: validation.StringInSlice([]string{"NEVER", "ON_PERMANENT_INSTANCE_DELETION"}, true),
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -315,6 +337,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		Versions:            expandVersions(d.Get("version").([]interface{})),
 		UpdatePolicy:        expandRegionUpdatePolicy(d.Get("update_policy").([]interface{})),
 		DistributionPolicy:  expandDistributionPolicy(d.Get("distribution_policy_zones").(*schema.Set)),
+		StatefulPolicy:      expandStatefulPolicy(d.Get("stateful_disk").(*schema.Set).List()),
 		// Force send TargetSize to allow size of 0.
 		ForceSendFields: []string{"TargetSize"},
 	}
@@ -447,6 +470,10 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	if err := d.Set("update_policy", flattenRegionUpdatePolicy(manager.UpdatePolicy)); err != nil {
 		return fmt.Errorf("Error setting update_policy in state: %s", err.Error())
 	}
+	if err = d.Set("stateful_disk", flattenStatefulPolicy(manager.StatefulPolicy)); err != nil {
+		return fmt.Errorf("Error setting stateful_disk in state: %s", err.Error())
+	}
+
 	if d.Get("wait_for_instances").(bool) {
 		conf := resource.StateChangeConf{
 			Pending: []string{"creating", "error"},
@@ -504,6 +531,11 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("update_policy") {
 		updatedManager.UpdatePolicy = expandRegionUpdatePolicy(d.Get("update_policy").([]interface{}))
+		change = true
+	}
+
+	if d.HasChange("stateful_disk") {
+		updatedManager.StatefulPolicy = expandStatefulPolicy(d.Get("stateful_disk").(*schema.Set).List())
 		change = true
 	}
 
