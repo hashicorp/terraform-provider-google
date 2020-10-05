@@ -572,6 +572,7 @@ func Provider() *schema.Provider {
 			"google_compute_default_service_account":              dataSourceGoogleComputeDefaultServiceAccount(),
 			"google_compute_forwarding_rule":                      dataSourceGoogleComputeForwardingRule(),
 			"google_compute_global_address":                       dataSourceGoogleComputeGlobalAddress(),
+			"google_compute_global_forwarding_rule":               dataSourceGoogleComputeGlobalForwardingRule(),
 			"google_compute_image":                                dataSourceGoogleComputeImage(),
 			"google_compute_instance":                             dataSourceGoogleComputeInstance(),
 			"google_compute_instance_serial_port":                 dataSourceGoogleComputeInstanceSerialPort(),
