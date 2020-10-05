@@ -1,4 +1,4 @@
-## 3.42.0 (Unreleased)
+## 3.42.0 (October 05, 2020)
 
 FEATURES:
 * **New Resource:** google_data_loss_prevention_deidentify_template ([#7378](https://github.com/hashicorp/terraform-provider-google/pull/7378))
