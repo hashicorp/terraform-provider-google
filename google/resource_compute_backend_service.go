@@ -458,7 +458,8 @@ requests.`,
 for health checking this BackendService. Currently at most one health
 check can be specified.
 
-A health check must be specified unless the backend service uses an internet NEG as a backend.
+A health check must be specified unless the backend service uses an internet
+or serverless NEG as a backend.
 
 For internal load balancing, a URL to a HealthCheck resource must be specified instead.`,
 				MinItems: 1,
