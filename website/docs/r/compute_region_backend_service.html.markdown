@@ -213,12 +213,6 @@ resource "google_compute_subnetwork" "default" {
 The following arguments are supported:
 
 
-* `health_checks` -
-  (Required)
-  The set of URLs to HealthCheck resources for health checking
-  this RegionBackendService. Currently at most one health
-  check can be specified, and a health check is required.
-
 * `name` -
   (Required)
   Name of the resource. Provided by the client when the resource is
@@ -280,6 +274,14 @@ The following arguments are supported:
   (Optional)
   Policy for failovers.
   Structure is documented below.
+
+* `health_checks` -
+  (Optional)
+  The set of URLs to HealthCheck resources for health checking
+  this RegionBackendService. Currently at most one health
+  check can be specified. 
+  A health check must be specified unless the backend service uses an internet
+  or serverless NEG as a backend.
 
 * `load_balancing_scheme` -
   (Optional)

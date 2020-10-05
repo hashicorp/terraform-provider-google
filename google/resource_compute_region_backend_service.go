@@ -136,19 +136,6 @@ func resourceComputeRegionBackendService() *schema.Resource {
 		CustomizeDiff: customDiffRegionBackendService,
 
 		Schema: map[string]*schema.Schema{
-			"health_checks": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Description: `The set of URLs to HealthCheck resources for health checking
-this RegionBackendService. Currently at most one health
-check can be specified, and a health check is required.`,
-				MinItems: 1,
-				MaxItems: 1,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Set: selfLinkRelativePathHash,
-			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -377,6 +364,22 @@ This field is only used with l4 load balancing.`,
 						},
 					},
 				},
+			},
+			"health_checks": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Description: `The set of URLs to HealthCheck resources for health checking
+this RegionBackendService. Currently at most one health
+check can be specified. 
+
+A health check must be specified unless the backend service uses an internet
+or serverless NEG as a backend.`,
+				MinItems: 1,
+				MaxItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: selfLinkRelativePathHash,
 			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
