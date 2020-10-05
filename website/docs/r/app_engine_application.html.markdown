@@ -89,6 +89,9 @@ exported:
 
 * `iap` - Settings for enabling Cloud Identity Aware Proxy
 
+  * `enabled` - (Optional) Whether the serving infrastructure will authenticate and authorize all incoming requests. 
+  (default is false)
+
   * `oauth2_client_secret_sha256` - Hex-encoded SHA-256 hash of the client secret.
 
 ## Timeouts
