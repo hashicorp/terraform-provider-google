@@ -565,6 +565,7 @@ func Provider() *schema.Provider {
 			"google_client_openid_userinfo":                       dataSourceGoogleClientOpenIDUserinfo(),
 			"google_cloudfunctions_function":                      dataSourceGoogleCloudFunctionsFunction(),
 			"google_cloud_run_service":                            dataSourceGoogleCloudRunService(),
+			"google_pubsub_topic":                                 dataSourceGooglePubsubTopic(),
 			"google_composer_image_versions":                      dataSourceGoogleComposerImageVersions(),
 			"google_compute_address":                              dataSourceGoogleComputeAddress(),
 			"google_compute_backend_service":                      dataSourceGoogleComputeBackendService(),
