@@ -4,7 +4,7 @@ layout: "google"
 page_title: "Google: google_compute_forwarding_rule"
 sidebar_current: "docs-google-datasource-compute-forwarding-rule"
 description: |-
-  Get a forwarding rule within GCE.
+  Get a regional forwarding rule within GCE.
 ---
 
 # google\_compute\_forwarding\_rule
@@ -35,29 +35,4 @@ The following arguments are supported:
     is not provided, the project region is used.
 
 ## Attributes Reference
-
-In addition to the arguments listed above, the following attributes are exported:
-
-* `description` - Description of this forwarding rule.
-
-* `network` - Network of this forwarding rule.
-
-* `subnetwork` - Subnetwork of this forwarding rule.
-
-* `ip_address` - IP address of this forwarding rule.
-
-* `ip_protocol` - IP protocol of this forwarding rule.
-
-* `ports` - List of ports to use for internal load balancing, if this forwarding rule has any.
-
-* `port_range` - Port range, if this forwarding rule has one.
-
-* `target` - URL of the target pool, if this forwarding rule has one.
-
-* `backend_service` - Backend service, if this forwarding rule has one.
-
-* `load_balancing_scheme` - Type of load balancing of this forwarding rule.
-
-* `region` - Region of this forwarding rule.
-
-* `self_link` - The URI of the resource.
+See [google_compute_forwarding_rule](https://www.terraform.io/docs/providers/google/r/compute_forwarding_rule.html) resource for details of the available attributes.
