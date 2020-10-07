@@ -457,7 +457,7 @@ func resourceBigQueryTable() *schema.Resource {
 							Type:         schema.TypeString,
 							Required:     true,
 							Description:  `The supported types are DAY, HOUR, MONTH, and YEAR, which will generate one partition per day, hour, month, and year, respectively.`,
-							ValidateFunc: validation.StringInSlice([]string{"DAY", "HOUR", "MONTHLY", "YEAR"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"DAY", "HOUR", "MONTH", "YEAR"}, false),
 						},
 
 						// Field: [Optional] The field used to determine how to create a time-based
