@@ -49,3 +49,11 @@ The following arguments are supported:
 * `reserved_peering_ranges` - (Required) Named IP address range(s) of PEERING type reserved for
   this service provider. Note that invoking this method with a different range when connection
   is already established will not reallocate already provisioned service producer subnetworks.
+
+## Import
+
+Service networking connections can be imported using the following accepted format:
+
+```
+$ terraform import google_service_networking_connection.foobar {{network}}:{{service}}
+```
