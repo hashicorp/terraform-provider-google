@@ -210,6 +210,15 @@ func resourceGoogleProjectCheckPreRequisites(config *Config, d *schema.ResourceD
 	if !stringInSlice(resp.Permissions, perm) {
 		return fmt.Errorf("missing permission on %q: %v", ba, perm)
 	}
+	if !d.Get("auto_create_network").(bool) {
+		_, err := config.NewServiceUsageClient(userAgent).Services.Get("projects/00000000000/services/serviceusage.googleapis.com").Do()
+		switch {
+		case err.Error() == "googleapi: Error 403: Project '00000000000' not found or permission denied., forbidden":
+			return nil
+		case strings.Contains(err.Error(), "accessNotConfigured"):
+			return fmt.Errorf("API serviceusage not enabled.\nFound error: %v", err)
+		}
+	}
 	return nil
 }
 
