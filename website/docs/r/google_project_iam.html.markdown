@@ -21,6 +21,8 @@ Four different resources help you manage your IAM policy for a project. Each of 
 
 ~> **Note:** `google_project_iam_binding` resources **can be** used in conjunction with `google_project_iam_member` resources **only if** they do not grant privilege to the same role.
 
+~> **Note:** It is not possible to grant the `roles/owner` role using any of these resources due to this being disallowed by the underlying `projects.setIamPolicy` API method. See the method [documentation](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy) for full details. It is, however, possible to remove all owners from the project by passing in an empty `members = []` list to the `google_project_iam_binding` resource. This is useful for removing the owner role from a project upon creation, however, precautions should be taken to avoid inadvertently locking oneself out of a project such as by granting additional roles to alternate entities.
+
 ## google\_project\_iam\_policy
 
 ~> **Be careful!** You can accidentally lock yourself out of your project
@@ -74,8 +76,6 @@ data "google_iam_policy" "admin" {
 ```
 
 ## google\_project\_iam\_binding
-
-~> **Note:** If `role` is set to `roles/owner` and you don't specify a user or service account you have access to in `members`, you can lock yourself out of your project.
 
 ```hcl
 resource "google_project_iam_binding" "project" {
