@@ -28,7 +28,7 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccBigQueryTableUpdated(datasetID, tableID, "DAY"),
+				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
 				ResourceName:      "google_bigquery_table.test",
@@ -84,7 +84,7 @@ func TestAccBigQueryTable_HourlyTimePartitioning(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccBigQueryTableUpdated(datasetID, tableID, "HOUR"),
+				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
 				ResourceName:      "google_bigquery_table.test",
@@ -115,7 +115,7 @@ func TestAccBigQueryTable_MonthlyTimePartitioning(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccBigQueryTableUpdated(datasetID, tableID, "MONTH"),
+				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
 				ResourceName:      "google_bigquery_table.test",
@@ -146,7 +146,7 @@ func TestAccBigQueryTable_YearlyTimePartitioning(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccBigQueryTableUpdated(datasetID, tableID, "YEAR"),
+				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
 				ResourceName:      "google_bigquery_table.test",
@@ -1067,7 +1067,7 @@ resource "google_bigquery_table" "mv_test" {
 `, datasetID, tableID, mViewID, enable_refresh, refresh_interval, query)
 }
 
-func testAccBigQueryTableUpdated(datasetID, tableID, partitioningType string) string {
+func testAccBigQueryTableUpdated(datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
 	dataset_id = "%s"
@@ -1078,7 +1078,7 @@ resource "google_bigquery_table" "test" {
 	dataset_id = google_bigquery_dataset.test.dataset_id
 
 	time_partitioning {
-		type = "%s"
+		type = "DAY"
 	}
 
 	schema = <<EOH
@@ -1125,7 +1125,7 @@ resource "google_bigquery_table" "test" {
 EOH
 
 }
-`, datasetID, tableID, partitioningType)
+`, datasetID, tableID)
 }
 
 func testAccBigQueryTableFromGCS(datasetID, tableID, bucketName, objectName, content, format, quoteChar string) string {
