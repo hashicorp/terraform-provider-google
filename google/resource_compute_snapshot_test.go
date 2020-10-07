@@ -33,6 +33,8 @@ func TestAccComputeSnapshot_encryption(t *testing.T) {
 
 func TestAccComputeSnapshot_encryptionCMEK(t *testing.T) {
 	t.Parallel()
+	// KMS causes errors due to rotation
+	skipIfVcr(t)
 
 	snapshotName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
