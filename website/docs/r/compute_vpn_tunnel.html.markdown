@@ -223,6 +223,31 @@ The following arguments are supported:
   URL of the Target VPN gateway with which this VPN tunnel is
   associated.
 
+* `vpn_gateway` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  URL of the VPN gateway with which this VPN tunnel is associated.
+  This must be used if a High Availability VPN gateway resource is created.
+  This field must reference a `google_compute_ha_vpn_gateway` resource.
+
+* `vpn_gateway_interface` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The interface ID of the VPN gateway with which this VPN tunnel is associated.
+
+* `peer_external_gateway` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  URL of the peer side external VPN gateway to which this VPN tunnel is connected.
+
+* `peer_external_gateway_interface` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The interface ID of the external VPN gateway to which this VPN tunnel is connected.
+
+* `peer_gcp_gateway` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  URL of the peer side HA GCP VPN gateway to which this VPN tunnel is connected.
+  If provided, the VPN tunnel will automatically use the same vpn_gateway_interface
+  ID in the peer GCP VPN gateway.
+  This field must reference a `google_compute_ha_vpn_gateway` resource.
+
 * `router` -
   (Optional)
   URL of router resource to be used for dynamic routing.
@@ -251,6 +276,10 @@ The following arguments are supported:
   for example `192.168.0.0/16`. The ranges should be disjoint.
   Only IPv4 is supported.
 
+* `labels` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Labels to apply to this VpnTunnel.
+
 * `region` -
   (Optional)
   The region where the tunnel is located. If unset, is set to the region of `target_vpn_gateway`.
@@ -274,6 +303,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `shared_secret_hash` -
   Hash of the shared secret.
 
+* `label_fingerprint` -
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
+
 * `detailed_status` -
   Detailed status message for the VPN tunnel.
 * `self_link` - The URI of the created resource.
@@ -285,6 +318,7 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import

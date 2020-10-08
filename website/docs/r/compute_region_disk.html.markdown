@@ -188,12 +188,20 @@ The `disk_encryption_key` block supports:
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
 
+* `kms_key_name` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The name of the encryption key that is stored in Google Cloud KMS.
+
 The `source_snapshot_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
+
+* `kms_key_name` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The name of the encryption key that is stored in Google Cloud KMS.
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied

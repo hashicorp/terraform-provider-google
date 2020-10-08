@@ -855,10 +855,6 @@ func getTestProjectFromEnv() string {
 
 // testAccPreCheck ensures at least one of the credentials env variables is set.
 func getTestCredsFromEnv() string {
-	// Return empty string if GOOGLE_USE_DEFAULT_CREDENTIALS is set to true.
-	if multiEnvSearch(credsEnvVars) == "true" {
-		return ""
-	}
 	return multiEnvSearch(credsEnvVars)
 }
 

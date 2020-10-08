@@ -423,6 +423,11 @@ The following arguments are supported:
   A nested object resource
   Structure is documented below.
 
+* `log_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configure logging on this health check.
+  Structure is documented below.
+
 * `region` -
   (Optional)
   The Region in which the created health check should reside.
@@ -708,6 +713,13 @@ The `grpc_health_check` block supports:
     - Empty serviceName means the overall status of all services at the backend.
     - Non-empty serviceName means the health of that gRPC service, as defined by the owner of the service.
   The grpcServiceName can only be ASCII.
+
+The `log_config` block supports:
+
+* `enable` -
+  (Optional)
+  Indicates whether or not to export logs. This is false by default,
+  which means no health check logging will be done.
 
 ## Attributes Reference
 

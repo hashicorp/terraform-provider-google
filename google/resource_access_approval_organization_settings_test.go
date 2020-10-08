@@ -51,7 +51,7 @@ resource "google_organization_access_approval_settings" "organization_access_app
   notification_emails = ["testuser@example.com"]
 
   enrolled_services {
-    cloud_product = "App Engine"
+    cloud_product = "appengine.googleapis.com"
   }
 
   enrolled_services {
