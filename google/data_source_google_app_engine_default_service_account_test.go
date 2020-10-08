@@ -6,17 +6,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccDataSourceGoogleComputeDefaultServiceAccount_basic(t *testing.T) {
+func TestAccDataSourceGoogleAppEngineDefaultServiceAccount_basic(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "data.google_compute_default_service_account.default"
+	resourceName := "data.google_app_engine_default_service_account.default"
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleComputeDefaultServiceAccount_basic,
+				Config: testAccCheckGoogleAppEngineDefaultServiceAccount_basic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "email"),
@@ -29,6 +29,6 @@ func TestAccDataSourceGoogleComputeDefaultServiceAccount_basic(t *testing.T) {
 	})
 }
 
-const testAccCheckGoogleComputeDefaultServiceAccount_basic = `
-data "google_compute_default_service_account" "default" {}
+const testAccCheckGoogleAppEngineDefaultServiceAccount_basic = `
+data "google_app_engine_default_service_account" "default" {}
 `
