@@ -52,7 +52,7 @@ to have explicit approval. Enrollment can only be done on an all or nothing basi
 
 A maximum of 10 enrolled services will be enforced, to be expanded as the set of supported services is expanded.`,
 				Elem: accessapprovalProjectSettingsEnrolledServicesSchema(),
-				// Default schema.HashSchema is used.
+				Set:  accessApprovalEnrolledServicesHash,
 			},
 			"project_id": {
 				Type:        schema.TypeString,
@@ -391,7 +391,7 @@ func flattenAccessApprovalProjectSettingsEnrolledServices(v interface{}, d *sche
 		return v
 	}
 	l := v.([]interface{})
-	transformed := schema.NewSet(schema.HashResource(accessapprovalProjectSettingsEnrolledServicesSchema()), []interface{}{})
+	transformed := schema.NewSet(accessApprovalEnrolledServicesHash, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
