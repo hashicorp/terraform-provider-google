@@ -559,6 +559,7 @@ func Provider() *schema.Provider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"google_active_folder":                                dataSourceGoogleActiveFolder(),
+			"google_app_engine_default_service_account":           dataSourceGoogleAppEngineDefaultServiceAccount(),
 			"google_billing_account":                              dataSourceGoogleBillingAccount(),
 			"google_bigquery_default_service_account":             dataSourceGoogleBigqueryDefaultServiceAccount(),
 			"google_client_config":                                dataSourceGoogleClientConfig(),
