@@ -15,6 +15,7 @@
 package google
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"reflect"
@@ -24,6 +25,30 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+var accessApprovalCloudProductMapping = map[string]string{
+	"appengine.googleapis.com": "App Engine",
+	"bigquery.googleapis.com":  "BigQuery",
+	"bigtable.googleapis.com":  "Cloud Bigtable",
+	"cloudkms.googleapis.com":  "Cloud Key Management Service",
+	"compute.googleapis.com":   "Compute Engine",
+	"dataflow.googleapis.com":  "Cloud Dataflow",
+	"iam.googleapis.com":       "Cloud Identity and Access Management",
+	"pubsub.googleapis.com":    "Cloud Pub/Sub",
+	"storage.googleapis.com":   "Cloud Storage",
+}
+
+func accessApprovalEnrolledServicesHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+	cp := m["cloud_product"].(string)
+	if n, ok := accessApprovalCloudProductMapping[cp]; ok {
+		cp = n
+	}
+	buf.WriteString(fmt.Sprintf("%s-", strings.ToLower(cp))) // ToLower just in case
+	buf.WriteString(fmt.Sprintf("%s-", strings.ToLower(m["enrollment_level"].(string))))
+	return hashcode(buf.String())
+}
 
 func resourceAccessApprovalFolderSettings() *schema.Resource {
 	return &schema.Resource{
@@ -52,7 +77,7 @@ to have explicit approval. Enrollment can only be done on an all or nothing basi
 
 A maximum of 10 enrolled services will be enforced, to be expanded as the set of supported services is expanded.`,
 				Elem: accessapprovalFolderSettingsEnrolledServicesSchema(),
-				// Default schema.HashSchema is used.
+				Set:  accessApprovalEnrolledServicesHash,
 			},
 			"folder_id": {
 				Type:        schema.TypeString,
@@ -94,16 +119,29 @@ func accessapprovalFolderSettingsEnrolledServicesSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: `The product for which Access Approval will be enrolled. Allowed values are listed (case-sensitive):
-  all
-  appengine.googleapis.com
-  bigquery.googleapis.com
-  bigtable.googleapis.com
-  cloudkms.googleapis.com
-  compute.googleapis.com
-  dataflow.googleapis.com
-  iam.googleapis.com
-  pubsub.googleapis.com
-  storage.googleapis.com`,
+  * all
+  * App Engine
+  * BigQuery
+  * Cloud Bigtable
+  * Cloud Key Management Service
+  * Compute Engine
+  * Cloud Dataflow
+  * Cloud Identity and Access Management
+  * Cloud Pub/Sub
+  * Cloud Storage
+  * Persistent Disk
+
+Note: These values are supported as input, but considered a legacy format:
+  * all
+  * appengine.googleapis.com
+  * bigquery.googleapis.com
+  * bigtable.googleapis.com
+  * cloudkms.googleapis.com
+  * compute.googleapis.com
+  * dataflow.googleapis.com
+  * iam.googleapis.com
+  * pubsub.googleapis.com
+  * storage.googleapis.com`,
 			},
 			"enrollment_level": {
 				Type:         schema.TypeString,
@@ -363,7 +401,7 @@ func flattenAccessApprovalFolderSettingsEnrolledServices(v interface{}, d *schem
 		return v
 	}
 	l := v.([]interface{})
-	transformed := schema.NewSet(schema.HashResource(accessapprovalFolderSettingsEnrolledServicesSchema()), []interface{}{})
+	transformed := schema.NewSet(accessApprovalEnrolledServicesHash, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
