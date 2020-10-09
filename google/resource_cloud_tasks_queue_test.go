@@ -78,7 +78,7 @@ resource "google_cloud_tasks_queue" "default" {
   retry_config {
     max_attempts = 5
   }
-  
+
 }
 `, name)
 }
@@ -106,7 +106,11 @@ resource "google_cloud_tasks_queue" "default" {
     max_backoff = "3s"
     min_backoff = "2s"
     max_doublings = 1
-  }
+	}
+
+	stackdriver_logging_config {
+		sampling_ratio = 0.9
+	}
 }
 `, name)
 }
@@ -134,7 +138,11 @@ resource "google_cloud_tasks_queue" "default" {
     max_backoff = "4s"
     min_backoff = "3s"
     max_doublings = 2
-  }
+	}
+
+	stackdriver_logging_config {
+		sampling_ratio = 0.1
+	}
 }
 `, name)
 }

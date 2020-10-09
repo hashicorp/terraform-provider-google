@@ -202,6 +202,23 @@ specifies that the task should be retried.`,
 					},
 				},
 			},
+			"stackdriver_logging_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration options for writing logs to Stackdriver Logging.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"sampling_ratio": {
+							Type:     schema.TypeFloat,
+							Required: true,
+							Description: `Specifies the fraction of operations to write to Stackdriver Logging.
+This field may contain any value between 0.0 and 1.0, inclusive. 0.0 is the
+default and means that no operations are logged.`,
+						},
+					},
+				},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -243,6 +260,12 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("retry_config"); !isEmptyValue(reflect.ValueOf(retryConfigProp)) && (ok || !reflect.DeepEqual(v, retryConfigProp)) {
 		obj["retryConfig"] = retryConfigProp
+	}
+	stackdriverLoggingConfigProp, err := expandCloudTasksQueueStackdriverLoggingConfig(d.Get("stackdriver_logging_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("stackdriver_logging_config"); !isEmptyValue(reflect.ValueOf(stackdriverLoggingConfigProp)) && (ok || !reflect.DeepEqual(v, stackdriverLoggingConfigProp)) {
+		obj["stackdriverLoggingConfig"] = stackdriverLoggingConfigProp
 	}
 
 	url, err := replaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues")
@@ -327,6 +350,9 @@ func resourceCloudTasksQueueRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("retry_config", flattenCloudTasksQueueRetryConfig(res["retryConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
+	if err := d.Set("stackdriver_logging_config", flattenCloudTasksQueueStackdriverLoggingConfig(res["stackdriverLoggingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Queue: %s", err)
+	}
 
 	return nil
 }
@@ -366,6 +392,12 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("retry_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retryConfigProp)) {
 		obj["retryConfig"] = retryConfigProp
 	}
+	stackdriverLoggingConfigProp, err := expandCloudTasksQueueStackdriverLoggingConfig(d.Get("stackdriver_logging_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("stackdriver_logging_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, stackdriverLoggingConfigProp)) {
+		obj["stackdriverLoggingConfig"] = stackdriverLoggingConfigProp
+	}
 
 	url, err := replaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
 	if err != nil {
@@ -385,6 +417,10 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("retry_config") {
 		updateMask = append(updateMask, "retryConfig")
+	}
+
+	if d.HasChange("stackdriver_logging_config") {
+		updateMask = append(updateMask, "stackdriverLoggingConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -615,6 +651,23 @@ func flattenCloudTasksQueueRetryConfigMaxDoublings(v interface{}, d *schema.Reso
 	return v // let terraform core handle it otherwise
 }
 
+func flattenCloudTasksQueueStackdriverLoggingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["sampling_ratio"] =
+		flattenCloudTasksQueueStackdriverLoggingConfigSamplingRatio(original["samplingRatio"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudTasksQueueStackdriverLoggingConfigSamplingRatio(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandCloudTasksQueueName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return replaceVars(d, config, "projects/{{project}}/locations/{{location}}/queues/{{name}}")
 }
@@ -784,5 +837,28 @@ func expandCloudTasksQueueRetryConfigMaxBackoff(v interface{}, d TerraformResour
 }
 
 func expandCloudTasksQueueRetryConfigMaxDoublings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueStackdriverLoggingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSamplingRatio, err := expandCloudTasksQueueStackdriverLoggingConfigSamplingRatio(original["sampling_ratio"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSamplingRatio); val.IsValid() && !isEmptyValue(val) {
+		transformed["samplingRatio"] = transformedSamplingRatio
+	}
+
+	return transformed, nil
+}
+
+func expandCloudTasksQueueStackdriverLoggingConfigSamplingRatio(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
