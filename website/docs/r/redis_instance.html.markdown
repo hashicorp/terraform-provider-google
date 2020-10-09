@@ -156,6 +156,12 @@ The following arguments are supported:
   If provided, it must be a different zone from the one provided in
   [locationId].
 
+* `auth_enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Optional. Indicates whether OSS Redis AUTH is enabled for the
+  instance. If set to "true" AUTH is enabled on the instance.
+  Default value is "false" meaning AUTH is disabled.
+
 * `authorized_network` -
   (Optional)
   The full name of the Google Compute Engine network to which the

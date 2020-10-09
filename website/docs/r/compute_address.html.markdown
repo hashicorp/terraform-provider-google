@@ -177,8 +177,9 @@ The following arguments are supported:
   (Optional)
   The purpose of this resource, which can be one of the following values:
   - GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
+  - SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal load balancers
   This should only be set when using an Internal address.
-  Possible values are `GCE_ENDPOINT`.
+  Possible values are `GCE_ENDPOINT` and `SHARED_LOADBALANCER_VIP`.
 
 * `network_tier` -
   (Optional)
@@ -192,6 +193,10 @@ The following arguments are supported:
   address is specified, it must be within the subnetwork's IP range.
   This field can only be used with INTERNAL type with
   GCE_ENDPOINT/DNS_RESOLVER purposes.
+
+* `labels` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Labels to apply to this address.  A list of key->value pairs.
 
 * `region` -
   (Optional)
@@ -213,6 +218,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `users` -
   The URLs of the resources that are using this address.
+
+* `label_fingerprint` -
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
 * `self_link` - The URI of the created resource.
 
 
@@ -222,6 +231,7 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import
