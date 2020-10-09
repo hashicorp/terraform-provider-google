@@ -86,6 +86,30 @@ resource "google_project_iam_binding" "log-writer" {
 }
 ```
 
+The following example uses `exclusions` to filter logs that will not be exported. In this example logs are exported to a [log bucket](https://cloud.google.com/logging/docs/buckets) and there are 2 exclusions configured
+
+```hcl
+resource "google_logging_project_sink" "log-bucket" {
+  name        = "my-logging-sink"
+  destination = "logging.googleapis.com/projects/my-project/locations/global/buckets/_Default"
+
+  exclusions {
+		name = "nsexcllusion1"
+		description = "Exclude logs from namespace-1 in k8s"
+		filter = "resource.type = k8s_container resource.labels.namespace_name=\"namespace-1\" "
+	}
+
+	exclusions {
+		name = "nsexcllusion2"
+		description = "Exclude logs from namespace-2 in k8s"
+		filter = "resource.type = k8s_container resource.labels.namespace_name=\"namespace-2\" "
+	}
+
+  unique_writer_identity = true
+```
+
+
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -115,12 +139,22 @@ The following arguments are supported:
 
 * `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure documented below.
 
+* `exclusions` - (Optional) Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both filter and one of exclusion_filters it will not be exported.  Can be repeated multiple times for multiple exclusions. Structure is documented below.
+
 The `bigquery_options` block supports:
 
 * `use_partitioned_tables` - (Required) Whether to use [BigQuery's partition tables](https://cloud.google.com/bigquery/docs/partitioned-tables).
     By default, Logging creates dated tables based on the log entries' timestamps, e.g. syslog_20170523. With partitioned
     tables the date suffix is no longer present and [special query syntax](https://cloud.google.com/bigquery/docs/querying-partitioned-tables)
     has to be used instead. In both cases, tables are sharded based on UTC timezone.
+
+The `exclusions` block support:
+
+* `name` - (Required) A client-assigned identifier, such as `load-balancer-exclusion`. Identifiers are limited to 100 characters and can include only letters, digits, underscores, hyphens, and periods. First character has to be alphanumeric.
+* `description` - (Optional) A description of this exclusion.
+* `filter` - (Required) An advanced logs filter that matches the log entries to be excluded. By using the sample function, you can exclude less than 100% of the matching log entries. See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced_filters) for information on how to
+    write a filter.
+* `disabled` - (Optional) If set to True, then this exclusion is disabled and it does not exclude any log entries.
 
 ## Attributes Reference
 
