@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: Added `graceful_decomissioning_timeout` field to `dataproc_cluster` resource
+```

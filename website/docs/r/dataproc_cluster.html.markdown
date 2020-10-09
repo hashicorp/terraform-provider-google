@@ -32,6 +32,7 @@ resource "google_dataproc_cluster" "simplecluster" {
 resource "google_dataproc_cluster" "mycluster" {
   name     = "mycluster"
   region   = "us-central1"
+  graceful_decommission_timeout = "120s"
   labels = {
     foo = "bar"
   }
@@ -131,6 +132,14 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
 * `cluster_config` - (Optional) Allows you to configure various aspects of the cluster.
    Structure defined below.
 
+* `graceful_decommission_timout` - (Optional) Allows graceful decomissioning when you change the number of worker nodes directly through a terraform apply.
+      Does not affect auto scaling decomissioning from an autoscaling policy.
+      Graceful decommissioning allows removing nodes from the cluster without interrupting jobs in progress.
+      Timeout specifies how long to wait for jobs in progress to finish before forcefully removing nodes (and potentially interrupting jobs).
+      Default timeout is 0 (for forceful decommission), and the maximum allowed timeout is 1 day. (see JSON representation of
+      [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)).
+      Only supported on Dataproc image versions 1.2 and higher.
+      For more context see the [docs](https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.clusters/patch#query-parameters)
 - - -
 
 The `cluster_config` block supports:
@@ -240,10 +249,10 @@ The `cluster_config.gce_cluster_config` block supports:
 * `tags` - (Optional) The list of instance tags applied to instances in the cluster.
    Tags are used to identify valid sources or targets for network firewalls.
 
-* `internal_ip_only` - (Optional) By default, clusters are not restricted to internal IP addresses, 
-   and will have ephemeral external IP addresses assigned to each instance. If set to true, all 
-   instances in the cluster will only have internal IP addresses. Note: Private Google Access 
-   (also known as `privateIpGoogleAccess`) must be enabled on the subnetwork that the cluster 
+* `internal_ip_only` - (Optional) By default, clusters are not restricted to internal IP addresses,
+   and will have ephemeral external IP addresses assigned to each instance. If set to true, all
+   instances in the cluster will only have internal IP addresses. Note: Private Google Access
+   (also known as `privateIpGoogleAccess`) must be enabled on the subnetwork that the cluster
    will be launched in.
 
 * `metadata` - (Optional) A map of the Compute Engine metadata entries to add to all instances
@@ -436,7 +445,7 @@ cluster_config {
    a cluster. For a list of valid properties please see
   [Cluster properties](https://cloud.google.com/dataproc/docs/concepts/cluster-properties)
 
-* `optional_components` - (Optional) The set of optional components to activate on the cluster. 
+* `optional_components` - (Optional) The set of optional components to activate on the cluster.
     Accepted values are:
     * ANACONDA
     * DRUID

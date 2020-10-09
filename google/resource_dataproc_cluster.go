@@ -113,6 +113,13 @@ func resourceDataprocCluster() *schema.Resource {
 				Description: `The region in which the cluster and associated nodes will be created in. Defaults to global.`,
 			},
 
+			"graceful_decommission_timeout": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "0s",
+				Description: `The timeout duration which allows graceful decomissioning when you change the number of worker nodes directly through a terraform apply`,
+			},
+
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -1125,9 +1132,13 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if len(updMask) > 0 {
+		gracefulDecommissionTimeout := d.Get("graceful_decommission_timeout").(string)
+
 		patch := config.NewDataprocBetaClient(userAgent).Projects.Regions.Clusters.Patch(
 			project, region, clusterName, cluster)
-		op, err := patch.UpdateMask(strings.Join(updMask, ",")).Do()
+		patch.GracefulDecommissionTimeout(gracefulDecommissionTimeout)
+		patch.UpdateMask(strings.Join(updMask, ","))
+		op, err := patch.Do()
 		if err != nil {
 			return err
 		}
