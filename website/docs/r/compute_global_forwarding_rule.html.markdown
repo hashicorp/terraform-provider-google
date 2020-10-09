@@ -273,6 +273,10 @@ The following arguments are supported:
   The IP Version that will be used by this global forwarding rule.
   Possible values are `IPV4` and `IPV6`.
 
+* `labels` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Labels to apply to this forwarding rule.  A list of key->value pairs.
+
 * `load_balancing_scheme` -
   (Optional)
   This signifies what the GlobalForwardingRule will be used for.
@@ -302,6 +306,14 @@ The following arguments are supported:
   metadataFilters only applies to Loadbalancers that have their
   loadBalancingScheme set to INTERNAL_SELF_MANAGED.
   Structure is documented below.
+
+* `network` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  This field is not used for external load balancing.
+  For INTERNAL_SELF_MANAGED load balancing, this field
+  identifies the network that the load balanced IP should belong to
+  for this global forwarding rule. If this field is not specified,
+  the default network will be used.
 
 * `port_range` -
   (Optional)
@@ -363,6 +375,10 @@ The `filter_labels` block supports:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/global/forwardingRules/{{name}}`
+
+* `label_fingerprint` -
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
 * `self_link` - The URI of the created resource.
 
 

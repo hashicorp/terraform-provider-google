@@ -131,11 +131,6 @@ The following arguments are supported:
   The resource name for the FhirStore.
   ** Changing this property may recreate the FHIR store (removing all data) **
 
-* `version` -
-  (Required)
-  The FHIR specification version.
-  Possible values are `DSTU2`, `STU3`, and `R4`.
-
 * `dataset` -
   (Required)
   Identifies the dataset addressed by this request. Must be in the format
@@ -144,6 +139,12 @@ The following arguments are supported:
 
 - - -
 
+
+* `version` -
+  (Optional)
+  The FHIR specification version.
+  Default value is `STU3`.
+  Possible values are `DSTU2`, `STU3`, and `R4`.
 
 * `enable_update_create` -
   (Optional)
