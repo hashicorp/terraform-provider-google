@@ -40,6 +40,43 @@ resource "google_cloud_tasks_queue" "default" {
   location = "us-central1"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_tasks_queue_advanced&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloud Tasks Queue Advanced
+
+
+```hcl
+resource "google_cloud_tasks_queue" "advanced_configuration" {
+  name = "instance-name"
+  location = "us-central1"
+
+  app_engine_routing_override {
+    service = "worker"
+    version = "1.0"
+    instance = "test"
+  }
+
+  rate_limits {
+    max_concurrent_dispatches = 3
+    max_dispatches_per_second = 2
+  }
+
+  retry_config {
+    max_attempts = 5
+    max_retry_duration = "4s"
+    max_backoff = "3s"
+    min_backoff = "2s"
+    max_doublings = 1
+  }
+
+  stackdriver_logging_config {
+    sampling_ratio = 0.9
+  }
+}
+```
 
 ## Argument Reference
 
@@ -78,6 +115,11 @@ The following arguments are supported:
 * `retry_config` -
   (Optional)
   Settings that determine the retry behavior.
+  Structure is documented below.
+
+* `stackdriver_logging_config` -
+  (Optional)
+  Configuration options for writing logs to Stackdriver Logging.
   Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -164,6 +206,14 @@ The `retry_config` block supports:
   A task's retry interval starts at minBackoff, then doubles maxDoublings times,
   then increases linearly, and finally retries retries at intervals of maxBackoff
   up to maxAttempts times.
+
+The `stackdriver_logging_config` block supports:
+
+* `sampling_ratio` -
+  (Required)
+  Specifies the fraction of operations to write to Stackdriver Logging.
+  This field may contain any value between 0.0 and 1.0, inclusive. 0.0 is the
+  default and means that no operations are logged.
 
 ## Attributes Reference
 
