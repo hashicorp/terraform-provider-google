@@ -1139,6 +1139,7 @@ func testAccDataprocCluster_updatable(rnd string, w, p int) string {
 resource "google_dataproc_cluster" "updatable" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
+  graceful_decommission_timeout = "0.2s"
 
   cluster_config {
     master_config {
@@ -1462,7 +1463,7 @@ resource "google_dataproc_cluster" "basic" {
     }
   }
 }
-  
+
 resource "google_dataproc_autoscaling_policy" "asp" {
   policy_id = "tf-test-dataproc-policy-%s"
   location  = "us-central1"
@@ -1494,7 +1495,7 @@ resource "google_dataproc_cluster" "basic" {
     }
   }
 }
-  
+
 resource "google_dataproc_autoscaling_policy" "asp" {
   policy_id = "tf-test-dataproc-policy-%s"
   location  = "us-central1"
