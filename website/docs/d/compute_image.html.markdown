@@ -35,10 +35,11 @@ resource "google_compute_instance" "default" {
 
 The following arguments are supported:
 
-* `name` or `family` - (Required) The name of a specific image or a family.
-Exactly one of `name` of `family` must be specified. If `name` is specified, it will fetch
-the corresponding image. If `family` is specified, it will returns the latest image
-that is part of an image family and is not deprecated.
+* `name`, `family` or `filter` - (Required) The name of a specific image or a family.
+Exactly one of `name`, `family` or `filter` must be specified. If `name` is specified, it will fetch
+the corresponding image. If `family` is specified, it will return the latest image
+that is part of an image family and is not deprecated. If you specify `filter`, your 
+filter must return exactly one image. Filter syntax can be found [here](https://cloud.google.com/compute/docs/reference/rest/v1/images/list) in the filter section.
 
 - - -
 
