@@ -15,18 +15,24 @@ func dataSourceGoogleComputeImage() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				Computed:      true,
-				ConflictsWith: []string{"family"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"name", "family", "filter"},
 			},
 			"family": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				Computed:      true,
-				ConflictsWith: []string{"name"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"name", "family", "filter"},
+			},
+			"filter": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"name", "family", "filter"},
 			},
 			"archive_size_bytes": {
 				Type:     schema.TypeInt,
@@ -125,8 +131,21 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 		log.Printf("[DEBUG] Fetching latest non-deprecated image from family %s", v.(string))
 		image, err = config.NewComputeClient(userAgent).Images.GetFromFamily(project, v.(string)).Do()
 		log.Printf("[DEBUG] Fetched latest non-deprecated image from family %s", v.(string))
+	} else if v, ok := d.GetOk("filter"); ok {
+		images, err := config.NewComputeClient(userAgent).Images.List(project).Filter(v.(string)).Do()
+		if err != nil {
+			return fmt.Errorf("error retrieving list of images: %s", err)
+		}
+
+		if len(images.Items) == 1 {
+			for _, im := range images.Items {
+				image = im
+			}
+		} else {
+			return fmt.Errorf("your filter has returned more than one image or no image. Please refine your filter to return exactly one image")
+		}
 	} else {
-		return fmt.Errorf("one of name or family must be set")
+		return fmt.Errorf("one of name, family or filters must be set")
 	}
 
 	if err != nil {
