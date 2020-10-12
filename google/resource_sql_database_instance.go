@@ -659,8 +659,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return err
 		}
-		config.clientServiceNetworking.UserAgent = userAgent
-		response, err := config.clientServiceNetworking.Services.Connections.List("services/servicenetworking.googleapis.com").
+		response, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.List("services/servicenetworking.googleapis.com").
 			Network(serviceNetworkingNetworkName).Do()
 		if err != nil {
 			// It is possible that the identity creating the SQL Instance might not have permissions to call servicenetworking.services.connections.list
