@@ -181,6 +181,38 @@ resource "google_logging_project_bucket_config" "basic" {
 `, context), retention, retention)
 }
 
+func TestAccLoggingBucketConfig_CreateBuckets_withCustomId(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":        randString(t, 10),
+		"billing_account_name": "billingAccounts/" + getTestBillingAccountFromEnv(t),
+		"org_id":               getTestOrgFromEnv(t),
+		"project_name":         "tf-test-" + randString(t, 10),
+		"bucket_id":            "tf-test-bucket-" + randString(t, 10),
+	}
+
+	configList := getLoggingBucketConfigs(context)
+
+	for res, config := range configlst {
+		vcrTest(t, resource.TestCase{
+			PreCheck:  func() { testAccPreCheck(t) },
+			Providers: testAccProviders,
+			Steps: []resource.TestStep{
+				{
+					Config: config,
+				},
+				{
+					ResourceName:            fmt.Sprintf("google_logging_%s_bucket_config.basic", res),
+					ImportState:             true,
+					ImportStateVerify:       true,
+					ImportStateVerifyIgnore: []string{res},
+				},
+			},
+		})
+	}
+}
+
 func testAccLoggingBucketConfigBillingAccount_basic(context map[string]interface{}, retention int) string {
 	return fmt.Sprintf(Nprintf(`
 
@@ -212,4 +244,24 @@ resource "google_logging_organization_bucket_config" "basic" {
 	bucket_id = "_Default"
 }
 `, context), retention, retention)
+}
+
+func getLoggingBucketConfigs(context map[string]interface{}) map[string]string {
+
+	return map[string]string{
+		"project": Nprintf(`resource "google_project" "default" {
+				project_id = "%{project_name}"
+				name       = "%{project_name}"
+				org_id     = "%{org_id}"
+			}
+			
+			resource "google_logging_project_bucket_config" "basic" {
+				project    = google_project.default.name
+				location  = "global"
+				retention_days = 10
+				description = "retention test 10 days"
+				bucket_id = "%{bucket_id}"
+			}`, context),
+	}
+
 }
