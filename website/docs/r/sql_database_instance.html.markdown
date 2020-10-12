@@ -39,6 +39,10 @@ default 'root'@'%' user with no password. This user will be deleted by Terraform
 instance creation. You should use `google_sql_user` to define a custom user with
 a restricted host and strong password.
 
+-> **Note**: On newer versions of the provider, you must explicitly set `deletion_protection=false`
+(and run `terraform apply` to write the field to state) in order to destroy an instance.
+It is recommended to not set this field (or set it to true) until you're ready to destroy the instance and its databases.
+
 ## Example Usage
 
 ### SQL Second Generation Instance
@@ -225,6 +229,9 @@ includes an up-to-date reference of supported versions.
     manually, please see [this step](https://cloud.google.com/sql/docs/mysql/configure-cmek#service-account).
     That service account needs the `Cloud KMS > Cloud KMS CryptoKey Encrypter/Decrypter` role on your
     key - please see [this step](https://cloud.google.com/sql/docs/mysql/configure-cmek#grantkey).
+
+* `deletion_protection` - (Optional, Default: `true` ) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
+in Terraform state, a `terraform destroy` or `terraform apply` command that deletes the instance will fail.
 
 The required `settings` block supports:
 

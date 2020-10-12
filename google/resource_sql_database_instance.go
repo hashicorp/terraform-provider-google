@@ -101,7 +101,12 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `The region the instance will sit in. Note, Cloud SQL is not available in all regions - choose from one of the options listed here. A valid region must be provided to use this resource. If a region is not provided in the resource definition, the provider region will be used instead, but this will be an apply-time error for instances if the provider region is not supported with Cloud SQL. If you choose not to provide the region argument for this resource, make sure you understand this.`,
 			},
-
+			"deletion_protection": {
+				Type:        schema.TypeBool,
+				Default:     true,
+				Optional:    true,
+				Description: `Used to block Terraform from deleting a SQL Instance.`,
+			},
 			"settings": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -646,6 +651,27 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 
+	// Before we create the instance, check if at least 1 service connection exists for private SQL Instances.
+	network := d.Get("settings.0.ip_configuration.0.private_network").(string)
+	if network != "" {
+		// Borrow some of the functions from resource_service_networking_connection.go
+		serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
+		if err != nil {
+			return err
+		}
+		config.clientServiceNetworking.UserAgent = userAgent
+		response, err := config.clientServiceNetworking.Services.Connections.List("services/servicenetworking.googleapis.com").
+			Network(serviceNetworkingNetworkName).Do()
+		if err != nil {
+			// It is possible that the identity creating the SQL Instance might not have permissions to call servicenetworking.services.connections.list
+			log.Printf("[WARNING] Failed to list Service Networking of the project. Skipping Service Networking check.")
+		} else {
+			if len(response.Connections) < 1 {
+				return fmt.Errorf("Error, failed to create instance because the network doesn't have at least 1 private services connection. Please see https://cloud.google.com/sql/docs/mysql/private-ip#network_requirements for how to create this connection.")
+			}
+		}
+	}
+
 	instance := &sqladmin.DatabaseInstance{
 		Name:                 name,
 		Region:               region,
@@ -1024,6 +1050,12 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	// Check if deletion protection is enabled.
+
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("Error, failed to delete instance because deletion_protection is set to true. Set it to false to proceed with instance deletion")
+	}
+
 	// Lock on the master_instance_name just in case deleting a replica causes
 	// operations on the master.
 	if v, ok := d.GetOk("master_instance_name"); ok {
@@ -1056,6 +1088,10 @@ func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{})
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
+	}
+
+	if err := d.Set("deletion_protection", true); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
 	}
 
 	// Replace import id for the resource id
