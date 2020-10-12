@@ -1,0 +1,3 @@
+```release-note:enhancement
+oslogin: added ability to set a `project` on `google_os_login_ssh_public_key`
+```
