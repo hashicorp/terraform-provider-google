@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed ability to clear `description` field on `google_compute_health_check` and `google_compute_region_health_check`
+```

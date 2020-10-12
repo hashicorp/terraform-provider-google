@@ -180,7 +180,6 @@ func testAccComputeRegionHealthCheck_tcp_update(hckName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_health_check" "foobar" {
   check_interval_sec  = 3
-  description         = "Resource updated for Terraform acceptance testing"
   healthy_threshold   = 10
   name                = "health-test-%s"
   timeout_sec         = 2
