@@ -194,7 +194,7 @@ func TestAccLoggingBucketConfig_CreateBuckets_withCustomId(t *testing.T) {
 
 	configList := getLoggingBucketConfigs(context)
 
-	for res, config := range configlst {
+	for res, config := range configList {
 		vcrTest(t, resource.TestCase{
 			PreCheck:  func() { testAccPreCheck(t) },
 			Providers: testAccProviders,
