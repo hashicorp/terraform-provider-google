@@ -1,4 +1,4 @@
-## 3.43.0 (Unreleased)
+## 3.43.0 (October 12, 2020)
 
 FEATURES:
 * **New Data Source:** `google_pubsub_topic` ([#7426](https://github.com/hashicorp/terraform-provider-google/pull/7426))
