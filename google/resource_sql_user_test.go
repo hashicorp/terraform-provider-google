@@ -138,6 +138,7 @@ func testGoogleSqlUser_mysql(instance, password string) string {
 resource "google_sql_database_instance" "instance" {
   name   = "%s"
   region = "us-central1"
+  deletion_protection = false
   settings {
     tier = "db-f1-micro"
   }
@@ -165,6 +166,7 @@ resource "google_sql_database_instance" "instance" {
   name             = "%s"
   region           = "us-central1"
   database_version = "POSTGRES_9_6"
+  deletion_protection = false
 
   settings {
     tier = "db-f1-micro"
