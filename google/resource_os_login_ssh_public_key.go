@@ -59,6 +59,12 @@ func resourceOSLoginSSHPublicKey() *schema.Resource {
 				Optional:    true,
 				Description: `An expiration time in microseconds since epoch.`,
 			},
+			"project": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The project ID of the Google Cloud Platform project.`,
+			},
 			"fingerprint": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -102,6 +108,14 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
+	// Don't use `getProject()` because we only want to set the project in the URL
+	// if the user set it explicitly on the resource.
+	if p, ok := d.GetOk("project"); ok {
+		url, err = addQueryParams(url, map[string]string{"projectId": p.(string)})
+		if err != nil {
+			return err
+		}
+	}
 	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating SSHPublicKey: %s", err)

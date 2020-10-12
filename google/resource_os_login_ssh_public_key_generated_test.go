@@ -45,7 +45,7 @@ func TestAccOSLoginSSHPublicKey_osLoginSshKeyProvidedUserExample(t *testing.T) {
 				ResourceName:            "google_os_login_ssh_public_key.cache",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"user"},
+				ImportStateVerifyIgnore: []string{"user", "project"},
 			},
 		},
 	})
@@ -59,6 +59,48 @@ data "google_client_openid_userinfo" "me" {
 resource "google_os_login_ssh_public_key" "cache" {
   user =  data.google_client_openid_userinfo.me.email
   key = file("test-fixtures/ssh_rsa.pub")
+}
+`, context)
+}
+
+func TestAccOSLoginSSHPublicKey_osLoginSshKeyWithProjectExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckOSLoginSSHPublicKeyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOSLoginSSHPublicKey_osLoginSshKeyWithProjectExample(context),
+			},
+			{
+				ResourceName:            "google_os_login_ssh_public_key.cache",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"user", "project"},
+			},
+		},
+	})
+}
+
+func testAccOSLoginSSHPublicKey_osLoginSshKeyWithProjectExample(context map[string]interface{}) string {
+	return Nprintf(`
+data "google_client_openid_userinfo" "me" {
+}
+
+resource "google_os_login_ssh_public_key" "cache" {
+  user =  data.google_client_openid_userinfo.me.email
+  key = file("test-fixtures/ssh_rsa.pub")
+  project = "%{project}"
 }
 `, context)
 }
