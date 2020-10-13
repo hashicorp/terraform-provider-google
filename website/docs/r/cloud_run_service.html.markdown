@@ -108,6 +108,8 @@ resource "google_sql_database_instance" "instance" {
   settings {
     tier = "db-f1-micro"
   }
+
+  deletion_protection  = "true"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">

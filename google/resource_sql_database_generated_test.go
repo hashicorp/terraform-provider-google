@@ -27,7 +27,8 @@ func TestAccSQLDatabase_sqlDatabaseBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -63,6 +64,8 @@ resource "google_sql_database_instance" "instance" {
   settings {
     tier = "db-f1-micro"
   }
+
+  deletion_protection  = "%{deletion_protection}"
 }
 `, context)
 }
