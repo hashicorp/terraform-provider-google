@@ -205,6 +205,17 @@ func serviceUsageServiceBeingActivated(err error) (bool, string) {
 	return false, ""
 }
 
+// Retry if Bigquery operation returns a 403 with a specific message for
+// concurrent operations (which are implemented in terms of 'edit quota').
+func isBigqueryIAMQuotaError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 403 && strings.Contains(strings.ToLower(gerr.Body), "exceeded rate limits") {
+			return true, "Waiting for Bigquery edit quota to refresh"
+		}
+	}
+	return false, ""
+}
+
 // Retry if Monitoring operation returns a 429 with a specific message for
 // concurrent operations.
 func isMonitoringConcurrentEditError(err error) (bool, string) {
