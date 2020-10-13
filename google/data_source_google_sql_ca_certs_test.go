@@ -78,6 +78,8 @@ resource "google_sql_database_instance" "foo" {
     tier                   = "db-f1-micro"
     crash_safe_replication = false
   }
+
+  deletion_protection = false
 }
 
 data "google_sql_ca_certs" "ca_certs" {

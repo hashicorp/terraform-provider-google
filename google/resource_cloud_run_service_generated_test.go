@@ -78,8 +78,9 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project":             getTestProjectFromEnv(),
+		"deletion_protection": false,
+		"random_suffix":       randString(t, 10),
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -133,6 +134,8 @@ resource "google_sql_database_instance" "instance" {
   settings {
     tier = "db-f1-micro"
   }
+
+  deletion_protection  = "%{deletion_protection}"
 }
 `, context)
 }
