@@ -13,10 +13,28 @@ Get an active folder within GCP by `display_name` and `parent`.
 
 ## Example Usage
 
+To find a folder by its name:
+
+```tf
+data "google_active_folder" "department1" {
+  display_name = "Department 1"
+}
+```
+
+To find a folder in the organization:
+
 ```tf
 data "google_active_folder" "department1" {
   display_name = "Department 1"
   parent       = "organizations/1234567"
+}
+```
+To find a folder nested in another folder:
+
+```tf
+data "google_active_folder" "department1" {
+  display_name = "Department 1"
+  parent       = "folders/12345"
 }
 ```
 
@@ -26,7 +44,7 @@ The following arguments are supported:
 
 * `display_name` - (Required) The folder's display name.
 
-* `parent` - (Required) The resource name of the parent Folder or Organization.
+* `parent` - (Optional) The resource id of the parent Folder or Organization.
 
 ## Attributes Reference
 
