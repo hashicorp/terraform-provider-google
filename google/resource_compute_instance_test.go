@@ -1861,8 +1861,140 @@ func TestAccComputeInstance_subnetworkUpdate(t *testing.T) {
 				Config: testAccComputeInstance_subnetworkUpdateTwo(suffix, instanceName),
 			},
 			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_subnetworkUpdate(suffix, instanceName),
+			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
 		},
 	})
+}
+
+func TestComputeInstance_networkIPCustomizedDiff(t *testing.T) {
+	t.Parallel()
+
+	d := &ResourceDiffMock{
+		Before: map[string]interface{}{
+			"network_interface.#": 0,
+		},
+		After: map[string]interface{}{
+			"network_interface.#": 1,
+		},
+	}
+
+	err := forceNewIfNetworkIPNotUpdatableFunc(d)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if d.IsForceNew {
+		t.Errorf("Expected not force new if network_interface array size changes")
+	}
+
+	type NetworkInterface struct {
+		Network           string
+		Subnetwork        string
+		SubnetworkProject string
+		NetworkIP         string
+	}
+	NIBefore := NetworkInterface{
+		Network:           "a",
+		Subnetwork:        "a",
+		SubnetworkProject: "a",
+		NetworkIP:         "a",
+	}
+
+	cases := map[string]struct {
+		ExpectedForceNew bool
+		Before           NetworkInterface
+		After            NetworkInterface
+	}{
+		"NetworkIP only change": {
+			ExpectedForceNew: true,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "a",
+				Subnetwork:        "a",
+				SubnetworkProject: "a",
+				NetworkIP:         "b",
+			},
+		},
+		"NetworkIP and Network change": {
+			ExpectedForceNew: false,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "b",
+				Subnetwork:        "a",
+				SubnetworkProject: "a",
+				NetworkIP:         "b",
+			},
+		},
+		"NetworkIP and Subnetwork change": {
+			ExpectedForceNew: false,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "a",
+				Subnetwork:        "b",
+				SubnetworkProject: "a",
+				NetworkIP:         "b",
+			},
+		},
+		"NetworkIP and SubnetworkProject change": {
+			ExpectedForceNew: false,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "a",
+				Subnetwork:        "a",
+				SubnetworkProject: "b",
+				NetworkIP:         "b",
+			},
+		},
+		"All change": {
+			ExpectedForceNew: false,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "b",
+				Subnetwork:        "b",
+				SubnetworkProject: "b",
+				NetworkIP:         "b",
+			},
+		},
+		"No change": {
+			ExpectedForceNew: false,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "a",
+				Subnetwork:        "a",
+				SubnetworkProject: "a",
+				NetworkIP:         "a",
+			},
+		},
+	}
+
+	for tn, tc := range cases {
+		d := &ResourceDiffMock{
+			Before: map[string]interface{}{
+				"network_interface.#":                    1,
+				"network_interface.0.network":            tc.Before.Network,
+				"network_interface.0.subnetwork":         tc.Before.Subnetwork,
+				"network_interface.0.subnetwork_project": tc.Before.SubnetworkProject,
+				"network_interface.0.network_ip":         tc.Before.NetworkIP,
+			},
+			After: map[string]interface{}{
+				"network_interface.#":                    1,
+				"network_interface.0.network":            tc.After.Network,
+				"network_interface.0.subnetwork":         tc.After.Subnetwork,
+				"network_interface.0.subnetwork_project": tc.After.SubnetworkProject,
+				"network_interface.0.network_ip":         tc.After.NetworkIP,
+			},
+		}
+		err := forceNewIfNetworkIPNotUpdatableFunc(d)
+		if err != nil {
+			t.Error(err)
+		}
+		if tc.ExpectedForceNew != d.IsForceNew {
+			t.Errorf("%v: expected d.IsForceNew to be %v, but was %v", tn, tc.ExpectedForceNew, d.IsForceNew)
+		}
+	}
 }
 
 func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resource.TestCheckFunc {
@@ -4816,7 +4948,10 @@ func testAccComputeInstance_subnetworkUpdateTwo(suffix, instance string) string 
 
 		network_interface {
 			subnetwork = google_compute_subnetwork.inst-test-subnetwork2.id
-
+			network_ip = "10.3.0.3"
+			access_config {
+				network_tier = "STANDARD"
+			}
 			alias_ip_range {
 				subnetwork_range_name = google_compute_subnetwork.inst-test-subnetwork2.secondary_ip_range[0].range_name
 				ip_cidr_range         = "173.16.0.0/24"

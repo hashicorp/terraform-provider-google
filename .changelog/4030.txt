@@ -1,0 +1,4 @@
+```release-note:enhancement
+compute: added support for updating `network_interface.[d].network_ip` on `google_compute_instance` when changing network or subnetwork
+
+```
