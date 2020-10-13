@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: promoted `autoscaling_policy` field in `google_compute_node_group` to GA
+```
+```release-note:enhancement
+compute: added `maintenance_policy` field to `google_compute_node_group`
+```

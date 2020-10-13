@@ -70,22 +70,20 @@ resource "google_compute_node_group" "nodes" {
 
 ```hcl
 resource "google_compute_node_template" "soletenant-tmpl" {
-  provider = google-beta
   name      = "soletenant-tmpl"
   region    = "us-central1"
   node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_group" "nodes" {
-  provider = google-beta
   name        = "soletenant-group"
   zone        = "us-central1-a"
   description = "example google_compute_node_group for Terraform Google Provider"
-
+  maintenance_policy = "RESTART_IN_PLACE"
   size          = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
   autoscaling_policy {
-    mode = "ON"
+    mode      = "ONLY_SCALE_OUT"
     min_nodes = 1
     max_nodes = 10
   }
@@ -117,8 +115,12 @@ The following arguments are supported:
   (Optional)
   Name of the resource.
 
+* `maintenance_policy` -
+  (Optional)
+  Specifies how to handle instances when a node in the group undergoes maintenance. Set to one of: DEFAULT, RESTART_IN_PLACE, or MIGRATE_WITHIN_NODE_GROUP. The default value is DEFAULT.
+
 * `autoscaling_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   If you use sole-tenant nodes for your workloads, you can use the node
   group autoscaler to automatically manage the sizes of your node groups.
   Structure is documented below.

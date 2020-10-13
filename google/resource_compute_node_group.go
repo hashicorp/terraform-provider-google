@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeNodeGroup() *schema.Resource {
@@ -54,11 +55,60 @@ func resourceComputeNodeGroup() *schema.Resource {
 				ForceNew:    true,
 				Description: `The total number of nodes in the node group.`,
 			},
+			"autoscaling_policy": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `If you use sole-tenant nodes for your workloads, you can use the node
+group autoscaler to automatically manage the sizes of your node groups.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_nodes": {
+							Type:     schema.TypeInt,
+							Computed: true,
+							Optional: true,
+							ForceNew: true,
+							Description: `Maximum size of the node group. Set to a value less than or equal
+to 100 and greater than or equal to min-nodes.`,
+						},
+						"mode": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"OFF", "ON", "ONLY_SCALE_OUT"}, false),
+							Description: `The autoscaling mode. Set to one of the following:
+  - OFF: Disables the autoscaler.
+  - ON: Enables scaling in and scaling out.
+  - ONLY_SCALE_OUT: Enables only scaling out.
+  You must use this mode if your node groups are configured to
+  restart their hosted VMs on minimal servers. Possible values: ["OFF", "ON", "ONLY_SCALE_OUT"]`,
+						},
+						"min_nodes": {
+							Type:     schema.TypeInt,
+							Computed: true,
+							Optional: true,
+							ForceNew: true,
+							Description: `Minimum size of the node group. Must be less
+than or equal to max-nodes. The default value is 0.`,
+						},
+					},
+				},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `An optional textual description of the resource.`,
+			},
+			"maintenance_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specifies how to handle instances when a node in the group undergoes maintenance. Set to one of: DEFAULT, RESTART_IN_PLACE, or MIGRATE_WITHIN_NODE_GROUP. The default value is DEFAULT.`,
+				Default:     "DEFAULT",
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -124,6 +174,18 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("size"); ok || !reflect.DeepEqual(v, sizeProp) {
 		obj["size"] = sizeProp
+	}
+	maintenancePolicyProp, err := expandComputeNodeGroupMaintenancePolicy(d.Get("maintenance_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_policy"); !isEmptyValue(reflect.ValueOf(maintenancePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
+		obj["maintenancePolicy"] = maintenancePolicyProp
+	}
+	autoscalingPolicyProp, err := expandComputeNodeGroupAutoscalingPolicy(d.Get("autoscaling_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("autoscaling_policy"); !isEmptyValue(reflect.ValueOf(autoscalingPolicyProp)) && (ok || !reflect.DeepEqual(v, autoscalingPolicyProp)) {
+		obj["autoscalingPolicy"] = autoscalingPolicyProp
 	}
 	zoneProp, err := expandComputeNodeGroupZone(d.Get("zone"), d, config)
 	if err != nil {
@@ -225,6 +287,12 @@ func resourceComputeNodeGroupRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 	if err := d.Set("size", flattenComputeNodeGroupSize(res["size"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err := d.Set("maintenance_policy", flattenComputeNodeGroupMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err := d.Set("autoscaling_policy", flattenComputeNodeGroupAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 	if err := d.Set("zone", flattenComputeNodeGroupZone(res["zone"], d, config)); err != nil {
@@ -398,6 +466,65 @@ func flattenComputeNodeGroupSize(v interface{}, d *schema.ResourceData, config *
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeNodeGroupMaintenancePolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeNodeGroupAutoscalingPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["mode"] =
+		flattenComputeNodeGroupAutoscalingPolicyMode(original["mode"], d, config)
+	transformed["min_nodes"] =
+		flattenComputeNodeGroupAutoscalingPolicyMinNodes(original["minNodes"], d, config)
+	transformed["max_nodes"] =
+		flattenComputeNodeGroupAutoscalingPolicyMaxNodes(original["maxNodes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeNodeGroupAutoscalingPolicyMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeNodeGroupAutoscalingPolicyMinNodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeNodeGroupAutoscalingPolicyMaxNodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeNodeGroupZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -422,6 +549,55 @@ func expandComputeNodeGroupNodeTemplate(v interface{}, d TerraformResourceData, 
 }
 
 func expandComputeNodeGroupSize(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeGroupMaintenancePolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeGroupAutoscalingPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMode, err := expandComputeNodeGroupAutoscalingPolicyMode(original["mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !isEmptyValue(val) {
+		transformed["mode"] = transformedMode
+	}
+
+	transformedMinNodes, err := expandComputeNodeGroupAutoscalingPolicyMinNodes(original["min_nodes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinNodes); val.IsValid() && !isEmptyValue(val) {
+		transformed["minNodes"] = transformedMinNodes
+	}
+
+	transformedMaxNodes, err := expandComputeNodeGroupAutoscalingPolicyMaxNodes(original["max_nodes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxNodes); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxNodes"] = transformedMaxNodes
+	}
+
+	return transformed, nil
+}
+
+func expandComputeNodeGroupAutoscalingPolicyMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeGroupAutoscalingPolicyMinNodes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeGroupAutoscalingPolicyMaxNodes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
