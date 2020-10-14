@@ -62,7 +62,7 @@ resource "google_compute_region_autoscaler" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name           = "my-instance-template"
-  machine_type   = "n1-standard-1"
+    machine_type   = "e2-medium"
   can_ip_forward = false
 
   tags = ["foo", "bar"]

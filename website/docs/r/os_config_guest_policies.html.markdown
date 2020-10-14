@@ -53,7 +53,7 @@ data "google_compute_image" "my_image" {
 resource "google_compute_instance" "foobar" {
   provider = google-beta
   name           = "guest-policy-inst"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]

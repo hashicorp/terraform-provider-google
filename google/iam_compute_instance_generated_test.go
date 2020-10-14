@@ -121,7 +121,7 @@ func testAccComputeInstanceIamMember_basicGenerated(context map[string]interface
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
   zone         = ""
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
@@ -149,7 +149,7 @@ func testAccComputeInstanceIamPolicy_basicGenerated(context map[string]interface
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
   zone         = ""
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
@@ -183,7 +183,7 @@ func testAccComputeInstanceIamPolicy_emptyBinding(context map[string]interface{}
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
   zone         = ""
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
@@ -213,7 +213,7 @@ func testAccComputeInstanceIamBinding_basicGenerated(context map[string]interfac
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
   zone         = ""
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
@@ -241,7 +241,7 @@ func testAccComputeInstanceIamBinding_updateGenerated(context map[string]interfa
 resource "google_compute_instance" "default" {
   name         = "tf-test-my-instance%{random_suffix}"
   zone         = ""
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {

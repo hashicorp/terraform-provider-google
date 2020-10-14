@@ -55,7 +55,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "endpoint-instance" {
   name         = "endpoint-instance"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
