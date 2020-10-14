@@ -7,7 +7,7 @@ FEATURES:
 * **New Data Source:** `google_pubsub_topic` ([#7448](https://github.com/hashicorp/terraform-provider-google/pull/7448))
 
 IMPROVEMENTS:
-* bigquery: `google_bigquery_dataset_access` now retries quota errors since quota refreshes quickly. ([#7507](https://github.com/hashicorp/terraform-provider-google/pull/7507))
+* bigquery: added ability for `google_bigquery_dataset_access` to retry quota errors since quota refreshes quickly. ([#7507](https://github.com/hashicorp/terraform-provider-google/pull/7507))
 * bigquery: added `MONTH` and `YEAR` as allowed values in `google_bigquery_table.time_partitioning.type` ([#7461](https://github.com/hashicorp/terraform-provider-google/pull/7461))
 * cloud_tasks: added `stackdriver_logging_config` field to `cloud_tasks_queue` resource ([#7487](https://github.com/hashicorp/terraform-provider-google/pull/7487))
 * compute: added support for updating `network_interface.[d].network_ip` on `google_compute_instance` when changing network or subnetwork ([#7515](https://github.com/hashicorp/terraform-provider-google/pull/7515))
