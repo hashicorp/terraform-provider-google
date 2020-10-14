@@ -197,10 +197,10 @@ func isSqlOperationInProgressError(err error) (bool, string) {
 func serviceUsageServiceBeingActivated(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 400 {
 		if strings.Contains(gerr.Body, "Another activation or deactivation is in progress") {
-			return false, ""
+			return true, "Waiting for same service activation/deactivation to finish"
 		}
 
-		return true, "Waiting for same service activation/deactivation to finish"
+		return false, ""
 	}
 	return false, ""
 }
