@@ -594,18 +594,10 @@ The `node_config` block supports:
     for more information.
 
 * `oauth_scopes` - (Optional) The set of Google API scopes to be made available
-    on all of the node VMs under the "default" service account. These can be
-    either FQDNs, or scope aliases. The following scopes are necessary to ensure
-    the correct functioning of the cluster:
+    on all of the node VMs under the "default" service account. 
+    Use the "https://www.googleapis.com/auth/cloud-platform" scope to grant access to all APIs. It is recommended that you set `service_account` to a non-default service account and grant IAM roles to that service account for only the resources that it needs.
 
-  * `storage-ro` (`https://www.googleapis.com/auth/devstorage.read_only`),
-    if the cluster must read private images from GCR.
-    Note this will grant read access to ALL GCS content unless you also
-    specify a custom role. See https://cloud.google.com/kubernetes-engine/docs/how-to/access-scopes
-  * `logging-write` (`https://www.googleapis.com/auth/logging.write`),
-    if `logging_service` is not `none`.
-  * `monitoring` (`https://www.googleapis.com/auth/monitoring`),
-    if `monitoring_service` is not `none`.
+    See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/access-scopes) for information on migrating off of legacy access scopes.
 
 * `preemptible` - (Optional) A boolean that represents whether or not the underlying node VMs
     are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
