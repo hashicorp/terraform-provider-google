@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed incorrect import format for `google_compute_global_network_endpoint`
+```
