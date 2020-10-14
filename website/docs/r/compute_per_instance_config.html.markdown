@@ -43,7 +43,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "my-template"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 

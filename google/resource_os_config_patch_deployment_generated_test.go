@@ -104,7 +104,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name           = "tf-test-patch-deploy-inst%{random_suffix}"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]

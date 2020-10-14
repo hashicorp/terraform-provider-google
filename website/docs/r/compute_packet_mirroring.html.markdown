@@ -47,7 +47,7 @@ To get more information about PacketMirroring, see:
 resource "google_compute_instance" "mirror" {
   name = "my-instance"
   provider = google-beta
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {

@@ -47,7 +47,7 @@ To get more information about MachineImage, see:
 resource "google_compute_instance" "vm" {
   provider     = google-beta
   name         = "vm"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {

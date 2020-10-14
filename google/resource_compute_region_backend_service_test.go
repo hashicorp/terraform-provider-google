@@ -346,7 +346,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network = "default"
@@ -434,7 +434,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     subnetwork = google_compute_subnetwork.subnet1.self_link
@@ -499,7 +499,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network = "default"
@@ -562,7 +562,7 @@ resource "google_compute_region_instance_group_manager" "rigm" {
 
 resource "google_compute_instance_template" "instance_template" {
   name         = "%s-template"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network = "default"
@@ -641,7 +641,7 @@ resource "google_compute_region_instance_group_manager" "rigm2" {
 
 resource "google_compute_instance_template" "instance_template" {
   name         = "%s-template"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network    = "default"
@@ -719,7 +719,7 @@ resource "google_compute_region_instance_group_manager" "rigm2" {
 
 resource "google_compute_instance_template" "instance_template" {
   name         = "%s-template"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network    = "default"

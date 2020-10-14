@@ -401,7 +401,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -466,7 +466,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -509,7 +509,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-update" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -565,7 +565,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-update" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -598,7 +598,7 @@ resource "google_compute_target_pool" "igm-update2" {
 
 resource "google_compute_instance_template" "igm-update2" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -655,7 +655,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-update" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -688,7 +688,7 @@ resource "google_compute_target_pool" "igm-update2" {
 
 resource "google_compute_instance_template" "igm-update2" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -739,7 +739,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "igm-update" {
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["%s"]
 
@@ -790,7 +790,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "igm-basic" {
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -848,7 +848,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -906,7 +906,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -960,7 +960,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-primary" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -979,7 +979,7 @@ resource "google_compute_instance_template" "igm-primary" {
 
 resource "google_compute_instance_template" "igm-canary" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -1028,7 +1028,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -1066,7 +1066,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["terraform-testing"]
 
@@ -1125,7 +1125,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["terraform-testing"]
 
@@ -1185,7 +1185,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["terraform-testing"]
 
@@ -1240,7 +1240,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -1296,7 +1296,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
