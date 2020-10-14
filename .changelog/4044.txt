@@ -1,0 +1,3 @@
+```release-note:bug
+iap: fixed an eventual consistency bug causing creates for `google_iap_brand` to fail
+```
