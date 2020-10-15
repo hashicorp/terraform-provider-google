@@ -30,5 +30,5 @@ func TestAccDataSourceGoogleComputeDefaultServiceAccount_basic(t *testing.T) {
 }
 
 const testAccCheckGoogleComputeDefaultServiceAccount_basic = `
-data "google_compute_default_service_account" "default" { }
+data "google_compute_default_service_account" "default" {}
 `

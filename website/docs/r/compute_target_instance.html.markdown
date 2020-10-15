@@ -58,7 +58,7 @@ data "google_compute_image" "vmimage" {
 
 resource "google_compute_instance" "target-vm" {
   name         = "target-vm"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -102,7 +102,7 @@ data "google_compute_image" "vmimage" {
 resource "google_compute_instance" "target-vm" {
   provider = google-beta
   name         = "cusom-network-target-vm"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -144,6 +144,10 @@ The following arguments are supported:
 
 - - -
 
+
+* `network` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The URL of the network this target instance uses to forward traffic. If not specified, the traffic will be forwarded to the network that the default network interface belongs to.
 
 * `description` -
   (Optional)

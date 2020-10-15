@@ -49,7 +49,7 @@ resource "google_os_config_patch_deployment" "patch" {
   }
 
   one_time_schedule {
-    execute_time = "2020-10-10T10:10:10.045123456Z"
+    execute_time = "2999-10-10T10:10:10.045123456Z"
   }
 }
 ```
@@ -69,7 +69,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name           = "patch-deploy-inst"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]

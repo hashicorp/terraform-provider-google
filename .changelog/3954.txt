@@ -1,0 +1,6 @@
+```release-note:note
+Added `deletion_protection` to `google_sql_database_instance`, which defaults to true. SQL instances can no longer be destroyed without setting `deletion_protection = false`.
+```
+```release-note:enhancement
+sql: added a check to `google_sql_database_instance` to catch failures early by seeing if Service Networking Connections already exists for the private network of the instance.
+```

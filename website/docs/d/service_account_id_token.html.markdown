@@ -28,7 +28,7 @@ For more information see
   ```
 
 ## Example Usage - Service Account Impersonation.
-  `google_service_account_access_token` will use background impersonated credentials provided by [google_service_account_access_token](https://www.terraform.io/docs/providers/google/d/datasource_google_service_account_access_token.html).
+  `google_service_account_access_token` will use background impersonated credentials provided by [google_service_account_access_token](https://www.terraform.io/docs/providers/google/d/service_account_access_token.html).
 
   Note: to use the following, you must grant `target_service_account` the
   `roles/iam.serviceAccountTokenCreator` role on itself.

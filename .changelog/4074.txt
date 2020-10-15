@@ -1,0 +1,3 @@
+```release-note:new-resource
+`access_context_manager_access_level_condition`
+```

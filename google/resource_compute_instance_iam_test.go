@@ -58,7 +58,7 @@ func testAccComputeInstanceIamPolicy_basic(zone, instanceName, roleId string) st
   resource "google_compute_instance" "test_vm" {
     zone         = "%s"
     name         = "%s"
-    machine_type = "n1-standard-1"
+    machine_type = "e2-medium"
 
     boot_disk {
       initialize_params {

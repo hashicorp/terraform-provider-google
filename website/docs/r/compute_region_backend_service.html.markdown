@@ -170,7 +170,7 @@ resource "google_compute_region_instance_group_manager" "rigm" {
 
 resource "google_compute_instance_template" "instance_template" {
   name         = "template-region-service"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network    = google_compute_network.default.id
@@ -482,6 +482,11 @@ The `backend` block supports:
 
 The `circuit_breakers` block supports:
 
+* `connect_timeout` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The timeout for new network connections to hosts.
+  Structure is documented below.
+
 * `max_requests_per_connection` -
   (Optional)
   Maximum requests for a single backend connection. This parameter
@@ -508,6 +513,21 @@ The `circuit_breakers` block supports:
   (Optional)
   The maximum number of parallel retries to the backend cluster.
   Defaults to 3.
+
+
+The `connect_timeout` block supports:
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second.
+  Must be from 0 to 315,576,000,000 inclusive.
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond
+  resolution. Durations less than one second are represented
+  with a 0 seconds field and a positive nanos field. Must
+  be from 0 to 999,999,999 inclusive.
 
 The `consistent_hash` block supports:
 

@@ -274,6 +274,17 @@ The following arguments are supported:
   zone. The value of this field contains the network to peer with.
   Structure is documented below.
 
+* `reverse_lookup` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies if this is a managed reverse lookup zone. If true, Cloud DNS will resolve reverse
+  lookup queries using automatically configured records for VPC resources. This only applies
+  to networks listed under `private_visibility_config`.
+
+* `service_directory_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The presence of this field indicates that this zone is backed by Service Directory. The value of this field contains information related to the namespace associated with the zone.
+  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -387,6 +398,24 @@ The `target_network` block supports:
   The id or fully qualified URL of the VPC network to forward queries to.
   This should be formatted like `projects/{project}/global/networks/{network}` or
   `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
+
+The `service_directory_config` block supports:
+
+* `namespace` -
+  (Required)
+  The namespace associated with the zone.
+  Structure is documented below.
+
+
+The `namespace` block supports:
+
+* `namespace_url` -
+  (Required)
+  The fully qualified or partial URL of the service directory namespace that should be
+  associated with the zone. This should be formatted like
+  `https://servicedirectory.googleapis.com/v1/projects/{project}/locations/{location}/namespaces/{namespace_id}`
+  or simply `projects/{project}/locations/{location}/namespaces/{namespace_id}`
+  Ignored for `public` visibility zones.
 
 ## Attributes Reference
 

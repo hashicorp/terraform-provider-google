@@ -99,7 +99,7 @@ func testSweepActiveDirectoryDomain(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://managedidentities.googleapis.com/v1/{{name}}"
+		deleteTemplate := "https://managedidentities.googleapis.com/v1/projects/{{project}}/locations/global/domains/{{domain_name}}"
 		deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)

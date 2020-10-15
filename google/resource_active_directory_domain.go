@@ -370,7 +370,7 @@ func resourceActiveDirectoryDomainDelete(d *schema.ResourceData, meta interface{
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains/{{domain_name}}")
 	if err != nil {
 		return err
 	}

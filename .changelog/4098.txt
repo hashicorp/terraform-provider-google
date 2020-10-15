@@ -1,0 +1,3 @@
+```release-note:bug
+serviceusage: fixed bug where concurrent activations/deactivations of project services would fail, now they retry
+```

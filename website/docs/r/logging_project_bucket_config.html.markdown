@@ -32,6 +32,17 @@ resource "google_logging_project_bucket_config" "basic" {
 }
 ```
 
+Create logging bucket with customId
+
+```hcl
+resource "google_logging_project_bucket_config" "basic" {
+	project    = "project_id"
+	location  = "global"
+	retention_days = 30
+	bucket_id = "custom-bucket"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:

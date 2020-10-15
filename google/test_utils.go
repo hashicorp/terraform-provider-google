@@ -73,6 +73,11 @@ func (d *ResourceDiffMock) GetChange(key string) (interface{}, interface{}) {
 	return d.Before[key], d.After[key]
 }
 
+func (d *ResourceDiffMock) HasChange(key string) bool {
+	old, new := d.GetChange(key)
+	return old != new
+}
+
 func (d *ResourceDiffMock) Get(key string) interface{} {
 	return d.After[key]
 }

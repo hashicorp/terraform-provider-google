@@ -70,22 +70,20 @@ resource "google_compute_node_group" "nodes" {
 
 ```hcl
 resource "google_compute_node_template" "soletenant-tmpl" {
-  provider = google-beta
   name      = "soletenant-tmpl"
   region    = "us-central1"
   node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_group" "nodes" {
-  provider = google-beta
   name        = "soletenant-group"
   zone        = "us-central1-a"
   description = "example google_compute_node_group for Terraform Google Provider"
-
+  maintenance_policy = "RESTART_IN_PLACE"
   size          = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
   autoscaling_policy {
-    mode = "ON"
+    mode      = "ONLY_SCALE_OUT"
     min_nodes = 1
     max_nodes = 10
   }
@@ -117,6 +115,16 @@ The following arguments are supported:
   (Optional)
   Name of the resource.
 
+* `maintenance_policy` -
+  (Optional)
+  Specifies how to handle instances when a node in the group undergoes maintenance. Set to one of: DEFAULT, RESTART_IN_PLACE, or MIGRATE_WITHIN_NODE_GROUP. The default value is DEFAULT.
+
+* `autoscaling_policy` -
+  (Optional)
+  If you use sole-tenant nodes for your workloads, you can use the node
+  group autoscaler to automatically manage the sizes of your node groups.
+  Structure is documented below.
+
 * `zone` -
   (Optional)
   Zone where this node group is located
@@ -124,6 +132,28 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `autoscaling_policy` block supports:
+
+* `mode` -
+  (Required)
+  The autoscaling mode. Set to one of the following:
+    - OFF: Disables the autoscaler.
+    - ON: Enables scaling in and scaling out.
+    - ONLY_SCALE_OUT: Enables only scaling out.
+    You must use this mode if your node groups are configured to
+    restart their hosted VMs on minimal servers.
+  Possible values are `OFF`, `ON`, and `ONLY_SCALE_OUT`.
+
+* `min_nodes` -
+  (Optional)
+  Minimum size of the node group. Must be less
+  than or equal to max-nodes. The default value is 0.
+
+* `max_nodes` -
+  (Required)
+  Maximum size of the node group. Set to a value less than or equal
+  to 100 and greater than or equal to min-nodes.
 
 ## Attributes Reference
 

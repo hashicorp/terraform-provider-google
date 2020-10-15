@@ -102,9 +102,9 @@ This resource provides the following
 GlobalNetworkEndpoint can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_compute_global_network_endpoint.default projects/{{project}}/global/networkEndpointGroups/{{global_network_endpoint_group}}/{{fqdn}}/{{ip_address}}/{{port}}
-$ terraform import google_compute_global_network_endpoint.default {{project}}/{{global_network_endpoint_group}}/{{fqdn}}/{{ip_address}}/{{port}}
-$ terraform import google_compute_global_network_endpoint.default {{global_network_endpoint_group}}/{{fqdn}}/{{ip_address}}/{{port}}
+$ terraform import google_compute_global_network_endpoint.default projects/{{project}}/global/networkEndpointGroups/{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}
+$ terraform import google_compute_global_network_endpoint.default {{project}}/{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}
+$ terraform import google_compute_global_network_endpoint.default {{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}
 ```
 
 ## User Project Overrides

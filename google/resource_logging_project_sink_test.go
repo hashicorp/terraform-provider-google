@@ -117,6 +117,28 @@ func TestAccLoggingProjectSink_heredoc(t *testing.T) {
 	})
 }
 
+func TestAccLoggingProjectSink_loggingbucket(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "tf-test-sink-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingProjectSink_loggingbucket(sinkName, getTestProjectFromEnv()),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.loggingbucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckLoggingProjectSinkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -247,4 +269,28 @@ resource "google_bigquery_dataset" "logging_sink" {
   description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
 }
 `, sinkName, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
+}
+
+func testAccLoggingProjectSink_loggingbucket(name, project string) string {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "loggingbucket" {
+  name        = "%s"
+  project     = "%s"
+  destination = "logging.googleapis.com/projects/%s/locations/global/buckets/_Default"
+  exclusions {
+		name = "ex1"
+		description = "test"
+		filter = "resource.type = k8s_container"
+	}
+
+	exclusions {
+		name = "ex2"
+		description = "test-2"
+		filter = "resource.type = k8s_container"
+	}
+
+  unique_writer_identity = true
+}
+
+`, name, project, project)
 }

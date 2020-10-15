@@ -187,6 +187,12 @@ The following arguments are supported:
   One of `trigger_template` or `github` must be provided.
   Structure is documented below.
 
+* `github` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
+  One of `trigger_template` or `github` must be provided.
+  Structure is documented below.
+
 * `build` -
   (Optional)
   Contents of the build template. Either a filename or build template must be provided.
@@ -231,6 +237,58 @@ The `trigger_template` block supports:
 * `commit_sha` -
   (Optional)
   Explicit commit SHA to build. Exactly one of a branch name, tag, or commit SHA must be provided.
+
+The `github` block supports:
+
+* `owner` -
+  (Optional)
+  Owner of the repository. For example: The owner for
+  https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".
+
+* `name` -
+  (Optional)
+  Name of the repository. For example: The name for
+  https://github.com/googlecloudplatform/cloud-builders is "cloud-builders".
+
+* `pull_request` -
+  (Optional)
+  filter to match changes in pull requests.  Specify only one of pullRequest or push.
+  Structure is documented below.
+
+* `push` -
+  (Optional)
+  filter to match changes in refs, like branches or tags.  Specify only one of pullRequest or push.
+  Structure is documented below.
+
+
+The `pull_request` block supports:
+
+* `branch` -
+  (Required)
+  Regex of branches to match.
+
+* `comment_control` -
+  (Optional)
+  Whether to block builds on a "/gcbrun" comment from a repository owner or collaborator.
+  Possible values are `COMMENTS_DISABLED`, `COMMENTS_ENABLED`, and `COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY`.
+
+* `invert_regex` -
+  (Optional)
+  If true, branches that do NOT match the git_ref will trigger a build.
+
+The `push` block supports:
+
+* `invert_regex` -
+  (Optional)
+  When true, only trigger a build if the revision regex does NOT match the git_ref regex.
+
+* `branch` -
+  (Optional)
+  Regex of branches to match.  Specify only one of branch or tag.
+
+* `tag` -
+  (Optional)
+  Regex of tags to match.  Specify only one of branch or tag.
 
 The `build` block supports:
 

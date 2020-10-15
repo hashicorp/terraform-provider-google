@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: fixed bug where deleting a `google_monitoring_dashboard` would give an "unsupported protocol scheme" error
+```

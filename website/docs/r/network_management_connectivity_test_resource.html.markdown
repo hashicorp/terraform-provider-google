@@ -59,7 +59,7 @@ resource "google_network_management_connectivity_test" "instance-test" {
 
 resource "google_compute_instance" "source" {
   name = "source-vm"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
@@ -76,7 +76,7 @@ resource "google_compute_instance" "source" {
 
 resource "google_compute_instance" "destination" {
   name = "dest-vm"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {

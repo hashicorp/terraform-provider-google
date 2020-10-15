@@ -226,7 +226,7 @@ resource "google_compute_region_instance_group_manager" "rigm" {
 resource "google_compute_instance_template" "instance_template" {
   provider     = google-beta
   name         = "template-website-backend"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network = google_compute_network.default.id
@@ -364,6 +364,15 @@ The following arguments are supported:
 - - -
 
 
+* `is_mirroring_collector` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Indicates whether or not this load balancer can be used
+  as a collector for packet mirroring. To prevent mirroring loops,
+  instances behind this load balancer will not have their traffic
+  mirrored even if a PacketMirroring rule applies to them. This
+  can only be set to true for load balancers that have their
+  loadBalancingScheme set to INTERNAL.
+
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property when
@@ -472,6 +481,10 @@ The following arguments are supported:
   If true, clients can access ILB from all regions.
   Otherwise only allows from the local region the ILB is located at.
 
+* `labels` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Labels to apply to this forwarding rule.  A list of key->value pairs.
+
 * `all_ports` -
   (Optional)
   For internal TCP/UDP load balancing (i.e. load balancing scheme is
@@ -516,6 +529,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
+* `label_fingerprint` -
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
 
 * `service_name` -
   The internal fully qualified service name for this Forwarding Rule.

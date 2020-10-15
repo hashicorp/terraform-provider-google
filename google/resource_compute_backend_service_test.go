@@ -764,7 +764,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network = "default"
@@ -826,7 +826,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network = "default"
@@ -1001,7 +1001,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network = "default"
@@ -1058,7 +1058,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network = "default"
@@ -1105,7 +1105,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "endpoint-instance" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
@@ -1183,7 +1183,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "endpoint-instance" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
@@ -1340,7 +1340,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instance-template-internal"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network = "default"

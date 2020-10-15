@@ -451,13 +451,13 @@ func resourceBigQueryTable() *schema.Resource {
 							Description: `Number of milliseconds for which to keep the storage for a partition.`,
 						},
 
-						// Type: [Required] The supported types are DAY and HOUR, which will generate
-						// one partition per day or hour based on data loading time.
+						// Type: [Required] The supported types are DAY, HOUR, MONTH, and YEAR, which will generate
+						// one partition per day, hour, month, and year, respectively.
 						"type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							Description:  `The supported types are DAY and HOUR, which will generate one partition per day or hour based on data loading time.`,
-							ValidateFunc: validation.StringInSlice([]string{"DAY", "HOUR"}, false),
+							Description:  `The supported types are DAY, HOUR, MONTH, and YEAR, which will generate one partition per day, hour, month, and year, respectively.`,
+							ValidateFunc: validation.StringInSlice([]string{"DAY", "HOUR", "MONTH", "YEAR"}, false),
 						},
 
 						// Field: [Optional] The field used to determine how to create a time-based

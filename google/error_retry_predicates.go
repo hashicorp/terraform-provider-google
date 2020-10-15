@@ -197,10 +197,21 @@ func isSqlOperationInProgressError(err error) (bool, string) {
 func serviceUsageServiceBeingActivated(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 400 {
 		if strings.Contains(gerr.Body, "Another activation or deactivation is in progress") {
-			return false, ""
+			return true, "Waiting for same service activation/deactivation to finish"
 		}
 
-		return true, "Waiting for same service activation/deactivation to finish"
+		return false, ""
+	}
+	return false, ""
+}
+
+// Retry if Bigquery operation returns a 403 with a specific message for
+// concurrent operations (which are implemented in terms of 'edit quota').
+func isBigqueryIAMQuotaError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 403 && strings.Contains(strings.ToLower(gerr.Body), "exceeded rate limits") {
+			return true, "Waiting for Bigquery edit quota to refresh"
+		}
 	}
 	return false, ""
 }

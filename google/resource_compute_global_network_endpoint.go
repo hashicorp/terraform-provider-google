@@ -317,7 +317,7 @@ func resourceComputeGlobalNetworkEndpointImport(d *schema.ResourceData, meta int
 	config := meta.(*Config)
 	// FQDN, port and ip_address are optional, so use * instead of + when reading the import id
 	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]?)/global/networkEndpointGroups/(?P<global_network_endpoint_group>[^/]+)/(?P<ip_address>[^/]+)/(?P<fqdn>[^/]*)/(?P<port>[^/]+)",
+		"projects/(?P<project>[^/]+)/global/networkEndpointGroups/(?P<global_network_endpoint_group>[^/]+)/(?P<ip_address>[^/]*)/(?P<fqdn>[^/]*)/(?P<port>[^/]+)",
 		"(?P<project>[^/]+)/(?P<global_network_endpoint_group>[^/]+)/(?P<ip_address>[^/]*)/(?P<fqdn>[^/]*)/(?P<port>[^/]*)",
 		"(?P<global_network_endpoint_group>[^/]+)/(?P<ip_address>[^/]*)/(?P<fqdn>[^/]*)/(?P<port>[^/]*)",
 	}, d, config); err != nil {
@@ -401,16 +401,16 @@ func flattenNestedComputeGlobalNetworkEndpoint(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeGlobalNetworkEndpointFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedFqdn, err := expandNestedComputeGlobalNetworkEndpointFqdn(d.Get("fqdn"), d, meta.(*Config))
-	if err != nil {
-		return -1, nil, err
-	}
-	expectedFlattenedFqdn := flattenNestedComputeGlobalNetworkEndpointFqdn(expectedFqdn, d, meta.(*Config))
 	expectedIpAddress, err := expandNestedComputeGlobalNetworkEndpointIpAddress(d.Get("ip_address"), d, meta.(*Config))
 	if err != nil {
 		return -1, nil, err
 	}
 	expectedFlattenedIpAddress := flattenNestedComputeGlobalNetworkEndpointIpAddress(expectedIpAddress, d, meta.(*Config))
+	expectedFqdn, err := expandNestedComputeGlobalNetworkEndpointFqdn(d.Get("fqdn"), d, meta.(*Config))
+	if err != nil {
+		return -1, nil, err
+	}
+	expectedFlattenedFqdn := flattenNestedComputeGlobalNetworkEndpointFqdn(expectedFqdn, d, meta.(*Config))
 	expectedPort, err := expandNestedComputeGlobalNetworkEndpointPort(d.Get("port"), d, meta.(*Config))
 	if err != nil {
 		return -1, nil, err
@@ -430,16 +430,16 @@ func resourceComputeGlobalNetworkEndpointFindNestedObjectInList(d *schema.Resour
 			return -1, nil, err
 		}
 
-		itemFqdn := flattenNestedComputeGlobalNetworkEndpointFqdn(item["fqdn"], d, meta.(*Config))
-		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
-		if !(isEmptyValue(reflect.ValueOf(itemFqdn)) && isEmptyValue(reflect.ValueOf(expectedFlattenedFqdn))) && !reflect.DeepEqual(itemFqdn, expectedFlattenedFqdn) {
-			log.Printf("[DEBUG] Skipping item with fqdn= %#v, looking for %#v)", itemFqdn, expectedFlattenedFqdn)
-			continue
-		}
 		itemIpAddress := flattenNestedComputeGlobalNetworkEndpointIpAddress(item["ipAddress"], d, meta.(*Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemIpAddress)) && isEmptyValue(reflect.ValueOf(expectedFlattenedIpAddress))) && !reflect.DeepEqual(itemIpAddress, expectedFlattenedIpAddress) {
 			log.Printf("[DEBUG] Skipping item with ipAddress= %#v, looking for %#v)", itemIpAddress, expectedFlattenedIpAddress)
+			continue
+		}
+		itemFqdn := flattenNestedComputeGlobalNetworkEndpointFqdn(item["fqdn"], d, meta.(*Config))
+		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(isEmptyValue(reflect.ValueOf(itemFqdn)) && isEmptyValue(reflect.ValueOf(expectedFlattenedFqdn))) && !reflect.DeepEqual(itemFqdn, expectedFlattenedFqdn) {
+			log.Printf("[DEBUG] Skipping item with fqdn= %#v, looking for %#v)", itemFqdn, expectedFlattenedFqdn)
 			continue
 		}
 		itemPort := flattenNestedComputeGlobalNetworkEndpointPort(item["port"], d, meta.(*Config))

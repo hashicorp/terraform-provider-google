@@ -1,4 +1,34 @@
-## 3.43.0 (Unreleased)
+## 3.44.0 (Unreleased)
+## 3.43.0 (October 12, 2020)
+
+FEATURES:
+* **New Data Source:** `google_pubsub_topic` ([#7426](https://github.com/hashicorp/terraform-provider-google/pull/7426))
+* **New Data Source:** `google_compute_global_forwarding_rule` ([#7434](https://github.com/hashicorp/terraform-provider-google/pull/7434))
+* **New Data Source:** `google_cloud_run_service` ([#7388](https://github.com/hashicorp/terraform-provider-google/pull/7388))
+* **New Resource:** `google_bigtable_table_iam_member` ([#7410](https://github.com/hashicorp/terraform-provider-google/pull/7410))
+* **New Resource:** `google_bigtable_table_iam_binding` ([#7410](https://github.com/hashicorp/terraform-provider-google/pull/7410))
+* **New Resource:** `google_bigtable_table_iam_policy` ([#7410](https://github.com/hashicorp/terraform-provider-google/pull/7410))
+
+IMPROVEMENTS:
+* appengine: added ability to manage pre-firestore appengine applications. ([#7408](https://github.com/hashicorp/terraform-provider-google/pull/7408))
+* bigquery: added support for `google_bigquery_table` `materialized_view` field ([#7080](https://github.com/hashicorp/terraform-provider-google/pull/7080))
+* compute: Marked `google_compute_per_instance_config` as GA ([#7429](https://github.com/hashicorp/terraform-provider-google/pull/7429))
+* compute: Marked `google_compute_region_per_instance_config` as GA ([#7429](https://github.com/hashicorp/terraform-provider-google/pull/7429))
+* compute: Marked `stateful_disk` as GA in `google_compute_instance_group_manager` ([#7429](https://github.com/hashicorp/terraform-provider-google/pull/7429))
+* compute: Marked `stateful_disk` as GA in `google_compute_region_instance_group_manager` ([#7429](https://github.com/hashicorp/terraform-provider-google/pull/7429))
+* compute: added additional fields to the `google_compute_forwarding_rule` datasource. ([#7437](https://github.com/hashicorp/terraform-provider-google/pull/7437))
+* dns: added `forwarding_path` field to `google_dns_policy` resource ([#7416](https://github.com/hashicorp/terraform-provider-google/pull/7416))
+* netblock: changed `google_netblock_ip_ranges` to read from cloud.json file rather than DNS record ([#7157](https://github.com/hashicorp/terraform-provider-google/pull/7157))
+
+BUG FIXES:
+* accessapproval: fixed issue where, due to a recent API change, `google_*_access_approval.enrolled_services.cloud_product` entries specified as a URL would result in a permadiff
+* bigquery: fixed an issue in `google_bigquery_job` where non-US locations could not be read ([#7418](https://github.com/hashicorp/terraform-provider-google/pull/7418))
+* cloudrun: fixed an issue in `google_cloud_run_domain_mapping` where labels provided by Google would cause a diff ([#7407](https://github.com/hashicorp/terraform-provider-google/pull/7407))
+* compute: Fixed an issue where `google_compute_region_backend_service` required `healthChecks` for a serverless network endpoint group. ([#7433](https://github.com/hashicorp/terraform-provider-google/pull/7433))
+* container: fixed `node_config.image_type` perma-diff when specified in lower case. ([#7412](https://github.com/hashicorp/terraform-provider-google/pull/7412))
+* datacatalog: fixed an error in `google_data_catalog_tag` when trying to set boolean field to `false` ([#7409](https://github.com/hashicorp/terraform-provider-google/pull/7409))
+* monitoring: fixed bug where deleting a `google_monitoring_dashboard` would give an "unsupported protocol scheme" error
+
 ## 3.42.0 (October 05, 2020)
 
 FEATURES:
