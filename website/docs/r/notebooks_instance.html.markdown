@@ -185,30 +185,30 @@ The following arguments are supported:
 
 * `post_startup_script` -
   (Optional)
-  Path to a Bash script that automatically runs after a 
-  notebook instance fully boots up. The path must be a URL 
+  Path to a Bash script that automatically runs after a
+  notebook instance fully boots up. The path must be a URL
   or Cloud Storage path (gs://path-to-file/file-name).
 
 * `instance_owners` -
   (Optional)
-  The list of owners of this instance after creation. 
+  The list of owners of this instance after creation.
   Format: alias@example.com.
-  Currently supports one owner only. 
-  If not specified, all of the service account users of 
+  Currently supports one owner only.
+  If not specified, all of the service account users of
   your VM instance's service account can use the instance.
 
 * `service_account` -
   (Optional)
-  The service account on this instance, giving access to other 
-  Google Cloud services. You can use any service account within 
-  the same project, but you must have the service account user 
-  permission to use the instance. If not specified, 
+  The service account on this instance, giving access to other
+  Google Cloud services. You can use any service account within
+  the same project, but you must have the service account user
+  permission to use the instance. If not specified,
   the Compute Engine default service account is used.
 
 * `accelerator_config` -
   (Optional)
-  The hardware accelerator used on this instance. If you use accelerators, 
-  make sure that your configuration has enough vCPUs and memory to support the 
+  The hardware accelerator used on this instance. If you use accelerators,
+  make sure that your configuration has enough vCPUs and memory to support the
   machineType you have selected.
   Structure is documented below.
 
@@ -220,7 +220,7 @@ The following arguments are supported:
 
 * `custom_gpu_driver_path` -
   (Optional)
-  Specify a custom Cloud Storage path where the GPU driver is stored. 
+  Specify a custom Cloud Storage path where the GPU driver is stored.
   If not specified, we'll automatically choose from official GPU drivers.
 
 * `boot_disk_type` -
@@ -230,8 +230,8 @@ The following arguments are supported:
 
 * `boot_disk_size_gb` -
   (Optional)
-  The size of the boot disk in GB attached to this instance, 
-  up to a maximum of 64000 GB (64 TB). The minimum recommended value is 100 GB. 
+  The size of the boot disk in GB attached to this instance,
+  up to a maximum of 64000 GB (64 TB). The minimum recommended value is 100 GB.
   If not specified, this defaults to 100.
 
 * `data_disk_type` -
@@ -241,9 +241,9 @@ The following arguments are supported:
 
 * `data_disk_size_gb` -
   (Optional)
-  The size of the data disk in GB attached to this instance, 
-  up to a maximum of 64000 GB (64 TB). 
-  You can choose the size of the data disk based on how big your notebooks and data are. 
+  The size of the data disk in GB attached to this instance,
+  up to a maximum of 64000 GB (64 TB).
+  You can choose the size of the data disk based on how big your notebooks and data are.
   If not specified, this defaults to 100.
 
 * `no_remove_data_disk` -
@@ -257,7 +257,7 @@ The following arguments are supported:
 
 * `kms_key` -
   (Optional)
-  The KMS key used to encrypt the disks, only applicable if diskEncryption is CMEK. 
+  The KMS key used to encrypt the disks, only applicable if diskEncryption is CMEK.
   Format: projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}
 
 * `no_public_ip` -
@@ -270,12 +270,12 @@ The following arguments are supported:
 
 * `network` -
   (Optional)
-  The name of the VPC that this instance is in. 
+  The name of the VPC that this instance is in.
   Format: projects/{project_id}/global/networks/{network_id}
 
 * `subnet` -
   (Optional)
-  The name of the subnet that this instance is in. 
+  The name of the subnet that this instance is in.
   Format: projects/{project_id}/regions/{region}/subnetworks/{subnetwork_id}
 
 * `labels` -
@@ -317,7 +317,7 @@ The `vm_image` block supports:
 
 * `project` -
   (Required)
-  The name of the Google Cloud project that this VM image belongs to. 
+  The name of the Google Cloud project that this VM image belongs to.
   Format: projects/{project_id}
 
 * `image_family` -
@@ -332,7 +332,7 @@ The `container_image` block supports:
 
 * `repository` -
   (Required)
-  The path to the container image repository. 
+  The path to the container image repository.
   For example: gcr.io/{project_id}/{imageName}
 
 * `tag` -
