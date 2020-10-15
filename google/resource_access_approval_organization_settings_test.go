@@ -9,9 +9,28 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccAccessApprovalOrganizationSettings_update(t *testing.T) {
-	t.Parallel()
+// Since access approval settings are heirarchical, and only one can exist per folder/project/org,
+// and all refer to the same organization, they need to be ran serially
+func TestAccAccessApprovalSettings(t *testing.T) {
+	testCases := map[string]func(t *testing.T){
+		"folder":       testAccAccessApprovalFolderSettings,
+		"project":      testAccAccessApprovalProjectSettings,
+		"organization": testAccAccessApprovalOrganizationSettings,
+	}
 
+	for name, tc := range testCases {
+		// shadow the tc variable into scope so that when
+		// the loop continues, if t.Run hasn't executed tc(t)
+		// yet, we don't have a race condition
+		// see https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			tc(t)
+		})
+	}
+}
+
+func testAccAccessApprovalOrganizationSettings(t *testing.T) {
 	context := map[string]interface{}{
 		"org_id":        getTestOrgFromEnv(t),
 		"random_suffix": randString(t, 10),
