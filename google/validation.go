@@ -326,3 +326,13 @@ func validateADDomainName() schema.SchemaValidateFunc {
 		return
 	}
 }
+
+func validateServiceAccountAction() (s schema.SchemaValidateFunc) {
+	// WIP
+	return
+}
+
+func validateRestorePolicy() (s schema.SchemaValidateFunc) {
+	// WIP
+	return
+}
