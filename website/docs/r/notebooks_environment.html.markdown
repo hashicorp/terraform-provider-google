@@ -80,7 +80,7 @@ The following arguments are supported:
 
 * `post_startup_script` -
   (Optional)
-  Path to a Bash script that automatically runs after a notebook instance fully boots up. 
+  Path to a Bash script that automatically runs after a notebook instance fully boots up.
   The path must be a URL or Cloud Storage path. Example: "gs://path-to-file/file-name"
 
 * `vm_image` -
@@ -101,7 +101,7 @@ The `vm_image` block supports:
 
 * `project` -
   (Required)
-  The name of the Google Cloud project that this VM image belongs to. 
+  The name of the Google Cloud project that this VM image belongs to.
   Format: projects/{project_id}
 
 * `image_name` -
@@ -116,7 +116,7 @@ The `container_image` block supports:
 
 * `repository` -
   (Required)
-  The path to the container image repository. 
+  The path to the container image repository.
   For example: gcr.io/{project_id}/{imageName}
 
 * `tag` -
