@@ -41,6 +41,19 @@ func Provider() *schema.Provider {
 				}, nil),
 				ConflictsWith: []string{"credentials"},
 			},
+			"impersonate_service_account": {
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT",
+				}, nil),
+			},
+
+			"impersonate_service_account_delegates": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 
 			"project": {
 				Type:     schema.TypeString,
@@ -1043,6 +1056,9 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	} else if v, ok := d.GetOk("credentials"); ok {
 		config.Credentials = v.(string)
 	}
+	if v, ok := d.GetOk("impersonate_service_account"); ok {
+		config.ImpersonateServiceAccount = v.(string)
+	}
 
 	scopes := d.Get("scopes").([]interface{})
 	if len(scopes) > 0 {
@@ -1050,6 +1066,14 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	}
 	for i, scope := range scopes {
 		config.Scopes[i] = scope.(string)
+	}
+
+	delegates := d.Get("impersonate_service_account_delegates").([]interface{})
+	if len(delegates) > 0 {
+		config.ImpersonateServiceAccountDelegates = make([]string, len(delegates))
+	}
+	for i, delegate := range delegates {
+		config.ImpersonateServiceAccountDelegates[i] = delegate.(string)
 	}
 
 	batchCfg, err := expandProviderBatchingConfig(d.Get("batching"))
