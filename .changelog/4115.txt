@@ -1,0 +1,12 @@
+```release-note:note
+compute: added a deprecation warning to `google_compute_vpn_gateway`
+```
+```release-note:enhancement
+compute: promoted `google_compute_ha_vpn_gateway` to GA
+```
+```release-note:enhancement
+compute: promoted `google_compute_external_vpn_gateway` to GA
+```
+```release-note:enhancement
+compute: promoted HA VPN fields in `google_compute_vpn_tunnel` to GA
+```

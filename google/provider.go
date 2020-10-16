@@ -656,9 +656,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 163
+// Generated resources: 165
 // Generated IAM resources: 69
-// Total generated resources: 232
+// Total generated resources: 234
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -782,6 +782,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_target_ssl_proxy":                              resourceComputeTargetSslProxy(),
 			"google_compute_target_tcp_proxy":                              resourceComputeTargetTcpProxy(),
 			"google_compute_vpn_gateway":                                   resourceComputeVpnGateway(),
+			"google_compute_ha_vpn_gateway":                                resourceComputeHaVpnGateway(),
+			"google_compute_external_vpn_gateway":                          resourceComputeExternalVpnGateway(),
 			"google_compute_url_map":                                       resourceComputeUrlMap(),
 			"google_compute_vpn_tunnel":                                    resourceComputeVpnTunnel(),
 			"google_compute_target_grpc_proxy":                             resourceComputeTargetGrpcProxy(),

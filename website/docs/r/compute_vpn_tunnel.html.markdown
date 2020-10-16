@@ -224,25 +224,25 @@ The following arguments are supported:
   associated.
 
 * `vpn_gateway` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   URL of the VPN gateway with which this VPN tunnel is associated.
   This must be used if a High Availability VPN gateway resource is created.
   This field must reference a `google_compute_ha_vpn_gateway` resource.
 
 * `vpn_gateway_interface` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The interface ID of the VPN gateway with which this VPN tunnel is associated.
 
 * `peer_external_gateway` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   URL of the peer side external VPN gateway to which this VPN tunnel is connected.
 
 * `peer_external_gateway_interface` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The interface ID of the external VPN gateway to which this VPN tunnel is connected.
 
 * `peer_gcp_gateway` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   URL of the peer side HA GCP VPN gateway to which this VPN tunnel is connected.
   If provided, the VPN tunnel will automatically use the same vpn_gateway_interface
   ID in the peer GCP VPN gateway.
