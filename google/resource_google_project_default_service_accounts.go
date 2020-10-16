@@ -97,11 +97,8 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 	}
 
 	d.SetId(prefixedProject(pid))
-	err = resourceGoogleProjectDefaultServiceAccountsRead(d, meta)
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return resourceGoogleProjectDefaultServiceAccountsRead(d, meta)
 }
 
 func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.ResourceData, userAgent string) ([]*iam.ServiceAccount, error) {
