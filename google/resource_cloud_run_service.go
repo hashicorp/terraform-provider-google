@@ -783,7 +783,7 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOk("autogenerate_revision_name"); !ok {
+	if _, ok := d.GetOkExists("autogenerate_revision_name"); !ok {
 		if err := d.Set("autogenerate_revision_name", false); err != nil {
 			return fmt.Errorf("Error setting autogenerate_revision_name: %s", err)
 		}

@@ -436,7 +436,7 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOk("force_destroy"); !ok {
+	if _, ok := d.GetOkExists("force_destroy"); !ok {
 		if err := d.Set("force_destroy", false); err != nil {
 			return fmt.Errorf("Error setting force_destroy: %s", err)
 		}
