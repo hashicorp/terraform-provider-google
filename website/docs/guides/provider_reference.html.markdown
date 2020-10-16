@@ -18,7 +18,6 @@ location (`zone` and/or `region`) for your resources.
 
 ```hcl
 provider "google" {
-  credentials = file("account.json")
   project     = "my-project-id"
   region      = "us-central1"
   zone        = "us-central1-c"
@@ -27,7 +26,6 @@ provider "google" {
 
 ```hcl
 provider "google-beta" {
-  credentials = file("account.json")
   project     = "my-project-id"
   region      = "us-central1"
   zone        = "us-central1-c"
@@ -62,6 +60,29 @@ resource "google_compute_instance" "beta-instance" {
 provider "google-beta" {}
 ```
 
+## Authentication
+
+### Running Terraform on your workstation.
+
+If you are using terraform on your workstation, you will need to install the Google Cloud SDK and authenticate using [User Application Default
+Credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default).
+
+A quota project must be set which gcloud automatically reads from the `core/project` value. You can override this project by specifying `--project` flag when running `gcloud auth application-default login`. The SDK should return this message if you have set the correct billing project. `Quota project "your-project" was added to ADC which can be used by Google client libraries for billing and quota.`
+
+### Running Terraform on Google Cloud
+
+If you are running terraform on Google Cloud, you can configure that instance or cluster to use a [Google Service
+Account](https://cloud.google.com/compute/docs/authentication). This will allow Terraform to authenticate to Google Cloud without having to bake in a separate
+credential/authentication file. Make sure that the scope of the VM/Cluster is set to cloud-platform.
+
+### Running Terraform outside of Google Cloud
+
+If you are running terraform outside of Google Cloud, generate a service account key and set the `GOOGLE_APPPLICATION_CREDENTIALS` environment variable to
+the path of the service account key. Terraform will use that key for authentication.
+
+### Impersonating Service Accounts
+
+Terraform can impersonate a Google Service Account as described [here](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials). A valid credential must be provided as mentioned in the earlier section and that identity must have the `roles/iam.serviceAccountTokenCreator` role on the service account you are impersonating.
 
 ## Configuration Reference
 
@@ -71,15 +92,6 @@ if you're interested in more details. Both `google` and `google-beta` share the
 same configuration.
 
 ### Quick Reference
-
-* `credentials` - (Optional) Either the path to or the contents of a
-[service account key file] in JSON format. You can
-[manage key files using the Cloud Console].  If not provided, the
-application default credentials will be used.  You can configure
-Application Default Credentials on your personal machine by
-running `gcloud auth application-default login`. If
-terraform is running on a GCP machine, and this value is unset,
-it will automatically use that machine's configured service account.
 
 * `project` - (Optional) The default project to manage resources in. If another
 project is specified on a resource, it will take precedence.
@@ -91,6 +103,13 @@ region is specified on a regional resource, it will take precedence.
 zone should be within the default region you specified. If another zone is
 specified on a zonal resource, it will take precedence.
 
+* `impersonate_service_account` - (Optional) The service account to impersonate for all Google API Calls.
+You must have `roles/iam.serviceAccountTokenCreator` role on that account for the impersonation to succeed.
+
+* `credentials` - (Optional) Either the path to or the contents of a
+[service account key file] in JSON format. You can
+[manage key files using the Cloud Console].  If not provided, the
+application default credentials will be used. 
 ---
 
 * `scopes` - (Optional) The list of OAuth 2.0 [scopes] requested when generating
@@ -166,9 +185,16 @@ are automatically available. See
 for more details.
 
 * On your computer, you can make your Google identity available by
-running [`gcloud auth application-default login`][gcloud adc]. This
-approach isn't recommended- some APIs are not compatible with
-credentials obtained through `gcloud`.
+running [`gcloud auth application-default login`][gcloud adc]. 
+
+---
+* `impersonate_service_account` - (Optional) The service account to impersonate for all Google API Calls.
+You must have `roles/iam.serviceAccountTokenCreator` role on that account for the impersonation to succeed. 
+If you are using a delegation chain, you can specify that using the `impersonate_service_account_delegates` field.
+Alternatively, this can be specified using the `GOOGLE_IMPERSONATE_SERVICE_ACCOUNT` environment
+variable.
+
+* `impersonate_service_account_delegates` - (Optional) The delegation chain for an impersonating a service account as described [here](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials#sa-credentials-delegated).
 
 ---
 

@@ -41,6 +41,19 @@ func Provider() *schema.Provider {
 				}, nil),
 				ConflictsWith: []string{"credentials"},
 			},
+			"impersonate_service_account": {
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT",
+				}, nil),
+			},
+
+			"impersonate_service_account_delegates": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 
 			"project": {
 				Type:     schema.TypeString,
@@ -622,6 +635,7 @@ func Provider() *schema.Provider {
 			"google_service_account_access_token":                 dataSourceGoogleServiceAccountAccessToken(),
 			"google_service_account_id_token":                     dataSourceGoogleServiceAccountIdToken(),
 			"google_service_account_key":                          dataSourceGoogleServiceAccountKey(),
+			"google_spanner_instance":                             dataSourceSpannerInstance(),
 			"google_sql_ca_certs":                                 dataSourceGoogleSQLCaCerts(),
 			"google_sql_database_instance":                        dataSourceSqlDatabaseInstance(),
 			"google_storage_bucket_object":                        dataSourceGoogleStorageBucketObject(),
@@ -642,9 +656,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 163
+// Generated resources: 165
 // Generated IAM resources: 69
-// Total generated resources: 232
+// Total generated resources: 234
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -768,6 +782,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_target_ssl_proxy":                              resourceComputeTargetSslProxy(),
 			"google_compute_target_tcp_proxy":                              resourceComputeTargetTcpProxy(),
 			"google_compute_vpn_gateway":                                   resourceComputeVpnGateway(),
+			"google_compute_ha_vpn_gateway":                                resourceComputeHaVpnGateway(),
+			"google_compute_external_vpn_gateway":                          resourceComputeExternalVpnGateway(),
 			"google_compute_url_map":                                       resourceComputeUrlMap(),
 			"google_compute_vpn_tunnel":                                    resourceComputeVpnTunnel(),
 			"google_compute_target_grpc_proxy":                             resourceComputeTargetGrpcProxy(),
@@ -1043,6 +1059,9 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	} else if v, ok := d.GetOk("credentials"); ok {
 		config.Credentials = v.(string)
 	}
+	if v, ok := d.GetOk("impersonate_service_account"); ok {
+		config.ImpersonateServiceAccount = v.(string)
+	}
 
 	scopes := d.Get("scopes").([]interface{})
 	if len(scopes) > 0 {
@@ -1050,6 +1069,14 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	}
 	for i, scope := range scopes {
 		config.Scopes[i] = scope.(string)
+	}
+
+	delegates := d.Get("impersonate_service_account_delegates").([]interface{})
+	if len(delegates) > 0 {
+		config.ImpersonateServiceAccountDelegates = make([]string, len(delegates))
+	}
+	for i, delegate := range delegates {
+		config.ImpersonateServiceAccountDelegates[i] = delegate.(string)
 	}
 
 	batchCfg, err := expandProviderBatchingConfig(d.Get("batching"))

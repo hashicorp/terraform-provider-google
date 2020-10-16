@@ -180,6 +180,7 @@ resource "google_billing_budget" "budget" {
     monitoring_notification_channels = [
       google_monitoring_notification_channel.notification_channel.id,
     ]
+    disable_default_iam_recipients = true
   }
 }
 
@@ -317,6 +318,13 @@ The `all_updates_rule` block supports:
   channel in the form
   projects/{project_id}/notificationChannels/{channel_id}.
   A maximum of 5 channels are allowed.
+
+* `disable_default_iam_recipients` -
+  (Optional)
+  Boolean. When set to true, disables default notifications sent
+  when a threshold is exceeded. Default recipients are
+  those with Billing Account Administrators and Billing
+  Account Users IAM roles for the target account.
 
 - - -
 
