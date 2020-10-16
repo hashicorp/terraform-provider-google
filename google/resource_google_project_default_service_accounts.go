@@ -29,7 +29,7 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"project_id": {
+			"project": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
@@ -42,7 +42,7 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				ForceNew:     true,
 				Default:      "deprivilege",
 				ValidateFunc: validateServiceAccountAction(),
-				Description:  `The action to be performed in the default service accounts. Valid values are: deprivilege, delete, disable`,
+				Description:  `The action to be performed in the default service accounts. Valid values are: deprivilege, delete, disable.`,
 			},
 			"restore_policy": {
 				Type:         schema.TypeString,
@@ -50,7 +50,7 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				Default:      "NONE",
 				ValidateFunc: validateRestorePolicy(),
 				Description: `The action to be performed in the default service accounts on the resource destroy.
-				Valid values are NONE and REACTIVATE. If set to REACTIVATE it will attempt to restore all default SAs`,
+				Valid values are NONE and REACTIVATE. If set to REACTIVATE it will attempt to restore all default SAs.`,
 			},
 		},
 	}
@@ -62,13 +62,13 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 	if err != nil {
 		return err
 	}
-	pid, ok := d.Get("project_id").(string)
+	pid, ok := d.Get("project").(string)
 	if !ok {
-		return fmt.Errorf("Cannot get project_id variable")
+		return fmt.Errorf("Cannot get project")
 	}
 	action, ok := d.Get("action").(string)
 	if !ok {
-		return fmt.Errorf("Cannot get action variable")
+		return fmt.Errorf("Cannot get action")
 	}
 
 	serviceAccounts, err := resourceGoogleProjectDefaultServiceAccountsList(config, d, userAgent)
@@ -93,9 +93,9 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 }
 
 func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.ResourceData, userAgent string) ([]*iam.ServiceAccount, error) {
-	pid, ok := d.Get("project_id").(string)
+	pid, ok := d.Get("project").(string)
 	if !ok {
-		return nil, fmt.Errorf("Cannot get project_id variable")
+		return nil, fmt.Errorf("Cannot get project")
 	}
 	// TODO: Add filter based on SA name as per documentation https://cloud.google.com/iam/docs/service-accounts#default
 	// to filter only default service accounts
@@ -122,8 +122,8 @@ func resourceGoogleProjectDefaultServiceAccountsReadAndUpdate(d *schema.Resource
 		return handleNotFoundError(err, d, fmt.Sprintf("Project %q", p.ProjectId))
 	}
 
-	if err = d.Set("project_id", p.ProjectId); err != nil {
-		return fmt.Errorf("Error setting project_id: %s", err)
+	if err = d.Set("project", p.ProjectId); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
 	}
 	if err = d.Set("action", d.Get("action")); err != nil {
 		return fmt.Errorf("Error setting action: %s", err)
