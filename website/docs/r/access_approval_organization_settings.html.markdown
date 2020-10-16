@@ -122,6 +122,7 @@ This resource provides the following
 
 ## Import
 
+
 OrganizationSettings can be imported using any of these accepted formats:
 
 ```

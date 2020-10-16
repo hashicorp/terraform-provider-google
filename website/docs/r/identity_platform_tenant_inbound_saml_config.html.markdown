@@ -169,6 +169,7 @@ This resource provides the following
 
 ## Import
 
+
 TenantInboundSamlConfig can be imported using any of these accepted formats:
 
 ```

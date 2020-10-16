@@ -64,6 +64,7 @@ This resource provides the following
 
 ## Import
 
+
 Location can be imported using any of these accepted formats:
 
 ```

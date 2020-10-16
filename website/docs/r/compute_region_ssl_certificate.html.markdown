@@ -243,6 +243,7 @@ This resource provides the following
 
 ## Import
 
+
 RegionSslCertificate can be imported using any of these accepted formats:
 
 ```

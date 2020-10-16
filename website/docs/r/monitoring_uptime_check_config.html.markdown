@@ -305,6 +305,7 @@ This resource provides the following
 
 ## Import
 
+
 UptimeCheckConfig can be imported using any of these accepted formats:
 
 ```

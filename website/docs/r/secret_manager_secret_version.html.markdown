@@ -108,6 +108,7 @@ This resource provides the following
 
 ## Import
 
+
 SecretVersion can be imported using any of these accepted formats:
 
 ```

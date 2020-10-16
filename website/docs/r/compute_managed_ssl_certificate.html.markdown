@@ -313,6 +313,7 @@ This resource provides the following
 
 ## Import
 
+
 ManagedSslCertificate can be imported using any of these accepted formats:
 
 ```

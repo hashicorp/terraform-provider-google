@@ -283,6 +283,7 @@ This resource provides the following
 
 ## Import
 
+
 ResourcePolicy can be imported using any of these accepted formats:
 
 ```

@@ -174,6 +174,7 @@ This resource provides the following
 
 ## Import
 
+
 RouterBgpPeer can be imported using any of these accepted formats:
 
 ```

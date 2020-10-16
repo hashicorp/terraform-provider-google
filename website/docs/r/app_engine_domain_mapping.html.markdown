@@ -143,6 +143,7 @@ This resource provides the following
 
 ## Import
 
+
 DomainMapping can be imported using any of these accepted formats:
 
 ```

@@ -218,6 +218,7 @@ This resource provides the following
 
 ## Import
 
+
 Intent can be imported using any of these accepted formats:
 
 ```

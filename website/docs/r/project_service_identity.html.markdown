@@ -59,6 +59,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `email` - The email address of the Google managed service account.
 
+## Import
+
+This resource does not support import.
+
 ## Timeouts
 
 This resource provides the following

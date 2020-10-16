@@ -179,6 +179,7 @@ This resource provides the following
 
 ## Import
 
+
 NotificationChannel can be imported using any of these accepted formats:
 
 ```

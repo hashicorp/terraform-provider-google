@@ -77,6 +77,10 @@ In addition to the arguments, the following attributes are available:
 * `name`: The simple name of the endpoint as described in the config.
 * `address`: The FQDN of the endpoint as described in the config.
 
+## Import
+
+This resource does not support import.
+
 ## Timeouts
 
 This resource provides the following
