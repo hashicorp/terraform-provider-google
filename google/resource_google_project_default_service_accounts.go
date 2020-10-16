@@ -2,7 +2,6 @@ package google
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -19,8 +18,8 @@ import (
 func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleProjectDefaultServiceAccountsCreate,
-		Read:   resourceGoogleProjectDefaultServiceAccountsReadAndUpdate,
-		Update: resourceGoogleProjectDefaultServiceAccountsReadAndUpdate,
+		Read:   resourceGoogleProjectDefaultServiceAccountsRead,
+		Update: resourceGoogleProjectDefaultServiceAccountsUpdate,
 		Delete: resourceGoogleProjectDefaultServiceAccountsDelete,
 
 		Timeouts: &schema.ResourceTimeout{
@@ -76,17 +75,29 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 	if err != nil {
 		return fmt.Errorf("Error listing service accounts on project %s: %v", pid, err)
 	}
+
 	for _, sa := range serviceAccounts {
-		switch action {
-		// TODO: Add all cases and code apiCalls
-		case "delete":
-			log.Printf("[INFO] - Deleting service account %s on project %s", sa.Email, pid)
-			return nil
+		// As per documentation https://cloud.google.com/iam/docs/service-accounts#default
+		// we have just two default SAs and the e-mail may change. So, it is been filtered
+		// by the Display Name
+		switch sa.DisplayName {
+		case "Compute Engine default service account":
+			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.Email, pid)
+			if err != nil {
+				return fmt.Errorf("Error doing action %s on Service Account %s", action, sa.Email)
+			}
+		case "App Engine default service account":
+			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.Email, pid)
+			if err != nil {
+				return fmt.Errorf("Error doing action %s on Service Account %s", action, sa.Email)
+			}
+		default:
+			continue
 		}
 	}
 
 	d.SetId(prefixedProject(pid))
-	err = resourceGoogleProjectDefaultServiceAccountsReadAndUpdate(d, meta)
+	err = resourceGoogleProjectDefaultServiceAccountsRead(d, meta)
 	if err != nil {
 		return err
 	}
@@ -107,7 +118,7 @@ func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.R
 	return response.Accounts, nil
 }
 
-func resourceGoogleProjectDefaultServiceAccountsReadAndUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceGoogleProjectDefaultServiceAccountsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
@@ -142,4 +153,16 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 	// TODO: create func to handle actions on destroy depending on the current action and restore_policy
 	d.SetId("")
 	return nil
+}
+
+func resourceGoogleProjectDefaultServiceAccountsUpdate(d *schema.ResourceData, meta interface{}) error {
+
+	// Restore policy has changed
+	if ok := d.HasChange("restore_policy"); ok {
+		if err := d.Set("restore_policy", d.Get("restore_policy")); err != nil {
+			return fmt.Errorf("Error setting restore_policy: %s", err)
+		}
+	}
+
+	return resourceGoogleProjectDefaultServiceAccountsRead(d, meta)
 }
