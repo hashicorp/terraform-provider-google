@@ -110,6 +110,7 @@ This resource provides the following
 
 ## Import
 
+
 Realm can be imported using any of these accepted formats:
 
 ```

@@ -251,6 +251,7 @@ This resource provides the following
 
 ## Import
 
+
 RouterNat can be imported using any of these accepted formats:
 
 ```

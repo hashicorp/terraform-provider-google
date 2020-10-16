@@ -262,6 +262,7 @@ This resource provides the following
 
 ## Import
 
+
 Device can be imported using any of these accepted formats:
 
 ```

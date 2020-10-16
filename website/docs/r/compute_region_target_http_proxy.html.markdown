@@ -173,6 +173,7 @@ This resource provides the following
 
 ## Import
 
+
 RegionTargetHttpProxy can be imported using any of these accepted formats:
 
 ```

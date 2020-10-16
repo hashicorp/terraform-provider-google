@@ -126,6 +126,7 @@ This resource provides the following
 
 ## Import
 
+
 Endpoint can be imported using any of these accepted formats:
 
 ```

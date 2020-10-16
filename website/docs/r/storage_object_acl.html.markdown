@@ -69,3 +69,7 @@ adds that role/entity pair to your `terraform plan` results when it is omitted i
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Import
+
+This resource does not support import.

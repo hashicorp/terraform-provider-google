@@ -271,6 +271,7 @@ This resource provides the following
 
 ## Import
 
+
 StoredInfoType can be imported using any of these accepted formats:
 
 ```

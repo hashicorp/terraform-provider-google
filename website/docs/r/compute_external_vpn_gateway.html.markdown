@@ -213,6 +213,7 @@ This resource provides the following
 
 ## Import
 
+
 ExternalVpnGateway can be imported using any of these accepted formats:
 
 ```

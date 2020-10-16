@@ -55,3 +55,7 @@ resource "google_storage_bucket_acl" "image-store-acl" {
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Import
+
+This resource does not support import.

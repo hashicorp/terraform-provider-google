@@ -55,3 +55,7 @@ exported:
 * `bucket_self_link` - The URI of the created resource.
 
 * `id` - The name of the bucket that supports the Container Registry. In the form of `artifacts.{project}.appspot.com` or `{location}.artifacts.{project}.appspot.com` if location is specified.
+
+## Import
+
+This resource does not support import.

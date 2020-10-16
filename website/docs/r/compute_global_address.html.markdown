@@ -142,6 +142,7 @@ This resource provides the following
 
 ## Import
 
+
 GlobalAddress can be imported using any of these accepted formats:
 
 ```

@@ -143,6 +143,7 @@ This resource provides the following
 
 ## Import
 
+
 Secret can be imported using any of these accepted formats:
 
 ```
