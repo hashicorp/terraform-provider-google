@@ -193,6 +193,31 @@ Only IPv4 is supported.`,
 				},
 				Set: schema.HashString,
 			},
+			"peer_external_gateway": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `URL of the peer side external VPN gateway to which this VPN tunnel is connected.`,
+				ExactlyOneOf:     []string{"peer_external_gateway", "peer_gcp_gateway"},
+			},
+			"peer_external_gateway_interface": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The interface ID of the external VPN gateway to which this VPN tunnel is connected.`,
+			},
+			"peer_gcp_gateway": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `URL of the peer side HA GCP VPN gateway to which this VPN tunnel is connected.
+If provided, the VPN tunnel will automatically use the same vpn_gateway_interface
+ID in the peer GCP VPN gateway.
+This field must reference a 'google_compute_ha_vpn_gateway' resource.`,
+				ExactlyOneOf: []string{"peer_external_gateway", "peer_gcp_gateway"},
+			},
 			"peer_ip": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -237,6 +262,21 @@ Only IPv4 is supported.`,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description: `URL of the Target VPN gateway with which this VPN tunnel is
 associated.`,
+			},
+			"vpn_gateway": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `URL of the VPN gateway with which this VPN tunnel is associated.
+This must be used if a High Availability VPN gateway resource is created.
+This field must reference a 'google_compute_ha_vpn_gateway' resource.`,
+			},
+			"vpn_gateway_interface": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The interface ID of the VPN gateway with which this VPN tunnel is associated.`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
@@ -297,6 +337,36 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("target_vpn_gateway"); !isEmptyValue(reflect.ValueOf(targetVpnGatewayProp)) && (ok || !reflect.DeepEqual(v, targetVpnGatewayProp)) {
 		obj["targetVpnGateway"] = targetVpnGatewayProp
+	}
+	vpnGatewayProp, err := expandComputeVpnTunnelVpnGateway(d.Get("vpn_gateway"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("vpn_gateway"); !isEmptyValue(reflect.ValueOf(vpnGatewayProp)) && (ok || !reflect.DeepEqual(v, vpnGatewayProp)) {
+		obj["vpnGateway"] = vpnGatewayProp
+	}
+	vpnGatewayInterfaceProp, err := expandComputeVpnTunnelVpnGatewayInterface(d.Get("vpn_gateway_interface"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("vpn_gateway_interface"); ok || !reflect.DeepEqual(v, vpnGatewayInterfaceProp) {
+		obj["vpnGatewayInterface"] = vpnGatewayInterfaceProp
+	}
+	peerExternalGatewayProp, err := expandComputeVpnTunnelPeerExternalGateway(d.Get("peer_external_gateway"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("peer_external_gateway"); !isEmptyValue(reflect.ValueOf(peerExternalGatewayProp)) && (ok || !reflect.DeepEqual(v, peerExternalGatewayProp)) {
+		obj["peerExternalGateway"] = peerExternalGatewayProp
+	}
+	peerExternalGatewayInterfaceProp, err := expandComputeVpnTunnelPeerExternalGatewayInterface(d.Get("peer_external_gateway_interface"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("peer_external_gateway_interface"); ok || !reflect.DeepEqual(v, peerExternalGatewayInterfaceProp) {
+		obj["peerExternalGatewayInterface"] = peerExternalGatewayInterfaceProp
+	}
+	peerGcpGatewayProp, err := expandComputeVpnTunnelPeerGcpGateway(d.Get("peer_gcp_gateway"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("peer_gcp_gateway"); !isEmptyValue(reflect.ValueOf(peerGcpGatewayProp)) && (ok || !reflect.DeepEqual(v, peerGcpGatewayProp)) {
+		obj["peerGcpGateway"] = peerGcpGatewayProp
 	}
 	routerProp, err := expandComputeVpnTunnelRouter(d.Get("router"), d, config)
 	if err != nil {
@@ -441,6 +511,21 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("target_vpn_gateway", flattenComputeVpnTunnelTargetVpnGateway(res["targetVpnGateway"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
+	if err := d.Set("vpn_gateway", flattenComputeVpnTunnelVpnGateway(res["vpnGateway"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("vpn_gateway_interface", flattenComputeVpnTunnelVpnGatewayInterface(res["vpnGatewayInterface"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("peer_external_gateway", flattenComputeVpnTunnelPeerExternalGateway(res["peerExternalGateway"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("peer_external_gateway_interface", flattenComputeVpnTunnelPeerExternalGatewayInterface(res["peerExternalGatewayInterface"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
+	if err := d.Set("peer_gcp_gateway", flattenComputeVpnTunnelPeerGcpGateway(res["peerGcpGateway"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
 	if err := d.Set("router", flattenComputeVpnTunnelRouter(res["router"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
@@ -562,6 +647,61 @@ func flattenComputeVpnTunnelTargetVpnGateway(v interface{}, d *schema.ResourceDa
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeVpnTunnelVpnGateway(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeVpnTunnelVpnGatewayInterface(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeVpnTunnelPeerExternalGateway(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeVpnTunnelPeerExternalGatewayInterface(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeVpnTunnelPeerGcpGateway(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
 func flattenComputeVpnTunnelRouter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -631,6 +771,38 @@ func expandComputeVpnTunnelTargetVpnGateway(v interface{}, d TerraformResourceDa
 	f, err := parseRegionalFieldValue("targetVpnGateways", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for target_vpn_gateway: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeVpnTunnelVpnGateway(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseRegionalFieldValue("vpnGateways", v.(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for vpn_gateway: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeVpnTunnelVpnGatewayInterface(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeVpnTunnelPeerExternalGateway(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseGlobalFieldValue("externalVpnGateways", v.(string), "project", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for peer_external_gateway: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeVpnTunnelPeerExternalGatewayInterface(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeVpnTunnelPeerGcpGateway(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseRegionalFieldValue("vpnGateways", v.(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for peer_gcp_gateway: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
