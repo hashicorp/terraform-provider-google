@@ -83,8 +83,10 @@ you create the resource.`,
 							Optional: true,
 							Description: `The gRPC service name for the health check. 
 The value of grpcServiceName has the following meanings by convention:
-  - Empty serviceName means the overall status of all services at the backend.
-  - Non-empty serviceName means the health of that gRPC service, as defined by the owner of the service.
+
+* Empty serviceName means the overall status of all services at the backend.
+* Non-empty serviceName means the health of that gRPC service, as defined by the owner of the service.
+
 The grpcServiceName can only be ASCII.`,
 							AtLeastOneOf: []string{"grpc_health_check.0.port", "grpc_health_check.0.port_name", "grpc_health_check.0.port_specification", "grpc_health_check.0.grpc_service_name"},
 						},
