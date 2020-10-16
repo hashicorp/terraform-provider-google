@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/iam/v1"
 )
@@ -41,14 +42,14 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "deprivilege",
-				ValidateFunc: validateServiceAccountAction(),
+				ValidateFunc: validation.StringInSlice([]string{"deprivilege", "delete", "disable"}, false),
 				Description:  `The action to be performed in the default service accounts. Valid values are: deprivilege, delete, disable.`,
 			},
 			"restore_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "NONE",
-				ValidateFunc: validateRestorePolicy(),
+				ValidateFunc: validation.StringInSlice([]string{"NONE", "REACTIVATE"}, false),
 				Description: `The action to be performed in the default service accounts on the resource destroy.
 				Valid values are NONE and REACTIVATE. If set to REACTIVATE it will attempt to restore all default SAs.`,
 			},
