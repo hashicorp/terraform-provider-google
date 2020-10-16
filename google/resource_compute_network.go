@@ -253,7 +253,7 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOk("delete_default_routes_on_create"); !ok {
+	if _, ok := d.GetOkExists("delete_default_routes_on_create"); !ok {
 		if err := d.Set("delete_default_routes_on_create", false); err != nil {
 			return fmt.Errorf("Error setting delete_default_routes_on_create: %s", err)
 		}

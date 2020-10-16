@@ -46,7 +46,7 @@ func TestAccSpannerDatabase_spannerDatabaseBasicExample(t *testing.T) {
 				ResourceName:            "google_spanner_database.database",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ddl", "instance"},
+				ImportStateVerifyIgnore: []string{"ddl", "instance", "deletion_protection"},
 			},
 		},
 	})
@@ -66,6 +66,7 @@ resource "google_spanner_database" "database" {
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
     "CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",
   ]
+  deletion_protection = false
 }
 `, context)
 }
