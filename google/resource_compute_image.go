@@ -160,10 +160,10 @@ rawDisk.source property but not both to create an image.`,
 				Description: `URL of the source image used to create this image. In order to create an image, you must provide the full or partial
 URL of one of the following:
 
-The selfLink URL
-This property
-The rawDisk.source URL
-The sourceDisk URL`,
+* The selfLink URL
+* This property
+* The rawDisk.source URL
+* The sourceDisk URL`,
 			},
 			"source_snapshot": {
 				Type:             schema.TypeString,
@@ -174,11 +174,11 @@ The sourceDisk URL`,
 
 In order to create an image, you must provide the full or partial URL of one of the following:
 
-The selfLink URL
-This property
-The sourceImage URL
-The rawDisk.source URL
-The sourceDisk URL`,
+* The selfLink URL
+* This property
+* The sourceImage URL
+* The rawDisk.source URL
+* The sourceDisk URL`,
 			},
 			"archive_size_bytes": {
 				Type:     schema.TypeInt,
