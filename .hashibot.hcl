@@ -36,7 +36,6 @@ poll "closed_issue_locker" "locker" {
 behavior "assign_random_reviewer" "random" {
   reviewers            = [
     "danawillow",
-    "megan07",
     "rileykarson",
     "ndmckinley",
     "slevenick",
