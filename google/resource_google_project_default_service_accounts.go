@@ -56,6 +56,38 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 	}
 }
 
+func resourceGoogleProjectDefaultServiceAccountsDeleteAction(d *schema.ResourceData, meta interface{}, selflink string) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Delete(selflink).Do()
+	if err != nil {
+		return fmt.Errorf("Cannot delete service account: %v", err)
+	}
+	return nil
+}
+
+func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData, meta interface{}, action, email, project string) error {
+	switch action {
+	case "delete":
+		var serviceAccountSelfLink = fmt.Sprintf("projects/%s/serviceAccounts/%s", project, email)
+		err := resourceGoogleProjectDefaultServiceAccountsDeleteAction(d, meta, serviceAccountSelfLink)
+		if err != nil {
+			return fmt.Errorf("Cannot delete %s: %v", serviceAccountSelfLink, err)
+		}
+		return nil
+	case "disable":
+		return fmt.Errorf("not implemented yet")
+	case "deprivilege":
+		return fmt.Errorf("not implemented yet")
+	default:
+		return fmt.Errorf("Action %s is not a valid action", action)
+	}
+}
+
 func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
