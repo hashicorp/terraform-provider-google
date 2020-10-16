@@ -17,17 +17,10 @@ import (
 // all defaults serviceAccounts where managed. Eg.: API was activated after project creation.
 func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 	return &schema.Resource{
-		SchemaVersion: 0,
-
 		Create: resourceGoogleProjectDefaultServiceAccountsCreate,
 		Read:   resourceGoogleProjectDefaultServiceAccountsReadAndUpdate,
 		Update: resourceGoogleProjectDefaultServiceAccountsReadAndUpdate,
 		Delete: resourceGoogleProjectDefaultServiceAccountsDelete,
-
-		// This resource should not have import, right?
-		// Importer: &schema.ResourceImporter{
-		// 	State: resourceGoogleProjectDefaultServiceAccountsImportState,
-		// },
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
