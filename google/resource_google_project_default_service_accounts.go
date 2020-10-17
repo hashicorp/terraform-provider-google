@@ -75,11 +75,35 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 			return fmt.Errorf("Cannot disable service account %s: %v", serviceAccountSelfLink, err)
 		}
 	case "deprivilege":
-		iamPolicy, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.GetIamPolicy(serviceAccountSelfLink).Do()
+		iamPolicy, err := config.NewResourceManagerClient(userAgent).Projects.GetIamPolicy(project, &cloudresourcemanager.GetIamPolicyRequest{
+			Options:         &cloudresourcemanager.GetPolicyOptions{},
+			ForceSendFields: []string{},
+			NullFields:      []string{},
+		}).Do()
 		if err != nil {
-			return fmt.Errorf("Cannot get IAM policy for service account %s: %v", serviceAccountSelfLink, err)
+			return fmt.Errorf("Cannot get IAM policy on project %s: %v", project, err)
 		}
-		return fmt.Errorf("not implemented yet")
+
+		for _, bind := range iamPolicy.Bindings {
+			newMembers := []string{}
+			if bind.Role == "roles/editor" {
+				for _, member := range bind.Members {
+					if member != fmt.Sprintf("serviceAccount:%s", email) {
+						newMembers = append(newMembers, member)
+					}
+				}
+			}
+			bind.Members = newMembers
+		}
+		_, err = config.NewResourceManagerClient(userAgent).Projects.SetIamPolicy(project, &cloudresourcemanager.SetIamPolicyRequest{
+			Policy:          iamPolicy,
+			UpdateMask:      "",
+			ForceSendFields: []string{},
+			NullFields:      []string{},
+		}).Do()
+		if err != nil {
+			return fmt.Errorf("Cannot update IAM policy on project %s: %v", project, err)
+		}
 	default:
 		return fmt.Errorf("Action %s is not a valid action", action)
 	}
