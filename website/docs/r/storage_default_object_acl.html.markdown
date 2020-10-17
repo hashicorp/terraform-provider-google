@@ -55,3 +55,7 @@ Omitting the field is the same as providing an empty list.
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Import
+
+This resource does not support import.

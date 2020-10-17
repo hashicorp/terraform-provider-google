@@ -211,6 +211,7 @@ This resource provides the following
 
 ## Import
 
+
 Snapshot can be imported using any of these accepted formats:
 
 ```

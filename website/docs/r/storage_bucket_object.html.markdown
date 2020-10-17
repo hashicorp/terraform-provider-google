@@ -78,3 +78,7 @@ exported:
 `google_storage_object_acl` resources when your `google_storage_bucket_object` is recreated.
 
 * `media_link` - (Computed) A url reference to download this object.
+
+## Import
+
+This resource does not support import.

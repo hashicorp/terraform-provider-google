@@ -161,6 +161,7 @@ This resource provides the following
 
 ## Import
 
+
 VpnGateway can be imported using any of these accepted formats:
 
 ```

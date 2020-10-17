@@ -199,7 +199,7 @@ Only IPv4 is supported.`,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description:      `URL of the peer side external VPN gateway to which this VPN tunnel is connected.`,
-				ExactlyOneOf:     []string{"peer_external_gateway", "peer_gcp_gateway"},
+				ConflictsWith:    []string{"peer_gcp_gateway"},
 			},
 			"peer_external_gateway_interface": {
 				Type:        schema.TypeInt,
@@ -216,7 +216,7 @@ Only IPv4 is supported.`,
 If provided, the VPN tunnel will automatically use the same vpn_gateway_interface
 ID in the peer GCP VPN gateway.
 This field must reference a 'google_compute_ha_vpn_gateway' resource.`,
-				ExactlyOneOf: []string{"peer_external_gateway", "peer_gcp_gateway"},
+				ConflictsWith: []string{"peer_external_gateway"},
 			},
 			"peer_ip": {
 				Type:         schema.TypeString,

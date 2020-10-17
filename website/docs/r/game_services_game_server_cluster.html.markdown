@@ -152,6 +152,7 @@ This resource provides the following
 
 ## Import
 
+
 GameServerCluster can be imported using any of these accepted formats:
 
 ```

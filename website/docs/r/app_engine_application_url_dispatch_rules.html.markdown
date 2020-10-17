@@ -138,6 +138,7 @@ This resource provides the following
 
 ## Import
 
+
 ApplicationUrlDispatchRules can be imported using any of these accepted formats:
 
 ```

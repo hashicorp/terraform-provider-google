@@ -131,6 +131,10 @@ This resource provides the following
 - `create` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
+## Import
+
+This resource does not support import.
+
 ## User Project Overrides
 
 This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

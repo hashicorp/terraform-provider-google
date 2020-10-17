@@ -642,6 +642,10 @@ exported:
 * `cluster_config.0.endpoint_config.0.http_ports` - The map of port descriptions to URLs. Will only be populated if
   `enable_http_port_access` is true.
 
+## Import
+
+This resource does not support import.
+
 ## Timeouts
 
 This resource provides the following

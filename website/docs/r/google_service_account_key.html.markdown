@@ -83,3 +83,7 @@ service account keys through the CLI or web console. This is only populated when
 
 * `valid_before` - The key can be used before this timestamp.
 A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
+
+## Import
+
+This resource does not support import.

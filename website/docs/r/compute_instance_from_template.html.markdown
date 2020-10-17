@@ -93,6 +93,10 @@ All exported attributes from `google_compute_instance` are exported here.
 See https://www.terraform.io/docs/providers/google/r/compute_instance.html#attributes-reference
 for details.
 
+## Import
+
+This resource does not support import.
+
 ## Timeouts
 
 This resource provides the following

@@ -82,3 +82,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `job_id` - The unique ID of this job.
 
 * `state` - The current state of the resource, selected from the [JobState enum](https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#Job.JobState)
+
+## Import
+
+This resource does not support import.

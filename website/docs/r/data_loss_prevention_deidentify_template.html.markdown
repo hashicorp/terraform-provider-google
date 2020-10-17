@@ -322,6 +322,7 @@ This resource provides the following
 
 ## Import
 
+
 DeidentifyTemplate can be imported using any of these accepted formats:
 
 ```

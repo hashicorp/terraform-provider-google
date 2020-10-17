@@ -1,0 +1,6 @@
+```release-note:enhancement
+spanner: added `deletion_protection` field to `google_spanner_database` to make deleting them require an explicit intent.
+```
+```release-note:breaking-change
+spanner: `google_spanner_database` resources now cannot be destroyed unless `deletion_protection = false` is set in state for the resource.
+```

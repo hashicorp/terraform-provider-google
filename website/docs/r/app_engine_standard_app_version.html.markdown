@@ -436,6 +436,7 @@ This resource provides the following
 
 ## Import
 
+
 StandardAppVersion can be imported using any of these accepted formats:
 
 ```

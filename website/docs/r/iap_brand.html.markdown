@@ -112,6 +112,7 @@ This resource provides the following
 
 ## Import
 
+
 Brand can be imported using any of these accepted formats:
 
 ```

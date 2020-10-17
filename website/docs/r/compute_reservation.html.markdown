@@ -198,6 +198,7 @@ This resource provides the following
 
 ## Import
 
+
 Reservation can be imported using any of these accepted formats:
 
 ```

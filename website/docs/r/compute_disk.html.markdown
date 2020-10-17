@@ -116,6 +116,12 @@ The following arguments are supported:
   If an unsupported value is requested, the error message will list
   the supported values for the caller's project.
 
+* `interface` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the disk interface to use for attaching this disk, which is either SCSI or NVME. The default is SCSI.
+  Default value is `SCSI`.
+  Possible values are `SCSI` and `NVME`.
+
 * `type` -
   (Optional)
   URL of the disk type resource describing which disk type to use to
@@ -310,6 +316,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Disk can be imported using any of these accepted formats:
 

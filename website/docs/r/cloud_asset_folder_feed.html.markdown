@@ -181,6 +181,7 @@ This resource provides the following
 
 ## Import
 
+
 FolderFeed can be imported using any of these accepted formats:
 
 ```

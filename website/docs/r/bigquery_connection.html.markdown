@@ -241,6 +241,7 @@ This resource provides the following
 
 ## Import
 
+
 Connection can be imported using any of these accepted formats:
 
 ```

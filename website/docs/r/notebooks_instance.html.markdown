@@ -128,7 +128,7 @@ resource "google_notebooks_instance" "instance" {
     image_family = "tf-latest-cpu"
   }
 
-  instance_owners = "admin@hashicorptest.com"
+  instance_owners = ["admin@hashicorptest.com"]
   service_account = "emailAddress:my@service-account.com"
 
   install_gpu_driver = true
@@ -368,6 +368,7 @@ This resource provides the following
 - `delete` - Default is 15 minutes.
 
 ## Import
+
 
 Instance can be imported using any of these accepted formats:
 

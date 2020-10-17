@@ -228,6 +228,7 @@ This resource provides the following
 
 ## Import
 
+
 DeviceRegistry can be imported using any of these accepted formats:
 
 ```

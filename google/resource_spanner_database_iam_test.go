@@ -130,6 +130,7 @@ resource "google_spanner_instance" "instance" {
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
   name     = "%s"
+  deletion_protection = false
 }
 
 resource "google_spanner_database_iam_binding" "foo" {
@@ -164,6 +165,7 @@ resource "google_spanner_instance" "instance" {
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
   name     = "%s"
+  deletion_protection = false
 }
 
 resource "google_spanner_database_iam_binding" "foo" {
@@ -196,6 +198,7 @@ resource "google_spanner_instance" "instance" {
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
   name     = "%s"
+  deletion_protection = false
 }
 
 resource "google_spanner_database_iam_member" "foo" {
@@ -225,6 +228,7 @@ resource "google_spanner_instance" "instance" {
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
   name     = "%s"
+  deletion_protection = false
 }
 
 data "google_iam_policy" "foo" {
