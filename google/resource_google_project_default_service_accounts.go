@@ -139,12 +139,12 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 		case "Compute Engine default service account":
 			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.Email, pid)
 			if err != nil {
-				return fmt.Errorf("Error doing action %s on Service Account %s", action, sa.Email)
+				return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, sa.Email, err)
 			}
 		case "App Engine default service account":
 			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.Email, pid)
 			if err != nil {
-				return fmt.Errorf("Error doing action %s on Service Account %s", action, sa.Email)
+				return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, sa.Email, err)
 			}
 		default:
 			continue
