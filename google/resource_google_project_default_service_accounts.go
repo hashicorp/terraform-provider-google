@@ -2,12 +2,11 @@ package google
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"google.golang.org/api/googleapi"
+	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -54,20 +53,6 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 			},
 		},
 	}
-}
-
-func resourceGoogleProjectDefaultServiceAccountsDeleteAction(d *schema.ResourceData, meta interface{}, selflink string) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-
-	_, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Delete(selflink).Do()
-	if err != nil {
-		return fmt.Errorf("Cannot delete service account: %v", err)
-	}
-	return nil
 }
 
 func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData, meta interface{}, action, email, project string) error {
@@ -160,28 +145,14 @@ func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.R
 }
 
 func resourceGoogleProjectDefaultServiceAccountsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-
-	// Test if the project exists and permissions are set
-	p, err := readGoogleProject(d, config, userAgent)
-	if err != nil {
-		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 403 && strings.Contains(gerr.Message, "caller does not have permission") {
-			return fmt.Errorf("the user does not have permission to access Project %q or it may not exist", p.ProjectId)
-		}
-		return handleNotFoundError(err, d, fmt.Sprintf("Project %q", p.ProjectId))
-	}
-
-	if err = d.Set("project", p.ProjectId); err != nil {
+	// TODO: Drift logic detection
+	if err := d.Set("project", d.Get("project")); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err = d.Set("action", d.Get("action")); err != nil {
+	if err := d.Set("action", d.Get("action")); err != nil {
 		return fmt.Errorf("Error setting action: %s", err)
 	}
-	if err = d.Set("restore_policy", d.Get("restore_policy")); err != nil {
+	if err := d.Set("restore_policy", d.Get("restore_policy")); err != nil {
 		return fmt.Errorf("Error setting restore_policy: %s", err)
 	}
 
