@@ -71,21 +71,35 @@ func resourceGoogleProjectDefaultServiceAccountsDeleteAction(d *schema.ResourceD
 }
 
 func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData, meta interface{}, action, email, project string) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	serviceAccountSelfLink := fmt.Sprintf("projects/%s/serviceAccounts/%s", project, email)
 	switch action {
 	case "delete":
-		var serviceAccountSelfLink = fmt.Sprintf("projects/%s/serviceAccounts/%s", project, email)
-		err := resourceGoogleProjectDefaultServiceAccountsDeleteAction(d, meta, serviceAccountSelfLink)
+		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Delete(serviceAccountSelfLink).Do()
 		if err != nil {
-			return fmt.Errorf("Cannot delete %s: %v", serviceAccountSelfLink, err)
+			return fmt.Errorf("Cannot delete service account %s: %v", serviceAccountSelfLink, err)
 		}
-		return nil
 	case "disable":
-		return fmt.Errorf("not implemented yet")
+		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Disable(serviceAccountSelfLink, &iam.DisableServiceAccountRequest{}).Do()
+		if err != nil {
+			return fmt.Errorf("Cannot disable service account %s: %v", serviceAccountSelfLink, err)
+		}
 	case "deprivilege":
+		iamPolicy, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.GetIamPolicy(serviceAccountSelfLink).Do()
+		if err != nil {
+			return fmt.Errorf("Cannot get IAM policy for service account %s: %v", serviceAccountSelfLink, err)
+		}
 		return fmt.Errorf("not implemented yet")
 	default:
 		return fmt.Errorf("Action %s is not a valid action", action)
 	}
+
+	return nil
 }
 
 func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, meta interface{}) error {
@@ -138,8 +152,6 @@ func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.R
 	if !ok {
 		return nil, fmt.Errorf("Cannot get project")
 	}
-	// TODO: Add filter based on SA name as per documentation https://cloud.google.com/iam/docs/service-accounts#default
-	// to filter only default service accounts
 	response, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.List(prefixedProject(pid)).Do()
 	if err != nil {
 		return nil, fmt.Errorf("failed to list service accounts on project %q: %v", pid, err)
