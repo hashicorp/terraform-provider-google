@@ -270,7 +270,6 @@ func resourceComputeTargetGrpcProxyUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -331,7 +330,6 @@ func resourceComputeTargetGrpcProxyDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

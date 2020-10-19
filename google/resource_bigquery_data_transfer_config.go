@@ -373,7 +373,6 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -486,7 +485,6 @@ func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

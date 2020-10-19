@@ -289,7 +289,6 @@ func resourceGameServicesGameServerClusterUpdate(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -365,7 +364,6 @@ func resourceGameServicesGameServerClusterDelete(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

@@ -286,7 +286,6 @@ func resourceComputeNetworkEndpointGroupDelete(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

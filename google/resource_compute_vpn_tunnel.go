@@ -563,7 +563,6 @@ func resourceComputeVpnTunnelDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

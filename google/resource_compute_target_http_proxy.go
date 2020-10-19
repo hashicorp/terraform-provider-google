@@ -226,7 +226,6 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -284,7 +283,6 @@ func resourceComputeTargetHttpProxyDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

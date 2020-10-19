@@ -225,7 +225,6 @@ func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
