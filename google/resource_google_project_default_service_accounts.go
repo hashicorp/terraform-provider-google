@@ -226,12 +226,6 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 				if err != nil {
 					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saUniqueID, err)
 				}
-			case "deprivilege":
-				action := "grantRole"
-				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail, pid)
-				if err != nil {
-					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saUniqueID, err)
-				}
 			case "delete":
 				action := "undelete"
 				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail, pid)
