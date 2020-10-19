@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -61,17 +62,22 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 	}
 }
 
-func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData, meta interface{}, action, email, project string) error {
+func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData, meta interface{}, action, uniqueID, email, project string) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
 
-	serviceAccountSelfLink := fmt.Sprintf("projects/%s/serviceAccounts/%s", project, email)
+	serviceAccountSelfLink := fmt.Sprintf("projects/%s/serviceAccounts/%s", project, uniqueID)
 	switch action {
 	case "delete":
 		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Delete(serviceAccountSelfLink).Do()
+		if err != nil {
+			return fmt.Errorf("Cannot delete service account %s: %v", serviceAccountSelfLink, err)
+		}
+	case "undelete":
+		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Undelete(serviceAccountSelfLink, &iam.UndeleteServiceAccountRequest{}).Do()
 		if err != nil {
 			return fmt.Errorf("Cannot delete service account %s: %v", serviceAccountSelfLink, err)
 		}
@@ -148,21 +154,23 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 		// by the Display Name
 		switch sa.DisplayName {
 		case "Compute Engine default service account":
-			changedServiceAccounts[sa.Email] = action
-			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.Email, pid)
+			changedServiceAccounts[sa.UniqueId] = fmt.Sprintf("%s:%s", sa.Email, action)
+			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.UniqueId, sa.Email, pid)
 			if err != nil {
 				return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, sa.Email, err)
 			}
 		case "App Engine default service account":
-			changedServiceAccounts[sa.Email] = action
-			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.Email, pid)
+			changedServiceAccounts[sa.UniqueId] = fmt.Sprintf("%s:%s", sa.Email, action)
+			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.UniqueId, sa.Email, pid)
 			if err != nil {
 				return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, sa.Email, err)
 			}
 		default:
 			continue
 		}
-		d.Set("service_accounts", changedServiceAccounts)
+		if changedServiceAccounts != nil {
+			d.Set("service_accounts", changedServiceAccounts)
+		}
 	}
 	d.SetId(prefixedProject(pid))
 
@@ -206,25 +214,28 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 		if !ok {
 			return fmt.Errorf("Cannot get project")
 		}
-		for saEmail, a := range d.Get("service_accounts").(map[string]interface{}) {
-			switch a {
+		for saUniqueID, a := range d.Get("service_accounts").(map[string]interface{}) {
+			data := strings.Split(a.(string), ":")
+			saEmail := data[0]
+			action := data[1]
+			switch action {
 			case "disable":
 				action := "enable"
-				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saEmail, pid)
+				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail, pid)
 				if err != nil {
-					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saEmail, err)
+					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saUniqueID, err)
 				}
 			case "deprivilege":
 				action := "grantRole"
-				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saEmail, pid)
+				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail, pid)
 				if err != nil {
-					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saEmail, err)
+					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saUniqueID, err)
 				}
 			case "delete":
 				action := "undelete"
-				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saEmail, pid)
+				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail, pid)
 				if err != nil {
-					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saEmail, err)
+					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saUniqueID, err)
 				}
 			}
 		}
