@@ -192,7 +192,6 @@ func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.R
 }
 
 func resourceGoogleProjectDefaultServiceAccountsRead(d *schema.ResourceData, meta interface{}) error {
-	// TODO: Drift logic detection
 	if err := d.Set("project", d.Get("project").(string)); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
