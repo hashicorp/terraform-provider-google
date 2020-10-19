@@ -168,7 +168,7 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 		default:
 			continue
 		}
-		if changedServiceAccounts != nil {
+		if len(changedServiceAccounts) > 0 {
 			if err := d.Set("service_accounts", changedServiceAccounts); err != nil {
 				return fmt.Errorf("Error setting action: %s", err)
 			}
