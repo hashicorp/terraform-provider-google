@@ -201,6 +201,9 @@ func (t *retryTransport) checkForRetryableError(resp *http.Response, respErr err
 		errToCheck = googleapi.CheckResponse(&respToCheck)
 	}
 
+	if errToCheck == nil {
+		return nil
+	}
 	if isRetryableError(errToCheck, t.retryPredicates...) {
 		return resource.RetryableError(errToCheck)
 	}
