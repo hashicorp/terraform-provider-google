@@ -44,6 +44,20 @@ resource "google_compute_network" "vpc_network" {
   name = "vpc-network"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_custom_mtu&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Custom Mtu
+
+
+```hcl
+resource "google_compute_network" "vpc_network" {
+  name = "vpc-network"
+  mtu  = 1500
+}
+```
 
 ## Argument Reference
 
@@ -85,6 +99,11 @@ The following arguments are supported:
   this network's cloud routers will advertise routes with all
   subnetworks of this network, across regions.
   Possible values are `REGIONAL` and `GLOBAL`.
+
+* `mtu` -
+  (Optional)
+  Maximum Transmission Unit in bytes. The minimum value for this field is 1460
+  and the maximum value is 1500 bytes.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
