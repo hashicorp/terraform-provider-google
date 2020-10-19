@@ -481,7 +481,6 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProviderMeta_setModuleName(moduleName, randString(t, 10)),
-				Check:  testAccCheckConfigAgentModified(t, moduleName),
 			},
 			{
 				ResourceName:      "google_compute_address.default",
@@ -490,16 +489,6 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckConfigAgentModified(t *testing.T, moduleName string) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
-		if !strings.Contains(config.userAgent, moduleName) {
-			return fmt.Errorf("expected userAgent to contain provider_meta set module_name")
-		}
-		return nil
-	}
 }
 
 func TestAccProviderUserProjectOverride(t *testing.T) {

@@ -396,7 +396,6 @@ func resourceDataLossPreventionDeidentifyTemplateUpdate(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -473,7 +472,6 @@ func resourceDataLossPreventionDeidentifyTemplateDelete(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

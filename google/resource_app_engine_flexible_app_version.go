@@ -1184,7 +1184,6 @@ func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -1389,7 +1388,6 @@ func resourceAppEngineFlexibleAppVersionDelete(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	if d.Get("noop_on_destroy") == true {
 		log.Printf("[DEBUG] Keeping the AppVersion %q", d.Id())

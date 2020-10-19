@@ -181,13 +181,6 @@ func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceKMSSecretCiphertextDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-	config.userAgent = userAgent
-
 	log.Printf("[WARNING] KMS SecretCiphertext resources"+
 		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
 		" state, but will still be present on the server.", d.Id())

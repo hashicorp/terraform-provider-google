@@ -191,7 +191,6 @@ func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -248,13 +247,6 @@ func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSecurityCenterSourceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-	config.userAgent = userAgent
-
 	log.Printf("[WARNING] SecurityCenter Source resources"+
 		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
 		" state, but will still be present on the server.", d.Id())

@@ -457,5 +457,9 @@ func generateUserAgentString(d *schema.ResourceData, currentUserAgent string) (s
 		return currentUserAgent, err
 	}
 
-	return strings.Join([]string{currentUserAgent, m.ModuleName}, " "), nil
+	if m.ModuleName != "" {
+		return strings.Join([]string{currentUserAgent, m.ModuleName}, " "), nil
+	}
+
+	return currentUserAgent, nil
 }

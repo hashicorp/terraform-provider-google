@@ -396,7 +396,6 @@ func resourceAccessContextManagerAccessLevelConditionDelete(d *schema.ResourceDa
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

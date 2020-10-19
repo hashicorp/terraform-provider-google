@@ -383,7 +383,6 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -432,7 +431,6 @@ func resourceAccessContextManagerAccessLevelsDelete(d *schema.ResourceData, meta
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	obj := make(map[string]interface{})
 	obj["accessLevels"] = []string{}

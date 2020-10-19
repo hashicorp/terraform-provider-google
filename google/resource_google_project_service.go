@@ -119,11 +119,6 @@ func resourceGoogleProjectServiceImport(d *schema.ResourceData, m interface{}) (
 
 func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-	config.userAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
