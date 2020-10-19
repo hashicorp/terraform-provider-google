@@ -97,7 +97,7 @@ mkdir -p ~/.terraform.d/plugins/registry.terraform.io/hashicorp/google-beta/5.0.
 
 If multiple versions are available in a plugin directory (for example after `terraform providers mirror` is used), Terraform will pick the most up-to-date provider version within version constraints. As such, we recommend using a version that is several major versions ahead for your local copy of the provider, such as `5.0.0`.
 
-  2. When you run `terraform init` supply the binary output location using the [-plugin-dir](https://www.terraform.io/docs/commands/init.html#plugin-dir-path) parameter. ie `terraform init -plugin-dir=$GOPATH/bin`
+  2. When you run `terraform init` supply the local binary registry location using the [-plugin-dir](https://www.terraform.io/docs/commands/init.html#plugin-dir-path) parameter. ie `terraform init -plugin-dir=$GOPATH/.terraform` with the provider located at`$GOPATH/.terraform/registry.terraform.io/hashicorp/google/5.0.0/darwin_amd64/terraform-provider-google_v5.0.0`
       * note: terraform will not download additional providers remotely. All requested providers should be in the -plugin-dir
       * note: each time you rebuild the binary you will have to rerun `terraform init -plugin-dir=<your-binary-location>` as the hash is invalidated.
   3. Use the [provider discovery directory](https://www.terraform.io/docs/extend/how-terraform-works.html#discovery) at `~/.terraform.d/plugins`. Terraform will attempt to use the provider binaries here.
