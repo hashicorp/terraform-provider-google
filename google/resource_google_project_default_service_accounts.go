@@ -51,6 +51,12 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				Description: `The action to be performed in the default service accounts on the resource destroy.
 				Valid values are NONE and REACTIVATE. If set to REACTIVATE it will attempt to restore all default SAs.`,
 			},
+			"service_accounts": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Default:     "",
+				Description: `The Service Accounts changed by this resource. It is used for revert the action on the destroy`,
+			},
 		},
 	}
 }
@@ -71,6 +77,11 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 		}
 	case "disable":
 		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Disable(serviceAccountSelfLink, &iam.DisableServiceAccountRequest{}).Do()
+		if err != nil {
+			return fmt.Errorf("Cannot disable service account %s: %v", serviceAccountSelfLink, err)
+		}
+	case "enable":
+		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Enable(serviceAccountSelfLink, &iam.EnableServiceAccountRequest{}).Do()
 		if err != nil {
 			return fmt.Errorf("Cannot disable service account %s: %v", serviceAccountSelfLink, err)
 		}
@@ -130,18 +141,20 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 	if err != nil {
 		return fmt.Errorf("Error listing service accounts on project %s: %v", pid, err)
 	}
-
+	changedServiceAccounts := make(map[string]interface{})
 	for _, sa := range serviceAccounts {
 		// As per documentation https://cloud.google.com/iam/docs/service-accounts#default
 		// we have just two default SAs and the e-mail may change. So, it is been filtered
 		// by the Display Name
 		switch sa.DisplayName {
 		case "Compute Engine default service account":
+			changedServiceAccounts[sa.Email] = action
 			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.Email, pid)
 			if err != nil {
 				return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, sa.Email, err)
 			}
 		case "App Engine default service account":
+			changedServiceAccounts[sa.Email] = action
 			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.Email, pid)
 			if err != nil {
 				return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, sa.Email, err)
@@ -149,8 +162,8 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 		default:
 			continue
 		}
+		d.Set("service_accounts", changedServiceAccounts)
 	}
-
 	d.SetId(prefixedProject(pid))
 
 	return resourceGoogleProjectDefaultServiceAccountsRead(d, meta)
@@ -170,29 +183,59 @@ func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.R
 
 func resourceGoogleProjectDefaultServiceAccountsRead(d *schema.ResourceData, meta interface{}) error {
 	// TODO: Drift logic detection
-	if err := d.Set("project", d.Get("project")); err != nil {
+	if err := d.Set("project", d.Get("project").(string)); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("action", d.Get("action")); err != nil {
+	if err := d.Set("action", d.Get("action").(string)); err != nil {
 		return fmt.Errorf("Error setting action: %s", err)
 	}
-	if err := d.Set("restore_policy", d.Get("restore_policy")); err != nil {
+	if err := d.Set("restore_policy", d.Get("restore_policy").(string)); err != nil {
 		return fmt.Errorf("Error setting restore_policy: %s", err)
 	}
-
+	if err := d.Set("service_accounts", d.Get("service_accounts").(map[string]interface{})); err != nil {
+		return fmt.Errorf("Error setting service_accounts: %s", err)
+	}
 	d.SetId(d.Id())
 
 	return nil
 }
 
 func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, meta interface{}) error {
-	// TODO: create func to handle actions on destroy depending on the current action and restore_policy
+	if d.Get("restore_policy").(string) != "NONE" {
+		pid, ok := d.Get("project").(string)
+		if !ok {
+			return fmt.Errorf("Cannot get project")
+		}
+		for saEmail, a := range d.Get("service_accounts").(map[string]interface{}) {
+			switch a {
+			case "disable":
+				action := "enable"
+				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saEmail, pid)
+				if err != nil {
+					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saEmail, err)
+				}
+			case "deprivilege":
+				action := "grantRole"
+				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saEmail, pid)
+				if err != nil {
+					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saEmail, err)
+				}
+			case "delete":
+				action := "undelete"
+				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saEmail, pid)
+				if err != nil {
+					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saEmail, err)
+				}
+			}
+		}
+	}
+
 	d.SetId("")
+
 	return nil
 }
 
 func resourceGoogleProjectDefaultServiceAccountsUpdate(d *schema.ResourceData, meta interface{}) error {
-
 	// Restore policy has changed
 	if ok := d.HasChange("restore_policy"); ok {
 		if err := d.Set("restore_policy", d.Get("restore_policy")); err != nil {
