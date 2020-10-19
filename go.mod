@@ -21,7 +21,7 @@ require (
 	github.com/terraform-providers/terraform-provider-random v0.0.0-20190925200408-30dac3233094
 	golang.org/x/net v0.0.0-20200822124328-c89045814202
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
-	google.golang.org/api v0.31.1-0.20200914161323-7b3b1fe2dc94
+	google.golang.org/api v0.33.0
 )
 
 go 1.14
