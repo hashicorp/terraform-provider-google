@@ -101,7 +101,7 @@ If multiple versions are available in a plugin directory (for example after `ter
       * note: terraform will not download additional providers remotely. All requested providers should be in the -plugin-dir
       * note: each time you rebuild the binary you will have to rerun `terraform init -plugin-dir=<your-binary-location>` as the hash is invalidated.
   3. Use the [provider discovery directory](https://www.terraform.io/docs/extend/how-terraform-works.html#discovery) at `~/.terraform.d/plugins`. Terraform will attempt to use the provider binaries here.
-      * note: if a provider is managed is managed in the discovery directory, Terraform will not pull it from the registry. `terraform providers mirror ~/.terraform.d/plugins` will mirror any versions required by the current config into the discovery directory from the registry.
+      * note: if a provider is managed in the discovery directory, Terraform will not pull it from the registry. `terraform providers mirror ~/.terraform.d/plugins` will mirror any versions required by the current config into the discovery directory from the registry.
       * note: you can either copy the provider binary to this location or do a symlink to the build output
         ```bash
         # this symlink keeps the fake 5.0.0 version up-to-date with `make build`'s output automatically
