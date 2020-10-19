@@ -169,7 +169,9 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 			continue
 		}
 		if changedServiceAccounts != nil {
-			d.Set("service_accounts", changedServiceAccounts)
+			if err := d.Set("service_accounts", changedServiceAccounts); err != nil {
+				return fmt.Errorf("Error setting action: %s", err)
+			}
 		}
 	}
 	d.SetId(prefixedProject(pid))
