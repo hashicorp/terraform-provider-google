@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -73,6 +74,14 @@ the user can explicitly connect subnetwork resources.`,
 				ForceNew: true,
 				Description: `An optional description of this resource. The resource must be
 recreated to modify this field.`,
+			},
+			"mtu": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `Maximum Transmission Unit in bytes. The minimum value for this field is 1460
+and the maximum value is 1500 bytes.`,
 			},
 			"routing_mode": {
 				Type:         schema.TypeString,
@@ -142,6 +151,12 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if !isEmptyValue(reflect.ValueOf(routingConfigProp)) {
 		obj["routingConfig"] = routingConfigProp
+	}
+	mtuProp, err := expandComputeNetworkMtu(d.Get("mtu"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mtu"); !isEmptyValue(reflect.ValueOf(mtuProp)) && (ok || !reflect.DeepEqual(v, mtuProp)) {
+		obj["mtu"] = mtuProp
 	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks")
@@ -288,6 +303,9 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 				}
 			}
 		}
+	}
+	if err := d.Set("mtu", flattenComputeNetworkMtu(res["mtu"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
@@ -458,6 +476,23 @@ func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.Reso
 	return v
 }
 
+func flattenComputeNetworkMtu(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func expandComputeNetworkDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -483,5 +518,9 @@ func expandComputeNetworkRoutingConfig(v interface{}, d TerraformResourceData, c
 }
 
 func expandComputeNetworkRoutingConfigRoutingMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkMtu(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
