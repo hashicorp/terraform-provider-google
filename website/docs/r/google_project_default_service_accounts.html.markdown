@@ -12,7 +12,7 @@ description: |-
 Allows management of a Google Cloud Platform project default service accounts.
 
 When certain service APIs are enabled, Google Cloud Platform automatically creates service accounts to help get started, but
-this is not recommended for production environments.
+this is not recommended for production environments as per [Google's documentation](https://cloud.google.com/iam/docs/service-accounts#default).
 See the [Organization documentation](https://cloud.google.com/resource-manager/docs/quickstarts) for more details.
 
 ## Example Usage
@@ -20,16 +20,16 @@ See the [Organization documentation](https://cloud.google.com/resource-manager/d
 ```hcl
 resource "google_project_default_service_accounts" "my_project" {
   project = "my-project-id"
-  action = "delete"
+  action = "DELETE"
 }
 ```
 
-To reactivate the default service accounts on the resource destroy:
+To enable the default service accounts on the resource destroy:
 
 ```hcl
 resource "google_project_default_service_accounts" "my_project" {
   project = "my-project-id"
-  action = "disable"
+  action = "DISABLE"
   restore_policy = "REACTIVATE"
 }
 

@@ -40,7 +40,7 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Default:      "DEPRIVILEGE",
+				Default:      "DISABLE",
 				ValidateFunc: validation.StringInSlice([]string{"DEPRIVILEGE", "DELETE", "DISABLE"}, false),
 				Description:  `The action to be performed in the default service accounts. Valid values are: DEPRIVILEGE, DELETE, DISABLE.`,
 			},
@@ -151,14 +151,14 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 		// As per documentation https://cloud.google.com/iam/docs/service-accounts#default
 		// we have just two default SAs and the e-mail may change. So, it is been filtered
 		// by the Display Name
-		switch sa.DisplayName {
-		case "Compute Engine default service account":
+		switch strings.ToLower(sa.DisplayName) {
+		case "compute engine default service account":
 			changedServiceAccounts[sa.UniqueId] = fmt.Sprintf("%s:%s", sa.Email, action)
 			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.UniqueId, sa.Email, pid)
 			if err != nil {
 				return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, sa.Email, err)
 			}
-		case "App Engine default service account":
+		case "app engine default service account":
 			changedServiceAccounts[sa.UniqueId] = fmt.Sprintf("%s:%s", sa.Email, action)
 			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.UniqueId, sa.Email, pid)
 			if err != nil {
