@@ -149,7 +149,7 @@ cluster.
     [google_container_cluster](container_cluster.html) for schema.
 
 * `node_count` - (Optional) The number of nodes per instance group. This field can be used to
-    update the number of nodes per instance group but should not be used alongside `autoscaling`.
+    update the number of nodes per instance group.
 
 * `project` - (Optional) The ID of the project in which to create the node pool. If blank,
     the provider-configured project will be used.
@@ -167,10 +167,10 @@ cluster.
 
 The `autoscaling` block supports:
 
-* `min_node_count` - (Required) Minimum number of nodes in the NodePool. Must be >=0 and
+* `min_node_count` - (Required) Minimum number of nodes per instance group in the NodePool. Must be >=0 and
     <= `max_node_count`.
 
-* `max_node_count` - (Required) Maximum number of nodes in the NodePool. Must be >= min_node_count.
+* `max_node_count` - (Required) Maximum number of nodes per instance group in the NodePool. Must be >= min_node_count.
 
 The `management` block supports:
 
