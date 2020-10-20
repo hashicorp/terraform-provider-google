@@ -190,47 +190,30 @@ func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.R
 	return response.Accounts, nil
 }
 
-func resourceGoogleProjectDefaultServiceAccountsRead(d *schema.ResourceData, meta interface{}) error {
-	if err := d.Set("project", d.Get("project").(string)); err != nil {
-		return fmt.Errorf("error setting project: %s", err)
-	}
-	if err := d.Set("action", d.Get("action").(string)); err != nil {
-		return fmt.Errorf("error setting action: %s", err)
-	}
-	if err := d.Set("restore_policy", d.Get("restore_policy").(string)); err != nil {
-		return fmt.Errorf("error setting restore_policy: %s", err)
-	}
-	if err := d.Set("service_accounts", d.Get("service_accounts").(map[string]interface{})); err != nil {
-		return fmt.Errorf("error setting service_accounts: %s", err)
-	}
-	d.SetId(d.Id())
-
-	return nil
-}
-
 func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, meta interface{}) error {
-	if d.Get("restore_policy").(string) != "NONE" {
-		pid, ok := d.Get("project").(string)
-		if !ok {
-			return fmt.Errorf("cannot get project")
-		}
-		for saUniqueID, a := range d.Get("service_accounts").(map[string]interface{}) {
-			data := strings.Split(a.(string), ":")
-			saEmail := data[0]
-			action := data[1]
-			switch action {
-			case "DISABLE":
-				action := "ENABLE"
-				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail, pid)
-				if err != nil {
-					return fmt.Errorf("error doing action %s on Service Account %s: %v", action, saUniqueID, err)
-				}
-			case "DELETE":
-				action := "UNDELETE"
-				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail, pid)
-				if err != nil {
-					return fmt.Errorf("error doing action %s on Service Account %s: %v", action, saUniqueID, err)
-				}
+	if d.Get("restore_policy").(string) == "NONE" {
+		d.SetId("")
+		return nil
+	}
+
+	pid, ok := d.Get("project").(string)
+	if !ok {
+		return fmt.Errorf("cannot get project")
+	}
+	for saUniqueID, saEmail := range d.Get("service_accounts").(map[string]interface{}) {
+		action := d.Get("action")
+		switch action {
+		case "DISABLE":
+			action := "ENABLE"
+			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail.(string), pid)
+			if err != nil {
+				return fmt.Errorf("error doing action %s on Service Account %s: %v", action, saUniqueID, err)
+			}
+		case "DELETE":
+			action := "UNDELETE"
+			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail.(string), pid)
+			if err != nil {
+				return fmt.Errorf("error doing action %s on Service Account %s: %v", action, saUniqueID, err)
 			}
 		}
 	}
