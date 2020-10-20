@@ -144,6 +144,7 @@ If this parameter is 0, a default value of 5 is used.`,
 			"enable_message_ordering": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				ForceNew: true,
 				Description: `If 'true', messages published with the same orderingKey in PubsubMessage will be delivered to
 the subscribers in the order in which they are received by the Pub/Sub system. Otherwise, they
 may be delivered in any order.`,
@@ -653,12 +654,6 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("retry_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
 		obj["retryPolicy"] = retryPolicyProp
 	}
-	enableMessageOrderingProp, err := expandPubsubSubscriptionEnableMessageOrdering(d.Get("enable_message_ordering"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("enable_message_ordering"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableMessageOrderingProp)) {
-		obj["enableMessageOrdering"] = enableMessageOrderingProp
-	}
 
 	obj, err = resourcePubsubSubscriptionUpdateEncoder(d, meta, obj)
 	if err != nil {
@@ -703,10 +698,6 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("retry_policy") {
 		updateMask = append(updateMask, "retryPolicy")
-	}
-
-	if d.HasChange("enable_message_ordering") {
-		updateMask = append(updateMask, "enableMessageOrdering")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
