@@ -18,8 +18,8 @@ import (
 func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleProjectDefaultServiceAccountsCreate,
-		Read:   resourceGoogleProjectDefaultServiceAccountsRead,
-		Update: resourceGoogleProjectDefaultServiceAccountsUpdate,
+		Read:   schema.Noop,
+		Update: schema.Noop,
 		Delete: resourceGoogleProjectDefaultServiceAccountsDelete,
 
 		Timeouts: &schema.ResourceTimeout{
@@ -175,7 +175,7 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 	}
 	d.SetId(prefixedProject(pid))
 
-	return resourceGoogleProjectDefaultServiceAccountsRead(d, meta)
+	return nil
 }
 
 func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.ResourceData, userAgent string) ([]*iam.ServiceAccount, error) {
@@ -238,15 +238,4 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 	d.SetId("")
 
 	return nil
-}
-
-func resourceGoogleProjectDefaultServiceAccountsUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Restore policy has changed
-	if ok := d.HasChange("restore_policy"); ok {
-		if err := d.Set("restore_policy", d.Get("restore_policy")); err != nil {
-			return fmt.Errorf("error setting restore_policy: %s", err)
-		}
-	}
-
-	return resourceGoogleProjectDefaultServiceAccountsRead(d, meta)
 }
