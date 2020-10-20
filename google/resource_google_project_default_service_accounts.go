@@ -153,13 +153,13 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 		// by the Display Name
 		switch strings.ToLower(sa.DisplayName) {
 		case "compute engine default service account":
-			changedServiceAccounts[sa.UniqueId] = fmt.Sprintf("%s:%s", sa.Email, action)
+			changedServiceAccounts[sa.UniqueId] = sa.Email
 			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.UniqueId, sa.Email, pid)
 			if err != nil {
 				return fmt.Errorf("error doing action %s on Service Account %s: %v", action, sa.Email, err)
 			}
 		case "app engine default service account":
-			changedServiceAccounts[sa.UniqueId] = fmt.Sprintf("%s:%s", sa.Email, action)
+			changedServiceAccounts[sa.UniqueId] = sa.Email
 			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.UniqueId, sa.Email, pid)
 			if err != nil {
 				return fmt.Errorf("error doing action %s on Service Account %s: %v", action, sa.Email, err)
