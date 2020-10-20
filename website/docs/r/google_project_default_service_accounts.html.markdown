@@ -12,7 +12,7 @@ description: |-
 Allows management of a Google Cloud Platform project default service accounts.
 
 When certain service APIs are enabled, Google Cloud Platform automatically creates service accounts to help get started, but
-this is not reocmended for production environment.
+this is not recommended for production environments.
 See the [Organization documentation](https://cloud.google.com/resource-manager/docs/quickstarts) for more details.
 
 ## Example Usage
