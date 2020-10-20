@@ -39,7 +39,7 @@ resource "google_project_default_service_accounts" "my_project" {
 
 The following arguments are supported:
 
-- `project` - (Required) The project ID. Changing this forces a new project to be created.
+- `project` - (Required) The project ID. Changing this forces the actions to be applied in the new project.
 
 - `action` - (Optional) The action to be performed in the default service accounts. Valid values are: deprivilege, delete, disable.
 

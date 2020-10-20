@@ -40,9 +40,9 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Default:      "deprivilege",
-				ValidateFunc: validation.StringInSlice([]string{"deprivilege", "delete", "disable"}, false),
-				Description:  `The action to be performed in the default service accounts. Valid values are: deprivilege, delete, disable.`,
+				Default:      "DEPRIVILEGE",
+				ValidateFunc: validation.StringInSlice([]string{"DEPRIVILEGE", "DELETE", "DISABLE"}, false),
+				Description:  `The action to be performed in the default service accounts. Valid values are: DEPRIVILEGE, DELETE, DISABLE.`,
 			},
 			"restore_policy": {
 				Type:         schema.TypeString,
@@ -55,8 +55,7 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 			"service_accounts": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Default:     "",
-				Description: `The Service Accounts changed by this resource. It is used to revert the action on destroy`,
+				Description: `The Service Accounts changed by this resource. It is used for revert the action on the destroy`,
 			},
 		},
 	}
@@ -71,27 +70,27 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 
 	serviceAccountSelfLink := fmt.Sprintf("projects/%s/serviceAccounts/%s", project, uniqueID)
 	switch action {
-	case "delete":
+	case "DELETE":
 		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Delete(serviceAccountSelfLink).Do()
 		if err != nil {
 			return fmt.Errorf("Cannot delete service account %s: %v", serviceAccountSelfLink, err)
 		}
-	case "undelete":
+	case "UNDELETE":
 		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Undelete(serviceAccountSelfLink, &iam.UndeleteServiceAccountRequest{}).Do()
 		if err != nil {
-			return fmt.Errorf("Cannot delete service account %s: %v", serviceAccountSelfLink, err)
+			return fmt.Errorf("Cannot undelete service account %s: %v", serviceAccountSelfLink, err)
 		}
-	case "disable":
+	case "DISABLE":
 		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Disable(serviceAccountSelfLink, &iam.DisableServiceAccountRequest{}).Do()
 		if err != nil {
 			return fmt.Errorf("Cannot disable service account %s: %v", serviceAccountSelfLink, err)
 		}
-	case "enable":
+	case "ENABLE":
 		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Enable(serviceAccountSelfLink, &iam.EnableServiceAccountRequest{}).Do()
 		if err != nil {
-			return fmt.Errorf("Cannot disable service account %s: %v", serviceAccountSelfLink, err)
+			return fmt.Errorf("Cannot enable service account %s: %v", serviceAccountSelfLink, err)
 		}
-	case "deprivilege":
+	case "DEPRIVILEGE":
 		iamPolicy, err := config.NewResourceManagerClient(userAgent).Projects.GetIamPolicy(project, &cloudresourcemanager.GetIamPolicyRequest{
 			Options:         &cloudresourcemanager.GetPolicyOptions{},
 			ForceSendFields: []string{},
@@ -220,14 +219,14 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 			saEmail := data[0]
 			action := data[1]
 			switch action {
-			case "disable":
-				action := "enable"
+			case "DISABLE":
+				action := "ENABLE"
 				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail, pid)
 				if err != nil {
 					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saUniqueID, err)
 				}
-			case "delete":
-				action := "undelete"
+			case "DELETE":
+				action := "UNDELETE"
 				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail, pid)
 				if err != nil {
 					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saUniqueID, err)
