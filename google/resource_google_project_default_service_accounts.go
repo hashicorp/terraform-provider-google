@@ -56,7 +56,7 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				Default:     "",
-				Description: `The Service Accounts changed by this resource. It is used for revert the action on the destroy`,
+				Description: `The Service Accounts changed by this resource. It is used to revert the action on destroy`,
 			},
 		},
 	}
