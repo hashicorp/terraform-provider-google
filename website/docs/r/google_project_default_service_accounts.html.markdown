@@ -11,7 +11,7 @@ description: |-
 
 Allows management of a Google Cloud Platform project default service accounts.
 
-When certain Services API are enabled, Google Cloud Platform automatically creates service accounts to help to get started, but
+When certain service APIs are enabled, Google Cloud Platform automatically creates service accounts to help get started, but
 this is not reocmended for production environment.
 See the [Organization documentation](https://cloud.google.com/resource-manager/docs/quickstarts) for more details.
 
