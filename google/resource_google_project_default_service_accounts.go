@@ -73,22 +73,22 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 	case "DELETE":
 		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Delete(serviceAccountSelfLink).Do()
 		if err != nil {
-			return fmt.Errorf("Cannot delete service account %s: %v", serviceAccountSelfLink, err)
+			return fmt.Errorf("cannot delete service account %s: %v", serviceAccountSelfLink, err)
 		}
 	case "UNDELETE":
 		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Undelete(serviceAccountSelfLink, &iam.UndeleteServiceAccountRequest{}).Do()
 		if err != nil {
-			return fmt.Errorf("Cannot undelete service account %s: %v", serviceAccountSelfLink, err)
+			return fmt.Errorf("cannot undelete service account %s: %v", serviceAccountSelfLink, err)
 		}
 	case "DISABLE":
 		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Disable(serviceAccountSelfLink, &iam.DisableServiceAccountRequest{}).Do()
 		if err != nil {
-			return fmt.Errorf("Cannot disable service account %s: %v", serviceAccountSelfLink, err)
+			return fmt.Errorf("cannot disable service account %s: %v", serviceAccountSelfLink, err)
 		}
 	case "ENABLE":
 		_, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Enable(serviceAccountSelfLink, &iam.EnableServiceAccountRequest{}).Do()
 		if err != nil {
-			return fmt.Errorf("Cannot enable service account %s: %v", serviceAccountSelfLink, err)
+			return fmt.Errorf("cannot enable service account %s: %v", serviceAccountSelfLink, err)
 		}
 	case "DEPRIVILEGE":
 		iamPolicy, err := config.NewResourceManagerClient(userAgent).Projects.GetIamPolicy(project, &cloudresourcemanager.GetIamPolicyRequest{
@@ -97,7 +97,7 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 			NullFields:      []string{},
 		}).Do()
 		if err != nil {
-			return fmt.Errorf("Cannot get IAM policy on project %s: %v", project, err)
+			return fmt.Errorf("cannot get IAM policy on project %s: %v", project, err)
 		}
 
 		for _, bind := range iamPolicy.Bindings {
@@ -118,10 +118,10 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 			NullFields:      []string{},
 		}).Do()
 		if err != nil {
-			return fmt.Errorf("Cannot update IAM policy on project %s: %v", project, err)
+			return fmt.Errorf("cannot update IAM policy on project %s: %v", project, err)
 		}
 	default:
-		return fmt.Errorf("Action %s is not a valid action", action)
+		return fmt.Errorf("action %s is not a valid action", action)
 	}
 
 	return nil
@@ -135,16 +135,16 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 	}
 	pid, ok := d.Get("project").(string)
 	if !ok {
-		return fmt.Errorf("Cannot get project")
+		return fmt.Errorf("cannot get project")
 	}
 	action, ok := d.Get("action").(string)
 	if !ok {
-		return fmt.Errorf("Cannot get action")
+		return fmt.Errorf("cannot get action")
 	}
 
 	serviceAccounts, err := resourceGoogleProjectDefaultServiceAccountsList(config, d, userAgent)
 	if err != nil {
-		return fmt.Errorf("Error listing service accounts on project %s: %v", pid, err)
+		return fmt.Errorf("error listing service accounts on project %s: %v", pid, err)
 	}
 	changedServiceAccounts := make(map[string]interface{})
 	for _, sa := range serviceAccounts {
@@ -156,20 +156,20 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 			changedServiceAccounts[sa.UniqueId] = fmt.Sprintf("%s:%s", sa.Email, action)
 			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.UniqueId, sa.Email, pid)
 			if err != nil {
-				return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, sa.Email, err)
+				return fmt.Errorf("error doing action %s on Service Account %s: %v", action, sa.Email, err)
 			}
 		case "app engine default service account":
 			changedServiceAccounts[sa.UniqueId] = fmt.Sprintf("%s:%s", sa.Email, action)
 			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.UniqueId, sa.Email, pid)
 			if err != nil {
-				return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, sa.Email, err)
+				return fmt.Errorf("error doing action %s on Service Account %s: %v", action, sa.Email, err)
 			}
 		default:
 			continue
 		}
 		if len(changedServiceAccounts) > 0 {
 			if err := d.Set("service_accounts", changedServiceAccounts); err != nil {
-				return fmt.Errorf("Error setting action: %s", err)
+				return fmt.Errorf("error setting action: %s", err)
 			}
 		}
 	}
@@ -181,7 +181,7 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.ResourceData, userAgent string) ([]*iam.ServiceAccount, error) {
 	pid, ok := d.Get("project").(string)
 	if !ok {
-		return nil, fmt.Errorf("Cannot get project")
+		return nil, fmt.Errorf("cannot get project")
 	}
 	response, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.List(prefixedProject(pid)).Do()
 	if err != nil {
@@ -192,16 +192,16 @@ func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.R
 
 func resourceGoogleProjectDefaultServiceAccountsRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("project", d.Get("project").(string)); err != nil {
-		return fmt.Errorf("Error setting project: %s", err)
+		return fmt.Errorf("error setting project: %s", err)
 	}
 	if err := d.Set("action", d.Get("action").(string)); err != nil {
-		return fmt.Errorf("Error setting action: %s", err)
+		return fmt.Errorf("error setting action: %s", err)
 	}
 	if err := d.Set("restore_policy", d.Get("restore_policy").(string)); err != nil {
-		return fmt.Errorf("Error setting restore_policy: %s", err)
+		return fmt.Errorf("error setting restore_policy: %s", err)
 	}
 	if err := d.Set("service_accounts", d.Get("service_accounts").(map[string]interface{})); err != nil {
-		return fmt.Errorf("Error setting service_accounts: %s", err)
+		return fmt.Errorf("error setting service_accounts: %s", err)
 	}
 	d.SetId(d.Id())
 
@@ -212,7 +212,7 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 	if d.Get("restore_policy").(string) != "NONE" {
 		pid, ok := d.Get("project").(string)
 		if !ok {
-			return fmt.Errorf("Cannot get project")
+			return fmt.Errorf("cannot get project")
 		}
 		for saUniqueID, a := range d.Get("service_accounts").(map[string]interface{}) {
 			data := strings.Split(a.(string), ":")
@@ -223,13 +223,13 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 				action := "ENABLE"
 				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail, pid)
 				if err != nil {
-					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saUniqueID, err)
+					return fmt.Errorf("error doing action %s on Service Account %s: %v", action, saUniqueID, err)
 				}
 			case "DELETE":
 				action := "UNDELETE"
 				err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail, pid)
 				if err != nil {
-					return fmt.Errorf("Error doing action %s on Service Account %s: %v", action, saUniqueID, err)
+					return fmt.Errorf("error doing action %s on Service Account %s: %v", action, saUniqueID, err)
 				}
 			}
 		}
@@ -244,7 +244,7 @@ func resourceGoogleProjectDefaultServiceAccountsUpdate(d *schema.ResourceData, m
 	// Restore policy has changed
 	if ok := d.HasChange("restore_policy"); ok {
 		if err := d.Set("restore_policy", d.Get("restore_policy")); err != nil {
-			return fmt.Errorf("Error setting restore_policy: %s", err)
+			return fmt.Errorf("error setting restore_policy: %s", err)
 		}
 	}
 
