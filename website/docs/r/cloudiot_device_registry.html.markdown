@@ -161,7 +161,6 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-
 * `state_notification_config` - A PubSub topic to publish device state updates.
   The structure is documented below.
 

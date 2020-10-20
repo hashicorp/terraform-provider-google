@@ -138,15 +138,18 @@ Default is `NONE`. Possible values are:
 * RESTART
 * REFRESH
 * NONE
+
 * `most_disruptive_allowed_action` - (Optional) The most disruptive action to perform on the instance during an update.
 Default is `REPLACE`. Possible values are:
 * REPLACE
 * RESTART
 * REFRESH
 * NONE
+
 * `remove_instance_state_on_destroy` - (Optional) When true, deleting this config will immediately remove any specified state from the underlying instance.
 When false, deleting this config will *not* immediately remove any state from the underlying instance.
 State will be removed on the next instance recreation or update.
+
 
 The `preserved_state` block supports:
 
