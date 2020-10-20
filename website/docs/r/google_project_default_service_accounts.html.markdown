@@ -24,7 +24,7 @@ resource "google_project_default_service_accounts" "my_project" {
 }
 ```
 
-To try to reactivate the default service account on the resource destroy
+To reactivate the default service accounts on the resource destroy:
 
 ```hcl
 resource "google_project_default_service_accounts" "my_project" {
