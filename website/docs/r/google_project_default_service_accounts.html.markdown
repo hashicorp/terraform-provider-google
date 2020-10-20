@@ -9,7 +9,7 @@ description: |-
 
 # google_project_default_service_accounts
 
-Allows management of a Google Cloud Platform project default service accounts.
+Allows management of Google Cloud Platform project default service accounts.
 
 When certain service APIs are enabled, Google Cloud Platform automatically creates service accounts to help get started, but
 this is not recommended for production environments as per [Google's documentation](https://cloud.google.com/iam/docs/service-accounts#default).
