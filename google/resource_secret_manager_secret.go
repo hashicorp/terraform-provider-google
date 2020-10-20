@@ -246,7 +246,6 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -304,7 +303,6 @@ func resourceSecretManagerSecretDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

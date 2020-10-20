@@ -400,7 +400,6 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -525,7 +524,6 @@ func resourceNetworkManagementConnectivityTestDelete(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

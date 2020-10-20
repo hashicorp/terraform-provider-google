@@ -30,6 +30,21 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// Whether the backend is a global or regional NEG
+func isNegBackend(backend map[string]interface{}) bool {
+	backendGroup, ok := backend["group"]
+	if !ok {
+		return false
+	}
+
+	match, err := regexp.MatchString("(?:global|regions/[^/]+)/networkEndpointGroups", backendGroup.(string))
+	if err != nil {
+		// should not happen as long as the regexp pattern compiled correctly
+		return false
+	}
+	return match
+}
+
 func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 	if v == nil {
 		return 0
@@ -120,6 +135,16 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%v-", v))
 	}
 	if v, ok := m["max_rate_per_endpoint"]; ok {
+		if v == nil {
+			v = 0.0
+		}
+
+		// floats can't be added to the hash with %v as the other values are because
+		// %v and %f are not equivalent strings so this must remain as a float so that
+		// the hash function doesn't return something else.
+		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
+	}
+	if v, ok := m["max_utilization"]; ok && !isNegBackend(m) {
 		if v == nil {
 			v = 0.0
 		}
@@ -1255,7 +1280,6 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -1460,7 +1484,6 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -3195,17 +3218,9 @@ func resourceComputeBackendServiceEncoder(d *schema.ResourceData, meta interface
 	backends := backendsRaw.([]interface{})
 	for _, backendRaw := range backends {
 		backend := backendRaw.(map[string]interface{})
-		backendGroup, ok := backend["group"]
-		if !ok {
-			continue
-		}
 
-		match, err := regexp.MatchString("(?:global|regions/[^/]+)/networkEndpointGroups", backendGroup.(string))
-		if err != nil {
-			return nil, err
-		}
-		if match {
-			// Remove `max_utilization` from any backend that belongs to a serverless NEG. This field
+		if isNegBackend(backend) {
+			// Remove `max_utilization` from any backend that belongs to an NEG. This field
 			// has a default value and causes API validation errors
 			backend["maxUtilization"] = nil
 		}

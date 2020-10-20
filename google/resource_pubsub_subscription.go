@@ -595,7 +595,6 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -738,7 +737,6 @@ func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

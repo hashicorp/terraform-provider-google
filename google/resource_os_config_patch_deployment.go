@@ -1138,7 +1138,6 @@ func resourceOSConfigPatchDeploymentDelete(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

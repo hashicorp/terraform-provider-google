@@ -232,7 +232,6 @@ func resourceIdentityPlatformTenantOauthIdpConfigUpdate(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -330,7 +329,6 @@ func resourceIdentityPlatformTenantOauthIdpConfigDelete(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

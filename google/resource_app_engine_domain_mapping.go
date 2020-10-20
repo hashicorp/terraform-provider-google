@@ -293,7 +293,6 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -367,7 +366,6 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

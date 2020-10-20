@@ -303,7 +303,6 @@ func resourceComputePerInstanceConfigUpdate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -416,7 +415,6 @@ func resourceComputePerInstanceConfigDelete(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {

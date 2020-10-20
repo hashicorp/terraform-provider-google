@@ -387,7 +387,6 @@ func resourceAccessContextManagerServicePerimetersUpdate(d *schema.ResourceData,
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -442,7 +441,6 @@ func resourceAccessContextManagerServicePerimetersDelete(d *schema.ResourceData,
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	obj := make(map[string]interface{})
 	obj["servicePerimeters"] = []string{}

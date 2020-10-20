@@ -15,12 +15,9 @@
 package google
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(t *testing.T) {
@@ -36,7 +33,6 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExa
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 		},
-		CheckDestroy: testAccCheckComputeNetworkPeeringRoutesConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(context),
@@ -101,7 +97,6 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExamp
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 		},
-		CheckDestroy: testAccCheckComputeNetworkPeeringRoutesConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExample(context),
@@ -171,31 +166,4 @@ resource "google_container_cluster" "private_cluster" {
   }
 }
 `, context)
-}
-
-func testAccCheckComputeNetworkPeeringRoutesConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_compute_network_peering_routes_config" {
-				continue
-			}
-			if strings.HasPrefix(name, "data.") {
-				continue
-			}
-
-			config := googleProviderConfig(t)
-
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{network}}")
-			if err != nil {
-				return err
-			}
-
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
-			if err == nil {
-				return fmt.Errorf("ComputeNetworkPeeringRoutesConfig still exists at %s", url)
-			}
-		}
-
-		return nil
-	}
 }

@@ -54,11 +54,6 @@ func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdate
 func ResourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
-		userAgent, err := generateUserAgentString(d, config.userAgent)
-		if err != nil {
-			return err
-		}
-		config.userAgent = userAgent
 
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
@@ -77,11 +72,6 @@ func ResourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.Cr
 func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
-		userAgent, err := generateUserAgentString(d, config.userAgent)
-		if err != nil {
-			return err
-		}
-		config.userAgent = userAgent
 
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
@@ -107,11 +97,6 @@ func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 func ResourceIamPolicyUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.UpdateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
-		userAgent, err := generateUserAgentString(d, config.userAgent)
-		if err != nil {
-			return err
-		}
-		config.userAgent = userAgent
 
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
@@ -131,11 +116,6 @@ func ResourceIamPolicyUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.Up
 func ResourceIamPolicyDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
-		userAgent, err := generateUserAgentString(d, config.userAgent)
-		if err != nil {
-			return err
-		}
-		config.userAgent = userAgent
 
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {

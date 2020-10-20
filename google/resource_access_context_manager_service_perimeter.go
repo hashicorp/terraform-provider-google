@@ -465,7 +465,6 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -577,7 +576,6 @@ func resourceAccessContextManagerServicePerimeterDelete(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

@@ -314,7 +314,6 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -386,7 +385,6 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

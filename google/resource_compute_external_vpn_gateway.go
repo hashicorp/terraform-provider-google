@@ -247,7 +247,6 @@ func resourceComputeExternalVpnGatewayDelete(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

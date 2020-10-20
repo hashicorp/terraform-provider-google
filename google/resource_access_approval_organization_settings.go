@@ -231,7 +231,6 @@ func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, me
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -293,7 +292,6 @@ func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, me
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	obj := make(map[string]interface{})
 	obj["notificationEmails"] = []string{}

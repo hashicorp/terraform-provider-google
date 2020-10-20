@@ -281,7 +281,6 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -441,7 +440,6 @@ func resourceComputeTargetSslProxyDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
