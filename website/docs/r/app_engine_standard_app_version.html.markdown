@@ -243,7 +243,9 @@ The `files` block supports:
     If it is not provided, the provider project is used.
 
 * `noop_on_destroy` - (Optional) If set to `true`, the application version will not be deleted.
+
 * `delete_service_on_destroy` - (Optional) If set to `true`, the service will be deleted if it is the last version.    
+
 
 The `handlers` block supports:
 

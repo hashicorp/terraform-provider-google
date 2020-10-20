@@ -111,6 +111,7 @@ The following arguments are supported:
 * `delete_default_routes_on_create` - (Optional) If set to `true`, default routes (`0.0.0.0/0`) will be deleted
 immediately after network creation. Defaults to `false`.
 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
