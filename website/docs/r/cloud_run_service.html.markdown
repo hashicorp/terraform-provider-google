@@ -566,6 +566,7 @@ is also set.
 (For legacy support, if `template.metadata.name` is unset in state while
 this field is set to false, the revision name will still autogenerate.)
 
+
 The `metadata` block supports:
 
 * `labels` -
