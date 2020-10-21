@@ -199,7 +199,7 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 		return fmt.Errorf("cannot get project")
 	}
 	for saUniqueID, saEmail := range d.Get("service_accounts").(map[string]interface{}) {
-		action := d.Get("action")
+		action := d.Get("action").(string)
 		switch action {
 		case "DISABLE":
 			action := "ENABLE"
