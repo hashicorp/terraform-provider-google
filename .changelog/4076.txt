@@ -1,0 +1,10 @@
+```release-note:new-resource
+`google_data_catalog_taxonomy`
+`google_data_catalog_policy_tag`
+`google_data_catalog_taxonomy_iam_binding`
+`google_data_catalog_taxonomy_iam_member`
+`google_data_catalog_taxonomy_iam_policy`
+`google_data_catalog_policy_tag_iam_binding`
+`google_data_catalog_policy_tag_iam_member`
+`google_data_catalog_policy_tag_iam_policy`
+```
