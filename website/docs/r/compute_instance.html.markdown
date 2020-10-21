@@ -20,7 +20,7 @@ and
 ```hcl
 resource "google_compute_instance" "default" {
   name         = "test"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   tags = ["foo", "bar"]

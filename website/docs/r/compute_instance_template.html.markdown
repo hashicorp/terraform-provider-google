@@ -29,7 +29,7 @@ resource "google_compute_instance_template" "default" {
   }
 
   instance_description = "description assigned to instances"
-  machine_type         = "n1-standard-1"
+  machine_type         = "e2-medium"
   can_ip_forward       = false
 
   scheduling {
@@ -92,7 +92,7 @@ with `name_prefix`.  Example:
 ```hcl
 resource "google_compute_instance_template" "instance_template" {
   name_prefix  = "instance-template-"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   region       = "us-central1"
 
   // boot disk
@@ -148,7 +148,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "instance_template" {
   name_prefix  = "instance-template-"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   region       = "us-central1"
 
   // boot disk
@@ -165,7 +165,7 @@ the image for the template to the family:
 ```tf
 resource "google_compute_instance_template" "instance_template" {
   name_prefix  = "instance-template-"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   region       = "us-central1"
 
   // boot disk

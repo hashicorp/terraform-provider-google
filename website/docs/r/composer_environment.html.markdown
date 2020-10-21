@@ -57,7 +57,7 @@ resource "google_composer_environment" "test" {
 
     node_config {
       zone         = "us-central1-a"
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
 
       network    = google_compute_network.test.id
       subnetwork = google_compute_subnetwork.test.id

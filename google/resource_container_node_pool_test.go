@@ -1231,7 +1231,7 @@ resource "google_container_node_pool" "np_with_gpu" {
   initial_node_count = 1
 
   node_config {
-    machine_type = "n1-standard-1"
+    machine_type = "n1-standard-1"  // can't be e2 because of accelerator
     disk_size_gb = 32
 
     oauth_scopes = [
