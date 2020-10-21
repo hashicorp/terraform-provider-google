@@ -502,7 +502,7 @@ resource "google_dataproc_cluster" "basic" {
 
     master_config {
       num_instances = 1
-      machine_type  = "n1-standard-1"
+      machine_type  = "e2-standard-2"
       disk_config {
         boot_disk_size_gb = 15
       }

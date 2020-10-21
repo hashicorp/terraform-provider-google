@@ -24,7 +24,7 @@ This resource is specifically to create a compute instance from a given
 ```hcl
 resource "google_compute_instance_template" "tpl" {
   name         = "template"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = "debian-cloud/debian-9"

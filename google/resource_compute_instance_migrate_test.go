@@ -96,7 +96,7 @@ func TestAccComputeInstanceMigrateState(t *testing.T) {
 				},
 			},
 		},
-		MachineType: "zones/" + config.Zone + "/machineTypes/n1-standard-1",
+		MachineType: "zones/" + config.Zone + "/machineTypes/e2-medium",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",
@@ -168,7 +168,7 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 				},
 			},
 		},
-		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		MachineType: "zones/" + zone + "/machineTypes/e2-medium",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",
@@ -236,7 +236,7 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 				},
 			},
 		},
-		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		MachineType: "zones/" + zone + "/machineTypes/e2-medium",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",
@@ -322,7 +322,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 				Source: "projects/" + config.Project + "/zones/" + zone + "/disks/" + diskName,
 			},
 		},
-		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		MachineType: "zones/" + zone + "/machineTypes/e2-medium",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",
@@ -403,7 +403,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 				Source: "projects/" + config.Project + "/zones/" + zone + "/disks/" + diskName,
 			},
 		},
-		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		MachineType: "zones/" + zone + "/machineTypes/e2-medium",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",
@@ -472,7 +472,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 				},
 			},
 		},
-		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		MachineType: "zones/" + zone + "/machineTypes/e2-medium",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",
@@ -541,7 +541,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 				},
 			},
 		},
-		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		MachineType: "zones/" + zone + "/machineTypes/e2-medium",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",
@@ -612,7 +612,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 				},
 			},
 		},
-		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		MachineType: "zones/" + zone + "/machineTypes/e2-medium",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",
@@ -685,7 +685,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 				},
 			},
 		},
-		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		MachineType: "zones/" + zone + "/machineTypes/e2-medium",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",
@@ -753,7 +753,7 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 				},
 			},
 		},
-		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		MachineType: "zones/" + zone + "/machineTypes/e2-medium",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",
@@ -818,7 +818,7 @@ func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
 				},
 			},
 		},
-		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
+		MachineType: "zones/" + zone + "/machineTypes/e2-medium",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",

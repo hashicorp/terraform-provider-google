@@ -2212,7 +2212,7 @@ resource "google_container_cluster" "with_node_config" {
   initial_node_count = 1
 
   node_config {
-    machine_type    = "n1-standard-1"
+    machine_type    = "n1-standard-1"  // can't be e2 because of local-ssd
     disk_size_gb    = 15
     disk_type       = "pd-ssd"
     local_ssd_count = 1
@@ -2261,7 +2261,7 @@ resource "google_container_cluster" "with_node_config" {
   initial_node_count = 1
 
   node_config {
-    machine_type    = "n1-standard-1"
+    machine_type    = "n1-standard-1"  // can't be e2 because of local-ssd
     disk_size_gb    = 15
     disk_type       = "pd-ssd"
     local_ssd_count = 1
@@ -2326,10 +2326,9 @@ resource "google_container_cluster" "with_node_config" {
   initial_node_count = 1
 
   node_config {
-    machine_type    = "n1-standard-1"
+    machine_type    = "e2-medium"
     disk_size_gb    = 15
     disk_type       = "pd-ssd"
-    local_ssd_count = 1
     oauth_scopes = [
       "https://www.googleapis.com/auth/monitoring",
       "https://www.googleapis.com/auth/compute",
@@ -2346,7 +2345,6 @@ resource "google_container_cluster" "with_node_config" {
     }
     tags             = ["foo", "bar"]
     preemptible      = true
-    min_cpu_platform = "Intel Broadwell"
 
     // Updatable fields
     image_type = "COS"
@@ -2723,7 +2721,7 @@ resource "google_container_cluster" "with_node_pool_node_config" {
     name       = "%s"
     node_count = 2
     node_config {
-      machine_type    = "n1-standard-1"
+      machine_type    = "n1-standard-1"  // can't be e2 because of local-ssd
       disk_size_gb    = 15
       local_ssd_count = 1
       oauth_scopes = [

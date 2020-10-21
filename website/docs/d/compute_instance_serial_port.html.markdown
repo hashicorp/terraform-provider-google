@@ -31,7 +31,7 @@ Using the serial port output to generate a windows password, derived from the [o
 ```hcl
 resource "google_compute_instance" "windows" {
   name         = "windows-instance"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
