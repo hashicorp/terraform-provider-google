@@ -198,6 +198,8 @@ func testAccCheckGoogleProjectDefaultServiceAccountsChanges(t *testing.T, projec
 						return fmt.Errorf("cannot get IAM policy on project %s: %v", project, err)
 					}
 					for _, bind := range iamPolicy.Bindings {
+						// Google only adds editor role when creating default service accounts
+						// That said, we just want to remove the editor role permission.
 						if bind.Role == "roles/editor" {
 							for _, member := range bind.Members {
 								if member == fmt.Sprintf("serviceAccount:%s", sa.Email) {
