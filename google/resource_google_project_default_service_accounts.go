@@ -141,21 +141,12 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 		// As per documentation https://cloud.google.com/iam/docs/service-accounts#default
 		// we have just two default SAs and the e-mail may change. So, it is been filtered
 		// by the Display Name
-		switch strings.ToLower(sa.DisplayName) {
-		case "compute engine default service account":
-			changedServiceAccounts[sa.UniqueId] = sa.Email
+		if isDefaultServiceAccount(sa.DisplayName) {
 			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.UniqueId, sa.Email, pid)
 			if err != nil {
 				return fmt.Errorf("error doing action %s on Service Account %s: %v", action, sa.Email, err)
 			}
-		case "app engine default service account":
 			changedServiceAccounts[sa.UniqueId] = sa.Email
-			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, sa.UniqueId, sa.Email, pid)
-			if err != nil {
-				return fmt.Errorf("error doing action %s on Service Account %s: %v", action, sa.Email, err)
-			}
-		default:
-			continue
 		}
 	}
 	if err := d.Set("service_accounts", changedServiceAccounts); err != nil {
@@ -209,4 +200,15 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 	d.SetId("")
 
 	return nil
+}
+
+func isDefaultServiceAccount(displayName string) bool {
+	gceDefaultSA := "compute engine default service account"
+	appEngineDefaultSA := "app engine default service account"
+	saDisplayName := strings.ToLower(displayName)
+	if saDisplayName == gceDefaultSA || saDisplayName == appEngineDefaultSA {
+		return true
+	}
+
+	return false
 }
