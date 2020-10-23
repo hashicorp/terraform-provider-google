@@ -213,6 +213,7 @@ func testAccCheckGoogleProjectDefaultServiceAccountsRevert(t *testing.T, project
 		}
 		for _, sa := range response.Accounts {
 			if testAccIsDefaultServiceAccount(sa.DisplayName) {
+				// We agreed to not revert the DEPRIVILEGE action because will be hard to track the roles over the time
 				if action == "DISABLE" {
 					if sa.Disabled {
 						return fmt.Errorf("compute engine default service account is not enabled, disable field is %t", sa.Disabled)

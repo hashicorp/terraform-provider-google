@@ -41,7 +41,8 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"DEPRIVILEGE", "DELETE", "DISABLE"}, false),
-				Description:  `The action to be performed in the default service accounts. Valid values are: DEPRIVILEGE, DELETE, DISABLE.`,
+				Description: `The action to be performed in the default service accounts. Valid values are: DEPRIVILEGE, DELETE, DISABLE.
+				Note that DEPRIVILEGE action will ignore the REACTIVATE configuration in the restore_policy`,
 			},
 			"restore_policy": {
 				Type:         schema.TypeString,
@@ -49,7 +50,7 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				Default:      "REACTIVATE",
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "REACTIVATE"}, false),
 				Description: `The action to be performed in the default service accounts on the resource destroy.
-				Valid values are NONE and REACTIVATE. If set to REACTIVATE it will attempt to restore all default SAs.`,
+				Valid values are NONE and REACTIVATE. If set to REACTIVATE it will attempt to restore all default SAs but in the DEPRIVILEGE action.`,
 			},
 			"service_accounts": {
 				Type:        schema.TypeMap,
@@ -178,13 +179,12 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 		return nil
 	}
 
-	pid, ok := d.Get("project").(string)
-	if !ok {
-		return fmt.Errorf("cannot get project")
-	}
+	pid := d.Get("project").(string)
 	for saUniqueID, saEmail := range d.Get("service_accounts").(map[string]interface{}) {
 		origAction := d.Get("action").(string)
 		newAction := ""
+		// We agreed to not revert the DEPRIVILEGE because Morgante said it is not required.
+		// It may be an enhancement.
 		if origAction == "DISABLE" {
 			newAction = "ENABLE"
 		} else if origAction == "DELETE" {
