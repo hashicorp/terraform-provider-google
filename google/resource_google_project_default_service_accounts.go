@@ -95,6 +95,7 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 			return fmt.Errorf("cannot get IAM policy on project %s: %v", project, err)
 		}
 
+		// Creates a new slice with all members but the service account
 		for _, bind := range iamPolicy.Bindings {
 			newMembers := []string{}
 			// Google only adds editor role when creating default service accounts
@@ -182,19 +183,17 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 		return fmt.Errorf("cannot get project")
 	}
 	for saUniqueID, saEmail := range d.Get("service_accounts").(map[string]interface{}) {
-		action := d.Get("action").(string)
-		switch action {
-		case "DISABLE":
-			action := "ENABLE"
-			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail.(string), pid)
+		origAction := d.Get("action").(string)
+		newAction := ""
+		if origAction == "DISABLE" {
+			newAction = "ENABLE"
+		} else if origAction == "DELETE" {
+			newAction = "UNDELETE"
+		}
+		if newAction != "" {
+			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, newAction, saUniqueID, saEmail.(string), pid)
 			if err != nil {
-				return fmt.Errorf("error doing action %s on Service Account %s: %v", action, saUniqueID, err)
-			}
-		case "DELETE":
-			action := "UNDELETE"
-			err := resourceGoogleProjectDefaultServiceAccountsDoAction(d, meta, action, saUniqueID, saEmail.(string), pid)
-			if err != nil {
-				return fmt.Errorf("error doing action %s on Service Account %s: %v", action, saUniqueID, err)
+				return fmt.Errorf("error doing action %s on Service Account %s: %v", newAction, saUniqueID, err)
 			}
 		}
 	}

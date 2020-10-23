@@ -179,8 +179,7 @@ func testAccCheckGoogleProjectDefaultServiceAccountsChanges(t *testing.T, projec
 			return fmt.Errorf("failed to list service accounts on project %q: %v", project, err)
 		}
 		for _, sa := range response.Accounts {
-			switch strings.ToLower(sa.DisplayName) {
-			case "compute engine default service account":
+			if testAccIsDefaultServiceAccount(sa.DisplayName) {
 				switch action {
 				case "DISABLE":
 					if !sa.Disabled {
@@ -210,41 +209,13 @@ func testAccCheckGoogleProjectDefaultServiceAccountsChanges(t *testing.T, projec
 					}
 					return nil
 				}
-			case "app engine default service account":
-				switch action {
-				case "DISABLE":
-					if !sa.Disabled {
-						return fmt.Errorf("app engine default service account is not disabled, disable field is %t", sa.Disabled)
-					}
-				case "DELETE":
-					return fmt.Errorf("app engine default service account is not deleted")
-				case "DEPRIVILEGE":
-					iamPolicy, err := config.NewResourceManagerClient(config.userAgent).Projects.GetIamPolicy(project, &cloudresourcemanager.GetIamPolicyRequest{
-						Options:         &cloudresourcemanager.GetPolicyOptions{},
-						ForceSendFields: []string{},
-						NullFields:      []string{},
-					}).Do()
-					if err != nil {
-						return fmt.Errorf("cannot get IAM policy on project %s: %v", project, err)
-					}
-					for _, bind := range iamPolicy.Bindings {
-						if bind.Role == "roles/editor" {
-							for _, member := range bind.Members {
-								if member == fmt.Sprintf("serviceAccount:%s", sa.Email) {
-									return fmt.Errorf("app engine default service account is not deprivileged")
-								}
-							}
-						}
-					}
-				}
-			default:
-				continue
 			}
 		}
 		return nil
 	}
 }
 
+// Test if actions were reverted properly
 func testAccCheckGoogleProjectDefaultServiceAccountsRevert(t *testing.T, project, action string) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -253,38 +224,25 @@ func testAccCheckGoogleProjectDefaultServiceAccountsRevert(t *testing.T, project
 			return fmt.Errorf("failed to list service accounts on project %q: %v", project, err)
 		}
 		for _, sa := range response.Accounts {
-			switch strings.ToLower(sa.DisplayName) {
-			case "compute engine default service account":
-				switch action {
-				case "DISABLE":
+			if testAccIsDefaultServiceAccount(sa.DisplayName) {
+				if action == "DISABLE" {
 					if sa.Disabled {
 						return fmt.Errorf("compute engine default service account is not enabled, disable field is %t", sa.Disabled)
 					}
-				case "DELETE":
-					return nil
-				case "DEPRIVILEGE":
-					return nil
-				}
-			case "app engine default service account":
-				switch action {
-				case "DISABLE":
-					if sa.Disabled {
-						return fmt.Errorf("app engine default service account is not enabled, disable field is %t", sa.Disabled)
-					}
-				case "DELETE":
-					return nil
-				case "DEPRIVILEGE":
+				} else if action == "DELETE" {
+					// A deleted service account was found meaning the undelete action triggered
+					// on destroy worked
 					return nil
 				}
-			default:
-				continue
 			}
 		}
+
+		// if action is DELETE, the service account should be found in the previous loop
+		// due to undelete action
 		if action == "DELETE" {
-			// if it does not return from the case statement for DELETE action is because
-			// it failed to undelete it
 			return fmt.Errorf("service account changes were not reverted after destroy")
 		}
+
 		return nil
 	}
 }
