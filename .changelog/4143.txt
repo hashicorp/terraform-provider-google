@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue where `google_compute_health_check` `port` values caused a diff when `port_specification` was unset or set to `""`
+```
