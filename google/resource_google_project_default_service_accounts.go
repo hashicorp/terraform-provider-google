@@ -90,11 +90,7 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 			return fmt.Errorf("cannot enable service account %s: %v", serviceAccountSelfLink, err)
 		}
 	case "DEPRIVILEGE":
-		iamPolicy, err := config.NewResourceManagerClient(userAgent).Projects.GetIamPolicy(project, &cloudresourcemanager.GetIamPolicyRequest{
-			Options:         &cloudresourcemanager.GetPolicyOptions{},
-			ForceSendFields: []string{},
-			NullFields:      []string{},
-		}).Do()
+		iamPolicy, err := config.NewResourceManagerClient(userAgent).Projects.GetIamPolicy(project, &cloudresourcemanager.GetIamPolicyRequest{}).Do()
 		if err != nil {
 			return fmt.Errorf("cannot get IAM policy on project %s: %v", project, err)
 		}
@@ -110,12 +106,7 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 			}
 			bind.Members = newMembers
 		}
-		_, err = config.NewResourceManagerClient(userAgent).Projects.SetIamPolicy(project, &cloudresourcemanager.SetIamPolicyRequest{
-			Policy:          iamPolicy,
-			UpdateMask:      "",
-			ForceSendFields: []string{},
-			NullFields:      []string{},
-		}).Do()
+		_, err = config.NewResourceManagerClient(userAgent).Projects.SetIamPolicy(project, &cloudresourcemanager.SetIamPolicyRequest{}).Do()
 		if err != nil {
 			return fmt.Errorf("cannot update IAM policy on project %s: %v", project, err)
 		}
