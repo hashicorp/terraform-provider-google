@@ -99,13 +99,9 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 		// Creates a new slice with all members but the service account
 		for _, bind := range iamPolicy.Bindings {
 			newMembers := []string{}
-			// Google only adds editor role when creating default service accounts
-			// That said, we just want to check when the role binded is editor.
-			if bind.Role == "roles/editor" {
-				for _, member := range bind.Members {
-					if member != fmt.Sprintf("serviceAccount:%s", email) {
-						newMembers = append(newMembers, member)
-					}
+			for _, member := range bind.Members {
+				if member != fmt.Sprintf("serviceAccount:%s", email) {
+					newMembers = append(newMembers, member)
 				}
 			}
 			bind.Members = newMembers

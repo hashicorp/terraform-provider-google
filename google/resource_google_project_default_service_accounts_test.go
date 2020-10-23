@@ -185,13 +185,9 @@ func testAccCheckGoogleProjectDefaultServiceAccountsChanges(t *testing.T, projec
 						return fmt.Errorf("cannot get IAM policy on project %s: %v", project, err)
 					}
 					for _, bind := range iamPolicy.Bindings {
-						// Google only adds editor role when creating default service accounts
-						// That said, we just want to remove the editor role permission.
-						if bind.Role == "roles/editor" {
-							for _, member := range bind.Members {
-								if member == fmt.Sprintf("serviceAccount:%s", sa.Email) {
-									return fmt.Errorf("compute engine default service account is not deprivileged")
-								}
+						for _, member := range bind.Members {
+							if member == fmt.Sprintf("serviceAccount:%s", sa.Email) {
+								return fmt.Errorf("compute engine default service account is not deprivileged")
 							}
 						}
 					}
@@ -225,7 +221,6 @@ func testAccCheckGoogleProjectDefaultServiceAccountsRevert(t *testing.T, project
 				}
 			}
 		}
-
 		// if action is DELETE, the service account should be found in the previous loop
 		// due to undelete action
 		if action == "DELETE" {
