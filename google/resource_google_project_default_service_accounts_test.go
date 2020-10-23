@@ -285,3 +285,18 @@ func testAccCheckGoogleProjectDefaultServiceAccountsRevert(t *testing.T, project
 		return nil
 	}
 }
+
+// testAccIsDefaultServiceAccount is a helper function to facilitate TDD when there is a need
+// to update how we determine whether it's a default SA or not.
+// If you follow TDD, it is going to be different from isDefaultServiceAccount func while coding
+// but they must be identical before commit/push
+func testAccIsDefaultServiceAccount(displayName string) bool {
+	gceDefaultSA := "compute engine default service account"
+	appEngineDefaultSA := "app engine default service account"
+	saDisplayName := strings.ToLower(displayName)
+	if saDisplayName == gceDefaultSA || saDisplayName == appEngineDefaultSA {
+		return true
+	}
+
+	return false
+}
