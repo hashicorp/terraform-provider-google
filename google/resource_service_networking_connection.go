@@ -320,10 +320,12 @@ func retrieveServiceNetworkingNetworkName(d *schema.ResourceData, config *Config
 	if pid == "" {
 		return "", fmt.Errorf("Could not determine project")
 	}
-
+	log.Printf("[DEBUG] Retrieving project number by doing a GET with the project id, as required by service networking")
 	project, err := config.NewResourceManagerClient(userAgent).Projects.Get(pid).Do()
 	if err != nil {
-		return "", fmt.Errorf("Failed to retrieve project, pid: %s, err: %s", pid, err)
+		// note: returning a wrapped error is part of this method's contract!
+		// https://blog.golang.org/go1.13-errors
+		return "", fmt.Errorf("Failed to retrieve project, pid: %s, err: %w", pid, err)
 	}
 
 	networkName := networkFieldValue.Name
