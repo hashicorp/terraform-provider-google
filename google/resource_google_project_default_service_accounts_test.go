@@ -29,7 +29,7 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "id", "projects/"+project),
 					resource.TestCheckResourceAttrSet(resourceName, "project"),
 					resource.TestCheckResourceAttrSet(resourceName, "action"),
-					resource.TestCheckResourceAttrSet(resourceName, "project"),
+					resource.TestCheckResourceAttrSet(resourceName, "restore_policy"),
 				),
 			},
 		},
@@ -47,6 +47,7 @@ resource "google_project" "acceptance" {
 
 resource "google_project_default_service_accounts" "acceptance" {
 	project = google_project.acceptance.project_id
+	action = "DISABLE"
 }
 `, project, project, org, billingAccount)
 }
