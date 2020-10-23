@@ -58,7 +58,7 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDisable(t *testing.T) {
 	project := fmt.Sprintf("tf-project-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
 	action := "DISABLE"
-	restorePolicy := "REACTIVATE"
+	restorePolicy := "REVERT"
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -87,7 +87,7 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDelete(t *testing.T) {
 	project := fmt.Sprintf("tf-project-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
 	action := "DELETE"
-	restorePolicy := "REACTIVATE"
+	restorePolicy := "REVERT"
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -116,7 +116,7 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDeprivilege(t *testing.T)
 	project := fmt.Sprintf("tf-project-%d", randInt(t))
 	billingAccount := getTestBillingAccountFromEnv(t)
 	action := "DEPRIVILEGE"
-	restorePolicy := "REACTIVATE"
+	restorePolicy := "REVERT"
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
