@@ -38,16 +38,15 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 			},
 			"action": {
 				Type:         schema.TypeString,
-				Optional:     true,
+				Required:     true,
 				ForceNew:     true,
-				Default:      "DISABLE",
 				ValidateFunc: validation.StringInSlice([]string{"DEPRIVILEGE", "DELETE", "DISABLE"}, false),
 				Description:  `The action to be performed in the default service accounts. Valid values are: DEPRIVILEGE, DELETE, DISABLE.`,
 			},
 			"restore_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "NONE",
+				Default:      "REACTIVATE",
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "REACTIVATE"}, false),
 				Description: `The action to be performed in the default service accounts on the resource destroy.
 				Valid values are NONE and REACTIVATE. If set to REACTIVATE it will attempt to restore all default SAs.`,
