@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -73,7 +72,7 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDisable(t *testing.T) {
 					resource.TestCheckResourceAttrSet("google_project_default_service_accounts.acceptance", "project"),
 					resource.TestCheckResourceAttr("google_project_default_service_accounts.acceptance", "action", action),
 					resource.TestCheckResourceAttrSet("google_project_default_service_accounts.acceptance", "project"),
-					preventRaceCondition(), // Looks like the API is eventually consistent by couple seconds
+					sleepInSecondsForTest(5),
 					testAccCheckGoogleProjectDefaultServiceAccountsChanges(t, project, action),
 				),
 			},
@@ -102,7 +101,7 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDelete(t *testing.T) {
 					resource.TestCheckResourceAttrSet("google_project_default_service_accounts.acceptance", "project"),
 					resource.TestCheckResourceAttr("google_project_default_service_accounts.acceptance", "action", action),
 					resource.TestCheckResourceAttrSet("google_project_default_service_accounts.acceptance", "project"),
-					preventRaceCondition(), // Looks like the API is eventually consistent by couple seconds
+					sleepInSecondsForTest(10),
 					testAccCheckGoogleProjectDefaultServiceAccountsChanges(t, project, action),
 				),
 			},
@@ -131,19 +130,12 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDeprivilege(t *testing.T)
 					resource.TestCheckResourceAttrSet("google_project_default_service_accounts.acceptance", "project"),
 					resource.TestCheckResourceAttr("google_project_default_service_accounts.acceptance", "action", action),
 					resource.TestCheckResourceAttrSet("google_project_default_service_accounts.acceptance", "project"),
-					preventRaceCondition(), // Looks like the API is eventually consistent by couple seconds
+					sleepInSecondsForTest(5),
 					testAccCheckGoogleProjectDefaultServiceAccountsChanges(t, project, action),
 				),
 			},
 		},
 	})
-}
-
-func preventRaceCondition() func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		time.Sleep(5 * time.Second)
-		return nil
-	}
 }
 
 func testAccCheckGoogleProjectDefaultServiceAccountsAdvanced(org, project, billingAccount, action, restorePolicy string) string {
