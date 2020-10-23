@@ -180,11 +180,7 @@ func testAccCheckGoogleProjectDefaultServiceAccountsChanges(t *testing.T, projec
 				case "DELETE":
 					return fmt.Errorf("compute engine default service account is not deleted")
 				case "DEPRIVILEGE":
-					iamPolicy, err := config.NewResourceManagerClient(config.userAgent).Projects.GetIamPolicy(project, &cloudresourcemanager.GetIamPolicyRequest{
-						Options:         &cloudresourcemanager.GetPolicyOptions{},
-						ForceSendFields: []string{},
-						NullFields:      []string{},
-					}).Do()
+					iamPolicy, err := config.NewResourceManagerClient(config.userAgent).Projects.GetIamPolicy(project, &cloudresourcemanager.GetIamPolicyRequest{}).Do()
 					if err != nil {
 						return fmt.Errorf("cannot get IAM policy on project %s: %v", project, err)
 					}
