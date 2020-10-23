@@ -123,14 +123,8 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 	if err != nil {
 		return err
 	}
-	pid, ok := d.Get("project").(string)
-	if !ok {
-		return fmt.Errorf("cannot get project")
-	}
-	action, ok := d.Get("action").(string)
-	if !ok {
-		return fmt.Errorf("cannot get action")
-	}
+	pid := d.Get("project").(string)
+	action := d.Get("action").(string)
 
 	serviceAccounts, err := resourceGoogleProjectDefaultServiceAccountsList(config, d, userAgent)
 	if err != nil {
@@ -158,10 +152,7 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 }
 
 func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.ResourceData, userAgent string) ([]*iam.ServiceAccount, error) {
-	pid, ok := d.Get("project").(string)
-	if !ok {
-		return nil, fmt.Errorf("cannot get project")
-	}
+	pid := d.Get("project").(string)
 	response, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.List(prefixedProject(pid)).Do()
 	if err != nil {
 		return nil, fmt.Errorf("failed to list service accounts on project %q: %v", pid, err)
