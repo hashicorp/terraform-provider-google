@@ -101,7 +101,7 @@ func portDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 			newPort, _ := strconv.Atoi(new)
 
 			portSpec := d.Get(b[0] + ".0.port_specification")
-			if int64(oldPort) == defaultPort && newPort == 0 && portSpec == "USE_FIXED_PORT" {
+			if int64(oldPort) == defaultPort && newPort == 0 && (portSpec == "USE_FIXED_PORT" || portSpec == "") {
 				return true
 			}
 		}
