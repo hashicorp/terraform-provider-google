@@ -45,7 +45,7 @@ used with terraform.
 # Our logged compute instance
 resource "google_compute_instance" "my-logged-instance" {
   name         = "my-instance"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {

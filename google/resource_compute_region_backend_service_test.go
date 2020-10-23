@@ -56,7 +56,7 @@ func TestAccComputeRegionBackendService_withBackendInternal(t *testing.T) {
 			{
 				Config: testAccComputeRegionBackendService_withInvalidInternalBackend(
 					serviceName, igName, itName, checkName),
-				ExpectError: regexp.MustCompile(`capacity_scaler" cannot be set for INTERNAL backend service`),
+				ExpectError: regexp.MustCompile(`capacity_scaler" cannot be set for non-managed backend service`),
 			},
 			{
 				Config: testAccComputeRegionBackendService_withBackend(

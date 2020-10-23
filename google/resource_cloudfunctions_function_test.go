@@ -161,9 +161,10 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 		},
 	})
@@ -196,9 +197,10 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 			{
 				Config: testAccCloudFunctionsFunction_updated(functionName, bucketName, zipFileUpdatePath),
@@ -224,9 +226,10 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 		},
 	})
@@ -252,9 +255,10 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 					topicName, zipFilePath),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 		},
 	})
@@ -277,17 +281,19 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 				Config: testAccCloudFunctionsFunction_bucket(functionName, bucketName, zipFilePath),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 			{
 				Config: testAccCloudFunctionsFunction_bucketNoRetry(functionName, bucketName, zipFilePath),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 		},
 	})
@@ -310,9 +316,10 @@ func TestAccCloudFunctionsFunction_firestore(t *testing.T) {
 				Config: testAccCloudFunctionsFunction_firestore(functionName, bucketName, zipFilePath),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 		},
 	})
@@ -334,9 +341,10 @@ func TestAccCloudFunctionsFunction_sourceRepo(t *testing.T) {
 				Config: testAccCloudFunctionsFunction_sourceRepo(functionName, proj),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 		},
 	})
@@ -360,9 +368,10 @@ func TestAccCloudFunctionsFunction_serviceAccountEmail(t *testing.T) {
 				Config: testAccCloudFunctionsFunction_serviceAccountEmail(functionName, bucketName, zipFilePath),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 		},
 	})
@@ -389,17 +398,19 @@ func TestAccCloudFunctionsFunction_vpcConnector(t *testing.T) {
 				Config: testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, "10.10.0.0/28", vpcConnectorName),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 			{
 				Config: testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, "10.20.0.0/28", vpcConnectorName+"-update"),
 			},
 			{
-				ResourceName:      funcResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 		},
 	})
@@ -592,7 +603,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs8"
+  runtime               = "nodejs10"
   description           = "test function"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
@@ -605,6 +616,9 @@ resource "google_cloudfunctions_function" "function" {
     my-label = "my-label-value"
   }
   environment_variables = {
+    TEST_ENV_VARIABLE = "test-env-variable-value"
+  }
+  build_environment_variables = {
     TEST_ENV_VARIABLE = "test-env-variable-value"
   }
   max_instances = 10
@@ -631,7 +645,7 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
   trigger_http          = true
-  runtime               = "nodejs8"
+  runtime               = "nodejs10"
   timeout               = 91
   entry_point           = "helloGET"
   ingress_settings      = "ALLOW_ALL"
@@ -640,6 +654,10 @@ resource "google_cloudfunctions_function" "function" {
     a-new-label = "a-new-label-value"
   }
   environment_variables = {
+    TEST_ENV_VARIABLE = "test-env-variable-value"
+    NEW_ENV_VARIABLE  = "new-env-variable-value"
+  }
+  build_environment_variables = {
     TEST_ENV_VARIABLE = "test-env-variable-value"
     NEW_ENV_VARIABLE  = "new-env-variable-value"
   }
@@ -667,7 +685,7 @@ resource "google_pubsub_topic" "sub" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs8"
+  runtime               = "nodejs10"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -702,7 +720,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs8"
+  runtime               = "nodejs10"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -734,7 +752,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs8"
+  runtime               = "nodejs10"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -763,7 +781,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs8"
+  runtime               = "nodejs10"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -781,7 +799,7 @@ func testAccCloudFunctionsFunction_sourceRepo(functionName, project string) stri
 	return fmt.Sprintf(`
 resource "google_cloudfunctions_function" "function" {
   name    = "%s"
-  runtime = "nodejs8"
+  runtime = "nodejs10"
 
   source_repository {
     // There isn't yet an API that'll allow us to create a source repository and
@@ -814,7 +832,7 @@ data "google_compute_default_service_account" "default" {
 
 resource "google_cloudfunctions_function" "function" {
   name    = "%s"
-  runtime = "nodejs8"
+  runtime = "nodejs10"
 
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -859,7 +877,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name     = "%s"
-  runtime  = "nodejs8"
+  runtime  = "nodejs10"
 
   description           = "test function"
   available_memory_mb   = 128

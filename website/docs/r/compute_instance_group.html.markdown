@@ -86,7 +86,7 @@ data "google_compute_image" "debian_image" {
 
 resource "google_compute_instance" "staging_vm" {
   name         = "staging-vm"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-c"
   boot_disk {
     initialize_params {

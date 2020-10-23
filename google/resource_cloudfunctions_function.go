@@ -249,6 +249,12 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Description: `A set of key/value environment variable pairs to assign to the function.`,
 			},
 
+			"build_environment_variables": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: ` A set of key/value environment variable pairs available during build time.`,
+			},
+
 			"trigger_http": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -409,6 +415,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 
 	if _, ok := d.GetOk("environment_variables"); ok {
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
+	}
+
+	if _, ok := d.GetOk("build_environment_variables"); ok {
+		function.BuildEnvironmentVariables = expandBuildEnvironmentVariables(d)
 	}
 
 	if v, ok := d.GetOk("vpc_connector"); ok {
@@ -622,6 +632,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("environment_variables") {
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
 		updateMaskArr = append(updateMaskArr, "environmentVariables")
+	}
+
+	if d.HasChange("build_environment_variables") {
+		function.EnvironmentVariables = expandEnvironmentVariables(d)
+		updateMaskArr = append(updateMaskArr, "buildEnvironmentVariables")
 	}
 
 	if d.HasChange("vpc_connector") {

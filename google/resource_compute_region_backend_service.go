@@ -27,10 +27,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-// Fields in "backends" that are not allowed for INTERNAL backend services
+// Fields in "backends" that are not allowed for non-managed backend services
 // (loadBalancingScheme) - the API returns an error if they are set at all
 // in the request.
-var backendServiceOnlyNonInternalFieldNames = []string{
+var backendServiceOnlyManagedFieldNames = []string{
 	"capacity_scaler",
 	"max_connections",
 	"max_connections_per_instance",
@@ -41,7 +41,7 @@ var backendServiceOnlyNonInternalFieldNames = []string{
 	"max_utilization",
 }
 
-// validateNonInternalBackendServiceBackends ensures capacity_scaler is set for each backend in an non-INTERNAL
+// validateManagedBackendServiceBackends ensures capacity_scaler is set for each backend in a managed
 // backend service. To prevent a permadiff, we decided to override the API behavior and require the
 //// capacity_scaler value in this case.
 //
@@ -50,10 +50,10 @@ var backendServiceOnlyNonInternalFieldNames = []string{
 // - defaults to 1 if capacity_scaler is omitted from the request
 //
 // However, the schema.Set Hash function defaults to 0 if not given, which we chose because it's the default
-// float and because INTERNAL backends can't have the value set, so there will be a permadiff for a
+// float and because non-managed backends can't have the value set, so there will be a permadiff for a
 // situational non-zero default returned from the API. We can't diff suppress or customdiff a
 // field inside a set object in ResourceDiff, since the value also determines the hash for that set object.
-func validateNonInternalBackendServiceBackends(backends []interface{}, d *schema.ResourceDiff) error {
+func validateManagedBackendServiceBackends(backends []interface{}, d *schema.ResourceDiff) error {
 	sum := 0.0
 
 	for _, b := range backends {
@@ -64,28 +64,28 @@ func validateNonInternalBackendServiceBackends(backends []interface{}, d *schema
 		if v, ok := backend["capacity_scaler"]; ok && v != nil {
 			sum += v.(float64)
 		} else {
-			return fmt.Errorf("capacity_scaler is required for each backend in non-INTERNAL backend service")
+			return fmt.Errorf("capacity_scaler is required for each backend in managed backend service")
 		}
 	}
 	if sum == 0.0 {
-		return fmt.Errorf("non-INTERNAL backend service must have at least one non-zero capacity_scaler for backends")
+		return fmt.Errorf("managed backend service must have at least one non-zero capacity_scaler for backends")
 	}
 	return nil
 }
 
-// If INTERNAL, make sure the user did not provide values for any of the fields that cannot be sent.
+// If INTERNAL or EXTERNAL, make sure the user did not provide values for any of the fields that cannot be sent.
 // We ignore these values regardless when sent to the API, but this adds plan-time validation if a
 // user sets the value to non-zero. We can't validate for empty but set because
 // of how the SDK handles set objects (on any read, nil fields will get set to empty values)
-func validateInternalBackendServiceBackends(backends []interface{}, d *schema.ResourceDiff) error {
+func validateNonManagedBackendServiceBackends(backends []interface{}, d *schema.ResourceDiff) error {
 	for _, b := range backends {
 		if b == nil {
 			continue
 		}
 		backend := b.(map[string]interface{})
-		for _, fn := range backendServiceOnlyNonInternalFieldNames {
+		for _, fn := range backendServiceOnlyManagedFieldNames {
 			if v, ok := backend[fn]; ok && !isEmptyValue(reflect.ValueOf(v)) {
-				return fmt.Errorf("%q cannot be set for INTERNAL backend service, found value %v", fn, v)
+				return fmt.Errorf("%q cannot be set for non-managed backend service, found value %v", fn, v)
 			}
 		}
 	}
@@ -107,10 +107,10 @@ func customDiffRegionBackendService(_ context.Context, d *schema.ResourceDiff, m
 	}
 
 	switch d.Get("load_balancing_scheme").(string) {
-	case "INTERNAL":
-		return validateInternalBackendServiceBackends(backends, d)
+	case "INTERNAL", "EXTERNAL":
+		return validateNonManagedBackendServiceBackends(backends, d)
 	default:
-		return validateNonInternalBackendServiceBackends(backends, d)
+		return validateManagedBackendServiceBackends(backends, d)
 	}
 }
 
@@ -385,10 +385,10 @@ or serverless NEG as a backend.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"INTERNAL", "INTERNAL_MANAGED", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL", "INTERNAL_MANAGED", ""}, false),
 				Description: `Indicates what kind of load balancing this regional backend service
 will be used for. A backend service created for one type of load
-balancing cannot be used with the other(s). Default value: "INTERNAL" Possible values: ["INTERNAL", "INTERNAL_MANAGED"]`,
+balancing cannot be used with the other(s). Default value: "INTERNAL" Possible values: ["EXTERNAL", "INTERNAL", "INTERNAL_MANAGED"]`,
 				Default: "INTERNAL",
 			},
 			"locality_lb_policy": {
@@ -2848,11 +2848,11 @@ func expandComputeRegionBackendServiceRegion(v interface{}, d TerraformResourceD
 }
 
 func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	if d.Get("load_balancing_scheme").(string) != "INTERNAL" {
+	if d.Get("load_balancing_scheme").(string) == "INTERNAL_MANAGED" {
 		return obj, nil
 	}
 
-	backendServiceOnlyNonInternalApiFieldNames := []string{
+	backendServiceOnlyManagedApiFieldNames := []string{
 		"capacityScaler",
 		"maxConnections",
 		"maxConnectionsPerInstance",
@@ -2872,10 +2872,10 @@ func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta int
 			continue
 		}
 		backend := v.(map[string]interface{})
-		// Remove fields from backends that cannot be sent for INTERNAL
+		// Remove fields from backends that cannot be sent for non-managed
 		// backend services
-		for _, k := range backendServiceOnlyNonInternalApiFieldNames {
-			log.Printf("[DEBUG] Removing field %q for request for INTERNAL backend service %s", k, d.Get("name"))
+		for _, k := range backendServiceOnlyManagedApiFieldNames {
+			log.Printf("[DEBUG] Removing field %q for request for non-managed backend service %s", k, d.Get("name"))
 			delete(backend, k)
 		}
 		backends[idx] = backend

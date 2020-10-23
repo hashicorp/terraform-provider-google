@@ -595,7 +595,7 @@ resource "google_dataflow_job" "big_data" {
  
   zone    = "%s"
 
-  machine_type      = "n1-standard-2"
+  machine_type      = "e2-standard-2"
   template_gcs_path = "%s"
   temp_gcs_location = google_storage_bucket.temp.url
   parameters = {

@@ -1052,7 +1052,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
   cluster_config {
     master_config {
       num_instances = 3
-      machine_type  = "n1-standard-1"
+      machine_type  = "n1-standard-1"  // can't be e2 because of min_cpu_platform
       disk_config {
         boot_disk_type    = "pd-ssd"
         boot_disk_size_gb = 15
@@ -1062,7 +1062,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
 
     worker_config {
       num_instances = 3
-      machine_type  = "n1-standard-1"
+      machine_type  = "n1-standard-1"  // can't be e2 because of min_cpu_platform
       disk_config {
         boot_disk_type    = "pd-standard"
         boot_disk_size_gb = 16
@@ -1116,7 +1116,7 @@ resource "google_dataproc_cluster" "with_init_action" {
     }
 
     master_config {
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1144,7 +1144,7 @@ resource "google_dataproc_cluster" "updatable" {
   cluster_config {
     master_config {
       num_instances = "1"
-      machine_type  = "n1-standard-1"
+      machine_type  = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1152,7 +1152,7 @@ resource "google_dataproc_cluster" "updatable" {
 
     worker_config {
       num_instances = "%d"
-      machine_type  = "n1-standard-1"
+      machine_type  = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1197,7 +1197,7 @@ resource "google_dataproc_cluster" "with_bucket" {
     }
 
     master_config {
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1280,7 +1280,7 @@ resource "google_dataproc_cluster" "with_service_account" {
     }
 
     master_config {
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1357,7 +1357,7 @@ resource "google_dataproc_cluster" "with_net_ref_by_name" {
     }
 
     master_config {
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1383,7 +1383,7 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
     }
 
     master_config {
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }

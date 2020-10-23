@@ -18,6 +18,7 @@ func resourceComputeNetworkPeering() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeNetworkPeeringCreate,
 		Read:   resourceComputeNetworkPeeringRead,
+		Update: resourceComputeNetworkPeeringUpdate,
 		Delete: resourceComputeNetworkPeeringDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceComputeNetworkPeeringImport,
@@ -25,6 +26,7 @@ func resourceComputeNetworkPeering() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
@@ -57,7 +59,6 @@ func resourceComputeNetworkPeering() *schema.Resource {
 
 			"export_custom_routes": {
 				Type:        schema.TypeBool,
-				ForceNew:    true,
 				Optional:    true,
 				Default:     false,
 				Description: `Whether to export the custom routes to the peer network. Defaults to false.`,
@@ -65,7 +66,6 @@ func resourceComputeNetworkPeering() *schema.Resource {
 
 			"import_custom_routes": {
 				Type:        schema.TypeBool,
-				ForceNew:    true,
 				Optional:    true,
 				Default:     false,
 				Description: `Whether to export the custom routes from the peer network. Defaults to false.`,
@@ -192,6 +192,46 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
+}
+
+func resourceComputeNetworkPeeringUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	networkFieldValue, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	if err != nil {
+		return err
+	}
+	peerNetworkFieldValue, err := ParseNetworkFieldValue(d.Get("peer_network").(string), d, config)
+	if err != nil {
+		return err
+	}
+
+	request := &compute.NetworksUpdatePeeringRequest{}
+	request.NetworkPeering = expandNetworkPeering(d)
+
+	// Only one peering operation at a time can be performed for a given network.
+	// Lock on both networks, sorted so we don't deadlock for A <--> B peering pairs.
+	peeringLockNames := sortedNetworkPeeringMutexKeys(networkFieldValue, peerNetworkFieldValue)
+	for _, kn := range peeringLockNames {
+		mutexKV.Lock(kn)
+		defer mutexKV.Unlock(kn)
+	}
+
+	updateOp, err := config.NewComputeClient(userAgent).Networks.UpdatePeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
+	if err != nil {
+		return fmt.Errorf("Error updating network peering: %s", err)
+	}
+
+	err = computeOperationWaitTime(config, updateOp, networkFieldValue.Project, "Updating Network Peering", userAgent, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return resourceComputeNetworkPeeringRead(d, meta)
 }
 
 func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{}) error {
