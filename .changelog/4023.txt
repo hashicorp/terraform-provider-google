@@ -1,0 +1,5 @@
+```release-note:enhancement
+cloud_asset: Added `condition` to `google_cloud_asset_organization_feed`
+cloud_asset: Added `condition` to `google_cloud_asset_folder_feed`
+cloud_asset: Added `condition` to `google_cloud_asset_project_feed`
+```

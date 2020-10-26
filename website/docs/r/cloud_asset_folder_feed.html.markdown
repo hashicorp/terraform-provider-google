@@ -59,6 +59,15 @@ resource "google_cloud_asset_folder_feed" "folder_feed" {
     }
   }
 
+  condition {
+    expression = <<-EOT
+    !temporal_asset.deleted &&
+    temporal_asset.prior_asset_state == google.cloud.asset.v1.TemporalAsset.PriorAssetState.DOES_NOT_EXIST
+    EOT
+    title = "created"
+    description = "Send notifications on creation events"
+  }
+
   # Wait for the permission to be ready on the destination topic.
   depends_on = [
     google_pubsub_topic_iam_member.cloud_asset_writer,
@@ -155,6 +164,36 @@ The `pubsub_destination` block supports:
   Asset content type. If not specified, no content but the asset name and type will be returned.
   Possible values are `CONTENT_TYPE_UNSPECIFIED`, `RESOURCE`, `IAM_POLICY`, `ORG_POLICY`, and `ACCESS_POLICY`.
 
+* `condition` -
+  (Optional)
+  A condition which determines whether an asset update should be published. If specified, an asset
+  will be returned only when the expression evaluates to true. When set, expression field
+  must be a valid CEL expression on a TemporalAsset with name temporal_asset. Example: a Feed with
+  expression "temporal_asset.deleted == true" will only publish Asset deletions. Other fields of
+  condition are optional.
+  Structure is documented below.
+
+
+The `condition` block supports:
+
+* `expression` -
+  (Required)
+  Textual representation of an expression in Common Expression Language syntax.
+
+* `title` -
+  (Optional)
+  Title for the expression, i.e. a short string describing its purpose.
+  This can be used e.g. in UIs which allow to enter the expression.
+
+* `description` -
+  (Optional)
+  Description of the expression. This is a longer text which describes the expression,
+  e.g. when hovered over it in a UI.
+
+* `location` -
+  (Optional)
+  String indicating the location of the expression for error reporting, e.g. a file 
+  name and a position in the file.
 
 ## Attributes Reference
 
