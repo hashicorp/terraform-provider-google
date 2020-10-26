@@ -108,6 +108,11 @@ The following arguments are supported:
   https://cloud.google.com/appengine/docs/flexible/python/scheduling-jobs-with-cron-yaml#the_schedule_format
   NOTE: the granularity should be at least 8 hours, or less frequent.
 
+* `schedule_options` -
+  (Optional)
+  Options customizing the data transfer schedule.
+  Structure is documented below.
+
 * `notification_pubsub_topic` -
   (Optional)
   Pub/Sub topic where notifications will be sent after transfer runs
@@ -149,6 +154,31 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `schedule_options` block supports:
+
+* `disable_auto_scheduling` -
+  (Optional)
+  If true, automatic scheduling of data transfer runs for this
+  configuration will be disabled. The runs can be started on ad-hoc
+  basis using transferConfigs.startManualRuns API. When automatic
+  scheduling is disabled, the TransferConfig.schedule field will
+  be ignored.
+
+* `start_time` -
+  (Optional)
+  Specifies time to start scheduling transfer runs. The first run will be
+  scheduled at or after the start time according to a recurrence pattern
+  defined in the schedule string. The start time can be changed at any
+  moment. The time when a data transfer can be triggered manually is not
+  limited by this option.
+
+* `end_time` -
+  (Optional)
+  Defines time to stop scheduling transfer runs. A transfer run cannot be
+  scheduled at or after the end time. The end time can be changed at any
+  moment. The time when a data transfer can be triggered manually is not
+  limited by this option.
 
 The `sensitive_params` block supports:
 
