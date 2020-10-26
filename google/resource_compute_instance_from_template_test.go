@@ -14,8 +14,8 @@ func TestAccComputeInstanceFromTemplate_basic(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.foobar"
 
 	vcrTest(t, resource.TestCase{
@@ -42,10 +42,10 @@ func TestAccComputeInstanceFromTemplate_overrideBootDisk(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	templateDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	overrideDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	templateDisk := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	overrideDisk := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
 	vcrTest(t, resource.TestCase{
@@ -71,10 +71,10 @@ func TestAccComputeInstanceFromTemplate_overrideAttachedDisk(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	templateDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	overrideDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	templateDisk := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	overrideDisk := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
 	vcrTest(t, resource.TestCase{
@@ -100,10 +100,10 @@ func TestAccComputeInstanceFromTemplate_overrideScratchDisk(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	templateDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	overrideDisk := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	templateDisk := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	overrideDisk := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
 	vcrTest(t, resource.TestCase{
@@ -153,8 +153,8 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
 	// First config is a basic instance from template, second tests the empty list syntax
@@ -194,8 +194,8 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 
 func TestAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(t *testing.T) {
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
-	templateName := fmt.Sprintf("terraform-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
 	vcrTest(t, resource.TestCase{
