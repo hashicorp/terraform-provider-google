@@ -1,0 +1,18 @@
+```release-note:enhancement
+compute: added storage_locations & cmek fields to `google_compute_machine_image` resource
+```
+```release-note:note
+compute: updated `google_compute_machine_image` resource to complete once the Image is ready.
+```
+```release-note:new-resource
+`google_compute_instance_from_machine_image`
+```
+```release-note:new-resource
+`google_compute_machine_image_iam_member`
+```
+```release-note:new-resource
+`google_compute_machine_image_iam_binding`
+```
+```release-note:new-resource
+`google_compute_machine_image_iam_policy`
+```
