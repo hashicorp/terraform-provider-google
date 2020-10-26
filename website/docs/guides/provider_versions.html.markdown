@@ -119,11 +119,26 @@ terraform import google_compute_instance.beta-instance my-instance
 
 Resources can safely be converted from one version to the other without needing to rebuild infrastructure.
 
-To go from GA to beta, change the `provider` field from `"google"` to `"google-beta"`.
+To go from GA to beta:
+
+1. Change the `provider` field from `"google"` to `"google-beta"`.
+1. Migrate the Terraform state of your existing infrastructure, to migrate the ownership of existing resources from the `"google"` provider to the `"google-beta"` provider. For example, the following command will migrate all existing resources in the Terraform state that used the `"google"` provider to use the `"google-beta"` provider instead: 
+    
+    ```bash
+    terraform state replace-provider registry.terraform.io/hashicorp/google registry.terraform.io/hashicorp/google-beta
+    ```
+
+1. (Optional) Run  `terraform plan` or `terraform refresh`+`terraform show` to verify that the migrated Terraform configuration and state result in a correct plan (e.g. typically "Plan: 0 to add, 0 to change, 0 to destroy."), and that beta-only fields are added to the state.
 
 To go from beta to GA, do the reverse. If you were previously using beta fields that you no longer wish to use:
 
 1. (Optional) Explicitly set the fields back to their default values in your Terraform config file, and run `terraform apply`.
 1. Change the `provider` field to `"google"`.
 1. Remove any beta fields from your Terraform config.
+1. Migrate the Terraform state of your existing infrastructure, to migrate the ownership of existing resources from the `"google-beta"` provider to the `"google"` provider. For example, the following command will migrate all existing resources in the Terraform state that used the `"google-beta"` provider to use the `"google"` provider instead: 
+    
+    ```bash
+    terraform state replace-provider registry.terraform.io/hashicorp/google-beta registry.terraform.io/hashicorp/google
+    ```
+
 1. Run  `terraform plan` or `terraform refresh`+`terraform show` to see that the beta fields are no longer in state.
