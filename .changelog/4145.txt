@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: added more retries for potential failed monitoring operations
+```
