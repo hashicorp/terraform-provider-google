@@ -1303,8 +1303,8 @@ func flattenMonitoringAlertPolicyConditionsConditionMQL(v interface{}, d *schema
 	if v == nil {
 		return nil
 	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
+	original, ok := v.(map[string]interface{})
+	if !ok || len(original) == 0 {
 		return nil
 	}
 	transformed := make(map[string]interface{})
@@ -1329,8 +1329,8 @@ func flattenMonitoringAlertPolicyConditionsConditionMQLTrigger(v interface{}, d 
 	if v == nil {
 		return nil
 	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
+	original, ok := v.(map[string]interface{})
+	if !ok || len(original) == 0 {
 		return nil
 	}
 	transformed := make(map[string]interface{})
