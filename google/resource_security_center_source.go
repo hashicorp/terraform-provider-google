@@ -248,8 +248,8 @@ func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceSecurityCenterSourceDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[WARNING] SecurityCenter Source resources"+
-		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
-		" state, but will still be present on the server.", d.Id())
+		" cannot be deleted from Google Cloud. The resource %s will be removed from Terraform"+
+		" state, but will still be present on Google Cloud.", d.Id())
 	d.SetId("")
 
 	return nil
