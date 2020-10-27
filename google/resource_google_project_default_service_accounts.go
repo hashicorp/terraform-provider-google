@@ -171,7 +171,7 @@ func resourceGoogleProjectDefaultServiceAccountsDelete(d *schema.ResourceData, m
 		origAction := d.Get("action").(string)
 		newAction := ""
 		// We agreed to not revert the DEPRIVILEGE because Morgante said it is not required.
-		// It may be an enhancement.
+		// It may be an enhancement. https://github.com/hashicorp/terraform-provider-google/issues/4135#issuecomment-709480278
 		if origAction == "DISABLE" {
 			newAction = "ENABLE"
 		} else if origAction == "DELETE" {
