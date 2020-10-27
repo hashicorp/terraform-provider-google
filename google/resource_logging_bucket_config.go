@@ -19,7 +19,7 @@ var loggingBucketConfigSchema = map[string]*schema.Schema{
 		Type:        schema.TypeString,
 		Required:    true,
 		ForceNew:    true,
-		Description: `The location of the bucket. The supported locations are: "global" "us-central1"`,
+		Description: `The location of the bucket.`,
 	},
 	"bucket_id": {
 		Type:        schema.TypeString,
