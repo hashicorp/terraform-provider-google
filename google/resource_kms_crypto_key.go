@@ -93,6 +93,14 @@ The first rotation will take place after the specified period. The rotation peri
 the format of a decimal number with up to 9 fractional digits, followed by the
 letter 's' (seconds). It must be greater than a day (ie, 86400).`,
 			},
+			"skip_initial_version_creation": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 
+You must use the 'google_kms_key_ring_import_job' resource to import the CryptoKeyVersion.`,
+				Default: false,
+			},
 			"version_template": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -164,7 +172,7 @@ func resourceKMSCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys?cryptoKeyId={{name}}")
+	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys?cryptoKeyId={{name}}&skipInitialVersionCreation={{skip_initial_version_creation}}")
 	if err != nil {
 		return err
 	}
@@ -348,7 +356,7 @@ func resourceKMSCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf(`
 [WARNING] KMS CryptoKey resources cannot be deleted from GCP. The CryptoKey %s will be removed from Terraform state,
-and all its CryptoKeyVersions will be destroyed, but it will still be present on the server.`, cryptoKeyId.cryptoKeyId())
+and all its CryptoKeyVersions will be destroyed, but it will still be present in the project.`, cryptoKeyId.cryptoKeyId())
 
 	// Delete all versions of the key
 	if err := clearCryptoKeyVersions(cryptoKeyId, userAgent, config); err != nil {
@@ -382,6 +390,10 @@ func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 	if err := d.Set("name", cryptoKeyId.Name); err != nil {
 		return nil, fmt.Errorf("Error setting name: %s", err)
+	}
+
+	if err := d.Set("skip_initial_version_creation", false); err != nil {
+		return nil, fmt.Errorf("Error setting skip_initial_version_creation: %s", err)
 	}
 
 	return []*schema.ResourceData{d}, nil
