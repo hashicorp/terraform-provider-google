@@ -81,6 +81,135 @@ func resourceDataLossPreventionInspectTemplate() *schema.Resource {
 								ValidateFunc: validation.StringInSlice([]string{"CONTENT_TEXT", "CONTENT_IMAGE"}, false),
 							},
 						},
+						"custom_info_types": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Custom info types to be used. See https://cloud.google.com/dlp/docs/creating-custom-infotypes to learn more.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"info_type": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `CustomInfoType can either be a new infoType, or an extension of built-in infoType, when the name matches one of existing
+infoTypes and that infoType is specified in 'info_types' field. Specifying the latter adds findings to the
+one detected by the system. If built-in info type is not specified in 'info_types' list then the name is
+treated as a custom info type.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names
+listed at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.`,
+												},
+											},
+										},
+									},
+									"dictionary": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Dictionary which defines the rule.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cloud_storage_path": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Newline-delimited file of words in Cloud Storage. Only a single file is accepted.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"path": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `A url representing a file or path (no wildcards) in Cloud Storage. Example: 'gs://[BUCKET_NAME]/dictionary.txt'`,
+															},
+														},
+													},
+												},
+												"word_list": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `List of words or phrases to search for.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"words": {
+																Type:     schema.TypeList,
+																Required: true,
+																Description: `Words or phrases defining the dictionary. The dictionary must contain at least one
+phrase and every phrase must contain at least 2 characters that are letters or digits.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"exclusion_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"EXCLUSION_TYPE_EXCLUDE", ""}, false),
+										Description:  `If set to EXCLUSION_TYPE_EXCLUDE this infoType will not cause a finding to be returned. It still can be used for rules matching. Possible values: ["EXCLUSION_TYPE_EXCLUDE"]`,
+									},
+									"likelihood": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}, false),
+										Description: `Likelihood to return for this CustomInfoType. This base value can be altered by a detection rule if the finding meets the criteria
+specified by the rule. Default value: "VERY_LIKELY" Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
+										Default: "VERY_LIKELY",
+									},
+									"regex": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Regular expression which defines the rule.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"pattern": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Pattern defining the regular expression.
+Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the google/re2 repository on GitHub.`,
+												},
+												"group_indexes": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeInt,
+													},
+												},
+											},
+										},
+									},
+									"stored_type": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `A reference to a StoredInfoType to use with scanning.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Resource name of the requested StoredInfoType, for example 'organizations/433245324/storedInfoTypes/432452342'
+or 'projects/project-id/storedInfoTypes/432452342'.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"exclude_info_types": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -694,6 +823,8 @@ func flattenDataLossPreventionInspectTemplateInspectConfig(v interface{}, d *sch
 		flattenDataLossPreventionInspectTemplateInspectConfigContentOptions(original["contentOptions"], d, config)
 	transformed["rule_set"] =
 		flattenDataLossPreventionInspectTemplateInspectConfigRuleSet(original["ruleSet"], d, config)
+	transformed["custom_info_types"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(original["customInfoTypes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionInspectTemplateInspectConfigExcludeInfoTypes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1153,6 +1284,143 @@ func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionR
 	return v
 }
 
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"info_type":      flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType(original["infoType"], d, config),
+			"likelihood":     flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesLikelihood(original["likelihood"], d, config),
+			"exclusion_type": flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesExclusionType(original["exclusionType"], d, config),
+			"regex":          flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegex(original["regex"], d, config),
+			"dictionary":     flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionary(original["dictionary"], d, config),
+			"stored_type":    flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredType(original["storedType"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesLikelihood(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesExclusionType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["pattern"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegexPattern(original["pattern"], d, config)
+	transformed["group_indexes"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegexGroupIndexes(original["groupIndexes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegexPattern(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegexGroupIndexes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionary(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["word_list"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryWordList(original["wordList"], d, config)
+	transformed["cloud_storage_path"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryCloudStoragePath(original["cloudStoragePath"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryWordList(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["words"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryWordListWords(original["words"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryWordListWords(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryCloudStoragePath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["path"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryCloudStoragePathPath(original["path"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryCloudStoragePathPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredTypeName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredTypeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandDataLossPreventionInspectTemplateDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1217,6 +1485,13 @@ func expandDataLossPreventionInspectTemplateInspectConfig(v interface{}, d Terra
 		return nil, err
 	} else if val := reflect.ValueOf(transformedRuleSet); val.IsValid() && !isEmptyValue(val) {
 		transformed["ruleSet"] = transformedRuleSet
+	}
+
+	transformedCustomInfoTypes, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(original["custom_info_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomInfoTypes); val.IsValid() && !isEmptyValue(val) {
+		transformed["customInfoTypes"] = transformedCustomInfoTypes
 	}
 
 	return transformed, nil
@@ -1772,6 +2047,223 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedInfoType, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType(original["info_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedInfoType); val.IsValid() && !isEmptyValue(val) {
+			transformed["infoType"] = transformedInfoType
+		}
+
+		transformedLikelihood, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesLikelihood(original["likelihood"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLikelihood); val.IsValid() && !isEmptyValue(val) {
+			transformed["likelihood"] = transformedLikelihood
+		}
+
+		transformedExclusionType, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesExclusionType(original["exclusion_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExclusionType); val.IsValid() && !isEmptyValue(val) {
+			transformed["exclusionType"] = transformedExclusionType
+		}
+
+		transformedRegex, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegex(original["regex"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRegex); val.IsValid() && !isEmptyValue(val) {
+			transformed["regex"] = transformedRegex
+		}
+
+		transformedDictionary, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionary(original["dictionary"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDictionary); val.IsValid() && !isEmptyValue(val) {
+			transformed["dictionary"] = transformedDictionary
+		}
+
+		transformedStoredType, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredType(original["stored_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStoredType); val.IsValid() && !isEmptyValue(val) {
+			transformed["storedType"] = transformedStoredType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesLikelihood(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesExclusionType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegex(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPattern, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegexPattern(original["pattern"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPattern); val.IsValid() && !isEmptyValue(val) {
+		transformed["pattern"] = transformedPattern
+	}
+
+	transformedGroupIndexes, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegexGroupIndexes(original["group_indexes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGroupIndexes); val.IsValid() && !isEmptyValue(val) {
+		transformed["groupIndexes"] = transformedGroupIndexes
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegexPattern(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegexGroupIndexes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionary(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWordList, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryWordList(original["word_list"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWordList); val.IsValid() && !isEmptyValue(val) {
+		transformed["wordList"] = transformedWordList
+	}
+
+	transformedCloudStoragePath, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryCloudStoragePath(original["cloud_storage_path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCloudStoragePath); val.IsValid() && !isEmptyValue(val) {
+		transformed["cloudStoragePath"] = transformedCloudStoragePath
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryWordList(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWords, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryWordListWords(original["words"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWords); val.IsValid() && !isEmptyValue(val) {
+		transformed["words"] = transformedWords
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryWordListWords(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryCloudStoragePath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPath, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryCloudStoragePathPath(original["path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !isEmptyValue(val) {
+		transformed["path"] = transformedPath
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionaryCloudStoragePathPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredTypeName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredTypeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
