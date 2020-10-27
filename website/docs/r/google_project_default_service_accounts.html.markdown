@@ -30,7 +30,7 @@ To enable the default service accounts on the resource destroy:
 resource "google_project_default_service_accounts" "my_project" {
   project = "my-project-id"
   action = "DISABLE"
-  restore_policy = "REACTIVATE"
+  restore_policy = "REVERT"
 }
 
 ```
@@ -51,6 +51,7 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 - `id` - an identifier for the resource with format `projects/{{project}}`
+- `service_accounts` - The Service Accounts changed by this resource. It is used for `REVERT` the `action` on the destroy.
 
 ## Timeouts
 
