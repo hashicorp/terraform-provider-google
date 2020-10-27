@@ -14,6 +14,7 @@ Allows management of Google Cloud Platform project default service accounts.
 When certain service APIs are enabled, Google Cloud Platform automatically creates service accounts to help get started, but
 this is not recommended for production environments as per [Google's documentation](https://cloud.google.com/iam/docs/service-accounts#default).
 See the [Organization documentation](https://cloud.google.com/resource-manager/docs/quickstarts) for more details.
+~> This resource works on a best-effort basis, as no API formally describes the default service accounts. If the default service accounts change their name/email or additional service accounts are added, this resource will need to be updated.
 
 ## Example Usage
 
