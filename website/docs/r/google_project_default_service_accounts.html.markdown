@@ -39,12 +39,11 @@ resource "google_project_default_service_accounts" "my_project" {
 
 The following arguments are supported:
 
-- `project` - (Required) The project ID. Changing this forces the actions to be applied in the new project.
+- `project` - (Required) The project ID where service accounts are created.
 
-- `action` - (Optional) The action to be performed in the default service accounts. Valid values are: deprivilege, delete, disable.
+- `action` - (Required) The action to be performed in the default service accounts. Valid values are: `DEPRIVILEGE`, `DELETE`, `DISABLE`. Note that `DEPRIVILEGE` action will ignore the REVERT configuration in the restore_policy
 
-- `restore_policy` - (Optional) The action to be performed in the default service accounts on the resource destroy.
-  Valid values are NONE and REACTIVATE. If set to REACTIVATE it will attempt to restore all default SAs.
+- `restore_policy` - (Optional) The action to be performed in the default service accounts on the resource destroy. Valid values are `NONE` and `REVERT`. If set to `REVERT` it will attempt to restore all default SAs but in the `DEPRIVILEGE` action.
 
 ## Attributes Reference
 

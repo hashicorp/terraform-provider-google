@@ -42,7 +42,7 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"DEPRIVILEGE", "DELETE", "DISABLE"}, false),
 				Description: `The action to be performed in the default service accounts. Valid values are: DEPRIVILEGE, DELETE, DISABLE.
-				Note that DEPRIVILEGE action will ignore the REVERT configuration in the restore_policy`,
+				Note that DEPRIVILEGE action will ignore the REVERT configuration in the restore_policy.`,
 			},
 			"restore_policy": {
 				Type:         schema.TypeString,
@@ -55,7 +55,7 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 			"service_accounts": {
 				Type:        schema.TypeMap,
 				Computed:    true,
-				Description: `The Service Accounts changed by this resource. It is used for revert the action on the destroy`,
+				Description: `The Service Accounts changed by this resource. It is used for revert the action on the destroy.`,
 			},
 		},
 	}
