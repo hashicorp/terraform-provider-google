@@ -106,6 +106,43 @@ destination pubsub topic. It also specifies the project for API
 enablement check, quota, and billing. If not specified, the resource's
 project will be used.`,
 			},
+			"condition": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `A condition which determines whether an asset update should be published. If specified, an asset
+will be returned only when the expression evaluates to true. When set, expression field
+must be a valid CEL expression on a TemporalAsset with name temporal_asset. Example: a Feed with
+expression "temporal_asset.deleted == true" will only publish Asset deletions. Other fields of
+condition are optional.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"expression": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Textual representation of an expression in Common Expression Language syntax.`,
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Description of the expression. This is a longer text which describes the expression,
+e.g. when hovered over it in a UI.`,
+						},
+						"location": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `String indicating the location of the expression for error reporting, e.g. a file 
+name and a position in the file.`,
+						},
+						"title": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Title for the expression, i.e. a short string describing its purpose.
+This can be used e.g. in UIs which allow to enter the expression.`,
+						},
+					},
+				},
+			},
 			"content_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -158,6 +195,12 @@ func resourceCloudAssetProjectFeedCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("feed_output_config"); !isEmptyValue(reflect.ValueOf(feedOutputConfigProp)) && (ok || !reflect.DeepEqual(v, feedOutputConfigProp)) {
 		obj["feedOutputConfig"] = feedOutputConfigProp
+	}
+	conditionProp, err := expandCloudAssetProjectFeedCondition(d.Get("condition"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("condition"); !isEmptyValue(reflect.ValueOf(conditionProp)) && (ok || !reflect.DeepEqual(v, conditionProp)) {
+		obj["condition"] = conditionProp
 	}
 
 	obj, err = resourceCloudAssetProjectFeedEncoder(d, meta, obj)
@@ -259,6 +302,9 @@ func resourceCloudAssetProjectFeedRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("feed_output_config", flattenCloudAssetProjectFeedFeedOutputConfig(res["feedOutputConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ProjectFeed: %s", err)
 	}
+	if err := d.Set("condition", flattenCloudAssetProjectFeedCondition(res["condition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectFeed: %s", err)
+	}
 
 	return nil
 }
@@ -303,6 +349,12 @@ func resourceCloudAssetProjectFeedUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("feed_output_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, feedOutputConfigProp)) {
 		obj["feedOutputConfig"] = feedOutputConfigProp
 	}
+	conditionProp, err := expandCloudAssetProjectFeedCondition(d.Get("condition"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("condition"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, conditionProp)) {
+		obj["condition"] = conditionProp
+	}
 
 	obj, err = resourceCloudAssetProjectFeedEncoder(d, meta, obj)
 	if err != nil {
@@ -331,6 +383,10 @@ func resourceCloudAssetProjectFeedUpdate(d *schema.ResourceData, meta interface{
 
 	if d.HasChange("feed_output_config") {
 		updateMask = append(updateMask, "feedOutputConfig")
+	}
+
+	if d.HasChange("condition") {
+		updateMask = append(updateMask, "condition")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -445,6 +501,41 @@ func flattenCloudAssetProjectFeedFeedOutputConfigPubsubDestinationTopic(v interf
 	return v
 }
 
+func flattenCloudAssetProjectFeedCondition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["expression"] =
+		flattenCloudAssetProjectFeedConditionExpression(original["expression"], d, config)
+	transformed["title"] =
+		flattenCloudAssetProjectFeedConditionTitle(original["title"], d, config)
+	transformed["description"] =
+		flattenCloudAssetProjectFeedConditionDescription(original["description"], d, config)
+	transformed["location"] =
+		flattenCloudAssetProjectFeedConditionLocation(original["location"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudAssetProjectFeedConditionExpression(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudAssetProjectFeedConditionTitle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudAssetProjectFeedConditionDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudAssetProjectFeedConditionLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandCloudAssetProjectFeedAssetNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -496,6 +587,62 @@ func expandCloudAssetProjectFeedFeedOutputConfigPubsubDestination(v interface{},
 }
 
 func expandCloudAssetProjectFeedFeedOutputConfigPubsubDestinationTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudAssetProjectFeedCondition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExpression, err := expandCloudAssetProjectFeedConditionExpression(original["expression"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExpression); val.IsValid() && !isEmptyValue(val) {
+		transformed["expression"] = transformedExpression
+	}
+
+	transformedTitle, err := expandCloudAssetProjectFeedConditionTitle(original["title"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !isEmptyValue(val) {
+		transformed["title"] = transformedTitle
+	}
+
+	transformedDescription, err := expandCloudAssetProjectFeedConditionDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedLocation, err := expandCloudAssetProjectFeedConditionLocation(original["location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !isEmptyValue(val) {
+		transformed["location"] = transformedLocation
+	}
+
+	return transformed, nil
+}
+
+func expandCloudAssetProjectFeedConditionExpression(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudAssetProjectFeedConditionTitle(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudAssetProjectFeedConditionDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudAssetProjectFeedConditionLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

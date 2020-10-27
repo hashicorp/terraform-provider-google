@@ -657,8 +657,8 @@ func Provider() *schema.Provider {
 }
 
 // Generated resources: 167
-// Generated IAM resources: 69
-// Total generated resources: 236
+// Generated IAM resources: 72
+// Total generated resources: 239
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -842,6 +842,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_iap_tunnel_instance_iam_binding":                       ResourceIamBinding(IapTunnelInstanceIamSchema, IapTunnelInstanceIamUpdaterProducer, IapTunnelInstanceIdParseFunc),
 			"google_iap_tunnel_instance_iam_member":                        ResourceIamMember(IapTunnelInstanceIamSchema, IapTunnelInstanceIamUpdaterProducer, IapTunnelInstanceIdParseFunc),
 			"google_iap_tunnel_instance_iam_policy":                        ResourceIamPolicy(IapTunnelInstanceIamSchema, IapTunnelInstanceIamUpdaterProducer, IapTunnelInstanceIdParseFunc),
+			"google_iap_tunnel_iam_binding":                                ResourceIamBinding(IapTunnelIamSchema, IapTunnelIamUpdaterProducer, IapTunnelIdParseFunc),
+			"google_iap_tunnel_iam_member":                                 ResourceIamMember(IapTunnelIamSchema, IapTunnelIamUpdaterProducer, IapTunnelIdParseFunc),
+			"google_iap_tunnel_iam_policy":                                 ResourceIamPolicy(IapTunnelIamSchema, IapTunnelIamUpdaterProducer, IapTunnelIdParseFunc),
 			"google_iap_brand":                                             resourceIapBrand(),
 			"google_iap_client":                                            resourceIapClient(),
 			"google_identity_platform_default_supported_idp_config":        resourceIdentityPlatformDefaultSupportedIdpConfig(),

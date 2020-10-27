@@ -2008,7 +2008,7 @@ func flattenOSConfigPatchDeploymentRolloutDisruptionBudget(v interface{}, d *sch
 	transformed["fixed"] =
 		flattenOSConfigPatchDeploymentRolloutDisruptionBudgetFixed(original["fixed"], d, config)
 	transformed["percentage"] =
-		flattenOSConfigPatchDeploymentRolloutDisruptionBudgetPercentage(original["percentage"], d, config)
+		flattenOSConfigPatchDeploymentRolloutDisruptionBudgetPercentage(original["percent"], d, config)
 	return []interface{}{transformed}
 }
 func flattenOSConfigPatchDeploymentRolloutDisruptionBudgetFixed(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -3242,7 +3242,7 @@ func expandOSConfigPatchDeploymentRolloutDisruptionBudget(v interface{}, d Terra
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedPercentage); val.IsValid() && !isEmptyValue(val) {
-		transformed["percentage"] = transformedPercentage
+		transformed["percent"] = transformedPercentage
 	}
 
 	return transformed, nil
