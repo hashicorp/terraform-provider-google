@@ -92,6 +92,10 @@ resource "google_compute_region_per_instance_config" "with_disk" {
   preserved_state {
     metadata = {
       foo = "bar"
+      // Adding a reference to the instance template used causes the stateful instance to update
+      // if the instance template changes. Otherwise there is no explicit dependency and template
+      // changes may not occur on the stateful instance
+      instance_template = google_compute_instance_template.igm-basic.self_link
     }
 
     disk {
