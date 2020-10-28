@@ -133,7 +133,8 @@ lasting connections. Default is an interval of 5 seconds per connection. Default
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `Export filter used to define which VPC flow logs should be logged, as as CEL expression. See
-https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.`,
+https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.
+The default value is 'true', which evaluates to include everything.`,
 							Default:      "true",
 							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
 						},
