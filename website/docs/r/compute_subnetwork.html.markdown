@@ -208,6 +208,10 @@ The following arguments are supported:
   When enabled, VMs in this subnetwork without external IP addresses can
   access Google APIs and services by using Private Google Access.
 
+* `private_ipv6_google_access` -
+  (Optional)
+  The private IPv6 google access type for the VMs in this subnet.
+
 * `region` -
   (Optional)
   The GCP region for this subnetwork.
