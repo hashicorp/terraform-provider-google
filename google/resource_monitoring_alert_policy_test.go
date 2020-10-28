@@ -16,6 +16,7 @@ func TestAccMonitoringAlertPolicy(t *testing.T) {
 		"basic":  testAccMonitoringAlertPolicy_basic,
 		"full":   testAccMonitoringAlertPolicy_full,
 		"update": testAccMonitoringAlertPolicy_update,
+		"mql":    testAccMonitoringAlertPolicy_mql,
 	}
 
 	for name, tc := range testCases {
@@ -103,6 +104,28 @@ func testAccMonitoringAlertPolicy_full(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.full",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccMonitoringAlertPolicy_mql(t *testing.T) {
+
+	alertName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	conditionName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAlertPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringAlertPolicy_mqlCfg(alertName, conditionName),
+			},
+			{
+				ResourceName:      "google_monitoring_alert_policy.mql",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -225,4 +248,32 @@ resource "google_monitoring_alert_policy" "full" {
   }
 }
 `, alertName, conditionName1, conditionName2)
+}
+
+func testAccMonitoringAlertPolicy_mqlCfg(alertName, conditionName string) string {
+	return fmt.Sprintf(`
+resource "google_monitoring_alert_policy" "mql" {
+  display_name = "%s"
+  combiner     = "OR"
+  enabled      = true
+
+  conditions {
+    display_name = "%s"
+
+    condition_monitoring_query_language {
+      query           = "fetch gce_instance::compute.googleapis.com/instance/cpu/utilization | align mean_aligner() | window 5m | condition value.utilization > .15 '10^2.%%'"
+      duration        = "60s"
+
+      trigger {
+        count = 2
+      }
+    }
+  }
+
+  documentation {
+    content   = "test content"
+    mime_type = "text/markdown"
+  }
+}
+`, alertName, conditionName)
 }
