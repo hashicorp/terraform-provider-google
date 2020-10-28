@@ -229,6 +229,10 @@ The following arguments are supported:
     resource is tied to a specific region. Defaults to the region of the
     Provider if no value is given.
 
+* `reservation_affinity` – (Optional) Specify whether the resources for the instance
+    should be [consumed from a reservation](https://cloud.google.com/compute/docs/instances/reserving-zonal-resources#consuming_reserved_instances).
+    Structure is documented below.
+
 * `scheduling` - (Optional) The scheduling strategy to use. More details about
     this configuration option are detailed below.
 
@@ -353,6 +357,22 @@ The `alias_ip_range` block supports:
 * `subnetwork_range_name` - (Optional) The subnetwork secondary range name specifying
     the secondary range from which to allocate the IP CIDR range for this alias IP
     range. If left unspecified, the primary range of the subnetwork will be used.
+
+The `reservation_affinity` block supports:
+
+* `type` – The method for matching a reservation affinity for this instance.
+    This field can take the following values: ANY_RESERVATION, SPECIFIC_RESERVATION,
+    NO_RESERVATION. If this field is not specified, it is assumed to be ANY_RESERVATION.
+
+* `specific_reservation` – (Optional) Properties of the reservation to use. This field
+    must be set if and only if `type` is SPECIFIC_RESERVATION. Structure is documented below.
+
+The `specific_reservation` block supports:
+
+* `key` – The key to use for matching the reservation. To match a reservation by name, use the
+    special key `compute.googleapis.com/reservation-name`.
+
+* `values` – A list of values corresponding to the supplied `key`. At least one must be supplied.
 
 The `service_account` block supports:
 
