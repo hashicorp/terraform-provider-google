@@ -245,6 +245,71 @@ condition to be triggered.`,
 								},
 							},
 						},
+						"condition_monitoring_query_language": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `A Monitoring Query Language query that outputs a boolean stream`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"duration": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The amount of time that a time series must
+violate the threshold to be considered
+failing. Currently, only values that are a
+multiple of a minute--e.g., 0, 60, 120, or
+300 seconds--are supported. If an invalid
+value is given, an error will be returned.
+When choosing a duration, it is useful to
+keep in mind the frequency of the underlying
+time series data (which may also be affected
+by any alignments specified in the
+aggregations field); a good duration is long
+enough so that a single outlier does not
+generate spurious alerts, but short enough
+that unhealthy states are detected and
+alerted on quickly.`,
+									},
+									"query": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Monitoring Query Language query that outputs a boolean stream.`,
+									},
+									"trigger": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `The number/percent of time series for which
+the comparison must hold in order for the
+condition to trigger. If unspecified, then
+the condition will trigger if the comparison
+is true for any of the time series that have
+been identified by filter and aggregations,
+or by the ratio, if denominator_filter and
+denominator_aggregations are specified.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"count": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `The absolute number of time series
+that must fail the predicate for the
+condition to be triggered.`,
+												},
+												"percent": {
+													Type:     schema.TypeFloat,
+													Optional: true,
+													Description: `The percentage of time series that
+must fail the predicate for the
+condition to be triggered.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"condition_threshold": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1123,10 +1188,11 @@ func flattenMonitoringAlertPolicyConditions(v interface{}, d *schema.ResourceDat
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"condition_absent":    flattenMonitoringAlertPolicyConditionsConditionAbsent(original["conditionAbsent"], d, config),
-			"name":                flattenMonitoringAlertPolicyConditionsName(original["name"], d, config),
-			"condition_threshold": flattenMonitoringAlertPolicyConditionsConditionThreshold(original["conditionThreshold"], d, config),
-			"display_name":        flattenMonitoringAlertPolicyConditionsDisplayName(original["displayName"], d, config),
+			"condition_absent":                    flattenMonitoringAlertPolicyConditionsConditionAbsent(original["conditionAbsent"], d, config),
+			"name":                                flattenMonitoringAlertPolicyConditionsName(original["name"], d, config),
+			"condition_monitoring_query_language": flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguage(original["conditionMonitoringQueryLanguage"], d, config),
+			"condition_threshold":                 flattenMonitoringAlertPolicyConditionsConditionThreshold(original["conditionThreshold"], d, config),
+			"display_name":                        flattenMonitoringAlertPolicyConditionsDisplayName(original["displayName"], d, config),
 		})
 	}
 	return transformed
@@ -1233,6 +1299,67 @@ func flattenMonitoringAlertPolicyConditionsConditionAbsentFilter(v interface{}, 
 
 func flattenMonitoringAlertPolicyConditionsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["query"] =
+		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageQuery(original["query"], d, config)
+	transformed["duration"] =
+		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageDuration(original["duration"], d, config)
+	transformed["trigger"] =
+		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigger(original["trigger"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageQuery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigger(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["percent"] =
+		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerPercent(original["percent"], d, config)
+	transformed["count"] =
+		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerCount(original["count"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1463,6 +1590,13 @@ func expandMonitoringAlertPolicyConditions(v interface{}, d TerraformResourceDat
 			transformed["name"] = transformedName
 		}
 
+		transformedConditionMonitoringQueryLanguage, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguage(original["condition_monitoring_query_language"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedConditionMonitoringQueryLanguage); val.IsValid() && !isEmptyValue(val) {
+			transformed["conditionMonitoringQueryLanguage"] = transformedConditionMonitoringQueryLanguage
+		}
+
 		transformedConditionThreshold, err := expandMonitoringAlertPolicyConditionsConditionThreshold(original["condition_threshold"], d, config)
 		if err != nil {
 			return nil, err
@@ -1624,6 +1758,81 @@ func expandMonitoringAlertPolicyConditionsConditionAbsentFilter(v interface{}, d
 }
 
 func expandMonitoringAlertPolicyConditionsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedQuery, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageQuery(original["query"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQuery); val.IsValid() && !isEmptyValue(val) {
+		transformed["query"] = transformedQuery
+	}
+
+	transformedDuration, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageDuration(original["duration"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDuration); val.IsValid() && !isEmptyValue(val) {
+		transformed["duration"] = transformedDuration
+	}
+
+	transformedTrigger, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigger(original["trigger"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTrigger); val.IsValid() && !isEmptyValue(val) {
+		transformed["trigger"] = transformedTrigger
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageQuery(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigger(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPercent, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerPercent(original["percent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPercent); val.IsValid() && !isEmptyValue(val) {
+		transformed["percent"] = transformedPercent
+	}
+
+	transformedCount, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerCount(original["count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCount); val.IsValid() && !isEmptyValue(val) {
+		transformed["count"] = transformedCount
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerPercent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
