@@ -96,6 +96,22 @@ Set the value to 0 to use the default value.`,
 				Optional:    true,
 				Description: `When set to true, no runs are scheduled for a given transfer.`,
 			},
+			"email_preferences": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Email notifications will be sent according to these preferences to the
+email address of the user who owns this transfer config.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_failure_email": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `If true, email notifications will be sent on transfer run failures.`,
+						},
+					},
+				},
+			},
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -248,6 +264,12 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("schedule_options"); !isEmptyValue(reflect.ValueOf(scheduleOptionsProp)) && (ok || !reflect.DeepEqual(v, scheduleOptionsProp)) {
 		obj["scheduleOptions"] = scheduleOptionsProp
 	}
+	emailPreferencesProp, err := expandBigqueryDataTransferConfigEmailPreferences(d.Get("email_preferences"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("email_preferences"); !isEmptyValue(reflect.ValueOf(emailPreferencesProp)) && (ok || !reflect.DeepEqual(v, emailPreferencesProp)) {
+		obj["emailPreferences"] = emailPreferencesProp
+	}
 	notificationPubsubTopicProp, err := expandBigqueryDataTransferConfigNotificationPubsubTopic(d.Get("notification_pubsub_topic"), d, config)
 	if err != nil {
 		return err
@@ -399,6 +421,9 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 	if err := d.Set("schedule_options", flattenBigqueryDataTransferConfigScheduleOptions(res["scheduleOptions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
+	if err := d.Set("email_preferences", flattenBigqueryDataTransferConfigEmailPreferences(res["emailPreferences"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
 	if err := d.Set("notification_pubsub_topic", flattenBigqueryDataTransferConfigNotificationPubsubTopic(res["notificationPubsubTopic"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
@@ -449,6 +474,12 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("schedule_options"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scheduleOptionsProp)) {
 		obj["scheduleOptions"] = scheduleOptionsProp
 	}
+	emailPreferencesProp, err := expandBigqueryDataTransferConfigEmailPreferences(d.Get("email_preferences"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("email_preferences"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, emailPreferencesProp)) {
+		obj["emailPreferences"] = emailPreferencesProp
+	}
 	notificationPubsubTopicProp, err := expandBigqueryDataTransferConfigNotificationPubsubTopic(d.Get("notification_pubsub_topic"), d, config)
 	if err != nil {
 		return err
@@ -497,6 +528,10 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("schedule_options") {
 		updateMask = append(updateMask, "scheduleOptions")
+	}
+
+	if d.HasChange("email_preferences") {
+		updateMask = append(updateMask, "emailPreferences")
 	}
 
 	if d.HasChange("notification_pubsub_topic") {
@@ -635,6 +670,23 @@ func flattenBigqueryDataTransferConfigScheduleOptionsEndTime(v interface{}, d *s
 	return v
 }
 
+func flattenBigqueryDataTransferConfigEmailPreferences(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_failure_email"] =
+		flattenBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(original["enableFailureEmail"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -732,6 +784,29 @@ func expandBigqueryDataTransferConfigScheduleOptionsStartTime(v interface{}, d T
 }
 
 func expandBigqueryDataTransferConfigScheduleOptionsEndTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryDataTransferConfigEmailPreferences(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableFailureEmail, err := expandBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(original["enable_failure_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableFailureEmail); val.IsValid() && !isEmptyValue(val) {
+		transformed["enableFailureEmail"] = transformedEnableFailureEmail
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
