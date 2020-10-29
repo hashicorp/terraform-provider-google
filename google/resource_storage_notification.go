@@ -39,7 +39,7 @@ func resourceStorageNotification() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `The Cloud PubSub topic to which this subscription publishes. Expects either the  topic name, assumed to belong to the default GCP provider project, or the project-level name,  i.e. projects/my-gcp-project/topics/my-topic or my-topic. If the project is not set in the provider, you will need to use the project-level name.`,
+				Description:      `The Cloud Pub/Sub topic to which this subscription publishes. Expects either the  topic name, assumed to belong to the default GCP provider project, or the project-level name,  i.e. projects/my-gcp-project/topics/my-topic or my-topic. If the project is not set in the provider, you will need to use the project-level name.`,
 			},
 
 			"custom_attributes": {
@@ -49,7 +49,7 @@ func resourceStorageNotification() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Description: ` A set of key/value attribute pairs to attach to each Cloud PubSub message published for this notification subscription`,
+				Description: ` A set of key/value attribute pairs to attach to each Cloud Pub/Sub message published for this notification subscription`,
 			},
 
 			"event_types": {
