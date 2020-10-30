@@ -1,4 +1,49 @@
-## 3.45.0 (Unreleased)
+## 3.46.0 (Unreleased)
+NOTES:
+* compute: updated `google_compute_machine_image` resource to complete once the Image is ready. ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+
+FEATURES:
+* **New Resource:** `google_api_gateway_api_config_iam_binding` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_config_iam_member` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_config_iam_policy` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_config` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_iam_binding` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_iam_member` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_iam_policy` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_gateway_iam_binding` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_gateway_iam_member` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_gateway_iam_policy` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_gateway` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_compute_instance_from_machine_image` ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+* **New Resource:** `google_compute_machine_image_iam_binding` ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+* **New Resource:** `google_compute_machine_image_iam_member` ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+* **New Resource:** `google_compute_machine_image_iam_policy` ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+* **New Resource:** `google_iap_tunnel_iam_binding` ([#7635](https://github.com/hashicorp/terraform-provider-google/pull/7635))
+* **New Resource:** `google_iap_tunnel_iam_member` ([#7635](https://github.com/hashicorp/terraform-provider-google/pull/7635))
+* **New Resource:** `google_iap_tunnel_iam_policy` ([#7635](https://github.com/hashicorp/terraform-provider-google/pull/7635))
+* **New Resource:** compute: promoted `google_compute_region_network_endpoint_group` to GA ([#7618](https://github.com/hashicorp/terraform-provider-google/pull/7618))
+
+IMPROVEMENTS:
+* asset: added conditions to Cloud Asset Feeds ([#7632](https://github.com/hashicorp/terraform-provider-google/pull/7632))
+* bigquery: added `email_preferences ` field to `google_bigquery_data_transfer_config` resource ([#7665](https://github.com/hashicorp/terraform-provider-google/pull/7665))
+* bigquery: added `schedule_options` field to `google_bigquery_data_transfer_config` resource ([#7633](https://github.com/hashicorp/terraform-provider-google/pull/7633))
+* compute: added `private_ipv6_google_access` field to `google_compute_subnetwork` ([#7651](https://github.com/hashicorp/terraform-provider-google/pull/7651))
+* compute: added storage_locations & cmek fields to `google_compute_machine_image` resource ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+* compute: added support for non-destructive updates to `export_custom_routes` and `import_custom_routes` for `google_compute_network_peering` ([#7619](https://github.com/hashicorp/terraform-provider-google/pull/7619))
+* compute: relax `load_balancing_scheme` validation of `google_compute_region_backend_service` to support external network load-balancers ([#7592](https://github.com/hashicorp/terraform-provider-google/pull/7592))
+* datacatalog: Add taxonomy and policy_tag to `google_data_catalog` ([#7588](https://github.com/hashicorp/terraform-provider-google/pull/7588))
+* dlp: added `custom_info_types` to `google_dlp_inspect_template` ([#7650](https://github.com/hashicorp/terraform-provider-google/pull/7650))
+* functions: added `build_environment_variables` field to `google_cloudfunction_function` ([#7596](https://github.com/hashicorp/terraform-provider-google/pull/7596))
+* kms: added `skip_initial_version_creation` to `google_kms_crypto_key` ([#7647](https://github.com/hashicorp/terraform-provider-google/pull/7647))
+* monitoring: Added Monitoring Query Language based alerting for `google_monitoring_alert_policy` ([#7664](https://github.com/hashicorp/terraform-provider-google/pull/7664))
+
+BUG FIXES:
+* compute: fixed an issue where `google_compute_health_check` `port` values caused a diff when `port_specification` was unset or set to `""` ([#7623](https://github.com/hashicorp/terraform-provider-google/pull/7623))
+* monitoring: added more retries for potential failed monitoring operations ([#7631](https://github.com/hashicorp/terraform-provider-google/pull/7631))
+* osconfig: fixed an issue where the `rollout.disruption_budget.percentage` field in `google_os_config_patch_deployment` did not correspond to a field in the API ([#7641](https://github.com/hashicorp/terraform-provider-google/pull/7641))
+* sql: fixed a case in `google_sql_database_instance` where we inadvertently required the `projects.get` permission for a service networking precheck introduced in `v3.44.0` ([#7622](https://github.com/hashicorp/terraform-provider-google/pull/7622))
+
 
 ## 3.44.0 (October 19, 2020)
 
