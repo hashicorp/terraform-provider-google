@@ -91,8 +91,8 @@ Before using a local provider version, you'll need to set up [0.13+'s expected d
 You can set up the directories required with the following commands. You should substitute your system's architecture or a different path if desired:
 
 ```
-mkdir -p ~/.terraform.d/plugins/registry.terraform.io/hashicorp/google/5.0.0/darwin_amd64
-mkdir -p ~/.terraform.d/plugins/registry.terraform.io/hashicorp/google-beta/5.0.0/darwin_amd64
+mkdir -p ~/.terraform.d/plugins/registry.terraform.io/hashicorp/google/5.0.0/$(go env GO_HOSTOS)_$(go env GOHOSTARCH)
+mkdir -p ~/.terraform.d/plugins/registry.terraform.io/hashicorp/google-beta/5.0.0/$(go env GO_HOSTOS)_$(go env GOHOSTARCH)
 ```
 
 If multiple versions are available in a plugin directory (for example after `terraform providers mirror` is used), Terraform will pick the most up-to-date provider version within version constraints. As such, we recommend using a version that is several major versions ahead for your local copy of the provider, such as `5.0.0`.
