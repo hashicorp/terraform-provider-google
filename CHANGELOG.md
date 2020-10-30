@@ -1,4 +1,35 @@
-## 3.45.0 (Unreleased)
+## 3.45.0 (October 28, 2020)
+
+BREAKING CHANGES:
+* pubsub: changing the value of `google_pubsub_subscription.enable_message_ordering` will now recreate the resource. Previously, an error was returned. ([#7584](https://github.com/hashicorp/terraform-provider-google/pull/7584))
+* spanner: `google_spanner_database` resources now cannot be destroyed unless `deletion_protection = false` is set in state for the resource. ([#7557](https://github.com/hashicorp/terraform-provider-google/pull/7557))
+
+NOTES:
+* compute: added a warning to `google_compute_vpn_gateway` ([#7547](https://github.com/hashicorp/terraform-provider-google/pull/7547))
+
+FEATURES:
+* **New Data Source:** `google_spanner_instance` ([#7537](https://github.com/hashicorp/terraform-provider-google/pull/7537))
+* **New Resource:** `access_context_manager_access_level_condition` ([#7524](https://github.com/hashicorp/terraform-provider-google/pull/7524))
+* **New Resource:** `google_bigquery_routine` ([#7579](https://github.com/hashicorp/terraform-provider-google/pull/7579))
+
+IMPROVEMENTS:
+* billing_budget: added `disable_default_iam_recipients ` field to `google_billing_budget` to allow disable sending email notifications to default recipients. ([#7544](https://github.com/hashicorp/terraform-provider-google/pull/7544))
+* compute: added `interface` attribute to `google_compute_disk` ([#7554](https://github.com/hashicorp/terraform-provider-google/pull/7554))
+* compute: added support for updating `network_interface.[d].network_ip` on `google_compute_instance` when changing network or subnetwork ([#7515](https://github.com/hashicorp/terraform-provider-google/pull/7515))
+* compute: added `mtu` field to `google_compute_network` resource ([#7567](https://github.com/hashicorp/terraform-provider-google/pull/7567))
+* compute: promoted HA VPN fields in `google_compute_vpn_tunnel` to GA ([#7547](https://github.com/hashicorp/terraform-provider-google/pull/7547))
+* compute: promoted `google_compute_external_vpn_gateway` to GA ([#7547](https://github.com/hashicorp/terraform-provider-google/pull/7547))
+* compute: promoted `google_compute_ha_vpn_gateway` to GA ([#7547](https://github.com/hashicorp/terraform-provider-google/pull/7547))
+* provider: added support for service account impersonation. ([#7542](https://github.com/hashicorp/terraform-provider-google/pull/7542))
+* spanner: added `deletion_protection` field to `google_spanner_database` to make deleting them require an explicit intent. ([#7557](https://github.com/hashicorp/terraform-provider-google/pull/7557))
+
+BUG FIXES:
+* all: fixed misleading "empty non-retryable error" message that was appearing in debug logs ([#7569](https://github.com/hashicorp/terraform-provider-google/pull/7569))
+* compute: fixed incorrect import format for `google_compute_global_network_endpoint` ([#7523](https://github.com/hashicorp/terraform-provider-google/pull/7523))
+* compute: fixed issue where `google_compute_[region_]backend_service.backend.max_utilization` could not be updated ([#7575](https://github.com/hashicorp/terraform-provider-google/pull/7575))
+* iap: fixed an eventual consistency bug causing creates for `google_iap_brand` to fail ([#7520](https://github.com/hashicorp/terraform-provider-google/pull/7520))
+* provider: fixed an issue where the request headers would grow proportionally to the number of resources in a given `terraform apply` ([#7576](https://github.com/hashicorp/terraform-provider-google/pull/7576))
+* serviceusage: fixed bug where concurrent activations/deactivations of project services would fail, now they retry ([#7519](https://github.com/hashicorp/terraform-provider-google/pull/7519))
 
 ## 3.44.0 (October 19, 2020)
 
