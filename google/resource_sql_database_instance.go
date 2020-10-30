@@ -137,7 +137,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Optional:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
-							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see https://cloud.google.com/sql/docs/mysql/deprecation-notice for information on how to upgrade to Second Generation instances. A list of Google App Engine (GAE) project names that are allowed to access this instance.`,
+							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see https://cloud.google.com/sql/docs/mysql/deprecation-notice for information on how to upgrade to Second Generation instances. A list of Google App Engine project names that are allowed to access this instance.`,
 						},
 						"availability_type": {
 							Type:             schema.TypeString,
@@ -480,7 +480,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
-							Description:  `Path to a SQL file in GCS from which slave instances are created. Format is gs://bucket/filename.`,
+							Description:  `Path to a SQL file in Google Cloud Storage from which slave instances are created. Format is gs://bucket/filename.`,
 						},
 						"failover_target": {
 							Type:         schema.TypeBool,

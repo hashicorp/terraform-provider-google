@@ -191,6 +191,9 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   }
   destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
   notification_pubsub_topic = google_pubsub_topic.my_topic.id
+  email_preferences = {
+    enable_failure_email = true
+  }
   params = {
     destination_table_name_template = "my_table"
     write_disposition               = "WRITE_APPEND"

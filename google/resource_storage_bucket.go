@@ -87,7 +87,7 @@ func resourceStorageBucket() *schema.Resource {
 				StateFunc: func(s interface{}) string {
 					return strings.ToUpper(s.(string))
 				},
-				Description: `The GCS location`,
+				Description: `The Google Cloud Storage location`,
 			},
 
 			"project": {
@@ -312,7 +312,7 @@ func resourceStorageBucket() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
-							Description: `The object prefix for log objects. If it's not provided, by default GCS sets this to this bucket's name.`,
+							Description: `The object prefix for log objects. If it's not provided, by default Google Cloud Storage sets this to this bucket's name.`,
 						},
 					},
 				},

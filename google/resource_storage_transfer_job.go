@@ -2,13 +2,14 @@ package google
 
 import (
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/storagetransfer/v1"
-	"log"
-	"strings"
-	"time"
 )
 
 var (
@@ -427,7 +428,7 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	name := d.Get("name").(string)
-	res, err := config.NewStorageTransferClient(userAgent).TransferJobs.Get(name).ProjectId(project).Do()
+	res, err := config.NewStorageTransferClient(userAgent).TransferJobs.Get(name, project).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Transfer Job %q", name))
 	}

@@ -121,16 +121,11 @@ resource "google_monitoring_slo" "request_based_slo" {
 
   request_based_sli {
     distribution_cut {
-      distribution_filter = join(" AND ", [
-        "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
-        "resource.type=\"consumed_api\"",
-        "resource.label.\"project_id\"=\"%{project}\"",
-      ])
-
-      range {
-        max = 10
-      }
-    }
+          distribution_filter = "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\" resource.type=\"api\"  "
+          range {
+            max = 0.5
+          }
+        }
   }
 }
 `, context)

@@ -122,9 +122,7 @@ The following arguments are supported:
    Debian, CentOS, RHEL, SLES, Container-Optimized OS, and Ubuntu images
    support this key.  Windows instances require other keys depending on the format
    of the script and the time you would like it to run - see [this table](https://cloud.google.com/compute/docs/startupscript#providing_a_startup_script_for_windows_instances).
-   For Container-Optimized OS, `metadata.user-data` accepts an Ignition Config,
-   see [this page](https://coreos.com/os/docs/latest/booting-on-google-compute-engine.html)
-   for more information.  For the convenience of the users of `metadata.startup-script`,
+   For the convenience of the users of `metadata.startup-script`,
    we provide a special attribute, `metadata_startup_script`, which is documented below.
 
 * `metadata_startup_script` - (Optional) An alternative to using the

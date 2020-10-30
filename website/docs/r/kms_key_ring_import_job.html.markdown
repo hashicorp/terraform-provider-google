@@ -31,7 +31,7 @@ was wrapped with the `KeyRingImportJob`'s public key.
 
 ~> **Note:** KeyRingImportJobs cannot be deleted from Google Cloud Platform.
 Destroying a Terraform-managed KeyRingImportJob will remove it from state but
-*will not delete the resource on the server.* 
+*will not delete the resource from the project.* 
 
 
 To get more information about KeyRingImportJob, see:
@@ -47,6 +47,12 @@ To get more information about KeyRingImportJob, see:
 resource "google_kms_key_ring" "keyring" {
   name     = "keyring-example"
   location = "global"
+}
+
+resource "google_kms_crypto_key" "example-key" {
+  name            = "cryptokey-example""
+  key_ring        = google_kms_key_ring.keyring.id
+  skip_initial_version_creation = true
 }
 
 resource "google_kms_key_ring_import_job" "import-job" {

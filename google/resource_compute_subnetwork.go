@@ -133,7 +133,8 @@ lasting connections. Default is an interval of 5 seconds per connection. Default
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `Export filter used to define which VPC flow logs should be logged, as as CEL expression. See
-https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.`,
+https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.
+The default value is 'true', which evaluates to include everything.`,
 							Default:      "true",
 							AtLeastOneOf: []string{"log_config.0.aggregation_interval", "log_config.0.flow_sampling", "log_config.0.metadata", "log_config.0.filter_expr"},
 						},
@@ -176,6 +177,12 @@ Can only be specified if VPC flow logs for this subnetwork is enabled and "metad
 				Optional: true,
 				Description: `When enabled, VMs in this subnetwork without external IP addresses can
 access Google APIs and services by using Private Google Access.`,
+			},
+			"private_ipv6_google_access": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: `The private IPv6 google access type for the VMs in this subnet.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -340,6 +347,12 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("private_ip_google_access"); !isEmptyValue(reflect.ValueOf(privateIpGoogleAccessProp)) && (ok || !reflect.DeepEqual(v, privateIpGoogleAccessProp)) {
 		obj["privateIpGoogleAccess"] = privateIpGoogleAccessProp
 	}
+	privateIpv6GoogleAccessProp, err := expandComputeSubnetworkPrivateIpv6GoogleAccess(d.Get("private_ipv6_google_access"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("private_ipv6_google_access"); !isEmptyValue(reflect.ValueOf(privateIpv6GoogleAccessProp)) && (ok || !reflect.DeepEqual(v, privateIpv6GoogleAccessProp)) {
+		obj["privateIpv6GoogleAccess"] = privateIpv6GoogleAccessProp
+	}
 	regionProp, err := expandComputeSubnetworkRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -457,6 +470,9 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("private_ip_google_access", flattenComputeSubnetworkPrivateIpGoogleAccess(res["privateIpGoogleAccess"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
+	if err := d.Set("private_ipv6_google_access", flattenComputeSubnetworkPrivateIpv6GoogleAccess(res["privateIpv6GoogleAccess"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
 	if err := d.Set("region", flattenComputeSubnetworkRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
@@ -542,6 +558,40 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Subnetwork %q: %#v", d.Id(), res)
+		}
+
+		err = computeOperationWaitTime(
+			config, res, project, "Updating Subnetwork", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("private_ipv6_google_access") {
+		obj := make(map[string]interface{})
+
+		privateIpv6GoogleAccessProp, err := expandComputeSubnetworkPrivateIpv6GoogleAccess(d.Get("private_ipv6_google_access"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("private_ipv6_google_access"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateIpv6GoogleAccessProp)) {
+			obj["privateIpv6GoogleAccess"] = privateIpv6GoogleAccessProp
+		}
+
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
 		} else {
@@ -787,6 +837,10 @@ func flattenComputeSubnetworkPrivateIpGoogleAccess(v interface{}, d *schema.Reso
 	return v
 }
 
+func flattenComputeSubnetworkPrivateIpv6GoogleAccess(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeSubnetworkRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -885,6 +939,10 @@ func expandComputeSubnetworkSecondaryIpRangeIpCidrRange(v interface{}, d Terrafo
 }
 
 func expandComputeSubnetworkPrivateIpGoogleAccess(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSubnetworkPrivateIpv6GoogleAccess(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

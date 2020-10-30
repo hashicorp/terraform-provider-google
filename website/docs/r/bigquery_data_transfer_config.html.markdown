@@ -113,6 +113,12 @@ The following arguments are supported:
   Options customizing the data transfer schedule.
   Structure is documented below.
 
+* `email_preferences` -
+  (Optional)
+  Email notifications will be sent according to these preferences to the
+  email address of the user who owns this transfer config.
+  Structure is documented below.
+
 * `notification_pubsub_topic` -
   (Optional)
   Pub/Sub topic where notifications will be sent after transfer runs
@@ -179,6 +185,12 @@ The `schedule_options` block supports:
   scheduled at or after the end time. The end time can be changed at any
   moment. The time when a data transfer can be triggered manually is not
   limited by this option.
+
+The `email_preferences` block supports:
+
+* `enable_failure_email` -
+  (Required)
+  If true, email notifications will be sent on transfer run failures.
 
 The `sensitive_params` block supports:
 

@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -212,7 +211,7 @@ just one of min or max.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"max": {
-													Type:     schema.TypeInt,
+													Type:     schema.TypeFloat,
 													Optional: true,
 													Description: `max value for the range (inclusive). If not given,
 will be set to "infinity", defining an open range
@@ -220,7 +219,7 @@ will be set to "infinity", defining an open range
 													AtLeastOneOf: []string{"request_based_sli.0.distribution_cut.0.range.0.min", "request_based_sli.0.distribution_cut.0.range.0.max"},
 												},
 												"min": {
-													Type:     schema.TypeInt,
+													Type:     schema.TypeFloat,
 													Optional: true,
 													Description: `Min value for the range (inclusive). If not given,
 will be set to "-infinity", defining an open range
@@ -440,7 +439,7 @@ just one of min or max.`,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"max": {
-																			Type:     schema.TypeInt,
+																			Type:     schema.TypeFloat,
 																			Optional: true,
 																			Description: `max value for the range (inclusive). If not given,
 will be set to "infinity", defining an open range
@@ -448,7 +447,7 @@ will be set to "infinity", defining an open range
 																			AtLeastOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.min", "windows_based_sli.0.good_total_ratio_threshold.0.performance.0.distribution_cut.0.range.0.max"},
 																		},
 																		"min": {
-																			Type:     schema.TypeInt,
+																			Type:     schema.TypeFloat,
 																			Optional: true,
 																			Description: `Min value for the range (inclusive). If not given,
 will be set to "-infinity", defining an open range
@@ -557,7 +556,7 @@ good service.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"max": {
-													Type:     schema.TypeInt,
+													Type:     schema.TypeFloat,
 													Optional: true,
 													Description: `max value for the range (inclusive). If not given,
 will be set to "infinity", defining an open range
@@ -565,7 +564,7 @@ will be set to "infinity", defining an open range
 													AtLeastOneOf: []string{"windows_based_sli.0.metric_mean_in_range.0.range.0.min", "windows_based_sli.0.metric_mean_in_range.0.range.0.max"},
 												},
 												"min": {
-													Type:     schema.TypeInt,
+													Type:     schema.TypeFloat,
 													Optional: true,
 													Description: `Min value for the range (inclusive). If not given,
 will be set to "-infinity", defining an open range
@@ -616,7 +615,7 @@ just one of min or max. Summed value 'X' should satisfy
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"max": {
-													Type:     schema.TypeInt,
+													Type:     schema.TypeFloat,
 													Optional: true,
 													Description: `max value for the range (inclusive). If not given,
 will be set to "infinity", defining an open range
@@ -624,7 +623,7 @@ will be set to "infinity", defining an open range
 													AtLeastOneOf: []string{"windows_based_sli.0.metric_sum_in_range.0.range.0.min", "windows_based_sli.0.metric_sum_in_range.0.range.0.max"},
 												},
 												"min": {
-													Type:     schema.TypeInt,
+													Type:     schema.TypeFloat,
 													Optional: true,
 													Description: `Min value for the range (inclusive). If not given,
 will be set to "-infinity", defining an open range
@@ -1226,37 +1225,11 @@ func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRang
 	return []interface{}{transformed}
 }
 func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
+	return v
 }
 
 func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
+	return v
 }
 
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSli(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1388,37 +1361,11 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 	return []interface{}{transformed}
 }
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
+	return v
 }
 
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
+	return v
 }
 
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1513,37 +1460,11 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRa
 	return []interface{}{transformed}
 }
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
+	return v
 }
 
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
+	return v
 }
 
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1581,37 +1502,11 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRan
 	return []interface{}{transformed}
 }
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
+	return v
 }
 
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
+	return v
 }
 
 func flattenMonitoringSloSloId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
