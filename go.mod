@@ -14,7 +14,8 @@ require (
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hashicorp/go-version v1.2.1
 	github.com/hashicorp/terraform v0.13.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.3
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.1.0
+	github.com/hashicorp/terraform-plugin-test/v2 v2.1.2 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/stoewer/go-strcase v1.0.2
