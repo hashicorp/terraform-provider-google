@@ -216,18 +216,19 @@ func isBigqueryIAMQuotaError(err error) (bool, string) {
 	return false, ""
 }
 
-// Retry if Monitoring operation returns a 429 with a specific message for
+// Retry if Monitoring operation returns a 409 with a specific message for
 // concurrent operations.
 func isMonitoringConcurrentEditError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
-		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "too many concurrent edits") {
+		if gerr.Code == 409 && (strings.Contains(strings.ToLower(gerr.Body), "too many concurrent edits") ||
+			strings.Contains(strings.ToLower(gerr.Body), "could not fulfill the request")) {
 			return true, "Waiting for other Monitoring changes to finish"
 		}
 	}
 	return false, ""
 }
 
-// Retry if App Engine operation returns a 429 with a specific message for
+// Retry if App Engine operation returns a 409 with a specific message for
 // concurrent operations.
 func isAppEngineRetryableError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {

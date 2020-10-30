@@ -36,7 +36,7 @@ The following arguments are supported:
 
 * `billing_account` - (Required) The parent resource that contains the logging bucket.
 
-* `location` - (Required) The location of the bucket. The supported locations are: "global" "us-central1"
+* `location` - (Required) The location of the bucket.
 
 * `bucket_id` - (Required) The name of the logging bucket. Logging automatically creates two log buckets: `_Required` and `_Default`.
 

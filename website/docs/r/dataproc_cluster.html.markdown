@@ -42,7 +42,7 @@ resource "google_dataproc_cluster" "mycluster" {
 
     master_config {
       num_instances = 1
-      machine_type  = "n1-standard-1"
+      machine_type  = "e2-medium"
       disk_config {
         boot_disk_type    = "pd-ssd"
         boot_disk_size_gb = 15
@@ -51,7 +51,7 @@ resource "google_dataproc_cluster" "mycluster" {
 
     worker_config {
       num_instances    = 2
-      machine_type     = "n1-standard-1"
+      machine_type     = "e2-medium"
       min_cpu_platform = "Intel Skylake"
       disk_config {
         boot_disk_size_gb = 15
@@ -266,7 +266,7 @@ The `cluster_config.master_config` block supports:
 cluster_config {
   master_config {
     num_instances    = 1
-    machine_type     = "n1-standard-1"
+    machine_type     = "e2-medium"
     min_cpu_platform = "Intel Skylake"
 
     disk_config {
@@ -325,7 +325,7 @@ The `cluster_config.worker_config` block supports:
 cluster_config {
   worker_config {
     num_instances    = 3
-    machine_type     = "n1-standard-1"
+    machine_type     = "e2-medium"
     min_cpu_platform = "Intel Skylake"
 
     disk_config {

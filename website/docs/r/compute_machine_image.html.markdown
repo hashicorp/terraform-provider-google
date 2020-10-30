@@ -17,12 +17,12 @@ layout: "google"
 page_title: "Google: google_compute_machine_image"
 sidebar_current: "docs-google-compute-machine-image"
 description: |-
-  Represents a MachineImage resource.
+  Represents a Machine Image resource.
 ---
 
 # google\_compute\_machine\_image
 
-Represents a MachineImage resource. Machine images store all the configuration,
+Represents a Machine Image resource. Machine images store all the configuration,
 metadata, permissions, and data from one or more disks required to create a
 Virtual machine (VM) instance.
 
@@ -88,15 +88,50 @@ The following arguments are supported:
   (Optional)
   A text description of the resource.
 
+* `guest_flush` -
+  (Optional)
+  Specify this to create an application consistent machine image by informing the OS to prepare for the snapshot process.
+  Currently only supported on Windows instances using the Volume Shadow Copy Service (VSS).
+
+* `machine_image_encryption_key` -
+  (Optional)
+  Encrypts the machine image using a customer-supplied encryption key.
+  After you encrypt a machine image with a customer-supplied key, you must
+  provide the same key if you use the machine image later (e.g. to create a
+  instance from the image)
+  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `machine_image_encryption_key` block supports:
+
+* `raw_key` -
+  (Optional)
+  Specifies a 256-bit customer-supplied encryption key, encoded in
+  RFC 4648 base64 to either encrypt or decrypt this resource.
+
+* `sha256` -
+  The RFC 4648 base64 encoded SHA-256 hash of the
+  customer-supplied encryption key that protects this resource.
+
+* `kms_key_name` -
+  The name of the encryption key that is stored in Google Cloud KMS.
+
+* `kms_key_service_account` -
+  (Optional)
+  The service account used for the encryption request for the given KMS key. 
+  If absent, the Compute Engine Service Agent service account is used.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/global/machineImages/{{name}}`
+
+* `storage_locations` -
+  The regional or multi-regional Cloud Storage bucket location where the machine image is stored.
 * `self_link` - The URI of the created resource.
 
 
@@ -105,9 +140,8 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 6 minutes.
+- `delete` - Default is 6 minutes.
 
 ## Import
 

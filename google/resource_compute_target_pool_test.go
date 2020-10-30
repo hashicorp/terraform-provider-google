@@ -161,7 +161,7 @@ resource "google_compute_http_health_check" "foobar" {
 
 resource "google_compute_instance" "foobar" {
   name         = "tf-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -205,7 +205,7 @@ resource "google_compute_target_pool" "foo" {
 
 resource "google_compute_instance" "foo" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -221,7 +221,7 @@ resource "google_compute_instance" "foo" {
 
 resource "google_compute_instance" "bar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {

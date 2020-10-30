@@ -2,6 +2,7 @@ package google
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"google.golang.org/api/googleapi"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -135,7 +137,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Optional:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
-							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see https://cloud.google.com/sql/docs/mysql/deprecation-notice for information on how to upgrade to Second Generation instances. A list of Google App Engine (GAE) project names that are allowed to access this instance.`,
+							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see https://cloud.google.com/sql/docs/mysql/deprecation-notice for information on how to upgrade to Second Generation instances. A list of Google App Engine project names that are allowed to access this instance.`,
 						},
 						"availability_type": {
 							Type:             schema.TypeString,
@@ -478,7 +480,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
-							Description:  `Path to a SQL file in GCS from which slave instances are created. Format is gs://bucket/filename.`,
+							Description:  `Path to a SQL file in Google Cloud Storage from which slave instances are created. Format is gs://bucket/filename.`,
 						},
 						"failover_target": {
 							Type:         schema.TypeBool,
@@ -651,23 +653,13 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 
-	// Before we create the instance, check if at least 1 service connection exists for private SQL Instances.
+	// SQL Instances that fail to create are expensive- see https://github.com/hashicorp/terraform-provider-google/issues/7154
+	// We can fail fast to stop instance names from getting reserved.
 	network := d.Get("settings.0.ip_configuration.0.private_network").(string)
 	if network != "" {
-		// Borrow some of the functions from resource_service_networking_connection.go
-		serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
+		err = sqlDatabaseInstanceServiceNetworkPrecheck(d, config, userAgent, network)
 		if err != nil {
 			return err
-		}
-		response, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.List("services/servicenetworking.googleapis.com").
-			Network(serviceNetworkingNetworkName).Do()
-		if err != nil {
-			// It is possible that the identity creating the SQL Instance might not have permissions to call servicenetworking.services.connections.list
-			log.Printf("[WARNING] Failed to list Service Networking of the project. Skipping Service Networking check.")
-		} else {
-			if len(response.Connections) < 1 {
-				return fmt.Errorf("Error, failed to create instance because the network doesn't have at least 1 private services connection. Please see https://cloud.google.com/sql/docs/mysql/private-ip#network_requirements for how to create this connection.")
-			}
 		}
 	}
 
@@ -1296,4 +1288,33 @@ func instanceMutexKey(project, instance_name string) string {
 func sqlDatabaseIsMaster(d *schema.ResourceData) bool {
 	_, ok := d.GetOk("master_instance_name")
 	return !ok
+}
+
+func sqlDatabaseInstanceServiceNetworkPrecheck(d *schema.ResourceData, config *Config, userAgent, network string) error {
+	log.Printf("[DEBUG] checking network %q for at least one service networking connection", network)
+	// This call requires projects.get permissions, which may not have been granted to the Terraform actor,
+	// particularly in shared VPC setups. Most will! But it's not strictly required.
+	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
+	if err != nil {
+		var gerr *googleapi.Error
+		if errors.As(err, &gerr) {
+			log.Printf("[DEBUG] retrieved googleapi error while creating sn name for %q. precheck skipped. code %v and message: %s", network, gerr.Code, gerr.Body)
+			return nil
+		}
+
+		return err
+	}
+
+	response, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.List("services/servicenetworking.googleapis.com").Network(serviceNetworkingNetworkName).Do()
+	if err != nil {
+		// It is possible that the actor creating the SQL Instance might not have permissions to call servicenetworking.services.connections.list
+		log.Printf("[WARNING] Failed to list Service Networking of the project. Skipped Service Networking precheck.")
+		return nil
+	}
+
+	if len(response.Connections) < 1 {
+		return fmt.Errorf("Error, failed to create instance because the network doesn't have at least 1 private services connection. Please see https://cloud.google.com/sql/docs/mysql/private-ip#network_requirements for how to create this connection.")
+	}
+
+	return nil
 }

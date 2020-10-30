@@ -656,9 +656,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 166
-// Generated IAM resources: 69
-// Total generated resources: 235
+// Generated resources: 167
+// Generated IAM resources: 72
+// Total generated resources: 239
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -749,6 +749,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_network_endpoint_group":                        resourceComputeNetworkEndpointGroup(),
 			"google_compute_global_network_endpoint":                       resourceComputeGlobalNetworkEndpoint(),
 			"google_compute_global_network_endpoint_group":                 resourceComputeGlobalNetworkEndpointGroup(),
+			"google_compute_region_network_endpoint_group":                 resourceComputeRegionNetworkEndpointGroup(),
 			"google_compute_node_group":                                    resourceComputeNodeGroup(),
 			"google_compute_network_peering_routes_config":                 resourceComputeNetworkPeeringRoutesConfig(),
 			"google_compute_node_template":                                 resourceComputeNodeTemplate(),
@@ -841,6 +842,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_iap_tunnel_instance_iam_binding":                       ResourceIamBinding(IapTunnelInstanceIamSchema, IapTunnelInstanceIamUpdaterProducer, IapTunnelInstanceIdParseFunc),
 			"google_iap_tunnel_instance_iam_member":                        ResourceIamMember(IapTunnelInstanceIamSchema, IapTunnelInstanceIamUpdaterProducer, IapTunnelInstanceIdParseFunc),
 			"google_iap_tunnel_instance_iam_policy":                        ResourceIamPolicy(IapTunnelInstanceIamSchema, IapTunnelInstanceIamUpdaterProducer, IapTunnelInstanceIdParseFunc),
+			"google_iap_tunnel_iam_binding":                                ResourceIamBinding(IapTunnelIamSchema, IapTunnelIamUpdaterProducer, IapTunnelIdParseFunc),
+			"google_iap_tunnel_iam_member":                                 ResourceIamMember(IapTunnelIamSchema, IapTunnelIamUpdaterProducer, IapTunnelIdParseFunc),
+			"google_iap_tunnel_iam_policy":                                 ResourceIamPolicy(IapTunnelIamSchema, IapTunnelIamUpdaterProducer, IapTunnelIdParseFunc),
 			"google_iap_brand":                                             resourceIapBrand(),
 			"google_iap_client":                                            resourceIapClient(),
 			"google_identity_platform_default_supported_idp_config":        resourceIdentityPlatformDefaultSupportedIdpConfig(),

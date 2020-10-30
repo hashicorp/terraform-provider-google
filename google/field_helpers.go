@@ -76,6 +76,10 @@ func ParseInstanceTemplateFieldValue(instanceTemplate string, d TerraformResourc
 	return parseGlobalFieldValue("instanceTemplates", instanceTemplate, "project", d, config, false)
 }
 
+func ParseMachineImageFieldValue(machineImage string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
+	return parseGlobalFieldValue("machineImages", machineImage, "project", d, config, false)
+}
+
 func ParseSecurityPolicyFieldValue(securityPolicy string, d TerraformResourceData, config *Config) (*GlobalFieldValue, error) {
 	return parseGlobalFieldValue("securityPolicies", securityPolicy, "project", d, config, true)
 }

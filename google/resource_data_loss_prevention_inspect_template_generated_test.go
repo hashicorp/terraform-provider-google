@@ -161,6 +161,102 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 `, context)
 }
 
+func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_inspect_template.custom",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "custom" {
+	parent = "projects/%{project}"
+	description = "My description"
+	display_name = "display_name"
+
+	inspect_config {
+		custom_info_types {
+			info_type {
+				name = "MY_CUSTOM_TYPE"
+			}
+
+			likelihood = "UNLIKELY"
+
+			regex {
+				pattern = "test*"
+			}
+		}
+
+		info_types {
+			name = "EMAIL_ADDRESS"
+		}
+
+		min_likelihood = "UNLIKELY"
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			rules {
+				exclusion_rule {
+					regex {
+						pattern = ".+@example.com"
+					}
+					matching_type = "MATCHING_TYPE_FULL_MATCH"
+				}
+			}
+		}
+
+		rule_set {
+			info_types {
+				name = "MY_CUSTOM_TYPE"
+			}
+			rules {
+				hotword_rule {
+					hotword_regex {
+						pattern = "example*"
+					}
+					proximity {
+						window_before = 50
+					}
+					likelihood_adjustment {
+						fixed_likelihood = "VERY_LIKELY"
+					}
+				}
+			}
+		}
+
+		limits {
+			max_findings_per_item    = 10
+			max_findings_per_request = 50
+		}
+	}
+}
+`, context)
+}
+
 func testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

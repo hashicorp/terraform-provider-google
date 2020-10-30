@@ -96,6 +96,22 @@ Set the value to 0 to use the default value.`,
 				Optional:    true,
 				Description: `When set to true, no runs are scheduled for a given transfer.`,
 			},
+			"email_preferences": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Email notifications will be sent according to these preferences to the
+email address of the user who owns this transfer config.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_failure_email": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `If true, email notifications will be sent on transfer run failures.`,
+						},
+					},
+				},
+			},
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -121,6 +137,45 @@ jun 13:15, and first sunday of quarter 00:00. See more explanation
 about the format here:
 https://cloud.google.com/appengine/docs/flexible/python/scheduling-jobs-with-cron-yaml#the_schedule_format
 NOTE: the granularity should be at least 8 hours, or less frequent.`,
+			},
+			"schedule_options": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Options customizing the data transfer schedule.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disable_auto_scheduling": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `If true, automatic scheduling of data transfer runs for this
+configuration will be disabled. The runs can be started on ad-hoc
+basis using transferConfigs.startManualRuns API. When automatic
+scheduling is disabled, the TransferConfig.schedule field will
+be ignored.`,
+							AtLeastOneOf: []string{"schedule_options.0.disable_auto_scheduling", "schedule_options.0.start_time", "schedule_options.0.end_time"},
+						},
+						"end_time": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Defines time to stop scheduling transfer runs. A transfer run cannot be
+scheduled at or after the end time. The end time can be changed at any
+moment. The time when a data transfer can be triggered manually is not
+limited by this option.`,
+							AtLeastOneOf: []string{"schedule_options.0.disable_auto_scheduling", "schedule_options.0.start_time", "schedule_options.0.end_time"},
+						},
+						"start_time": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Specifies time to start scheduling transfer runs. The first run will be
+scheduled at or after the start time according to a recurrence pattern
+defined in the schedule string. The start time can be changed at any
+moment. The time when a data transfer can be triggered manually is not
+limited by this option.`,
+							AtLeastOneOf: []string{"schedule_options.0.disable_auto_scheduling", "schedule_options.0.start_time", "schedule_options.0.end_time"},
+						},
+					},
+				},
 			},
 			"sensitive_params": {
 				Type:     schema.TypeList,
@@ -202,6 +257,18 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("schedule"); !isEmptyValue(reflect.ValueOf(scheduleProp)) && (ok || !reflect.DeepEqual(v, scheduleProp)) {
 		obj["schedule"] = scheduleProp
+	}
+	scheduleOptionsProp, err := expandBigqueryDataTransferConfigScheduleOptions(d.Get("schedule_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("schedule_options"); !isEmptyValue(reflect.ValueOf(scheduleOptionsProp)) && (ok || !reflect.DeepEqual(v, scheduleOptionsProp)) {
+		obj["scheduleOptions"] = scheduleOptionsProp
+	}
+	emailPreferencesProp, err := expandBigqueryDataTransferConfigEmailPreferences(d.Get("email_preferences"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("email_preferences"); !isEmptyValue(reflect.ValueOf(emailPreferencesProp)) && (ok || !reflect.DeepEqual(v, emailPreferencesProp)) {
+		obj["emailPreferences"] = emailPreferencesProp
 	}
 	notificationPubsubTopicProp, err := expandBigqueryDataTransferConfigNotificationPubsubTopic(d.Get("notification_pubsub_topic"), d, config)
 	if err != nil {
@@ -351,6 +418,12 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 	if err := d.Set("schedule", flattenBigqueryDataTransferConfigSchedule(res["schedule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
+	if err := d.Set("schedule_options", flattenBigqueryDataTransferConfigScheduleOptions(res["scheduleOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err := d.Set("email_preferences", flattenBigqueryDataTransferConfigEmailPreferences(res["emailPreferences"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
 	if err := d.Set("notification_pubsub_topic", flattenBigqueryDataTransferConfigNotificationPubsubTopic(res["notificationPubsubTopic"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
@@ -394,6 +467,18 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("schedule"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scheduleProp)) {
 		obj["schedule"] = scheduleProp
+	}
+	scheduleOptionsProp, err := expandBigqueryDataTransferConfigScheduleOptions(d.Get("schedule_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("schedule_options"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scheduleOptionsProp)) {
+		obj["scheduleOptions"] = scheduleOptionsProp
+	}
+	emailPreferencesProp, err := expandBigqueryDataTransferConfigEmailPreferences(d.Get("email_preferences"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("email_preferences"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, emailPreferencesProp)) {
+		obj["emailPreferences"] = emailPreferencesProp
 	}
 	notificationPubsubTopicProp, err := expandBigqueryDataTransferConfigNotificationPubsubTopic(d.Get("notification_pubsub_topic"), d, config)
 	if err != nil {
@@ -439,6 +524,14 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("schedule") {
 		updateMask = append(updateMask, "schedule")
+	}
+
+	if d.HasChange("schedule_options") {
+		updateMask = append(updateMask, "scheduleOptions")
+	}
+
+	if d.HasChange("email_preferences") {
+		updateMask = append(updateMask, "emailPreferences")
 	}
 
 	if d.HasChange("notification_pubsub_topic") {
@@ -548,6 +641,52 @@ func flattenBigqueryDataTransferConfigSchedule(v interface{}, d *schema.Resource
 	return v
 }
 
+func flattenBigqueryDataTransferConfigScheduleOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["disable_auto_scheduling"] =
+		flattenBigqueryDataTransferConfigScheduleOptionsDisableAutoScheduling(original["disableAutoScheduling"], d, config)
+	transformed["start_time"] =
+		flattenBigqueryDataTransferConfigScheduleOptionsStartTime(original["startTime"], d, config)
+	transformed["end_time"] =
+		flattenBigqueryDataTransferConfigScheduleOptionsEndTime(original["endTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryDataTransferConfigScheduleOptionsDisableAutoScheduling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryDataTransferConfigScheduleOptionsStartTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryDataTransferConfigScheduleOptionsEndTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigqueryDataTransferConfigEmailPreferences(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_failure_email"] =
+		flattenBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(original["enableFailureEmail"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -600,6 +739,74 @@ func expandBigqueryDataTransferConfigDataSourceId(v interface{}, d TerraformReso
 }
 
 func expandBigqueryDataTransferConfigSchedule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryDataTransferConfigScheduleOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDisableAutoScheduling, err := expandBigqueryDataTransferConfigScheduleOptionsDisableAutoScheduling(original["disable_auto_scheduling"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisableAutoScheduling); val.IsValid() && !isEmptyValue(val) {
+		transformed["disableAutoScheduling"] = transformedDisableAutoScheduling
+	}
+
+	transformedStartTime, err := expandBigqueryDataTransferConfigScheduleOptionsStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !isEmptyValue(val) {
+		transformed["startTime"] = transformedStartTime
+	}
+
+	transformedEndTime, err := expandBigqueryDataTransferConfigScheduleOptionsEndTime(original["end_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEndTime); val.IsValid() && !isEmptyValue(val) {
+		transformed["endTime"] = transformedEndTime
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryDataTransferConfigScheduleOptionsDisableAutoScheduling(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryDataTransferConfigScheduleOptionsStartTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryDataTransferConfigScheduleOptionsEndTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryDataTransferConfigEmailPreferences(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableFailureEmail, err := expandBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(original["enable_failure_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableFailureEmail); val.IsValid() && !isEmptyValue(val) {
+		transformed["enableFailureEmail"] = transformedEnableFailureEmail
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

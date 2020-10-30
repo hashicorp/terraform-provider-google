@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -33,6 +34,9 @@ func TestAccBigqueryDataTransferConfig(t *testing.T) {
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_basic(t *testing.T) {
 	random_suffix := randString(t, 10)
+	now := time.Now().UTC()
+	start_time := now.Add(1 * time.Hour).Format(time.RFC3339)
+	end_time := now.AddDate(0, 1, 0).Format(time.RFC3339)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -40,7 +44,7 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_basic(t *testing.T) {
 		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "third", "y"),
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "third", start_time, end_time, "y"),
 			},
 			{
 				ResourceName:            "google_bigquery_data_transfer_config.query_config",
@@ -54,6 +58,11 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_basic(t *testing.T) {
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 	random_suffix := randString(t, 10)
+	now := time.Now().UTC()
+	first_start_time := now.Add(1 * time.Hour).Format(time.RFC3339)
+	first_end_time := now.AddDate(0, 1, 0).Format(time.RFC3339)
+	second_start_time := now.Add(2 * time.Hour).Format(time.RFC3339)
+	second_end_time := now.AddDate(0, 2, 0).Format(time.RFC3339)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -61,10 +70,10 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "first", "y"),
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "first", first_start_time, first_end_time, "y"),
 			},
 			{
-				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "second", "z"),
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "second", second_start_time, second_end_time, "z"),
 			},
 			{
 				ResourceName:            "google_bigquery_data_transfer_config.query_config",
@@ -145,7 +154,7 @@ func testAccCheckBigqueryDataTransferConfigDestroyProducer(t *testing.T) func(s 
 	}
 }
 
-func testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, schedule, letter string) string {
+func testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, schedule, start_time, end_time, letter string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {}
 
@@ -175,15 +184,23 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   location               = "asia-northeast1"
   data_source_id         = "scheduled_query"
   schedule               = "%s sunday of quarter 00:00"
+  schedule_options {
+    disable_auto_scheduling = false
+    start_time              = "%s"
+    end_time                = "%s"
+  }
   destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
   notification_pubsub_topic = google_pubsub_topic.my_topic.id
+  email_preferences = {
+    enable_failure_email = true
+  }
   params = {
     destination_table_name_template = "my_table"
     write_disposition               = "WRITE_APPEND"
     query                           = "SELECT name FROM tabl WHERE x = '%s'"
   }
 }
-`, random_suffix, random_suffix, random_suffix, schedule, letter)
+`, random_suffix, random_suffix, random_suffix, schedule, start_time, end_time, letter)
 }
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_service_account(random_suffix string) string {

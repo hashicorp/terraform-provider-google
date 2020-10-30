@@ -93,7 +93,7 @@ resource "google_compute_address" "addr" {
 
 resource "google_compute_instance" "vm1" {
   	name = "tf-test-src-vm%{random_suffix}"
-	machine_type = "n1-standard-1"
+	machine_type = "e2-medium"
 	boot_disk {
 	  initialize_params {
 	    image = data.google_compute_image.debian_9.id
@@ -106,7 +106,7 @@ resource "google_compute_instance" "vm1" {
 
 resource "google_compute_instance" "vm2" {
 	name = "tf-test-vm-dest%{random_suffix}"
-	machine_type = "n1-standard-1"
+	machine_type = "e2-medium"
   
 	boot_disk {
 	  initialize_params {
