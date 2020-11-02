@@ -1,4 +1,4 @@
-## 3.46.0 (Unreleased)
+## 3.46.0 (November 02, 2020)
 NOTES:
 * compute: updated `google_compute_machine_image` resource to complete once the Image is ready. ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
 
