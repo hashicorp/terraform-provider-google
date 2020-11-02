@@ -580,6 +580,7 @@ func Provider() *schema.Provider {
 			"google_cloudfunctions_function":                      dataSourceGoogleCloudFunctionsFunction(),
 			"google_cloud_run_service":                            dataSourceGoogleCloudRunService(),
 			"google_composer_image_versions":                      dataSourceGoogleComposerImageVersions(),
+			"google_composer_environment":                         dataSourceGoogleComposerEnvironment(),
 			"google_compute_address":                              dataSourceGoogleComputeAddress(),
 			"google_compute_backend_service":                      dataSourceGoogleComputeBackendService(),
 			"google_compute_backend_bucket":                       dataSourceGoogleComputeBackendBucket(),
