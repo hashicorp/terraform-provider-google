@@ -15,7 +15,8 @@ BUG FIXES:
 * dataflow: removed required validation for zone for `google_data_flow_job` when region is given in the config ([#7703](https://github.com/hashicorp/terraform-provider-google/pull/7703))
 * monitoring: Fixed type of `google_monitoring_slo`'s `range` values - some `range` values are doubles, others are integers. ([#7676](https://github.com/hashicorp/terraform-provider-google/pull/7676))
 * pubsub: Fixed permadiff on push_config.attributes. ([#7714](https://github.com/hashicorp/terraform-provider-google/pull/7714))
-  
+* storage: fixed an issue in `google_storage_bucket` where `lifecycle_rules` were always included in update requests ([#7727](https://github.com/hashicorp/terraform-provider-google/pull/7727))
+
 ## 3.46.0 (November 02, 2020)
 NOTES:
 * compute: updated `google_compute_machine_image` resource to complete once the Image is ready. ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
