@@ -107,21 +107,19 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `state` -
   The state of the pool.
-  STATE_UNSPECIFIED: State unspecified.
-  ACTIVE: The pool is active, and may be used in Google Cloud policies.
-  DELETED: The pool is soft-deleted. Soft-deleted pools are permanently deleted after
-  approximately 30 days. You can restore a soft-deleted pool using
-  UndeleteWorkloadIdentityPool. You cannot reuse the ID of a soft-deleted pool until it is
-  permanently deleted. While a pool is deleted, you cannot use it to exchange tokens, or
-  use existing tokens to access resources. If the pool is undeleted, existing tokens grant
-  access again.
+  * STATE_UNSPECIFIED: State unspecified.
+  * ACTIVE: The pool is active, and may be used in Google Cloud policies.
+  * DELETED: The pool is soft-deleted. Soft-deleted pools are permanently deleted after
+    approximately 30 days. You can restore a soft-deleted pool using
+    UndeleteWorkloadIdentityPool. You cannot reuse the ID of a soft-deleted pool until it is
+    permanently deleted. While a pool is deleted, you cannot use it to exchange tokens, or
+    use existing tokens to access resources. If the pool is undeleted, existing tokens grant
+    access again.
 
 * `name` -
   The resource name of the pool as
-  `projects/<projectnumber>/locations/global/workloadIdentityPools/<id>`.
+  `projects/{project_number}/locations/global/workloadIdentityPools/{workload_identity_pool_id}`.
 
-
-* `self_link`: The self link of the created WorkloadIdentityPool in the format `projects/{project}/locations/global/workloadIdentityPools/{workload_identity_pool_id}`
 
 ## Timeouts
 
