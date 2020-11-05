@@ -21,6 +21,7 @@ var functionAllowedMemory = map[int]bool{
 	512:  true,
 	1024: true,
 	2048: true,
+	4096: true,
 }
 
 var allowedIngressSettings = []string{
