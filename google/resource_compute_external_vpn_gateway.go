@@ -152,7 +152,7 @@ func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interf
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ExternalVpnGateway: %s", err)
 	}
 	billingProject = project
 
@@ -204,7 +204,7 @@ func resourceComputeExternalVpnGatewayRead(d *schema.ResourceData, meta interfac
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ExternalVpnGateway: %s", err)
 	}
 	billingProject = project
 
@@ -252,7 +252,7 @@ func resourceComputeExternalVpnGatewayDelete(d *schema.ResourceData, meta interf
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ExternalVpnGateway: %s", err)
 	}
 	billingProject = project
 

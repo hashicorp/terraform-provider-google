@@ -246,7 +246,7 @@ func resourceBigQueryRoutineCreate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Routine: %s", err)
 	}
 	billingProject = project
 
@@ -288,7 +288,7 @@ func resourceBigQueryRoutineRead(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Routine: %s", err)
 	}
 	billingProject = project
 
@@ -366,7 +366,7 @@ func resourceBigQueryRoutineUpdate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Routine: %s", err)
 	}
 	billingProject = project
 
@@ -460,7 +460,7 @@ func resourceBigQueryRoutineDelete(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Routine: %s", err)
 	}
 	billingProject = project
 

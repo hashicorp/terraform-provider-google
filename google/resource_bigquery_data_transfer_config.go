@@ -310,7 +310,7 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Config: %s", err)
 	}
 	billingProject = project
 
@@ -373,7 +373,7 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Config: %s", err)
 	}
 	billingProject = project
 
@@ -451,7 +451,7 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Config: %s", err)
 	}
 	billingProject = project
 
@@ -583,7 +583,7 @@ func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta inter
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Config: %s", err)
 	}
 	billingProject = project
 

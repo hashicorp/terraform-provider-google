@@ -144,7 +144,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigCreate(d *schema.ResourceData, 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TenantOauthIdpConfig: %s", err)
 	}
 	billingProject = project
 
@@ -186,7 +186,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigRead(d *schema.ResourceData, me
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TenantOauthIdpConfig: %s", err)
 	}
 	billingProject = project
 
@@ -237,7 +237,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigUpdate(d *schema.ResourceData, 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TenantOauthIdpConfig: %s", err)
 	}
 	billingProject = project
 
@@ -334,7 +334,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigDelete(d *schema.ResourceData, 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TenantOauthIdpConfig: %s", err)
 	}
 	billingProject = project
 

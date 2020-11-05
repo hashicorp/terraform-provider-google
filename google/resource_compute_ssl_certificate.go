@@ -165,7 +165,7 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SslCertificate: %s", err)
 	}
 	billingProject = project
 
@@ -217,7 +217,7 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SslCertificate: %s", err)
 	}
 	billingProject = project
 
@@ -268,7 +268,7 @@ func resourceComputeSslCertificateDelete(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SslCertificate: %s", err)
 	}
 	billingProject = project
 

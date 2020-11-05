@@ -139,7 +139,7 @@ func resourceSQLSourceRepresentationInstanceCreate(d *schema.ResourceData, meta 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SourceRepresentationInstance: %s", err)
 	}
 	billingProject = project
 
@@ -191,7 +191,7 @@ func resourceSQLSourceRepresentationInstanceRead(d *schema.ResourceData, meta in
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SourceRepresentationInstance: %s", err)
 	}
 	billingProject = project
 
@@ -260,7 +260,7 @@ func resourceSQLSourceRepresentationInstanceDelete(d *schema.ResourceData, meta 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SourceRepresentationInstance: %s", err)
 	}
 	billingProject = project
 

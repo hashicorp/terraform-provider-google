@@ -123,7 +123,7 @@ func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta int
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ServiceSplitTraffic: %s", err)
 	}
 	billingProject = project
 
@@ -175,7 +175,7 @@ func resourceAppEngineServiceSplitTrafficRead(d *schema.ResourceData, meta inter
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ServiceSplitTraffic: %s", err)
 	}
 	billingProject = project
 
@@ -211,7 +211,7 @@ func resourceAppEngineServiceSplitTrafficUpdate(d *schema.ResourceData, meta int
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ServiceSplitTraffic: %s", err)
 	}
 	billingProject = project
 

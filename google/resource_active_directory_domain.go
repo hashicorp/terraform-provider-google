@@ -160,7 +160,7 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
 	billingProject = project
 
@@ -225,7 +225,7 @@ func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
 	billingProject = project
 
@@ -279,7 +279,7 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
 	billingProject = project
 
@@ -364,7 +364,7 @@ func resourceActiveDirectoryDomainDelete(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
 	billingProject = project
 

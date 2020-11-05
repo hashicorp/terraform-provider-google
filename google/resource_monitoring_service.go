@@ -131,7 +131,7 @@ func resourceMonitoringServiceCreate(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 
@@ -176,7 +176,7 @@ func resourceMonitoringServiceRead(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 
@@ -221,7 +221,7 @@ func resourceMonitoringServiceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 
@@ -293,7 +293,7 @@ func resourceMonitoringServiceDelete(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 

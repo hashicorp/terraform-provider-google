@@ -184,7 +184,7 @@ func resourceGameServicesGameServerClusterCreate(d *schema.ResourceData, meta in
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GameServerCluster: %s", err)
 	}
 	billingProject = project
 
@@ -249,7 +249,7 @@ func resourceGameServicesGameServerClusterRead(d *schema.ResourceData, meta inte
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GameServerCluster: %s", err)
 	}
 	billingProject = project
 
@@ -294,7 +294,7 @@ func resourceGameServicesGameServerClusterUpdate(d *schema.ResourceData, meta in
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GameServerCluster: %s", err)
 	}
 	billingProject = project
 
@@ -369,7 +369,7 @@ func resourceGameServicesGameServerClusterDelete(d *schema.ResourceData, meta in
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GameServerCluster: %s", err)
 	}
 	billingProject = project
 

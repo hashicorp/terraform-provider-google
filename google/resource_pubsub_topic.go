@@ -149,7 +149,7 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Topic: %s", err)
 	}
 	billingProject = project
 
@@ -193,7 +193,7 @@ func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) PollR
 
 		project, err := getProject(d, config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error fetching project for Topic: %s", err)
 		}
 		billingProject = project
 
@@ -231,7 +231,7 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Topic: %s", err)
 	}
 	billingProject = project
 
@@ -276,7 +276,7 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Topic: %s", err)
 	}
 	billingProject = project
 
@@ -348,7 +348,7 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Topic: %s", err)
 	}
 	billingProject = project
 
