@@ -17,7 +17,6 @@ A typical provider configuration will look something like:
 
 ```hcl
 provider "google" {
-  credentials = file("account.json")
   project     = "my-project-id"
   region      = "us-central1"
 }

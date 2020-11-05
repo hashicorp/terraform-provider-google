@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Platform"
+subcategory: "Cloud Billing"
 layout: "google"
 page_title: "Google: google_billing_account"
 sidebar_current: "docs-google-datasource-billing-account"
