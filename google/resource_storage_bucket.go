@@ -476,7 +476,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 	sb := &storage.Bucket{}
 
-	if d.HasChange("lifecycle_rule") {
+	if detectLifecycleChange(d) {
 		lifecycle, err := expandStorageBucketLifecycle(d.Get("lifecycle_rule"))
 		if err != nil {
 			return err
@@ -1306,4 +1306,23 @@ func lockRetentionPolicy(bucketsService *storage.BucketsService, bucketName stri
 	}
 
 	return nil
+}
+
+// d.HasChange("lifecycle_rule") always returns true, giving false positives. This function detects changes
+// to the list size or the actions/conditions of rules directly.
+func detectLifecycleChange(d *schema.ResourceData) bool {
+	if d.HasChange("lifecycle_rule.#") {
+		return true
+	}
+
+	if l, ok := d.GetOk("lifecycle_rule"); ok {
+		lifecycleRules := l.([]interface{})
+		for i := range lifecycleRules {
+			if d.HasChange(fmt.Sprintf("lifecycle_rule.%d.action", i)) || d.HasChange(fmt.Sprintf("lifecycle_rule.%d.condition", i)) {
+				return true
+			}
+		}
+	}
+
+	return false
 }
