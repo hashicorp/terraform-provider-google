@@ -141,7 +141,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigCreate(d *schema.Res
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TenantDefaultSupportedIdpConfig: %s", err)
 	}
 	billingProject = project
 
@@ -186,7 +186,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigRead(d *schema.Resou
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TenantDefaultSupportedIdpConfig: %s", err)
 	}
 	billingProject = project
 
@@ -231,7 +231,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigUpdate(d *schema.Res
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TenantDefaultSupportedIdpConfig: %s", err)
 	}
 	billingProject = project
 
@@ -308,7 +308,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigDelete(d *schema.Res
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TenantDefaultSupportedIdpConfig: %s", err)
 	}
 	billingProject = project
 

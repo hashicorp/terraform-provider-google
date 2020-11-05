@@ -121,7 +121,7 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NetworkPeeringRoutesConfig: %s", err)
 	}
 	billingProject = project
 
@@ -173,7 +173,7 @@ func resourceComputeNetworkPeeringRoutesConfigRead(d *schema.ResourceData, meta 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NetworkPeeringRoutesConfig: %s", err)
 	}
 	billingProject = project
 
@@ -227,7 +227,7 @@ func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, met
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NetworkPeeringRoutesConfig: %s", err)
 	}
 	billingProject = project
 

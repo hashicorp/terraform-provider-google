@@ -157,7 +157,7 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
@@ -235,7 +235,7 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
@@ -298,7 +298,7 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
@@ -375,7 +375,7 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 

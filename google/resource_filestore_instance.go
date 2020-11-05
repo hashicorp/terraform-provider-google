@@ -211,7 +211,7 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
@@ -272,7 +272,7 @@ func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
@@ -326,7 +326,7 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
@@ -411,7 +411,7 @@ func resourceFilestoreInstanceDelete(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 

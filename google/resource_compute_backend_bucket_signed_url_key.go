@@ -111,7 +111,7 @@ func resourceComputeBackendBucketSignedUrlKeyCreate(d *schema.ResourceData, meta
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendBucketSignedUrlKey: %s", err)
 	}
 	billingProject = project
 
@@ -163,7 +163,7 @@ func resourceComputeBackendBucketSignedUrlKeyRead(d *schema.ResourceData, meta i
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendBucketSignedUrlKey: %s", err)
 	}
 	billingProject = project
 
@@ -211,7 +211,7 @@ func resourceComputeBackendBucketSignedUrlKeyDelete(d *schema.ResourceData, meta
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendBucketSignedUrlKey: %s", err)
 	}
 	billingProject = project
 

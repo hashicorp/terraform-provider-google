@@ -166,7 +166,7 @@ func resourceComputeTargetGrpcProxyCreate(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetGrpcProxy: %s", err)
 	}
 	billingProject = project
 
@@ -218,7 +218,7 @@ func resourceComputeTargetGrpcProxyRead(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetGrpcProxy: %s", err)
 	}
 	billingProject = project
 
@@ -275,7 +275,7 @@ func resourceComputeTargetGrpcProxyUpdate(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetGrpcProxy: %s", err)
 	}
 	billingProject = project
 
@@ -335,7 +335,7 @@ func resourceComputeTargetGrpcProxyDelete(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetGrpcProxy: %s", err)
 	}
 	billingProject = project
 

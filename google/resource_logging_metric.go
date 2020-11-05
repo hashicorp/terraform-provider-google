@@ -327,7 +327,7 @@ func resourceLoggingMetricCreate(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Metric: %s", err)
 	}
 	billingProject = project
 
@@ -387,7 +387,7 @@ func resourceLoggingMetricRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Metric: %s", err)
 	}
 	billingProject = project
 
@@ -441,7 +441,7 @@ func resourceLoggingMetricUpdate(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Metric: %s", err)
 	}
 	billingProject = project
 
@@ -530,7 +530,7 @@ func resourceLoggingMetricDelete(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Metric: %s", err)
 	}
 	billingProject = project
 

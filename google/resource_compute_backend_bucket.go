@@ -162,7 +162,7 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendBucket: %s", err)
 	}
 	billingProject = project
 
@@ -214,7 +214,7 @@ func resourceComputeBackendBucketRead(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendBucket: %s", err)
 	}
 	billingProject = project
 
@@ -268,7 +268,7 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendBucket: %s", err)
 	}
 	billingProject = project
 
@@ -346,7 +346,7 @@ func resourceComputeBackendBucketDelete(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendBucket: %s", err)
 	}
 	billingProject = project
 

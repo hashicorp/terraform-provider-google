@@ -379,7 +379,7 @@ func resourceDNSManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
 	}
 	billingProject = project
 
@@ -421,7 +421,7 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
 	}
 	billingProject = project
 
@@ -490,7 +490,7 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
 	}
 	billingProject = project
 
@@ -566,7 +566,7 @@ func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
 	}
 	billingProject = project
 

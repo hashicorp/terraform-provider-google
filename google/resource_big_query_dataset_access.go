@@ -357,7 +357,7 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DatasetAccess: %s", err)
 	}
 	billingProject = project
 
@@ -427,7 +427,7 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DatasetAccess: %s", err)
 	}
 	billingProject = project
 
@@ -493,7 +493,7 @@ func resourceBigQueryDatasetAccessDelete(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DatasetAccess: %s", err)
 	}
 	billingProject = project
 

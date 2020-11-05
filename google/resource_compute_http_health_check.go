@@ -202,7 +202,7 @@ func resourceComputeHttpHealthCheckCreate(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HttpHealthCheck: %s", err)
 	}
 	billingProject = project
 
@@ -254,7 +254,7 @@ func resourceComputeHttpHealthCheckRead(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HttpHealthCheck: %s", err)
 	}
 	billingProject = project
 
@@ -320,7 +320,7 @@ func resourceComputeHttpHealthCheckUpdate(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HttpHealthCheck: %s", err)
 	}
 	billingProject = project
 
@@ -422,7 +422,7 @@ func resourceComputeHttpHealthCheckDelete(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HttpHealthCheck: %s", err)
 	}
 	billingProject = project
 

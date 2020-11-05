@@ -427,7 +427,7 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
 
@@ -471,7 +471,7 @@ func resourcePubsubSubscriptionPollRead(d *schema.ResourceData, meta interface{}
 
 		project, err := getProject(d, config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error fetching project for Subscription: %s", err)
 		}
 		billingProject = project
 
@@ -521,7 +521,7 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
 
@@ -602,7 +602,7 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
 
@@ -734,7 +734,7 @@ func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
 

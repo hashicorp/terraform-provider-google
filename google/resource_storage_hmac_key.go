@@ -117,7 +117,7 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HmacKey: %s", err)
 	}
 	billingProject = project
 
@@ -187,7 +187,7 @@ func resourceStorageHmacKeyRead(d *schema.ResourceData, meta interface{}) error 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HmacKey: %s", err)
 	}
 	billingProject = project
 
@@ -247,7 +247,7 @@ func resourceStorageHmacKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HmacKey: %s", err)
 	}
 	billingProject = project
 
@@ -315,7 +315,7 @@ func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HmacKey: %s", err)
 	}
 	billingProject = project
 

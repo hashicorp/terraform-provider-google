@@ -525,7 +525,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Job: %s", err)
 	}
 	billingProject = project
 
@@ -567,7 +567,7 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Job: %s", err)
 	}
 	billingProject = project
 
@@ -635,7 +635,7 @@ func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Job: %s", err)
 	}
 	billingProject = project
 

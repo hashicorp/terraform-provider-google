@@ -290,7 +290,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Snapshot: %s", err)
 	}
 	billingProject = project
 
@@ -342,7 +342,7 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Snapshot: %s", err)
 	}
 	billingProject = project
 
@@ -426,7 +426,7 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Snapshot: %s", err)
 	}
 	billingProject = project
 
@@ -489,7 +489,7 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Snapshot: %s", err)
 	}
 	billingProject = project
 

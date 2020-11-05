@@ -203,7 +203,7 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TagTemplate: %s", err)
 	}
 	billingProject = project
 
@@ -248,7 +248,7 @@ func resourceDataCatalogTagTemplateRead(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TagTemplate: %s", err)
 	}
 	billingProject = project
 
@@ -298,7 +298,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TagTemplate: %s", err)
 	}
 	billingProject = project
 
@@ -355,7 +355,7 @@ func resourceDataCatalogTagTemplateDelete(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TagTemplate: %s", err)
 	}
 	billingProject = project
 
