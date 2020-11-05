@@ -509,12 +509,9 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProviderUserProjectOverride(pid, pname, org, billing, sa),
-				Check: func(s *terraform.State) error {
-					// The token creator IAM API call returns success long before the policy is
-					// actually usable. Wait a solid 2 minutes to ensure we can use it.
-					time.Sleep(2 * time.Minute)
-					return nil
-				},
+				// The token creator IAM API call returns success long before the policy is
+				// actually usable. Wait a solid 2 minutes to ensure we can use it.
+				Check: sleepInSecondsForTest(2 * 60),
 			},
 			{
 				Config:      testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, false, topicName),
