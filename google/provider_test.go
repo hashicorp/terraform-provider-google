@@ -911,10 +911,3 @@ func skipIfVcr(t *testing.T) {
 		t.Skipf("VCR enabled, skipping test: %s", t.Name())
 	}
 }
-
-func sleepInSecondsForTest(t int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		time.Sleep(time.Duration(t) * time.Second)
-		return nil
-	}
-}
