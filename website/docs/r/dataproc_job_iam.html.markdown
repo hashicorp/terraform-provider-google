@@ -19,7 +19,7 @@ Three different resources help you manage IAM policies on dataproc jobs. Each of
 
 ~> **Note:** `google_dataproc_job_iam_binding` resources **can be** used in conjunction with `google_dataproc_job_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_pubsub\_subscription\_iam\_policy
+## google\_dataproc\_job\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -39,7 +39,7 @@ resource "google_dataproc_job_iam_policy" "editor" {
 }
 ```
 
-## google\_pubsub\_subscription\_iam\_binding
+## google\_dataproc\_job\_iam\_binding
 
 ```hcl
 resource "google_dataproc_job_iam_binding" "editor" {
@@ -51,7 +51,7 @@ resource "google_dataproc_job_iam_binding" "editor" {
 }
 ```
 
-## google\_pubsub\_subscription\_iam\_member
+## google\_dataproc\_job\_iam\_member
 
 ```hcl
 resource "google_dataproc_job_iam_member" "editor" {
