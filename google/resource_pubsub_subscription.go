@@ -222,8 +222,9 @@ For example, a Webhook endpoint might use
 "https://example.com/push".`,
 						},
 						"attributes": {
-							Type:     schema.TypeMap,
-							Optional: true,
+							Type:             schema.TypeMap,
+							Optional:         true,
+							DiffSuppressFunc: ignoreMissingKeyInMap("x-goog-version"),
 							Description: `Endpoint configuration attributes.
 
 Every endpoint has a set of API supported attributes that can
