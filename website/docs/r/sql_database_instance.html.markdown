@@ -303,8 +303,7 @@ Specifying a network enables private IP.
 Either `ipv4_enabled` must be enabled or a `private_network` must be configured.
 This setting can be updated, but it cannot be removed after it is set.
 
-* `require_ssl` - (Optional) True if mysqld should default to `REQUIRE X509`
-    for users connecting over IP.
+* `require_ssl` - (Optional) Whether SSL connections over IP are enforced or not.
 
 The optional `settings.ip_configuration.authorized_networks[]` sublist supports:
 
