@@ -1,0 +1,4 @@
+```release-note:bug
+dataflow - removed required validation for zone for `google_data_flow_job` when region is given in the config 
+
+```
