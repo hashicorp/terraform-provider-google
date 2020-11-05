@@ -26,6 +26,11 @@ Jobs are actions that BigQuery runs on your behalf to load data, export data, qu
 Once a BigQuery job is created, it cannot be changed or deleted.
 
 
+To get more information about Job, see:
+
+* [API documentation](https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs)
+* How-to Guides
+    * [BigQuery Jobs Intro](https://cloud.google.com/bigquery/docs/jobs-overview)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_job_query&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
