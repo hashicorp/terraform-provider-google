@@ -515,10 +515,7 @@ func resourceDataflowJobLaunchTemplate(config *Config, project, region, userAgen
 }
 
 func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *Config) (dataflow.RuntimeEnvironment, error) {
-	zone, err := getZone(d, config)
-	if err != nil {
-		return dataflow.RuntimeEnvironment{}, err
-	}
+	zone, _ := getZone(d, config)
 
 	labels := expandStringMap(d, "labels")
 
