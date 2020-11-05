@@ -180,7 +180,7 @@ The `external_data_configuration` block supports:
 
 * `source_format` (Required) - The data format. Supported values are:
     "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "PARQUET",
-    and "DATSTORE_BACKUP". To use "GOOGLE_SHEETS"
+    and "DATASTORE_BACKUP". To use "GOOGLE_SHEETS"
     the `scopes` must include
     "https://www.googleapis.com/auth/drive.readonly".
 
