@@ -32,11 +32,11 @@ To get more information about SSHPublicKey, see:
     * [Official Documentation](https://cloud.google.com/compute/docs/oslogin)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=os_login_ssh_key_provided_user&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=os_login_ssh_key_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Os Login Ssh Key Provided User
+## Example Usage - Os Login Ssh Key Basic
 
 
 ```hcl
@@ -46,24 +46,6 @@ data "google_client_openid_userinfo" "me" {
 resource "google_os_login_ssh_public_key" "cache" {
   user =  data.google_client_openid_userinfo.me.email
   key = file("path/to/id_rsa.pub")
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=os_login_ssh_key_with_project&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Os Login Ssh Key With Project
-
-
-```hcl
-data "google_client_openid_userinfo" "me" {
-}
-
-resource "google_os_login_ssh_public_key" "cache" {
-  user =  data.google_client_openid_userinfo.me.email
-  key = file("path/to/id_rsa.pub")
-  project = "my-project-name"
 }
 ```
 
