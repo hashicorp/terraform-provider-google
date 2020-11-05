@@ -3,7 +3,6 @@
 FEATURES:
 * **New Data Source:** `google_iam_workload_identity_pool` ([#7704](https://github.com/hashicorp/terraform-provider-google/pull/7704))
 * **New Resource:** `google_iam_workload_identity_pool_provider` ([#7712](https://github.com/hashicorp/terraform-provider-google/pull/7712))
-* **New Resource:** `google_project_default_service_accounts` ([#7541](https://github.com/hashicorp/terraform-provider-google/pull/7541))
 * **New Resource:** `google_project_default_service_accounts` ([#7709](https://github.com/hashicorp/terraform-provider-google/pull/7709))
 
 IMPROVEMENTS:
