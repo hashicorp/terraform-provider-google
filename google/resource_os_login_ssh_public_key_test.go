@@ -53,6 +53,7 @@ resource "google_project_service" "compute" {
 resource "google_project_service" "oslogin" {
   project = google_project.project.project_id
   service = "oslogin.googleapis.com"
+  disable_dependent_services = true
 }
 
 data "google_client_openid_userinfo" "me" {
