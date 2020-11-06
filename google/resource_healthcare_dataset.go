@@ -108,7 +108,7 @@ func resourceHealthcareDatasetCreate(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Dataset: %s", err)
 	}
 	billingProject = project
 
@@ -150,7 +150,7 @@ func resourceHealthcareDatasetRead(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Dataset: %s", err)
 	}
 	billingProject = project
 
@@ -201,7 +201,7 @@ func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Dataset: %s", err)
 	}
 	billingProject = project
 
@@ -258,7 +258,7 @@ func resourceHealthcareDatasetDelete(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Dataset: %s", err)
 	}
 	billingProject = project
 

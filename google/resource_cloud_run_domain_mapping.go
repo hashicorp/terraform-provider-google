@@ -303,7 +303,7 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 
@@ -347,7 +347,7 @@ func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interfac
 
 		project, err := getProject(d, config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 		}
 		billingProject = project
 
@@ -397,7 +397,7 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 
@@ -451,7 +451,7 @@ func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 

@@ -893,7 +893,7 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Job: %s", err)
 	}
 	billingProject = project
 
@@ -937,7 +937,7 @@ func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollR
 
 		project, err := getProject(d, config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error fetching project for Job: %s", err)
 		}
 		billingProject = project
 
@@ -975,7 +975,7 @@ func resourceBigQueryJobRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Job: %s", err)
 	}
 	billingProject = project
 

@@ -111,7 +111,7 @@ func resourceAppEngineApplicationUrlDispatchRulesCreate(d *schema.ResourceData, 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ApplicationUrlDispatchRules: %s", err)
 	}
 	billingProject = project
 
@@ -163,7 +163,7 @@ func resourceAppEngineApplicationUrlDispatchRulesRead(d *schema.ResourceData, me
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ApplicationUrlDispatchRules: %s", err)
 	}
 	billingProject = project
 
@@ -199,7 +199,7 @@ func resourceAppEngineApplicationUrlDispatchRulesUpdate(d *schema.ResourceData, 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ApplicationUrlDispatchRules: %s", err)
 	}
 	billingProject = project
 
@@ -260,7 +260,7 @@ func resourceAppEngineApplicationUrlDispatchRulesDelete(d *schema.ResourceData, 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ApplicationUrlDispatchRules: %s", err)
 	}
 	billingProject = project
 

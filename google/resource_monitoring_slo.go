@@ -752,7 +752,7 @@ func resourceMonitoringSloCreate(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Slo: %s", err)
 	}
 	billingProject = project
 
@@ -797,7 +797,7 @@ func resourceMonitoringSloRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Slo: %s", err)
 	}
 	billingProject = project
 
@@ -863,7 +863,7 @@ func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Slo: %s", err)
 	}
 	billingProject = project
 
@@ -996,7 +996,7 @@ func resourceMonitoringSloDelete(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Slo: %s", err)
 	}
 	billingProject = project
 

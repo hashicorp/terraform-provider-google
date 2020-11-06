@@ -254,6 +254,12 @@ resource "google_cloud_run_service" "default" {
     }
   }
 
+  metadata {
+    annotations = {
+      generated-by = "magic-modules"
+    }
+  }
+
   traffic {
     percent         = 100
     latest_revision = true

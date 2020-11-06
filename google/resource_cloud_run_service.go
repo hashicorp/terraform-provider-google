@@ -20,6 +20,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -32,6 +33,23 @@ func revisionNameCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v i
 		return fmt.Errorf("google_cloud_run_service: `template.metadata.name` cannot be set while `autogenerate_revision_name` is true. Please remove the field or set `autogenerate_revision_name` to false.")
 	}
 	return nil
+}
+
+const cloudRunGoogleProvidedAnnotation = "serving.knative.dev"
+
+func cloudrunAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the annotations provided by Google
+	if strings.Contains(k, cloudRunGoogleProvidedAnnotation) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by annotations (above)
+	if strings.Contains(k, "annotations.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
 }
 
 func resourceCloudRunService() *schema.Resource {
@@ -485,9 +503,10 @@ and annotations.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"annotations": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Optional: true,
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							DiffSuppressFunc: cloudrunAnnotationDiffSuppress,
 							Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
 info: http://kubernetes.io/docs/user-guide/annotations`,
@@ -662,7 +681,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 
@@ -706,7 +725,7 @@ func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) P
 
 		project, err := getProject(d, config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error fetching project for Service: %s", err)
 		}
 		billingProject = project
 
@@ -756,7 +775,7 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 
@@ -828,7 +847,7 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 
@@ -890,7 +909,7 @@ func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 

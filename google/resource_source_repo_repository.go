@@ -152,7 +152,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
 
@@ -200,7 +200,7 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
 
@@ -245,7 +245,7 @@ func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
 
@@ -307,7 +307,7 @@ func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
 

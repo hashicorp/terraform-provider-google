@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Billing Budget"
+subcategory: "Cloud Billing"
 layout: "google"
 page_title: "Google: google_billing_budget"
 sidebar_current: "docs-google-billing-budget"

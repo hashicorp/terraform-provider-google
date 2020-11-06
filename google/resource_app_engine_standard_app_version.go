@@ -562,7 +562,7 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for StandardAppVersion: %s", err)
 	}
 	billingProject = project
 
@@ -614,7 +614,7 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for StandardAppVersion: %s", err)
 	}
 	billingProject = project
 
@@ -694,7 +694,7 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for StandardAppVersion: %s", err)
 	}
 	billingProject = project
 

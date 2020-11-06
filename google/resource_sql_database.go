@@ -139,7 +139,7 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
 	billingProject = project
 
@@ -191,7 +191,7 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
 	billingProject = project
 
@@ -239,7 +239,7 @@ func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
 	billingProject = project
 
@@ -318,7 +318,7 @@ func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
 	billingProject = project
 

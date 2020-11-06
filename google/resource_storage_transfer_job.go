@@ -138,7 +138,7 @@ func resourceStorageTransferJob() *schema.Resource {
 						},
 					},
 				},
-				Description: `Schedule specification defining when the Transfer Job should be scheduled to start, end and and what time to run.`,
+				Description: `Schedule specification defining when the Transfer Job should be scheduled to start, end and what time to run.`,
 			},
 			"status": {
 				Type:         schema.TypeString,

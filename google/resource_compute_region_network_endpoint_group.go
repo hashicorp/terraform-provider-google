@@ -272,7 +272,7 @@ func resourceComputeRegionNetworkEndpointGroupCreate(d *schema.ResourceData, met
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionNetworkEndpointGroup: %s", err)
 	}
 	billingProject = project
 
@@ -324,7 +324,7 @@ func resourceComputeRegionNetworkEndpointGroupRead(d *schema.ResourceData, meta 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionNetworkEndpointGroup: %s", err)
 	}
 	billingProject = project
 
@@ -381,7 +381,7 @@ func resourceComputeRegionNetworkEndpointGroupDelete(d *schema.ResourceData, met
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionNetworkEndpointGroup: %s", err)
 	}
 	billingProject = project
 

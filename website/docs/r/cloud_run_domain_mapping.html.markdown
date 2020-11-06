@@ -27,7 +27,7 @@ Resource to hold the state and status of a user's domain mapping.
 
 To get more information about DomainMapping, see:
 
-* [API documentation](https://cloud.google.com/run/docs/reference/rest/v1alpha1/projects.locations.domainmappings)
+* [API documentation](https://cloud.google.com/run/docs/reference/rest/v1/projects.locations.domainmappings)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/run/docs/mapping-custom-domains)
 

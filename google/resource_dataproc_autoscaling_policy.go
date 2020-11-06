@@ -283,7 +283,7 @@ func resourceDataprocAutoscalingPolicyCreate(d *schema.ResourceData, meta interf
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AutoscalingPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -328,7 +328,7 @@ func resourceDataprocAutoscalingPolicyRead(d *schema.ResourceData, meta interfac
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AutoscalingPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -376,7 +376,7 @@ func resourceDataprocAutoscalingPolicyUpdate(d *schema.ResourceData, meta interf
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AutoscalingPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -440,7 +440,7 @@ func resourceDataprocAutoscalingPolicyDelete(d *schema.ResourceData, meta interf
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AutoscalingPolicy: %s", err)
 	}
 	billingProject = project
 

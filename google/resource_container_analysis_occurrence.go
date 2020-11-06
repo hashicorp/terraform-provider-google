@@ -217,7 +217,7 @@ func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta inte
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Occurrence: %s", err)
 	}
 	billingProject = project
 
@@ -262,7 +262,7 @@ func resourceContainerAnalysisOccurrenceRead(d *schema.ResourceData, meta interf
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Occurrence: %s", err)
 	}
 	billingProject = project
 
@@ -331,7 +331,7 @@ func resourceContainerAnalysisOccurrenceUpdate(d *schema.ResourceData, meta inte
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Occurrence: %s", err)
 	}
 	billingProject = project
 
@@ -410,7 +410,7 @@ func resourceContainerAnalysisOccurrenceDelete(d *schema.ResourceData, meta inte
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Occurrence: %s", err)
 	}
 	billingProject = project
 

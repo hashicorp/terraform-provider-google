@@ -193,7 +193,7 @@ func resourceIdentityPlatformInboundSamlConfigCreate(d *schema.ResourceData, met
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for InboundSamlConfig: %s", err)
 	}
 	billingProject = project
 
@@ -235,7 +235,7 @@ func resourceIdentityPlatformInboundSamlConfigRead(d *schema.ResourceData, meta 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for InboundSamlConfig: %s", err)
 	}
 	billingProject = project
 
@@ -283,7 +283,7 @@ func resourceIdentityPlatformInboundSamlConfigUpdate(d *schema.ResourceData, met
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for InboundSamlConfig: %s", err)
 	}
 	billingProject = project
 
@@ -370,7 +370,7 @@ func resourceIdentityPlatformInboundSamlConfigDelete(d *schema.ResourceData, met
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for InboundSamlConfig: %s", err)
 	}
 	billingProject = project
 

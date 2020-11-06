@@ -261,7 +261,7 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RouterBgpPeer: %s", err)
 	}
 	billingProject = project
 
@@ -313,7 +313,7 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RouterBgpPeer: %s", err)
 	}
 	billingProject = project
 
@@ -388,7 +388,7 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RouterBgpPeer: %s", err)
 	}
 	billingProject = project
 
@@ -460,7 +460,7 @@ func resourceComputeRouterBgpPeerDelete(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RouterBgpPeer: %s", err)
 	}
 	billingProject = project
 

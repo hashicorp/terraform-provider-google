@@ -61,10 +61,6 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccBigtableInstance_clusterMax(instanceName),
-				ExpectError: regexp.MustCompile("config is invalid: Too many cluster blocks: No more than 4 \"cluster\" blocks are allowed"),
-			},
-			{
 				Config: testAccBigtableInstance_cluster(instanceName, 3),
 			},
 			{
@@ -248,46 +244,6 @@ resource "google_bigtable_instance" "instance" {
   deletion_protection = false
 }
 `, instanceName, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes, instanceName, numNodes)
-}
-
-func testAccBigtableInstance_clusterMax(instanceName string) string {
-	return fmt.Sprintf(`
-resource "google_bigtable_instance" "instance" {
-  name = "%s"
-  cluster {
-    cluster_id   = "%s-a"
-    zone         = "us-central1-a"
-    num_nodes    = 3
-    storage_type = "HDD"
-  }
-  cluster {
-    cluster_id   = "%s-b"
-    zone         = "us-central1-b"
-    num_nodes    = 3
-    storage_type = "HDD"
-  }
-  cluster {
-    cluster_id   = "%s-c"
-    zone         = "us-central1-c"
-    num_nodes    = 3
-    storage_type = "HDD"
-  }
-  cluster {
-    cluster_id   = "%s-d"
-    zone         = "us-central1-f"
-    num_nodes    = 3
-    storage_type = "HDD"
-  }
-  cluster {
-    cluster_id   = "%s-e"
-    zone         = "us-east1-a"
-    num_nodes    = 3
-    storage_type = "HDD"
-  }
-
-  deletion_protection = false
-}
-`, instanceName, instanceName, instanceName, instanceName, instanceName, instanceName)
 }
 
 func testAccBigtableInstance_clusterReordered(instanceName string, numNodes int) string {

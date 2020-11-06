@@ -97,7 +97,7 @@ The following arguments are supported:
 
 * `transfer_spec` - (Required) Transfer specification. Structure documented below.
 
-* `schedule` - (Required) Schedule specification defining when the Transfer Job should be scheduled to start, end and and what time to run. Structure documented below.
+* `schedule` - (Required) Schedule specification defining when the Transfer Job should be scheduled to start, end and what time to run. Structure documented below.
 
 - - -
 

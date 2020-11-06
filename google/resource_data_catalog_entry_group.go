@@ -114,7 +114,7 @@ func resourceDataCatalogEntryGroupCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for EntryGroup: %s", err)
 	}
 	billingProject = project
 
@@ -159,7 +159,7 @@ func resourceDataCatalogEntryGroupRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for EntryGroup: %s", err)
 	}
 	billingProject = project
 
@@ -209,7 +209,7 @@ func resourceDataCatalogEntryGroupUpdate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for EntryGroup: %s", err)
 	}
 	billingProject = project
 
@@ -276,7 +276,7 @@ func resourceDataCatalogEntryGroupDelete(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for EntryGroup: %s", err)
 	}
 	billingProject = project
 

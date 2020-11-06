@@ -52,7 +52,7 @@ func resourceBigtableInstance() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
-				Description: `A block of cluster configuration options. This can be specified at least once, and up to 4 times.`,
+				Description: `A block of cluster configuration options. This can be specified at least once.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cluster_id": {
@@ -382,12 +382,9 @@ func expandBigtableClusters(clusters []interface{}, instanceID string) []bigtabl
 func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	oldCount, newCount := diff.GetChange("cluster.#")
 
-	// simulate Required:true, MinItems:1, MaxItems:4 for "cluster"
+	// simulate Required:true, MinItems:1 for "cluster"
 	if newCount.(int) < 1 {
 		return fmt.Errorf("config is invalid: Too few cluster blocks: Should have at least 1 \"cluster\" block")
-	}
-	if newCount.(int) > 4 {
-		return fmt.Errorf("config is invalid: Too many cluster blocks: No more than 4 \"cluster\" blocks are allowed")
 	}
 
 	// exit early if we're in create (name's old value is nil)

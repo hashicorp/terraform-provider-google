@@ -169,7 +169,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Network: %s", err)
 	}
 	billingProject = project
 
@@ -253,7 +253,7 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Network: %s", err)
 	}
 	billingProject = project
 
@@ -325,7 +325,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Network: %s", err)
 	}
 	billingProject = project
 
@@ -382,7 +382,7 @@ func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Network: %s", err)
 	}
 	billingProject = project
 

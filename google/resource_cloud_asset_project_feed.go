@@ -218,7 +218,7 @@ func resourceCloudAssetProjectFeedCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ProjectFeed: %s", err)
 	}
 	billingProject = project
 
@@ -269,7 +269,7 @@ func resourceCloudAssetProjectFeedRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ProjectFeed: %s", err)
 	}
 	billingProject = project
 
@@ -320,7 +320,7 @@ func resourceCloudAssetProjectFeedUpdate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ProjectFeed: %s", err)
 	}
 	billingProject = project
 
@@ -422,7 +422,7 @@ func resourceCloudAssetProjectFeedDelete(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ProjectFeed: %s", err)
 	}
 	billingProject = project
 
