@@ -27,7 +27,7 @@ resource "google_logging_organization_sink" "my-sink" {
   destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
 
   # Log all WARN or higher severity messages relating to instances
-  filter = "resource.type = gce_instance AND severity >= WARN"
+  filter = "resource.type = gce_instance AND severity >= WARNING"
 }
 
 resource "google_storage_bucket" "log-bucket" {
@@ -50,11 +50,12 @@ The following arguments are supported:
 * `org_id` - (Required) The numeric ID of the organization to be exported to the sink.
 
 * `destination` - (Required) The destination of the sink (or, in other words, where logs are written to). Can be a
-    Cloud Storage bucket, a PubSub topic, or a BigQuery dataset. Examples:
+    Cloud Storage bucket, a PubSub topic, a BigQuery dataset or a Cloud Logging bucket. Examples:
 ```
 "storage.googleapis.com/[GCS_BUCKET]"
 "bigquery.googleapis.com/projects/[PROJECT_ID]/datasets/[DATASET]"
 "pubsub.googleapis.com/projects/[PROJECT_ID]/topics/[TOPIC_ID]"
+"logging.googleapis.com/projects/[PROJECT_ID]]/locations/global/buckets/[BUCKET_ID]"
 ```
     The writer associated with the sink must have access to write to the above resource.
 

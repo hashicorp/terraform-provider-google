@@ -29,7 +29,7 @@ resource "google_logging_project_sink" "my-sink" {
   destination = "pubsub.googleapis.com/projects/my-project/topics/instance-activity"
 
   # Log all WARN or higher severity messages relating to instances
-  filter = "resource.type = gce_instance AND severity >= WARN"
+  filter = "resource.type = gce_instance AND severity >= WARNING"
 
   # Use a unique writer (creates a unique service account used for writing)
   unique_writer_identity = true
@@ -117,11 +117,12 @@ The following arguments are supported:
 * `name` - (Required) The name of the logging sink.
 
 * `destination` - (Required) The destination of the sink (or, in other words, where logs are written to). Can be a
-    Cloud Storage bucket, a PubSub topic, or a BigQuery dataset. Examples:
+    Cloud Storage bucket, a PubSub topic, a BigQuery dataset or a Cloud Logging bucket . Examples:
 ```
 "storage.googleapis.com/[GCS_BUCKET]"
 "bigquery.googleapis.com/projects/[PROJECT_ID]/datasets/[DATASET]"
 "pubsub.googleapis.com/projects/[PROJECT_ID]/topics/[TOPIC_ID]"
+"logging.googleapis.com/projects/[PROJECT_ID]]/locations/global/buckets/[BUCKET_ID]"
 ```
     The writer associated with the sink must have access to write to the above resource.
 
