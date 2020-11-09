@@ -302,3 +302,12 @@ func datastoreIndex409Contention(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+func iapClient409Operation(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "operation was aborted") {
+			return true, "operation was aborted possibly due to concurrency issue - retrying"
+		}
+	}
+	return false, ""
+}
