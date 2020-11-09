@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -35,11 +36,11 @@ func revisionNameCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v i
 	return nil
 }
 
-const cloudRunGoogleProvidedAnnotation = "serving.knative.dev"
+var cloudRunGoogleProvidedAnnotations = regexp.MustCompile("serving\\.knative\\.dev/(?:(?:creator)|(?:lastModifier))$")
 
 func cloudrunAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// Suppress diffs for the annotations provided by Google
-	if strings.Contains(k, cloudRunGoogleProvidedAnnotation) && new == "" {
+	if cloudRunGoogleProvidedAnnotations.MatchString(k) && new == "" {
 		return true
 	}
 
