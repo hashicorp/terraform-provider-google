@@ -289,7 +289,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 										Type:         schema.TypeString,
 										Optional:     true,
 										AtLeastOneOf: []string{"settings.0.location_preference.0.follow_gae_application", "settings.0.location_preference.0.zone"},
-										Description:  `A GAE application whose zone to remain in. Must be in the same region as this instance.`,
+										Description:  `A Google App Engine application whose zone to remain in. Must be in the same region as this instance.`,
 									},
 									"zone": {
 										Type:         schema.TypeString,
