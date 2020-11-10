@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `autoscaling_policy.0.scale_in_control` fields to `google_compute_autoscaler`
+```
+```release-note:enhancement
+compute: added `autoscaling_policy.0.scale_in_control` fields to `google_compute_region_autoscaler`
+```
