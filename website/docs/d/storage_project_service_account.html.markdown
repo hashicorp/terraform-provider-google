@@ -62,7 +62,7 @@ resource "google_pubsub_topic_iam_binding" "binding" {
 data "google_storage_project_service_account" "gcs_account" {
 }
 
-resource "google_crypto_key_iam_binding" "binding" {
+resource "google_kms_crypto_key_iam_binding" "binding" {
   crypto_key_id = "your-crypto-key-id"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
@@ -78,7 +78,7 @@ resource "google_storage_bucket" "bucket" {
 
   # Ensure the KMS crypto-key IAM binding for the service account exists prior to the
   # bucket attempting to utilise the crypto-key.
-  depends_on = [google_crypto_key_iam_binding.binding]
+  depends_on = [google_kms_crypto_key_iam_binding.binding]
 }
 ```
 
