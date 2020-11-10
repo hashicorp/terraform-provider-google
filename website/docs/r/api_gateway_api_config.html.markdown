@@ -31,7 +31,7 @@ To get more information about ApiConfig, see:
 
 * [API documentation](https://cloud.google.com/api-gateway/docs/reference/rest/v1beta/projects.locations.apis.configs)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/api-gateway/docs/quickstart)
+    * [Official Documentation](https://cloud.google.com/api-gateway/docs/creating-api-config)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=apigateway_api_config_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -50,7 +50,7 @@ resource "google_api_gateway_api" "api_cfg" {
 resource "google_api_gateway_api_config" "api_cfg" {
   provider = google-beta
   api = google_api_gateway_api.api_cfg.api_id
-  api_config_id = "api-cfg"
+  api_config_id_prefix = "api-cfg-"
 
   openapi_documents {
     document {
@@ -58,36 +58,8 @@ resource "google_api_gateway_api_config" "api_cfg" {
       contents = filebase64("test-fixtures/apigateway/openapi.yaml")
     }
   }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=apigateway_api_config_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Apigateway Api Config Full
-
-
-```hcl
-resource "google_api_gateway_api" "api_cfg" {
-  provider = google-beta
-  api_id = "api-cfg"
-}
-
-resource "google_api_gateway_api_config" "api_cfg" {
-  provider = google-beta
-  api = google_api_gateway_api.api_cfg.api_id
-  api_config_id = "api-cfg"
-  display_name = "MM Dev API Config"
-  labels = {
-    environment = "dev"
-  }
-
-  openapi_documents {
-    document {
-      path = "spec.yaml"
-      contents = filebase64("test-fixtures/apigateway/openapi.yaml")
-    }
+  lifecycle {
+    create_before_destroy = true
   }
 }
 ```
@@ -105,10 +77,6 @@ The following arguments are supported:
 * `api` -
   (Required)
   The API to attach the config to.
-
-* `api_config_id` -
-  (Required)
-  Identifier to assign to the API Config. Must be unique within scope of the parent resource(api).
 
 
 The `openapi_documents` block supports:
@@ -146,9 +114,15 @@ The `document` block supports:
   If not specified, backend authentication will be set to use OIDC authentication using the default compute service account
   Structure is documented below.
 
+* `api_config_id` -
+  (Optional)
+  Identifier to assign to the API Config. Must be unique within scope of the parent resource(api).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `api_config_id_prefix` - (Optional) Creates a unique name beginning with the
+ specified prefix. If this and api_config_id are unspecified, a random value is chosen for the name.
 
 The `gateway_config` block supports:
 

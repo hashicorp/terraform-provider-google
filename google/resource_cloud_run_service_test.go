@@ -46,7 +46,10 @@ resource "google_cloud_run_service" "default" {
   location = "us-central1"
 
   metadata {
-    namespace = "%s"
+  namespace = "%s"
+  annotations = {
+      generated-by = "magic-modules"
+    }
   }
 
   template {

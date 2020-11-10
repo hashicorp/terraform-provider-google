@@ -48,6 +48,7 @@ func resourceSpannerInstance() *schema.Resource {
 			"config": {
 				Type:             schema.TypeString,
 				Required:         true,
+				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description: `The name of the instance's configuration (similar but not
 quite the same as a region) which defines defines the geographic placement and
@@ -303,12 +304,6 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	configProp, err := expandSpannerInstanceConfig(d.Get("config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, configProp)) {
-		obj["config"] = configProp
-	}
 	displayNameProp, err := expandSpannerInstanceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err

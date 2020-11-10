@@ -50,7 +50,7 @@ resource "google_api_gateway_api" "api_gw" {
 resource "google_api_gateway_api_config" "api_gw" {
   provider = google-beta
   api = google_api_gateway_api.api_gw.api_id
-  api_config_id = "api-gw"
+  api_config_id_prefix = "tf-test-"
 
   openapi_documents {
     document {
@@ -58,50 +58,15 @@ resource "google_api_gateway_api_config" "api_gw" {
       contents = filebase64("test-fixtures/apigateway/openapi.yaml")
     }
   }
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "google_api_gateway_gateway" "api_gw" {
   provider = google-beta
   api_config = google_api_gateway_api_config.api_gw.id
   gateway_id = "api-gw"
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=apigateway_gateway_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Apigateway Gateway Full
-
-
-```hcl
-resource "google_api_gateway_api" "api_gw" {
-  provider = google-beta
-  api_id = "api-gw"
-}
-
-resource "google_api_gateway_api_config" "api_gw" {
-  provider = google-beta
-  api = google_api_gateway_api.api_gw.api_id
-  api_config_id = "api-gw"
-
-  openapi_documents {
-    document {
-      path = "spec.yaml"
-      contents = filebase64("test-fixtures/apigateway/openapi.yaml")
-    }
-  }
-}
-
-resource "google_api_gateway_gateway" "api_gw" {
-  provider = google-beta
-  region     = "us-central1"
-  api_config = google_api_gateway_api_config.api_gw.id
-  gateway_id = "api-gw"
-  display_name = "MM Dev API Gateway"
-  labels = {
-    environment = "dev"
-  }
 }
 ```
 
