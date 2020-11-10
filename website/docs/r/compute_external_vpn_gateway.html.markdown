@@ -182,7 +182,7 @@ The `interface` block supports:
 
 * `id` -
   (Optional)
-  The numberic ID for this interface. Allowed values are based on the redundancy type
+  The numeric ID for this interface. Allowed values are based on the redundancy type
   of this external VPN gateway
   * `0 - SINGLE_IP_INTERNALLY_REDUNDANT`
   * `0, 1 - TWO_IPS_REDUNDANCY`
