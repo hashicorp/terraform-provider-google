@@ -177,6 +177,47 @@ Stackdriver Monitoring metric. Possible values: ["GAUGE", "DELTA_PER_SECOND", "D
 							Description:  `Defines operating mode for this policy. Default value: "ON" Possible values: ["OFF", "ONLY_UP", "ON"]`,
 							Default:      "ON",
 						},
+						"scale_in_control": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Defines scale in controls to reduce the risk of response latency
+and outages due to abrupt scale-in events`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max_scaled_in_replicas": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `A nested object resource`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"fixed": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `Specifies a fixed number of VM instances. This must be a positive
+integer.`,
+												},
+												"percent": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `Specifies a percentage of instances between 0 to 100%, inclusive.
+For example, specify 80 for 80%.`,
+												},
+											},
+										},
+										AtLeastOneOf: []string{},
+									},
+									"time_window_sec": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `How long back autoscaling should look when computing recommendations
+to include directives regarding slower scale down, as described above.`,
+									},
+								},
+							},
+							AtLeastOneOf: []string{},
+						},
 					},
 				},
 			},
@@ -546,6 +587,8 @@ func flattenComputeAutoscalerAutoscalingPolicy(v interface{}, d *schema.Resource
 		flattenComputeAutoscalerAutoscalingPolicyCooldownPeriod(original["coolDownPeriodSec"], d, config)
 	transformed["mode"] =
 		flattenComputeAutoscalerAutoscalingPolicyMode(original["mode"], d, config)
+	transformed["scale_in_control"] =
+		flattenComputeAutoscalerAutoscalingPolicyScaleInControl(original["scaleInControl"], d, config)
 	transformed["cpu_utilization"] =
 		flattenComputeAutoscalerAutoscalingPolicyCpuUtilization(original["cpuUtilization"], d, config)
 	transformed["metric"] =
@@ -607,6 +650,87 @@ func flattenComputeAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d *s
 
 func flattenComputeAutoscalerAutoscalingPolicyMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyScaleInControl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["max_scaled_in_replicas"] =
+		flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(original["maxScaledInReplicas"], d, config)
+	transformed["time_window_sec"] =
+		flattenComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(original["timeWindowSec"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["fixed"] =
+		flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(original["fixed"], d, config)
+	transformed["percent"] =
+		flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(original["percent"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -734,6 +858,13 @@ func expandComputeAutoscalerAutoscalingPolicy(v interface{}, d TerraformResource
 		transformed["mode"] = transformedMode
 	}
 
+	transformedScaleInControl, err := expandComputeAutoscalerAutoscalingPolicyScaleInControl(original["scale_in_control"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScaleInControl); val.IsValid() && !isEmptyValue(val) {
+		transformed["scaleInControl"] = transformedScaleInControl
+	}
+
 	transformedCpuUtilization, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilization(original["cpu_utilization"], d, config)
 	if err != nil {
 		return nil, err
@@ -771,6 +902,70 @@ func expandComputeAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d Ter
 }
 
 func expandComputeAutoscalerAutoscalingPolicyMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScaleInControl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMaxScaledInReplicas, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(original["max_scaled_in_replicas"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxScaledInReplicas); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxScaledInReplicas"] = transformedMaxScaledInReplicas
+	}
+
+	transformedTimeWindowSec, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(original["time_window_sec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeWindowSec); val.IsValid() && !isEmptyValue(val) {
+		transformed["timeWindowSec"] = transformedTimeWindowSec
+	}
+
+	return transformed, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFixed, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(original["fixed"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFixed); val.IsValid() && !isEmptyValue(val) {
+		transformed["fixed"] = transformedFixed
+	}
+
+	transformedPercent, err := expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(original["percent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPercent); val.IsValid() && !isEmptyValue(val) {
+		transformed["percent"] = transformedPercent
+	}
+
+	return transformed, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

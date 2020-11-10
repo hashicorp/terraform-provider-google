@@ -262,6 +262,12 @@ The `autoscaling_policy` block supports:
   and outages due to abrupt scale-in events
   Structure is documented below.
 
+* `scale_in_control` -
+  (Optional)
+  Defines scale in controls to reduce the risk of response latency
+  and outages due to abrupt scale-in events
+  Structure is documented below.
+
 * `cpu_utilization` -
   (Optional)
   Defines the CPU utilization policy that allows the autoscaler to
@@ -294,6 +300,31 @@ The `scale_down_control` block supports:
 
 
 The `max_scaled_down_replicas` block supports:
+
+* `fixed` -
+  (Optional)
+  Specifies a fixed number of VM instances. This must be a positive
+  integer.
+
+* `percent` -
+  (Optional)
+  Specifies a percentage of instances between 0 to 100%, inclusive.
+  For example, specify 80 for 80%.
+
+The `scale_in_control` block supports:
+
+* `max_scaled_in_replicas` -
+  (Optional)
+  A nested object resource
+  Structure is documented below.
+
+* `time_window_sec` -
+  (Optional)
+  How long back autoscaling should look when computing recommendations
+  to include directives regarding slower scale down, as described above.
+
+
+The `max_scaled_in_replicas` block supports:
 
 * `fixed` -
   (Optional)
