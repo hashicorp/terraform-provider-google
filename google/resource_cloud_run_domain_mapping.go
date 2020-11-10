@@ -82,10 +82,11 @@ func resourceCloudRunDomainMapping() *schema.Resource {
 project ID or project number.`,
 						},
 						"annotations": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: cloudrunAnnotationDiffSuppress,
 							Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
 info: http://kubernetes.io/docs/user-guide/annotations`,
