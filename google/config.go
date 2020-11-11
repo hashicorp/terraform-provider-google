@@ -21,6 +21,7 @@ import (
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudbuild/v1"
 	"google.golang.org/api/cloudfunctions/v1"
+	"google.golang.org/api/cloudidentity/v1"
 	"google.golang.org/api/cloudiot/v1"
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -93,6 +94,7 @@ type Config struct {
 	CloudAssetBasePath           string
 	CloudBuildBasePath           string
 	CloudFunctionsBasePath       string
+	CloudIdentityBasePath        string
 	CloudIotBasePath             string
 	CloudRunBasePath             string
 	CloudSchedulerBasePath       string
@@ -166,6 +168,7 @@ var BinaryAuthorizationDefaultBasePath = "https://binaryauthorization.googleapis
 var CloudAssetDefaultBasePath = "https://cloudasset.googleapis.com/v1/"
 var CloudBuildDefaultBasePath = "https://cloudbuild.googleapis.com/v1/"
 var CloudFunctionsDefaultBasePath = "https://cloudfunctions.googleapis.com/v1/"
+var CloudIdentityDefaultBasePath = "https://cloudidentity.googleapis.com/v1/"
 var CloudIotDefaultBasePath = "https://cloudiot.googleapis.com/v1/"
 var CloudRunDefaultBasePath = "https://{{location}}-run.googleapis.com/"
 var CloudSchedulerDefaultBasePath = "https://cloudscheduler.googleapis.com/v1/"
@@ -793,6 +796,20 @@ func (c *Config) NewHealthcareClient(userAgent string) *healthcare.Service {
 	return clientHealthcare
 }
 
+func (c *Config) NewCloudIdentityClient(userAgent string) *cloudidentity.Service {
+	cloudidentityClientBasePath := removeBasePathVersion(c.CloudIdentityBasePath)
+	log.Printf("[INFO] Instantiating Google Cloud CloudIdentity client for path %s", cloudidentityClientBasePath)
+	clientCloudIdentity, err := cloudidentity.NewService(c.context, option.WithHTTPClient(c.client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client cloud identity: %s", err)
+		return nil
+	}
+	clientCloudIdentity.UserAgent = userAgent
+	clientCloudIdentity.BasePath = cloudidentityClientBasePath
+
+	return clientCloudIdentity
+}
+
 func (c *Config) BigTableClientFactory(userAgent string) *BigtableClientFactory {
 	bigtableClientFactory := &BigtableClientFactory{
 		UserAgent:   userAgent,
@@ -935,6 +952,7 @@ func ConfigureBasePaths(c *Config) {
 	c.CloudAssetBasePath = CloudAssetDefaultBasePath
 	c.CloudBuildBasePath = CloudBuildDefaultBasePath
 	c.CloudFunctionsBasePath = CloudFunctionsDefaultBasePath
+	c.CloudIdentityBasePath = CloudIdentityDefaultBasePath
 	c.CloudIotBasePath = CloudIotDefaultBasePath
 	c.CloudRunBasePath = CloudRunDefaultBasePath
 	c.CloudSchedulerBasePath = CloudSchedulerDefaultBasePath

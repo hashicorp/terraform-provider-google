@@ -24,8 +24,6 @@ description: |-
 
 A Cloud Identity resource representing a Group.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
@@ -44,7 +42,6 @@ Your account must have the `serviceusage.services.use` permission on the
 
 ```hcl
 resource "google_cloud_identity_group" "cloud_identity_group_basic" {
-  provider = google-beta
   display_name = "my-identity-group"
 
   parent = "customers/A01b123xz"
