@@ -1,0 +1,12 @@
+```release-note:enhancement
+cloud_identity: promoted `google_cloud_identity_group` to GA
+```
+```release-note:enhancement
+cloud_identity: promoted `google_cloud_identity_group_membership` to GA
+```
+```release-note:enhancement
+cloud_identity: promoted data source `google_cloud_identity_groups` to GA
+```
+```release-note:enhancement
+cloud_identity: promoted data source `google_cloud_identity_group_memberships` to GA
+```

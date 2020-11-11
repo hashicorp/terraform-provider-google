@@ -24,8 +24,6 @@ description: |-
 
 A Membership defines a relationship between a Group and an entity belonging to that Group, referred to as a "member".
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
@@ -44,7 +42,6 @@ Your account must have the `serviceusage.services.use` permission on the
 
 ```hcl
 resource "google_cloud_identity_group" "group" {
-  provider = google-beta
   display_name = "my-identity-group"
 
   parent = "customers/A01b123xz"
@@ -59,7 +56,6 @@ resource "google_cloud_identity_group" "group" {
 }
 
 resource "google_cloud_identity_group" "child-group" {
-  provider = google-beta
   display_name = "my-identity-group-child"
 
   parent = "customers/A01b123xz"
@@ -74,10 +70,9 @@ resource "google_cloud_identity_group" "child-group" {
 }
 
 resource "google_cloud_identity_group_membership" "cloud_identity_group_membership_basic" {
-  provider = google-beta
   group    = google_cloud_identity_group.group.id
 
-  member_key {
+  preferred_member_key {
     id = google_cloud_identity_group.child-group.group_key[0].id
   }
 
@@ -96,7 +91,6 @@ resource "google_cloud_identity_group_membership" "cloud_identity_group_membersh
 
 ```hcl
 resource "google_cloud_identity_group" "group" {
-  provider = google-beta
   display_name = "my-identity-group"
 
   parent = "customers/A01b123xz"
@@ -111,10 +105,9 @@ resource "google_cloud_identity_group" "group" {
 }
 
 resource "google_cloud_identity_group_membership" "cloud_identity_group_membership_basic" {
-  provider = google-beta
   group    = google_cloud_identity_group.group.id
 
-  member_key {
+  preferred_member_key {
     id = "cloud_identity_user@example.com"
   }
 
@@ -155,7 +148,7 @@ The `roles` block supports:
 
 
 * `member_key` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   EntityKey of the member.
   Structure is documented below.
 
