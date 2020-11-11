@@ -18,7 +18,7 @@ Generate service identity for a service.
 actions are a no-op.
 
 ~> **Note**: This resource can be used to retrieve the emails of the [Google-managed service accounts](https://cloud.google.com/iam/docs/service-agents) 
-of the APIs that Google has configured with a Service Identity. You can run `gcloud beta services identity create --service container.googleapis.com` to
+of the APIs that Google has configured with a Service Identity. You can run `gcloud beta services identity create --service SERVICE_NAME.googleapis.com` to
 verify if an API supports this.
 
 To get more information about Service Identity, see:

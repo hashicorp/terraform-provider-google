@@ -27,9 +27,11 @@ Configuration for an automated build in response to source repository changes.
 
 To get more information about Trigger, see:
 
-* [API documentation](https://cloud.google.com/cloud-build/docs/api/reference/rest/)
+* [API documentation](https://cloud.google.com/cloud-build/docs/api/reference/rest/v1/projects.triggers)
 * How-to Guides
     * [Automating builds using build triggers](https://cloud.google.com/cloud-build/docs/running-builds/automate-builds)
+
+~> **Note:** You can retrieve the email of the Cloud Build Service Account used in jobs by using the `google_project_service_identity` resource.
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_filename&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
