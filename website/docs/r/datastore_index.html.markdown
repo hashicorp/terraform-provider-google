@@ -31,6 +31,12 @@ To get more information about Index, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/datastore/docs/concepts/indexes)
 
+~> **Warning:** This resource creates a Datastore Index on a project that has already
+enabled a Datastore-compatible database. If you haven't already enabled
+one, you can create a `google_app_engine_application` resource with
+`database_type` set to `"CLOUD_DATASTORE_COMPATIBILITY"` to do so. Your
+Datastore location will be the same as the App Engine location specified.
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=datastore_index&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
