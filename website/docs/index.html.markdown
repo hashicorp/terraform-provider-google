@@ -80,7 +80,7 @@ on enhancement requests. Provider maintainers will often prioritize work based o
 number of thumbs on an issue.
 
 Community input is appreciated on outstanding issues! We love to hear what use
-cases you have for new features, and want to provide the best possible
+cases you have for new features and want to provide the best possible
 experience for you using the Google provider.
 
 If you have a bug or feature request without an existing issue
@@ -92,7 +92,7 @@ If you have a bug or feature request without an existing issue
 The provider maintainers will often use the assignee field on an issue to mark
 who is working on it.
 
-* An issue assigned to an individual maintainer indicates that maintainer is working
+* An issue assigned to an individual maintainer indicates that the maintainer is working
 on the issue
 * An issue assigned to `hashibot` indicates a member of the community has taken on
 the issue!
