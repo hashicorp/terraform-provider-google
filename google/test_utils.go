@@ -62,6 +62,10 @@ func (d *ResourceDataMock) Id() string {
 	return d.id
 }
 
+func (d *ResourceDataMock) GetProviderMeta(dst interface{}) error {
+	return nil
+}
+
 type ResourceDiffMock struct {
 	Before     map[string]interface{}
 	After      map[string]interface{}
