@@ -480,6 +480,7 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("labels", res.Labels); err != nil {
 		return fmt.Errorf("Error setting Environment: %s", err)
 	}
+
 	return nil
 }
 

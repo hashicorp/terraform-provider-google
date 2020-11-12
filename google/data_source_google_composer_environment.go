@@ -8,41 +8,21 @@ import (
 
 func dataSourceGoogleComposerEnvironment() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGoogleComposerEnvironmentRead,
-		Schema: map[string]*schema.Schema{
-			"project": {
-				Type:     schema.TypeString,
-				Optional: false,
-			},
-			"region": {
-				Type:     schema.TypeString,
-				Optional: false,
-			},
-			"environment": {
-				Type:     schema.TypeString,
-				Optional: false,
-			},
-			"gke_cluster": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
+		Read:   dataSourceGoogleComposerEnvironmentRead,
+		Schema: resourceComposerEnvironment().Schema,
 	}
 }
 
 func dataSourceGoogleComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
-
 	region, err := getRegion(d, config)
 	if err != nil {
 		return err
 	}
-
 	envName := d.Get("name").(string)
 
 	d.SetId(fmt.Sprintf("projects/%s/locations/%s/environments/%s", project, region, envName))
