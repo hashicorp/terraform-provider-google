@@ -22,6 +22,7 @@ type TerraformResourceData interface {
 	Set(string, interface{}) error
 	SetId(string)
 	Id() string
+	GetProviderMeta(interface{}) error
 }
 
 type TerraformResourceDiff interface {
