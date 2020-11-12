@@ -12,6 +12,7 @@ import (
 
 var testAccCheckGoogleComposerEnvironmentConfig = `
 data "google_composer_environment" "composer_env" {
+	name = "data_google_composer_environment_test"
 }
 `
 
