@@ -31,6 +31,52 @@ func TestAccLoggingProjectSink_basic(t *testing.T) {
 	})
 }
 
+func TestAccLoggingProjectSink_described(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingProjectSink_described(sinkName, getTestProjectFromEnv(), bucketName),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.described",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccLoggingProjectSink_disabled(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingProjectSink_disabled(sinkName, getTestProjectFromEnv(), bucketName),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.disabled",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccLoggingProjectSink_updatePreservesUniqueWriter(t *testing.T) {
 	t.Parallel()
 
@@ -167,6 +213,42 @@ resource "google_logging_project_sink" "basic" {
   project     = "%s"
   destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
   filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+
+  unique_writer_identity = false
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name = "%s"
+}
+`, name, project, project, bucketName)
+}
+
+func testAccLoggingProjectSink_described(name, project, bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "described" {
+  name        = "%s"
+  project     = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  description = "this is a description for a project level logging sink"
+
+  unique_writer_identity = false
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name = "%s"
+}
+`, name, project, project, bucketName)
+}
+
+func testAccLoggingProjectSink_disabled(name, project, bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "disabled" {
+  name        = "%s"
+  project     = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  disabled    = true
 
   unique_writer_identity = false
 }
