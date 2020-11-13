@@ -2,13 +2,12 @@ package google
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"google.golang.org/api/runtimeconfig/v1beta1"
+	runtimeconfig "google.golang.org/api/runtimeconfig/v1beta1"
 )
 
 func TestAccRuntimeconfigVariable_basic(t *testing.T) {
@@ -102,38 +101,6 @@ func TestAccRuntimeconfigVariable_basicValue(t *testing.T) {
 				ResourceName:      "google_runtimeconfig_variable.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccRuntimeconfigVariable_errorsOnBothValueAndText(t *testing.T) {
-	// Unit test, no HTTP interactions
-	skipIfVcr(t)
-	t.Parallel()
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccRuntimeconfigVariable_invalidBothTextValue(randString(t, 10)),
-				ExpectError: regexp.MustCompile("conflicts with"),
-			},
-		},
-	})
-}
-
-func TestAccRuntimeconfigVariable_errorsOnMissingValueAndText(t *testing.T) {
-	t.Parallel()
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccRuntimeconfigVariable_invalidMissingTextValue(randString(t, 10)),
-				ExpectError: regexp.MustCompile("You must specify one of value or text"),
 			},
 		},
 	})
@@ -267,32 +234,4 @@ resource "google_runtimeconfig_variable" "foobar" {
   value  = "%s"
 }
 `, suffix, name, value)
-}
-
-func testAccRuntimeconfigVariable_invalidBothTextValue(suffix string) string {
-	return fmt.Sprintf(`
-resource "google_runtimeconfig_config" "foobar" {
-  name = "some-config-%s"
-}
-
-resource "google_runtimeconfig_variable" "foobar" {
-  parent = google_runtimeconfig_config.foobar.name
-  name   = "%s"
-  text   = "here's my value"
-  value  = "Zm9vYmFyCg=="
-}
-`, suffix, suffix)
-}
-
-func testAccRuntimeconfigVariable_invalidMissingTextValue(suffix string) string {
-	return fmt.Sprintf(`
-resource "google_runtimeconfig_config" "foobar" {
-  name = "some-config-%s"
-}
-
-resource "google_runtimeconfig_variable" "foobar" {
-  parent = google_runtimeconfig_config.foobar.name
-  name   = "my-variable-namespace/%s"
-}
-`, suffix, suffix)
 }
