@@ -1,0 +1,10 @@
+```release-note:enhancement
+logging: added `description` field to `google_logging_folder_sink` resource
+logging: added `description` field to `google_logging_project_sink` resource
+logging: added `description` field to `google_logging_organization_sink` resource
+logging: added `description` field to `google_logging_billing_account_sink` resource
+logging: added `disabled` field to `google_logging_folder_sink` resource
+logging: added `disabled` field to `google_logging_project_sink` resource
+logging: added `disabled` field to `google_logging_organization_sink` resource
+logging: added `disabled` field to `google_logging_billing_account_sink` resource
+```

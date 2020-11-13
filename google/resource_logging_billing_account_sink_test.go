@@ -83,6 +83,52 @@ func TestAccLoggingBillingAccountSink_update(t *testing.T) {
 	}
 }
 
+func TestAccLoggingBillingAccountSink_described(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	billingAccount := getTestBillingAccountFromEnv(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingBillingAccountSink_described(sinkName, bucketName, billingAccount),
+			}, {
+				ResourceName:      "google_logging_billing_account_sink.described",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccLoggingBillingAccountSink_disabled(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	billingAccount := getTestBillingAccountFromEnv(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingBillingAccountSink_disabled(sinkName, bucketName, billingAccount),
+			}, {
+				ResourceName:      "google_logging_billing_account_sink.disabled",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccLoggingBillingAccountSink_updateBigquerySink(t *testing.T) {
 	t.Parallel()
 
@@ -221,12 +267,44 @@ resource "google_storage_bucket" "log-bucket" {
 `, name, billingAccount, getTestProjectFromEnv(), bucketName)
 }
 
+func testAccLoggingBillingAccountSink_described(name, bucketName, billingAccount string) string {
+	return fmt.Sprintf(`
+resource "google_logging_billing_account_sink" "described" {
+  name            = "%s"
+  description     = "this is a description"
+  billing_account = "%s"
+  destination     = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter          = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name = "%s"
+}
+`, name, billingAccount, getTestProjectFromEnv(), bucketName)
+}
+
+func testAccLoggingBillingAccountSink_disabled(name, bucketName, billingAccount string) string {
+	return fmt.Sprintf(`
+resource "google_logging_billing_account_sink" "disabled" {
+  name            = "%s"
+  billing_account = "%s"
+  destination     = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter          = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name = "%s"
+}
+`, name, billingAccount, getTestProjectFromEnv(), bucketName)
+}
+
 func testAccLoggingBillingAccountSink_update(name, bucketName, billingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_logging_billing_account_sink" "update" {
   name            = "%s"
   billing_account = "%s"
   destination     = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  disabled         = true
   filter          = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
 
@@ -244,7 +322,7 @@ resource "google_logging_billing_account_sink" "heredoc" {
   destination     = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
   filter          = <<EOS
 
-	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
+  logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
 AND severity>=ERROR
 
 

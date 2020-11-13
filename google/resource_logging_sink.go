@@ -30,6 +30,18 @@ func resourceLoggingSinkSchema() map[string]*schema.Schema {
 			Description:      `The filter to apply when exporting logs. Only log entries that match the filter are exported.`,
 		},
 
+		"description": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: `A description of this sink. The maximum length of the description is 8000 characters.`,
+		},
+
+		"disabled": {
+			Type:        schema.TypeBool,
+			Optional:    true,
+			Description: `If set to True, then this sink is disabled and it does not export any log entries.`,
+		},
+
 		"exclusions": {
 			Type:        schema.TypeList,
 			Optional:    true,
@@ -97,6 +109,8 @@ func expandResourceLoggingSink(d *schema.ResourceData, resourceType, resourceId 
 		Name:            d.Get("name").(string),
 		Destination:     d.Get("destination").(string),
 		Filter:          d.Get("filter").(string),
+		Description:     d.Get("description").(string),
+		Disabled:        d.Get("disabled").(bool),
 		Exclusions:      expandLoggingSinkExclusions(d.Get("exclusions")),
 		BigqueryOptions: expandLoggingSinkBigqueryOptions(d.Get("bigquery_options")),
 	}
@@ -112,6 +126,12 @@ func flattenResourceLoggingSink(d *schema.ResourceData, sink *logging.LogSink) e
 	}
 	if err := d.Set("filter", sink.Filter); err != nil {
 		return fmt.Errorf("Error setting filter: %s", err)
+	}
+	if err := d.Set("description", sink.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("disabled", sink.Disabled); err != nil {
+		return fmt.Errorf("Error setting disabled: %s", err)
 	}
 	if err := d.Set("writer_identity", sink.WriterIdentity); err != nil {
 		return fmt.Errorf("Error setting writer_identity: %s", err)
@@ -141,6 +161,12 @@ func expandResourceLoggingSinkForUpdate(d *schema.ResourceData) (sink *logging.L
 	}
 	if d.HasChange("filter") {
 		updateFields = append(updateFields, "filter")
+	}
+	if d.HasChange("description") {
+		updateFields = append(updateFields, "description")
+	}
+	if d.HasChange("disabled") {
+		updateFields = append(updateFields, "disabled")
 	}
 	if d.HasChange("exclusions") {
 		sink.Exclusions = expandLoggingSinkExclusions(d.Get("exclusions"))

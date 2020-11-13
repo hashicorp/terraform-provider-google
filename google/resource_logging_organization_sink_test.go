@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"strconv"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/logging/v2"
-	"strconv"
 )
 
 func TestAccLoggingOrganizationSink_basic(t *testing.T) {
@@ -82,6 +83,52 @@ func TestAccLoggingOrganizationSink_update(t *testing.T) {
 		t.Errorf("Expected WriterIdentity to be the same, but it differs: before = %#v, after = %#v",
 			sinkBefore.WriterIdentity, sinkAfter.WriterIdentity)
 	}
+}
+
+func TestAccLoggingOrganizationSink_described(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingOrganizationSink_described(sinkName, bucketName, org),
+			}, {
+				ResourceName:      "google_logging_organization_sink.described",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccLoggingOrganizationSink_disabled(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingOrganizationSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingOrganizationSink_disabled(sinkName, bucketName, org),
+			}, {
+				ResourceName:      "google_logging_organization_sink.disabled",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func TestAccLoggingOrganizationSink_updateBigquerySink(t *testing.T) {
@@ -250,6 +297,42 @@ resource "google_storage_bucket" "log-bucket" {
 `, sinkName, orgId, getTestProjectFromEnv(), bucketName)
 }
 
+func testAccLoggingOrganizationSink_described(sinkName, bucketName, orgId string) string {
+	return fmt.Sprintf(`
+resource "google_logging_organization_sink" "described" {
+  name        = "%s"
+  project     = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  description = "this is a description for an organization level logging sink"
+
+  unique_writer_identity = false
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name = "%s"
+}
+`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
+}
+
+func testAccLoggingOrganizationSink_disabled(sinkName, bucketName, orgId string) string {
+	return fmt.Sprintf(`
+resource "google_logging_organization_sink" "disabled" {
+  name        = "%s"
+  project     = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  disabled    = true
+
+  unique_writer_identity = false
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name = "%s"
+}
+`, sinkName, orgId, getTestProjectFromEnv(), bucketName)
+}
+
 func testAccLoggingOrganizationSink_heredoc(sinkName, bucketName, orgId string) string {
 	return fmt.Sprintf(`
 resource "google_logging_organization_sink" "heredoc" {
@@ -258,7 +341,7 @@ resource "google_logging_organization_sink" "heredoc" {
   destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
   filter      = <<EOS
 
-	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
+  logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
 AND severity>=ERROR
 
 

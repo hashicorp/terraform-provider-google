@@ -70,6 +70,7 @@ resource "google_storage_bucket" "log-bucket" {
 # Our sink; this logs all activity related to our "my-logged-instance" instance
 resource "google_logging_project_sink" "instance-sink" {
   name        = "my-instance-sink"
+  description = "some explaination on what this is"
   destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
   filter      = "resource.type = gce_instance AND resource.labels.instance_id = \"${google_compute_instance.my-logged-instance.instance_id}\""
 
@@ -129,6 +130,10 @@ The following arguments are supported:
 * `filter` - (Optional) The filter to apply when exporting logs. Only log entries that match the filter are exported.
     See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced_filters) for information on how to
     write a filter.
+
+* `description` - (Optional) A description of this sink. The maximum length of the description is 8000 characters.
+
+* `disabled` - (Optional) If set to True, then this sink is disabled and it does not export any log entries.
 
 * `project` - (Optional) The ID of the project to create the sink in. If omitted, the project associated with the provider is
     used.
