@@ -286,6 +286,7 @@ resource "google_logging_billing_account_sink" "described" {
   billing_account = "%s"
   destination     = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
   filter          = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  description     = "this is a description for a billing account level logging sink"
 }
 
 resource "google_storage_bucket" "log-bucket" {
@@ -301,6 +302,7 @@ resource "google_logging_billing_account_sink" "disabled" {
   billing_account = "%s"
   destination     = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
   filter          = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  disabled        = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
