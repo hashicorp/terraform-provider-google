@@ -179,7 +179,7 @@ The `external_data_configuration` block supports:
     `google_bigquery_table.schema`
 
 * `source_format` (Required) - The data format. Supported values are:
-    "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "PARQUET",
+    "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "PARQUET", "ORC"
     and "DATASTORE_BACKUP". To use "GOOGLE_SHEETS"
     the `scopes` must include
     "https://www.googleapis.com/auth/drive.readonly".
