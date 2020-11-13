@@ -23,6 +23,7 @@ typical IAM roles granted on a project.
 ```hcl
 resource "google_logging_billing_account_sink" "my-sink" {
   name            = "my-sink"
+  description = "some explaination on what this is"
   billing_account = "ABCDEF-012345-GHIJKL"
 
   # Can export to pubsub, cloud storage, or bigquery
@@ -63,6 +64,10 @@ The following arguments are supported:
 * `filter` - (Optional) The filter to apply when exporting logs. Only log entries that match the filter are exported.
     See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced_filters) for information on how to
     write a filter.
+
+* `description` - (Optional) A description of this sink. The maximum length of the description is 8000 characters.
+
+* `disabled` - (Optional) If set to True, then this sink is disabled and it does not export any log entries.
 
 * `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure documented below.
 

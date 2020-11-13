@@ -41,6 +41,54 @@ func TestAccLoggingFolderSink_basic(t *testing.T) {
 	})
 }
 
+func TestAccLoggingFolderSink_described(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	folderName := "tf-test-folder-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingFolderSink_described(sinkName, bucketName, folderName, "organizations/"+org),
+			}, {
+				ResourceName:      "google_logging_folder_sink.described",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccLoggingFolderSink_disabled(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	folderName := "tf-test-folder-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingFolderSink_disabled(sinkName, bucketName, folderName, "organizations/"+org),
+			}, {
+				ResourceName:      "google_logging_folder_sink.disabled",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccLoggingFolderSink_removeOptionals(t *testing.T) {
 	t.Parallel()
 
@@ -308,22 +356,66 @@ resource "google_folder" "my-folder" {
 `, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
 }
 
-func testAccLoggingFolderSink_removeOptionals(sinkName, bucketName, folderName, folderParent string) string {
+func testAccLoggingFolderSink_described(sinkName, bucketName, folderName, folderParent string) string {
 	return fmt.Sprintf(`
-resource "google_logging_folder_sink" "basic" {
-	name             = "%s"
-	folder           = "${element(split("/", google_folder.my-folder.name), 1)}"
-	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter           = ""
-	include_children = true
+resource "google_logging_folder_sink" "described" {
+  name             = "%s"
+  folder           = element(split("/", google_folder.my-folder.name), 1)
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  description      = "this is a description for a folder level logging sink"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_folder" "my-folder" {
-	display_name = "%s"
+  display_name = "%s"
+  parent       = "%s"
+}
+`, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
+}
+
+func testAccLoggingFolderSink_disabled(sinkName, bucketName, folderName, folderParent string) string {
+	return fmt.Sprintf(`
+resource "google_logging_folder_sink" "disabled" {
+  name             = "%s"
+  folder           = element(split("/", google_folder.my-folder.name), 1)
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  disabled         = true
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name = "%s"
+}
+
+resource "google_folder" "my-folder" {
+  display_name = "%s"
+  parent       = "%s"
+}
+`, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
+}
+
+func testAccLoggingFolderSink_removeOptionals(sinkName, bucketName, folderName, folderParent string) string {
+	return fmt.Sprintf(`
+resource "google_logging_folder_sink" "basic" {
+  name             = "%s"
+  folder           = "${element(split("/", google_folder.my-folder.name), 1)}"
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter           = ""
+  include_children = true
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name = "%s"
+}
+
+resource "google_folder" "my-folder" {
+  display_name = "%s"
     parent       = "%s"
 }`, sinkName, bucketName, folderName, folderParent)
 }
@@ -357,7 +449,7 @@ resource "google_logging_folder_sink" "heredoc" {
   destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
   filter      = <<EOS
 
-	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
+  logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
 AND severity>=ERROR
 
 

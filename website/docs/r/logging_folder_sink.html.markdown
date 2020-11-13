@@ -21,6 +21,7 @@ granted to the credentials used with terraform.
 ```hcl
 resource "google_logging_folder_sink" "my-sink" {
   name   = "my-sink"
+  description = "some explaination on what this is"
   folder = google_folder.my-folder.name
 
   # Can export to pubsub, cloud storage, or bigquery
@@ -70,6 +71,10 @@ The following arguments are supported:
 * `filter` - (Optional) The filter to apply when exporting logs. Only log entries that match the filter are exported.
     See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced_filters) for information on how to
     write a filter.
+
+* `description` - (Optional) A description of this sink. The maximum length of the description is 8000 characters.
+
+* `disabled` - (Optional) If set to True, then this sink is disabled and it does not export any log entries.
 
 * `include_children` - (Optional) Whether or not to include children folders in the sink export. If true, logs
     associated with child projects are also exported; otherwise only logs relating to the provided folder are included.
