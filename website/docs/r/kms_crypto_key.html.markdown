@@ -168,8 +168,8 @@ This resource provides the following
 CryptoKey can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_kms_crypto_key.default {{key_ring}}/cryptoKeys/{{name}}
-$ terraform import google_kms_crypto_key.default {{key_ring}}/{{name}}
+$ terraform import google_kms_crypto_key.default {{project_id}}/{{location_id}}/{{key_ring}}/{{name}}
+$ terraform import google_kms_crypto_key.default {{location_id}}/{{key_ring}}/{{name}}
 ```
 
 ## User Project Overrides
