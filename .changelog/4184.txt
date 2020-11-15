@@ -1,4 +1,0 @@
-```release-note:bug
-storage - added length check for `cors` for the resource `resource_storage_bucket`
-
-```
