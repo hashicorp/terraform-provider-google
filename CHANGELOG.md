@@ -14,7 +14,6 @@ IMPROVEMENTS:
 BUG FIXES:
 * cloudrun: added diff suppress function for `google_cloud_run_domain_mapping` `metadata.annotations` to ignore API-set fields ([#7764](https://github.com/hashicorp/terraform-provider-google/pull/7764))
 * spanner: marked `google_spanner_instance.config` as ForceNew as is not updatable ([#7763](https://github.com/hashicorp/terraform-provider-google/pull/7763))
-* storage: fixed an issue in `google_storage_bucket` that caused a crash when `cors` was empty ([#7760](https://github.com/hashicorp/terraform-provider-google/pull/7760))
 
 ## 3.47.0 (November 09, 2020)
 
