@@ -53,6 +53,12 @@ The following arguments are supported:
 * `password` - (Optional) The password for the user. Can be updated. For Postgres
     instances this is a Required field.
 
+* `deletion_policy` - (Optional) The deletion policy for the user.
+    Setting `ABANDON` allows the resource to be abandoned rather than deleted. This is useful
+    for Postgres, where users cannot be deleted from the API if they have been granted SQL roles.
+    
+    Possible values are: `ABANDON`.
+
 - - -
 
 * `host` - (Optional) The host the user can connect from. This is only supported
