@@ -78,6 +78,40 @@ func TestAccSqlUser_postgres(t *testing.T) {
 	})
 }
 
+func TestAccSqlUser_postgresAbandon(t *testing.T) {
+	t.Parallel()
+
+	instance := fmt.Sprintf("i-%d", randInt(t))
+	userName := "admin"
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlUser_postgresAbandon(instance, userName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_user.user",
+				ImportStateId:           fmt.Sprintf("%s/%s/admin", getTestProjectFromEnv(), instance),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password", "deletion_policy"},
+			},
+			{
+				// Abandon user
+				Config: testGoogleSqlUser_postgresNoUser(instance),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExistsWithName(t, instance, userName),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleSqlUserExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -103,6 +137,27 @@ func testAccCheckGoogleSqlUserExists(t *testing.T, n string) resource.TestCheckF
 		}
 
 		return fmt.Errorf("Not found: %s: %s", n, err)
+	}
+}
+
+func testAccCheckGoogleSqlUserExistsWithName(t *testing.T, instance, name string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
+
+		users, err := config.NewSqlAdminClient(config.userAgent).Users.List(config.Project,
+			instance).Do()
+
+		if err != nil {
+			return err
+		}
+
+		for _, user := range users.Items {
+			if user.Name == name {
+				return nil
+			}
+		}
+
+		return fmt.Errorf("Not found: User: %s in instance: %s: %s", name, instance, err)
 	}
 }
 
@@ -179,4 +234,41 @@ resource "google_sql_user" "user" {
   password = "%s"
 }
 `, instance, password)
+}
+
+func testGoogleSqlUser_postgresAbandon(instance, name string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "POSTGRES_9_6"
+  deletion_protection = false
+
+  settings {
+    tier = "db-f1-micro"
+  }
+}
+
+resource "google_sql_user" "user" {
+  name     = "%s"
+  instance = google_sql_database_instance.instance.name
+  password = "password"
+  deletion_policy = "ABANDON"
+}
+`, instance, name)
+}
+
+func testGoogleSqlUser_postgresNoUser(instance string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "POSTGRES_9_6"
+  deletion_protection = false
+
+  settings {
+    tier = "db-f1-micro"
+  }
+}
+`, instance)
 }

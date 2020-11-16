@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -64,6 +65,15 @@ func resourceSqlUser() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
+			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The deletion policy for the user. Setting ABANDON allows the resource
+				to be abandoned rather than deleted. This is useful for Postgres, where users cannot be deleted from the API if they
+				have been granted SQL roles. Possible values are: "ABANDON".`,
+				ValidateFunc: validation.StringInSlice([]string{"ABANDON", ""}, false),
 			},
 		},
 	}
@@ -236,6 +246,13 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "ABANDON" {
+		// Allows for user to be abandoned without deletion to avoid deletion failing
+		// for Postgres users in some circumstances due to existing SQL roles
+		return nil
+	}
+
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
