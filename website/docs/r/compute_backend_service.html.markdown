@@ -159,6 +159,7 @@ resource "google_compute_backend_service" "default" {
   connection_draining_timeout_sec = 10
  
   custom_request_headers          = ["host: ${google_compute_global_network_endpoint.proxy.fqdn}"]
+  custom_response_headers         = ["X-Cache-Hit: {cdn_cache_status}"]
 
   backend {
     group = google_compute_global_network_endpoint_group.external_proxy.id
@@ -230,6 +231,11 @@ The following arguments are supported:
   (Optional)
   Headers that the HTTP/S load balancer should add to proxied
   requests.
+
+* `custom_response_headers` -
+  (Optional)
+  Headers that the HTTP/S load balancer should add to proxied
+  responses.
 
 * `description` -
   (Optional)
