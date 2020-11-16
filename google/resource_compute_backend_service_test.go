@@ -1343,6 +1343,7 @@ resource "google_compute_backend_service" "foobar" {
   health_checks = [google_compute_http_health_check.zero.self_link]
 
   custom_request_headers = ["Client-Region: {client_region}", "Client-Rtt: {client_rtt_msec}"]
+  custom_response_headers = ["X-Cache-Hit: {cdn_cache_status}", "X-Cache-Id: {cdn_cache_id}"]
 }
 
 resource "google_compute_http_health_check" "zero" {
