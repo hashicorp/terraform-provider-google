@@ -463,6 +463,30 @@ func resourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"maintenance_exclusion": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							MaxItems:    3,
+							Description: `Exceptions to maintenance window. Non-emergency maintenance should not occur in these windows.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"exclusion_name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"start_time": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validateRFC3339Date,
+									},
+									"end_time": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validateRFC3339Date,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -2353,6 +2377,16 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 	}
 	maintenancePolicy := l[0].(map[string]interface{})
 
+	if maintenanceExclusions, ok := maintenancePolicy["maintenance_exclusion"]; ok && len(maintenanceExclusions.(*schema.Set).List()) > 0 {
+		for _, me := range maintenanceExclusions.(*schema.Set).List() {
+			exclusion := me.(map[string]interface{})
+			exclusions[exclusion["exclusion_name"].(string)] = containerBeta.TimeWindow{
+				StartTime: exclusion["start_time"].(string),
+				EndTime:   exclusion["end_time"].(string),
+			}
+		}
+	}
+
 	if dailyMaintenanceWindow, ok := maintenancePolicy["daily_maintenance_window"]; ok && len(dailyMaintenanceWindow.([]interface{})) > 0 {
 		dmw := dailyMaintenanceWindow.([]interface{})[0].(map[string]interface{})
 		startTime := dmw["start_time"].(string)
@@ -2782,6 +2816,18 @@ func flattenMaintenancePolicy(mp *containerBeta.MaintenancePolicy) []map[string]
 	if mp == nil || mp.Window == nil {
 		return nil
 	}
+
+	exclusions := []map[string]interface{}{}
+	if mp.Window.MaintenanceExclusions != nil {
+		for wName, window := range mp.Window.MaintenanceExclusions {
+			exclusions = append(exclusions, map[string]interface{}{
+				"start_time":     window.StartTime,
+				"end_time":       window.EndTime,
+				"exclusion_name": wName,
+			})
+		}
+	}
+
 	if mp.Window.DailyMaintenanceWindow != nil {
 		return []map[string]interface{}{
 			{
@@ -2791,6 +2837,7 @@ func flattenMaintenancePolicy(mp *containerBeta.MaintenancePolicy) []map[string]
 						"duration":   mp.Window.DailyMaintenanceWindow.Duration,
 					},
 				},
+				"maintenance_exclusion": exclusions,
 			},
 		}
 	}
@@ -2804,6 +2851,7 @@ func flattenMaintenancePolicy(mp *containerBeta.MaintenancePolicy) []map[string]
 						"recurrence": mp.Window.RecurringWindow.Recurrence,
 					},
 				},
+				"maintenance_exclusion": exclusions,
 			},
 		}
 	}
