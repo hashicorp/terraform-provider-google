@@ -306,10 +306,10 @@ This resource provides the following
 ## Import
 
 
-UptimeCheckConfig can be imported using any of these accepted formats:
+UptimeCheckConfig can be imported using the below format. To determine the `{{name}}` for an existing uptime check, you can check the links for each uptime check in the [Cloud Console](https://console.cloud.google.com/monitoring/uptime).
 
 ```
-$ terraform import google_monitoring_uptime_check_config.default {{name}}
+$ terraform import google_monitoring_uptime_check_config.default projects/{{project}}/uptimeCheckConfigs/{{name}}
 ```
 
 ## User Project Overrides
