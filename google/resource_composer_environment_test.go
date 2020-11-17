@@ -579,39 +579,45 @@ func testSweepComposerEnvironments(config *Config) error {
 	}
 
 	if len(found.Environments) == 0 {
-		log.Printf("No environment need to be cleaned up")
+		log.Printf("composer: no environments need to be cleaned up")
 		return nil
 	}
+
+	log.Printf("composer: %d environments need to be cleaned up", len(found.Environments))
 
 	var allErrors error
 	for _, e := range found.Environments {
 		createdAt, err := time.Parse(time.RFC3339Nano, e.CreateTime)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Environment %q has invalid create time %q", e.Name, e.CreateTime)
+			return fmt.Errorf("composer: environment %q has invalid create time %q", e.Name, e.CreateTime)
 		}
 		// Skip environments that were created in same day
 		// This sweeper should really only clean out very old environments.
 		if time.Since(createdAt) < time.Hour*24 {
+			log.Printf("composer: skipped environment %q, it was created today", e.Name)
 			continue
 		}
 
 		switch e.State {
 		case "CREATING":
+			fallthrough
 		case "UPDATING":
-			log.Printf("Skipping pending Environment %q with state %q", e.Name, e.State)
+			log.Printf("composer: skipping pending Environment %q with state %q", e.Name, e.State)
 		case "DELETING":
-			log.Printf("Skipping pending Environment %q that is currently deleting", e.Name)
+			log.Printf("composer: skipping pending Environment %q that is currently deleting", e.Name)
 		case "RUNNING":
+			fallthrough
 		case "ERROR":
+			fallthrough
 		default:
 			op, deleteErr := config.NewComposerClient(config.userAgent).Projects.Locations.Environments.Delete(e.Name).Do()
 			if deleteErr != nil {
-				allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete environment %q: %s", e.Name, deleteErr))
+				allErrors = multierror.Append(allErrors, fmt.Errorf("composer: unable to delete environment %q: %s", e.Name, deleteErr))
 				continue
 			}
 			waitErr := composerOperationWaitTime(config, op, config.Project, "Sweeping old test environments", config.userAgent, 10*time.Minute)
 			if waitErr != nil {
-				allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete environment %q: %s", e.Name, waitErr))
+				allErrors = multierror.Append(allErrors, fmt.Errorf("composer: unable to delete environment %q: %s", e.Name, waitErr))
 			}
 		}
 	}
