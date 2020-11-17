@@ -449,11 +449,17 @@ The `authenticator_groups_config` block supports:
 * `security_group` - (Required) The name of the RBAC security group for use with Google security groups in Kubernetes RBAC. Group name must be in format `gke-security-groups@yourdomain.com`.
 
 The `maintenance_policy` block supports:
+* `daily_maintenance_window` - (Optional) structure documented below.
+* `recurring_window` - (Optional) structure documented below
+* `maintenance_exclusion` - (Optional) structure documented below
 
-* `daily_maintenance_window` - (Required in GA, Optional in Beta) Time window specified for daily maintenance operations.
+In beta, one or the other of `recurring_window` and `daily_maintenance_window` is required if a `maintenance_policy` block is supplied.
+
+* `daily_maintenance_window` - Time window specified for daily maintenance operations.
     Specify `start_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "HH:MM”,
     where HH : \[00-23\] and MM : \[00-59\] GMT. For example:
 
+Examples:
 ```hcl
 maintenance_policy {
   daily_maintenance_window {
@@ -462,8 +468,7 @@ maintenance_policy {
 }
 ```
 
-* `recurring_window` - (Optional) Time window for
-recurring maintenance operations.
+* `recurring_window` - Time window for recurring maintenance operations.
 
 Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) "Zulu" date format.  The start time's date is
 the initial date that the window starts, and the end time is used for calculating duration.  Specify `recurrence` in
@@ -491,7 +496,34 @@ maintenance_policy {
 }
 ```
 
-In beta, one or the other of `recurring_window` and `daily_maintenance_window` is required if a `maintenance_policy` block is supplied.
+* `maintenance_exclusion` - Exceptions to maintenance window. Non-emergency maintenance should not occur in these windows. A cluster can have up to three maintenance exclusions at a time [Maintenance Window and Exclusions](https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions)
+
+Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) "Zulu" date format.  The start time's date is
+the initial date that the window starts, and the end time is used for calculating duration.Specify `recurrence` in
+[RFC5545](https://tools.ietf.org/html/rfc5545#section-3.8.5.3) RRULE format, to specify when this recurs.
+Note that GKE may accept other formats, but will return values in UTC, causing a permanent diff. 
+
+Examples:
+
+```
+maintenance_policy {
+  recurring_window {
+    start_time = "2019-01-01T00:00:00Z"
+    end_time = "2019-01-02T00:00:00Z"
+    recurrence = "FREQ=DAILY"
+  }
+  maintenance_exclusion{
+    exclusion_name = "batch job"
+    start_time = "2019-01-01T00:00:00Z"
+    end_time = "2019-01-02T00:00:00Z"
+  }
+  maintenance_exclusion{
+    exclusion_name = "holiday data load"
+    start_time = "2019-05-01T00:00:00Z"
+    end_time = "2019-05-02T00:00:00Z"
+  }
+}
+```
 
 The `ip_allocation_policy` block supports:
 
