@@ -1,4 +1,21 @@
-## 3.48.0 (Unreleased)
+## 3.49.0 (Unreleased)
+
+## 3.48.0 (November 16, 2020)
+
+FEATURES:
+* **New Data Source:** `google_iam_workload_identity_pool_provider` ([#7733](https://github.com/hashicorp/terraform-provider-google/pull/7733))
+
+IMPROVEMENTS:
+* apigateway: added api_config_id_prefix field to `google_api_gateway_api_config` resoure ([#7753](https://github.com/hashicorp/terraform-provider-google/pull/7753))
+* cloudfunctions: fixed a bug with `google_cloudfunction_function` that blocked updates when Organization Policies are enabled. ([#7723](https://github.com/hashicorp/terraform-provider-google/pull/7723))
+* compute: added `autoscaling_policy.0.scale_in_control` fields to `google_compute_autoscaler` ([#7773](https://github.com/hashicorp/terraform-provider-google/pull/7773))
+* compute: added `autoscaling_policy.0.scale_in_control` fields to `google_compute_region_autoscaler` ([#7773](https://github.com/hashicorp/terraform-provider-google/pull/7773))
+* compute: added update support for `google_compute_interconnect_attachment` `bandwidth` field ([#7762](https://github.com/hashicorp/terraform-provider-google/pull/7762))
+* dataproc: added "FLINK", "DOCKER", "HBASE" as valid options for field `cluster_config.0.software_config.0.optional_components` of `google_dataproc_cluster` resource ([#7726](https://github.com/hashicorp/terraform-provider-google/pull/7726))
+
+BUG FIXES:
+* cloudrun: added diff suppress function for `google_cloud_run_domain_mapping` `metadata.annotations` to ignore API-set fields ([#7764](https://github.com/hashicorp/terraform-provider-google/pull/7764))
+* spanner: marked `google_spanner_instance.config` as ForceNew as is not updatable ([#7763](https://github.com/hashicorp/terraform-provider-google/pull/7763))
 
 ## 3.47.0 (November 09, 2020)
 
