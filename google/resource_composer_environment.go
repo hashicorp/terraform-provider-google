@@ -197,7 +197,7 @@ func resourceComposerEnvironment() *schema.Resource {
 													Type:        schema.TypeBool,
 													Required:    true,
 													ForceNew:    true,
-													Description: `Whether or not to enable Alias IPs in the GKE cluster. If true, a VPC-native cluster is created. Defaults to true if the ip_allocation_block is present in config.`,
+													Description: `Whether or not to enable Alias IPs in the GKE cluster. If true, a VPC-native cluster is created. Defaults to true if the ip_allocation_policy block is present in config.`,
 												},
 												"cluster_secondary_range_name": {
 													Type:          schema.TypeString,
