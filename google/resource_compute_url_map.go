@@ -103,7 +103,7 @@ This translates to the Access-Control-Allow-Credentials header.`,
 									"allow_origin_regexes": {
 										Type:     schema.TypeList,
 										Optional: true,
-										Description: `Specifies the regualar expression patterns that match allowed origins. For regular expression grammar
+										Description: `Specifies the regular expression patterns that match allowed origins. For regular expression grammar
 please see en.cppreference.com/w/cpp/regex/ecmascript
 An origin is allowed if it matches either an item in allowOrigins or an item in allowOriginRegexes.`,
 										Elem: &schema.Schema{
@@ -747,7 +747,7 @@ This translates to the Access-Control-Allow-Credentials header.`,
 												"allow_origin_regexes": {
 													Type:     schema.TypeList,
 													Optional: true,
-													Description: `Specifies the regualar expression patterns that match allowed origins. For regular expression grammar
+													Description: `Specifies the regular expression patterns that match allowed origins. For regular expression grammar
 please see en.cppreference.com/w/cpp/regex/ecmascript
 An origin is allowed if it matches either an item in allowOrigins or an item in allowOriginRegexes.`,
 													Elem: &schema.Schema{
@@ -1364,7 +1364,7 @@ Control-Allow-Credentials header. Defaults to false.`,
 															"allow_origin_regexes": {
 																Type:     schema.TypeList,
 																Optional: true,
-																Description: `Specifies the regualar expression patterns that match allowed origins. For
+																Description: `Specifies the regular expression patterns that match allowed origins. For
 regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
 An origin is allowed if it matches either allow_origins or allow_origin_regex.`,
 																Elem: &schema.Schema{
@@ -1941,7 +1941,7 @@ prior to sending the response back to the client.`,
 												"full_path_match": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `For satifying the matchRule condition, the path of the request must exactly
+													Description: `For satisfying the matchRule condition, the path of the request must exactly
 match the value specified in fullPathMatch after removing any query parameters
 and anchor that may be part of the original URL. FullPathMatch must be between 1
 and 1024 characters. Only one of prefixMatch, fullPathMatch or regexMatch must
@@ -2017,7 +2017,7 @@ must be set.`,
 															"regex_match": {
 																Type:     schema.TypeString,
 																Optional: true,
-																Description: `The value of the header must match the regualar expression specified in
+																Description: `The value of the header must match the regular expression specified in
 regexMatch. For regular expression grammar, please see:
 en.cppreference.com/w/cpp/regex/ecmascript  For matching against a port
 specified in the HTTP request, use a headerMatch with headerName set to PORT and
@@ -2100,7 +2100,7 @@ the provided metadata. Possible values: ["MATCH_ALL", "MATCH_ANY"]`,
 												"prefix_match": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `For satifying the matchRule condition, the request's path must begin with the
+													Description: `For satisfying the matchRule condition, the request's path must begin with the
 specified prefixMatch. prefixMatch must begin with a /. The value must be
 between 1 and 1024 characters. Only one of prefixMatch, fullPathMatch or
 regexMatch must be specified.`,
@@ -2146,7 +2146,7 @@ exactMatch and regexMatch must be set.`,
 												"regex_match": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `For satifying the matchRule condition, the path of the request must satisfy the
+													Description: `For satisfying the matchRule condition, the path of the request must satisfy the
 regular expression specified in regexMatch after removing any query parameters
 and anchor supplied with the original URL. For regular expression grammar please
 see en.cppreference.com/w/cpp/regex/ecmascript  Only one of prefixMatch,
@@ -2202,7 +2202,7 @@ Control-Allow-Credentials header. Defaults to false.`,
 															"allow_origin_regexes": {
 																Type:     schema.TypeList,
 																Optional: true,
-																Description: `Specifies the regualar expression patterns that match allowed origins. For
+																Description: `Specifies the regular expression patterns that match allowed origins. For
 regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
 An origin is allowed if it matches either allow_origins or allow_origin_regex.`,
 																Elem: &schema.Schema{
