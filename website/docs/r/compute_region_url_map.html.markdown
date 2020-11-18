@@ -702,7 +702,7 @@ The `match_rules` block supports:
 
 * `full_path_match` -
   (Optional)
-  For satifying the matchRule condition, the path of the request must exactly
+  For satisfying the matchRule condition, the path of the request must exactly
   match the value specified in fullPathMatch after removing any query parameters
   and anchor that may be part of the original URL. FullPathMatch must be between 1
   and 1024 characters. Only one of prefixMatch, fullPathMatch or regexMatch must
@@ -736,7 +736,7 @@ The `match_rules` block supports:
 
 * `prefix_match` -
   (Optional)
-  For satifying the matchRule condition, the request's path must begin with the
+  For satisfying the matchRule condition, the request's path must begin with the
   specified prefixMatch. prefixMatch must begin with a /. The value must be
   between 1 and 1024 characters. Only one of prefixMatch, fullPathMatch or
   regexMatch must be specified.
@@ -749,7 +749,7 @@ The `match_rules` block supports:
 
 * `regex_match` -
   (Optional)
-  For satifying the matchRule condition, the path of the request must satisfy the
+  For satisfying the matchRule condition, the path of the request must satisfy the
   regular expression specified in regexMatch after removing any query parameters
   and anchor supplied with the original URL. For regular expression grammar please
   see en.cppreference.com/w/cpp/regex/ecmascript  Only one of prefixMatch,
@@ -802,7 +802,7 @@ The `header_matches` block supports:
 
 * `regex_match` -
   (Optional)
-  The value of the header must match the regualar expression specified in
+  The value of the header must match the regular expression specified in
   regexMatch. For regular expression grammar, please see:
   en.cppreference.com/w/cpp/regex/ecmascript  For matching against a port
   specified in the HTTP request, use a headerMatch with headerName set to PORT and
@@ -962,7 +962,7 @@ The `cors_policy` block supports:
 
 * `allow_origin_regexes` -
   (Optional)
-  Specifies the regualar expression patterns that match allowed origins. For
+  Specifies the regular expression patterns that match allowed origins. For
   regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
   An origin is allowed if it matches either allow_origins or allow_origin_regex.
 
@@ -1059,7 +1059,7 @@ The `retry_policy` block supports:
 
 * `retry_conditions` -
   (Optional)
-  Specfies one or more conditions when this retry rule applies. Valid values are:
+  Specifies one or more conditions when this retry rule applies. Valid values are:
   * 5xx: Loadbalancer will attempt a retry if the backend service responds with
     any 5xx response code, or if the backend service does not respond at all,
     example: disconnects, reset, read timeout, connection failure, and refused
@@ -1367,7 +1367,7 @@ The `cors_policy` block supports:
 
 * `allow_origin_regexes` -
   (Optional)
-  Specifies the regualar expression patterns that match allowed origins. For
+  Specifies the regular expression patterns that match allowed origins. For
   regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
   An origin is allowed if it matches either allow_origins or allow_origin_regex.
 
