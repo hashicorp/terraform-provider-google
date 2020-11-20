@@ -66,8 +66,11 @@ exported:
 
 ## Import
 
-Customized IAM project role can be imported using their URI, e.g.
+
+Custom Roles can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_project_iam_custom_role.my-custom-role projects/my-project/roles/myCustomRole
+$ terraform import google_project_iam_custom_role.default projects/{{project}}/roles/{{role_id}}
+$ terraform import google_project_iam_custom_role.default {{project}}/{{role_id}}
+$ terraform import google_project_iam_custom_role.default {{role_id}}
 ```
