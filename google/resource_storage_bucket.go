@@ -510,8 +510,12 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if v, ok := d.GetOk("cors"); ok {
-		sb.Cors = expandCors(v.([]interface{}))
+	if d.HasChange("cors") {
+		if v, ok := d.GetOk("cors"); ok {
+			sb.Cors = expandCors(v.([]interface{}))
+		} else {
+			sb.NullFields = append(sb.NullFields, "Cors")
+		}
 	}
 
 	if d.HasChange("default_event_based_hold") {
