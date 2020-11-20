@@ -1,9 +1,5 @@
 ## 3.49.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Add description and disabled to logging sinks ([#7809](https://github.com/hashicorp/terraform-provider-google/pull/7809))
-* 
-
 FEATURES:
 * **New Resource:** google_healthcare_consent_store ([#7803](https://github.com/hashicorp/terraform-provider-google/pull/7803))
 * **New Resource:** google_healthcare_consent_store_iam_binding ([#7803](https://github.com/hashicorp/terraform-provider-google/pull/7803))
