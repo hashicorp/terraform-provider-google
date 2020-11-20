@@ -679,6 +679,14 @@ func TestAccStorageBucket_cors(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccStorageBucket_basic(bucketName),
+			},
+			{
+				ResourceName:      "google_storage_bucket.bucket",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
