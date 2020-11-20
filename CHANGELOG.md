@@ -1,5 +1,26 @@
 ## 3.49.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** google_healthcare_consent_store ([#7803](https://github.com/hashicorp/terraform-provider-google/pull/7803))
+* **New Resource:** google_healthcare_consent_store_iam_binding ([#7803](https://github.com/hashicorp/terraform-provider-google/pull/7803))
+* **New Resource:** google_healthcare_consent_store_iam_member ([#7803](https://github.com/hashicorp/terraform-provider-google/pull/7803))
+* **New Resource:** google_healthcare_consent_store_iam_policy ([#7803](https://github.com/hashicorp/terraform-provider-google/pull/7803))
+
+IMPROVEMENTS:
+* bigquery: added `ORC` as a valid option to `source_format` field of  `google_bigquery_table` resource ([#7804](https://github.com/hashicorp/terraform-provider-google/pull/7804))
+* cloud_identity: promoted `google_cloud_identity_group_membership` to GA ([#7786](https://github.com/hashicorp/terraform-provider-google/pull/7786))
+* cloud_identity: promoted `google_cloud_identity_group` to GA ([#7786](https://github.com/hashicorp/terraform-provider-google/pull/7786))
+* cloud_identity: promoted data source `google_cloud_identity_group_memberships` to GA ([#7786](https://github.com/hashicorp/terraform-provider-google/pull/7786))
+* cloud_identity: promoted data source `google_cloud_identity_groups` to GA ([#7786](https://github.com/hashicorp/terraform-provider-google/pull/7786))
+* compute: added `custom_response_headers` field to `google_compute_backend_service` resource ([#7824](https://github.com/hashicorp/terraform-provider-google/pull/7824))
+* container: added maintenance_exclusions_window to `google_container_cluster` ([#7830](https://github.com/hashicorp/terraform-provider-google/pull/7830))
+* logging: added description and disabled to logging sinks ([#7809](https://github.com/hashicorp/terraform-provider-google/pull/7809))
+* runtimeconfig: marked value and text fields in `google_runtimeconfig_variable` resource as sensitive ([#7808](https://github.com/hashicorp/terraform-provider-google/pull/7808))
+* sql: added `deletion_policy` field to `google_sql_user` to enable abandoning users rather than deleting them ([#7820](https://github.com/hashicorp/terraform-provider-google/pull/7820))
+
+BUG FIXES:
+* bigtable: added ignore_warnings flag to create call for `google_bigtable_app_profile` ([#7806](https://github.com/hashicorp/terraform-provider-google/pull/7806))
+
 ## 3.48.0 (November 16, 2020)
 
 FEATURES:
