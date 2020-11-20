@@ -97,7 +97,7 @@ The following arguments are supported:
 
 * `location` -
   (Optional)
-  The  location where the autoscaling poicy should reside.
+  The  location where the autoscaling policy should reside.
   The default value is `global`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

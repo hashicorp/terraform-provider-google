@@ -135,7 +135,7 @@ Bounds: [2m, 1d]. Default: 2m.`,
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `The  location where the autoscaling poicy should reside.
+				Description: `The  location where the autoscaling policy should reside.
 The default value is 'global'.`,
 				Default: "global",
 			},
