@@ -16,7 +16,7 @@ IMPROVEMENTS:
 * cloud_identity: promoted data source `google_cloud_identity_groups` to GA ([#7786](https://github.com/hashicorp/terraform-provider-google/pull/7786))
 * compute: added `custom_response_headers` field to `google_compute_backend_service` resource ([#7824](https://github.com/hashicorp/terraform-provider-google/pull/7824))
 * container: added maintenance_exclusions_window to `google_container_cluster` ([#7830](https://github.com/hashicorp/terraform-provider-google/pull/7830))
-* logging: Add description and disabled to logging sinks ([#7809](https://github.com/hashicorp/terraform-provider-google/pull/7809))
+* logging: added description and disabled to logging sinks ([#7809](https://github.com/hashicorp/terraform-provider-google/pull/7809))
 * runtimeconfig: marked value and text fields in `google_runtimeconfig_variable` resource as sensitive ([#7808](https://github.com/hashicorp/terraform-provider-google/pull/7808))
 * sql: added `deletion_policy` field to `google_sql_user` to enable abandoning users rather than deleting them ([#7820](https://github.com/hashicorp/terraform-provider-google/pull/7820))
 
