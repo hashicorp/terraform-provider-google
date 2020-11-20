@@ -17,12 +17,12 @@ layout: "google"
 page_title: "Google: google_data_loss_prevention_deidentify_template"
 sidebar_current: "docs-google-data-loss-prevention-deidentify-template"
 description: |-
-  Allows creation of templates to de-idenfity content.
+  Allows creation of templates to de-identify content.
 ---
 
 # google\_data\_loss\_prevention\_deidentify\_template
 
-Allows creation of templates to de-idenfity content.
+Allows creation of templates to de-identify content.
 
 
 To get more information about DeidentifyTemplate, see:
@@ -274,7 +274,7 @@ The `character_mask_config` block supports:
 
 * `characters_to_ignore` -
   (Optional)
-  Characters to skip when doing deidentification of a value. These will be left alone and skipped.
+  Characters to skip when doing de-identification of a value. These will be left alone and skipped.
   Structure is documented below.
 
 

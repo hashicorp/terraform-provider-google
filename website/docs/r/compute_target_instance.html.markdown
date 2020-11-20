@@ -101,7 +101,7 @@ data "google_compute_image" "vmimage" {
 
 resource "google_compute_instance" "target-vm" {
   provider = google-beta
-  name         = "cusom-network-target-vm"
+  name         = "custom-network-target-vm"
   machine_type = "e2-medium"
   zone         = "us-central1-a"
 

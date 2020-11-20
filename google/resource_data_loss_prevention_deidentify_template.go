@@ -82,7 +82,7 @@ Masking can start from the beginning or end of the string.`,
 																		"characters_to_ignore": {
 																			Type:        schema.TypeList,
 																			Optional:    true,
-																			Description: `Characters to skip when doing deidentification of a value. These will be left alone and skipped.`,
+																			Description: `Characters to skip when doing de-identification of a value. These will be left alone and skipped.`,
 																			Elem: &schema.Resource{
 																				Schema: map[string]*schema.Schema{
 																					"character_to_skip": {
