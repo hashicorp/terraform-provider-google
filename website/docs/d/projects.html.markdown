@@ -29,7 +29,7 @@ data "google_project" "deletion-candidate" {
 
 The following arguments are supported:
 
-* `filter` - (Optional) A string filter as defined in the [REST API](https://cloud.google.com/resource-manager/reference/rest/v1/projects/list#query-parameters).
+* `filter` - (Required) A string filter as defined in the [REST API](https://cloud.google.com/resource-manager/reference/rest/v1/projects/list#query-parameters).
 
 
 ## Attributes Reference
