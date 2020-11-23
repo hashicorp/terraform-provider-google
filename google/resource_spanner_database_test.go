@@ -13,8 +13,8 @@ func TestAccSpannerDatabase_basic(t *testing.T) {
 
 	project := getTestProjectFromEnv()
 	rnd := randString(t, 10)
-	instanceName := fmt.Sprintf("my-instance-%s", rnd)
-	databaseName := fmt.Sprintf("mydb_%s", rnd)
+	instanceName := fmt.Sprintf("tf-test-%s", rnd)
+	databaseName := fmt.Sprintf("tfgen_%s", rnd)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -77,7 +77,7 @@ func testAccSpannerDatabase_basic(instanceName, databaseName string) string {
 resource "google_spanner_instance" "basic" {
   name         = "%s"
   config       = "regional-us-central1"
-  display_name = "display-%s"
+  display_name = "%s-display"
   num_nodes    = 1
 }
 
@@ -98,7 +98,7 @@ func testAccSpannerDatabase_basicUpdate(instanceName, databaseName string) strin
 resource "google_spanner_instance" "basic" {
   name         = "%s"
   config       = "regional-us-central1"
-  display_name = "display-%s"
+  display_name = "%s-display"
   num_nodes    = 1
 }
 
