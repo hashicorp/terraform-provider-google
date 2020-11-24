@@ -62,8 +62,14 @@ func resourceBigtableGCPolicy() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"days": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Required:    false,
+							Deprecated:  "Deprecated in favor of seconds",
 							Description: `Number of days before applying GC policy.`,
+						},
+						"seconds": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `Duration in seconds before applying GC policy`,
 						},
 					},
 				},
@@ -236,9 +242,9 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 
 	if aok {
 		l, _ := ma.([]interface{})
-		d, _ := l[0].(map[string]interface{})["days"].(int)
+		d := getMaxAgeDuration(l[0].(map[string]interface{}))
 
-		policies = append(policies, bigtable.MaxAgePolicy(time.Duration(d)*time.Hour*24))
+		policies = append(policies, bigtable.MaxAgePolicy(d))
 	}
 
 	if vok {
@@ -256,4 +262,13 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	}
 
 	return policies[0], nil
+}
+
+func getMaxAgeDuration(values map[string]interface{}) time.Duration {
+	d, ok := values["seconds"]
+	if ok {
+		return time.Duration(d.(int)) * time.Second
+	}
+
+	return time.Duration(values["days"].(int)) * time.Hour * 24
 }
