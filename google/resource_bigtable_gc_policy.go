@@ -2,6 +2,7 @@ package google
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -68,7 +69,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 						},
 						"seconds": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
 							Description: `Duration in seconds before applying GC policy`,
 						},
 					},
@@ -242,7 +243,10 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 
 	if aok {
 		l, _ := ma.([]interface{})
-		d := getMaxAgeDuration(l[0].(map[string]interface{}))
+		d, err := getMaxAgeDuration(l[0].(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
 
 		policies = append(policies, bigtable.MaxAgePolicy(d))
 	}
@@ -264,11 +268,16 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	return policies[0], nil
 }
 
-func getMaxAgeDuration(values map[string]interface{}) time.Duration {
+func getMaxAgeDuration(values map[string]interface{}) (time.Duration, error) {
 	d, ok := values["seconds"]
 	if ok {
-		return time.Duration(d.(int)) * time.Second
+		return time.Duration(d.(int)) * time.Second, nil
 	}
 
-	return time.Duration(values["days"].(int)) * time.Hour * 24
+	d, ok = values["days"]
+	if ok {
+		return time.Duration(d.(int)) * time.Hour * 24, nil
+	}
+
+	return 0, errors.New("either 'seconds' or 'days' must be set")
 }
