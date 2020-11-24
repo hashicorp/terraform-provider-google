@@ -62,7 +62,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"days": {
 							Type:        schema.TypeInt,
-							Required:    false,
+							Optional:    true,
 							Deprecated:  "Deprecated in favor of seconds",
 							Description: `Number of days before applying GC policy.`,
 						},
