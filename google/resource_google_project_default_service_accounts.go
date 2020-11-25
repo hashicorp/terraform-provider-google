@@ -51,7 +51,9 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				Default:      "REVERT",
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "REVERT", "REVERT_AND_IGNORE_FAILURE"}, false),
 				Description: `The action to be performed in the default service accounts on the resource destroy.
-				Valid values are NONE, REVERT and REVERT_AND_IGNORE_FAILURE. It is applied for any action but in the DEPRIVILEGE.`,
+				Valid values are NONE, REVERT and REVERT_AND_IGNORE_FAILURE. It is applied for any action but in the DEPRIVILEGE.
+				If set to REVERT it attemps to restore all default SAs but the DEPRIVILEGE action.
+				If set to REVERT_AND_IGNORE_FAILURE it is the same behavior as REVERT but ignores errors returned by the API.`,
 			},
 			"service_accounts": {
 				Type:        schema.TypeMap,
@@ -81,8 +83,8 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 		errExpected := restorePolicy == "REVERT_AND_IGNORE_FAILURE"
 		errReceived := err != nil
 		if errExpected && errReceived {
-			log.Printf("cannot undelete service account %s: %v", serviceAccountSelfLink, err)
-			log.Printf("restore policy is %s... ignoring error", restorePolicy)
+			log.Printf("[DEBUG] cannot undelete service account %s: %v", serviceAccountSelfLink, err)
+			log.Printf("[WARNING] restore policy is %s... ignoring error", restorePolicy)
 		}
 		if !errExpected && errReceived {
 			return fmt.Errorf("cannot undelete service account %s: %v", serviceAccountSelfLink, err)
@@ -97,8 +99,8 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 		errReceived := err != nil
 		errExpected := restorePolicy == "REVERT_AND_IGNORE_FAILURE"
 		if errExpected && errReceived {
-			log.Printf("cannot enable service account %s: %v", serviceAccountSelfLink, err)
-			log.Printf("restore policy is %s... ignoring error", restorePolicy)
+			log.Printf("[DEBUG] cannot enable service account %s: %v", serviceAccountSelfLink, err)
+			log.Printf("[WARNING] restore policy is %s... ignoring error", restorePolicy)
 		}
 		if !errExpected && errReceived {
 			return fmt.Errorf("cannot enable service account %s: %v", serviceAccountSelfLink, err)
