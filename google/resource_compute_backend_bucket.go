@@ -70,7 +70,7 @@ last character, which cannot be a dash.`,
 					Schema: map[string]*schema.Schema{
 						"signed_url_cache_max_age_sec": {
 							Type:     schema.TypeInt,
-							Required: true,
+							Optional: true,
 							Description: `Maximum number of seconds the response to a signed URL request will
 be considered fresh. After this time period,
 the response will be revalidated before being served.

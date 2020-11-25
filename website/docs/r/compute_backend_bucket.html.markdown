@@ -88,6 +88,10 @@ The following arguments are supported:
   Cloud CDN configuration for this Backend Bucket.
   Structure is documented below.
 
+* `custom_response_headers` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Headers that the HTTP/S load balancer should add to proxied responses.
+
 * `description` -
   (Optional)
   An optional textual description of the resource; provided by the
@@ -104,7 +108,7 @@ The following arguments are supported:
 The `cdn_policy` block supports:
 
 * `signed_url_cache_max_age_sec` -
-  (Required)
+  (Optional)
   Maximum number of seconds the response to a signed URL request will
   be considered fresh. After this time period,
   the response will be revalidated before being served.
@@ -113,6 +117,51 @@ The `cdn_policy` block supports:
   all responses from this backend had a "Cache-Control: public,
   max-age=[TTL]" header, regardless of any existing Cache-Control
   header. The actual headers served in responses will not be altered.
+
+* `default_ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the default TTL for cached content served by this origin for responses 
+  that do not have an existing valid TTL (max-age or s-max-age).
+
+* `max_ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the maximum allowed TTL for cached content served by this origin.
+
+* `client_ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the maximum allowed TTL for cached content served by this origin.
+
+* `negative_caching` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Negative caching allows per-status code TTLs to be set, in order to apply fine-grained caching for common errors or redirects.
+
+* `negative_caching_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
+  Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.
+  Structure is documented below.
+
+* `cache_mode` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the cache setting for all responses from this backend.
+  The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
+
+* `serve_while_stale` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
+
+
+The `negative_caching_policy` block supports:
+
+* `code` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The HTTP status code to define a TTL against. Only HTTP status codes 300, 301, 308, 404, 405, 410, 421, 451 and 501
+  can be specified as values, and you cannot specify a status code more than once.
+
+* `ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
+  (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
 
 ## Attributes Reference
 
