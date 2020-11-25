@@ -52,7 +52,7 @@ func resourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "REVERT", "REVERT_AND_IGNORE_FAILURE"}, false),
 				Description: `The action to be performed in the default service accounts on the resource destroy.
 				Valid values are NONE, REVERT and REVERT_AND_IGNORE_FAILURE. It is applied for any action but in the DEPRIVILEGE.
-				If set to REVERT it attemps to restore all default SAs but the DEPRIVILEGE action.
+				If set to REVERT it attempts to restore all default SAs but the DEPRIVILEGE action.
 				If set to REVERT_AND_IGNORE_FAILURE it is the same behavior as REVERT but ignores errors returned by the API.`,
 			},
 			"service_accounts": {
