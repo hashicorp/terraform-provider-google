@@ -324,6 +324,12 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
+	//Check cluster is in running state
+	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
+
 	state, err := containerNodePoolAwaitRestingState(config, d.Id(), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
@@ -393,6 +399,12 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 	name := getNodePoolName(d.Id())
 
+	//Check cluster is in running state
+	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
+
 	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
@@ -404,6 +416,11 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.Partial(false)
 
+	//Check cluster is in running state
+	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
 	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
@@ -425,6 +442,12 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	name := getNodePoolName(d.Id())
+
+	//Check cluster is in running state
+	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
 
 	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
@@ -532,6 +555,17 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 	d.SetId(id)
 
 	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	nodePoolInfo, err := extractNodePoolInformation(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	//Check cluster is in running state
+	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return nil, err
 	}
