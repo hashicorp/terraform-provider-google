@@ -182,11 +182,11 @@ func resourceStorageBucket() *schema.Resource {
 										Optional:    true,
 										Description: `Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition.`,
 									},
-                                    "days_since_noncurrent_time": {
-                                        Type:        schema.TypeInt,
-                                        Optional:    true,
-                                        Description: `Relevant only for versioned objects. The number of days since the object became noncurrent, either because the live version was deleted or replaced.`,
-                                    },
+									"days_since_noncurrent_time": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Relevant only for versioned objects. The number of days since the object became noncurrent, either because the live version was deleted or replaced.`,
+									},
 								},
 							},
 							Description: `The Lifecycle Rule's condition configuration.`,
@@ -1034,11 +1034,11 @@ func flattenBucketLifecycleRuleAction(action *storage.BucketLifecycleRuleAction)
 
 func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
 	ruleCondition := map[string]interface{}{
-		"age":                   int(condition.Age),
-		"created_before":        condition.CreatedBefore,
-		"matches_storage_class": convertStringArrToInterface(condition.MatchesStorageClass),
-		"num_newer_versions":    int(condition.NumNewerVersions),
-		"days_since_noncurrent_time":    int(condition.DaysSinceNoncurrentTime),
+		"age":                        int(condition.Age),
+		"created_before":             condition.CreatedBefore,
+		"matches_storage_class":      convertStringArrToInterface(condition.MatchesStorageClass),
+		"num_newer_versions":         int(condition.NumNewerVersions),
+		"days_since_noncurrent_time": int(condition.DaysSinceNoncurrentTime),
 	}
 	if condition.IsLive == nil {
 		ruleCondition["with_state"] = "ANY"
@@ -1252,9 +1252,9 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 		transformed.NumNewerVersions = int64(v.(int))
 	}
 
-    if v, ok := condition["days_since_noncurrent_time"]; ok {
-        transformed.DaysSinceNoncurrentTime = int64(v.(int))
-    }
+	if v, ok := condition["days_since_noncurrent_time"]; ok {
+		transformed.DaysSinceNoncurrentTime = int64(v.(int))
+	}
 
 	return transformed, nil
 }
@@ -1313,9 +1313,9 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
 	}
 
-    if v, ok := m["days_since_noncurrent_time"]; ok {
-        buf.WriteString(fmt.Sprintf("%d-", v.(int)))
-    }
+	if v, ok := m["days_since_noncurrent_time"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+	}
 
 	return hashcode(buf.String())
 }
