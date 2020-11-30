@@ -39,16 +39,14 @@ To get more information about GlobalNetworkEndpoint, see:
 ```hcl
 resource "google_compute_global_network_endpoint" "default-endpoint" {
   global_network_endpoint_group = google_compute_global_network_endpoint_group.neg.name
-
   fqdn       = "www.example.com"
   port       = 90
-  ip_address = "8.8.8.8"
 }
 
 resource "google_compute_global_network_endpoint_group" "neg" {
   name                  = "my-lb-neg"
   default_port          = "90"
-  network_endpoint_type = "INTERNET_IP_PORT"
+  network_endpoint_type = "INTERNET_FQDN_PORT"
 }
 ```
 
