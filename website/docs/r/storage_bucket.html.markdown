@@ -129,6 +129,8 @@ The `condition` block supports the following elements, and requires at least one
 
 * `num_newer_versions` - (Optional) Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition.
 
+* `days_since_noncurrent_time` - (Optional) Relevant only for versioned objects. The number of days since the object became noncurrent, either because the live version was deleted or replaced.
+
 The `versioning` block supports:
 
 * `enabled` - (Required) While set to `true`, versioning is fully enabled for this bucket.
