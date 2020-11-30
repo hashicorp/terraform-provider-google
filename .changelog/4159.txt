@@ -1,0 +1,3 @@
+```release-note:bug
+bigqueryconnection: fixed failure to import a resource if it has a non-default project or location.
+```
