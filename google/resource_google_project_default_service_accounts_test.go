@@ -109,6 +109,34 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDelete(t *testing.T) {
 	})
 }
 
+func TestAccResourceGoogleProjectDefaultServiceAccountsDeleteRevertIgnoreFailure(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	project := fmt.Sprintf("tf-project-%d", randInt(t))
+	billingAccount := getTestBillingAccountFromEnv(t)
+	action := "DELETE"
+	restorePolicy := "REVERT_AND_IGNORE_FAILURE"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckGoogleProjectDefaultServiceAccountsAdvanced(org, project, billingAccount, action, restorePolicy),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_project_default_service_accounts.acceptance", "id", "projects/"+project),
+					resource.TestCheckResourceAttrSet("google_project_default_service_accounts.acceptance", "project"),
+					resource.TestCheckResourceAttr("google_project_default_service_accounts.acceptance", "action", action),
+					resource.TestCheckResourceAttrSet("google_project_default_service_accounts.acceptance", "project"),
+					sleepInSecondsForTest(10),
+					testAccCheckGoogleProjectDefaultServiceAccountsChanges(t, project, action),
+				),
+			},
+		},
+	})
+}
+
 func TestAccResourceGoogleProjectDefaultServiceAccountsDeprivilege(t *testing.T) {
 	t.Parallel()
 
