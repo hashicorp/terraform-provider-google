@@ -110,7 +110,6 @@ You must have `roles/iam.serviceAccountTokenCreator` role on that account for th
 [service account key file] in JSON format. You can
 [manage key files using the Cloud Console].  If not provided, the
 application default credentials will be used. 
----
 
 * `scopes` - (Optional) The list of OAuth 2.0 [scopes] requested when generating
 an access token using the service account key specified in `credentials`.
