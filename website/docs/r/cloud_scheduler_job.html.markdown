@@ -85,6 +85,7 @@ resource "google_cloud_scheduler_job" "job" {
   http_target {
     http_method = "POST"
     uri         = "https://example.com/ping"
+    body        = base64encode("{"foo":"bar"}")
   }
 }
 ```
@@ -331,6 +332,7 @@ The `app_engine_http_target` block supports:
   HTTP request body. 
   A request body is allowed only if the HTTP method is POST or PUT. 
   It will result in invalid argument error to set a body on a job with an incompatible HttpMethod.
+  A base64-encoded string.
 
 * `headers` -
   (Optional)
@@ -371,6 +373,7 @@ The `http_target` block supports:
   HTTP request body. 
   A request body is allowed only if the HTTP method is POST, PUT, or PATCH. 
   It is an error to set body on a job with an incompatible HttpMethod.
+  A base64-encoded string.
 
 * `headers` -
   (Optional)

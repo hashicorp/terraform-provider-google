@@ -29,8 +29,6 @@ managed by Google.
 For a resource where you provide the key, see the
 SSL Certificate resource.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about ManagedSslCertificate, see:
 
@@ -61,8 +59,6 @@ In conclusion: Be extremely cautious.
 
 ```hcl
 resource "google_compute_managed_ssl_certificate" "default" {
-  provider = google-beta
-
   name = "test-cert"
 
   managed {
@@ -71,16 +67,12 @@ resource "google_compute_managed_ssl_certificate" "default" {
 }
 
 resource "google_compute_target_https_proxy" "default" {
-  provider = google-beta
-
   name             = "test-proxy"
   url_map          = google_compute_url_map.default.id
   ssl_certificates = [google_compute_managed_ssl_certificate.default.id]
 }
 
 resource "google_compute_url_map" "default" {
-  provider = google-beta
-
   name        = "url-map"
   description = "a description"
 
@@ -103,8 +95,6 @@ resource "google_compute_url_map" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  provider = google-beta
-
   name        = "backend-service"
   port_name   = "http"
   protocol    = "HTTP"
@@ -114,8 +104,6 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  provider = google-beta
-
   name               = "http-health-check"
   request_path       = "/"
   check_interval_sec = 1
@@ -123,33 +111,22 @@ resource "google_compute_http_health_check" "default" {
 }
 
 resource "google_dns_managed_zone" "zone" {
-  provider = google-beta
-
   name     = "dnszone"
   dns_name = "sslcert.tf-test.club."
 }
 
 resource "google_compute_global_forwarding_rule" "default" {
-  provider = google-beta
-
   name       = "forwarding-rule"
   target     = google_compute_target_https_proxy.default.id
   port_range = 443
 }
 
 resource "google_dns_record_set" "set" {
-  provider = google-beta
-
   name         = "sslcert.tf-test.club."
   type         = "A"
   ttl          = 3600
   managed_zone = google_dns_managed_zone.zone.name
   rrdatas      = [google_compute_global_forwarding_rule.default.ip_address]
-}
-
-provider "google-beta" {
-  region = "us-central1"
-  zone   = "us-central1-a"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -165,7 +142,6 @@ provider "google-beta" {
 // recreate the ssl certificate and update the target https proxy correctly
 
 resource "google_compute_target_https_proxy" "default" {
-  provider = google-beta
   name             = "test-proxy"
   url_map          = google_compute_url_map.default.id
   ssl_certificates = [google_compute_managed_ssl_certificate.cert.id]
@@ -185,7 +161,6 @@ resource "random_id" "certificate" {
 }
 
 resource "google_compute_managed_ssl_certificate" "cert" {
-  provider = google-beta
   name     = random_id.certificate.hex
 
   lifecycle {
@@ -198,7 +173,6 @@ resource "google_compute_managed_ssl_certificate" "cert" {
 }
 
 resource "google_compute_url_map" "default" {
-  provider = google-beta
   name            = "url-map"
   description     = "a description"
   default_service = google_compute_backend_service.default.id
@@ -217,7 +191,6 @@ resource "google_compute_url_map" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  provider = google-beta
   name          = "backend-service"
   port_name     = "http"
   protocol      = "HTTP"
@@ -226,7 +199,6 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  provider = google-beta
   name               = "http-health-check"
   request_path       = "/"
   check_interval_sec = 1
