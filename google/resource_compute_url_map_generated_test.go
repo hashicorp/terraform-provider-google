@@ -57,7 +57,7 @@ resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
 
-  default_service = google_compute_backend_service.home.id
+  default_service = google_compute_backend_bucket.static.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -71,11 +71,11 @@ resource "google_compute_url_map" "urlmap" {
 
   path_matcher {
     name            = "mysite"
-    default_service = google_compute_backend_service.home.id
+    default_service = google_compute_backend_bucket.static.id
 
     path_rule {
       paths   = ["/home"]
-      service = google_compute_backend_service.home.id
+      service = google_compute_backend_bucket.static.id
     }
 
     path_rule {
@@ -91,11 +91,11 @@ resource "google_compute_url_map" "urlmap" {
 
   path_matcher {
     name            = "otherpaths"
-    default_service = google_compute_backend_service.home.id
+    default_service = google_compute_backend_bucket.static.id
   }
 
   test {
-    service = google_compute_backend_service.home.id
+    service = google_compute_backend_bucket.static.id
     host    = "hi.com"
     path    = "/home"
   }
@@ -103,15 +103,6 @@ resource "google_compute_url_map" "urlmap" {
 
 resource "google_compute_backend_service" "login" {
   name        = "login%{random_suffix}"
-  port_name   = "http"
-  protocol    = "HTTP"
-  timeout_sec = 10
-
-  health_checks = [google_compute_http_health_check.default.id]
-}
-
-resource "google_compute_backend_service" "home" {
-  name        = "home%{random_suffix}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
