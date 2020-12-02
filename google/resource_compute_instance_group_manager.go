@@ -252,6 +252,13 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 							ValidateFunc: validation.IntBetween(0, 3600),
 							Description:  `Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600].`,
 						},
+						"replacement_method": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ValidateFunc:     validation.StringInSlice([]string{"RECREATE", "SUBSTITUTE", ""}, false),
+							DiffSuppressFunc: emptyOrDefaultStringSuppress("SUBSTITUTE"),
+							Description:      `The instance replacement method for managed instance groups. Valid values are: "RECREATE", "SUBSTITUTE". If SUBSTITUTE (default), the group replaces VM instances with new instances that have randomly generated names. If RECREATE, instance names are preserved.  You must also set max_unavailable_fixed or max_unavailable_percent to be greater than 0.`,
+						},
 					},
 				},
 			},
@@ -800,6 +807,7 @@ func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupMana
 
 		updatePolicy.MinimalAction = data["minimal_action"].(string)
 		updatePolicy.Type = data["type"].(string)
+		updatePolicy.ReplacementMethod = data["replacement_method"].(string)
 
 		// percent and fixed values are conflicting
 		// when the percent values are set, the fixed values will be ignored
@@ -888,6 +896,7 @@ func flattenUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpdatePol
 		up["min_ready_sec"] = updatePolicy.MinReadySec
 		up["minimal_action"] = updatePolicy.MinimalAction
 		up["type"] = updatePolicy.Type
+		up["replacement_method"] = updatePolicy.ReplacementMethod
 		results = append(results, up)
 	}
 	return results
