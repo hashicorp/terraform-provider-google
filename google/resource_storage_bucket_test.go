@@ -1317,6 +1317,15 @@ resource "google_storage_bucket" "bucket" {
       with_state = "ARCHIVED"
     }
   }
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "NEARLINE"
+    }
+    condition {
+      days_since_noncurrent_time = 10
+    }
+  }
 }
 `, bucketName)
 }
