@@ -228,6 +228,14 @@ func TestAccRegionInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccRegionInstanceGroupManager_rollingUpdatePolicy3(igm),
+			},
+			{
+				ResourceName:      "google_compute_region_instance_group_manager.igm-rolling-update-policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -1222,6 +1230,61 @@ resource "google_compute_region_instance_group_manager" "igm-rolling-update-poli
     max_surge_fixed              = 2
     max_unavailable_fixed        = 0
     min_ready_sec                = 10
+  }
+  named_port {
+    name = "customhttp"
+    port = 8080
+  }
+}
+`, igm)
+}
+
+func testAccRegionInstanceGroupManager_rollingUpdatePolicy3(igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-rolling-update-policy" {
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["terraform-testing"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "igm-rolling-update-policy" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    name              = "primary"
+    instance_template = google_compute_instance_template.igm-rolling-update-policy.self_link
+  }
+  base_instance_name        = "igm-rolling-update-policy"
+  region                    = "us-central1"
+  distribution_policy_zones = ["us-central1-a", "us-central1-f"]
+  target_size               = 3
+  update_policy {
+    type                         = "PROACTIVE"
+    instance_redistribution_type = "NONE"
+    minimal_action               = "REPLACE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 2
+    min_ready_sec                = 10
+    replacement_method           = "RECREATE"
   }
   named_port {
     name = "customhttp"

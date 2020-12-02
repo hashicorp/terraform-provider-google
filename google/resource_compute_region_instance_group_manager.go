@@ -279,6 +279,13 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 							DiffSuppressFunc: emptyOrDefaultStringSuppress("PROACTIVE"),
 							Description:      `The instance redistribution policy for regional managed instance groups. Valid values are: "PROACTIVE", "NONE". If PROACTIVE (default), the group attempts to maintain an even distribution of VM instances across zones in the region. If NONE, proactive redistribution is disabled.`,
 						},
+						"replacement_method": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ValidateFunc:     validation.StringInSlice([]string{"RECREATE", "SUBSTITUTE", ""}, false),
+							DiffSuppressFunc: emptyOrDefaultStringSuppress("SUBSTITUTE"),
+							Description:      `The instance replacement method for regional managed instance groups. Valid values are: "RECREATE", "SUBSTITUTE". If SUBSTITUTE (default), the group replaces VM instances with new instances that have randomly generated names. If RECREATE, instance names are preserved.  You must also set max_unavailable_fixed or max_unavailable_percent to be greater than 0.`,
+						},
 					},
 				},
 			},
@@ -639,6 +646,7 @@ func expandRegionUpdatePolicy(configured []interface{}) *computeBeta.InstanceGro
 		updatePolicy.MinimalAction = data["minimal_action"].(string)
 		updatePolicy.Type = data["type"].(string)
 		updatePolicy.InstanceRedistributionType = data["instance_redistribution_type"].(string)
+		updatePolicy.ReplacementMethod = data["replacement_method"].(string)
 
 		// percent and fixed values are conflicting
 		// when the percent values are set, the fixed values will be ignored
@@ -699,6 +707,7 @@ func flattenRegionUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpd
 		up["minimal_action"] = updatePolicy.MinimalAction
 		up["type"] = updatePolicy.Type
 		up["instance_redistribution_type"] = updatePolicy.InstanceRedistributionType
+		up["replacement_method"] = updatePolicy.ReplacementMethod
 
 		results = append(results, up)
 	}
