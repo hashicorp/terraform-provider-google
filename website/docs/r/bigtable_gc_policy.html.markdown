@@ -42,7 +42,7 @@ resource "google_bigtable_gc_policy" "policy" {
   column_family = "name"
 
   max_age {
-    seconds = 3600 * 24 * 7 # 7 days
+    duration = "168h" # 7 days
   }
 }
 ```
@@ -58,7 +58,7 @@ resource "google_bigtable_gc_policy" "policy" {
   mode = "UNION"
 
   max_age {
-    seconds = 3600 * 24 * 7 # 7 days
+    duration = "168h" # 7 days
   }
 
   max_version {

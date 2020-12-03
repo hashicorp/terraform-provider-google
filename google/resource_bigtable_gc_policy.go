@@ -58,13 +58,13 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				Description:  `GC policy that applies to all cells older than the given age.`,
-				ExactlyOneOf: []string{"max_age.0.days", "max_age.0.seconds"},
+				ExactlyOneOf: []string{"max_age.0.days", "max_age.0.duration"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"days": {
 							Type:        schema.TypeInt,
 							Optional:    true,
-							Deprecated:  "Deprecated in favor of seconds",
+							Deprecated:  "Deprecated in favor of duration",
 							Description: `Number of days before applying GC policy.`,
 						},
 						"duration": {
@@ -271,10 +271,12 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 }
 
 func getMaxAgeDuration(values map[string]interface{}) (time.Duration, error) {
-	d := values["seconds"].(string)
-	if d == "" {
-		d = values["days"].(string)
+	d := values["duration"].(string)
+	if d != "" {
+		return time.ParseDuration(d)
 	}
 
-	return time.ParseDuration(d)
+	days := values["days"].(int)
+
+	return time.Hour * 24 * time.Duration(days), nil
 }
