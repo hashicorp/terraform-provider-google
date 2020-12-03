@@ -7,7 +7,7 @@ FEATURES:
 
 
 IMPROVEMENTS:
-* compute: `google_compute_url_map`'s fields referring to backend services can now also refer to backend buckets. ([#7916](https://github.com/hashicorp/terraform-provider-google/pull/7916))
+* compute: updated `google_compute_url_map`'s fields referring to backend services to be able to refer to backend buckets. ([#7916](https://github.com/hashicorp/terraform-provider-google/pull/7916))
 * compute: added `replacement_method` field to `update_policy` block of `google_compute_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
 * compute: added `replacement_method` field to `update_policy` block of `google_compute_region_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
 * compute: added more fields to cdn_policy block of `google_compute_backend_bucket` ([#7888](https://github.com/hashicorp/terraform-provider-google/pull/7888))
