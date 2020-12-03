@@ -91,7 +91,7 @@ The following arguments are supported:
 
 * `days` - (Deprecated) Number of days before applying GC policy.
 
-* `seconds` - (Required) Number of seconds before applying GC policy.
+* `duration` - (Required) Duration before applying GC policy (ex. "8h"). This is required when `days` isn't set
 
 -----
 

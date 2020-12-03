@@ -2,7 +2,6 @@ package google
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -59,6 +58,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: `GC policy that applies to all cells older than the given age.`,
+				ExactlyOneOf: []string{"max_age.0.days", "max_age.0.seconds"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"days": {
@@ -67,10 +67,11 @@ func resourceBigtableGCPolicy() *schema.Resource {
 							Deprecated:  "Deprecated in favor of seconds",
 							Description: `Number of days before applying GC policy.`,
 						},
-						"seconds": {
-							Type:        schema.TypeInt,
+						"duration": {
+							Type:        schema.TypeString,
 							Optional:    true,
-							Description: `Duration in seconds before applying GC policy`,
+							Description: `Duration before applying GC policy`,
+							ValidateFunc: validateDuration(),
 						},
 					},
 				},
@@ -87,6 +88,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 							Type:        schema.TypeInt,
 							Required:    true,
 							Description: `Number of version before applying the GC policy.`,
+							ValidateFunc: validation.IntAtLeast(1),
 						},
 					},
 				},
@@ -269,15 +271,10 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 }
 
 func getMaxAgeDuration(values map[string]interface{}) (time.Duration, error) {
-	d, ok := values["seconds"]
-	if ok {
-		return time.Duration(d.(int)) * time.Second, nil
+	d := values["seconds"].(string)
+	if d == "" {
+		d = values["days"].(string)
 	}
 
-	d, ok = values["days"]
-	if ok {
-		return time.Duration(d.(int)) * time.Hour * 24, nil
-	}
-
-	return 0, errors.New("either 'seconds' or 'days' must be set")
+	return time.ParseDuration(d)
 }

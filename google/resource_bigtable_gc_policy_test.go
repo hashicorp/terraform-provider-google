@@ -158,7 +158,7 @@ resource "google_bigtable_gc_policy" "policy" {
   column_family = "%s"
 
   max_age {
-    seconds = 3600 * 24 * 3
+    duration = "72h"
   }
 }
 `, instanceName, instanceName, tableName, family, family)
@@ -195,7 +195,7 @@ resource "google_bigtable_gc_policy" "policy" {
   mode = "UNION"
 
   max_age {
-    seconds = 3600 * 24 * 3
+    duration = "72h"
   }
 
   max_version {
