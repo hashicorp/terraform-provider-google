@@ -1292,11 +1292,20 @@ resource "google_storage_bucket" "bucket" {
   }
   lifecycle_rule {
     action {
+      type = "Delete"
+    }
+    condition {
+      custom_time_before = "2019-01-01"
+    }
+  }
+  lifecycle_rule {
+    action {
       type          = "SetStorageClass"
       storage_class = "NEARLINE"
     }
     condition {
-      created_before = "2019-01-01"
+	  created_before = "2019-01-01"
+	  days_since_custom_time = 3
     }
   }
   lifecycle_rule {
@@ -1368,6 +1377,17 @@ resource "google_storage_bucket" "bucket" {
     condition {
       age        = 10
       with_state = "LIVE"
+	  days_since_noncurrent_time = 5
+    }
+  }
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+
+    condition {
+      age        = 2
+	  noncurrent_time_before = "2019-01-01"
     }
   }
 }
