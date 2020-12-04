@@ -1,0 +1,3 @@
+```release-note:bug
+compute: removed `custom_response_headers` from GA `google_compute_backend_service` since it only works in the Beta version
+```
