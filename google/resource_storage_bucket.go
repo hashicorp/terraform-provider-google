@@ -163,6 +163,27 @@ func resourceStorageBucket() *schema.Resource {
 										Optional:    true,
 										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
 									},
+									"custom_time_before": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
+									},
+									"days_since_custom_time": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Number of days elapsed since the user-specified timestamp set on an object.`,
+									},
+									"days_since_noncurrent_time": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Number of days elapsed since the noncurrent timestamp of an object. This
+										condition is relevant only for versioned objects.`,
+									},
+									"noncurrent_time_before": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
+									},
 									"with_state": {
 										Type:         schema.TypeString,
 										Computed:     true,
@@ -1029,10 +1050,14 @@ func flattenBucketLifecycleRuleAction(action *storage.BucketLifecycleRuleAction)
 
 func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
 	ruleCondition := map[string]interface{}{
-		"age":                   int(condition.Age),
-		"created_before":        condition.CreatedBefore,
-		"matches_storage_class": convertStringArrToInterface(condition.MatchesStorageClass),
-		"num_newer_versions":    int(condition.NumNewerVersions),
+		"age":                        int(condition.Age),
+		"created_before":             condition.CreatedBefore,
+		"matches_storage_class":      convertStringArrToInterface(condition.MatchesStorageClass),
+		"num_newer_versions":         int(condition.NumNewerVersions),
+		"custom_time_before":         condition.CustomTimeBefore,
+		"days_since_custom_time":     int(condition.DaysSinceCustomTime),
+		"days_since_noncurrent_time": int(condition.DaysSinceNoncurrentTime),
+		"noncurrent_time_before":     condition.NoncurrentTimeBefore,
 	}
 	if condition.IsLive == nil {
 		ruleCondition["with_state"] = "ANY"
@@ -1244,6 +1269,22 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 
 	if v, ok := condition["num_newer_versions"]; ok {
 		transformed.NumNewerVersions = int64(v.(int))
+	}
+
+	if v, ok := condition["custom_time_before"]; ok {
+		transformed.CustomTimeBefore = v.(string)
+	}
+
+	if v, ok := condition["days_since_custom_time"]; ok {
+		transformed.DaysSinceCustomTime = int64(v.(int))
+	}
+
+	if v, ok := condition["days_since_noncurrent_time"]; ok {
+		transformed.DaysSinceNoncurrentTime = int64(v.(int))
+	}
+
+	if v, ok := condition["noncurrent_time_before"]; ok {
+		transformed.NoncurrentTimeBefore = v.(string)
 	}
 
 	return transformed, nil
