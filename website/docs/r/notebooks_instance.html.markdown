@@ -29,8 +29,6 @@ A Cloud AI Platform Notebook instance.
 in this resource do not properly detect drift. These fields will also not
 appear in state once imported.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Instance, see:
 
@@ -48,7 +46,6 @@ To get more information about Instance, see:
 
 ```hcl
 resource "google_notebooks_instance" "instance" {
-  provider = google-beta
   name = "notebooks-instance"
   location = "us-west1-a"
   machine_type = "e2-medium"
@@ -68,7 +65,6 @@ resource "google_notebooks_instance" "instance" {
 
 ```hcl
 resource "google_notebooks_instance" "instance" {
-  provider = google-beta
   name = "notebooks-instance"
   location = "us-west1-a"
   machine_type = "e2-medium"
@@ -92,7 +88,6 @@ resource "google_notebooks_instance" "instance" {
 
 ```hcl
 resource "google_notebooks_instance" "instance" {
-  provider = google-beta
   name = "notebooks-instance"
   location = "us-west1-a"
   machine_type = "n1-standard-1" // can't be e2 because of accelerator
@@ -118,7 +113,6 @@ resource "google_notebooks_instance" "instance" {
 
 ```hcl
 resource "google_notebooks_instance" "instance" {
-  provider = google-beta
   name = "notebooks-instance"
   location = "us-central1-a"
   machine_type = "e2-medium"
