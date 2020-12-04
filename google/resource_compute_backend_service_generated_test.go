@@ -118,63 +118,6 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
-func TestAccComputeBackendService_backendServiceNetworkEndpointExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-	}
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
-		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeBackendService_backendServiceNetworkEndpointExample(context),
-			},
-			{
-				ResourceName:      "google_compute_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func testAccComputeBackendService_backendServiceNetworkEndpointExample(context map[string]interface{}) string {
-	return Nprintf(`
-resource "google_compute_global_network_endpoint_group" "external_proxy" {
-  name                  = "tf-test-network-endpoint%{random_suffix}"
-  network_endpoint_type = "INTERNET_FQDN_PORT"
-  default_port          = "443"
-}
-
-resource "google_compute_global_network_endpoint" "proxy" {
-  global_network_endpoint_group = google_compute_global_network_endpoint_group.external_proxy.id
-  fqdn                          = "test.example.com"
-  port                          = google_compute_global_network_endpoint_group.external_proxy.default_port
-}
-
-resource "google_compute_backend_service" "default" {
-  name                            = "tf-test-backend-service%{random_suffix}"
-  enable_cdn                      = true
-  timeout_sec                     = 10
-  connection_draining_timeout_sec = 10
- 
-  custom_request_headers          = ["host: ${google_compute_global_network_endpoint.proxy.fqdn}"]
-  custom_response_headers         = ["X-Cache-Hit: {cdn_cache_status}"]
-
-  backend {
-    group = google_compute_global_network_endpoint_group.external_proxy.id
-  }
-}
-`, context)
-}
-
 func testAccCheckComputeBackendServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
