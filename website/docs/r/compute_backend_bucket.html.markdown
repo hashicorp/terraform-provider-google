@@ -145,6 +145,7 @@ The `cdn_policy` block supports:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Specifies the cache setting for all responses from this backend.
   The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
+  Possible values are `USE_ORIGIN_HEADERS`, `FORCE_CACHE_ALL`, and `CACHE_ALL_STATIC`.
 
 * `serve_while_stale` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))

@@ -165,6 +165,98 @@ When the load balancing scheme is INTERNAL, this field is not used.`,
 				Elem:        computeRegionBackendServiceBackendSchema(),
 				Set:         resourceGoogleComputeBackendServiceBackendHash,
 			},
+			"cdn_policy": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Cloud CDN configuration for this BackendService.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cache_key_policy": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The CacheKeyPolicy for this CdnPolicy.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"include_host": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										Description:  `If true requests to different hosts will be cached separately.`,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+									},
+									"include_protocol": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										Description:  `If true, http and https requests will be cached separately.`,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+									},
+									"include_query_string": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `If true, include query string parameters in the cache key
+according to query_string_whitelist and
+query_string_blacklist. If neither is set, the entire query
+string will be included.
+
+If false, the query string will be excluded from the cache
+key entirely.`,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+									},
+									"query_string_blacklist": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Description: `Names of query string parameters to exclude in cache keys.
+
+All other parameters will be included. Either specify
+query_string_whitelist or query_string_blacklist, not both.
+'&' and '=' will be percent encoded and not treated as
+delimiters.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set:          schema.HashString,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+									},
+									"query_string_whitelist": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Description: `Names of query string parameters to include in cache keys.
+
+All other parameters will be excluded. Either specify
+query_string_whitelist or query_string_blacklist, not both.
+'&' and '=' will be percent encoded and not treated as
+delimiters.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set:          schema.HashString,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+									},
+								},
+							},
+							AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
+						},
+						"signed_url_cache_max_age_sec": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `Maximum number of seconds the response to a signed URL request
+will be considered fresh, defaults to 1hr (3600s). After this
+time period, the response will be revalidated before
+being served.
+
+When serving responses to signed URL requests, Cloud CDN will
+internally behave as though all responses from this backend had a
+"Cache-Control: public, max-age=[TTL]" header, regardless of any
+existing Cache-Control header. The actual headers served in
+responses will not be altered.`,
+							Default:      3600,
+							AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
+						},
+					},
+				},
+			},
 			"circuit_breakers": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -319,6 +411,11 @@ Defaults to 1024.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `An optional description of this resource.`,
+			},
+			"enable_cdn": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If true, enable Cloud CDN for this RegionBackendService.`,
 			},
 			"failover_policy": {
 				Type:        schema.TypeList,
@@ -845,6 +942,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("consistent_hash"); !isEmptyValue(reflect.ValueOf(consistentHashProp)) && (ok || !reflect.DeepEqual(v, consistentHashProp)) {
 		obj["consistentHash"] = consistentHashProp
 	}
+	cdnPolicyProp, err := expandComputeRegionBackendServiceCdnPolicy(d.Get("cdn_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(cdnPolicyProp)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
+		obj["cdnPolicy"] = cdnPolicyProp
+	}
 	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
 	if err != nil {
 		return err
@@ -862,6 +965,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("failover_policy"); !isEmptyValue(reflect.ValueOf(failoverPolicyProp)) && (ok || !reflect.DeepEqual(v, failoverPolicyProp)) {
 		obj["failoverPolicy"] = failoverPolicyProp
+	}
+	enableCDNProp, err := expandComputeRegionBackendServiceEnableCDN(d.Get("enable_cdn"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(enableCDNProp)) && (ok || !reflect.DeepEqual(v, enableCDNProp)) {
+		obj["enableCDN"] = enableCDNProp
 	}
 	fingerprintProp, err := expandComputeRegionBackendServiceFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -1051,6 +1160,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("consistent_hash", flattenComputeRegionBackendServiceConsistentHash(res["consistentHash"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("cdn_policy", flattenComputeRegionBackendServiceCdnPolicy(res["cdnPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
 	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
 	if flattenedProp := flattenComputeRegionBackendServiceConnectionDraining(res["connectionDraining"], d, config); flattenedProp != nil {
@@ -1073,6 +1185,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	if err := d.Set("failover_policy", flattenComputeRegionBackendServiceFailoverPolicy(res["failoverPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("enable_cdn", flattenComputeRegionBackendServiceEnableCDN(res["enableCDN"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	if err := d.Set("fingerprint", flattenComputeRegionBackendServiceFingerprint(res["fingerprint"], d, config)); err != nil {
@@ -1161,6 +1276,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("consistent_hash"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, consistentHashProp)) {
 		obj["consistentHash"] = consistentHashProp
 	}
+	cdnPolicyProp, err := expandComputeRegionBackendServiceCdnPolicy(d.Get("cdn_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
+		obj["cdnPolicy"] = cdnPolicyProp
+	}
 	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
 	if err != nil {
 		return err
@@ -1178,6 +1299,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("failover_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, failoverPolicyProp)) {
 		obj["failoverPolicy"] = failoverPolicyProp
+	}
+	enableCDNProp, err := expandComputeRegionBackendServiceEnableCDN(d.Get("enable_cdn"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableCDNProp)) {
+		obj["enableCDN"] = enableCDNProp
 	}
 	fingerprintProp, err := expandComputeRegionBackendServiceFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -1727,6 +1854,85 @@ func flattenComputeRegionBackendServiceConsistentHashMinimumRingSize(v interface
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeRegionBackendServiceCdnPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["cache_key_policy"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(original["cacheKeyPolicy"], d, config)
+	transformed["signed_url_cache_max_age_sec"] =
+		flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["include_host"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(original["includeHost"], d, config)
+	transformed["include_protocol"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(original["includeProtocol"], d, config)
+	transformed["include_query_string"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(original["includeQueryString"], d, config)
+	transformed["query_string_blacklist"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["queryStringBlacklist"], d, config)
+	transformed["query_string_whitelist"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["queryStringWhitelist"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeRegionBackendServiceConnectionDraining(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -1791,6 +1997,10 @@ func flattenComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(v in
 }
 
 func flattenComputeRegionBackendServiceFailoverPolicyFailoverRatio(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceEnableCDN(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2502,6 +2712,105 @@ func expandComputeRegionBackendServiceConsistentHashMinimumRingSize(v interface{
 	return v, nil
 }
 
+func expandComputeRegionBackendServiceCdnPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCacheKeyPolicy, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(original["cache_key_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCacheKeyPolicy); val.IsValid() && !isEmptyValue(val) {
+		transformed["cacheKeyPolicy"] = transformedCacheKeyPolicy
+	}
+
+	transformedSignedUrlCacheMaxAgeSec, err := expandComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signed_url_cache_max_age_sec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSignedUrlCacheMaxAgeSec); val.IsValid() && !isEmptyValue(val) {
+		transformed["signedUrlCacheMaxAgeSec"] = transformedSignedUrlCacheMaxAgeSec
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIncludeHost, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(original["include_host"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["includeHost"] = transformedIncludeHost
+	}
+
+	transformedIncludeProtocol, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(original["include_protocol"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["includeProtocol"] = transformedIncludeProtocol
+	}
+
+	transformedIncludeQueryString, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(original["include_query_string"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["includeQueryString"] = transformedIncludeQueryString
+	}
+
+	transformedQueryStringBlacklist, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["query_string_blacklist"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["queryStringBlacklist"] = transformedQueryStringBlacklist
+	}
+
+	transformedQueryStringWhitelist, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["query_string_whitelist"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["queryStringWhitelist"] = transformedQueryStringWhitelist
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeRegionBackendServiceConnectionDraining(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
 	transformedConnectionDrainingTimeoutSec, err := expandComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(d.Get("connection_draining_timeout_sec"), d, config)
@@ -2564,6 +2873,10 @@ func expandComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(v int
 }
 
 func expandComputeRegionBackendServiceFailoverPolicyFailoverRatio(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceEnableCDN(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

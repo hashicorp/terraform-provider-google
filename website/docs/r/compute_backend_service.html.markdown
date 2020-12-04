@@ -62,6 +62,36 @@ resource "google_compute_http_health_check" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_cache&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Cache
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  name          = "backend-service"
+  health_checks = [google_compute_http_health_check.default.id]
+  enable_cdn  = true
+  cdn_policy {
+    cache_mode = "CACHE_ALL_STATIC"
+    default_ttl = 3600
+    client_ttl  = 7200
+    max_ttl     = 10800
+    negative_caching = true
+    signed_url_cache_max_age_sec = 7200
+  }
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "health-check"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_traffic_director_round_robin&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -557,6 +587,39 @@ The `cdn_policy` block supports:
   existing Cache-Control header. The actual headers served in
   responses will not be altered.
 
+* `default_ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the default TTL for cached content served by this origin for responses 
+  that do not have an existing valid TTL (max-age or s-max-age).
+
+* `max_ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the maximum allowed TTL for cached content served by this origin.
+
+* `client_ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the maximum allowed TTL for cached content served by this origin.
+
+* `negative_caching` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Negative caching allows per-status code TTLs to be set, in order to apply fine-grained caching for common errors or redirects.
+
+* `negative_caching_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
+  Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.
+  Structure is documented below.
+
+* `cache_mode` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the cache setting for all responses from this backend.
+  The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
+  Possible values are `USE_ORIGIN_HEADERS`, `FORCE_CACHE_ALL`, and `CACHE_ALL_STATIC`.
+
+* `serve_while_stale` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
+
 
 The `cache_key_policy` block supports:
 
@@ -592,6 +655,18 @@ The `cache_key_policy` block supports:
   query_string_whitelist or query_string_blacklist, not both.
   '&' and '=' will be percent encoded and not treated as
   delimiters.
+
+The `negative_caching_policy` block supports:
+
+* `code` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The HTTP status code to define a TTL against. Only HTTP status codes 300, 301, 308, 404, 405, 410, 421, 451 and 501
+  can be specified as values, and you cannot specify a status code more than once.
+
+* `ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
+  (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
 
 The `iap` block supports:
 
