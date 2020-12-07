@@ -1,4 +1,4 @@
-## 3.50.0 (Unreleased)
+## 3.50.0 (December 07, 2020)
 
 FEATURES:
 * **New Data Source:** `google_composer_environment` ([#7902](https://github.com/hashicorp/terraform-provider-google/pull/7902))
