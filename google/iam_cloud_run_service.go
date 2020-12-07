@@ -30,8 +30,7 @@ var CloudRunServiceIamSchema = map[string]*schema.Schema{
 	},
 	"location": {
 		Type:     schema.TypeString,
-		Computed: true,
-		Optional: true,
+		Required: true,
 		ForceNew: true,
 	},
 	"service": {
