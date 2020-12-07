@@ -1,3 +1,26 @@
+## 3.50.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_composer_environment` ([#7902](https://github.com/hashicorp/terraform-provider-google/pull/7902))
+* **New Data Source:** `google_monitoring_cluster_istio_service` ([#7847](https://github.com/hashicorp/terraform-provider-google/pull/7847))
+* **New Data Source:** `google_monitoring_mesh_istio_service` ([#7847](https://github.com/hashicorp/terraform-provider-google/pull/7847))
+
+IMPROVEMENTS:
+* compute: added `replacement_method` field to `update_policy` block of `google_compute_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
+* compute: added `replacement_method` field to `update_policy` block of `google_compute_region_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
+* compute: added more fields to cdn_policy block of `google_compute_backend_bucket` ([#7888](https://github.com/hashicorp/terraform-provider-google/pull/7888))
+* compute: promoted `google_compute_managed_ssl_certificate` to GA ([#7914](https://github.com/hashicorp/terraform-provider-google/pull/7914))
+* compute: promoted `google_compute_resource_policy` to GA ([#7917](https://github.com/hashicorp/terraform-provider-google/pull/7917))
+* compute: updated `google_compute_url_map`'s fields referring to backend services to be able to refer to backend buckets. ([#7916](https://github.com/hashicorp/terraform-provider-google/pull/7916))
+* container: added cluster state check before proceeding on the node pool activities ([#7887](https://github.com/hashicorp/terraform-provider-google/pull/7887))
+* google: added support for more import formats to google_project_iam_custom_role ([#7862](https://github.com/hashicorp/terraform-provider-google/pull/7862))
+* project: added new restore_policy `REVERT_AND_IGNORE_FAILURE` to `google_project_default_service_accounts` ([#7906](https://github.com/hashicorp/terraform-provider-google/pull/7906))
+
+BUG FIXES:
+* bigqueryconnection: fixed failure to import a resource if it has a non-default project or location. ([#7903](https://github.com/hashicorp/terraform-provider-google/pull/7903))
+* iam: fixed iam conflict handling so that optimistic-locking retries will succeed more often. ([#7915](https://github.com/hashicorp/terraform-provider-google/pull/7915))
+* storage: fixed an issue in `google_storage_bucket` where `cors` could not be removed ([#7858](https://github.com/hashicorp/terraform-provider-google/pull/7858))
+
 ## 3.49.0 (November 23, 2020)
 
 FEATURES:
