@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -475,7 +474,7 @@ func resourceSpannerDatabaseUpdateEncoder(d *schema.ResourceData, meta interface
 		updateDdls = append(updateDdls, newDdls[i].(string))
 	}
 
-	obj["statements"] = strings.Join(updateDdls, ",")
+	obj["statements"] = updateDdls
 	delete(obj, "name")
 	delete(obj, "instance")
 	delete(obj, "extraStatements")
