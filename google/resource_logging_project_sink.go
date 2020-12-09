@@ -1,6 +1,8 @@
 package google
 
 import (
+	"context"
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,11 +12,12 @@ const nonUniqueWriterAccount = "serviceAccount:cloud-logs@system.gserviceaccount
 
 func resourceLoggingProjectSink() *schema.Resource {
 	schm := &schema.Resource{
-		Create: resourceLoggingProjectSinkCreate,
-		Read:   resourceLoggingProjectSinkRead,
-		Delete: resourceLoggingProjectSinkDelete,
-		Update: resourceLoggingProjectSinkUpdate,
-		Schema: resourceLoggingSinkSchema(),
+		Create:        resourceLoggingProjectSinkCreate,
+		Read:          resourceLoggingProjectSinkRead,
+		Delete:        resourceLoggingProjectSinkDelete,
+		Update:        resourceLoggingProjectSinkUpdate,
+		Schema:        resourceLoggingSinkSchema(),
+		CustomizeDiff: resourceLoggingProjectSinkCustomizeDiff,
 		Importer: &schema.ResourceImporter{
 			State: resourceLoggingSinkImportState("project"),
 		},
@@ -59,6 +62,27 @@ func resourceLoggingProjectSinkCreate(d *schema.ResourceData, meta interface{}) 
 	d.SetId(id.canonicalId())
 
 	return resourceLoggingProjectSinkRead(d, meta)
+}
+
+// if bigquery_options is set unique_writer_identity must be true
+func resourceLoggingProjectSinkCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	// separate func to allow unit testing
+	return resourceLoggingProjectSinkCustomizeDiffFunc(d)
+}
+
+func resourceLoggingProjectSinkCustomizeDiffFunc(diff TerraformResourceDiff) error {
+	if !diff.HasChange("bigquery_options.#") {
+		return nil
+	}
+
+	bigqueryOptions := diff.Get("bigquery_options.#").(int)
+	if bigqueryOptions > 0 {
+		uwi := diff.Get("unique_writer_identity")
+		if !uwi.(bool) {
+			return errors.New("unique_writer_identity must be true when bigquery_options is supplied")
+		}
+	}
+	return nil
 }
 
 func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) error {
