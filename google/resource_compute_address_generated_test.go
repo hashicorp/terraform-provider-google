@@ -148,6 +148,44 @@ resource "google_compute_address" "internal_with_gce_endpoint" {
 `, context)
 }
 
+func TestAccComputeAddress_addressWithSharedLoadbalancerVipExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeAddress_addressWithSharedLoadbalancerVipExample(context),
+			},
+			{
+				ResourceName:            "google_compute_address.internal_with_shared_loadbalancer_vip",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeAddress_addressWithSharedLoadbalancerVipExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_address" "internal_with_shared_loadbalancer_vip" {
+  name         = "tf-test-my-internal-address%{random_suffix}"
+  address_type = "INTERNAL"
+  purpose      = "SHARED_LOADBALANCER_VIP"
+}
+`, context)
+}
+
 func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 	t.Parallel()
 
