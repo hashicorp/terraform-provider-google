@@ -44,7 +44,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-const defaultRetryTransportTimeoutSec = 30
+const defaultRetryTransportTimeoutSec = 90
 
 // NewTransportWithDefaultRetries constructs a default retryTransport that will retry common temporary errors
 func NewTransportWithDefaultRetries(t http.RoundTripper) *retryTransport {
