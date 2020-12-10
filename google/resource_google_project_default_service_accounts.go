@@ -119,7 +119,11 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 			}
 			bind.Members = newMembers
 		}
-		_, err = config.NewResourceManagerClient(userAgent).Projects.SetIamPolicy(project, &cloudresourcemanager.SetIamPolicyRequest{}).Do()
+		updateRequest := &cloudresourcemanager.SetIamPolicyRequest{
+			Policy:     iamPolicy,
+			UpdateMask: "bindings,etag,auditConfigs",
+		}
+		_, err = config.NewResourceManagerClient(userAgent).Projects.SetIamPolicy(project, updateRequest).Do()
 		if err != nil {
 			return fmt.Errorf("cannot update IAM policy on project %s: %v", project, err)
 		}
@@ -139,7 +143,7 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 	pid := d.Get("project").(string)
 	action := d.Get("action").(string)
 
-	serviceAccounts, err := resourceGoogleProjectDefaultServiceAccountsList(config, d, userAgent)
+	serviceAccounts, err := listServiceAccounts(config, d, userAgent)
 	if err != nil {
 		return fmt.Errorf("error listing service accounts on project %s: %v", pid, err)
 	}
@@ -164,7 +168,7 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 	return nil
 }
 
-func resourceGoogleProjectDefaultServiceAccountsList(config *Config, d *schema.ResourceData, userAgent string) ([]*iam.ServiceAccount, error) {
+func listServiceAccounts(config *Config, d *schema.ResourceData, userAgent string) ([]*iam.ServiceAccount, error) {
 	pid := d.Get("project").(string)
 	response, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.List(prefixedProject(pid)).Do()
 	if err != nil {
