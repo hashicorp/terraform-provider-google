@@ -885,7 +885,7 @@ func resourceContainerCluster() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				MaxItems:    1,
-				Description: `Configuration options for the Release channel feature, which provide more control over automatic upgrades of your GKE clusters.`,
+				Description: `Configuration options for the Release channel feature, which provide more control over automatic upgrades of your GKE clusters. Note that removing this field from your config will not unenroll it. Instead, use the "UNSPECIFIED" channel.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"channel": {
@@ -893,7 +893,11 @@ func resourceContainerCluster() *schema.Resource {
 							Required:         true,
 							ValidateFunc:     validation.StringInSlice([]string{"UNSPECIFIED", "RAPID", "REGULAR", "STABLE"}, false),
 							DiffSuppressFunc: emptyOrDefaultStringSuppress("UNSPECIFIED"),
-							Description:      `The selected release channel.`,
+							Description: `The selected release channel. Accepted values are:
+* UNSPECIFIED: Not set.
+* RAPID: Weekly upgrade cadence; Early testers and developers who requires new features.
+* REGULAR: Multiple per month upgrade cadence; Production users who need features not yet offered in the Stable channel.
+* STABLE: Every few months upgrade cadence; Production users who need stability above all else, and for whom frequent upgrades are too risky.`,
 						},
 					},
 				},
