@@ -1,4 +1,21 @@
 ## 3.51.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_firestore_document` ([#7932](https://github.com/hashicorp/terraform-provider-google/pull/7932))
+* **New Resource:** `google_notebooks_instance` ([#7933](https://github.com/hashicorp/terraform-provider-google/pull/7933))
+* **New Resource:** `google_notebooks_environment` ([#7933](https://github.com/hashicorp/terraform-provider-google/pull/7933))
+
+IMPROVEMENTS:
+* compute: added CDN features to `google_compute_region_backend_service`. ([#7941](https://github.com/hashicorp/terraform-provider-google/pull/7941))
+* compute: added Flexible Cache Control features to `google_compute_backend_service`. ([#7941](https://github.com/hashicorp/terraform-provider-google/pull/7941))
+* compute: added `replacement_method` field to `update_policy` block of `google_compute_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
+* compute: added `replacement_method` field to `update_policy` block of `google_compute_region_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
+* storage: added more lifecycle conditions to `google_storage_bucket` resource ([#7937](https://github.com/hashicorp/terraform-provider-google/pull/7937))
+
+BUG FIXES:
+* compute: removed `custom_response_headers` from `google_compute_backend_service` since it only works in the beta version ([#7943](https://github.com/hashicorp/terraform-provider-google/pull/7943))
+* spanner: fixed an issue in `google_spanner_database` where multi-statement updates were not formatted correctly ([#7970](https://github.com/hashicorp/terraform-provider-google/pull/7970))
+
 ## 3.50.0 (December 7, 2020)
 
 FEATURES:
