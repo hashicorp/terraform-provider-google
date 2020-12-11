@@ -29,14 +29,14 @@ resource "google_dataflow_flex_template_job" "big_data_job" {
 
 ## Note on "destroy" / "apply"
 There are many types of Dataflow jobs.  Some Dataflow jobs run constantly,
-getting new data from (e.g.) a GCS bucket, and outputting data continuously. 
+getting new data from (e.g.) a GCS bucket, and outputting data continuously.
 Some jobs process a set amount of data then terminate. All jobs can fail while
 running due to programming errors or other issues. In this way, Dataflow jobs
 are different from most other Terraform / Google resources.
 
 The Dataflow resource is considered 'existing' while it is in a nonterminal
 state.  If it reaches a terminal state (e.g. 'FAILED', 'COMPLETE',
-'CANCELLED'), it will be recreated on the next 'apply'.  This is as expected for 
+'CANCELLED'), it will be recreated on the next 'apply'.  This is as expected for
 jobs which run continuously, but may surprise users who use this resource for
 other kinds of Dataflow jobs.
 
@@ -60,21 +60,24 @@ Template.
 - - -
 
 * `parameters` - (Optional) Key/Value pairs to be passed to the Dataflow job (as
-used in the template).
+used in the template). Additional [pipeline options](https://cloud.google.com/dataflow/docs/guides/specifying-exec-params#setting-other-cloud-dataflow-pipeline-options)
+such as `serviceAccount`, `workerMachineType`, etc can be specified here.
 
 * `labels` - (Optional) User labels to be specified for the job. Keys and values
 should follow the restrictions specified in the [labeling restrictions](https://cloud.google.com/compute/docs/labeling-resources#restrictions)
 page. **Note**: This field is marked as deprecated in Terraform as the API does not currently
-support adding labels. 
+support adding labels.
 **NOTE**: Google-provided Dataflow templates often provide default labels
 that begin with `goog-dataflow-provided`. Unless explicitly set in config, these
-labels will be ignored to prevent diffs on re-apply. 
+labels will be ignored to prevent diffs on re-apply.
 
 * `on_delete` - (Optional) One of "drain" or "cancel". Specifies behavior of
 deletion during `terraform destroy`.  See above note.
 
 * `project` - (Optional) The project in which the resource belongs. If it is not
 provided, the provider project is used.
+
+* `region` - (Optional) The region in which the created job should run.
 
 ## Attributes Reference
 In addition to the arguments listed above, the following computed attributes are exported:
