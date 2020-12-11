@@ -291,6 +291,8 @@ The optional `settings.backup_configuration` subblock supports:
     configuration starts.
 * `point_in_time_recovery_enabled` - (Optional) True if Point-in-time recovery is enabled. Will restart database if enabled after instance creation. Valid only for PostgreSQL instances.
 
+* `location` - (Optional) The region where the backup will be stored
+
 The optional `settings.ip_configuration` subblock supports:
 
 * `ipv4_enabled` - (Optional) Whether this Cloud SQL instance should be assigned
