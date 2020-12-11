@@ -1,0 +1,3 @@
+```release-note:bug
+scheduler: Fixed syntax error in the Cloud Scheduler HTTP target example.
+```
