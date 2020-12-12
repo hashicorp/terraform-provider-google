@@ -18,6 +18,7 @@ BUG FIXES:
 * compute: removed `custom_response_headers` from GA `google_compute_backend_service` since it only works in the Beta version ([#7943](https://github.com/hashicorp/terraform-provider-google/pull/7943))
 * project: fixed a bug where `google_project_default_service_accounts` would delete all IAM bindings on a project when run with `action = "DEPRIVILEGE"` ([#7984](https://github.com/hashicorp/terraform-provider-google/pull/7984))
 * spanner: fixed an issue in `google_spanner_database` where multi-statement updates were not formatted correctly ([#7970](https://github.com/hashicorp/terraform-provider-google/pull/7970))
+* sql: fixed a bug in `google_sql_database_instance` that caused a permadiff on `settings.replication_type` ([#8006](https://github.com/hashicorp/terraform-provider-google/pull/8006))
 
 ## 3.50.0 (December 7, 2020)
 
