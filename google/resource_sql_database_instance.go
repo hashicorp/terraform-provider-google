@@ -340,7 +340,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
-							Default:     "SYNCHRONOUS",
+							Computed:    true,
 							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see here for information on how to upgrade to Second Generation instances. Replication type for this instance, can be one of ASYNCHRONOUS or SYNCHRONOUS.`,
 						},
 						"user_labels": {
