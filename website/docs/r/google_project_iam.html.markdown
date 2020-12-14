@@ -16,12 +16,14 @@ Four different resources help you manage your IAM policy for a project. Each of 
 * `google_project_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the project are preserved.
 * `google_project_iam_audit_config`: Authoritative for a given service. Updates the IAM policy to enable audit logging for the given service.
 
+~> **Note:** `google_project_iam_policy` **cannot** be used in conjunction with `google_project_iam_binding`, `google_project_iam_member`, or `google_project_iam_audit_config` or they will fight over what your policy should be.
 
 ~> **Note:** `google_project_iam_policy` **cannot** be used in conjunction with `google_project_iam_binding`, `google_project_iam_member`, or `google_project_iam_audit_config` or they will fight over what your policy should be.
 
 ~> **Note:** `google_project_iam_binding` resources **can be** used in conjunction with `google_project_iam_member` resources **only if** they do not grant privilege to the same role.
 
-~> **Note:** It is not possible to grant the `roles/owner` role using any of these resources due to this being disallowed by the underlying `projects.setIamPolicy` API method. See the method [documentation](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy) for full details. It is, however, possible to remove all owners from the project by passing in an empty `members = []` list to the `google_project_iam_binding` resource. This is useful for removing the owner role from a project upon creation, however, precautions should be taken to avoid inadvertently locking oneself out of a project such as by granting additional roles to alternate entities.
+~> **Note:** The underlying API method `projects.setIamPolicy` has a lot of constraints which are documented [here](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy). In addition to these constraints, 
+   IAM Conditions cannot be used with Basic Roles such as Owner. Violating these constraints will result in the API returning 400 error code so please review these if you encounter errors with this resource.
 
 ## google\_project\_iam\_policy
 
@@ -60,7 +62,7 @@ resource "google_project_iam_policy" "project" {
 
 data "google_iam_policy" "admin" {
   binding {
-    role = "roles/editor"
+    role = "roles/compute.admin"
 
     members = [
       "user:jane@example.com",
@@ -93,7 +95,7 @@ With IAM Conditions:
 ```hcl
 resource "google_project_iam_binding" "project" {
   project = "your-project-id"
-  role    = "roles/editor"
+  role    = "roles/container.admin"
 
   members = [
     "user:jane@example.com",
@@ -122,7 +124,7 @@ With IAM Conditions:
 ```hcl
 resource "google_project_iam_member" "project" {
   project = "your-project-id"
-  role    = "roles/editor"
+  role    = "roles/firebase.admin"
   member  = "user:jane@example.com"
 
   condition {

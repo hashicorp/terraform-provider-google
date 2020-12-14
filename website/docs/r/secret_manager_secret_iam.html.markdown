@@ -33,6 +33,7 @@ Three different resources help you manage your IAM policy for Secret Manager Sec
 
 
 
+
 ## google\_secret\_manager\_secret\_iam\_policy
 
 ```hcl
