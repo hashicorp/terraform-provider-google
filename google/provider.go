@@ -455,6 +455,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_PUBSUB_CUSTOM_ENDPOINT",
 				}, PubsubDefaultBasePath),
 			},
+			"pubsub_lite_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_PUBSUB_LITE_CUSTOM_ENDPOINT",
+				}, PubsubLiteDefaultBasePath),
+			},
 			"redis_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -678,9 +686,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 174
+// Generated resources: 176
 // Generated IAM resources: 75
-// Total generated resources: 249
+// Total generated resources: 251
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -907,6 +915,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_pubsub_topic_iam_member":                               ResourceIamMember(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
 			"google_pubsub_topic_iam_policy":                               ResourceIamPolicy(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
 			"google_pubsub_subscription":                                   resourcePubsubSubscription(),
+			"google_pubsub_lite_topic":                                     resourcePubsubLiteTopic(),
+			"google_pubsub_lite_subscription":                              resourcePubsubLiteSubscription(),
 			"google_redis_instance":                                        resourceRedisInstance(),
 			"google_resource_manager_lien":                                 resourceResourceManagerLien(),
 			"google_runtimeconfig_config_iam_binding":                      ResourceIamBinding(RuntimeConfigConfigIamSchema, RuntimeConfigConfigIamUpdaterProducer, RuntimeConfigConfigIdParseFunc),
@@ -1163,6 +1173,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.OSConfigBasePath = d.Get("os_config_custom_endpoint").(string)
 	config.OSLoginBasePath = d.Get("os_login_custom_endpoint").(string)
 	config.PubsubBasePath = d.Get("pubsub_custom_endpoint").(string)
+	config.PubsubLiteBasePath = d.Get("pubsub_lite_custom_endpoint").(string)
 	config.RedisBasePath = d.Get("redis_custom_endpoint").(string)
 	config.ResourceManagerBasePath = d.Get("resource_manager_custom_endpoint").(string)
 	config.RuntimeConfigBasePath = d.Get("runtime_config_custom_endpoint").(string)
