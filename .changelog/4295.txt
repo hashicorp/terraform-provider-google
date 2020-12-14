@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_pubsub_lite_topic`
+```
+```release-note:new-resource
+`google_pubsub_lite_subscription`
+```
