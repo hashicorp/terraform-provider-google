@@ -1,4 +1,4 @@
-## 3.51.0 (Unreleased)
+## 3.51.0 (December 14, 2020)
 
 FEATURES:
 * **New Resource:** `google_firestore_document` ([#7932](https://github.com/hashicorp/terraform-provider-google/pull/7932))
