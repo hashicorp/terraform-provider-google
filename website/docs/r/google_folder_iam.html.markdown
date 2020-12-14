@@ -25,7 +25,7 @@ Four different resources help you manage your IAM policy for a folder. Each of t
 
 ~> **Be careful!** You can accidentally lock yourself out of your folder
    using this resource. Deleting a `google_folder_iam_policy` removes access
-   from anyone without folder-level access to the folder. Proceed with caution.
+   from anyone without permissions on its parent folder/organization. Proceed with caution.
    It's not recommended to use `google_folder_iam_policy` with your provider folder
    to avoid locking yourself out, and it should generally only be used with folders
    fully managed by Terraform. If you do use this resource, it is recommended to **import** the policy before

@@ -33,6 +33,7 @@ Three different resources help you manage your IAM policy for Data catalog Entry
 
 
 
+
 ## google\_data\_catalog\_entry\_group\_iam\_policy
 
 ```hcl

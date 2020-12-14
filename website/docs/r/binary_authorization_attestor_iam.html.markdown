@@ -33,6 +33,7 @@ Three different resources help you manage your IAM policy for Binary Authorizati
 
 
 
+
 ## google\_binary\_authorization\_attestor\_iam\_policy
 
 ```hcl

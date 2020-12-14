@@ -11,11 +11,9 @@ description: |-
 # google\_iam\_policy
 
 Generates an IAM policy document that may be referenced by and applied to
-other Google Cloud Platform resources, such as the `google_project` resource.
+other Google Cloud Platform IAM resources, such as the `google_project_iam_policy` resource.
 
-**Note:** Several restrictions apply when setting IAM policies through this API.
-See the [setIamPolicy docs](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy)
-for a list of these restrictions.
+**Note:** Please review the documentation of the resource that you will be using the datasource with. Some resources such as `google_project_iam_policy` and others have limitations in their API methods which are noted on their respective page.
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -61,7 +59,7 @@ from another resource is the only way to apply an IAM policy to a resource.
 
 The following arguments are supported:
 
-* `audit_config` (Optional) - A nested configuration block that defines logging additional configuration for your project.
+* `audit_config` (Optional) - A nested configuration block that defines logging additional configuration for your project. This field is only supported on `google_project_iam_policy`, `google_folder_iam_policy` and `google_organization_iam_policy`.
   * `service` (Required) Defines a service that will be enabled for audit logging. For example, `storage.googleapis.com`, `cloudsql.googleapis.com`. `allServices` is a special value that covers all services.
   * `audit_log_configs` (Required) A nested block that defines the operations you'd like to log.
     * `log_type` (Required) Defines the logging level. `DATA_READ`, `DATA_WRITE` and `ADMIN_READ` capture different types of events. See [the audit configuration documentation](https://cloud.google.com/resource-manager/reference/rest/Shared.Types/AuditConfig) for more details.
@@ -80,8 +78,8 @@ each accept the following arguments:
 
 * `members` (Required) - An array of identities that will be granted the privilege in the `role`. For more details on format and restrictions see https://cloud.google.com/billing/reference/rest/v1/Policy#Binding
   Each entry can have one of the following values:
-  * **allUsers**: A special identifier that represents anyone who is on the internet; with or without a Google account. It **can't** be used with the `google_project` resource.
-  * **allAuthenticatedUsers**: A special identifier that represents anyone who is authenticated with a Google account or a service account. It **can't** be used with the `google_project` resource.
+  * **allUsers**: A special identifier that represents anyone who is on the internet; with or without a Google account. Some resources **don't** support this identity.
+  * **allAuthenticatedUsers**: A special identifier that represents anyone who is authenticated with a Google account or a service account. Some resources **don't** support this identity.
   * **user:{emailid}**: An email address that represents a specific Google account. For example, alice@gmail.com.
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.

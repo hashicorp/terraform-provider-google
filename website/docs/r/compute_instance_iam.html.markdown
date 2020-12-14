@@ -31,6 +31,8 @@ Three different resources help you manage your IAM policy for Compute Engine Ins
 
 ~> **Note:** `google_compute_instance_iam_binding` resources **can be** used in conjunction with `google_compute_instance_iam_member` resources **only if** they do not grant privilege to the same role.
 
+~> **Note:**  This resource supports IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)) but they have some known limitations which can be found [here](https://cloud.google.com/iam/docs/conditions-overview#limitations). Please review this article if you are having issues with IAM Conditions.
+
 
 
 ## google\_compute\_instance\_iam\_policy
