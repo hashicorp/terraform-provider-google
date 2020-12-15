@@ -349,7 +349,7 @@ func expandSecretManagerSecretVersionEnabled(v interface{}, d TerraformResourceD
 	parts := strings.Split(name, "/")
 	project := parts[1]
 
-	userAgent, err := generateUserAgentString(d.(*schema.ResourceData), config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return nil, err
 	}
