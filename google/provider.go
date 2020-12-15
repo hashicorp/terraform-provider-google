@@ -669,6 +669,7 @@ func Provider() *schema.Provider {
 			"google_sql_ca_certs":                                 dataSourceGoogleSQLCaCerts(),
 			"google_sql_database_instance":                        dataSourceSqlDatabaseInstance(),
 			"google_storage_bucket_object":                        dataSourceGoogleStorageBucketObject(),
+			"google_storage_bucket_object_content":                dataSourceGoogleStorageBucketObjectContent(),
 			"google_storage_object_signed_url":                    dataSourceGoogleSignedUrl(),
 			"google_storage_project_service_account":              dataSourceGoogleStorageProjectServiceAccount(),
 			"google_storage_transfer_project_service_account":     dataSourceGoogleStorageTransferProjectServiceAccount(),
