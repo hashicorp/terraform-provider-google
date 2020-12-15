@@ -98,6 +98,10 @@ type VcrSource struct {
 
 var sources map[string]VcrSource
 
+var masterBillingAccountEnvVars = []string{
+	"GOOGLE_MASTER_BILLING_ACCOUNT",
+}
+
 func init() {
 	configs = make(map[string]*Config)
 	sources = make(map[string]VcrSource)
@@ -902,6 +906,11 @@ func getTestOrgTargetFromEnv(t *testing.T) string {
 func getTestBillingAccountFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, billingAccountEnvVars...)
 	return multiEnvSearch(billingAccountEnvVars)
+}
+
+func getTestMasterBillingAccountFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, masterBillingAccountEnvVars...)
+	return multiEnvSearch(masterBillingAccountEnvVars)
 }
 
 func getTestServiceAccountFromEnv(t *testing.T) string {
