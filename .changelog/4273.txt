@@ -1,0 +1,6 @@
+```release-note:breaking-change
+billing: import support for `google_billing_budget` never functioned correctly, and has been removed.
+```
+```release-note:enhancement
+billing: promoted `google_billing_budget` to GA
+```

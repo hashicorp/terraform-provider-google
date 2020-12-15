@@ -24,14 +24,18 @@ description: |-
 
 Budget configuration for a billing account.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Budget, see:
 
-* [API documentation](https://cloud.google.com/billing/docs/reference/budget/rest/v1beta1/billingAccounts.budgets)
+* [API documentation](https://cloud.google.com/billing/docs/reference/budget/rest/v1/billingAccounts.budgets)
 * How-to Guides
     * [Creating a budget](https://cloud.google.com/billing/docs/how-to/budgets)
+
+~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
+you must specify a `billing_project` and set `user_project_override` to true
+in the provider configuration. Otherwise the Billing Budgets API will return a 403 error.
+Your account must have the `serviceusage.services.use` permission on the
+`billing_project` you defined.
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=billing_budget_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -43,12 +47,10 @@ To get more information about Budget, see:
 
 ```hcl
 data "google_billing_account" "account" {
-  provider = google-beta
   billing_account = "000000-0000000-0000000-000000"
 }
 
 resource "google_billing_budget" "budget" {
-  provider = google-beta
   billing_account = data.google_billing_account.account.id
   display_name = "Example Billing Budget"
   amount {
@@ -72,17 +74,18 @@ resource "google_billing_budget" "budget" {
 
 ```hcl
 data "google_billing_account" "account" {
-  provider = google-beta
   billing_account = "000000-0000000-0000000-000000"
 }
 
+data "google_project" "project" {
+}
+
 resource "google_billing_budget" "budget" {
-  provider = google-beta
   billing_account = data.google_billing_account.account.id
   display_name = "Example Billing Budget"
   
   budget_filter {
-    projects = ["projects/my-project-name"]
+    projects = ["projects/${data.google_project.project.number}"]
   }
 
   amount {
@@ -107,17 +110,18 @@ resource "google_billing_budget" "budget" {
 
 ```hcl
 data "google_billing_account" "account" {
-  provider = google-beta
   billing_account = "000000-0000000-0000000-000000"
 }
 
+data "google_project" "project" {
+}
+
 resource "google_billing_budget" "budget" {
-  provider = google-beta
   billing_account = data.google_billing_account.account.id
   display_name = "Example Billing Budget"
 
   budget_filter {
-    projects = ["projects/my-project-name"]
+    projects = ["projects/${data.google_project.project.number}"]
     credit_types_treatment = "EXCLUDE_ALL_CREDITS"
     services = ["services/24E6-581D-38E5"] # Bigquery
   }
@@ -148,17 +152,18 @@ resource "google_billing_budget" "budget" {
 
 ```hcl
 data "google_billing_account" "account" {
-  provider        = google-beta
   billing_account = "000000-0000000-0000000-000000"
 }
 
+data "google_project" "project" {
+}
+
 resource "google_billing_budget" "budget" {
-  provider        = google-beta
   billing_account = data.google_billing_account.account.id
   display_name    = "Example Billing Budget"
 
   budget_filter {
-    projects = ["projects/my-project-name"]
+    projects = ["projects/${data.google_project.project.number}"]
   }
 
   amount {
@@ -185,7 +190,6 @@ resource "google_billing_budget" "budget" {
 }
 
 resource "google_monitoring_notification_channel" "notification_channel" {
-  provider     = google-beta
   display_name = "Example Notification Channel"
   type         = "email"
   
@@ -216,34 +220,6 @@ The following arguments are supported:
   (Required)
   ID of the billing account to set a budget on.
 
-
-
-The `budget_filter` block supports:
-
-* `projects` -
-  (Optional)
-  A set of projects of the form projects/{project_id},
-  specifying that usage from only this set of projects should be
-  included in the budget. If omitted, the report will include
-  all usage for the billing account, regardless of which project
-  the usage occurred on. Only zero or one project can be
-  specified currently.
-
-* `credit_types_treatment` -
-  (Optional)
-  Specifies how credits should be treated when determining spend
-  for threshold calculations.
-  Default value is `INCLUDE_ALL_CREDITS`.
-  Possible values are `INCLUDE_ALL_CREDITS` and `EXCLUDE_ALL_CREDITS`.
-
-* `services` -
-  (Optional)
-  A set of services of the form services/{service_id},
-  specifying that usage from only this set of services should be
-  included in the budget. If omitted, the report will include
-  usage for all the services. The service names are available
-  through the Catalog API:
-  https://cloud.google.com/billing/v1/how-tos/catalog-api.
 
 The `amount` block supports:
 
@@ -297,6 +273,77 @@ The `threshold_rules` block supports:
   Default value is `CURRENT_SPEND`.
   Possible values are `CURRENT_SPEND` and `FORECASTED_SPEND`.
 
+- - -
+
+
+* `display_name` -
+  (Optional)
+  User data for display name in UI. Must be <= 60 chars.
+
+* `budget_filter` -
+  (Optional)
+  Filters that define which resources are used to compute the actual
+  spend against the budget.
+  Structure is documented below.
+
+* `all_updates_rule` -
+  (Optional)
+  Defines notifications that are sent on every update to the
+  billing account's spend, regardless of the thresholds defined
+  using threshold rules.
+  Structure is documented below.
+
+
+The `budget_filter` block supports:
+
+* `projects` -
+  (Optional)
+  A set of projects of the form projects/{project_id},
+  specifying that usage from only this set of projects should be
+  included in the budget. If omitted, the report will include
+  all usage for the billing account, regardless of which project
+  the usage occurred on. Only zero or one project can be
+  specified currently.
+
+* `credit_types_treatment` -
+  (Optional)
+  Specifies how credits should be treated when determining spend
+  for threshold calculations.
+  Default value is `INCLUDE_ALL_CREDITS`.
+  Possible values are `INCLUDE_ALL_CREDITS`, `EXCLUDE_ALL_CREDITS`, and `INCLUDE_SPECIFIED_CREDITS`.
+
+* `services` -
+  (Optional)
+  A set of services of the form services/{service_id},
+  specifying that usage from only this set of services should be
+  included in the budget. If omitted, the report will include
+  usage for all the services. The service names are available
+  through the Catalog API:
+  https://cloud.google.com/billing/v1/how-tos/catalog-api.
+
+* `credit_types` -
+  (Optional)
+  A set of subaccounts of the form billingAccounts/{account_id},
+  specifying that usage from only this set of subaccounts should
+  be included in the budget. If a subaccount is set to the name of
+  the parent account, usage from the parent account will be included.
+  If the field is omitted, the report will include usage from the parent
+  account and all subaccounts, if they exist.
+
+* `subaccounts` -
+  (Optional)
+  A set of subaccounts of the form billingAccounts/{account_id},
+  specifying that usage from only this set of subaccounts should
+  be included in the budget. If a subaccount is set to the name of
+  the parent account, usage from the parent account will be included.
+  If the field is omitted, the report will include usage from the parent
+  account and all subaccounts, if they exist.
+
+* `labels` -
+  (Optional)
+  A single label and value pair specifying that usage from only
+  this set of labeled resources should be included in the budget.
+
 The `all_updates_rule` block supports:
 
 * `pubsub_topic` -
@@ -326,27 +373,6 @@ The `all_updates_rule` block supports:
   those with Billing Account Administrators and Billing
   Account Users IAM roles for the target account.
 
-- - -
-
-
-* `display_name` -
-  (Optional)
-  User data for display name in UI. Must be <= 60 chars.
-
-* `budget_filter` -
-  (Optional)
-  Filters that define which resources are used to compute the actual
-  spend against the budget.
-  Structure is documented below.
-
-* `all_updates_rule` -
-  (Optional)
-  Defines notifications that are sent on every update to the
-  billing account's spend, regardless of the thresholds defined
-  using threshold rules.
-  Structure is documented below.
-
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -370,9 +396,4 @@ This resource provides the following
 
 ## Import
 
-
-Budget can be imported using any of these accepted formats:
-
-```
-$ terraform import google_billing_budget.default {{name}}
-```
+This resource does not support import.
