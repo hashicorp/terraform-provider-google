@@ -115,7 +115,13 @@ func testAccCheckDataCatalogEntryGroupDestroyProducer(t *testing.T) func(s *terr
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("DataCatalogEntryGroup still exists at %s", url)
 			}

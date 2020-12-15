@@ -96,7 +96,13 @@ func testAccCheckIapClientDestroyProducer(t *testing.T) func(s *terraform.State)
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil, iapClient409Operation)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, iapClient409Operation)
 			if err == nil {
 				return fmt.Errorf("IapClient still exists at %s", url)
 			}
