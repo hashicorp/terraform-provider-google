@@ -286,7 +286,7 @@ func vcrSource(t *testing.T, path, mode string) (*VcrSource, error) {
 	case "REPLAYING":
 		seed, err := readSeedFromFile(vcrSeedFile(path, t.Name()))
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("no cassette found on disk for %s, please replay this testcase in recording mode - %w", t.Name(), err)
 		}
 		s := rand.NewSource(seed)
 		vcrSource := VcrSource{seed: seed, source: s}
