@@ -968,6 +968,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_billing_account_iam_binding":           ResourceIamBinding(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
 			"google_billing_account_iam_member":            ResourceIamMember(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
 			"google_billing_account_iam_policy":            ResourceIamPolicy(IamBillingAccountSchema, NewBillingAccountIamUpdater, BillingAccountIdParseFunc),
+			"google_billing_subaccount":                    resourceBillingSubaccount(),
 			"google_cloudfunctions_function":               resourceCloudFunctionsFunction(),
 			"google_composer_environment":                  resourceComposerEnvironment(),
 			"google_compute_attached_disk":                 resourceComputeAttachedDisk(),
