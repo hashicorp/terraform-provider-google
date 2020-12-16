@@ -40,6 +40,34 @@ resource "google_sql_user" "users" {
 }
 ```
 
+Example creating a Cloud IAM User.
+
+```hcl
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
+resource "google_sql_database_instance" "master" {
+  name             = "master-instance-${random_id.db_name_suffix.hex}"
+  database_version = "POSTGRES_9_6"
+
+  settings {
+    tier = "db-f1-micro"
+
+    datagbase_flags {
+      name  = "cloudsql.iam_authentication"
+      value = "on"
+    }
+  }
+}
+
+resource "google_sql_user" "users" {
+  name     = "me"
+  instance = google_sql_database_instance.master.name
+  type     = "CLOUD_IAM_USER"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -52,6 +80,10 @@ The following arguments are supported:
 
 * `password` - (Optional) The password for the user. Can be updated. For Postgres
     instances this is a Required field.
+
+* `type` - (Optional) The user type. It determines the method to authenticate the
+    user during login. The default is the database's built-in user type. Flags
+    include "BUILT_IN", "CLOUD_IAM_USER", or "CLOUD_IAM_SERVICE_ACCOUNT".
 
 * `deletion_policy` - (Optional) The deletion policy for the user.
     Setting `ABANDON` allows the resource to be abandoned rather than deleted. This is useful
