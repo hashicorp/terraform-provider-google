@@ -625,7 +625,8 @@ func flattenCloudRunDomainMappingSpec(v interface{}, d *schema.ResourceData, con
 	return []interface{}{transformed}
 }
 func flattenCloudRunDomainMappingSpecForceOverride(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	// We want to ignore read on this field, but cannot because it is nested
+	return d.Get("spec.0.force_override")
 }
 
 func flattenCloudRunDomainMappingSpecRouteName(v interface{}, d *schema.ResourceData, config *Config) interface{} {

@@ -78,9 +78,6 @@ resource "google_cloud_run_domain_mapping" "default" {
 
   metadata {
     namespace = "%{namespace}"
-    annotations = {
-      "run.googleapis.com/launch-stage" = "BETA"
-    }
   }
 
   spec {
