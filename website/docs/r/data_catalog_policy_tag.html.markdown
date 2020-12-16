@@ -87,6 +87,8 @@ resource "google_data_catalog_policy_tag" "child_policy2" {
   display_name = "dob"
   description = "The users date of birth"
   parent_policy_tag = google_data_catalog_policy_tag.parent_policy.id
+  // depends_on to avoid concurrent delete issues
+  depends_on = [google_data_catalog_policy_tag.child_policy]
 }
 
 resource "google_data_catalog_taxonomy" "my_taxonomy" {
