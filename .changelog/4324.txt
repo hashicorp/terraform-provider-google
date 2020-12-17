@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added support for `enable_independent_endpoint_mapping` to `google_compute_router_nat` resource
+```

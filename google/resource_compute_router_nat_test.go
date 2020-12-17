@@ -120,6 +120,45 @@ func TestAccComputeRouterNat_withManualIpAndSubnetConfiguration(t *testing.T) {
 	})
 }
 
+func TestAccComputeRouterNat_withDisabledIndependentEndpointMapping(t *testing.T) {
+	t.Parallel()
+
+	testId := randString(t, 10)
+	routerName := fmt.Sprintf("tf-test-router-nat-%s", testId)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRouterNatDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterNatWithDisabledIndependentEndpointMapping(routerName, true),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterNatWithDisabledIndependentEndpointMapping(routerName, false),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterNatWithDisabledIndependentEndpointMapping(routerName, true),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeRouterNatDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -362,6 +401,50 @@ resource "google_compute_router_nat" "foobar" {
   }
 }
 `, routerName, routerName, routerName, routerName, routerName)
+}
+
+func testAccComputeRouterNatWithDisabledIndependentEndpointMapping(routerName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name                    = "%s-net"
+  auto_create_subnetworks = "false"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "%s-subnet"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_address" "foobar" {
+  name   = "router-nat-%s-addr"
+  region = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "%s"
+  region  = google_compute_subnetwork.foobar.region
+  network = google_compute_network.foobar.self_link
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_router_nat" "foobar" {
+  name                               = "%s"
+  router                             = google_compute_router.foobar.name
+  region                             = google_compute_router.foobar.region
+  nat_ip_allocate_option             = "MANUAL_ONLY"
+  nat_ips                            = [google_compute_address.foobar.self_link]
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+  subnetwork {
+    name                    = google_compute_subnetwork.foobar.name
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+  enable_endpoint_independent_mapping = %t
+}
+`, routerName, routerName, routerName, routerName, routerName, enabled)
 }
 
 func testAccComputeRouterNatKeepRouter(routerName string) string {
