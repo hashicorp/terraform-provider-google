@@ -20,7 +20,7 @@ To allow `service_A` to impersonate `service_B`, grant the [Service Account Toke
 
 In the IAM policy below, `service_A` is given the Token Creator role impersonate `service_B`
 
-```sh
+```hcl
 resource "google_service_account_iam_binding" "token-creator-iam" {
 	service_account_id = "projects/-/serviceAccounts/service_B@projectB.iam.gserviceaccount.com"
 	role               = "roles/iam.serviceAccountTokenCreator"
@@ -70,7 +70,7 @@ output "target-email" {
 The following arguments are supported:
 
 * `target_service_account` (Required) - The service account _to_ impersonate (e.g. `service_B@your-project-id.iam.gserviceaccount.com`)
-* `scopes` (Required) - The scopes the new credential should have (e.g. `["storage-ro", "cloud-platform"]`)
+* `scopes` (Required) - The scopes the new credential should have (e.g. `["cloud-platform"]`)
 * `delegates` (Optional) - Delegate chain of approvals needed to perform full impersonation. Specify the fully qualified service account name.  (e.g. `["projects/-/serviceAccounts/delegate-svc-account@project-id.iam.gserviceaccount.com"]`)
 * `lifetime` (Optional) Lifetime of the impersonated token (defaults to its max: `3600s`).
 

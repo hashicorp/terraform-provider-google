@@ -19,6 +19,11 @@ and [the API reference](https://cloud.google.com/kubernetes-engine/docs/referenc
 ### Example Usage - using a separately managed node pool (recommended)
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service_account_id"
+  display_name = "Service Account"
+}
+
 resource "google_container_cluster" "primary" {
   name     = "my-gke-cluster"
   location = "us-central1"
@@ -40,6 +45,8 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
     preemptible  = true
     machine_type = "e2-medium"
 
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
@@ -50,12 +57,23 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 ### Example Usage - 2 node pools, 1 separately managed + the default node pool
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service_account_id"
+  display_name = "Service Account"
+}
+
 resource "google_container_node_pool" "np" {
   name       = "my-node-pool"
   location   = "us-central1-a"
   cluster    = google_container_cluster.primary.name
-  node_count = 3
-
+  node_config {
+    machine_type = "e2-medium"
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
+    oauth_scopes    = [
+      "https://www.googleapis.com/auth/cloud-platform"
+    ]
+  }
   timeouts {
     create = "30m"
     update = "20m"
@@ -71,24 +89,12 @@ resource "google_container_cluster" "primary" {
     "us-central1-c",
   ]
 
-  master_auth {
-    username = ""
-    password = ""
-
-    client_certificate_config {
-      issue_client_certificate = false
-    }
-  }
-
   node_config {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
-
-    metadata = {
-      disable-legacy-endpoints = "true"
-    }
-
     guest_accelerator {
       type  = "nvidia-tesla-k80"
       count = 1
