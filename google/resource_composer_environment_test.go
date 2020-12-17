@@ -520,7 +520,7 @@ resource "google_composer_environment" "test" {
 		}
 		software_config {
 			pypi_packages = {
-				numpy = ""
+				scipy = "==1.1.0"
 			}
 		}
 	}
