@@ -7,6 +7,8 @@ import (
 )
 
 func TestAccDataSourceSpannerInstance_basic(t *testing.T) {
+	// Randomness from spanner instance
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
