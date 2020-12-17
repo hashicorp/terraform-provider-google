@@ -194,6 +194,11 @@ The following arguments are supported:
   Configuration for logging on NAT
   Structure is documented below.
 
+* `enable_endpoint_independent_mapping` -
+  (Optional)
+  Specifies if endpoint independent mapping is enabled. This is enabled by default. For more information
+  see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).
+
 * `region` -
   (Optional)
   Region where the router and NAT reside.
