@@ -104,9 +104,8 @@ resource "google_compute_subnetwork" "test" {
 }
 
 data "google_composer_environment" "test" {
-	name = google_composer_environment.test.name
-
-	depends_on = [google_composer_environment.test]
+	name   = google_composer_environment.test.name
+	region = google_composer_environment.test.region
 }
 `, context)
 }
