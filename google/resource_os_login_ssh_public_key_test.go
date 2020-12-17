@@ -7,6 +7,8 @@ import (
 )
 
 func TestAccOSLoginSSHPublicKey_osLoginSshKeyExpiry(t *testing.T) {
+	// Uses time provider
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
