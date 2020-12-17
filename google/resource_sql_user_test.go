@@ -78,6 +78,32 @@ func TestAccSqlUser_postgres(t *testing.T) {
 	})
 }
 
+func TestAccSqlUser_postgresIAM(t *testing.T) {
+	t.Parallel()
+
+	instance := fmt.Sprintf("i-%d", randInt(t))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlUser_postgresIAM(instance),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_user.user",
+				ImportStateId:           fmt.Sprintf("%s/%s/admin", getTestProjectFromEnv(), instance),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
 func TestAccSqlUser_postgresAbandon(t *testing.T) {
 	t.Parallel()
 
@@ -234,6 +260,31 @@ resource "google_sql_user" "user" {
   password = "%s"
 }
 `, instance, password)
+}
+
+func testGoogleSqlUser_postgresIAM(instance string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "POSTGRES_9_6"
+  deletion_protection = false
+
+  settings {
+    tier = "db-f1-micro"
+    database_flags {
+      name  = "cloudsql.iam_authentication"
+      value = "on"
+    }
+  }
+}
+
+resource "google_sql_user" "user" {
+  name     = "admin"
+  instance = google_sql_database_instance.instance.name
+  type     = "CLOUD_IAM_USER"
+}
+`, instance)
 }
 
 func testGoogleSqlUser_postgresAbandon(instance, name string) string {
