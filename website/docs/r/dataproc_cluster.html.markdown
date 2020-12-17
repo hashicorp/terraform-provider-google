@@ -29,6 +29,11 @@ resource "google_dataproc_cluster" "simplecluster" {
 ## Example Usage - Advanced
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service_account_id"
+  display_name = "Service Account"
+}
+
 resource "google_dataproc_cluster" "mycluster" {
   name     = "mycluster"
   region   = "us-central1"
@@ -73,11 +78,10 @@ resource "google_dataproc_cluster" "mycluster" {
 
     gce_cluster_config {
       tags = ["foo", "bar"]
+      # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+      service_account = google_service_account.default.email
       service_account_scopes = [
-        "https://www.googleapis.com/auth/monitoring",
-        "useraccounts-ro",
-        "storage-rw",
-        "logging-write",
+        "cloud-platform"
       ]
     }
 
@@ -238,13 +242,9 @@ The `cluster_config.gce_cluster_config` block supports:
 
 * `service_account_scopes` - (Optional, Computed) The set of Google API scopes
     to be made available on all of the node VMs under the `service_account`
-    specified. These can be	either FQDNs, or scope aliases. The following scopes
-    must be set if any other scopes are set. They're necessary to ensure the
-    correct functioning ofthe cluster, and are set automatically by the API:
-
-  * `useraccounts-ro` (`https://www.googleapis.com/auth/cloud.useraccounts.readonly`)
-  * `storage-rw`      (`https://www.googleapis.com/auth/devstorage.read_write`)
-  * `logging-write`   (`https://www.googleapis.com/auth/logging.write`)
+    specified. Both OAuth2 URLs and gcloud
+    short names are supported. To allow full access to all Cloud APIs, use the
+    `cloud-platform` scope. See a complete list of scopes [here](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes).
 
 * `tags` - (Optional) The list of instance tags applied to instances in the cluster.
    Tags are used to identify valid sources or targets for network firewalls.

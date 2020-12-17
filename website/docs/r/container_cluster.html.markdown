@@ -26,6 +26,11 @@ plaintext. [Read more about sensitive data in state](/docs/state/sensitive-data.
 ## Example Usage - with a separately managed node pool (recommended)
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service_account_id"
+  display_name = "Service Account"
+}
+
 resource "google_container_cluster" "primary" {
   name     = "my-gke-cluster"
   location = "us-central1"
@@ -35,15 +40,6 @@ resource "google_container_cluster" "primary" {
   # node pool and immediately delete it.
   remove_default_node_pool = true
   initial_node_count       = 1
-
-  master_auth {
-    username = ""
-    password = ""
-
-    client_certificate_config {
-      issue_client_certificate = false
-    }
-  }
 }
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
@@ -56,11 +52,9 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
     preemptible  = true
     machine_type = "e2-medium"
 
-    metadata = {
-      disable-legacy-endpoints = "true"
-    }
-
-    oauth_scopes = [
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
+    oauth_scopes    = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
@@ -74,32 +68,17 @@ resource "google_container_cluster" "primary" {
   name               = "marcellus-wallace"
   location           = "us-central1-a"
   initial_node_count = 3
-
-  master_auth {
-    username = ""
-    password = ""
-
-    client_certificate_config {
-      issue_client_certificate = false
-    }
-  }
-
   node_config {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
-
-    metadata = {
-      disable-legacy-endpoints = "true"
-    }
-
     labels = {
       foo = "bar"
     }
-
     tags = ["foo", "bar"]
   }
-
   timeouts {
     create = "30m"
     update = "40m"
@@ -203,7 +182,7 @@ Kubernetes master. Some values in this block are only returned by the API if
 your service account has permission to get credentials for your GKE cluster. If
 you see an unexpected diff removing a username/password or unsetting your client
 cert, ensure you have the `container.clusters.getCredentials` permission.
-Structure is documented below.
+Structure is documented below. This has been deprecated as of GKE 1.19.
 
 * `master_authorized_networks_config` - (Optional) The desired configuration options
     for master authorized networks. Omit the nested `cidr_blocks` attribute to disallow
@@ -551,10 +530,10 @@ pick a specific range to use.
 The `master_auth` block supports:
 
 * `password` - (Optional) The password to use for HTTP basic authentication when accessing
-    the Kubernetes master endpoint.
+    the Kubernetes master endpoint. This has been deprecated as of GKE 1.19.
 
 * `username` - (Optional) The username to use for HTTP basic authentication when accessing
-    the Kubernetes master endpoint. If not present basic auth will be disabled.
+    the Kubernetes master endpoint. If not present basic auth will be disabled. This has been deprecated as of GKE 1.19.
 
 * `client_certificate_config` - (Optional) Whether client certificate authorization is enabled for this cluster.  For example:
 
@@ -642,11 +621,6 @@ The `node_config` block supports:
 
 * `service_account` - (Optional) The service account to be used by the Node VMs.
     If not specified, the "default" service account is used.
-    In order to use the configured `oauth_scopes` for logging and monitoring, the service account being used needs the
-    [roles/logging.logWriter](https://cloud.google.com/iam/docs/understanding-roles#stackdriver_logging_roles) and
-    [roles/monitoring.metricWriter](https://cloud.google.com/iam/docs/understanding-roles#stackdriver_monitoring_roles) roles.
-
-     -> Projects that enable the [Cloud Compute Engine API](https://cloud.google.com/compute/) with Terraform may need these roles added manually to the service account. Projects that enable the API in the Cloud Console should have them added automatically.
 
 * `shielded_instance_config` - (Optional) Shielded Instance options. Structure is documented below.
 

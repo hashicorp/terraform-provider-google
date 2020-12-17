@@ -18,6 +18,11 @@ and
 ## Example Usage
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service_account_id"
+  display_name = "Service Account"
+}
+
 resource "google_compute_instance" "default" {
   name         = "test"
   machine_type = "e2-medium"
@@ -51,7 +56,9 @@ resource "google_compute_instance" "default" {
   metadata_startup_script = "echo hi > /test.txt"
 
   service_account {
-    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = google_service_account.default.email
+    scopes = ["cloud-platform"]
   }
 }
 ```
