@@ -7,17 +7,9 @@ import (
 )
 
 func dataSourceGoogleComposerEnvironment() *schema.Resource {
-	dsSchema := datasourceSchemaFromResourceSchema(resourceComposerEnvironment().Schema)
-
-	// Set 'Required' schema elements
-	addRequiredFieldsToSchema(dsSchema, "name")
-
-	// Set 'Optional' schema elements
-	addOptionalFieldsToSchema(dsSchema, "project", "region")
-
 	return &schema.Resource{
 		Read:   dataSourceGoogleComposerEnvironmentRead,
-		Schema: dsSchema,
+		Schema: resourceComposerEnvironment().Schema,
 	}
 }
 
