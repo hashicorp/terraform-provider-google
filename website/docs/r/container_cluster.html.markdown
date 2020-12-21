@@ -27,7 +27,7 @@ plaintext. [Read more about sensitive data in state](/docs/state/sensitive-data.
 
 ```hcl
 resource "google_service_account" "default" {
-  account_id   = "service_account_id"
+  account_id   = "service-account-id"
   display_name = "Service Account"
 }
 
@@ -64,6 +64,11 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 ## Example Usage - with the default node pool
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service-account-id"
+  display_name = "Service Account"
+}
+
 resource "google_container_cluster" "primary" {
   name               = "marcellus-wallace"
   location           = "us-central1-a"

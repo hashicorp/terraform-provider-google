@@ -20,7 +20,7 @@ and [the API reference](https://cloud.google.com/kubernetes-engine/docs/referenc
 
 ```hcl
 resource "google_service_account" "default" {
-  account_id   = "service_account_id"
+  account_id   = "service-account-id"
   display_name = "Service Account"
 }
 
@@ -58,7 +58,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 
 ```hcl
 resource "google_service_account" "default" {
-  account_id   = "service_account_id"
+  account_id   = "service-account-id"
   display_name = "Service Account"
 }
 
