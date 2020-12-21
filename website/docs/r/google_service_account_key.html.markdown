@@ -25,9 +25,12 @@ resource "google_service_account_key" "mykey" {
 }
 ```
 
-## Example Usage, save key in Kubernetes secret
+## Example Usage, save key in Kubernetes secret - DEPRECATED
 
 ```hcl
+# Workload Identity is the recommended way of accessing Google Cloud APIs from pods.
+# https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
+
 resource "google_service_account" "myaccount" {
   account_id   = "myaccount"
   display_name = "My Service Account"
