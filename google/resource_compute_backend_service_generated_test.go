@@ -66,7 +66,7 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
-func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
+func TestAccComputeBackendService_backendServiceCacheSimpleExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -82,7 +82,7 @@ func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendService_backendServiceCacheExample(context),
+				Config: testAccComputeBackendService_backendServiceCacheSimpleExample(context),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.default",
@@ -93,18 +93,13 @@ func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
 	})
 }
 
-func testAccComputeBackendService_backendServiceCacheExample(context map[string]interface{}) string {
+func testAccComputeBackendService_backendServiceCacheSimpleExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   health_checks = [google_compute_http_health_check.default.id]
   enable_cdn  = true
   cdn_policy {
-    cache_mode = "CACHE_ALL_STATIC"
-    default_ttl = 3600
-    client_ttl  = 7200
-    max_ttl     = 10800
-    negative_caching = true
     signed_url_cache_max_age_sec = 7200
   }
 }
