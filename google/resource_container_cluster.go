@@ -3116,7 +3116,12 @@ func containerClusterPrivateClusterConfigCustomDiff(_ context.Context, d *schema
 		blockValueKnown := d.NewValueKnown("private_cluster_config.0.master_ipv4_cidr_block")
 
 		if blockValueKnown && (block == nil || block == "") {
-			return fmt.Errorf("master_ipv4_cidr_block must be set if enable_private_nodes == true")
+			return fmt.Errorf("master_ipv4_cidr_block must be set if enable_private_nodes is true")
+		}
+	} else {
+		block := config["master_ipv4_cidr_block"]
+		if block != nil && block != "" {
+			return fmt.Errorf("master_ipv4_cidr_block can only be set if enable_private_nodes is true")
 		}
 	}
 	return nil

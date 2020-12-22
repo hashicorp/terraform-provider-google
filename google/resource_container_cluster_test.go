@@ -1570,6 +1570,23 @@ func TestAccContainerCluster_withEnableKubernetesAlpha(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withIPv4Error(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccContainerCluster_withIPv4Error(clusterName),
+				ExpectError: regexp.MustCompile("master_ipv4_cidr_block can only be set if"),
+			},
+		},
+	})
+}
+
 func testAccContainerCluster_masterAuthorizedNetworksDisabled(t *testing.T, resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource_name]
@@ -2830,7 +2847,7 @@ resource "google_container_cluster" "with_maintenance_exclusion_window" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
-  
+
   maintenance_policy {
 	recurring_window {
 		start_time = "%s"
@@ -2847,7 +2864,7 @@ resource "google_container_cluster" "with_maintenance_exclusion_window" {
 		start_time = "%s"
 		end_time = "%s"
 	}
- }	
+ }
 }
 `, clusterName, w1startTime, w1endTime, w1startTime, w1endTime, w2startTime, w2endTime)
 }
@@ -2859,7 +2876,7 @@ resource "google_container_cluster" "with_maintenance_exclusion_window" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
-  
+
   maintenance_policy {
 	daily_maintenance_window {
 		start_time = "03:00"
@@ -2874,7 +2891,7 @@ resource "google_container_cluster" "with_maintenance_exclusion_window" {
 		start_time = "%s"
 		end_time = "%s"
 	}
- }	
+ }
 }
 `, clusterName, w1startTime, w1endTime, w2startTime, w2endTime)
 }
@@ -3337,4 +3354,19 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, cluster, np)
+}
+
+func testAccContainerCluster_withIPv4Error(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+	initial_node_count = 1
+	private_cluster_config {
+    enable_private_endpoint = true
+    enable_private_nodes    = false
+    master_ipv4_cidr_block  = "10.42.0.0/28"
+  }
+}
+`, name)
 }
