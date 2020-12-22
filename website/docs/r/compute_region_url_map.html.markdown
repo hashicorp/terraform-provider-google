@@ -542,7 +542,7 @@ The `host_rule` block supports:
 The `path_matcher` block supports:
 
 * `default_service` -
-  (Required)
+  (Optional)
   A reference to a RegionBackendService resource. This will be used if
   none of the pathRules defined by this PathMatcher is matched by
   the URL's path portion.

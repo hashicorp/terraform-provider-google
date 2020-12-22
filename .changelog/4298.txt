@@ -1,0 +1,3 @@
+```release-note:bug
+google_compute_region_url_map: removed requirement for default_service, as it should be a choice of default_service or default_url_redirect
+```
