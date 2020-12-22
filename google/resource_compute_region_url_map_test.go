@@ -179,6 +179,28 @@ func TestAccComputeRegionUrlMap_defaultUrlRedirect(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionUrlMap_defaultUrlRedirectWithinPathMatcher(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionUrlMap_defaultUrlRedirectWithinPathMatcherConfig(randomSuffix),
+			},
+			{
+				ResourceName:      "google_compute_region_url_map.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeRegionUrlMap_basic1(randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "foobar" {
@@ -849,6 +871,30 @@ resource "google_compute_region_url_map" "foobar" {
   default_url_redirect {
     https_redirect = true
     strip_query    = false
+  }
+}
+`, randomSuffix)
+}
+
+func testAccComputeRegionUrlMap_defaultUrlRedirectWithinPathMatcherConfig(randomSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_url_map" "foobar" {
+  name            = "urlmap-test-%s"
+  default_url_redirect {
+    https_redirect = true
+    strip_query    = false
+  }
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name             = "allpaths"
+    default_url_redirect {
+      https_redirect = true
+      strip_query    = false
+    }
   }
 }
 `, randomSuffix)
