@@ -1,0 +1,3 @@
+```release-note:bug
+container: added plan time validation to ensure `enable_private_nodes` is true if `master_ipv4_cidr_block` is set on resource `cluster`
+```
