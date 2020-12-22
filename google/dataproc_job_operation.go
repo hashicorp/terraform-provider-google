@@ -59,11 +59,11 @@ func (w *DataprocJobOperationWaiter) OpName() string {
 }
 
 func (w *DataprocJobOperationWaiter) PendingStates() []string {
-	return []string{"PENDING", "CANCEL_PENDING", "CANCEL_STARTED", "SETUP_DONE", "RUNNING"}
+	return []string{"PENDING", "CANCEL_PENDING", "CANCEL_STARTED", "SETUP_DONE"}
 }
 
 func (w *DataprocJobOperationWaiter) TargetStates() []string {
-	return []string{"CANCELLED", "DONE", "ATTEMPT_FAILURE", "ERROR"}
+	return []string{"CANCELLED", "DONE", "ATTEMPT_FAILURE", "ERROR", "RUNNING"}
 }
 
 func dataprocJobOperationWait(config *Config, region, projectId, jobId, activity, userAgent string, timeout time.Duration) error {
