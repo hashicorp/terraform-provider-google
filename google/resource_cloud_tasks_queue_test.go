@@ -69,6 +69,26 @@ func TestAccCloudTasksQueue_update2Basic(t *testing.T) {
 	})
 }
 
+func TestAccCloudTasksQueue_MaxRetryDiffSuppress0s(t *testing.T) {
+	t.Parallel()
+	testID := randString(t, 10)
+	cloudTaskName := fmt.Sprintf("tf-test-%s", testID)
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudtasksQueueMaxRetry0s(cloudTaskName),
+			},
+			{
+				ResourceName:      "google_cloud_tasks_queue.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCloudTasksQueue_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloud_tasks_queue" "default" {
@@ -145,4 +165,21 @@ resource "google_cloud_tasks_queue" "default" {
 	}
 }
 `, name)
+}
+
+func testAccCloudtasksQueueMaxRetry0s(cloudTaskName string) string {
+	return fmt.Sprintf(`
+	resource "google_cloud_tasks_queue" "default" {
+		name = "%s"
+		location = "us-central1"
+
+		retry_config {
+							max_attempts       = -1
+							max_backoff        = "3600s"
+							max_doublings      = 16
+							max_retry_duration = "0s"
+							min_backoff        = "0.100s"
+		}
+	}
+`, cloudTaskName)
 }
