@@ -58,6 +58,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: `GC policy that applies to all cells older than the given age.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"days": {
@@ -86,10 +87,9 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"number": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							Description:  `Number of version before applying the GC policy.`,
-							ValidateFunc: validation.IntAtLeast(1),
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `Number of version before applying the GC policy.`,
 						},
 					},
 				},
