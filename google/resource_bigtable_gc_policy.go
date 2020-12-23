@@ -61,9 +61,18 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"days": {
-							Type:        schema.TypeInt,
-							Required:    true,
-							Description: `Number of days before applying GC policy.`,
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Deprecated:   "Deprecated in favor of duration",
+							Description:  `Number of days before applying GC policy.`,
+							ExactlyOneOf: []string{"max_age.0.days", "max_age.0.duration"},
+						},
+						"duration": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Duration before applying GC policy`,
+							ValidateFunc: validateDuration(),
+							ExactlyOneOf: []string{"max_age.0.days", "max_age.0.duration"},
 						},
 					},
 				},
@@ -77,9 +86,10 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"number": {
-							Type:        schema.TypeInt,
-							Required:    true,
-							Description: `Number of version before applying the GC policy.`,
+							Type:         schema.TypeInt,
+							Required:     true,
+							Description:  `Number of version before applying the GC policy.`,
+							ValidateFunc: validation.IntAtLeast(1),
 						},
 					},
 				},
@@ -236,9 +246,12 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 
 	if aok {
 		l, _ := ma.([]interface{})
-		d, _ := l[0].(map[string]interface{})["days"].(int)
+		d, err := getMaxAgeDuration(l[0].(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
 
-		policies = append(policies, bigtable.MaxAgePolicy(time.Duration(d)*time.Hour*24))
+		policies = append(policies, bigtable.MaxAgePolicy(d))
 	}
 
 	if vok {
@@ -256,4 +269,15 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	}
 
 	return policies[0], nil
+}
+
+func getMaxAgeDuration(values map[string]interface{}) (time.Duration, error) {
+	d := values["duration"].(string)
+	if d != "" {
+		return time.ParseDuration(d)
+	}
+
+	days := values["days"].(int)
+
+	return time.Hour * 24 * time.Duration(days), nil
 }
