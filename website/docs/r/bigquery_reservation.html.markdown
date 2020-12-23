@@ -24,8 +24,6 @@ description: |-
 
 A reservation is a mechanism used to guarantee BigQuery slots to users.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Reservation, see:
 
@@ -43,7 +41,6 @@ To get more information about Reservation, see:
 
 ```hcl
 resource "google_bigquery_reservation" "reservation" {
-	provider       = google-beta
 	name           = "reservation"
 	location       = "asia-northeast1"
 	// Set to 0 for testing purposes

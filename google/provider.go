@@ -183,6 +183,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_BIGQUERY_DATA_TRANSFER_CUSTOM_ENDPOINT",
 				}, BigqueryDataTransferDefaultBasePath),
 			},
+			"bigquery_reservation_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_BIGQUERY_RESERVATION_CUSTOM_ENDPOINT",
+				}, BigqueryReservationDefaultBasePath),
+			},
 			"bigtable_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -695,9 +703,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 177
+// Generated resources: 178
 // Generated IAM resources: 75
-// Total generated resources: 252
+// Total generated resources: 253
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -732,6 +740,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_bigquery_table_iam_policy":                             ResourceIamPolicy(BigQueryTableIamSchema, BigQueryTableIamUpdaterProducer, BigQueryTableIdParseFunc),
 			"google_bigquery_routine":                                      resourceBigQueryRoutine(),
 			"google_bigquery_data_transfer_config":                         resourceBigqueryDataTransferConfig(),
+			"google_bigquery_reservation":                                  resourceBigqueryReservationReservation(),
 			"google_bigtable_app_profile":                                  resourceBigtableAppProfile(),
 			"google_billing_budget":                                        resourceBillingBudget(),
 			"google_binary_authorization_attestor":                         resourceBinaryAuthorizationAttestor(),
@@ -1150,6 +1159,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.AppEngineBasePath = d.Get("app_engine_custom_endpoint").(string)
 	config.BigQueryBasePath = d.Get("big_query_custom_endpoint").(string)
 	config.BigqueryDataTransferBasePath = d.Get("bigquery_data_transfer_custom_endpoint").(string)
+	config.BigqueryReservationBasePath = d.Get("bigquery_reservation_custom_endpoint").(string)
 	config.BigtableBasePath = d.Get("bigtable_custom_endpoint").(string)
 	config.BillingBasePath = d.Get("billing_custom_endpoint").(string)
 	config.BinaryAuthorizationBasePath = d.Get("binary_authorization_custom_endpoint").(string)
