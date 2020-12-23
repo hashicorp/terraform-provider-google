@@ -33,7 +33,7 @@ func (w *FilestoreOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("https://file.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
 
-	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil, isNotFilestoreQuotaError)
 }
 
 func createFilestoreWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*FilestoreOperationWaiter, error) {
