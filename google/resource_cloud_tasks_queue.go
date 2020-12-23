@@ -25,6 +25,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+func suppressOmittedMaxDuration(_, old, new string, _ *schema.ResourceData) bool {
+	if old == "" && new == "0s" {
+		log.Printf("[INFO] max retry is 0s and api omitted field, suppressing diff")
+		return true
+	}
+	return false
+}
+
 func resourceCloudTasksQueue() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudTasksQueueCreate,
@@ -180,9 +188,10 @@ then increases linearly, and finally retries retries at intervals of maxBackoff
 up to maxAttempts times.`,
 						},
 						"max_retry_duration": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Optional: true,
+							Type:             schema.TypeString,
+							Computed:         true,
+							Optional:         true,
+							DiffSuppressFunc: suppressOmittedMaxDuration,
 							Description: `If positive, maxRetryDuration specifies the time limit for
 retrying a failed task, measured from when the task was first
 attempted. Once maxRetryDuration time has passed and the task has
