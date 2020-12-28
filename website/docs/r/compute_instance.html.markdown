@@ -172,7 +172,7 @@ The following arguments are supported:
 
 * `resource_policies` (Optional) -- A list of short names or self_links of resource policies to attach to the instance. Modifying this list will cause the instance to recreate. Currently a max of 1 resource policy is supported.
 
-* `confidential_instance_config` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
+* `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
 
 ---
 
@@ -360,7 +360,7 @@ The `shielded_instance_config` block supports:
 
 The `confidential_instance_config` block supports:
 
-* `enable_confidential_compute` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Defines whether the instance should have confidential compute enabled. [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
+* `enable_confidential_compute` (Optional) Defines whether the instance should have confidential compute enabled. [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
 
 ## Attributes Reference
 

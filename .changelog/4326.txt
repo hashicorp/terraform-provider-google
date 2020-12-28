@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: promoted `confidential_instance_config` field in `google_compute_instance` and `google_compute_instance_template` to GA
+```

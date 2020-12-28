@@ -629,6 +629,23 @@ func resourceComputeInstance() *schema.Resource {
 					},
 				},
 			},
+			"confidential_instance_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The Confidential VM config being used by the instance.  on_host_maintenance has to be set to TERMINATE or this will fail to create.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_confidential_compute": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `Defines whether the instance should have confidential compute enabled.`,
+						},
+					},
+				},
+			},
 			"desired_status": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -827,25 +844,26 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 
 	// Create the instance information
 	return &computeBeta.Instance{
-		CanIpForward:           d.Get("can_ip_forward").(bool),
-		Description:            d.Get("description").(string),
-		Disks:                  disks,
-		MachineType:            machineTypeUrl,
-		Metadata:               metadata,
-		Name:                   d.Get("name").(string),
-		NetworkInterfaces:      networkInterfaces,
-		Tags:                   resourceInstanceTags(d),
-		Labels:                 expandLabels(d),
-		ServiceAccounts:        expandServiceAccounts(d.Get("service_account").([]interface{})),
-		GuestAccelerators:      accels,
-		MinCpuPlatform:         d.Get("min_cpu_platform").(string),
-		Scheduling:             scheduling,
-		DeletionProtection:     d.Get("deletion_protection").(bool),
-		Hostname:               d.Get("hostname").(string),
-		ForceSendFields:        []string{"CanIpForward", "DeletionProtection"},
-		ShieldedInstanceConfig: expandShieldedVmConfigs(d),
-		DisplayDevice:          expandDisplayDevice(d),
-		ResourcePolicies:       convertStringArr(d.Get("resource_policies").([]interface{})),
+		CanIpForward:               d.Get("can_ip_forward").(bool),
+		Description:                d.Get("description").(string),
+		Disks:                      disks,
+		MachineType:                machineTypeUrl,
+		Metadata:                   metadata,
+		Name:                       d.Get("name").(string),
+		NetworkInterfaces:          networkInterfaces,
+		Tags:                       resourceInstanceTags(d),
+		Labels:                     expandLabels(d),
+		ServiceAccounts:            expandServiceAccounts(d.Get("service_account").([]interface{})),
+		GuestAccelerators:          accels,
+		MinCpuPlatform:             d.Get("min_cpu_platform").(string),
+		Scheduling:                 scheduling,
+		DeletionProtection:         d.Get("deletion_protection").(bool),
+		Hostname:                   d.Get("hostname").(string),
+		ForceSendFields:            []string{"CanIpForward", "DeletionProtection"},
+		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
+		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
+		DisplayDevice:              expandDisplayDevice(d),
+		ResourcePolicies:           convertStringArr(d.Get("resource_policies").([]interface{})),
 	}, nil
 }
 
@@ -1195,6 +1213,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if err := d.Set("current_status", instance.Status); err != nil {
 		return fmt.Errorf("Error setting current_status: %s", err)
+	}
+	if err := d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(instance.ConfidentialInstanceConfig)); err != nil {
+		return fmt.Errorf("Error setting confidential_instance_config: %s", err)
 	}
 	if d.Get("desired_status") != "" {
 		if err := d.Set("desired_status", instance.Status); err != nil {
