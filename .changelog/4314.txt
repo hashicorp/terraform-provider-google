@@ -1,0 +1,6 @@
+```release-note:enhancement
+redis: promoted `google_redis_instance.auth_enabled` to GA
+```
+```release-note:enhancement
+redis: added `auth_string` output to `google_redis_instance` when `auth_enabled` is `true`
+```

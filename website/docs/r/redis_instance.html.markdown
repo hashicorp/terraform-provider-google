@@ -157,7 +157,7 @@ The following arguments are supported:
   [locationId].
 
 * `auth_enabled` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Optional. Indicates whether OSS Redis AUTH is enabled for the
   instance. If set to "true" AUTH is enabled on the instance.
   Default value is "false" meaning AUTH is disabled.
@@ -227,6 +227,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `auth_string` - (Optional) AUTH String set on the instance. This field will only be populated if auth_enabled is true.
 
 ## Attributes Reference
 
