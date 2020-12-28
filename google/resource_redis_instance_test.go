@@ -69,6 +69,43 @@ func TestAccRedisInstance_regionFromLocation(t *testing.T) {
 	})
 }
 
+func TestAccRedisInstance_redisInstanceAuthEnabled(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisInstance_redisInstanceAuthEnabled(context),
+			},
+			{
+				ResourceName:            "google_redis_instance.cache",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+			{
+				Config: testAccRedisInstance_redisInstanceAuthDisabled(context),
+			},
+			{
+				ResourceName:            "google_redis_instance.cache",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
 func testAccRedisInstance_update(name string) string {
 	return fmt.Sprintf(`
 resource "google_redis_instance" "test" {
@@ -118,4 +155,24 @@ resource "google_redis_instance" "test" {
   location_id    = "%s"
 }
 `, name, zone)
+}
+
+func testAccRedisInstance_redisInstanceAuthEnabled(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_redis_instance" "cache" {
+  name           = "tf-test-memory-cache%{random_suffix}"
+  memory_size_gb = 1
+  auth_enabled = true
+}
+`, context)
+}
+
+func testAccRedisInstance_redisInstanceAuthDisabled(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_redis_instance" "cache" {
+  name           = "tf-test-memory-cache%{random_suffix}"
+  memory_size_gb = 1
+  auth_enabled = false
+}
+`, context)
 }
