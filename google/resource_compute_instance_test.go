@@ -1288,6 +1288,28 @@ func TestAccComputeInstance_shieldedVmConfig(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
+	t.Parallel()
+
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceConfidentialInstanceConfig(instanceName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance, true),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_enableDisplay(t *testing.T) {
 	t.Parallel()
 
@@ -2582,6 +2604,17 @@ func testAccCheckComputeInstanceHasShieldedVmConfig(instance *computeBeta.Instan
 		if instance.ShieldedVmConfig.EnableIntegrityMonitoring != enableIntegrityMonitoring {
 			return fmt.Errorf("Wrong shieldedVmConfig enableIntegrityMonitoring: expected %t, got, %t", enableIntegrityMonitoring, instance.ShieldedVmConfig.EnableIntegrityMonitoring)
 		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasConfidentialInstanceConfig(instance *computeBeta.Instance, EnableConfidentialCompute bool) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+		if instance.ConfidentialInstanceConfig.EnableConfidentialCompute != EnableConfidentialCompute {
+			return fmt.Errorf("Wrong ConfidentialInstanceConfig EnableConfidentialCompute: expected %t, got, %t", EnableConfidentialCompute, instance.ConfidentialInstanceConfig.EnableConfidentialCompute)
+		}
+
 		return nil
 	}
 }
@@ -4591,6 +4624,40 @@ resource "google_compute_instance" "foobar" {
   allow_stopping_for_update = true
 }
 `, instance, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
+}
+
+func testAccComputeInstanceConfidentialInstanceConfig(instance string, enableConfidentialCompute bool) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family    = "ubuntu-2004-lts"
+  project   = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "n2d-standard-2"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  confidential_instance_config {
+    enable_confidential_compute       = %t
+  }
+
+  scheduling {
+	  on_host_maintenance = "TERMINATE"
+  }
+
+}
+`, instance, enableConfidentialCompute)
 }
 
 func testAccComputeInstance_enableDisplay(instance string) string {

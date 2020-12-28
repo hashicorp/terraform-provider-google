@@ -786,6 +786,27 @@ func TestAccComputeInstanceTemplate_shieldedVmConfig2(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_ConfidentialInstanceConfigMain(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate computeBeta.InstanceTemplate
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplateConfidentialInstanceConfig(randString(t, 10), true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(&instanceTemplate, true),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_enableDisplay(t *testing.T) {
 	t.Parallel()
 
@@ -1201,6 +1222,17 @@ func testAccCheckComputeInstanceTemplateHasShieldedVmConfig(instanceTemplate *co
 		if instanceTemplate.Properties.ShieldedVmConfig.EnableIntegrityMonitoring != enableIntegrityMonitoring {
 			return fmt.Errorf("Wrong shieldedVmConfig enableIntegrityMonitoring: expected %t, got, %t", enableIntegrityMonitoring, instanceTemplate.Properties.ShieldedVmConfig.EnableIntegrityMonitoring)
 		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(instanceTemplate *computeBeta.InstanceTemplate, EnableConfidentialCompute bool) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+		if instanceTemplate.Properties.ConfidentialInstanceConfig.EnableConfidentialCompute != EnableConfidentialCompute {
+			return fmt.Errorf("Wrong ConfidentialInstanceConfig EnableConfidentialCompute: expected %t, got, %t", EnableConfidentialCompute, instanceTemplate.Properties.ConfidentialInstanceConfig.EnableConfidentialCompute)
+		}
+
 		return nil
 	}
 }
@@ -2068,6 +2100,39 @@ resource "google_compute_instance_template" "foobar" {
   }
 }
 `, suffix, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
+}
+
+func testAccComputeInstanceTemplateConfidentialInstanceConfig(suffix string, enableConfidentialCompute bool) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "ubuntu-2004-lts"
+  project = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "cvm-%s"
+  machine_type = "n2d-standard-2"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+	auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  confidential_instance_config {
+    enable_confidential_compute       = %t
+  }
+
+  scheduling {
+	  on_host_maintenance = "TERMINATE"
+  }
+
+}
+`, suffix, enableConfidentialCompute)
 }
 
 func testAccComputeInstanceTemplate_enableDisplay(suffix string) string {
