@@ -241,6 +241,54 @@ func TestLoggingProjectSink_bigqueryOptionCustomizedDiff(t *testing.T) {
 	}
 }
 
+func TestAccLoggingProjectSink_disabled_update(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingProjectSink_disabled_update(sinkName, getTestProjectFromEnv(), bucketName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_logging_project_sink.disabled", "disabled", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.disabled",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingProjectSink_disabled_update(sinkName, getTestProjectFromEnv(), bucketName, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_logging_project_sink.disabled", "disabled", "false"),
+				),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.disabled",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingProjectSink_disabled_update(sinkName, getTestProjectFromEnv(), bucketName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_logging_project_sink.disabled", "disabled", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.disabled",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckLoggingProjectSinkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -313,6 +361,24 @@ resource "google_storage_bucket" "log-bucket" {
   name = "%s"
 }
 `, name, project, project, bucketName)
+}
+
+func testAccLoggingProjectSink_disabled_update(name, project, bucketName, disabled string) string {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "disabled" {
+  name        = "%s"
+  project     = "%s"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  disabled    = "%s"
+
+  unique_writer_identity = true
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name = "%s"
+}
+`, name, project, project, disabled, bucketName)
 }
 
 func testAccLoggingProjectSink_uniqueWriter(name, bucketName string) string {
