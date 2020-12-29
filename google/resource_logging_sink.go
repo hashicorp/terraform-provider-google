@@ -152,7 +152,8 @@ func expandResourceLoggingSinkForUpdate(d *schema.ResourceData) (sink *logging.L
 	sink = &logging.LogSink{
 		Destination:     d.Get("destination").(string),
 		Filter:          d.Get("filter").(string),
-		ForceSendFields: []string{"Destination", "Filter"},
+		Disabled:        d.Get("disabled").(bool),
+		ForceSendFields: []string{"Destination", "Filter", "Disabled"},
 	}
 
 	updateFields := []string{}

@@ -1,0 +1,3 @@
+```release-note:bug
+Logging: fixed updating on disabled in `google_logging_project_sink`
+```
