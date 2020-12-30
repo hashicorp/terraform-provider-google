@@ -49,6 +49,7 @@ func resourceStorageObjectAcl() *schema.Resource {
 				ConflictsWith: []string{"predefined_acl"},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

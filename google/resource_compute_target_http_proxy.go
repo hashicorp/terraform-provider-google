@@ -88,6 +88,7 @@ to the BackendService.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

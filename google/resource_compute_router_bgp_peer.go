@@ -179,6 +179,7 @@ or deleted.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

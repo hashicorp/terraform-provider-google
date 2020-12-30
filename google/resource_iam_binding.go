@@ -76,6 +76,7 @@ func ResourceIamBindingWithBatching(parentSpecificSchema map[string]*schema.Sche
 		Importer: &schema.ResourceImporter{
 			State: iamBindingImport(newUpdaterFunc, resourceIdParser),
 		},
+		UseJSONNumber: true,
 	}
 }
 

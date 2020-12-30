@@ -114,6 +114,7 @@ request to retrieve the TargetGrpcProxy. A base64-encoded string.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

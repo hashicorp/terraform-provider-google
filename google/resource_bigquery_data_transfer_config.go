@@ -223,6 +223,7 @@ The name is ignored when creating a transfer config.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

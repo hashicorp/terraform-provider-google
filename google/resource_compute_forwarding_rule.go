@@ -289,6 +289,7 @@ This field is only used for INTERNAL load balancing.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -113,6 +113,7 @@ func resourceComputeInstanceGroup() *schema.Resource {
 				Description: `The number of instances in the group.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

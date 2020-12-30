@@ -151,6 +151,7 @@ func ResourceIamMemberWithBatching(parentSpecificSchema map[string]*schema.Schem
 		Importer: &schema.ResourceImporter{
 			State: iamMemberImport(newUpdaterFunc, resourceIdParser),
 		},
+		UseJSONNumber: true,
 	}
 }
 

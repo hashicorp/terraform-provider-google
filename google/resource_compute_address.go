@@ -145,6 +145,7 @@ GCE_ENDPOINT/DNS_RESOLVER purposes.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

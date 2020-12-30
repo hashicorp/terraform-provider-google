@@ -118,6 +118,7 @@ If unspecified, it defaults to the compute engine default service account.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

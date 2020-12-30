@@ -86,6 +86,7 @@ func resourceIdentityPlatformTenantOauthIdpConfig() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

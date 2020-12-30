@@ -237,6 +237,7 @@ ports:
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

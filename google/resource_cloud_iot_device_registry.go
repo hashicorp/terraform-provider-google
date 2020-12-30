@@ -379,6 +379,7 @@ If it is not provided, the provider region is used.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

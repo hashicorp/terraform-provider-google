@@ -222,6 +222,7 @@ boundaries.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

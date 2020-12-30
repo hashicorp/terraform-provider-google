@@ -313,6 +313,7 @@ instances on the specified network.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

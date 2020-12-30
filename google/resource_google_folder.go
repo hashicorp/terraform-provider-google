@@ -64,6 +64,7 @@ func resourceGoogleFolder() *schema.Resource {
 				Description: `Timestamp when the Folder was created. Assigned by the server. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

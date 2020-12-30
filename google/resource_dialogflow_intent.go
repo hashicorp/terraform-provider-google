@@ -174,6 +174,7 @@ Format: projects/<Project ID>/agent/intents/<Intent ID>.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

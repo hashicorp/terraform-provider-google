@@ -117,6 +117,7 @@ is selected by GCP.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -205,6 +205,7 @@ any of the selector entries.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

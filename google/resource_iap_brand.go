@@ -76,6 +76,7 @@ brand per project can be created.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

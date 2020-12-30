@@ -96,6 +96,7 @@ func resourceComputeNetworkPeering() *schema.Resource {
 				Description: `Details about the current state of the peering.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -91,6 +91,7 @@ func resourcePubsubLiteSubscription() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

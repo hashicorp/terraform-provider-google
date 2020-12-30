@@ -90,6 +90,7 @@ func resourceDatastoreIndex() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

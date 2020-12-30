@@ -24,6 +24,7 @@ func resourceComputeInstanceFromTemplate() *schema.Resource {
 
 		Schema:        computeInstanceFromTemplateSchema(),
 		CustomizeDiff: resourceComputeInstance().CustomizeDiff,
+		UseJSONNumber: true,
 	}
 }
 

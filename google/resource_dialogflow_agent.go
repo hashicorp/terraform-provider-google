@@ -142,6 +142,7 @@ the [avatarUri] field can be used.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

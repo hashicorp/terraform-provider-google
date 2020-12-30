@@ -86,6 +86,7 @@ Examples:
 				Description: `The email address associated with the entity.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

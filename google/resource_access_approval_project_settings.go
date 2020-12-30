@@ -90,6 +90,7 @@ resources of that resource. A maximum of 50 email addresses are allowed.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

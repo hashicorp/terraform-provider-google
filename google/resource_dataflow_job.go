@@ -193,6 +193,7 @@ func resourceDataflowJob() *schema.Resource {
 				Description: `The unique ID of this job.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

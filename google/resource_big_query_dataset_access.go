@@ -275,6 +275,7 @@ is 1,024 characters.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

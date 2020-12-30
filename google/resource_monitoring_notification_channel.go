@@ -152,6 +152,7 @@ The [CHANNEL_ID] is automatically assigned by the server on creation.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

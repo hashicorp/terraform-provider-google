@@ -101,6 +101,7 @@ Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that s
 				Description: `The fully qualified name of this dataset`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

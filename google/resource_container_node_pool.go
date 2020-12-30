@@ -38,6 +38,8 @@ func resourceContainerNodePool() *schema.Resource {
 			resourceNodeConfigEmptyGuestAccelerator,
 		),
 
+		UseJSONNumber: true,
+
 		Schema: mergeSchemas(
 			schemaNodePool,
 			map[string]*schema.Schema{

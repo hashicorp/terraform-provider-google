@@ -21,6 +21,7 @@ func resourceLoggingProjectSink() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceLoggingSinkImportState("project"),
 		},
+		UseJSONNumber: true,
 	}
 	schm.Schema["project"] = &schema.Schema{
 		Type:        schema.TypeString,

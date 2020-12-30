@@ -96,6 +96,7 @@ func resourceFirestoreDocument() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

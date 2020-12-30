@@ -191,6 +191,7 @@ Format: accessPolicies/{policy_id}/accessLevels/{short_name}`,
 				},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -171,6 +171,7 @@ displayed in chooser dialogs.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

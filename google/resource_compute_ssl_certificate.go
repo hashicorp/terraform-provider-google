@@ -119,6 +119,7 @@ These are in the same namespace as the managed SSL certificates.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

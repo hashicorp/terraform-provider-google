@@ -140,6 +140,7 @@ than or equal to max-nodes. The default value is 0.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

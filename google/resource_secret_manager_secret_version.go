@@ -94,6 +94,7 @@ func resourceSecretManagerSecretVersion() *schema.Resource {
 'projects/{{project}}/secrets/{{secret_id}}/versions/{{version}}'`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

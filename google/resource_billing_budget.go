@@ -276,6 +276,7 @@ implies the scope of a budget. Values are of the form
 billingAccounts/{billingAccountId}/budgets/{budgetId}.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

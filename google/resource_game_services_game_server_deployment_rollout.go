@@ -105,6 +105,7 @@ eg: 'projects/my-project/locations/global/gameServerDeployments/my-deployment/ro
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

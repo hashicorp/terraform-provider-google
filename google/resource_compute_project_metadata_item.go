@@ -52,6 +52,7 @@ func resourceComputeProjectMetadataItem() *schema.Resource {
 			Update: schema.DefaultTimeout(7 * time.Minute),
 			Delete: schema.DefaultTimeout(7 * time.Minute),
 		},
+		UseJSONNumber: true,
 	}
 }
 

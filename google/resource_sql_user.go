@@ -86,6 +86,7 @@ func resourceSqlUser() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"ABANDON", ""}, false),
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -274,6 +274,7 @@ the source disk is deleted. Default value: "KEEP_AUTO_SNAPSHOTS" Possible values
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

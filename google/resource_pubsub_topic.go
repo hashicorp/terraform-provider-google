@@ -98,6 +98,7 @@ and is not a valid configuration.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

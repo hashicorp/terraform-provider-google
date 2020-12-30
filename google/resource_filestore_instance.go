@@ -159,6 +159,7 @@ simultaneous updates from overwriting each other.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

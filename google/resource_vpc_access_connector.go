@@ -98,6 +98,7 @@ func resourceVPCAccessConnector() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -16,6 +16,7 @@ func resourceLoggingBillingAccountSink() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceLoggingSinkImportState("billing_account"),
 		},
+		UseJSONNumber: true,
 	}
 	schm.Schema["billing_account"] = &schema.Schema{
 		Type:        schema.TypeString,

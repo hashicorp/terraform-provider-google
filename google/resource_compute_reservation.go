@@ -204,6 +204,7 @@ reservations that are tied to a commitment.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

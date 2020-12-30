@@ -51,6 +51,7 @@ func resourceBillingSubaccount() *schema.Resource {
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

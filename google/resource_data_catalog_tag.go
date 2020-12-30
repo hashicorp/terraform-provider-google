@@ -133,6 +133,7 @@ where tag_id is a system-generated identifier. Note that this Tag may not actual
 				Description: `The display name of the tag template.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

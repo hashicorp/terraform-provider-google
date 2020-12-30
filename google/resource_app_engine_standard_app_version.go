@@ -443,6 +443,7 @@ Please see the app.yaml reference for valid values at https://cloud.google.com/a
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

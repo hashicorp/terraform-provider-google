@@ -71,6 +71,7 @@ func resourceGoogleProjectIamCustomRole() *schema.Resource {
 				Description: `The name of the role in the format projects/{{project}}/roles/{{role_id}}. Like id, this field can be used as a reference in other resources such as IAM role bindings.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

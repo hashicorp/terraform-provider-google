@@ -113,6 +113,7 @@ Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCEN
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

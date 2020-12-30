@@ -56,6 +56,7 @@ Currently only projects are allowed.
 Format: projects/{project_number}`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

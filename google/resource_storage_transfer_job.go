@@ -163,6 +163,7 @@ func resourceStorageTransferJob() *schema.Resource {
 				Description: `When the Transfer Job was deleted.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

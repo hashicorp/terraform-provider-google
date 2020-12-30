@@ -237,6 +237,7 @@ Google and the customer, going to and from this network and region.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

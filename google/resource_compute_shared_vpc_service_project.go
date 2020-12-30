@@ -41,6 +41,7 @@ func resourceComputeSharedVpcServiceProject() *schema.Resource {
 				Description: `The ID of the project that will serve as a Shared VPC service project.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

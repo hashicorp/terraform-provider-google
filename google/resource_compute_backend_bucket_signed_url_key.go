@@ -64,6 +64,7 @@ valid RFC 4648 Section 5 base64url encoded string.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
