@@ -70,6 +70,7 @@ Format: organizations/{organization_id}`,
 				Description: `Time the AccessPolicy was updated in UTC.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

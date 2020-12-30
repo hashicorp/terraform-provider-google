@@ -78,6 +78,7 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

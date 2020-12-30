@@ -80,6 +80,7 @@ func resourceIdentityPlatformOauthIdpConfig() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

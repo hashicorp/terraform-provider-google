@@ -277,6 +277,7 @@ custom access levels - https://cloud.google.com/access-context-manager/docs/cust
 				Description: `Description of the AccessLevel and its use. Does not affect behavior.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

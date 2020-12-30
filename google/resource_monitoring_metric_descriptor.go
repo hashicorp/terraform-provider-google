@@ -156,6 +156,7 @@ More info can be found in the API documentation
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

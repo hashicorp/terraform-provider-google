@@ -69,6 +69,7 @@ func resourceComputeNetworkPeeringRoutesConfig() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

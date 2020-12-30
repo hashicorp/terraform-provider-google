@@ -135,6 +135,7 @@ This should only be set when using an Internal address. Possible values: ["VPC_P
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

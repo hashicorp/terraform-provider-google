@@ -176,6 +176,7 @@ CIDR-formatted string.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

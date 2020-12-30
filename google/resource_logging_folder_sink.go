@@ -17,6 +17,7 @@ func resourceLoggingFolderSink() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceLoggingSinkImportState("folder"),
 		},
+		UseJSONNumber: true,
 	}
 	schm.Schema["folder"] = &schema.Schema{
 		Type:        schema.TypeString,

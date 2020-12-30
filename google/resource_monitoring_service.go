@@ -86,6 +86,7 @@ projects/[PROJECT_ID]/services/[SERVICE_ID].`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

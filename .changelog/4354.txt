@@ -1,0 +1,3 @@
+```release-note:bug
+all: fixed a bug that would occur in various resources due to comparison of large integers
+```

@@ -84,6 +84,7 @@ resources of that resource. A maximum of 50 email addresses are allowed.`,
 				Description: `The resource name of the settings. Format is "organizations/{organization_id}/accessApprovalSettings"`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -86,6 +86,7 @@ a value of 'en_US.UTF8' at creation time.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

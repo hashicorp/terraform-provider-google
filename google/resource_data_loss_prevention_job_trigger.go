@@ -436,6 +436,7 @@ be based on the time of the execution of the last run of the JobTrigger.`,
 				Description: `The resource name of the job trigger. Set by the server.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

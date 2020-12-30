@@ -157,6 +157,7 @@ Multiple fields can have the same order, and field orders within a tag do not ha
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

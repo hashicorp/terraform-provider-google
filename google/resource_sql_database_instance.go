@@ -573,6 +573,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 				Description: `The URI of the created resource.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

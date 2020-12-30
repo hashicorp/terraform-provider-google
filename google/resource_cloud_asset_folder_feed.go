@@ -167,6 +167,7 @@ and folders/[FOLDER_NUMBER] are accepted.`,
 				Description: `The format will be folders/{folder_number}/feeds/{client-assigned_feed_identifier}.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

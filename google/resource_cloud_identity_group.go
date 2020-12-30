@@ -129,6 +129,7 @@ is the unique ID assigned to the Group.`,
 				Description: `The time when the Group was last updated.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -635,6 +635,7 @@ func resourceBigQueryTable() *schema.Resource {
 				Description: `Describes the table type.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -106,6 +106,7 @@ Currently only one region per model is supported`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

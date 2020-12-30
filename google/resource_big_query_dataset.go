@@ -211,6 +211,7 @@ milliseconds since the epoch.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

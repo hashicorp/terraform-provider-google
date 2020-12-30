@@ -453,6 +453,7 @@ The value of this field must be a time zone name from the tz database.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -106,6 +106,7 @@ Format: projects/<Project ID>/agent/entityTypes/<Entity type ID>.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

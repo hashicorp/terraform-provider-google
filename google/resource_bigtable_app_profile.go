@@ -110,6 +110,7 @@ It is unsafe to send these requests to the same table/row/column in multiple clu
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

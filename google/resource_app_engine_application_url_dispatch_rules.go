@@ -76,6 +76,7 @@ Defaults to matching all domains: "*".`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

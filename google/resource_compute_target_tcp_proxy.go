@@ -96,6 +96,7 @@ the backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

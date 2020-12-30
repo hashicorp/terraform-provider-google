@@ -57,6 +57,7 @@ func resourceNotebooksLocation() *schema.Resource {
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

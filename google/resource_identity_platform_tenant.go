@@ -76,6 +76,7 @@ are not able to manage its users.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

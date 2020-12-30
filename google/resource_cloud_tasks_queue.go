@@ -235,6 +235,7 @@ default and means that no operations are logged.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

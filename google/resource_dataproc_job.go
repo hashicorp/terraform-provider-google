@@ -169,6 +169,7 @@ func resourceDataprocJob() *schema.Resource {
 			"pig_config":      pigSchema,
 			"sparksql_config": sparkSqlSchema,
 		},
+		UseJSONNumber: true,
 	}
 }
 

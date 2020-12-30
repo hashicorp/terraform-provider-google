@@ -535,6 +535,7 @@ office using the hotword regex '(xxx)', where 'xxx' is the area code in question
 				Description: `The resource name of the inspect template. Set by the server.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

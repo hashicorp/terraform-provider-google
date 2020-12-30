@@ -239,6 +239,7 @@ Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the go
 				Description: `The resource name of the info type. Set by the server.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

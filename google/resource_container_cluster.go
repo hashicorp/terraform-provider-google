@@ -93,10 +93,11 @@ func rfc5545RecurrenceDiffSuppress(k, o, n string, d *schema.ResourceData) bool 
 
 func resourceContainerCluster() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceContainerClusterCreate,
-		Read:   resourceContainerClusterRead,
-		Update: resourceContainerClusterUpdate,
-		Delete: resourceContainerClusterDelete,
+		UseJSONNumber: true,
+		Create:        resourceContainerClusterCreate,
+		Read:          resourceContainerClusterRead,
+		Update:        resourceContainerClusterUpdate,
+		Delete:        resourceContainerClusterDelete,
 
 		CustomizeDiff: customdiff.All(
 			resourceNodeConfigEmptyGuestAccelerator,

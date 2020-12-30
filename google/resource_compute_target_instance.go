@@ -104,6 +104,7 @@ Currently only NO_NAT (default value) is supported. Default value: "NO_NAT" Poss
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

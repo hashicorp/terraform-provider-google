@@ -147,6 +147,7 @@ configuration in order to serve the application via this domain mapping.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

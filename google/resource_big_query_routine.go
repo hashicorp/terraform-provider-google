@@ -170,6 +170,7 @@ epoch.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

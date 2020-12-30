@@ -643,6 +643,7 @@ https://{route-hash}-{project-hash}-{cluster-level-suffix}.a.run.app`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

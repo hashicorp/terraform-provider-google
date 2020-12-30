@@ -100,6 +100,7 @@ func resourceGoogleProjectService() *schema.Resource {
 				Default:  true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

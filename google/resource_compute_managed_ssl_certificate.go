@@ -130,6 +130,7 @@ which type this is. Default value: "MANAGED" Possible values: ["MANAGED"]`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

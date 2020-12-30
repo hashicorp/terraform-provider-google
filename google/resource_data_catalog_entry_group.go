@@ -80,6 +80,7 @@ contain only English letters, numbers and underscores, and be at most 64 charact
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

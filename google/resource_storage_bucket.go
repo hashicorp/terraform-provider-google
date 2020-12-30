@@ -355,6 +355,7 @@ func resourceStorageBucket() *schema.Resource {
 				ConflictsWith: []string{"bucket_policy_only"},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

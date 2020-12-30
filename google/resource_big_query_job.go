@@ -854,6 +854,7 @@ Creation, truncation and append actions occur as one atomic update upon job comp
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

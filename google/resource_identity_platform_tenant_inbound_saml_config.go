@@ -147,6 +147,7 @@ and accept an authentication assertion issued by a SAML identity provider.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

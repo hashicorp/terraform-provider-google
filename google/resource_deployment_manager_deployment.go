@@ -197,6 +197,7 @@ was successfully deployed.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

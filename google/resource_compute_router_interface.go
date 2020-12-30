@@ -80,6 +80,7 @@ func resourceComputeRouterInterface() *schema.Resource {
 				Description: `The region this interface's router sits in. If not specified, the project region will be used. Changing this forces a new interface to be created.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -214,6 +214,7 @@ creation/deletion.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

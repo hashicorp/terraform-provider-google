@@ -125,6 +125,7 @@ long as the bytes retained for each partition is below perPartitionBytes.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

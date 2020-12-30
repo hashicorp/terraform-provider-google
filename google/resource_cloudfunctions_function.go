@@ -335,6 +335,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Description: `Region of function. Currently can be only "us-central1". If it is not provided, the provider region is used.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

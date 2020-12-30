@@ -175,6 +175,7 @@ A base64-encoded string.`,
 				Description: `The fully qualified name of this dataset`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

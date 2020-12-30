@@ -328,6 +328,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

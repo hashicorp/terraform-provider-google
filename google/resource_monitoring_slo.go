@@ -682,6 +682,7 @@ projects/[PROJECT_ID_OR_NUMBER]/services/[SERVICE_ID]/serviceLevelObjectives/[SL
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

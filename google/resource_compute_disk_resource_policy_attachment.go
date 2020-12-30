@@ -68,6 +68,7 @@ creation. Do not specify the self link.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

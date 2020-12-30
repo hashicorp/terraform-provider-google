@@ -119,6 +119,7 @@ error in any statement, the database is not created.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

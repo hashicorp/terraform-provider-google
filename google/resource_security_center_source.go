@@ -73,6 +73,7 @@ lives in.`,
 'organizations/{{organization}}/sources/{{source}}'.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

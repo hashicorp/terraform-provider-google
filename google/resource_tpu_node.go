@@ -222,6 +222,7 @@ permissions to that data.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

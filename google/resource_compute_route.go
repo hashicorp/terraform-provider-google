@@ -173,6 +173,7 @@ Default value is 1000. Valid range is 0 through 65535.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -178,6 +178,7 @@ func resourceStorageBucketObject() *schema.Resource {
 				Description: `A url reference to download this object.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -76,6 +76,7 @@ long, and comply with RFC1035.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

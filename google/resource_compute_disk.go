@@ -538,6 +538,7 @@ project/zones/zone/instances/instance`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -97,6 +97,7 @@ https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locatio
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
