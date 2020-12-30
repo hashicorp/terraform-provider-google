@@ -108,6 +108,7 @@ Similar to what would be chosen for an Active Directory set up on an internal ne
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

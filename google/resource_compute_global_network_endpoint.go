@@ -73,6 +73,7 @@ This can only be specified when network_endpoint_type of the NEG is INTERNET_FQD
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -88,6 +88,7 @@ func resourceSqlSslCert() *schema.Resource {
 				Description: `The SHA1 Fingerprint of the certificate.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

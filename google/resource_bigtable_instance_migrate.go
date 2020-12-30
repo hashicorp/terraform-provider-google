@@ -68,6 +68,7 @@ func resourceBigtableInstanceResourceV0() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

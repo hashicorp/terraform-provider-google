@@ -313,6 +313,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

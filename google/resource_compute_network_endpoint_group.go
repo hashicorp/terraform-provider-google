@@ -115,6 +115,7 @@ you create the resource.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

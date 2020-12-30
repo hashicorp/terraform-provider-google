@@ -81,6 +81,7 @@ groups with no parent, parentName is the empty string, "".`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -142,6 +142,7 @@ example "qa".`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

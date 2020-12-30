@@ -227,6 +227,7 @@ an empty list as an intent to stream all the supported resource types in this FH
 				Description: `The fully qualified name of this dataset`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

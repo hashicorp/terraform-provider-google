@@ -156,6 +156,7 @@ func resourceAppEngineApplication() *schema.Resource {
 				},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

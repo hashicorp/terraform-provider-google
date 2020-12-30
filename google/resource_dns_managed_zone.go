@@ -268,6 +268,7 @@ defined by the server`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

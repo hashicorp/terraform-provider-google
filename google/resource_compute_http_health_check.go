@@ -126,6 +126,7 @@ consecutive failures. The default value is 2.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

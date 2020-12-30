@@ -74,6 +74,7 @@ func resourceHealthcareDataset() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -852,6 +852,7 @@ Reserved names,"default", "latest", and any name with the prefix "ah-".`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

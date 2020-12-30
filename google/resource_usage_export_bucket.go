@@ -44,6 +44,7 @@ func resourceProjectUsageBucket() *schema.Resource {
 				Description: `The project to set the export bucket on. If it is not provided, the provider project is used.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

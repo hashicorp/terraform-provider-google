@@ -101,6 +101,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfig() *schema.Resource 
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

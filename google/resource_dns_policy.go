@@ -121,6 +121,7 @@ Defaults to no logging if not set.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

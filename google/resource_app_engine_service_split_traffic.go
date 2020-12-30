@@ -82,6 +82,7 @@ func resourceAppEngineServiceSplitTraffic() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

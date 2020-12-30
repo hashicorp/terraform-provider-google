@@ -719,6 +719,7 @@ func resourceComputeInstance() *schema.Resource {
 			desiredStatusDiff,
 			forceNewIfNetworkIPNotUpdatable,
 		),
+		UseJSONNumber: true,
 	}
 }
 

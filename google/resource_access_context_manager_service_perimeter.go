@@ -279,6 +279,7 @@ bet set to True if any of the fields in the spec are set to non-default values.`
 				Description: `Time the AccessPolicy was updated in UTC.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

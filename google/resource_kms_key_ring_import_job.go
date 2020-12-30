@@ -124,6 +124,7 @@ for General Considerations and Textual Encoding of Subject Public Key Info.`,
 				Description: `The current state of the ImportJob, indicating if it can be used.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

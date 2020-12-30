@@ -126,6 +126,7 @@ If it is not provided, the provider region is used.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

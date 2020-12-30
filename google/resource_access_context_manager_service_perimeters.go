@@ -57,6 +57,7 @@ Format: accessPolicies/{policy_id}`,
 				// Default schema.HashSchema is used.
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

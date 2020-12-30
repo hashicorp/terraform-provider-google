@@ -131,6 +131,7 @@ Format: projects/{project_id}`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -770,6 +770,7 @@ object. This field is used in optimistic locking.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

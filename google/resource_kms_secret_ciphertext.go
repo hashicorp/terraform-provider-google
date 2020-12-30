@@ -64,6 +64,7 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}/crypt
 				Description: `Contains the result of encrypting the provided plaintext, encoded in base64.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

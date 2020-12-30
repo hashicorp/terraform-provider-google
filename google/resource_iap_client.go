@@ -66,6 +66,7 @@ is attached to. The format is
 				Sensitive:   true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

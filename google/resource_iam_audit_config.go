@@ -57,6 +57,7 @@ func ResourceIamAuditConfigWithBatching(parentSpecificSchema map[string]*schema.
 		Importer: &schema.ResourceImporter{
 			State: iamAuditConfigImport(resourceIdParser),
 		},
+		UseJSONNumber: true,
 	}
 }
 

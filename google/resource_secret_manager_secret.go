@@ -127,6 +127,7 @@ An object containing a list of "key": value pairs. Example:
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

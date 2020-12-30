@@ -144,6 +144,7 @@ For example,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

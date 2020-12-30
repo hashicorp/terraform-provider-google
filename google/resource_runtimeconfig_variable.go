@@ -62,6 +62,7 @@ func resourceRuntimeconfigVariable() *schema.Resource {
 				Description: `The timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds, representing when the variable was last updated. Example: "2016-10-09T12:33:37.578138407Z".`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

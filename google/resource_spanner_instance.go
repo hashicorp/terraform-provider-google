@@ -101,6 +101,7 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

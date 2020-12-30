@@ -282,6 +282,7 @@ all findings that correspond to infoTypes that were requested in InspectConfig.`
 				Description: `The resource name of the template. Set by the server.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

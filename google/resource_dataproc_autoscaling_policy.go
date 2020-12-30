@@ -237,6 +237,7 @@ only on primary workers, the cluster will use primary workers only and no second
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

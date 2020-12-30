@@ -161,6 +161,7 @@ This can be used e.g. in UIs which allow to enter the expression.`,
 				Description: `The format will be organizations/{organization_number}/feeds/{client-assigned_feed_identifier}.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

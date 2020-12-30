@@ -126,6 +126,7 @@ and must be in the form of 'identitysources/{identity_source_id}'.`,
 				Description: `The time when the Membership was last updated.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

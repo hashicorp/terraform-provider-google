@@ -265,6 +265,7 @@ was last processed by the controller.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

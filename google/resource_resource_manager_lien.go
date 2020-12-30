@@ -89,6 +89,7 @@ e.g. ['resourcemanager.projects.delete']`,
 				Description: `A system-generated unique identifier for this Lien.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

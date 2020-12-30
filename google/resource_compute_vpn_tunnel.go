@@ -309,6 +309,7 @@ This field must reference a 'google_compute_ha_vpn_gateway' resource.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

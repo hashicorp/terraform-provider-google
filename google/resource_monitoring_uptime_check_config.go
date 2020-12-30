@@ -267,6 +267,7 @@ func resourceMonitoringUptimeCheckConfig() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -97,6 +97,7 @@ func resourceGoogleProject() *schema.Resource {
 				Description: `A set of key/value label pairs to assign to the project.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -161,6 +161,7 @@ This can be used e.g. in UIs which allow to enter the expression.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

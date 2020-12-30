@@ -114,6 +114,7 @@ func resourceStorageObjectAccessControl() *schema.Resource {
 				},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

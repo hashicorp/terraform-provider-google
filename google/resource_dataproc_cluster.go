@@ -553,6 +553,7 @@ by Dataproc`,
 				},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

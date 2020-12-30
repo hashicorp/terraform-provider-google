@@ -30,6 +30,7 @@ func resourceStorageDefaultObjectAcl() *schema.Resource {
 				},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

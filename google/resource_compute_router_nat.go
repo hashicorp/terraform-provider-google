@@ -259,6 +259,7 @@ Defaults to 30s if not set.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

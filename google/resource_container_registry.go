@@ -39,6 +39,7 @@ func resourceContainerRegistry() *schema.Resource {
 				Description: `The URI of the created resource.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

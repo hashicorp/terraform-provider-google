@@ -71,6 +71,7 @@ func resourceOSLoginSSHPublicKey() *schema.Resource {
 				Description: `The SHA-256 fingerprint of the SSH public key.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

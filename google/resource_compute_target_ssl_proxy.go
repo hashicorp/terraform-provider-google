@@ -116,6 +116,7 @@ resource will not have any SSL policy configured.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -61,6 +61,7 @@ func resourceServiceNetworkingConnection() *schema.Resource {
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

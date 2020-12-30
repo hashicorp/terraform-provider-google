@@ -147,6 +147,7 @@ func resourceEndpointsService() *schema.Resource {
 			},
 		},
 		CustomizeDiff: predictServiceId,
+		UseJSONNumber: true,
 	}
 }
 

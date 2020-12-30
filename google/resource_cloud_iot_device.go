@@ -257,6 +257,7 @@ This is a more compact way to identify devices, and it is globally unique.`,
 				},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

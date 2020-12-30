@@ -91,6 +91,7 @@ example, 'projects/my-project/locations/{location}/realms/my-realm'.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

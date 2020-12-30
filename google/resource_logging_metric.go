@@ -232,6 +232,7 @@ error to specify a regex that does not include exactly one capture group.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

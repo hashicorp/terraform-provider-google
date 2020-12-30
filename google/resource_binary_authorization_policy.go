@@ -215,6 +215,7 @@ policy will be subject to the project admission policy. Possible values: ["ENABL
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

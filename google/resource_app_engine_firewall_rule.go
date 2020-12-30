@@ -77,6 +77,7 @@ this rule can be modified by the user.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

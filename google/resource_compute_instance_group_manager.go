@@ -296,6 +296,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

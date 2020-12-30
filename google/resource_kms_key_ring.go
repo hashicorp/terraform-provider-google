@@ -63,6 +63,7 @@ A full list of valid locations can be found by running 'gcloud kms locations lis
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

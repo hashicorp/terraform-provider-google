@@ -131,6 +131,7 @@ See the [algorithm reference](https://cloud.google.com/kms/docs/reference/rest/v
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

@@ -252,6 +252,7 @@ Example: projects/{project_id}/locations/{location}/entryGroups/{entryGroupId}/e
 Note that this Entry and its child resources may not actually be stored in the location in this name.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

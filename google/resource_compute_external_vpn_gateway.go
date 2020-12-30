@@ -106,6 +106,7 @@ it cannot be an IP address from Google Compute Engine.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

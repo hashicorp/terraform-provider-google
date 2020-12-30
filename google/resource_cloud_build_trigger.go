@@ -776,6 +776,7 @@ This field is a regular expression.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

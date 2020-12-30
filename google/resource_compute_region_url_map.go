@@ -1711,6 +1711,7 @@ updates of this resource.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
