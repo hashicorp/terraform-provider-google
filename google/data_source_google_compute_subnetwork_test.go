@@ -16,7 +16,7 @@ func TestAccDataSourceGoogleSubnetwork(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGoogleSubnetwork(fmt.Sprintf("network-test-%d", randInt(t))),
+				Config: testAccDataSourceGoogleSubnetwork(fmt.Sprintf("tf-test-subnetwork-ds-%d", randInt(t))),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleSubnetworkCheck("data.google_compute_subnetwork.my_subnetwork", "google_compute_subnetwork.foobar"),
 					testAccDataSourceGoogleSubnetworkCheck("data.google_compute_subnetwork.my_subnetwork_self_link", "google_compute_subnetwork.foobar"),
@@ -73,7 +73,7 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 	}
 }
 
-func testAccDataSourceGoogleSubnetwork(networkName string) string {
+func testAccDataSourceGoogleSubnetwork(name string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
   name        = "%s"
@@ -81,7 +81,7 @@ resource "google_compute_network" "foobar" {
 }
 
 resource "google_compute_subnetwork" "foobar" {
-  name                     = "subnetwork-test"
+  name                     = "%s"
   description              = "my-description"
   ip_cidr_range            = "10.0.0.0/24"
   network                  = google_compute_network.foobar.self_link
@@ -99,5 +99,5 @@ data "google_compute_subnetwork" "my_subnetwork" {
 data "google_compute_subnetwork" "my_subnetwork_self_link" {
   self_link = google_compute_subnetwork.foobar.self_link
 }
-`, networkName)
+`, name, name)
 }

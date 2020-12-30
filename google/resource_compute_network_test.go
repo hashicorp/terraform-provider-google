@@ -278,7 +278,7 @@ func testAccCheckComputeNetworkHasRoutingMode(t *testing.T, n string, network *c
 func testAccComputeNetwork_basic(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "bar" {
-  name                    = "network-test-%s"
+  name                    = "tf-test-network-basic-%s"
   auto_create_subnetworks = true
 }
 `, suffix)
@@ -287,7 +287,7 @@ resource "google_compute_network" "bar" {
 func testAccComputeNetwork_custom_subnet(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "baz" {
-  name                    = "network-test-%s"
+  name                    = "tf-test-network-custom-sn-%s"
   auto_create_subnetworks = false
 }
 `, suffix)
@@ -296,7 +296,7 @@ resource "google_compute_network" "baz" {
 func testAccComputeNetwork_routing_mode(network, routingMode string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "acc_network_routing_mode" {
-  name         = "network-test-%s"
+  name         = "tf-test-network-routing-mode-%s"
   routing_mode = "%s"
 }
 `, network, routingMode)
@@ -305,7 +305,7 @@ resource "google_compute_network" "acc_network_routing_mode" {
 func testAccComputeNetwork_deleteDefaultRoute(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "bar" {
-  name                            = "network-test-%s"
+  name                            = "tf-test-network-delete-default-routes-%s"
   delete_default_routes_on_create = true
   auto_create_subnetworks         = false
 }
