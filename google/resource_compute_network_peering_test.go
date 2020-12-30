@@ -11,7 +11,7 @@ import (
 func TestAccComputeNetworkPeering_basic(t *testing.T) {
 	t.Parallel()
 
-	primaryNetworkName := fmt.Sprintf("network-test-1-%d", randInt(t))
+	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", randInt(t))
 	peeringName := fmt.Sprintf("peering-test-1-%d", randInt(t))
 	importId := fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), primaryNetworkName, peeringName)
 
@@ -37,7 +37,7 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 func TestAccComputeNetworkPeering_subnetRoutes(t *testing.T) {
 	t.Parallel()
 
-	primaryNetworkName := fmt.Sprintf("network-test-1-%d", randInt(t))
+	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", randInt(t))
 	peeringName := fmt.Sprintf("peering-test-%d", randInt(t))
 	importId := fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), primaryNetworkName, peeringName)
 
@@ -62,7 +62,7 @@ func TestAccComputeNetworkPeering_subnetRoutes(t *testing.T) {
 func TestAccComputeNetworkPeering_customRoutesUpdate(t *testing.T) {
 	t.Parallel()
 
-	primaryNetworkName := fmt.Sprintf("network-test-1-%d", randInt(t))
+	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", randInt(t))
 	peeringName := fmt.Sprintf("peering-test-%d", randInt(t))
 	importId := fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), primaryNetworkName, peeringName)
 	suffix := randString(t, 10)
@@ -128,7 +128,7 @@ resource "google_compute_network_peering" "foo" {
 }
 
 resource "google_compute_network" "network2" {
-  name                    = "network-test-2-%s"
+  name                    = "tf-test-network-peering-2-%s"
   auto_create_subnetworks = false
 }
 
@@ -150,7 +150,7 @@ resource "google_compute_network" "network1" {
 }
 
 resource "google_compute_network" "network2" {
-  name                    = "network-test-2-%s"
+  name                    = "tf-test-network-peering-2-%s"
   auto_create_subnetworks = false
 }
 
@@ -178,7 +178,7 @@ resource "google_compute_network_peering" "foo" {
 }
 
 resource "google_compute_network" "network2" {
-  name                    = "network-test-2-%s"
+  name                    = "tf-test-network-peering-2-%s"
   auto_create_subnetworks = false
 }
 
