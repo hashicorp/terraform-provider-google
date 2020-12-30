@@ -148,6 +148,10 @@ The following arguments are supported:
   [`google_compute_disk_resource_policy_attachment`](https://www.terraform.io/docs/providers/google/r/compute_disk_resource_policy_attachment.html)
   to allow for updating the resource policy attached to the disk.
 
+* `multi_writer` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Indicates whether or not the disk can be read/write attached to more than one instance.
+
 * `zone` -
   (Optional)
   A reference to the zone where the disk resides.
