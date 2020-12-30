@@ -53,6 +53,12 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				ConflictsWith: []string{"key_algorithm", "private_key_type"},
 				Description:   `A field that allows clients to upload their own public key. If set, use this public key data to create a service account key for given service account. Please note, the expected format for this field is a base64 encoded X509_PEM.`,
 			},
+			"keepers": {
+				Description: "Arbitrary map of values that, when changed, will trigger recreation of resource.",
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+			},
 			// Computed
 			"name": {
 				Type:        schema.TypeString,
