@@ -1,0 +1,9 @@
+```release-note:enhancement
+compute: promoted `google_compute_packet_mirroring` to GA
+```
+```release-note:enhancement
+compute: added support for `filter.direction` to `google_compute_packet_mirroring`
+```
+```release-note:enhancement
+compute: promoted `google_compute_forwarding_rule` `is_mirroring_collector` to GA
+```

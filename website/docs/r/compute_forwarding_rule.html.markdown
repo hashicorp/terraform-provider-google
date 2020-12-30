@@ -401,7 +401,7 @@ The following arguments are supported:
 
 
 * `is_mirroring_collector` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Indicates whether or not this load balancer can be used
   as a collector for packet mirroring. To prevent mirroring loops,
   instances behind this load balancer will not have their traffic
