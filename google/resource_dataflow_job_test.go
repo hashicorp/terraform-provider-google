@@ -204,6 +204,33 @@ func TestAccDataflowJob_withIpConfig(t *testing.T) {
 	})
 }
 
+func TestAccDataflowJob_withKmsKey(t *testing.T) {
+	// Dataflow responses include serialized java classes and bash commands
+	// This makes body comparison infeasible
+	skipIfVcr(t)
+	t.Parallel()
+
+	randStr := randString(t, 10)
+	key_ring := "tf-test-dataflow-kms-ring-" + randStr
+	crypto_key := "tf-test-dataflow-kms-key-" + randStr
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
+	zone := "us-central1-f"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataflowJob_kms(key_ring, crypto_key, bucket, job, zone),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataflowJobExists(t, "google_dataflow_job.big_data"),
+				),
+			},
+		},
+	})
+}
 func TestAccDataflowJobWithAdditionalExperiments(t *testing.T) {
 	// Dataflow responses include serialized java classes and bash commands
 	// This makes body comparison infeasible
@@ -781,6 +808,57 @@ resource "google_dataflow_job" "with_labels" {
 }
 `, bucket, job, labelKey, labelVal, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
 
+}
+
+func testAccDataflowJob_kms(key_ring, crypto_key, bucket, job, zone string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+}
+
+resource "google_project_iam_member" "kms-project-dataflow-binding" {
+  project = data.google_project.project.project_id
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${data.google_project.project.number}@dataflow-service-producer-prod.iam.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "kms-project-compute-binding" {
+  project = data.google_project.project.project_id
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
+}
+
+resource "google_kms_key_ring" "keyring" {
+  name     = "%s"
+  location = "global"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name            = "%s"
+  key_ring        = google_kms_key_ring.keyring.id
+  rotation_period = "100000s"
+}
+
+resource "google_storage_bucket" "temp" {
+  name = "%s"
+  force_destroy = true
+}
+
+resource "google_dataflow_job" "big_data" {
+  name = "%s"
+ 
+  zone    = "%s"
+
+  machine_type      = "e2-standard-2"
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
+  kms_key_name		= google_kms_crypto_key.crypto_key.self_link
+  parameters = {
+    inputFile = "%s"
+    output    = "${google_storage_bucket.temp.url}/output"
+  }
+  on_delete = "cancel"
+}
+`, key_ring, crypto_key, bucket, job, zone, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
 }
 
 func testAccDataflowJob_additionalExperiments(bucket string, job string, experiments []string) string {
