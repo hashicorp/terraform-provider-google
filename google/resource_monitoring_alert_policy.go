@@ -682,10 +682,11 @@ name is limited to 512 Unicode characters.`,
 			"documentation": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `A short name or phrase used to identify the policy in dashboards,
-notifications, and incidents. To avoid confusion, don't use the same
-display name for multiple policies in the same project. The name is
-limited to 512 Unicode characters.`,
+				Description: `Documentation that is included with notifications and incidents related
+to this policy. Best practice is for the documentation to include information
+to help responders understand, mitigate, escalate, and correct the underlying
+problems detected by the alerting policy. Notification channels that have
+limited capacity might not show this documentation.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
