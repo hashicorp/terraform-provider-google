@@ -1,4 +1,30 @@
-## 3.51.0 (Unreleased)
+## 3.51.1 (Unreleased)
+
+BUG FIXES:
+* all: fixed a bug that would occur in various resources due to comparison of large integers ([#8103](https://github.com/hashicorp/terraform-provider-google/pull/8103))
+
+## 3.51.0 (December 14, 2020)
+
+FEATURES:
+* **New Resource:** `google_firestore_document` ([#7932](https://github.com/hashicorp/terraform-provider-google/pull/7932))
+* **New Resource:** `google_notebooks_instance` ([#7933](https://github.com/hashicorp/terraform-provider-google/pull/7933))
+* **New Resource:** `google_notebooks_environment` ([#7933](https://github.com/hashicorp/terraform-provider-google/pull/7933))
+
+IMPROVEMENTS:
+* compute: added CDN features to `google_compute_region_backend_service`. ([#7941](https://github.com/hashicorp/terraform-provider-google/pull/7941))
+* compute: added Flexible Cache Control features to `google_compute_backend_service`. ([#7941](https://github.com/hashicorp/terraform-provider-google/pull/7941))
+* compute: added `replacement_method` field to `update_policy` block of `google_compute_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
+* compute: added `replacement_method` field to `update_policy` block of `google_compute_region_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
+* logging: added plan time validation for `unique_writer_identity` on `google_logging_project_sink` ([#7974](https://github.com/hashicorp/terraform-provider-google/pull/7974))
+* storage: added more lifecycle conditions to `google_storage_bucket` resource ([#7937](https://github.com/hashicorp/terraform-provider-google/pull/7937))
+
+BUG FIXES:
+* all: bump default request timeout to avoid conflicts if creating a resource takes longer than expected ([#7976](https://github.com/hashicorp/terraform-provider-google/pull/7976))
+* compute: removed `custom_response_headers` from GA `google_compute_backend_service` since it only works in the Beta version ([#7943](https://github.com/hashicorp/terraform-provider-google/pull/7943))
+* project: fixed a bug where `google_project_default_service_accounts` would delete all IAM bindings on a project when run with `action = "DEPRIVILEGE"` ([#7984](https://github.com/hashicorp/terraform-provider-google/pull/7984))
+* spanner: fixed an issue in `google_spanner_database` where multi-statement updates were not formatted correctly ([#7970](https://github.com/hashicorp/terraform-provider-google/pull/7970))
+* sql: fixed a bug in `google_sql_database_instance` that caused a permadiff on `settings.replication_type` ([#8006](https://github.com/hashicorp/terraform-provider-google/pull/8006))
+
 ## 3.50.0 (December 7, 2020)
 
 FEATURES:
