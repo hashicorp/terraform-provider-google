@@ -77,7 +77,7 @@ credential/authentication file. Make sure that the scope of the VM/Cluster is se
 
 ### Running Terraform outside of Google Cloud
 
-If you are running terraform outside of Google Cloud, generate a service account key and set the `GOOGLE_APPPLICATION_CREDENTIALS` environment variable to
+If you are running terraform outside of Google Cloud, generate a service account key and set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to
 the path of the service account key. Terraform will use that key for authentication.
 
 ### Impersonating Service Accounts
@@ -109,7 +109,7 @@ You must have `roles/iam.serviceAccountTokenCreator` role on that account for th
 * `credentials` - (Optional) Either the path to or the contents of a
 [service account key file] in JSON format. You can
 [manage key files using the Cloud Console].  If not provided, the
-application default credentials will be used. 
+application default credentials will be used.
 
 * `scopes` - (Optional) The list of OAuth 2.0 [scopes] requested when generating
 an access token using the service account key specified in `credentials`.
@@ -125,9 +125,9 @@ resource project for preconditions, quota, and billing, instead of the project
 the credentials belong to. Not all resources support this- see the
 documentation for each resource to learn whether it does.
 
-* `billing_project` - (Optional) This fields specifies a project that's used for 
-preconditions, quota, and billing for requests. All resources that support user project 
-overrides will use this project instead of the resource's project (if available). This 
+* `billing_project` - (Optional) This fields specifies a project that's used for
+preconditions, quota, and billing for requests. All resources that support user project
+overrides will use this project instead of the resource's project (if available). This
 field is ignored if `user_project_override` is set to false or unset.
 
 * `{{service}}_custom_endpoint` - (Optional) The endpoint for a service's APIs,
@@ -184,11 +184,11 @@ are automatically available. See
 for more details.
 
 * On your computer, you can make your Google identity available by
-running [`gcloud auth application-default login`][gcloud adc]. 
+running [`gcloud auth application-default login`][gcloud adc].
 
 ---
 * `impersonate_service_account` - (Optional) The service account to impersonate for all Google API Calls.
-You must have `roles/iam.serviceAccountTokenCreator` role on that account for the impersonation to succeed. 
+You must have `roles/iam.serviceAccountTokenCreator` role on that account for the impersonation to succeed.
 If you are using a delegation chain, you can specify that using the `impersonate_service_account_delegates` field.
 Alternatively, this can be specified using the `GOOGLE_IMPERSONATE_SERVICE_ACCOUNT` environment
 variable.
@@ -210,7 +210,7 @@ following ordered by precedence.
 ---
 
 * `billing_project` - (Optional) This fields allows Terraform to set X-Goog-User-Project
-for APIs that require a billing project to be specified like Access Context Manager APIs if 
+for APIs that require a billing project to be specified like Access Context Manager APIs if
 User ADCs are being used. This can also be
 specified using the `GOOGLE_BILLING_PROJECT` environment variable.
 
@@ -350,12 +350,12 @@ as their versioned counterpart but that won't necessarily always be the case.
 
 * `batching` - (Optional) Controls batching for specific GCP request types
   where users have encountered quota or speed issues using `count` with
-  resources that affect the same GCP resource (e.g. `google_project_service`). 
+  resources that affect the same GCP resource (e.g. `google_project_service`).
   It is not used for every resource/request type and can only group parallel
   similar calls for nodes at a similar traversal time in the graph during
   `terraform apply` (e.g. resources created using `count` that affect a single
-  `project`). Thus, it is also bounded by the `terraform` 
-  [`-parallelism`](https://www.terraform.io/docs/commands/apply.html#parallelism-n) 
+  `project`). Thus, it is also bounded by the `terraform`
+  [`-parallelism`](https://www.terraform.io/docs/commands/apply.html#parallelism-n)
   flag, as reducing the number of parallel calls will reduce the number of
   simultaneous requests being added to a batcher.
 
