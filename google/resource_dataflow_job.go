@@ -171,6 +171,12 @@ func resourceDataflowJob() *schema.Resource {
 				Description: `The machine type to use for the job.`,
 			},
 
+			"kms_key_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The name for the Cloud KMS key for the job. Key format is: projects/PROJECT_ID/locations/LOCATION/keyRings/KEY_RING/cryptoKeys/KEY`,
+			},
+
 			"ip_configuration": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -302,6 +308,9 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	if err := d.Set("labels", job.Labels); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := d.Set("kms_key_name", job.Environment.ServiceKmsKeyName); err != nil {
+		return fmt.Errorf("Error setting kms_key_name: %s", err)
 	}
 
 	sdkPipelineOptions, err := ConvertToMap(job.Environment.SdkPipelineOptions)
@@ -529,6 +538,7 @@ func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *Config) (datafl
 		Subnetwork:            d.Get("subnetwork").(string),
 		TempLocation:          d.Get("temp_gcs_location").(string),
 		MachineType:           d.Get("machine_type").(string),
+		KmsKeyName:            d.Get("kms_key_name").(string),
 		IpConfiguration:       d.Get("ip_configuration").(string),
 		AdditionalUserLabels:  labels,
 		Zone:                  zone,
