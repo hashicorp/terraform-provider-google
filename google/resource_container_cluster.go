@@ -2358,16 +2358,19 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 	}
 	cluster, _ := clusterGetCall.Do()
 	resourceVersion := ""
-	// If the cluster doesn't exist or if there is a read error of any kind, we will pass in an empty
-	// resourceVersion.  If there happens to be a change to maintenance policy, we will fail at that
-	// point.  This is a compromise between code cleanliness and a slightly worse user experience in
-	// an unlikely error case - we choose code cleanliness.
-	if cluster != nil && cluster.MaintenancePolicy != nil {
-		resourceVersion = cluster.MaintenancePolicy.ResourceVersion
-	}
 	exclusions := make(map[string]containerBeta.TimeWindow)
-	if cluster != nil && cluster.MaintenancePolicy != nil && cluster.MaintenancePolicy.Window != nil {
-		exclusions = cluster.MaintenancePolicy.Window.MaintenanceExclusions
+	if cluster != nil && cluster.MaintenancePolicy != nil {
+		// If the cluster doesn't exist or if there is a read error of any kind, we will pass in an empty
+		// resourceVersion.  If there happens to be a change to maintenance policy, we will fail at that
+		// point.  This is a compromise between code cleanliness and a slightly worse user experience in
+		// an unlikely error case - we choose code cleanliness.
+		resourceVersion = cluster.MaintenancePolicy.ResourceVersion
+
+		// Having a MaintenancePolicy doesn't mean that you need MaintenanceExclusions, but if they were set,
+		// they need to be assigned to exclusions.
+		if cluster.MaintenancePolicy.Window != nil && cluster.MaintenancePolicy.Window.MaintenanceExclusions != nil {
+			exclusions = cluster.MaintenancePolicy.Window.MaintenanceExclusions
+		}
 	}
 
 	configured := d.Get("maintenance_policy")
