@@ -572,6 +572,30 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 				Computed:    true,
 				Description: `The URI of the created resource.`,
 			},
+			"restore_backup_context": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"backup_run_id": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `The ID of the backup run to restore from.`,
+						},
+						"instance_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The ID of the instance that the backup was taken from.`,
+						},
+						"project": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The full project ID of the source instance.`,
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -736,6 +760,14 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 					return fmt.Errorf("Error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
 				}
 			}
+		}
+	}
+
+	// Perform a backup restore if the backup context exists
+	if r, ok := d.GetOk("restore_backup_context"); ok {
+		err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, name, r)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -1027,6 +1059,16 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	// Perform a backup restore if the backup context exists and has changed
+	if r, ok := d.GetOk("restore_backup_context"); ok {
+		if d.HasChange("restore_backup_context") {
+			err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, d.Get("name").(string), r)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return resourceSqlDatabaseInstanceRead(d, meta)
 }
 
@@ -1315,6 +1357,44 @@ func sqlDatabaseInstanceServiceNetworkPrecheck(d *schema.ResourceData, config *C
 
 	if len(response.Connections) < 1 {
 		return fmt.Errorf("Error, failed to create instance because the network doesn't have at least 1 private services connection. Please see https://cloud.google.com/sql/docs/mysql/private-ip#network_requirements for how to create this connection.")
+	}
+
+	return nil
+}
+
+func expandRestoreBackupContext(configured []interface{}) *sqladmin.RestoreBackupContext {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	_rc := configured[0].(map[string]interface{})
+	return &sqladmin.RestoreBackupContext{
+		BackupRunId: int64(_rc["backup_run_id"].(int)),
+		InstanceId:  _rc["instance_id"].(string),
+		Project:     _rc["project"].(string),
+	}
+}
+
+func sqlDatabaseInstanceRestoreFromBackup(d *schema.ResourceData, config *Config, userAgent, project, instanceId string, r interface{}) error {
+	log.Printf("[DEBUG] Initiating SQL database instance backup restore")
+	restoreContext := r.([]interface{})
+
+	backupRequest := &sqladmin.InstancesRestoreBackupRequest{
+		RestoreBackupContext: expandRestoreBackupContext(restoreContext),
+	}
+
+	var op *sqladmin.Operation
+	err := retryTimeDuration(func() (operr error) {
+		op, operr = config.NewSqlAdminClient(userAgent).Instances.RestoreBackup(project, instanceId, backupRequest).Do()
+		return operr
+	}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
+	if err != nil {
+		return fmt.Errorf("Error, failed to restore instance from backup %s: %s", instanceId, err)
+	}
+
+	err = sqlAdminOperationWaitTime(config, op, project, "Restore Backup", userAgent, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
 	}
 
 	return nil
