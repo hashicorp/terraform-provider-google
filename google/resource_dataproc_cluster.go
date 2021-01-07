@@ -43,6 +43,7 @@ var (
 
 	clusterConfigKeys = []string{
 		"cluster_config.0.staging_bucket",
+		"cluster_config.0.temp_bucket",
 		"cluster_config.0.gce_cluster_config",
 		"cluster_config.0.master_config",
 		"cluster_config.0.worker_config",
@@ -156,6 +157,14 @@ func resourceDataprocCluster() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: ` The name of the cloud storage bucket ultimately used to house the staging data for the cluster. If staging_bucket is specified, it will contain this value, otherwise it will be the auto generated name.`,
+						},
+
+						"temp_bucket": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							ForceNew:     true,
+							Description:  `The Cloud Storage temp bucket used to store ephemeral cluster and jobs data, such as Spark and MapReduce history files.. Note: If you don't explicitly specify a temp_bucket then GCP will auto create / assign one for you.`,
 						},
 
 						"gce_cluster_config": {
@@ -779,6 +788,10 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 		conf.ConfigBucket = v.(string)
 	}
 
+	if v, ok := d.GetOk("cluster_config.0.temp_bucket"); ok {
+		conf.TempBucket = v.(string)
+	}
+
 	c, err := expandGceClusterConfig(d, config)
 	if err != nil {
 		return nil, err
@@ -1208,6 +1221,7 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		"staging_bucket": d.Get("cluster_config.0.staging_bucket").(string),
 
 		"bucket":                    cfg.ConfigBucket,
+		"temp_bucket":               cfg.TempBucket,
 		"gce_cluster_config":        flattenGceClusterConfig(d, cfg.GceClusterConfig),
 		"security_config":           flattenSecurityConfig(d, cfg.SecurityConfig),
 		"software_config":           flattenSoftwareConfig(d, cfg.SoftwareConfig),
