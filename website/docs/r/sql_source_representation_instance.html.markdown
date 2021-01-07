@@ -43,7 +43,7 @@ affect billing. You cannot update the source representation instance.
 resource "google_sql_source_representation_instance" "instance" {
   name             = "my-instance"
   region           = "us-central1"
-  database_version = "MYSQL_5_7"
+  database_version = "MYSQL_8_0"
   host             = "10.20.30.40"
   port             = 3306
 }
@@ -61,7 +61,7 @@ The following arguments are supported:
 * `database_version` -
   (Required)
   The MySQL version running on your source database server.
-  Possible values are `MYSQL_5_6` and `MYSQL_5_7`.
+  Possible values are `MYSQL_5_6`, `MYSQL_5_7`, and `MYSQL_8_0`.
 
 * `host` -
   (Required)
