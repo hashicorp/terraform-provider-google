@@ -1,6 +1,7 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -416,6 +417,129 @@ func TestAccBigQueryDataTable_sheet(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDataTable_jsonEquivalency(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTable_jsonEq(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+			},
+			{
+				Config: testAccBigQueryTable_jsonEqUpdate(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+			},
+		},
+	})
+}
+
+func TestUnitBigQueryDataTable_jsonEquivalency(t *testing.T) {
+	t.Parallel()
+
+	for i, testcase := range testUnitBigQueryDataTableJSONEquivalencyTestCases {
+		var a, b interface{}
+		if err := json.Unmarshal([]byte(testcase.jsonA), &a); err != nil {
+			panic(fmt.Sprintf("unable to unmarshal json - %v", err))
+		}
+		if err := json.Unmarshal([]byte(testcase.jsonB), &b); err != nil {
+			panic(fmt.Sprintf("unable to unmarshal json - %v", err))
+		}
+		eq, err := jsonCompareWithMapKeyOverride(a, b, bigQueryTableMapKeyOverride)
+		if err != nil {
+			t.Errorf("ahhhh an error I did not expect this! especially not on testscase %v - %s", i, err)
+		}
+		if eq != testcase.equivalent {
+			t.Errorf("expected equivalency result of %v but got %v for testcase number %v", testcase.equivalent, eq, i)
+		}
+	}
+}
+
+type testUnitBigQueryDataTableJSONEquivalencyTestCase struct {
+	jsonA      string
+	jsonB      string
+	equivalent bool
+}
+
+var testUnitBigQueryDataTableJSONEquivalencyTestCases = []testUnitBigQueryDataTableJSONEquivalencyTestCase{
+	{
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
+		true,
+	},
+	{
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
+		"[{\"someKey\": \"someValue\", \"finalKey\" : {} }]",
+		false,
+	},
+	{
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"NULLABLE\"  }]",
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
+		true,
+	},
+	{
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"NULLABLE\"  }]",
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"somethingRandom\"  }]",
+		false,
+	},
+	{
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"\"  }]",
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
+		true,
+	},
+	{
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"\"  }]",
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"somethingRandom\"  }]",
+		false,
+	},
+	{
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INTEGER\"  }]",
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INT64\"  }]",
+		true,
+	},
+	{
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INTEGER\"  }]",
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"somethingRandom\"  }]",
+		false,
+	},
+	{
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT\"  }]",
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT64\"  }]",
+		true,
+	},
+	{
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT\"  }]",
+		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
+		false,
+	},
+	{
+		"[1,2,3]",
+		"[1,2,3]",
+		true,
+	},
+	{
+		"[1,2,3]",
+		"[1,2,\"banana\"]",
+		false,
+	},
+}
+
 func testAccCheckBigQueryExtData(t *testing.T, expectedQuoteChar string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
@@ -465,53 +589,53 @@ func testAccCheckBigQueryTableDestroyProducer(t *testing.T) func(s *terraform.St
 func testAccBigQueryTableTimePartitioning(datasetID, tableID, partitioningType string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
+  dataset_id = "%s"
 }
 
 resource "google_bigquery_table" "test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
 
-	time_partitioning {
-		type                     = "%s"
-		field                    = "ts"
-		require_partition_filter = true
-	}
-	clustering = ["some_int", "some_string"]
-	schema     = <<EOH
+  time_partitioning {
+    type                     = "%s"
+    field                    = "ts"
+    require_partition_filter = true
+  }
+  clustering = ["some_int", "some_string"]
+  schema     = <<EOH
 [
-	{
-		"name": "ts",
-		"type": "TIMESTAMP"
-	},
-	{
-		"name": "some_string",
-		"type": "STRING"
-	},
-	{
-		"name": "some_int",
-		"type": "INTEGER"
-	},
-	{
-		"name": "city",
-		"type": "RECORD",
-		"fields": [
-	{
-		"name": "id",
-		"type": "INTEGER"
-	},
-	{
-		"name": "coord",
-		"type": "RECORD",
-		"fields": [
-		{
-		"name": "lon",
-		"type": "FLOAT"
-		}
-		]
-	}
-		]
-	}
+  {
+    "name": "ts",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "some_string",
+    "type": "STRING"
+  },
+  {
+    "name": "some_int",
+    "type": "INTEGER"
+  },
+  {
+    "name": "city",
+    "type": "RECORD",
+    "fields": [
+  {
+    "name": "id",
+    "type": "INTEGER"
+  },
+  {
+    "name": "coord",
+    "type": "RECORD",
+    "fields": [
+    {
+    "name": "lon",
+    "type": "FLOAT"
+    }
+    ]
+  }
+    ]
+  }
 ]
 EOH
 
@@ -522,57 +646,57 @@ EOH
 func testAccBigQueryTableKms(cryptoKeyName, datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
-		dataset_id = "%s"
+    dataset_id = "%s"
 }
 
 data "google_bigquery_default_service_account" "acct" {}
 
 resource "google_kms_crypto_key_iam_member" "allow" {
-	crypto_key_id = "%s"
-	role = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-	member = "serviceAccount:${data.google_bigquery_default_service_account.acct.email}"
-	depends_on = ["google_bigquery_dataset.test"]
+  crypto_key_id = "%s"
+  role = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member = "serviceAccount:${data.google_bigquery_default_service_account.acct.email}"
+  depends_on = ["google_bigquery_dataset.test"]
 }
 
 resource "google_bigquery_table" "test" {
-	table_id   = "%s"
-	dataset_id = "${google_bigquery_dataset.test.dataset_id}"
+  table_id   = "%s"
+  dataset_id = "${google_bigquery_dataset.test.dataset_id}"
 
-	time_partitioning {
-		type = "DAY"
-		field = "ts"
-	}
+  time_partitioning {
+    type = "DAY"
+    field = "ts"
+  }
 
-	encryption_configuration {
-		kms_key_name = "${google_kms_crypto_key_iam_member.allow.crypto_key_id}"
-	}
+  encryption_configuration {
+    kms_key_name = "${google_kms_crypto_key_iam_member.allow.crypto_key_id}"
+  }
 
-	schema = <<EOH
+  schema = <<EOH
 [
-	{
-		"name": "ts",
-		"type": "TIMESTAMP"
-	},
-	{
-		"name": "city",
-		"type": "RECORD",
-		"fields": [
-	{
-		"name": "id",
-		"type": "INTEGER"
-	},
-	{
-		"name": "coord",
-		"type": "RECORD",
-		"fields": [
-		{
-		"name": "lon",
-		"type": "FLOAT"
-		}
-		]
-	}
-		]
-	}
+  {
+    "name": "ts",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "city",
+    "type": "RECORD",
+    "fields": [
+  {
+    "name": "id",
+    "type": "INTEGER"
+  },
+  {
+    "name": "coord",
+    "type": "RECORD",
+    "fields": [
+    {
+    "name": "lon",
+    "type": "FLOAT"
+    }
+    ]
+  }
+    ]
+  }
 ]
 EOH
 }
@@ -582,36 +706,36 @@ EOH
 func testAccBigQueryTableHivePartitioning(bucketName, datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "test" {
-	name          = "%s"
-	force_destroy = true
+  name          = "%s"
+  force_destroy = true
 }
 
 resource "google_storage_bucket_object" "test" {
-	name    = "key1=20200330/init.csv"
-	content = ";"
-	bucket  = google_storage_bucket.test.name
+  name    = "key1=20200330/init.csv"
+  content = ";"
+  bucket  = google_storage_bucket.test.name
 }
 
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
+  dataset_id = "%s"
 }
 
 resource "google_bigquery_table" "test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
 
-	external_data_configuration {
-		source_format = "CSV"
-		autodetect = true
-		source_uris= ["gs://${google_storage_bucket.test.name}/*"]
+  external_data_configuration {
+    source_format = "CSV"
+    autodetect = true
+    source_uris= ["gs://${google_storage_bucket.test.name}/*"]
 
-		hive_partitioning_options {
-			mode = "AUTO"
-			source_uri_prefix = "gs://${google_storage_bucket.test.name}/"
-		}
+    hive_partitioning_options {
+      mode = "AUTO"
+      source_uri_prefix = "gs://${google_storage_bucket.test.name}/"
+    }
 
-	}
-	depends_on = ["google_storage_bucket_object.test"]
+  }
+  depends_on = ["google_storage_bucket_object.test"]
 }
 `, bucketName, datasetID, tableID)
 }
@@ -619,105 +743,105 @@ resource "google_bigquery_table" "test" {
 func testAccBigQueryTableHivePartitioningCustomSchema(bucketName, datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "test" {
-	name          = "%s"
-	force_destroy = true
+  name          = "%s"
+  force_destroy = true
 }
 
 resource "google_storage_bucket_object" "test" {
-	name    = "key1=20200330/data.json"
-	content = "{\"name\":\"test\", \"last_modification\":\"2020-04-01\"}"
-	bucket  = google_storage_bucket.test.name
+  name    = "key1=20200330/data.json"
+  content = "{\"name\":\"test\", \"last_modification\":\"2020-04-01\"}"
+  bucket  = google_storage_bucket.test.name
 }
 
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
+  dataset_id = "%s"
 }
 
 resource "google_bigquery_table" "test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
 
-	external_data_configuration {
-		source_format = "NEWLINE_DELIMITED_JSON"
-		autodetect = false
-		source_uris= ["gs://${google_storage_bucket.test.name}/*"]
+  external_data_configuration {
+    source_format = "NEWLINE_DELIMITED_JSON"
+    autodetect = false
+    source_uris= ["gs://${google_storage_bucket.test.name}/*"]
 
-		hive_partitioning_options {
-			mode = "CUSTOM"
-			source_uri_prefix = "gs://${google_storage_bucket.test.name}/{key1:STRING}"
-		}
+    hive_partitioning_options {
+      mode = "CUSTOM"
+      source_uri_prefix = "gs://${google_storage_bucket.test.name}/{key1:STRING}"
+    }
 
-		schema = <<EOH
+    schema = <<EOH
 [
-	{
-		"name": "name",
-		"type": "STRING"
-	},
-	{
-		"name": "last_modification",
-		"type": "DATE"
-	}
+  {
+    "name": "name",
+    "type": "STRING"
+  },
+  {
+    "name": "last_modification",
+    "type": "DATE"
+  }
 ]
 EOH
         }
-	depends_on = ["google_storage_bucket_object.test"]
+  depends_on = ["google_storage_bucket_object.test"]
 }
 `, bucketName, datasetID, tableID)
 }
 
 func testAccBigQueryTableRangePartitioning(datasetID, tableID string) string {
 	return fmt.Sprintf(`
-	resource "google_bigquery_dataset" "test" {
-		dataset_id = "%s"
-	}
+  resource "google_bigquery_dataset" "test" {
+    dataset_id = "%s"
+  }
 
-	resource "google_bigquery_table" "test" {
-		table_id   = "%s"
-		dataset_id = google_bigquery_dataset.test.dataset_id
+  resource "google_bigquery_table" "test" {
+    table_id   = "%s"
+    dataset_id = google_bigquery_dataset.test.dataset_id
 
-		range_partitioning {
-			field = "id"
-			range {
-				start    = 0
-				end      = 10000
-				interval = 100
-			}
-		}
+    range_partitioning {
+      field = "id"
+      range {
+        start    = 0
+        end      = 10000
+        interval = 100
+      }
+    }
 
-		schema = <<EOH
+    schema = <<EOH
 [
-	{
-		"name": "ts",
-		"type": "TIMESTAMP"
-	},
-	{
-		"name": "id",
-		"type": "INTEGER"
-	}
+  {
+    "name": "ts",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "id",
+    "type": "INTEGER"
+  }
 ]
 EOH
 }
-	`, datasetID, tableID)
+  `, datasetID, tableID)
 }
 
 func testAccBigQueryTableWithView(datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
+  dataset_id = "%s"
 }
 
 resource "google_bigquery_table" "test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
 
-	time_partitioning {
-		type = "DAY"
-	}
+  time_partitioning {
+    type = "DAY"
+  }
 
-	view {
-		query          = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
-		use_legacy_sql = true
-	}
+  view {
+    query          = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
+    use_legacy_sql = true
+  }
 }
 `, datasetID, tableID)
 }
@@ -725,21 +849,21 @@ resource "google_bigquery_table" "test" {
 func testAccBigQueryTableWithNewSqlView(datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
+  dataset_id = "%s"
 }
 
 resource "google_bigquery_table" "test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
 
-	time_partitioning {
-		type = "DAY"
-	}
+  time_partitioning {
+    type = "DAY"
+  }
 
-	view {
-		query          = "%s"
-		use_legacy_sql = false
-	}
+  view {
+    query          = "%s"
+    use_legacy_sql = false
+  }
 }
 `, datasetID, tableID, "SELECT state FROM `lookerdata.cdc.project_tycho_reports`")
 }
@@ -747,72 +871,72 @@ resource "google_bigquery_table" "test" {
 func testAccBigQueryTableWithMatViewDailyTimePartitioning_basic(datasetID, tableID, mViewID, query string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
+  dataset_id = "%s"
 }
 
 resource "google_bigquery_table" "test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
 
-	time_partitioning {
-		type                     = "DAY"
-		field                    = "ts"
-		require_partition_filter = true
-	}
-	clustering = ["some_int", "some_string"]
-	schema     = <<EOH
+  time_partitioning {
+    type                     = "DAY"
+    field                    = "ts"
+    require_partition_filter = true
+  }
+  clustering = ["some_int", "some_string"]
+  schema     = <<EOH
 [
-	{
-		"name": "ts",
-		"type": "TIMESTAMP"
-	},
-	{
-		"name": "some_string",
-		"type": "STRING"
-	},
-	{
-		"name": "some_int",
-		"type": "INTEGER"
-	},
-	{
-		"name": "city",
-		"type": "RECORD",
-		"fields": [
-	{
-		"name": "id",
-		"type": "INTEGER"
-	},
-	{
-		"name": "coord",
-		"type": "RECORD",
-		"fields": [
-		{
-		"name": "lon",
-		"type": "FLOAT"
-		}
-		]
-	}
-		]
-	}
+  {
+    "name": "ts",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "some_string",
+    "type": "STRING"
+  },
+  {
+    "name": "some_int",
+    "type": "INTEGER"
+  },
+  {
+    "name": "city",
+    "type": "RECORD",
+    "fields": [
+  {
+    "name": "id",
+    "type": "INTEGER"
+  },
+  {
+    "name": "coord",
+    "type": "RECORD",
+    "fields": [
+    {
+    "name": "lon",
+    "type": "FLOAT"
+    }
+    ]
+  }
+    ]
+  }
 ]
 EOH
 
 }
 
 resource "google_bigquery_table" "mv_test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
 
-	time_partitioning {
-		type    = "DAY"
-		field   = "ts"
-	}
+  time_partitioning {
+    type    = "DAY"
+    field   = "ts"
+  }
 
-	materialized_view {
-		query          = "%s"
-	}
+  materialized_view {
+    query          = "%s"
+  }
 
-	depends_on = [
+  depends_on = [
     google_bigquery_table.test,
   ]
 }
@@ -822,74 +946,74 @@ resource "google_bigquery_table" "mv_test" {
 func testAccBigQueryTableWithMatViewDailyTimePartitioning(datasetID, tableID, mViewID, enable_refresh, refresh_interval, query string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
+  dataset_id = "%s"
 }
 
 resource "google_bigquery_table" "test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
 
-	time_partitioning {
-		type                     = "DAY"
-		field                    = "ts"
-		require_partition_filter = true
-	}
-	clustering = ["some_int", "some_string"]
-	schema     = <<EOH
+  time_partitioning {
+    type                     = "DAY"
+    field                    = "ts"
+    require_partition_filter = true
+  }
+  clustering = ["some_int", "some_string"]
+  schema     = <<EOH
 [
-	{
-		"name": "ts",
-		"type": "TIMESTAMP"
-	},
-	{
-		"name": "some_string",
-		"type": "STRING"
-	},
-	{
-		"name": "some_int",
-		"type": "INTEGER"
-	},
-	{
-		"name": "city",
-		"type": "RECORD",
-		"fields": [
-	{
-		"name": "id",
-		"type": "INTEGER"
-	},
-	{
-		"name": "coord",
-		"type": "RECORD",
-		"fields": [
-		{
-		"name": "lon",
-		"type": "FLOAT"
-		}
-		]
-	}
-		]
-	}
+  {
+    "name": "ts",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "some_string",
+    "type": "STRING"
+  },
+  {
+    "name": "some_int",
+    "type": "INTEGER"
+  },
+  {
+    "name": "city",
+    "type": "RECORD",
+    "fields": [
+  {
+    "name": "id",
+    "type": "INTEGER"
+  },
+  {
+    "name": "coord",
+    "type": "RECORD",
+    "fields": [
+    {
+    "name": "lon",
+    "type": "FLOAT"
+    }
+    ]
+  }
+    ]
+  }
 ]
 EOH
 
 }
 
 resource "google_bigquery_table" "mv_test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
 
-	time_partitioning {
-		type    = "DAY"
-		field   = "ts"
-	}
+  time_partitioning {
+    type    = "DAY"
+    field   = "ts"
+  }
 
-	materialized_view {
-		enable_refresh = "%s"
-		refresh_interval_ms = "%s"
-		query          = "%s"
-	}
+  materialized_view {
+    enable_refresh = "%s"
+    refresh_interval_ms = "%s"
+    query          = "%s"
+  }
 
-	depends_on = [
+  depends_on = [
     google_bigquery_table.test,
   ]
 }
@@ -899,57 +1023,57 @@ resource "google_bigquery_table" "mv_test" {
 func testAccBigQueryTableUpdated(datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
+  dataset_id = "%s"
 }
 
 resource "google_bigquery_table" "test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
 
-	time_partitioning {
-		type = "DAY"
-	}
+  time_partitioning {
+    type = "DAY"
+  }
 
-	schema = <<EOH
+  schema = <<EOH
 [
-	{
-		"name": "city",
-		"type": "RECORD",
-		"fields": [
-	{
-		"name": "id",
-		"type": "INTEGER"
-	},
-	{
-		"name": "coord",
-		"type": "RECORD",
-		"fields": [
-		{
-			"name": "lon",
-			"type": "FLOAT"
-		},
-		{
-			"name": "lat",
-			"type": "FLOAT"
-		}
-		]
-	}
-		]
-	},
-	{
-		"name": "country",
-		"type": "RECORD",
-		"fields": [
-	{
-		"name": "id",
-		"type": "INTEGER"
-	},
-	{
-		"name": "name",
-		"type": "STRING"
-	}
-		]
-	}
+  {
+    "name": "city",
+    "type": "RECORD",
+    "fields": [
+  {
+    "name": "id",
+    "type": "INTEGER"
+  },
+  {
+    "name": "coord",
+    "type": "RECORD",
+    "fields": [
+    {
+      "name": "lon",
+      "type": "FLOAT"
+    },
+    {
+      "name": "lat",
+      "type": "FLOAT"
+    }
+    ]
+  }
+    ]
+  },
+  {
+    "name": "country",
+    "type": "RECORD",
+    "fields": [
+  {
+    "name": "id",
+    "type": "INTEGER"
+  },
+  {
+    "name": "name",
+    "type": "STRING"
+  }
+    ]
+  }
 ]
 EOH
 
@@ -960,92 +1084,157 @@ EOH
 func testAccBigQueryTableFromGCS(datasetID, tableID, bucketName, objectName, content, format, quoteChar string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
-	dataset_id = "%s"
+  dataset_id = "%s"
 }
 
 resource "google_storage_bucket" "test" {
-	name          = "%s"
-	force_destroy = true
+  name          = "%s"
+  force_destroy = true
 }
 
 resource "google_storage_bucket_object" "test" {
-	name    = "%s"
-	content = <<EOF
+  name    = "%s"
+  content = <<EOF
 %s
 EOF
 
-	bucket = google_storage_bucket.test.name
+  bucket = google_storage_bucket.test.name
 }
 
 resource "google_bigquery_table" "test" {
-	table_id   = "%s"
-	dataset_id = google_bigquery_dataset.test.dataset_id
-	external_data_configuration {
-		autodetect    = true
-		source_format = "%s"
-		csv_options {
-			encoding = "UTF-8"
-			quote    = "%s"
-		}
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  external_data_configuration {
+    autodetect    = true
+    source_format = "%s"
+    csv_options {
+      encoding = "UTF-8"
+      quote    = "%s"
+    }
 
-		source_uris = [
-			"gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.test.name}",
-		]
-	}
+    source_uris = [
+      "gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.test.name}",
+    ]
+  }
 }
 `, datasetID, bucketName, objectName, content, tableID, format, quoteChar)
 }
 
 func testAccBigQueryTableFromSheet(context map[string]interface{}) string {
 	return Nprintf(`
-	resource "google_bigquery_table" "table" {
-		dataset_id = google_bigquery_dataset.dataset.dataset_id
-		table_id   = "tf_test_sheet_%{random_suffix}"
+  resource "google_bigquery_table" "table" {
+    dataset_id = google_bigquery_dataset.dataset.dataset_id
+    table_id   = "tf_test_sheet_%{random_suffix}"
 
-		external_data_configuration {
-		  autodetect            = true
-		  source_format         = "GOOGLE_SHEETS"
-		  ignore_unknown_values = true
+    external_data_configuration {
+      autodetect            = true
+      source_format         = "GOOGLE_SHEETS"
+      ignore_unknown_values = true
 
-		  google_sheets_options {
-			skip_leading_rows = 1
-		  }
+      google_sheets_options {
+      skip_leading_rows = 1
+      }
 
-		  source_uris = [
-			"https://drive.google.com/open?id=xxxx",
-		  ]
-		}
+      source_uris = [
+      "https://drive.google.com/open?id=xxxx",
+      ]
+    }
 
-		schema = <<EOF
-	  [
-		{
-		  "name": "permalink",
-		  "type": "STRING",
-		  "mode": "NULLABLE",
-		  "description": "The Permalink"
-		},
-		{
-		  "name": "state",
-		  "type": "STRING",
-		  "mode": "NULLABLE",
-		  "description": "State where the head office is located"
-		}
-	  ]
-	  EOF
-	  }
+    schema = <<EOF
+    [
+    {
+      "name": "permalink",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "The Permalink"
+    },
+    {
+      "name": "state",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "State where the head office is located"
+    }
+    ]
+    EOF
+    }
 
-	  resource "google_bigquery_dataset" "dataset" {
-		dataset_id                  = "tf_test_ds_%{random_suffix}"
-		friendly_name               = "test"
-		description                 = "This is a test description"
-		location                    = "EU"
-		default_table_expiration_ms = 3600000
+    resource "google_bigquery_dataset" "dataset" {
+    dataset_id                  = "tf_test_ds_%{random_suffix}"
+    friendly_name               = "test"
+    description                 = "This is a test description"
+    location                    = "EU"
+    default_table_expiration_ms = 3600000
 
-		labels = {
-		  env = "default"
-		}
-	  }
+    labels = {
+      env = "default"
+    }
+    }
 `, context)
+}
+
+func testAccBigQueryTable_jsonEq(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        mode        = "NULLABLE"
+        type        = "INTEGER"
+      },
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
+      },
+    ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_jsonEqUpdate(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        type        = "INTEGER"
+      },
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
+      },
+    ])
+}
+`, datasetID, tableID)
 }
 
 var TEST_CSV = `lifelock,LifeLock,,web,Tempe,AZ,1-May-07,6850000,USD,b
