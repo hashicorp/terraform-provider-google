@@ -1,4 +1,4 @@
-## 3.51.1 (Unreleased)
+## 3.51.1 (January 07, 2021)
 
 BUG FIXES:
 * all: fixed a bug that would occur in various resources due to comparison of large integers ([#8103](https://github.com/hashicorp/terraform-provider-google/pull/8103))
