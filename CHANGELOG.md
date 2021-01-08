@@ -31,15 +31,15 @@ IMPROVEMENTS:
 * sql: added support for setting the `type` field on `google_sql_user` to support IAM authentication ([#8047](https://github.com/hashicorp/terraform-provider-google/pull/8047))
 
 BUG FIXES:
-* Logging: fixed updating on disabled in `google_logging_project_sink` ([#8093](https://github.com/hashicorp/terraform-provider-google/pull/8093))
 * all: fixed a bug that would occur in various resources due to comparison of large integers ([#8103](https://github.com/hashicorp/terraform-provider-google/pull/8103))
+* compute: removed requirement for `google_compute_region_url_map` default_service, as it should be a choice of default_service or default_url_redirect ([#2810](https://github.com/hashicorp/terraform-provider-google-beta/pull/2810))
 * cloud_tasks: fixed permadiff on retry_config.max_retry_duration for `google_cloud_tasks_queue` when the 0s is supplied ([#8078](https://github.com/hashicorp/terraform-provider-google/pull/8078))
 * cloudfunctions: fixed a bug where `google_cloudfunctions_function` would sometimes fail to update after being imported from gcloud ([#8010](https://github.com/hashicorp/terraform-provider-google/pull/8010))
 * cloudrun: fixed a permanent diff on `google_cloud_run_domain_mapping` `spec.force_override` field ([#8026](https://github.com/hashicorp/terraform-provider-google/pull/8026))
 * container: added plan time validation to ensure `enable_private_nodes` is true if `master_ipv4_cidr_block` is set on resource `cluster` ([#8066](https://github.com/hashicorp/terraform-provider-google/pull/8066))
 * dataproc: updated jobs to no longer wait for job completion during create ([#8064](https://github.com/hashicorp/terraform-provider-google/pull/8064))
 * filestore: updated retry logic to fail fast on quota error which cannot succeed on retry. ([#8080](https://github.com/hashicorp/terraform-provider-google/pull/8080))
-* google_compute_region_url_map: removed requirement for default_service, as it should be a choice of default_service or default_url_redirect ([#8065](https://github.com/hashicorp/terraform-provider-google/pull/8065))
+* logging: fixed updating on disabled in `google_logging_project_sink` ([#8093](https://github.com/hashicorp/terraform-provider-google/pull/8093))
 * scheduler: Fixed syntax error in the Cloud Scheduler HTTP target example. ([#8004](https://github.com/hashicorp/terraform-provider-google/pull/8004))
 * sql: fixed a bug in `google_sql_database_instance` that caused a permadiff on `settings.replication_type` ([#8006](https://github.com/hashicorp/terraform-provider-google/pull/8006))
 * storage: updated IAM resources to refresh etag sooner on an IAM conflict error, which will make applications of multiple IAM resources much faster. ([#8080](https://github.com/hashicorp/terraform-provider-google/pull/8080))
