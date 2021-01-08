@@ -31,7 +31,6 @@ IMPROVEMENTS:
 * sql: added support for setting the `type` field on `google_sql_user` to support IAM authentication ([#8047](https://github.com/hashicorp/terraform-provider-google/pull/8047))
 
 BUG FIXES:
-* all: fixed a bug that would occur in various resources due to comparison of large integers ([#8103](https://github.com/hashicorp/terraform-provider-google/pull/8103))
 * compute: removed requirement for `google_compute_region_url_map` default_service, as it should be a choice of default_service or default_url_redirect ([#2810](https://github.com/hashicorp/terraform-provider-google-beta/pull/2810))
 * cloud_tasks: fixed permadiff on retry_config.max_retry_duration for `google_cloud_tasks_queue` when the 0s is supplied ([#8078](https://github.com/hashicorp/terraform-provider-google/pull/8078))
 * cloudfunctions: fixed a bug where `google_cloudfunctions_function` would sometimes fail to update after being imported from gcloud ([#8010](https://github.com/hashicorp/terraform-provider-google/pull/8010))
@@ -43,6 +42,11 @@ BUG FIXES:
 * scheduler: Fixed syntax error in the Cloud Scheduler HTTP target example. ([#8004](https://github.com/hashicorp/terraform-provider-google/pull/8004))
 * sql: fixed a bug in `google_sql_database_instance` that caused a permadiff on `settings.replication_type` ([#8006](https://github.com/hashicorp/terraform-provider-google/pull/8006))
 * storage: updated IAM resources to refresh etag sooner on an IAM conflict error, which will make applications of multiple IAM resources much faster. ([#8080](https://github.com/hashicorp/terraform-provider-google/pull/8080))
+
+## 3.51.1 (January 07, 2021)
+
+BUG FIXES:
+* all: fixed a bug that would occur in various resources due to comparison of large integers ([#8103](https://github.com/hashicorp/terraform-provider-google/pull/8103))
 
 ## 3.51.0 (December 14, 2020)
 
