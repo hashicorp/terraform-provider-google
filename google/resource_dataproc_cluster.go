@@ -162,6 +162,7 @@ func resourceDataprocCluster() *schema.Resource {
 						"temp_bucket": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							AtLeastOneOf: clusterConfigKeys,
 							ForceNew:     true,
 							Description:  `The Cloud Storage temp bucket used to store ephemeral cluster and jobs data, such as Spark and MapReduce history files.. Note: If you don't explicitly specify a temp_bucket then GCP will auto create / assign one for you.`,
