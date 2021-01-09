@@ -16,7 +16,7 @@ Use this data source to get information about a Cloud SQL instance
 
 ```hcl
 data "google_sql_database_instance" "qa" {
-    name = google_sql_database_instance.master.name
+    name = "test-sql-instance"
 }
 ```
 
