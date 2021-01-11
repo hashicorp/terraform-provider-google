@@ -37,8 +37,11 @@ func (w *ResourceManagerOperationWaiter) QueryOp() (interface{}, error) {
 
 func createResourceManagerWaiter(config *Config, op map[string]interface{}, activity, userAgent string) (*ResourceManagerOperationWaiter, error) {
 	if val, ok := op["name"]; !ok || val == "" {
-		// This was a synchronous call - there is no operation to wait for.
-		return nil, nil
+		// An operation could also be indicated with a "metadata" field.
+		if _, ok := op["metadata"]; !ok {
+			// This was a synchronous call - there is no operation to wait for.
+			return nil, nil
+		}
 	}
 	w := &ResourceManagerOperationWaiter{
 		Config:    config,

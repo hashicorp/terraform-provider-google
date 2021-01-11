@@ -74,7 +74,7 @@ func testSweepAccessContextManagerPolicies(region string) error {
 }
 
 // Since each test here is acting on the same organization and only one AccessPolicy
-// can exist, they need to be ran serially
+// can exist, they need to be run serially
 func TestAccAccessContextManager(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
 		"access_policy":              testAccAccessContextManagerAccessPolicy_basicTest,
@@ -87,6 +87,7 @@ func TestAccAccessContextManager(t *testing.T) {
 		"access_levels":              testAccAccessContextManagerAccessLevels_basicTest,
 		"access_level_condition":     testAccAccessContextManagerAccessLevelCondition_basicTest,
 		"service_perimeters":         testAccAccessContextManagerServicePerimeters_basicTest,
+		"gcp_user_access_binding":    testAccAccessContextManagerGcpUserAccessBinding_basicTest,
 	}
 
 	for name, tc := range testCases {

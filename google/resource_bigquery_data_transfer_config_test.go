@@ -11,7 +11,7 @@ import (
 )
 
 // The service account TF uses needs the permission granted in the configs
-// but it will get deleted by parallel tests, so they need to be ran serially.
+// but it will get deleted by parallel tests, so they need to be run serially.
 func TestAccBigqueryDataTransferConfig(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
 		"basic":           testAccBigqueryDataTransferConfig_scheduledQuery_basic,
