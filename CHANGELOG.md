@@ -1,4 +1,5 @@
-## 3.52.0 (Unreleased)
+## 3.53.0 (Unreleased)
+## 3.52.0 (January 11, 2021)
 
 BREAKING CHANGES:
 * billing: removed import support for `google_billing_budget` as it never functioned correctly ([#8023](https://github.com/hashicorp/terraform-provider-google/pull/8023))
