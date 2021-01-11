@@ -10,7 +10,7 @@ import (
 )
 
 // Since access approval settings are heirarchical, and only one can exist per folder/project/org,
-// and all refer to the same organization, they need to be ran serially
+// and all refer to the same organization, they need to be run serially
 // See AccessApprovalOrganizationSettings for the test runner.
 func testAccAccessApprovalFolderSettings(t *testing.T) {
 	context := map[string]interface{}{
