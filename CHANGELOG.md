@@ -1,4 +1,4 @@
-## 3.52.0 (Unreleased)
+## 3.52.0 (January 11, 2021)
 ## 3.51.0 (December 14, 2020)
 
 FEATURES:
