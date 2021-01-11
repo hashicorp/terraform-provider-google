@@ -73,6 +73,12 @@ resources of that resource. A maximum of 50 email addresses are allowed.`,
 				},
 				Set: schema.HashString,
 			},
+			"project": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Deprecated:  "Deprecated in favor of `project_id`",
+				Description: `Deprecated in favor of 'project_id'`,
+			},
 			"enrolled_ancestor": {
 				Type:        schema.TypeBool,
 				Computed:    true,
@@ -81,13 +87,7 @@ resources of that resource. A maximum of 50 email addresses are allowed.`,
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The resource name of the settings. Format is "projects/{project_id/accessApprovalSettings"`,
-			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Description: `The resource name of the settings. Format is "projects/{project_id}/accessApprovalSettings"`,
 			},
 		},
 		UseJSONNumber: true,
@@ -143,20 +143,20 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("enrolled_services"); !isEmptyValue(reflect.ValueOf(enrolledServicesProp)) && (ok || !reflect.DeepEqual(v, enrolledServicesProp)) {
 		obj["enrolledServices"] = enrolledServicesProp
 	}
+	projectProp, err := expandAccessApprovalProjectSettingsProject(d.Get("project"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("project"); !isEmptyValue(reflect.ValueOf(projectProp)) && (ok || !reflect.DeepEqual(v, projectProp)) {
+		obj["project"] = projectProp
+	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project}}/accessApprovalSettings")
+	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new ProjectSettings: %#v", obj)
 	billingProject := ""
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for ProjectSettings: %s", err)
-	}
-	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := getBillingProject(d, config); err == nil {
@@ -171,6 +171,10 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 
 	if d.HasChange("enrolled_services") {
 		updateMask = append(updateMask, "enrolledServices")
+	}
+
+	if d.HasChange("project") {
+		updateMask = append(updateMask, "project")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -187,7 +191,7 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/accessApprovalSettings")
+	id, err := replaceVars(d, config, "projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -205,18 +209,12 @@ func resourceAccessApprovalProjectSettingsRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project}}/accessApprovalSettings")
+	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for ProjectSettings: %s", err)
-	}
-	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := getBillingProject(d, config); err == nil {
@@ -226,10 +224,6 @@ func resourceAccessApprovalProjectSettingsRead(d *schema.ResourceData, meta inte
 	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessApprovalProjectSettings %q", d.Id()))
-	}
-
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading ProjectSettings: %s", err)
 	}
 
 	if err := d.Set("name", flattenAccessApprovalProjectSettingsName(res["name"], d, config)); err != nil {
@@ -242,6 +236,9 @@ func resourceAccessApprovalProjectSettingsRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading ProjectSettings: %s", err)
 	}
 	if err := d.Set("enrolled_ancestor", flattenAccessApprovalProjectSettingsEnrolledAncestor(res["enrolledAncestor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectSettings: %s", err)
+	}
+	if err := d.Set("project", flattenAccessApprovalProjectSettingsProject(res["project"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ProjectSettings: %s", err)
 	}
 
@@ -257,12 +254,6 @@ func resourceAccessApprovalProjectSettingsUpdate(d *schema.ResourceData, meta in
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for ProjectSettings: %s", err)
-	}
-	billingProject = project
-
 	obj := make(map[string]interface{})
 	notificationEmailsProp, err := expandAccessApprovalProjectSettingsNotificationEmails(d.Get("notification_emails"), d, config)
 	if err != nil {
@@ -276,8 +267,14 @@ func resourceAccessApprovalProjectSettingsUpdate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("enrolled_services"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enrolledServicesProp)) {
 		obj["enrolledServices"] = enrolledServicesProp
 	}
+	projectProp, err := expandAccessApprovalProjectSettingsProject(d.Get("project"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("project"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, projectProp)) {
+		obj["project"] = projectProp
+	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project}}/accessApprovalSettings")
+	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -291,6 +288,10 @@ func resourceAccessApprovalProjectSettingsUpdate(d *schema.ResourceData, meta in
 
 	if d.HasChange("enrolled_services") {
 		updateMask = append(updateMask, "enrolledServices")
+	}
+
+	if d.HasChange("project") {
+		updateMask = append(updateMask, "project")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -326,7 +327,7 @@ func resourceAccessApprovalProjectSettingsDelete(d *schema.ResourceData, meta in
 	obj["notificationEmails"] = []string{}
 	obj["enrolledServices"] = []string{}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project}}/accessApprovalSettings")
+	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -358,14 +359,14 @@ func resourceAccessApprovalProjectSettingsDelete(d *schema.ResourceData, meta in
 func resourceAccessApprovalProjectSettingsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/accessApprovalSettings",
-		"(?P<project>[^/]+)",
+		"projects/(?P<project_id>[^/]+)/accessApprovalSettings",
+		"(?P<project_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/accessApprovalSettings")
+	id, err := replaceVars(d, config, "projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -416,6 +417,10 @@ func flattenAccessApprovalProjectSettingsEnrolledAncestor(v interface{}, d *sche
 	return v
 }
 
+func flattenAccessApprovalProjectSettingsProject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandAccessApprovalProjectSettingsNotificationEmails(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
@@ -456,5 +461,9 @@ func expandAccessApprovalProjectSettingsEnrolledServicesCloudProduct(v interface
 }
 
 func expandAccessApprovalProjectSettingsEnrolledServicesEnrollmentLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessApprovalProjectSettingsProject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

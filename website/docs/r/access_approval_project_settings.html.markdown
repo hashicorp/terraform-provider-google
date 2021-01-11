@@ -93,18 +93,19 @@ The `enrolled_services` block supports:
   Notifications relating to a resource will be sent to all emails in the settings of ancestor
   resources of that resource. A maximum of 50 email addresses are allowed.
 
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
+* `project` -
+  (Optional, Deprecated)
+  Deprecated in favor of `project_id`
 
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/accessApprovalSettings`
+* `id` - an identifier for the resource with format `projects/{{project_id}}/accessApprovalSettings`
 
 * `name` -
-  The resource name of the settings. Format is "projects/{project_id/accessApprovalSettings"
+  The resource name of the settings. Format is "projects/{project_id}/accessApprovalSettings"
 
 * `enrolled_ancestor` -
   If the field is true, that indicates that at least one service is enrolled for Access Approval in one or more ancestors of the Project.
@@ -125,10 +126,6 @@ This resource provides the following
 ProjectSettings can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_project_access_approval_settings.default projects/{{project}}/accessApprovalSettings
-$ terraform import google_project_access_approval_settings.default {{project}}
+$ terraform import google_project_access_approval_settings.default projects/{{project_id}}/accessApprovalSettings
+$ terraform import google_project_access_approval_settings.default {{project_id}}
 ```
-
-## User Project Overrides
-
-This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).
