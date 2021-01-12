@@ -41,7 +41,6 @@ To get more information about Environment, see:
 
 ```hcl
 resource "google_notebooks_environment" "environment" {
-  provider = google-beta
   name = "notebooks-environment"
   location = "us-west1-a"  
   container_image {

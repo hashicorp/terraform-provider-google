@@ -753,7 +753,8 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 				},
 			},
 		},
-		MachineType: "zones/" + zone + "/machineTypes/e2-medium",
+		// can't be e2 because of local-ssd
+		MachineType: "zones/" + zone + "/machineTypes/n1-standard-1",
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: "global/networks/default",
