@@ -159,6 +159,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_ACTIVE_DIRECTORY_CUSTOM_ENDPOINT",
 				}, ActiveDirectoryDefaultBasePath),
 			},
+			"apigee_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_APIGEE_CUSTOM_ENDPOINT",
+				}, ApigeeDefaultBasePath),
+			},
 			"app_engine_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -705,9 +713,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 180
+// Generated resources: 181
 // Generated IAM resources: 75
-// Total generated resources: 255
+// Total generated resources: 256
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -729,6 +737,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_access_context_manager_gcp_user_access_binding":        resourceAccessContextManagerGcpUserAccessBinding(),
 			"google_active_directory_domain":                               resourceActiveDirectoryDomain(),
 			"google_active_directory_domain_trust":                         resourceActiveDirectoryDomainTrust(),
+			"google_apigee_organization":                                   resourceApigeeOrganization(),
 			"google_app_engine_domain_mapping":                             resourceAppEngineDomainMapping(),
 			"google_app_engine_firewall_rule":                              resourceAppEngineFirewallRule(),
 			"google_app_engine_standard_app_version":                       resourceAppEngineStandardAppVersion(),
@@ -1160,6 +1169,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.AccessApprovalBasePath = d.Get("access_approval_custom_endpoint").(string)
 	config.AccessContextManagerBasePath = d.Get("access_context_manager_custom_endpoint").(string)
 	config.ActiveDirectoryBasePath = d.Get("active_directory_custom_endpoint").(string)
+	config.ApigeeBasePath = d.Get("apigee_custom_endpoint").(string)
 	config.AppEngineBasePath = d.Get("app_engine_custom_endpoint").(string)
 	config.BigQueryBasePath = d.Get("big_query_custom_endpoint").(string)
 	config.BigqueryDataTransferBasePath = d.Get("bigquery_data_transfer_custom_endpoint").(string)
