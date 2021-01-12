@@ -42,7 +42,6 @@ To get more information about Connector, see:
 ```hcl
 resource "google_vpc_access_connector" "connector" {
   name          = "vpc-con"
-  region        = "us-central1"
   ip_cidr_range = "10.8.0.0/28"
   network       = "default"
 }
@@ -65,10 +64,6 @@ The following arguments are supported:
   (Required)
   The range of internal addresses that follows RFC 4632 notation. Example: `10.132.0.0/28`.
 
-* `region` -
-  (Required)
-  Region where the VPC Access connector resides
-
 
 - - -
 
@@ -80,6 +75,10 @@ The following arguments are supported:
 * `max_throughput` -
   (Optional)
   Maximum throughput of the connector in Mbps, must be greater than `min_throughput`. Default is 1000.
+
+* `region` -
+  (Optional)
+  Region where the VPC Access connector resides. If it is not provided, the provider region is used.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
