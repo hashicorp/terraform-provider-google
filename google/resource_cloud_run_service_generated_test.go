@@ -78,7 +78,6 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":             getTestProjectFromEnv(),
 		"deletion_protection": false,
 		"random_suffix":       randString(t, 10),
 	}
@@ -120,7 +119,7 @@ resource "google_cloud_run_service" "default" {
     metadata {
       annotations = {
         "autoscaling.knative.dev/maxScale"      = "1000"
-        "run.googleapis.com/cloudsql-instances" = "%{project}:us-central1:${google_sql_database_instance.instance.name}"
+        "run.googleapis.com/cloudsql-instances" = google_sql_database_instance.instance.connection_name
         "run.googleapis.com/client-name"        = "terraform"
       }
     }
