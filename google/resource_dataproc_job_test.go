@@ -352,7 +352,7 @@ func testAccCheckDataprocJobCompletesSuccessfully(t *testing.T, n string, job *d
 				log.Printf("[ERROR] Job failed, driver logs:\n%s", body)
 			}
 			return fmt.Errorf("Job completed in ERROR state, check logs for details")
-		} else if completeJob.Status.State != "DONE" {
+		} else if completeJob.Status.State != "DONE" && completeJob.Status.State != "RUNNING" {
 			return fmt.Errorf("Job did not complete successfully, instead status: %s", completeJob.Status.State)
 		}
 
