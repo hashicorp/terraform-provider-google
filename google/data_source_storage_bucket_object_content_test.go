@@ -31,22 +31,18 @@ func testAccDataSourceStorageBucketObjectContent_Basic(content, bucket string) s
 	return fmt.Sprintf(`
 data "google_storage_bucket_object_content" "default" {
 	bucket = google_storage_bucket.contenttest.name
-        name = google_storage_bucket_object.object.name
-        depends_on =  [
-          google_storage_bucket_object.object,
-          google_storage_bucket.contenttest, 
-        ]         
+	name = google_storage_bucket_object.object.name      
 }
 
 resource "google_storage_bucket_object" "object" {
-        name = "butterfly01"
-        content = "%s"
-        bucket = google_storage_bucket.contenttest.name
+	name = "butterfly01"
+	content = "%s"
+	bucket = google_storage_bucket.contenttest.name
 }
 
 resource "google_storage_bucket" "contenttest" {
-        name = "%s"
-        location = "US"
-        force_destroy = true
+	name = "%s"
+	location = "US"
+	force_destroy = true
 }`, content, bucket)
 }
