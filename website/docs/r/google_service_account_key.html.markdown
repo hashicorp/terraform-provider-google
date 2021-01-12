@@ -25,6 +25,28 @@ resource "google_service_account_key" "mykey" {
 }
 ```
 
+## Example Usage, creating and regularly rotating a key pair
+
+```hcl
+resource "google_service_account" "myaccount" {
+  account_id   = "myaccount"
+  display_name = "My Service Account"
+}
+
+# note this requires the terraform to be run regularly
+resource "time_rotating" "mykey_rotation" {
+  rotate_days = 30
+}
+
+resource "google_service_account_key" "mykey" {
+  service_account_id = google_service_account.myaccount.name
+
+  keepers = {
+    rotation_time = time_rotating.mykey_rotation.rotation_rfc3339
+  }
+}
+```
+
 ## Example Usage, save key in Kubernetes secret - DEPRECATED
 
 ```hcl
@@ -68,6 +90,8 @@ Valid values are listed at
 * `private_key_type` (Optional) The output format of the private key. TYPE_GOOGLE_CREDENTIALS_FILE is the default output format.
 
 * `public_key_data` (Optional) Public key data to create a service account key for given service account. The expected format for this field is a base64 encoded X509_PEM and it conflicts with `public_key_type` and `private_key_type`.
+
+* `keepers` (Optional) Arbitrary map of values that, when changed, will trigger a new key to be generated.
 
 ## Attributes Reference
 
