@@ -110,12 +110,6 @@ func resourceTPUNode() *schema.Resource {
 				Required:    true,
 				Description: `The version of Tensorflow running in the Node.`,
 			},
-			"zone": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The GCP location for the TPU.`,
-			},
 			"cidr_block": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -185,6 +179,13 @@ cidr_block field should not be specified. If the network that you want to peer t
 TPU Node to is a Shared VPC network, the node must be created with this this field enabled.`,
 				Default:       false,
 				ConflictsWith: []string{"cidr_block"},
+			},
+			"zone": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The GCP location for the TPU. If it is not provided, the provider zone is used.`,
 			},
 			"network_endpoints": {
 				Type:     schema.TypeList,

@@ -59,12 +59,6 @@ func resourceVPCAccessConnector() *schema.Resource {
 				ForceNew:    true,
 				Description: `Name of a VPC network.`,
 			},
-			"region": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Region where the VPC Access connector resides`,
-			},
 			"max_throughput": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -80,6 +74,13 @@ func resourceVPCAccessConnector() *schema.Resource {
 				ValidateFunc: validation.IntBetween(200, 1000),
 				Description:  `Minimum throughput of the connector in Mbps. Default and min is 200.`,
 				Default:      200,
+			},
+			"region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Region where the VPC Access connector resides. If it is not provided, the provider region is used.`,
 			},
 			"self_link": {
 				Type:        schema.TypeString,
