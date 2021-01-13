@@ -103,7 +103,7 @@ resource "google_cloud_run_service" "cloudrun_neg" {
   template {
     spec {
       containers {
-        image = "gcr.io/cloudrun/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
       }
     }
   }

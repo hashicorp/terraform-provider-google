@@ -35,12 +35,12 @@ func testAccCheckGoogleTpuTensorflowVersions(n string) resource.TestCheckFunc {
 		}
 
 		if rs.Primary.ID == "" {
-			return errors.New("data source ID not set.")
+			return errors.New("data source id not set")
 		}
 
 		count, ok := rs.Primary.Attributes["versions.#"]
 		if !ok {
-			return errors.New("can't find 'names' attribute")
+			return errors.New("can't find 'versions' attribute")
 		}
 
 		cnt, err := strconv.Atoi(count)
