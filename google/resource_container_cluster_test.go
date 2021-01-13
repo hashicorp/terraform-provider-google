@@ -614,7 +614,7 @@ func TestAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(t *testing
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(containerNetName, clusterName),
-				ExpectError: regexp.MustCompile("master_ipv4_cidr_block must be set if enable_private_nodes == true"),
+				ExpectError: regexp.MustCompile("master_ipv4_cidr_block must be set if enable_private_nodes is true"),
 			},
 		},
 	})
