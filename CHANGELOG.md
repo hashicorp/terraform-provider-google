@@ -1,4 +1,24 @@
 ## 3.53.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_compute_instance_template` ([#8137](https://github.com/hashicorp/terraform-provider-google/pull/8137))
+* **New Resource:** `google_apigee_organization` ([#8178](https://github.com/hashicorp/terraform-provider-google/pull/8178))
+
+IMPROVEMENTS:
+* accesscontextmanager: added support for `google_access_context_manager_gcp_user_access_binding` ([#8168](https://github.com/hashicorp/terraform-provider-google/pull/8168))
+* cloudbuild: promoted `github` fields in `google_cloud_build_trigger` to GA ([#8167](https://github.com/hashicorp/terraform-provider-google/pull/8167))
+* memcache: fixed an issue where `google_memcached_instance` resource was not inferring the region from the provider. ([#8188](https://github.com/hashicorp/terraform-provider-google/pull/8188))
+* serviceaccount: added a `keepers` field to `google_service_account_key` that recreates the field when it is modified ([#8097](https://github.com/hashicorp/terraform-provider-google/pull/8097))
+* sql: added restore from backup support to `google_sql_database_instance` ([#8138](https://github.com/hashicorp/terraform-provider-google/pull/8138))
+* sql: added support for MYSQL_8_0 on resource `source_representation_instance` ([#8135](https://github.com/hashicorp/terraform-provider-google/pull/8135))
+* tpu: fixed an issue where `google_tpu_node` resource was not inferring the zone from the provider. ([#8188](https://github.com/hashicorp/terraform-provider-google/pull/8188))
+* vpcaccess: fixed an issue where `google_vpc_access_connector` resource was not inferring the region from the provider. ([#8188](https://github.com/hashicorp/terraform-provider-google/pull/8188))
+
+BUG FIXES:
+* bigquery: enhanced diff suppress to ignore certain api divergences on resource `table` ([#8134](https://github.com/hashicorp/terraform-provider-google/pull/8134))
+* container: fixed crash due to nil exclusions object when updating an existent cluster with maintenance_policy but without exclusions ([#8126](https://github.com/hashicorp/terraform-provider-google/pull/8126))
+* project: fixed a bug in `google_project_access_approval_settings` where the default `project` was used rather than `project_id` ([#8169](https://github.com/hashicorp/terraform-provider-google/pull/8169))
+
 ## 3.52.0 (January 11, 2021)
 
 BREAKING CHANGES:
