@@ -240,6 +240,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	c.tokenSource = tokenSource
 
 	cleanCtx := context.WithValue(ctx, oauth2.HTTPClient, cleanhttp.DefaultClient())
@@ -256,20 +257,21 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	// See ClientWithAdditionalRetries
 	retryTransport := NewTransportWithDefaultRetries(loggingTransport)
 
+	// 4. Header Transport - outer wrapper to inject additional headers we want to apply
+	// before making requests
+	headerTransport := newTransportWithHeaders(retryTransport)
+
 	// Set final transport value.
-	client.Transport = retryTransport
+	client.Transport = headerTransport
 
 	// This timeout is a timeout per HTTP request, not per logical operation.
 	client.Timeout = c.synchronousTimeout()
 
 	c.client = client
 	c.context = ctx
-
 	c.Region = GetRegionFromRegionSelfLink(c.Region)
-
 	c.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, c.BatchingConfig)
 	c.requestBatcherIam = NewRequestBatcher("IAM", ctx, c.BatchingConfig)
-
 	c.PollInterval = 10 * time.Second
 
 	return nil
