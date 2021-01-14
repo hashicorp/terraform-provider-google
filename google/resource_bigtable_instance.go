@@ -62,7 +62,8 @@ func resourceBigtableInstance() *schema.Resource {
 						},
 						"zone": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
+							Optional:    true,
 							Description: `The zone to create the Cloud Bigtable cluster in. Each cluster must have a different zone in the same region. Zones that support Bigtable instances are noted on the Cloud Bigtable locations page.`,
 						},
 						"num_nodes": {
@@ -161,7 +162,10 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		conf.InstanceType = bigtable.PRODUCTION
 	}
 
-	conf.Clusters = expandBigtableClusters(d.Get("cluster").([]interface{}), conf.InstanceID)
+	conf.Clusters, err = expandBigtableClusters(d.Get("cluster").([]interface{}), conf.InstanceID, config)
+	if err != nil {
+		return err
+	}
 
 	c, err := config.BigTableClientFactory(userAgent).NewInstanceAdminClient(project)
 	if err != nil {
@@ -288,7 +292,10 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 		conf.InstanceType = bigtable.PRODUCTION
 	}
 
-	conf.Clusters = expandBigtableClusters(d.Get("cluster").([]interface{}), conf.InstanceID)
+	conf.Clusters, err = expandBigtableClusters(d.Get("cluster").([]interface{}), conf.InstanceID, config)
+	if err != nil {
+		return err
+	}
 
 	_, err = bigtable.UpdateInstanceAndSyncClusters(ctx, c, conf)
 	if err != nil {
@@ -350,11 +357,14 @@ func flattenBigtableCluster(c *bigtable.ClusterInfo) map[string]interface{} {
 	}
 }
 
-func expandBigtableClusters(clusters []interface{}, instanceID string) []bigtable.ClusterConfig {
+func expandBigtableClusters(clusters []interface{}, instanceID string, config *Config) ([]bigtable.ClusterConfig, error) {
 	results := make([]bigtable.ClusterConfig, 0, len(clusters))
 	for _, c := range clusters {
 		cluster := c.(map[string]interface{})
-		zone := cluster["zone"].(string)
+		zone, err := getBigtableZone(cluster["zone"].(string), config)
+		if err != nil {
+			return nil, err
+		}
 		var storageType bigtable.StorageType
 		switch cluster["storage_type"].(string) {
 		case "SSD":
@@ -370,7 +380,19 @@ func expandBigtableClusters(clusters []interface{}, instanceID string) []bigtabl
 			StorageType: storageType,
 		})
 	}
-	return results
+	return results, nil
+}
+
+// getBigtableZone reads the "zone" value from the given resource data and falls back
+// to provider's value if not given.  If neither is provided, returns an error.
+func getBigtableZone(z string, config *Config) (string, error) {
+	if z == "" {
+		if config.Zone != "" {
+			return config.Zone, nil
+		}
+		return "", fmt.Errorf("cannot determine zone: set in cluster.0.zone, or set provider-level zone")
+	}
+	return GetResourceNameFromSelfLink(z), nil
 }
 
 // resourceBigtableInstanceClusterReorderTypeList causes the cluster block to

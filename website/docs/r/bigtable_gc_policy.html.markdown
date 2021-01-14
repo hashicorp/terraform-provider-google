@@ -21,7 +21,6 @@ resource "google_bigtable_instance" "instance" {
   name = "tf-instance"
   cluster {
     cluster_id   = "tf-instance-cluster"
-    zone         = "us-central1-b"
     num_nodes    = 3
     storage_type = "HDD"
   }

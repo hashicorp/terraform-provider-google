@@ -403,12 +403,12 @@ func testAccPreCheck(t *testing.T) {
 		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(projectEnvVars, ", "))
 	}
 
-	if v := multiEnvSearch(regionEnvVars); v != "us-central1" {
-		t.Fatalf("One of %s must be set to us-central1 for acceptance tests", strings.Join(regionEnvVars, ", "))
+	if v := multiEnvSearch(regionEnvVars); v == "" {
+		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(regionEnvVars, ", "))
 	}
 
-	if v := multiEnvSearch(zoneEnvVars); v != "us-central1-a" {
-		t.Fatalf("One of %s must be set to us-central1-a for acceptance tests", strings.Join(zoneEnvVars, ", "))
+	if v := multiEnvSearch(zoneEnvVars); v == "" {
+		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(zoneEnvVars, ", "))
 	}
 }
 
