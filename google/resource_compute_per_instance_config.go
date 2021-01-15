@@ -55,13 +55,6 @@ func resourceComputePerInstanceConfig() *schema.Resource {
 				ForceNew:    true,
 				Description: `The name for this per-instance config and its corresponding instance.`,
 			},
-			"zone": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `Zone where the containing instance group manager is located`,
-			},
 			"preserved_state": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -84,6 +77,13 @@ func resourceComputePerInstanceConfig() *schema.Resource {
 						},
 					},
 				},
+			},
+			"zone": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Zone where the containing instance group manager is located`,
 			},
 			"minimal_action": {
 				Type:     schema.TypeString,

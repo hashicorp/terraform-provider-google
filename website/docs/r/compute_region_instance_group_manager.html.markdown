@@ -101,7 +101,7 @@ The following arguments are supported:
     [RFC1035](https://www.ietf.org/rfc/rfc1035.txt). Supported characters
     include lowercase letters, numbers, and hyphens.
 
-* `region` - (Required) The region where the managed instance group resides.
+* `region` - (Optional) The region where the managed instance group resides. If not provided, the provider region is used.
 
 - - -
 

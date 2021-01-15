@@ -48,13 +48,6 @@ func resourceComputeRegionPerInstanceConfig() *schema.Resource {
 				ForceNew:    true,
 				Description: `The name for this per-instance config and its corresponding instance.`,
 			},
-			"region": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `Region where the containing instance group manager is located`,
-			},
 			"region_instance_group_manager": {
 				Type:             schema.TypeString,
 				Required:         true,
@@ -84,6 +77,14 @@ func resourceComputeRegionPerInstanceConfig() *schema.Resource {
 						},
 					},
 				},
+			},
+			"region": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Region where the containing instance group manager is located`,
 			},
 			"minimal_action": {
 				Type:     schema.TypeString,
@@ -285,6 +286,14 @@ func resourceComputeRegionPerInstanceConfigRead(d *schema.ResourceData, meta int
 		}
 	}
 	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
+	}
+
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("region", region); err != nil {
 		return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
 	}
 

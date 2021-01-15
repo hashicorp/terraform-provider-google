@@ -90,7 +90,8 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 
 			"region": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Computed:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `The region where the managed instance group resides.`,
 			},

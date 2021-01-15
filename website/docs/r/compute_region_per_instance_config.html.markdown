@@ -116,10 +116,6 @@ The following arguments are supported:
   (Required)
   The name for this per-instance config and its corresponding instance.
 
-* `region` -
-  (Required)
-  Region where the containing instance group manager is located
-
 * `region_instance_group_manager` -
   (Required)
   The region instance group manager this instance config is part of.
@@ -132,6 +128,10 @@ The following arguments are supported:
   (Optional)
   The preserved state for this instance.
   Structure is documented below.
+
+* `region` -
+  (Optional)
+  Region where the containing instance group manager is located
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

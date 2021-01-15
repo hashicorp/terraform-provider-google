@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: fixed an issue where `google_compute_region_per_instance_config`, `google_compute_per_instance_config`, `google_compute_region_instance_group_manager` resources were not inferring the region/zone from the provider. 
+```

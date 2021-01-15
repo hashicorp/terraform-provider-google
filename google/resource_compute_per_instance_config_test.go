@@ -24,7 +24,7 @@ func TestAccComputePerInstanceConfig_statefulBasic(t *testing.T) {
 		"config_name4":  fmt.Sprintf("instance-%s", randString(t, 10)),
 	}
 	igmId := fmt.Sprintf("projects/%s/zones/%s/instanceGroupManagers/%s",
-		getTestProjectFromEnv(), "us-central1-c", igmName)
+		getTestProjectFromEnv(), getTestZoneFromEnv(), igmName)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -38,7 +38,7 @@ func TestAccComputePerInstanceConfig_statefulBasic(t *testing.T) {
 				ResourceName:            "google_compute_per_instance_config.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "zone"},
 			},
 			{
 				// Force-recreate old config
@@ -51,7 +51,7 @@ func TestAccComputePerInstanceConfig_statefulBasic(t *testing.T) {
 				ResourceName:            "google_compute_per_instance_config.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "zone"},
 			},
 			{
 				// Add two new endpoints
@@ -61,7 +61,7 @@ func TestAccComputePerInstanceConfig_statefulBasic(t *testing.T) {
 				ResourceName:            "google_compute_per_instance_config.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "zone"},
 			},
 			{
 				ResourceName:            "google_compute_per_instance_config.with_disks",
@@ -73,7 +73,7 @@ func TestAccComputePerInstanceConfig_statefulBasic(t *testing.T) {
 				ResourceName:            "google_compute_per_instance_config.add2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "zone"},
 			},
 			{
 				// delete all configs
@@ -109,7 +109,7 @@ func TestAccComputePerInstanceConfig_update(t *testing.T) {
 				ResourceName:            "google_compute_per_instance_config.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "zone"},
 			},
 			{
 				// Update an existing config
@@ -119,7 +119,7 @@ func TestAccComputePerInstanceConfig_update(t *testing.T) {
 				ResourceName:            "google_compute_per_instance_config.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "zone"},
 			},
 		},
 	})
@@ -128,7 +128,6 @@ func TestAccComputePerInstanceConfig_update(t *testing.T) {
 func testAccComputePerInstanceConfig_statefulBasic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_per_instance_config" "default" {
-	zone = google_compute_instance_group_manager.igm.zone
 	instance_group_manager = google_compute_instance_group_manager.igm.name
 	name = "%{config_name}"
 	remove_instance_state_on_destroy = true
@@ -144,7 +143,6 @@ resource "google_compute_per_instance_config" "default" {
 func testAccComputePerInstanceConfig_update(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_per_instance_config" "default" {
-	zone = google_compute_instance_group_manager.igm.zone
 	instance_group_manager = google_compute_instance_group_manager.igm.name
 	name = "%{config_name}"
 	remove_instance_state_on_destroy = true
@@ -293,7 +291,6 @@ resource "google_compute_instance_group_manager" "igm" {
   }
 
   base_instance_name = "igm-no-tp"
-  zone               = "us-central1-c"
 }
 `, context)
 }

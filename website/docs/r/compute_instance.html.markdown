@@ -81,7 +81,7 @@ The following arguments are supported:
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
 
-* `zone` - (Required) The zone that the machine should be created in.
+* `zone` - (Optional) The zone that the machine should be created in. If it is not provided, the provider zone is used.
 
 * `network_interface` - (Required) Networks to attach to the instance. This can
     be specified multiple times. Structure is documented below.
