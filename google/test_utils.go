@@ -86,6 +86,11 @@ func (d *ResourceDiffMock) Get(key string) interface{} {
 	return d.After[key]
 }
 
+func (d *ResourceDiffMock) GetOk(key string) (interface{}, bool) {
+	v, ok := d.After[key]
+	return v, ok
+}
+
 func (d *ResourceDiffMock) Clear(key string) error {
 	if d.Cleared == nil {
 		d.Cleared = map[string]struct{}{}

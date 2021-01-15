@@ -1,11 +1,13 @@
 package google
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -89,20 +91,14 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 	valB := objectB[key]
 	switch key {
 	case "mode":
-		equivelentSet := []interface{}{nil, "NULLABLE"}
-		eq := valueIsInArray(valA, equivelentSet) && valueIsInArray(valB, equivelentSet)
+		eq := bigQueryTableModeEq(valA, valB)
 		return eq
 	case "description":
-		equivelentSet := []interface{}{nil, ""}
-		eq := valueIsInArray(valA, equivelentSet) && valueIsInArray(valB, equivelentSet)
+		equivalentSet := []interface{}{nil, ""}
+		eq := valueIsInArray(valA, equivalentSet) && valueIsInArray(valB, equivalentSet)
 		return eq
 	case "type":
-		equivelentSet1 := []interface{}{"INTEGER", "INT64"}
-		equivelentSet2 := []interface{}{"FLOAT", "FLOAT64"}
-		eq1 := valueIsInArray(valA, equivelentSet1) && valueIsInArray(valB, equivelentSet1)
-		eq2 := valueIsInArray(valA, equivelentSet2) && valueIsInArray(valB, equivelentSet2)
-		eq := eq1 || eq2
-		return eq
+		return bigQueryTableTypeEq(valA, valB)
 	}
 
 	// otherwise rely on default behavior
@@ -132,6 +128,141 @@ func bigQueryTableSchemaDiffSuppress(_, old, new string, _ *schema.ResourceData)
 	return eq
 }
 
+func bigQueryTableTypeEq(old, new interface{}) bool {
+	equivalentSet1 := []interface{}{"INTEGER", "INT64"}
+	equivalentSet2 := []interface{}{"FLOAT", "FLOAT64"}
+	equivalentSet3 := []interface{}{"BOOLEAN", "BOOL"}
+	eq0 := old == new
+	eq1 := valueIsInArray(old, equivalentSet1) && valueIsInArray(new, equivalentSet1)
+	eq2 := valueIsInArray(old, equivalentSet2) && valueIsInArray(new, equivalentSet2)
+	eq3 := valueIsInArray(old, equivalentSet3) && valueIsInArray(new, equivalentSet3)
+	eq := eq0 || eq1 || eq2 || eq3
+	return eq
+}
+
+func bigQueryTableModeEq(old, new interface{}) bool {
+	equivalentSet := []interface{}{nil, "NULLABLE"}
+	eq0 := old == new
+	eq1 := valueIsInArray(old, equivalentSet) && valueIsInArray(new, equivalentSet)
+	eq := eq0 || eq1
+	return eq
+}
+
+func bigQueryTableModeIsForceNew(old, new interface{}) bool {
+	eq := bigQueryTableModeEq(old, new)
+	reqToNull := old == "REQUIRED" && new == "NULLABLE"
+	return !eq && !reqToNull
+}
+
+// Compares two existing schema implementations and decides if
+// it is changeable.. pairs with a force new on not changeable
+func resourceBigQueryTableSchemaIsChangeable(old, new interface{}) (bool, error) {
+	switch old.(type) {
+	case []interface{}:
+		arrayOld := old.([]interface{})
+		arrayNew, ok := new.([]interface{})
+		if !ok {
+			// if not both arrays not changeable
+			return false, nil
+		}
+		if len(arrayOld) > len(arrayNew) {
+			// if not growing not changeable
+			return false, nil
+		}
+		for i := range arrayOld {
+			if isChangable, err :=
+				resourceBigQueryTableSchemaIsChangeable(arrayOld[i], arrayNew[i]); err != nil || !isChangable {
+				return false, err
+			}
+		}
+		return true, nil
+	case map[string]interface{}:
+		objectOld := old.(map[string]interface{})
+		objectNew, ok := new.(map[string]interface{})
+		if !ok {
+			// if both aren't objects
+			return false, nil
+		}
+
+		var unionOfKeys map[string]bool = make(map[string]bool)
+		for key := range objectOld {
+			unionOfKeys[key] = true
+		}
+		for key := range objectNew {
+			unionOfKeys[key] = true
+		}
+
+		for key := range unionOfKeys {
+			valOld := objectOld[key]
+			valNew := objectNew[key]
+			switch key {
+			case "name":
+				if valOld != valNew {
+					return false, nil
+				}
+			case "type":
+				if !bigQueryTableTypeEq(valOld, valNew) {
+					return false, nil
+				}
+			case "mode":
+				if bigQueryTableModeIsForceNew(valOld, valNew) {
+					return false, nil
+				}
+			case "fields":
+				return resourceBigQueryTableSchemaIsChangeable(valOld, valNew)
+
+				// other parameters: description, policyTags and
+				// policyTags.names[] are changeable
+			}
+		}
+		return true, nil
+	case string, float64, bool, nil:
+		// realistically this shouldn't hit
+		log.Printf("[DEBUG] comparison of generics hit... not expected")
+		return old == new, nil
+	default:
+		log.Printf("[DEBUG] tried to iterate through json but encountered a non native type to json deserialization... please ensure you are passing a json object from json.Unmarshall")
+		return false, errors.New("unable to compare values")
+	}
+}
+
+func resourceBigQueryTableSchemaCustomizeDiffFunc(d TerraformResourceDiff) error {
+	if _, hasSchema := d.GetOk("schema"); hasSchema {
+		oldSchema, newSchema := d.GetChange("schema")
+		oldSchemaText := oldSchema.(string)
+		newSchemaText := newSchema.(string)
+		if oldSchemaText == "null" {
+			// The API can return an empty schema which gets encoded to "null" during read.
+			oldSchemaText = "[]"
+		}
+		var old, new interface{}
+		if err := json.Unmarshal([]byte(oldSchemaText), &old); err != nil {
+			// don't return error, its possible we are going from no schema to schema
+			// this case will be cover on the conparision regardless.
+			log.Printf("[DEBUG] unable to unmarshal json customized diff - %v", err)
+		}
+		if err := json.Unmarshal([]byte(newSchemaText), &new); err != nil {
+			// same as above
+			log.Printf("[DEBUG] unable to unmarshal json customized diff - %v", err)
+		}
+		isChangeable, err := resourceBigQueryTableSchemaIsChangeable(old, new)
+		if err != nil {
+			return err
+		}
+		if !isChangeable {
+			if err := d.ForceNew("schema"); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	return nil
+}
+
+func resourceBigQueryTableSchemaCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	return resourceBigQueryTableSchemaCustomizeDiffFunc(d)
+}
+
 func resourceBigQueryTable() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigQueryTableCreate,
@@ -141,6 +272,9 @@ func resourceBigQueryTable() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceBigQueryTableImport,
 		},
+		CustomizeDiff: customdiff.All(
+			resourceBigQueryTableSchemaCustomizeDiff,
+		),
 		Schema: map[string]*schema.Schema{
 			// TableId: [Required] The ID of the table. The ID must contain only
 			// letters (a-z, A-Z), numbers (0-9), or underscores (_). The maximum
@@ -422,7 +556,6 @@ func resourceBigQueryTable() *schema.Resource {
 				DiffSuppressFunc: bigQueryTableSchemaDiffSuppress,
 				Description:      `A JSON schema for the table.`,
 			},
-
 			// View: [Optional] If specified, configures this table as a view.
 			"view": {
 				Type:        schema.TypeList,
@@ -761,7 +894,6 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		if err != nil {
 			return nil, err
 		}
-
 		table.Schema = schema
 	}
 
@@ -948,7 +1080,6 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-
 		if err := d.Set("schema", schema); err != nil {
 			return fmt.Errorf("Error setting schema: %s", err)
 		}
