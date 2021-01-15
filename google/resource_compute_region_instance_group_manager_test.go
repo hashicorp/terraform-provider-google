@@ -445,7 +445,6 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
 
   target_pools       = [google_compute_target_pool.igm-basic.self_link]
   base_instance_name = "igm-basic"
-  region             = "us-central1"
   target_size        = 2
 }
 
