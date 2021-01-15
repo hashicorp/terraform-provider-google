@@ -171,6 +171,10 @@ func policyToAccess(policy *cloudresourcemanager.Policy) ([]map[string]interface
 			return nil, fmt.Errorf("BigQuery Dataset legacy role %s is not allowed when using google_bigquery_dataset_iam resources. Please use the full form: %s", binding.Role, fullRole)
 		}
 		for _, member := range binding.Members {
+			// Do not append any deleted members
+			if strings.HasPrefix(member, "deleted:") {
+				continue
+			}
 			access := map[string]interface{}{
 				"role": binding.Role,
 			}
@@ -190,6 +194,10 @@ func policyToAccess(policy *cloudresourcemanager.Policy) ([]map[string]interface
 // Dataset access uses different member types to identify groups, domains, etc.
 // these types are used as keys in the access JSON payload
 func iamMemberToAccess(member string) (string, string, error) {
+	if strings.HasPrefix(member, "deleted:") {
+		return "", "", fmt.Errorf("BigQuery Dataset IAM member is deleted: %s", member)
+	}
+
 	pieces := strings.SplitN(member, ":", 2)
 	if len(pieces) > 1 {
 		switch pieces[0] {
