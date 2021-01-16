@@ -116,8 +116,11 @@ func v2BetaPolicyToV1(in *resourceManagerV2Beta1.Policy) (*cloudresourcemanager.
 // Retrieve the existing IAM Policy for a folder
 func getFolderIamPolicyByFolderName(folderName, userAgent string, config *Config) (*cloudresourcemanager.Policy, error) {
 	p, err := config.NewResourceManagerV2Beta1Client(userAgent).Folders.GetIamPolicy(folderName,
-		&resourceManagerV2Beta1.GetIamPolicyRequest{}).Do()
-
+		&resourceManagerV2Beta1.GetIamPolicyRequest{
+			Options: &resourceManagerV2Beta1.GetPolicyOptions{
+				RequestedPolicyVersion: iamPolicyVersion,
+			},
+		}).Do()
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for folder %q: {{err}}", folderName), err)
 	}
