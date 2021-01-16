@@ -153,5 +153,16 @@ resource "google_folder_iam_member" "multiple" {
   member = "user:paddy@hashicorp.com"
   role   = "roles/compute.instanceAdmin"
 }
+
+resource "google_folder_iam_member" "condition" {
+  folder = google_folder.acceptance.name
+  member = "user:paddy@hashicorp.com"
+  role   = "roles/compute.instanceAdmin"
+  condition {
+    title       = "expires_after_2019_12_31"
+    description = "Expiring at midnight of 2019-12-31"
+    expression  = "request.time < timestamp(\"2020-01-01T00:00:00Z\")"
+  }
+}
 `, org, fname)
 }
