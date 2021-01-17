@@ -208,6 +208,18 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 								},
 							},
 						},
+
+						"resource_policies": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Description: `A list of short names or self_links of resource policies to attach to this disk. Currently a max of 1 resource policy is supported.`,
+							Elem: &schema.Schema{
+								Type:             schema.TypeString,
+								DiffSuppressFunc: compareResourceNames,
+							},
+						},
 					},
 				},
 			},
@@ -757,6 +769,11 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 			}
 
 			disk.InitializeParams.Labels = expandStringMap(d, prefix+".labels")
+
+			if _, ok := d.GetOk(prefix + ".resource_policies"); ok {
+				// instance template only supports a resource name here (not uri)
+				disk.InitializeParams.ResourcePolicies = convertAndMapStringArr(d.Get(prefix+".resource_policies").([]interface{}), GetResourceNameFromSelfLink)
+			}
 		}
 
 		if v, ok := d.GetOk(prefix + ".interface"); ok {
@@ -951,6 +968,8 @@ func flattenDisk(disk *computeBeta.AttachedDisk, defaultProject string) (map[str
 		} else {
 			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
 		}
+
+		diskMap["resource_policies"] = disk.InitializeParams.ResourcePolicies
 	}
 
 	if disk.DiskEncryptionKey != nil {
