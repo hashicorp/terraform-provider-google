@@ -285,6 +285,11 @@ The `autoscaling_policy` block supports:
   Configuration parameters of autoscaling based on a load balancer.
   Structure is documented below.
 
+* `scaling_schedules` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Scaling schedules defined for an autoscaler. Multiple schedules can be set on an autoscaler and they can overlap.
+  Structure is documented below.
+
 
 The `scale_down_control` block supports:
 
@@ -431,6 +436,34 @@ The `load_balancing_utilization` block supports:
   Fraction of backend capacity utilization (set in HTTP(s) load
   balancing configuration) that autoscaler should maintain. Must
   be a positive float value. If not defined, the default is 0.8.
+
+The `scaling_schedules` block supports:
+
+* `name` - (Required) The identifier for this object. Format specified above.
+
+* `min_required_replicas` -
+  (Required)
+  Minimum number of VM instances that autoscaler will recommend in time intervals starting according to schedule.
+
+* `schedule` -
+  (Required)
+  The start timestamps of time intervals when this scaling schedule should provide a scaling signal. This field uses the extended cron format (with an optional year field).
+
+* `time_zone` -
+  (Optional)
+  The time zone to be used when interpreting the schedule. The value of this field must be a time zone name from the tz database: http://en.wikipedia.org/wiki/Tz_database.
+
+* `duration_sec` -
+  (Required)
+  The duration of time intervals (in seconds) for which this scaling schedule will be running. The minimum allowed value is 300.
+
+* `disabled` -
+  (Optional)
+  A boolean value that specifies if a scaling schedule can influence autoscaler recommendations. If set to true, then a scaling schedule has no effect.
+
+* `description` -
+  (Optional)
+  A description of a scaling schedule.
 
 - - -
 
