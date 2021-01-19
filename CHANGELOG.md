@@ -10,7 +10,7 @@ IMPROVEMENTS:
 * memcache: fixed an issue where `google_memcached_instance` resource was not inferring the region from the provider. ([#8188](https://github.com/hashicorp/terraform-provider-google/pull/8188))
 * serviceaccount: added a `keepers` field to `google_service_account_key` that recreates the field when it is modified ([#8097](https://github.com/hashicorp/terraform-provider-google/pull/8097))
 * sql: added restore from backup support to `google_sql_database_instance` ([#8138](https://github.com/hashicorp/terraform-provider-google/pull/8138))
-* sql: added support for MYSQL_8_0 on resource `source_representation_instance` ([#8135](https://github.com/hashicorp/terraform-provider-google/pull/8135))
+* sql: added support for MYSQL_8_0 on resource `google_sql_source_representation_instance` ([#8135](https://github.com/hashicorp/terraform-provider-google/pull/8135))
 * tpu: fixed an issue where `google_tpu_node` resource was not inferring the zone from the provider. ([#8188](https://github.com/hashicorp/terraform-provider-google/pull/8188))
 * vpcaccess: fixed an issue where `google_vpc_access_connector` resource was not inferring the region from the provider. ([#8188](https://github.com/hashicorp/terraform-provider-google/pull/8188))
 
