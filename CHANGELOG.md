@@ -1,4 +1,4 @@
-## 3.53.0 (Unreleased)
+## 3.53.0 (January 19, 2021)
 
 FEATURES:
 * **New Data Source:** `google_compute_instance_template` ([#8137](https://github.com/hashicorp/terraform-provider-google/pull/8137))
