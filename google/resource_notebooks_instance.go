@@ -580,9 +580,6 @@ func resourceNotebooksInstanceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("data_disk_type", flattenNotebooksInstanceDataDiskType(res["dataDiskType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
-	if err := d.Set("no_remove_data_disk", flattenNotebooksInstanceNoRemoveDataDisk(res["noRemoveDataDisk"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Instance: %s", err)
-	}
 	if err := d.Set("disk_encryption", flattenNotebooksInstanceDiskEncryption(res["diskEncryption"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -804,10 +801,6 @@ func flattenNotebooksInstanceCustomGpuDriverPath(v interface{}, d *schema.Resour
 }
 
 func flattenNotebooksInstanceDataDiskType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenNotebooksInstanceNoRemoveDataDisk(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
