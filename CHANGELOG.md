@@ -1,4 +1,4 @@
-## 3.53.0 (Unreleased)
+## 3.53.0 (January 19, 2021)
 ## 3.52.0 (January 11, 2021)
 
 BREAKING CHANGES:
