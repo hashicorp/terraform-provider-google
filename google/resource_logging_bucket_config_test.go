@@ -186,7 +186,7 @@ func TestAccLoggingBucketConfig_CreateBuckets_withCustomId(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix":        randString(t, 10),
-		"billing_account_name": "billingAccounts/" + getTestBillingAccountFromEnv(t),
+		"billing_account_name": getTestBillingAccountFromEnv(t),
 		"org_id":               getTestOrgFromEnv(t),
 		"project_name":         "tf-test-" + randString(t, 10),
 		"bucket_id":            "tf-test-bucket-" + randString(t, 10),
@@ -253,6 +253,7 @@ func getLoggingBucketConfigs(context map[string]interface{}) map[string]string {
 				project_id = "%{project_name}"
 				name       = "%{project_name}"
 				org_id     = "%{org_id}"
+				billing_account = "%{billing_account_name}"
 			}
 			
 			resource "google_logging_project_bucket_config" "basic" {
