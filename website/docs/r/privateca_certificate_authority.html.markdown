@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Certificate Authority"
+subcategory: "Certificate Authority Service"
 layout: "google"
 page_title: "Google: google_privateca_certificate_authority"
 sidebar_current: "docs-google-privateca-certificate-authority"
@@ -24,6 +24,11 @@ description: |-
 
 A CertificateAuthority represents an individual Certificate Authority. A
 CertificateAuthority can be used to create Certificates.
+
+
+~> **Warning:** Please remember that all resources created during preview (via the terraform-provider-google-beta)
+will be deleted when CA service transitions to General Availability (GA). Relying on these
+certificate authorities for production traffic is discouraged.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -64,6 +69,7 @@ resource "google_privateca_certificate_authority" "default" {
   key_spec {
     algorithm = "RSA_PKCS1_4096_SHA256"
   }
+  disable_on_delete = true
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -111,6 +117,60 @@ resource "google_privateca_certificate_authority" "default" {
   key_spec {
     algorithm = "EC_P256_SHA256"
   }
+  disable_on_delete = true
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=privateca_certificate_authority_cmek&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Privateca Certificate Authority Cmek
+
+
+```hcl
+resource "google_project_service_identity" "privateca_sa" {
+  provider = google-beta
+  service  = "privateca.googleapis.com"
+}
+
+resource "google_kms_crypto_key_iam_binding" "privateca_sa_keyuser" {
+  provider      = google-beta
+  crypto_key_id = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key"
+  role          = "roles/cloudkms.signerVerifier"
+
+  members = [
+    "serviceAccount:${google_project_service_identity.privateca_sa.email}",
+  ]
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  provider                 = google-beta
+  certificate_authority_id = "tf-test%{random_suffix}"
+  location                 = "us-central1"
+
+  key_spec {
+    cloud_kms_key_version = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key/cryptoKeyVersions/1"
+  }
+
+  config  {
+    subject_config  {
+      common_name = "Example Authority"
+      subject {
+        organization = "Example, Org."
+      }
+    }
+
+    reusable_config {
+      reusable_config= "root-unconstrained"
+    }
+  }
+
+  depends_on = [
+    google_kms_crypto_key_iam_binding.privateca_sa_keyuser,
+  ]
+
+  disable_on_delete = true
 }
 ```
 
@@ -121,11 +181,12 @@ The following arguments are supported:
 
 * `location` -
   (Required)
-  Location of the Certificate Authority.
+  Location of the CertificateAuthority. A full list of valid locations can be found by
+  running `gcloud beta privateca locations list`.
 
 * `certificate_authority_id` -
   (Required)
-  GCP region of the Realm.
+  The user provided Resource ID for this Certificate Authority.
 
 * `config` -
   (Required)
@@ -161,7 +222,7 @@ The `subject_config` block supports:
   Structure is documented below.
 
 * `common_name` -
-  (Optional)
+  (Required)
   The common name of the distinguished name.
 
 * `subject_alt_name` -
@@ -177,7 +238,7 @@ The `subject` block supports:
   The country code of the subject.
 
 * `organization` -
-  (Optional)
+  (Required)
   The organization of the subject.
 
 * `organizational_unit` -
@@ -223,12 +284,19 @@ The `reusable_config` block supports:
 * `reusable_config` -
   (Required)
   A resource path to a ReusableConfig in the format
-  projects/*/locations/*/reusableConfigs/*.
+  `projects/*/locations/*/reusableConfigs/*`.
+  . Alternatively, one of the short names
+  found by running `gcloud beta privateca reusable-configs list`.
 
 The `key_spec` block supports:
 
+* `cloud_kms_key_version` -
+  (Optional)
+  The resource name for an existing Cloud KMS CryptoKeyVersion in the format
+  `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`.
+
 * `algorithm` -
-  (Required)
+  (Optional)
   The algorithm to use for creating a managed Cloud KMS key for a for a simplified
   experience. All managed keys will be have their ProtectionLevel as HSM.
   Possible values are `SIGN_HASH_ALGORITHM_UNSPECIFIED`, `RSA_PSS_2048_SHA256`, `RSA_PSS_3072_SHA256`, `RSA_PSS_4096_SHA256`, `RSA_PKCS1_2048_SHA256`, `RSA_PKCS1_3072_SHA256`, `RSA_PKCS1_4096_SHA256`, `EC_P256_SHA256`, and `EC_P384_SHA384`.
@@ -239,12 +307,17 @@ The `key_spec` block supports:
 * `type` -
   (Optional)
   The Type of this CertificateAuthority.
+  ~> **Note:** For `SUBORDINATE` Certificate Authorities, they need to
+  be manually activated (via Cloud Console of `gcloud`) before they can
+  issue certificates.
   Default value is `SELF_SIGNED`.
-  Possible values are `SELF_SIGNED`.
+  Possible values are `SELF_SIGNED` and `SUBORDINATE`.
 
 * `tier` -
   (Optional)
-  The Tier of this CertificateAuthority.
+  The Tier of this CertificateAuthority. `ENTERPRISE` Certificate Authorities track
+  server side certificates issued, and support certificate revocation. For more details,
+  please check the [associated documentation](https://cloud.google.com/certificate-authority-service/docs/tiers).
   Default value is `ENTERPRISE`.
   Possible values are `ENTERPRISE` and `DEVOPS`.
 
@@ -263,8 +336,8 @@ The `key_spec` block supports:
   (Optional)
   The name of a Cloud Storage bucket where this CertificateAuthority will publish content,
   such as the CA certificate and CRLs. This must be a bucket name, without any prefixes
-  (such as gs://) or suffixes (such as .googleapis.com). For example, to use a bucket named
-  my-bucket, you would simply specify my-bucket. If not specified, a managed bucket will be
+  (such as `gs://`) or suffixes (such as `.googleapis.com`). For example, to use a bucket named
+  my-bucket, you would simply specify `my-bucket`. If not specified, a managed bucket will be
   created.
 
 * `labels` -
@@ -275,6 +348,10 @@ The `key_spec` block supports:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `disable_on_delete` - (Optional) If set to `true`, the Certificate Authority will be disabled
+on delete. If the Certitificate Authorities is not disabled,
+it cannot be deleted. Use with care. Defaults to `false`.
 
 
 The `issuing_options` block supports:

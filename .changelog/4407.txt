@@ -1,0 +1,9 @@
+```release-note:new-resource
+google_privateca_certificate_authority_iam_policy
+```
+```release-note:new-resource
+google_privateca_certificate_authority_iam_binding
+```
+```release-note:new-resource
+google_privateca_certificate_authority_iam_member
+```
