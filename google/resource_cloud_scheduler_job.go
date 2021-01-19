@@ -99,6 +99,7 @@ func resourceCloudSchedulerJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudSchedulerJobCreate,
 		Read:   resourceCloudSchedulerJobRead,
+		Update: resourceCloudSchedulerJobUpdate,
 		Delete: resourceCloudSchedulerJobDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -107,6 +108,7 @@ func resourceCloudSchedulerJob() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
@@ -122,7 +124,6 @@ func resourceCloudSchedulerJob() *schema.Resource {
 			"app_engine_http_target": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `App Engine HTTP target.
 If the job providers a App Engine HTTP target the cron will 
 send a request to the service instance`,
@@ -132,7 +133,6 @@ send a request to the service instance`,
 						"relative_uri": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 							Description: `The relative URI.
 The relative URL must begin with "/" and must be a valid HTTP relative URL. 
 It can contain a path, query string arguments, and \# fragments. 
@@ -142,7 +142,6 @@ No spaces are allowed, and the maximum length allowed is 2083 characters`,
 						"app_engine_routing": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `App Engine Routing setting for the job.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -150,7 +149,6 @@ No spaces are allowed, and the maximum length allowed is 2083 characters`,
 									"instance": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 										Description: `App instance.
 By default, the job is sent to an instance which is available when the job is attempted.`,
 										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version", "app_engine_http_target.0.app_engine_routing.0.instance"},
@@ -158,7 +156,6 @@ By default, the job is sent to an instance which is available when the job is at
 									"service": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 										Description: `App service.
 By default, the job is sent to the service which is the default service when the job is attempted.`,
 										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version", "app_engine_http_target.0.app_engine_routing.0.instance"},
@@ -166,7 +163,6 @@ By default, the job is sent to the service which is the default service when the
 									"version": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 										Description: `App version.
 By default, the job is sent to the version which is the default version when the job is attempted.`,
 										AtLeastOneOf: []string{"app_engine_http_target.0.app_engine_routing.0.service", "app_engine_http_target.0.app_engine_routing.0.version", "app_engine_http_target.0.app_engine_routing.0.instance"},
@@ -177,7 +173,6 @@ By default, the job is sent to the version which is the default version when the
 						"body": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Description: `HTTP request body. 
 A request body is allowed only if the HTTP method is POST or PUT. 
 It will result in invalid argument error to set a body on a job with an incompatible HttpMethod.
@@ -187,7 +182,6 @@ A base64-encoded string.`,
 						"headers": {
 							Type:         schema.TypeMap,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: validateHttpHeaders(),
 							Description: `HTTP request headers.
 This map contains the header field names and values. 
@@ -197,7 +191,6 @@ Headers can be set when the job is created.`,
 						"http_method": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Which HTTP method to use for the request.`,
 						},
 					},
@@ -207,7 +200,6 @@ Headers can be set when the job is created.`,
 			"attempt_deadline": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("180s"),
 				Description: `The deadline for job attempts. If the request handler does not respond by this deadline then the request is
 cancelled and the attempt is marked as a DEADLINE_EXCEEDED failure. The failed attempt can be viewed in
@@ -222,14 +214,12 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Description: `A human-readable description for the job. 
 This string must not contain more than 500 characters.`,
 			},
 			"http_target": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `HTTP target.
 If the job providers a http_target the cron will 
 send a request to the targeted url`,
@@ -239,13 +229,11 @@ send a request to the targeted url`,
 						"uri": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `The full URI path that the request will be sent to.`,
 						},
 						"body": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Description: `HTTP request body. 
 A request body is allowed only if the HTTP method is POST, PUT, or PATCH. 
 It is an error to set body on a job with an incompatible HttpMethod.
@@ -255,7 +243,6 @@ A base64-encoded string.`,
 						"headers": {
 							Type:         schema.TypeMap,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: validateHttpHeaders(),
 							Description: `This map contains the header field names and values. 
 Repeated headers are not supported, but a header value can contain commas.`,
@@ -264,13 +251,11 @@ Repeated headers are not supported, but a header value can contain commas.`,
 						"http_method": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Which HTTP method to use for the request.`,
 						},
 						"oauth_token": {
 							Type:             schema.TypeList,
 							Optional:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: authHeaderDiffSuppress,
 							Description: `Contains information needed for generating an OAuth token.
 This type of authorization should be used when sending requests to a GCP endpoint.`,
@@ -280,14 +265,12 @@ This type of authorization should be used when sending requests to a GCP endpoin
 									"service_account_email": {
 										Type:     schema.TypeString,
 										Required: true,
-										ForceNew: true,
 										Description: `Service account email to be used for generating OAuth token.
 The service account must be within the same project as the job.`,
 									},
 									"scope": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 										Description: `OAuth scope to be used for generating OAuth access token. If not specified,
 "https://www.googleapis.com/auth/cloud-platform" will be used.`,
 									},
@@ -297,7 +280,6 @@ The service account must be within the same project as the job.`,
 						"oidc_token": {
 							Type:             schema.TypeList,
 							Optional:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: authHeaderDiffSuppress,
 							Description: `Contains information needed for generating an OpenID Connect token.
 This type of authorization should be used when sending requests to third party endpoints or Cloud Run.`,
@@ -307,14 +289,12 @@ This type of authorization should be used when sending requests to third party e
 									"service_account_email": {
 										Type:     schema.TypeString,
 										Required: true,
-										ForceNew: true,
 										Description: `Service account email to be used for generating OAuth token.
 The service account must be within the same project as the job.`,
 									},
 									"audience": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 										Description: `Audience to be used when generating OIDC token. If not specified,
 the URI specified in target will be used.`,
 									},
@@ -328,7 +308,6 @@ the URI specified in target will be used.`,
 			"pubsub_target": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `Pub/Sub target
 If the job providers a Pub/Sub target the cron will publish
 a message to the provided topic`,
@@ -338,7 +317,6 @@ a message to the provided topic`,
 						"topic_name": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 							Description: `The full resource name for the Cloud Pub/Sub topic to which
 messages will be published when a job is delivered. ~>**NOTE:**
 The topic name must be in the same format as required by PubSub's
@@ -347,7 +325,6 @@ PublishRequest.name, e.g. 'projects/my-project/topics/my-topic'.`,
 						"attributes": {
 							Type:     schema.TypeMap,
 							Optional: true,
-							ForceNew: true,
 							Description: `Attributes for PubsubMessage.
 Pubsub message must contain either non-empty data, or at least one attribute.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
@@ -355,7 +332,6 @@ Pubsub message must contain either non-empty data, or at least one attribute.`,
 						"data": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Description: `The message payload for PubsubMessage.
 Pubsub message must contain either non-empty data, or at least one attribute.`,
 						},
@@ -373,7 +349,6 @@ Pubsub message must contain either non-empty data, or at least one attribute.`,
 			"retry_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `By default, if a job does not complete successfully, 
 meaning that an acknowledgement is not received from the handler, 
 then it will be retried with exponential backoff according to the settings`,
@@ -384,7 +359,6 @@ then it will be retried with exponential backoff according to the settings`,
 							Type:     schema.TypeString,
 							Computed: true,
 							Optional: true,
-							ForceNew: true,
 							Description: `The maximum amount of time to wait before retrying a job after it fails.
 A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
@@ -393,7 +367,6 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							Type:     schema.TypeInt,
 							Computed: true,
 							Optional: true,
-							ForceNew: true,
 							Description: `The time between retries will double maxDoublings times.
 A job's retry interval starts at minBackoffDuration, 
 then doubles maxDoublings times, then increases linearly, 
@@ -404,7 +377,6 @@ and finally retries retries at intervals of maxBackoffDuration up to retryCount 
 							Type:     schema.TypeString,
 							Computed: true,
 							Optional: true,
-							ForceNew: true,
 							Description: `The time limit for retrying a failed job, measured from time when an execution was first attempted. 
 If specified with retryCount, the job will be retried until both limits are reached.
 A duration in seconds with up to nine fractional digits, terminated by 's'.`,
@@ -414,7 +386,6 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							Type:     schema.TypeString,
 							Computed: true,
 							Optional: true,
-							ForceNew: true,
 							Description: `The minimum amount of time to wait before retrying a job after it fails.
 A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
@@ -423,7 +394,6 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							Type:     schema.TypeInt,
 							Computed: true,
 							Optional: true,
-							ForceNew: true,
 							Description: `The number of attempts that the system will make to run a 
 job using the exponential backoff procedure described by maxDoublings.
 Values greater than 5 and negative values are not allowed.`,
@@ -435,13 +405,11 @@ Values greater than 5 and negative values are not allowed.`,
 			"schedule": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Describes the schedule on which the job will be executed.`,
 			},
 			"time_zone": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Description: `Specifies the time zone to be used in interpreting schedule.
 The value of this field must be a time zone name from the tz database.`,
 				Default: "Etc/UTC",
@@ -627,6 +595,94 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	return nil
+}
+
+func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Job: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	descriptionProp, err := expandCloudSchedulerJobDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	scheduleProp, err := expandCloudSchedulerJobSchedule(d.Get("schedule"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("schedule"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scheduleProp)) {
+		obj["schedule"] = scheduleProp
+	}
+	timeZoneProp, err := expandCloudSchedulerJobTimeZone(d.Get("time_zone"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("time_zone"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
+		obj["timeZone"] = timeZoneProp
+	}
+	attemptDeadlineProp, err := expandCloudSchedulerJobAttemptDeadline(d.Get("attempt_deadline"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("attempt_deadline"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, attemptDeadlineProp)) {
+		obj["attemptDeadline"] = attemptDeadlineProp
+	}
+	retryConfigProp, err := expandCloudSchedulerJobRetryConfig(d.Get("retry_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("retry_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retryConfigProp)) {
+		obj["retryConfig"] = retryConfigProp
+	}
+	pubsubTargetProp, err := expandCloudSchedulerJobPubsubTarget(d.Get("pubsub_target"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("pubsub_target"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pubsubTargetProp)) {
+		obj["pubsubTarget"] = pubsubTargetProp
+	}
+	appEngineHttpTargetProp, err := expandCloudSchedulerJobAppEngineHttpTarget(d.Get("app_engine_http_target"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("app_engine_http_target"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, appEngineHttpTargetProp)) {
+		obj["appEngineHttpTarget"] = appEngineHttpTargetProp
+	}
+	httpTargetProp, err := expandCloudSchedulerJobHttpTarget(d.Get("http_target"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("http_target"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, httpTargetProp)) {
+		obj["httpTarget"] = httpTargetProp
+	}
+
+	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Job %q: %#v", d.Id(), obj)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return fmt.Errorf("Error updating Job %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Job %q: %#v", d.Id(), res)
+	}
+
+	return resourceCloudSchedulerJobRead(d, meta)
 }
 
 func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) error {
