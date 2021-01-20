@@ -118,7 +118,7 @@ func resourceHealthcareDatasetCreate(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), healthcareDatasetNotInitialized)
 	if err != nil {
 		return fmt.Errorf("Error creating Dataset: %s", err)
 	}
@@ -160,7 +160,7 @@ func resourceHealthcareDatasetRead(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, healthcareDatasetNotInitialized)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("HealthcareDataset %q", d.Id()))
 	}
@@ -237,7 +237,7 @@ func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), healthcareDatasetNotInitialized)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Dataset %q: %s", d.Id(), err)
@@ -276,7 +276,7 @@ func resourceHealthcareDatasetDelete(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), healthcareDatasetNotInitialized)
 	if err != nil {
 		return handleNotFoundError(err, d, "Dataset")
 	}
