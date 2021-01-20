@@ -84,7 +84,7 @@ func testAccCheckHealthcareDatasetDestroyProducer(t *testing.T) func(s *terrafor
 				billingProject = config.BillingProject
 			}
 
-			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, healthcareDatasetNotInitialized)
 			if err == nil {
 				return fmt.Errorf("HealthcareDataset still exists at %s", url)
 			}
