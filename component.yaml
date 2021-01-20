@@ -1,0 +1,2 @@
+name: terraform-provider-google
+kind: go-library
