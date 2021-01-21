@@ -1,7 +1,7 @@
 module github.com/hashicorp/terraform-provider-google/v3
 
 require (
-	cloud.google.com/go/bigtable v1.5.0
+	cloud.google.com/go/bigtable v1.7.0
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/aws/aws-sdk-go v1.31.9 // indirect
 	github.com/client9/misspell v0.3.4
@@ -27,10 +27,8 @@ require (
 	github.com/spf13/pflag v1.0.3 // indirect
 	github.com/stoewer/go-strcase v1.0.2
 	github.com/zclconf/go-cty v1.5.1 // indirect
-	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
-	golang.org/x/mod v0.4.1 // indirect
-	golang.org/x/net v0.0.0-20201031054903-ff519b6c9102
-	golang.org/x/oauth2 v0.0.0-20201109201403-9fd604954f58
+	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
+	golang.org/x/oauth2 v0.0.0-20210113160501-8b1d76fa0423
 	golang.org/x/tools v0.1.0 // indirect
 	google.golang.org/api v0.36.0
 	gopkg.in/yaml.v2 v2.2.8 // indirect
