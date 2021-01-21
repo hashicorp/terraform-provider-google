@@ -11,10 +11,15 @@ description: |-
 
 The Google Compute Engine Regional Instance Group Manager API creates and manages pools
 of homogeneous Compute Engine virtual machine instances from a common instance
-template. For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups)
-and [API](https://cloud.google.com/compute/docs/reference/latest/regionInstanceGroupManagers)
+template.
 
-~> **Note:** Use [google_compute_instance_group_manager](/docs/providers/google/r/compute_instance_group_manager.html) to create a single-zone instance group manager.
+To get more information about regionInstanceGroupManagers, see:
+
+* [API documentation](https://cloud.google.com/compute/docs/reference/latest/regionInstanceGroupManagers)
+* How-to Guides
+    * [Regional Instance Groups Guide](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups)
+
+~> **Note:** Use [google_compute_instance_group_manager](/docs/providers/google/r/compute_instance_group_manager.html) to create a zonal instance group manager.
 
 ## Example Usage with top level instance template (`google` provider)
 
@@ -137,6 +142,8 @@ group. You can specify only one value. Structure is documented below. For more i
 
 * `distribution_policy_zones` - (Optional) The distribution policy for this managed instance
 group. You can specify one or more values. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups#selectingzones).
+
+* `distribution_policy_target_shape` - (Optional) The shape to which the group converges either proactively or on resize events (depending on the value set in update_policy.0.instance_redistribution_type). For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/regional-mig-distribution-shape).
 
 * `stateful_disk` - (Optional) Disks created on the instances that will be preserved on instance delete, update, etc. Structure is documented below. For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/configuring-stateful-disks-in-migs). Proactive cross zone instance redistribution must be disabled before you can update stateful disks on existing instance group managers. This can be controlled via the `update_policy`.
 

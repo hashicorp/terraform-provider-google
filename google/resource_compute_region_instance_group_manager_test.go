@@ -1057,10 +1057,11 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
     name              = "primary"
   }
 
-  base_instance_name        = "igm-basic"
-  region                    = "us-central1"
-  target_size               = 2
-  distribution_policy_zones = ["%s"]
+  base_instance_name               = "igm-basic"
+  region                           = "us-central1"
+  target_size                      = 2
+  distribution_policy_zones        = ["%s"]
+  distribution_policy_target_shape = "ANY"
 }
 `, template, igm, strings.Join(zones, "\",\""))
 }
