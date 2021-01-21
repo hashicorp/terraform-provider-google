@@ -32,7 +32,7 @@ resource "google_redis_instance" "redis" {
 }
 
 data "google_redis_instance" "redis" {
-  name = "${google_redis_instance.redis.name}"
+  name = google_redis_instance.redis.name
 }
 `, suffix)
 }
