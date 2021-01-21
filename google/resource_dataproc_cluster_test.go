@@ -419,6 +419,37 @@ func TestAccDataprocCluster_withStagingBucket(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withTempBucket(t *testing.T) {
+	t.Parallel()
+
+	rnd := randString(t, 10)
+	var cluster dataproc.Cluster
+	clusterName := fmt.Sprintf("tf-test-dproc-%s", rnd)
+	bucketName := fmt.Sprintf("%s-temp-bucket", clusterName)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withTempBucketAndCluster(clusterName, bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_bucket", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_bucket", "cluster_config.0.temp_bucket", bucketName)),
+			},
+			{
+				// Simulate destroy of cluster by removing it from definition,
+				// but leaving the temp bucket (should not be auto deleted)
+				Config: testAccDataprocCluster_withTempBucketOnly(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocTempBucketExists(t, bucketName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withInitAction(t *testing.T) {
 	t.Parallel()
 
@@ -755,6 +786,22 @@ func testAccCheckDataprocStagingBucketExists(t *testing.T, bucketName string) re
 		}
 		if !exists {
 			return fmt.Errorf("Staging Bucket %s does not exist", bucketName)
+		}
+		return nil
+	}
+}
+
+func testAccCheckDataprocTempBucketExists(t *testing.T, bucketName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		config := googleProviderConfig(t)
+
+		exists, err := validateBucketExists(bucketName, config)
+		if err != nil {
+			return err
+		}
+		if !exists {
+			return fmt.Errorf("Temp Bucket %s does not exist", bucketName)
 		}
 		return nil
 	}
@@ -1178,6 +1225,15 @@ resource "google_storage_bucket" "bucket" {
 `, bucketName)
 }
 
+func testAccDataprocCluster_withTempBucketOnly(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  force_destroy = "true"
+}
+`, bucketName)
+}
+
 func testAccDataprocCluster_withStagingBucketAndCluster(clusterName, bucketName string) string {
 	return fmt.Sprintf(`
 %s
@@ -1205,6 +1261,35 @@ resource "google_dataproc_cluster" "with_bucket" {
   }
 }
 `, testAccDataprocCluster_withStagingBucketOnly(bucketName), clusterName)
+}
+
+func testAccDataprocCluster_withTempBucketAndCluster(clusterName, bucketName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_dataproc_cluster" "with_bucket" {
+  name   = "%s"
+  region = "us-central1"
+
+  cluster_config {
+    temp_bucket = google_storage_bucket.bucket.name
+
+    # Keep the costs down with smallest config we can get away with
+    software_config {
+      override_properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+      }
+    }
+
+    master_config {
+      machine_type = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 15
+      }
+    }
+  }
+}
+`, testAccDataprocCluster_withTempBucketOnly(bucketName), clusterName)
 }
 
 func testAccDataprocCluster_withLabels(rnd string) string {
