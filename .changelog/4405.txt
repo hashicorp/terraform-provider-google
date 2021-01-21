@@ -1,0 +1,3 @@
+```release-note:bug
+billing: fixed perma-diff on currency_code in `google_billing_budget`
+```

@@ -66,6 +66,7 @@ billing account. The currencyCode is provided on output.`,
 								Schema: map[string]*schema.Schema{
 									"currency_code": {
 										Type:        schema.TypeString,
+										Computed:    true,
 										Optional:    true,
 										Description: `The 3-letter currency code defined in ISO 4217.`,
 									},
