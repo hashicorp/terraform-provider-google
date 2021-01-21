@@ -22,6 +22,8 @@ BUG FIXES:
 * compute: fixed a perma-diff on `google_compute_health_check` when `log_config.enable` is set to false ([#8209](https://github.com/hashicorp/terraform-provider-google/pull/8209))
 * notebooks: fixed permadiff on noRemoveDataDisk for `google_notebooks_instance` ([#8246](https://github.com/hashicorp/terraform-provider-google/pull/8246))
 * resourcemanager: fixed an inconsistent result when IAM conditions are specified with `google_folder_iam_*` ([#8235](https://github.com/hashicorp/terraform-provider-google/pull/8235))
+* healthcare: add retry logic on healthcare dataset not initialized error
+
 
 ## 3.53.0 (January 19, 2021)
 
@@ -43,7 +45,6 @@ BUG FIXES:
 * bigquery: enhanced diff suppress to ignore certain api divergences on resource `table` ([#8134](https://github.com/hashicorp/terraform-provider-google/pull/8134))
 * container: fixed crash due to nil exclusions object when updating an existent cluster with maintenance_policy but without exclusions ([#8126](https://github.com/hashicorp/terraform-provider-google/pull/8126))
 * project: fixed a bug in `google_project_access_approval_settings` where the default `project` was used rather than `project_id` ([#8169](https://github.com/hashicorp/terraform-provider-google/pull/8169))
-* healthcare: add retry logic on healthcare dataset not initialized error
 
 ## 3.52.0 (January 11, 2021)
 
