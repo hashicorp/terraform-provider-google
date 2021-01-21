@@ -9,11 +9,14 @@ description: |-
 
 # google\_runtimeconfig\_config
 
-Manages a RuntimeConfig resource in Google Cloud. For more information, see the
-[official documentation](https://cloud.google.com/deployment-manager/runtime-configurator/),
-or the
-[JSON API](https://cloud.google.com/deployment-manager/runtime-configurator/reference/rest/).
+Manages a RuntimeConfig resource in Google Cloud.
 
+To get more information about RuntimeConfigs, see:
+
+* [API documentation](https://cloud.google.com/deployment-manager/runtime-configurator/reference/rest/v1beta1/projects.configs)
+* How-to Guides
+    * [Runtime Configurator Fundamentals](https://cloud.google.com/deployment-manager/runtime-configurator/)
+    
 ## Example Usage
 
 Example creating a RuntimeConfig resource.
