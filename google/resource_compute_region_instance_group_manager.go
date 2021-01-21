@@ -213,6 +213,14 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				},
 			},
 
+			"distribution_policy_target_shape": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The shape to which the group converges either proactively or on resize events (depending on the value set in updatePolicy.instanceRedistributionType).`,
+			},
+
 			"update_policy": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -345,7 +353,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		AutoHealingPolicies: expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
 		Versions:            expandVersions(d.Get("version").([]interface{})),
 		UpdatePolicy:        expandRegionUpdatePolicy(d.Get("update_policy").([]interface{})),
-		DistributionPolicy:  expandDistributionPolicy(d.Get("distribution_policy_zones").(*schema.Set)),
+		DistributionPolicy:  expandDistributionPolicy(d),
 		StatefulPolicy:      expandStatefulPolicy(d.Get("stateful_disk").(*schema.Set).List()),
 		// Force send TargetSize to allow size of 0.
 		ForceSendFields: []string{"TargetSize"},
@@ -464,6 +472,9 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error setting instance_group: %s", err)
 	}
 	if err := d.Set("distribution_policy_zones", flattenDistributionPolicy(manager.DistributionPolicy)); err != nil {
+		return err
+	}
+	if err := d.Set("distribution_policy_target_shape", manager.DistributionPolicy.TargetShape); err != nil {
 		return err
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink)); err != nil {
@@ -716,13 +727,15 @@ func flattenRegionUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpd
 	return results
 }
 
-func expandDistributionPolicy(configured *schema.Set) *computeBeta.DistributionPolicy {
-	if configured.Len() == 0 {
+func expandDistributionPolicy(d *schema.ResourceData) *computeBeta.DistributionPolicy {
+	dpz := d.Get("distribution_policy_zones").(*schema.Set)
+	dpts := d.Get("distribution_policy_target_shape").(string)
+	if dpz.Len() == 0 && dpts == "" {
 		return nil
 	}
 
-	distributionPolicyZoneConfigs := make([]*computeBeta.DistributionPolicyZoneConfiguration, 0, configured.Len())
-	for _, raw := range configured.List() {
+	distributionPolicyZoneConfigs := make([]*computeBeta.DistributionPolicyZoneConfiguration, 0, dpz.Len())
+	for _, raw := range dpz.List() {
 		data := raw.(string)
 		distributionPolicyZoneConfig := computeBeta.DistributionPolicyZoneConfiguration{
 			Zone: "zones/" + data,
@@ -730,7 +743,8 @@ func expandDistributionPolicy(configured *schema.Set) *computeBeta.DistributionP
 
 		distributionPolicyZoneConfigs = append(distributionPolicyZoneConfigs, &distributionPolicyZoneConfig)
 	}
-	return &computeBeta.DistributionPolicy{Zones: distributionPolicyZoneConfigs}
+
+	return &computeBeta.DistributionPolicy{Zones: distributionPolicyZoneConfigs, TargetShape: dpts}
 }
 
 func flattenDistributionPolicy(distributionPolicy *computeBeta.DistributionPolicy) []string {
