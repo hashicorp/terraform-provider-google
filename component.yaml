@@ -1,2 +1,12 @@
 name: terraform-provider-google
 kind: go-library
+exports:
+  source:
+    resources:
+    - go.mod
+    - go.sum
+    - "**/*.go"
+    ignore:
+    - "**/*_test.go"
+    - "vendor/**/*.go"
+    - "awsproviderlint/**"
