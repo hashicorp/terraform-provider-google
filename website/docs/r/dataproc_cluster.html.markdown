@@ -171,6 +171,10 @@ The `cluster_config` block supports:
    with other clusters in the same region/zone also choosing to use the auto generation
    option.
 
+* `temp_bucket` - (Optional) The Cloud Storage temp bucket used to store ephemeral cluster
+   and jobs data, such as Spark and MapReduce history files.
+   Note: If you don't explicitly specify a `temp_bucket` then GCP will auto create / assign one for you.
+
 * `gce_cluster_config` (Optional) Common config settings for resources of Google Compute Engine cluster
    instances, applicable to all instances in the cluster. Structure defined below.
 
