@@ -1,5 +1,4 @@
 ## 3.54.0 (Unreleased)
-
 FEATURES:
 * **New Data Source:** `google_cloud_run_locations` ([#8192](https://github.com/hashicorp/terraform-provider-google/pull/8192))
 * **New Resource:** `google_privateca_certificate_authority` ([#8233](https://github.com/hashicorp/terraform-provider-google/pull/8233))
