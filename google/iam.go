@@ -139,7 +139,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 			}
 			break
 		}
-		if isConflictError(err) {
+		if isConflictError(err) || isGoogleApiErrorWithCode(err, 400) {
 			log.Printf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s\n", backoff)
 			time.Sleep(backoff)
 			backoff = backoff * 2
