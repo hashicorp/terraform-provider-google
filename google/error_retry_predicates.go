@@ -315,3 +315,12 @@ func iapClient409Operation(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+func healthcareDatasetNotInitialized(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 404 && strings.Contains(strings.ToLower(gerr.Body), "dataset not initialized") {
+			return true, "dataset not initialized - retrying"
+		}
+	}
+	return false, ""
+}
