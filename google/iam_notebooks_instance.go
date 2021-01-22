@@ -46,11 +46,11 @@ type NotebooksInstanceIamUpdater struct {
 	project      string
 	location     string
 	instanceName string
-	d            *schema.ResourceData
+	d            TerraformResourceData
 	Config       *Config
 }
 
-func NotebooksInstanceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NotebooksInstanceIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

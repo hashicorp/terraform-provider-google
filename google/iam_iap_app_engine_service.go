@@ -45,11 +45,11 @@ type IapAppEngineServiceIamUpdater struct {
 	project string
 	appId   string
 	service string
-	d       *schema.ResourceData
+	d       TerraformResourceData
 	Config  *Config
 }
 
-func IapAppEngineServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func IapAppEngineServiceIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

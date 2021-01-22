@@ -19,11 +19,11 @@ var IamKmsKeyRingSchema = map[string]*schema.Schema{
 
 type KmsKeyRingIamUpdater struct {
 	resourceId string
-	d          *schema.ResourceData
+	d          TerraformResourceData
 	Config     *Config
 }
 
-func NewKmsKeyRingIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewKmsKeyRingIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	keyRing := d.Get("key_ring_id").(string)
 	keyRingId, err := parseKmsKeyRingId(keyRing, config)
 

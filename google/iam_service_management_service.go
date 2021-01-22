@@ -32,11 +32,11 @@ var ServiceManagementServiceIamSchema = map[string]*schema.Schema{
 
 type ServiceManagementServiceIamUpdater struct {
 	serviceName string
-	d           *schema.ResourceData
+	d           TerraformResourceData
 	Config      *Config
 }
 
-func ServiceManagementServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func ServiceManagementServiceIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("service_name"); ok {

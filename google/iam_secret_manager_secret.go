@@ -39,11 +39,11 @@ var SecretManagerSecretIamSchema = map[string]*schema.Schema{
 type SecretManagerSecretIamUpdater struct {
 	project  string
 	secretId string
-	d        *schema.ResourceData
+	d        TerraformResourceData
 	Config   *Config
 }
 
-func SecretManagerSecretIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func SecretManagerSecretIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

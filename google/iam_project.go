@@ -31,11 +31,11 @@ var IamPolicyProjectSchema = map[string]*schema.Schema{
 
 type ProjectIamUpdater struct {
 	resourceId string
-	d          *schema.ResourceData
+	d          TerraformResourceData
 	Config     *Config
 }
 
-func NewProjectIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewProjectIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	pid, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func NewProjectIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUp
 
 // NewProjectIamPolicyUpdater is similar to NewProjectIamUpdater, except that it
 // doesn't call getProject and only uses an explicitly set project.
-func NewProjectIamPolicyUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewProjectIamPolicyUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &ProjectIamUpdater{
 		resourceId: d.Get("project").(string),
 		d:          d,

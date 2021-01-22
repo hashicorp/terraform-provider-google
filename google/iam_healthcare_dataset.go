@@ -20,11 +20,11 @@ var IamHealthcareDatasetSchema = map[string]*schema.Schema{
 
 type HealthcareDatasetIamUpdater struct {
 	resourceId string
-	d          *schema.ResourceData
+	d          TerraformResourceData
 	Config     *Config
 }
 
-func NewHealthcareDatasetIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewHealthcareDatasetIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	dataset := d.Get("dataset_id").(string)
 	datasetId, err := parseHealthcareDatasetId(dataset, config)
 

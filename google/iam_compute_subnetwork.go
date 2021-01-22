@@ -46,11 +46,11 @@ type ComputeSubnetworkIamUpdater struct {
 	project    string
 	region     string
 	subnetwork string
-	d          *schema.ResourceData
+	d          TerraformResourceData
 	Config     *Config
 }
 
-func ComputeSubnetworkIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func ComputeSubnetworkIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

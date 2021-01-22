@@ -33,11 +33,11 @@ var bigqueryAccessPrimitiveToRoleMap = map[string]string{
 type BigqueryDatasetIamUpdater struct {
 	project   string
 	datasetId string
-	d         *schema.ResourceData
+	d         TerraformResourceData
 	Config    *Config
 }
 
-func NewBigqueryDatasetIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewBigqueryDatasetIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err

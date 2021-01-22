@@ -46,11 +46,11 @@ type ComputeDiskIamUpdater struct {
 	project string
 	zone    string
 	name    string
-	d       *schema.ResourceData
+	d       TerraformResourceData
 	Config  *Config
 }
 
-func ComputeDiskIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func ComputeDiskIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

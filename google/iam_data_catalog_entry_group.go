@@ -46,11 +46,11 @@ type DataCatalogEntryGroupIamUpdater struct {
 	project    string
 	region     string
 	entryGroup string
-	d          *schema.ResourceData
+	d          TerraformResourceData
 	Config     *Config
 }
 
-func DataCatalogEntryGroupIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func DataCatalogEntryGroupIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

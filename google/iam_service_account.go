@@ -20,11 +20,11 @@ var IamServiceAccountSchema = map[string]*schema.Schema{
 
 type ServiceAccountIamUpdater struct {
 	serviceAccountId string
-	d                *schema.ResourceData
+	d                TerraformResourceData
 	Config           *Config
 }
 
-func NewServiceAccountIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewServiceAccountIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &ServiceAccountIamUpdater{
 		serviceAccountId: d.Get("service_account_id").(string),
 		d:                d,

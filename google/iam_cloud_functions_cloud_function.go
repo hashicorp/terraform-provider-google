@@ -46,11 +46,11 @@ type CloudFunctionsCloudFunctionIamUpdater struct {
 	project       string
 	region        string
 	cloudFunction string
-	d             *schema.ResourceData
+	d             TerraformResourceData
 	Config        *Config
 }
 
-func CloudFunctionsCloudFunctionIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func CloudFunctionsCloudFunctionIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
