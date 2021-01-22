@@ -18,11 +18,11 @@ var IamOrganizationSchema = map[string]*schema.Schema{
 
 type OrganizationIamUpdater struct {
 	resourceId string
-	d          *schema.ResourceData
+	d          TerraformResourceData
 	Config     *Config
 }
 
-func NewOrganizationIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewOrganizationIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &OrganizationIamUpdater{
 		resourceId: d.Get("org_id").(string),
 		d:          d,

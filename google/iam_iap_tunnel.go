@@ -33,11 +33,11 @@ var IapTunnelIamSchema = map[string]*schema.Schema{
 
 type IapTunnelIamUpdater struct {
 	project string
-	d       *schema.ResourceData
+	d       TerraformResourceData
 	Config  *Config
 }
 
-func IapTunnelIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func IapTunnelIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

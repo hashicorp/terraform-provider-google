@@ -45,7 +45,7 @@ type (
 	}
 
 	// Factory for generating ResourceIamUpdater for given ResourceData resource
-	newResourceIamUpdaterFunc func(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error)
+	newResourceIamUpdaterFunc func(d TerraformResourceData, config *Config) (ResourceIamUpdater, error)
 
 	// Describes how to modify a policy for a given Terraform IAM (_policy/_member/_binding/_audit_config) resource
 	iamPolicyModifyFunc func(p *cloudresourcemanager.Policy) error

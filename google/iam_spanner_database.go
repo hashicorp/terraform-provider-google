@@ -33,11 +33,11 @@ type SpannerDatabaseIamUpdater struct {
 	project  string
 	instance string
 	database string
-	d        *schema.ResourceData
+	d        TerraformResourceData
 	Config   *Config
 }
 
-func NewSpannerDatabaseIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewSpannerDatabaseIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err

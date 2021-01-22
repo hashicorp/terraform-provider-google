@@ -33,11 +33,11 @@ var IapWebTypeComputeIamSchema = map[string]*schema.Schema{
 
 type IapWebTypeComputeIamUpdater struct {
 	project string
-	d       *schema.ResourceData
+	d       TerraformResourceData
 	Config  *Config
 }
 
-func IapWebTypeComputeIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func IapWebTypeComputeIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

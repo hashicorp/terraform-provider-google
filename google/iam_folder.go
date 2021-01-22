@@ -20,11 +20,11 @@ var IamFolderSchema = map[string]*schema.Schema{
 
 type FolderIamUpdater struct {
 	folderId string
-	d        *schema.ResourceData
+	d        TerraformResourceData
 	Config   *Config
 }
 
-func NewFolderIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewFolderIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &FolderIamUpdater{
 		folderId: canonicalFolderId(d.Get("folder").(string)),
 		d:        d,

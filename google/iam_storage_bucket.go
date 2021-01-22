@@ -36,11 +36,11 @@ func StorageBucketDiffSuppress(_, old, new string, _ *schema.ResourceData) bool 
 
 type StorageBucketIamUpdater struct {
 	bucket string
-	d      *schema.ResourceData
+	d      TerraformResourceData
 	Config *Config
 }
 
-func StorageBucketIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func StorageBucketIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("bucket"); ok {

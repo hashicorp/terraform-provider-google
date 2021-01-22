@@ -7,6 +7,7 @@ import (
 	"log"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,6 +24,7 @@ type TerraformResourceData interface {
 	SetId(string)
 	Id() string
 	GetProviderMeta(interface{}) error
+	Timeout(key string) time.Duration
 }
 
 type TerraformResourceDiff interface {

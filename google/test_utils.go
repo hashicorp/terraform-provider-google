@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -64,6 +65,10 @@ func (d *ResourceDataMock) Id() string {
 
 func (d *ResourceDataMock) GetProviderMeta(dst interface{}) error {
 	return nil
+}
+
+func (d *ResourceDataMock) Timeout(key string) time.Duration {
+	return time.Duration(1)
 }
 
 type ResourceDiffMock struct {

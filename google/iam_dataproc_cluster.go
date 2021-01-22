@@ -33,11 +33,11 @@ type DataprocClusterIamUpdater struct {
 	project string
 	region  string
 	cluster string
-	d       *schema.ResourceData
+	d       TerraformResourceData
 	Config  *Config
 }
 
-func NewDataprocClusterUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewDataprocClusterUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err

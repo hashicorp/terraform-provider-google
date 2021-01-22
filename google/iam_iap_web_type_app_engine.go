@@ -53,11 +53,11 @@ func IapWebTypeAppEngineDiffSuppress(_, old, new string, _ *schema.ResourceData)
 type IapWebTypeAppEngineIamUpdater struct {
 	project string
 	appId   string
-	d       *schema.ResourceData
+	d       TerraformResourceData
 	Config  *Config
 }
 
-func IapWebTypeAppEngineIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func IapWebTypeAppEngineIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

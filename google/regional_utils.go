@@ -3,8 +3,6 @@ package google
 import (
 	"fmt"
 	"strings"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 //These functions are used by both the `resource_container_node_pool` and `resource_container_cluster` for handling regional clusters
@@ -13,7 +11,7 @@ func isZone(location string) bool {
 	return len(strings.Split(location, "-")) == 3
 }
 
-func getLocation(d *schema.ResourceData, config *Config) (string, error) {
+func getLocation(d TerraformResourceData, config *Config) (string, error) {
 	if v, ok := d.GetOk("location"); ok {
 		return v.(string), nil
 	} else if v, isRegionalCluster := d.GetOk("region"); isRegionalCluster {
