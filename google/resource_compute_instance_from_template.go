@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	strcase "github.com/stoewer/go-strcase"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	compute "google.golang.org/api/compute/v1"
 )
@@ -154,7 +153,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 			// Assume for now that all fields are exact snake_case versions of the API fields.
 			// This won't necessarily always be true, but it serves as a good approximation and
 			// can be adjusted later as we discover issues.
-			instance.ForceSendFields = append(instance.ForceSendFields, strcase.UpperCamelCase(f))
+			instance.ForceSendFields = append(instance.ForceSendFields, SnakeToPascalCase(f))
 		}
 	}
 

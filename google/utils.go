@@ -472,3 +472,11 @@ func generateUserAgentString(d TerraformResourceData, currentUserAgent string) (
 
 	return currentUserAgent, nil
 }
+
+func SnakeToPascalCase(s string) string {
+	split := strings.Split(s, "_")
+	for i := range split {
+		split[i] = strings.Title(split[i])
+	}
+	return strings.Join(split, "")
+}
