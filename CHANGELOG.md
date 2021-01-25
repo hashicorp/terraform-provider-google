@@ -1,4 +1,4 @@
-## 3.54.0 (Unreleased)
+## 3.54.0 (January 25, 2021)
 
 FEATURES:
 * **New Data Source:** `google_cloud_run_locations` ([#8192](https://github.com/hashicorp/terraform-provider-google/pull/8192))
