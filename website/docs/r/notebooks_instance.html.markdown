@@ -199,11 +199,24 @@ The following arguments are supported:
   permission to use the instance. If not specified,
   the Compute Engine default service account is used.
 
+* `service_account_scopes` -
+  (Optional)
+  Optional. The URIs of service account scopes to be included in Compute Engine instances.
+  If not specified, the following scopes are defined:
+  - https://www.googleapis.com/auth/cloud-platform
+  - https://www.googleapis.com/auth/userinfo.email
+
 * `accelerator_config` -
   (Optional)
   The hardware accelerator used on this instance. If you use accelerators,
   make sure that your configuration has enough vCPUs and memory to support the
   machineType you have selected.
+  Structure is documented below.
+
+* `shielded_instance_config` -
+  (Optional)
+  A set of Shielded Instance options. Check [Images using supported Shielded VM features]
+  Not all combinations are valid
   Structure is documented below.
 
 * `install_gpu_driver` -
@@ -256,11 +269,11 @@ The following arguments are supported:
 
 * `no_public_ip` -
   (Optional)
-  no public IP will be assigned to this instance.
+  No public IP will be assigned to this instance.
 
 * `no_proxy_access` -
   (Optional)
-  the notebook instance will not register with the proxy..
+  The notebook instance will not register with the proxy..
 
 * `network` -
   (Optional)
@@ -276,6 +289,10 @@ The following arguments are supported:
   (Optional)
   Labels to apply to this instance. These can be later modified by the setLabels method.
   An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+* `tags` -
+  (Optional)
+  The Compute Engine tags to add to runtime.
 
 * `metadata` -
   (Optional)
@@ -301,11 +318,32 @@ The `accelerator_config` block supports:
 * `type` -
   (Required)
   Type of this accelerator.
-  Possible values are `ACCELERATOR_TYPE_UNSPECIFIED`, `NVIDIA_TESLA_K80`, `NVIDIA_TESLA_P100`, `NVIDIA_TESLA_V100`, `NVIDIA_TESLA_P4`, `NVIDIA_TESLA_T4`, `NVIDIA_TESLA_T4_VWS`, `NVIDIA_TESLA_P100_VWS`, `NVIDIA_TESLA_P4_VWS`, `TPU_V2`, and `TPU_V3`.
+  Possible values are `ACCELERATOR_TYPE_UNSPECIFIED`, `NVIDIA_TESLA_K80`, `NVIDIA_TESLA_P100`, `NVIDIA_TESLA_V100`, `NVIDIA_TESLA_P4`, `NVIDIA_TESLA_T4`, `NVIDIA_TESLA_T4_VWS`, `NVIDIA_TESLA_P100_VWS`, `NVIDIA_TESLA_P4_VWS`, `NVIDIA_TESLA_A100`, `TPU_V2`, and `TPU_V3`.
 
 * `core_count` -
   (Required)
   Count of cores of this accelerator.
+
+The `shielded_instance_config` block supports:
+
+* `enable_integrity_monitoring` -
+  (Optional)
+  Defines whether the instance has integrity monitoring enabled. Enables monitoring and attestation of the
+  boot integrity of the instance. The attestation is performed against the integrity policy baseline.
+  This baseline is initially derived from the implicitly trusted boot image when the instance is created.
+  Enabled by default.
+
+* `enable_secure_boot` -
+  (Optional)
+  Defines whether the instance has Secure Boot enabled. Secure Boot helps ensure that the system only runs
+  authentic software by verifying the digital signature of all boot components, and halting the boot process
+  if signature verification fails.
+  Disabled by default.
+
+* `enable_vtpm` -
+  (Optional)
+  Defines whether the instance has the vTPM enabled.
+  Enabled by default.
 
 The `vm_image` block supports:
 

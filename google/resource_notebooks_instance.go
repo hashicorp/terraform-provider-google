@@ -83,8 +83,8 @@ machineType you have selected.`,
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"ACCELERATOR_TYPE_UNSPECIFIED", "NVIDIA_TESLA_K80", "NVIDIA_TESLA_P100", "NVIDIA_TESLA_V100", "NVIDIA_TESLA_P4", "NVIDIA_TESLA_T4", "NVIDIA_TESLA_T4_VWS", "NVIDIA_TESLA_P100_VWS", "NVIDIA_TESLA_P4_VWS", "TPU_V2", "TPU_V3"}, false),
-							Description:  `Type of this accelerator. Possible values: ["ACCELERATOR_TYPE_UNSPECIFIED", "NVIDIA_TESLA_K80", "NVIDIA_TESLA_P100", "NVIDIA_TESLA_V100", "NVIDIA_TESLA_P4", "NVIDIA_TESLA_T4", "NVIDIA_TESLA_T4_VWS", "NVIDIA_TESLA_P100_VWS", "NVIDIA_TESLA_P4_VWS", "TPU_V2", "TPU_V3"]`,
+							ValidateFunc: validation.StringInSlice([]string{"ACCELERATOR_TYPE_UNSPECIFIED", "NVIDIA_TESLA_K80", "NVIDIA_TESLA_P100", "NVIDIA_TESLA_V100", "NVIDIA_TESLA_P4", "NVIDIA_TESLA_T4", "NVIDIA_TESLA_T4_VWS", "NVIDIA_TESLA_P100_VWS", "NVIDIA_TESLA_P4_VWS", "NVIDIA_TESLA_A100", "TPU_V2", "TPU_V3"}, false),
+							Description:  `Type of this accelerator. Possible values: ["ACCELERATOR_TYPE_UNSPECIFIED", "NVIDIA_TESLA_K80", "NVIDIA_TESLA_P100", "NVIDIA_TESLA_V100", "NVIDIA_TESLA_P4", "NVIDIA_TESLA_T4", "NVIDIA_TESLA_T4_VWS", "NVIDIA_TESLA_P100_VWS", "NVIDIA_TESLA_P4_VWS", "NVIDIA_TESLA_A100", "TPU_V2", "TPU_V3"]`,
 						},
 					},
 				},
@@ -217,13 +217,13 @@ Format: projects/{project_id}/global/networks/{network_id}`,
 				Type:        schema.TypeBool,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `the notebook instance will not register with the proxy..`,
+				Description: `The notebook instance will not register with the proxy..`,
 			},
 			"no_public_ip": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `no public IP will be assigned to this instance.`,
+				Description: `No public IP will be assigned to this instance.`,
 			},
 			"no_remove_data_disk": {
 				Type:        schema.TypeBool,
@@ -250,6 +250,58 @@ the same project, but you must have the service account user
 permission to use the instance. If not specified,
 the Compute Engine default service account is used.`,
 			},
+			"service_account_scopes": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Optional. The URIs of service account scopes to be included in Compute Engine instances.
+If not specified, the following scopes are defined:
+- https://www.googleapis.com/auth/cloud-platform
+- https://www.googleapis.com/auth/userinfo.email`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"shielded_instance_config": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `A set of Shielded Instance options. Check [Images using supported Shielded VM features]
+Not all combinations are valid`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_integrity_monitoring": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+							Description: `Defines whether the instance has integrity monitoring enabled. Enables monitoring and attestation of the
+boot integrity of the instance. The attestation is performed against the integrity policy baseline.
+This baseline is initially derived from the implicitly trusted boot image when the instance is created.
+Enabled by default.`,
+							Default: true,
+						},
+						"enable_secure_boot": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+							Description: `Defines whether the instance has Secure Boot enabled. Secure Boot helps ensure that the system only runs
+authentic software by verifying the digital signature of all boot components, and halting the boot process
+if signature verification fails.
+Disabled by default.`,
+						},
+						"enable_vtpm": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+							Description: `Defines whether the instance has the vTPM enabled.
+Enabled by default.`,
+							Default: true,
+						},
+					},
+				},
+			},
 			"subnet": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -258,6 +310,15 @@ the Compute Engine default service account is used.`,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description: `The name of the subnet that this instance is in.
 Format: projects/{project_id}/regions/{region}/subnetworks/{subnetwork_id}`,
+			},
+			"tags": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The Compute Engine tags to add to runtime.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"vm_image": {
 				Type:        schema.TypeList,
@@ -355,11 +416,23 @@ func resourceNotebooksInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("service_account"); !isEmptyValue(reflect.ValueOf(serviceAccountProp)) && (ok || !reflect.DeepEqual(v, serviceAccountProp)) {
 		obj["serviceAccount"] = serviceAccountProp
 	}
+	serviceAccountScopesProp, err := expandNotebooksInstanceServiceAccountScopes(d.Get("service_account_scopes"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_account_scopes"); !isEmptyValue(reflect.ValueOf(serviceAccountScopesProp)) && (ok || !reflect.DeepEqual(v, serviceAccountScopesProp)) {
+		obj["serviceAccountScopes"] = serviceAccountScopesProp
+	}
 	acceleratorConfigProp, err := expandNotebooksInstanceAcceleratorConfig(d.Get("accelerator_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("accelerator_config"); !isEmptyValue(reflect.ValueOf(acceleratorConfigProp)) && (ok || !reflect.DeepEqual(v, acceleratorConfigProp)) {
 		obj["acceleratorConfig"] = acceleratorConfigProp
+	}
+	shieldedInstanceConfigProp, err := expandNotebooksInstanceShieldedInstanceConfig(d.Get("shielded_instance_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("shielded_instance_config"); !isEmptyValue(reflect.ValueOf(shieldedInstanceConfigProp)) && (ok || !reflect.DeepEqual(v, shieldedInstanceConfigProp)) {
+		obj["shieldedInstanceConfig"] = shieldedInstanceConfigProp
 	}
 	installGpuDriverProp, err := expandNotebooksInstanceInstallGpuDriver(d.Get("install_gpu_driver"), d, config)
 	if err != nil {
@@ -444,6 +517,12 @@ func resourceNotebooksInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+	tagsProp, err := expandNotebooksInstanceTags(d.Get("tags"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tags"); !isEmptyValue(reflect.ValueOf(tagsProp)) && (ok || !reflect.DeepEqual(v, tagsProp)) {
+		obj["tags"] = tagsProp
 	}
 	metadataProp, err := expandNotebooksInstanceMetadata(d.Get("metadata"), d, config)
 	if err != nil {
@@ -565,7 +644,13 @@ func resourceNotebooksInstanceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("service_account", flattenNotebooksInstanceServiceAccount(res["serviceAccount"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("service_account_scopes", flattenNotebooksInstanceServiceAccountScopes(res["serviceAccountScopes"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("accelerator_config", flattenNotebooksInstanceAcceleratorConfig(res["acceleratorConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("shielded_instance_config", flattenNotebooksInstanceShieldedInstanceConfig(res["shieldedInstanceConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("state", flattenNotebooksInstanceState(res["state"], d, config)); err != nil {
@@ -599,6 +684,9 @@ func resourceNotebooksInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("labels", flattenNotebooksInstanceLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("tags", flattenNotebooksInstanceTags(res["tags"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("create_time", flattenNotebooksInstanceCreateTime(res["createTime"], d, config)); err != nil {
@@ -752,6 +840,10 @@ func flattenNotebooksInstanceServiceAccount(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenNotebooksInstanceServiceAccountScopes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenNotebooksInstanceAcceleratorConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -786,6 +878,35 @@ func flattenNotebooksInstanceAcceleratorConfigCoreCount(v interface{}, d *schema
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenNotebooksInstanceShieldedInstanceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_integrity_monitoring"] =
+		flattenNotebooksInstanceShieldedInstanceConfigEnableIntegrityMonitoring(original["enableIntegrityMonitoring"], d, config)
+	transformed["enable_secure_boot"] =
+		flattenNotebooksInstanceShieldedInstanceConfigEnableSecureBoot(original["enableSecureBoot"], d, config)
+	transformed["enable_vtpm"] =
+		flattenNotebooksInstanceShieldedInstanceConfigEnableVtpm(original["enableVtpm"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNotebooksInstanceShieldedInstanceConfigEnableIntegrityMonitoring(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNotebooksInstanceShieldedInstanceConfigEnableSecureBoot(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNotebooksInstanceShieldedInstanceConfigEnableVtpm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenNotebooksInstanceState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -832,6 +953,10 @@ func flattenNotebooksInstanceLabels(v interface{}, d *schema.ResourceData, confi
 	return v
 }
 
+func flattenNotebooksInstanceTags(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenNotebooksInstanceCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -853,6 +978,10 @@ func expandNotebooksInstanceInstanceOwners(v interface{}, d TerraformResourceDat
 }
 
 func expandNotebooksInstanceServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksInstanceServiceAccountScopes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -887,6 +1016,51 @@ func expandNotebooksInstanceAcceleratorConfigType(v interface{}, d TerraformReso
 }
 
 func expandNotebooksInstanceAcceleratorConfigCoreCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksInstanceShieldedInstanceConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableIntegrityMonitoring, err := expandNotebooksInstanceShieldedInstanceConfigEnableIntegrityMonitoring(original["enable_integrity_monitoring"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableIntegrityMonitoring); val.IsValid() && !isEmptyValue(val) {
+		transformed["enableIntegrityMonitoring"] = transformedEnableIntegrityMonitoring
+	}
+
+	transformedEnableSecureBoot, err := expandNotebooksInstanceShieldedInstanceConfigEnableSecureBoot(original["enable_secure_boot"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableSecureBoot); val.IsValid() && !isEmptyValue(val) {
+		transformed["enableSecureBoot"] = transformedEnableSecureBoot
+	}
+
+	transformedEnableVtpm, err := expandNotebooksInstanceShieldedInstanceConfigEnableVtpm(original["enable_vtpm"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableVtpm); val.IsValid() && !isEmptyValue(val) {
+		transformed["enableVtpm"] = transformedEnableVtpm
+	}
+
+	return transformed, nil
+}
+
+func expandNotebooksInstanceShieldedInstanceConfigEnableIntegrityMonitoring(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksInstanceShieldedInstanceConfigEnableSecureBoot(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNotebooksInstanceShieldedInstanceConfigEnableVtpm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -951,6 +1125,10 @@ func expandNotebooksInstanceLabels(v interface{}, d TerraformResourceData, confi
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandNotebooksInstanceTags(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandNotebooksInstanceMetadata(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
