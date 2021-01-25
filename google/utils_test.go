@@ -597,3 +597,13 @@ func TestConflictError(t *testing.T) {
 	}
 	// skipping negative tests as other cases may be added later.
 }
+
+func TestSnakeToPascalCase(t *testing.T) {
+	input := "boot_disk"
+	expected := "BootDisk"
+	actual := SnakeToPascalCase(input)
+
+	if actual != expected {
+		t.Fatalf("(%s) did not match expected value: %s", actual, expected)
+	}
+}
