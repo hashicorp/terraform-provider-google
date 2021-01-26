@@ -59,6 +59,13 @@ func resourceGoogleServiceAccountKey() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 			},
+			"ignore_deleted": {
+				Type:        schema.TypeBool,
+				Default:     false,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "If true, then this resource will not be recreated upon deletion by an external entity. Attributes (such as private_key) will be invalid once deleted.",
+			},
 			// Computed
 			"name": {
 				Type:        schema.TypeString,
@@ -157,18 +164,28 @@ func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{
 	// Confirm the service account key exists
 	sak, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Keys.Get(d.Id()).PublicKeyType(publicKeyType).Do()
 	if err != nil {
-		if err = handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id())); err == nil {
-			return nil
-		} else {
-			// This resource also returns 403 when it's not found.
-			if isGoogleApiErrorWithCode(err, 403) {
-				log.Printf("[DEBUG] Got a 403 error trying to read service account key %s, assuming it's gone.", d.Id())
-				d.SetId("")
+		ignore_deleted := d.Get("ignore_deleted").(bool)
+
+		if isGoogleApiErrorWithCode(err, 403) {
+			if ignore_deleted {
 				return nil
-			} else {
-				return err
 			}
+
+			log.Printf("[DEBUG] Got a 403 error trying to read service account key %s, assuming it's gone.", d.Id())
+			d.SetId("")
+
+			return nil
 		}
+
+		if isGoogleApiErrorWithCode(err, 404) {
+			if ignore_deleted {
+				return nil
+			}
+
+			return handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id()))
+		}
+
+		return err
 	}
 
 	if err := d.Set("name", sak.Name); err != nil {
