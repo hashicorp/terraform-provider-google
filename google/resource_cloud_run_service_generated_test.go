@@ -264,6 +264,12 @@ resource "google_cloud_run_service" "default" {
     latest_revision = true
   }
   autogenerate_revision_name = true
+
+  lifecycle {
+    ignore_changes = [
+        metadata.0.annotations,
+    ]
+  }
 }
 `, context)
 }
