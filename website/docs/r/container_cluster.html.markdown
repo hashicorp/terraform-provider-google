@@ -149,7 +149,7 @@ for more information.
     this cluster. Note that when this option is enabled, the cluster cannot be upgraded
     and will be automatically deleted after 30 days.
 
-* `enable_tpu` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Whether to enable Cloud TPU resources in this cluster.
+* `enable_tpu` - (Optional) Whether to enable Cloud TPU resources in this cluster.
     See the [official documentation](https://cloud.google.com/tpu/docs/kubernetes-engine-setup).
 
 * `enable_legacy_abac` - (Optional) Whether the ABAC authorizer is enabled for this cluster.
@@ -298,10 +298,13 @@ subnetwork in which the cluster's instances are launched.
     [Google IAM Service Account](https://cloud.google.com/iam/docs/service-accounts#user-managed_service_accounts).
     Structure is documented below.
 
-* `enable_intranode_visibility` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `enable_intranode_visibility` - (Optional)
     Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.
 
-* `default_snat_status` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `datapath_provider` - (Optional)
+    The desired datapath provider for this cluster. By default, uses the IPTables-based kube-proxy implementation.
+
+* `default_snat_status` - (Optional)
   [GKE SNAT](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-masquerade-agent#how_ipmasq_works) DefaultSnatStatus contains the desired state of whether default sNAT should be disabled on the cluster, [API doc](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#networkconfig).
 
 The `default_snat_status` block supports
@@ -711,7 +714,7 @@ subnet. See [Private Cluster Limitations](https://cloud.google.com/kubernetes-en
 for more details. This field only applies to private clusters, when
 `enable_private_nodes` is `true`.
 
-* `master_global_access_config` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - Controls cluster master global
+* `master_global_access_config` (Optional) - Controls cluster master global
 access settings. If unset, Terraform will no longer manage this field and will
 not modify the previously-set value. Structure is documented below.
 
@@ -863,7 +866,7 @@ exported:
     be different than the `min_master_version` set in the config if the master
     has been updated by GKE.
 
-* `tpu_ipv4_cidr_block` - ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The IP address range of the Cloud TPUs in this cluster, in
+* `tpu_ipv4_cidr_block` - The IP address range of the Cloud TPUs in this cluster, in
     [CIDR](http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
     notation (e.g. `1.2.3.4/29`).
 

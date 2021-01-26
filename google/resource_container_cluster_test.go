@@ -620,6 +620,42 @@ func TestAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(t *testing
 	})
 }
 
+func TestAccContainerCluster_withIntraNodeVisibility(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withIntraNodeVisibility(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_intranode_visibility", "enable_intranode_visibility", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_intranode_visibility",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_updateIntraNodeVisibility(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_intranode_visibility", "enable_intranode_visibility", "false"),
+				),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_intranode_visibility",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withVersion(t *testing.T) {
 	t.Parallel()
 
@@ -1481,6 +1517,28 @@ func TestAccContainerCluster_withDatabaseEncryption(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withAdvancedDatapath(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withDatapathProvider(clusterName, "ADVANCED_DATAPATH"),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withResourceUsageExportConfig(t *testing.T) {
 	t.Parallel()
 
@@ -2203,6 +2261,28 @@ resource "google_container_cluster" "with_node_locations" {
     "us-central1-f",
     "us-central1-b",
   ]
+}
+`, clusterName)
+}
+
+func testAccContainerCluster_withIntraNodeVisibility(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_intranode_visibility" {
+  name                        = "%s"
+  location                    = "us-central1-a"
+  initial_node_count          = 1
+  enable_intranode_visibility = true
+}
+`, clusterName)
+}
+
+func testAccContainerCluster_updateIntraNodeVisibility(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_intranode_visibility" {
+  name                        = "%s"
+  location                    = "us-central1-a"
+  initial_node_count          = 1
+  enable_intranode_visibility = false
 }
 `, clusterName)
 }
@@ -3118,6 +3198,9 @@ resource "google_container_cluster" "with_private_cluster" {
   location           = "us-central1-a"
   initial_node_count = 1
 
+  default_snat_status {
+    disabled = true
+  }
   network    = google_compute_network.container_network.name
   subnetwork = google_compute_subnetwork.container_subnetwork.name
 
@@ -3125,6 +3208,9 @@ resource "google_container_cluster" "with_private_cluster" {
     enable_private_endpoint = true
     enable_private_nodes    = true
     master_ipv4_cidr_block  = "10.42.0.0/28"
+    master_global_access_config {
+      enabled = true
+	}
   }
   master_authorized_networks_config {
   }
@@ -3288,6 +3374,24 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, kmsData.KeyRing.Name, kmsData.CryptoKey.Name, clusterName)
+}
+
+func testAccContainerCluster_withDatapathProvider(clusterName, datapathProvider string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  ip_allocation_policy {
+  }
+
+  datapath_provider = "%s"
+
+  release_channel {
+    channel = "RAPID"
+  }
+}
+`, clusterName, datapathProvider)
 }
 
 func testAccContainerCluster_withMasterAuthorizedNetworksDisabled(containerNetName string, clusterName string) string {
