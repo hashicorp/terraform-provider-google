@@ -70,6 +70,12 @@ resource "google_cloud_run_service" "default" {
     percent         = 100
     latest_revision = true
   }
+
+  lifecycle {
+    ignore_changes = [
+      metadata.0.annotations,
+    ]
+  }
 }
 `, name, project, concurrency, timeoutSeconds)
 }
