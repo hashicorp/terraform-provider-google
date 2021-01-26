@@ -171,8 +171,9 @@ By default, the job is sent to the version which is the default version when the
 							},
 						},
 						"body": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validateBase64String,
 							Description: `HTTP request body. 
 A request body is allowed only if the HTTP method is POST or PUT. 
 It will result in invalid argument error to set a body on a job with an incompatible HttpMethod.
@@ -232,8 +233,9 @@ send a request to the targeted url`,
 							Description: `The full URI path that the request will be sent to.`,
 						},
 						"body": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validateBase64String,
 							Description: `HTTP request body. 
 A request body is allowed only if the HTTP method is POST, PUT, or PATCH. 
 It is an error to set body on a job with an incompatible HttpMethod.
@@ -330,10 +332,13 @@ Pubsub message must contain either non-empty data, or at least one attribute.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"data": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validateBase64String,
 							Description: `The message payload for PubsubMessage.
-Pubsub message must contain either non-empty data, or at least one attribute.`,
+Pubsub message must contain either non-empty data, or at least one attribute.
+
+ A base64-encoded string.`,
 						},
 					},
 				},
