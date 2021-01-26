@@ -81,6 +81,24 @@ resource "google_compute_resource_policy" "bar" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=resource_policy_placement_policy&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Resource Policy Placement Policy
+
+
+```hcl
+resource "google_compute_resource_policy" "baz" {
+  name   = "policy"
+  region = "us-central1"
+  group_placement_policy {
+    vm_count = 2
+    collocation = "COLLOCATED"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -103,7 +121,13 @@ The following arguments are supported:
 
 * `snapshot_schedule_policy` -
   (Optional)
-  Policy for creating snapshots of persistent disks.  Structure is documented below.
+  Policy for creating snapshots of persistent disks.
+  Structure is documented below.
+
+* `group_placement_policy` -
+  (Optional)
+  Policy for creating snapshots of persistent disks.
+  Structure is documented below.
 
 * `region` -
   (Optional)
@@ -117,30 +141,36 @@ The `snapshot_schedule_policy` block supports:
 
 * `schedule` -
   (Required)
-  Contains one of an `hourlySchedule`, `dailySchedule`, or `weeklySchedule`.  Structure is documented below.
+  Contains one of an `hourlySchedule`, `dailySchedule`, or `weeklySchedule`.
+  Structure is documented below.
 
 * `retention_policy` -
   (Optional)
-  Retention policy applied to snapshots created by this resource policy.  Structure is documented below.
+  Retention policy applied to snapshots created by this resource policy.
+  Structure is documented below.
 
 * `snapshot_properties` -
   (Optional)
-  Properties with which the snapshots are created, such as labels.  Structure is documented below.
+  Properties with which the snapshots are created, such as labels.
+  Structure is documented below.
 
 
 The `schedule` block supports:
 
 * `hourly_schedule` -
   (Optional)
-  The policy will execute every nth hour starting at the specified time.  Structure is documented below.
+  The policy will execute every nth hour starting at the specified time.
+  Structure is documented below.
 
 * `daily_schedule` -
   (Optional)
-  The policy will execute every nth day at the specified time.  Structure is documented below.
+  The policy will execute every nth day at the specified time.
+  Structure is documented below.
 
 * `weekly_schedule` -
   (Optional)
-  Allows specifying a snapshot time for each day of the week.  Structure is documented below.
+  Allows specifying a snapshot time for each day of the week.
+  Structure is documented below.
 
 
 The `hourly_schedule` block supports:
@@ -172,7 +202,8 @@ The `weekly_schedule` block supports:
 
 * `day_of_weeks` -
   (Required)
-  May contain up to seven (one for each day of the week) snapshot times.  Structure is documented below.
+  May contain up to seven (one for each day of the week) snapshot times.
+  Structure is documented below.
 
 
 The `day_of_weeks` block supports:
@@ -185,6 +216,7 @@ The `day_of_weeks` block supports:
 * `day` -
   (Required)
   The day of the week to create the snapshot. e.g. MONDAY
+  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
 
 The `retention_policy` block supports:
 
@@ -196,7 +228,8 @@ The `retention_policy` block supports:
   (Optional)
   Specifies the behavior to apply to scheduled snapshots when
   the source disk is deleted.
-  Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY
+  Default value is `KEEP_AUTO_SNAPSHOTS`.
+  Possible values are `KEEP_AUTO_SNAPSHOTS` and `APPLY_RETENTION_POLICY`.
 
 The `snapshot_properties` block supports:
 
@@ -206,11 +239,38 @@ The `snapshot_properties` block supports:
 
 * `storage_locations` -
   (Optional)
-  GCS bucket location in which to store the snapshot (regional or multi-regional).
+  Cloud Storage bucket location to store the auto snapshot
+  (regional or multi-regional)
 
 * `guest_flush` -
   (Optional)
   Whether to perform a 'guest aware' snapshot.
+
+The `group_placement_policy` block supports:
+
+* `vm_count` -
+  (Optional)
+  Number of vms in this placement group.
+
+* `availability_domain_count` -
+  (Optional)
+  The number of availability domains instances will be spread across. If two instances are in different
+  availability domain, they will not be put in the same low latency network
+
+* `collocation` -
+  (Optional)
+  Collocation specifies whether to place VMs inside the same availability domain on the same low-latency network.
+  Specify `COLLOCATED` to enable collocation. Can only be specified with `vm_count`. If compute instances are created
+  with a COLLOCATED policy, then exactly `vm_count` instances must be created at the same time with the resource policy
+  attached.
+  Possible values are `COLLOCATED`.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}`
+* `self_link` - The URI of the created resource.
 
 
 ## Timeouts
@@ -223,6 +283,7 @@ This resource provides the following
 
 ## Import
 
+
 ResourcePolicy can be imported using any of these accepted formats:
 
 ```
@@ -231,9 +292,6 @@ $ terraform import google_compute_resource_policy.default {{project}}/{{region}}
 $ terraform import google_compute_resource_policy.default {{region}}/{{name}}
 $ terraform import google_compute_resource_policy.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

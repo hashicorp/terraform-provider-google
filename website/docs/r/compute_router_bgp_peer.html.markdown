@@ -96,6 +96,8 @@ The following arguments are supported:
   (Optional)
   User-specified flag to indicate which mode to use for advertisement.
   Valid values of this enum field are: `DEFAULT`, `CUSTOM`
+  Default value is `DEFAULT`.
+  Possible values are `DEFAULT` and `CUSTOM`.
 
 * `advertised_groups` -
   (Optional)
@@ -116,7 +118,8 @@ The following arguments are supported:
   custom mode. This field can only be populated if advertiseMode
   is `CUSTOM` and is advertised to all peers of the router. These IP
   ranges will be advertised in addition to any specified groups.
-  Leave this field blank to advertise no custom IP ranges.  Structure is documented below.
+  Leave this field blank to advertise no custom IP ranges.
+  Structure is documented below.
 
 * `region` -
   (Optional)
@@ -142,6 +145,7 @@ The `advertised_ip_ranges` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/routers/{{router}}/{{name}}`
 
 * `ip_address` -
   IP address of the interface inside Google Cloud Platform.
@@ -170,6 +174,7 @@ This resource provides the following
 
 ## Import
 
+
 RouterBgpPeer can be imported using any of these accepted formats:
 
 ```
@@ -178,9 +183,6 @@ $ terraform import google_compute_router_peer.default {{project}}/{{region}}/{{r
 $ terraform import google_compute_router_peer.default {{region}}/{{router}}/{{name}}
 $ terraform import google_compute_router_peer.default {{router}}/{{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

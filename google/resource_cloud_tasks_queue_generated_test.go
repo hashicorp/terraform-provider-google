@@ -19,22 +19,24 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccCloudTasksQueue_queueBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudTasksQueueDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckCloudTasksQueueDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudTasksQueue_queueBasicExample(context),
@@ -52,33 +54,101 @@ func TestAccCloudTasksQueue_queueBasicExample(t *testing.T) {
 func testAccCloudTasksQueue_queueBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloud_tasks_queue" "default" {
-  name = "cloud-tasks-queue-test%{random_suffix}"
+  name = "tf-test-cloud-tasks-queue-test%{random_suffix}"
   location = "us-central1"
 }
 `, context)
 }
 
-func testAccCheckCloudTasksQueueDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_cloud_tasks_queue" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
-		}
+func TestAccCloudTasksQueue_cloudTasksQueueAdvancedExample(t *testing.T) {
+	t.Parallel()
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("CloudTasksQueue still exists at %s", url)
-		}
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
 	}
 
-	return nil
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckCloudTasksQueueDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudTasksQueue_cloudTasksQueueAdvancedExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_tasks_queue.advanced_configuration",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "app_engine_routing_override.0.service", "app_engine_routing_override.0.version", "app_engine_routing_override.0.instance"},
+			},
+		},
+	})
+}
+
+func testAccCloudTasksQueue_cloudTasksQueueAdvancedExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_cloud_tasks_queue" "advanced_configuration" {
+  name = "tf-test-instance-name%{random_suffix}"
+  location = "us-central1"
+
+  app_engine_routing_override {
+    service = "worker"
+    version = "1.0"
+    instance = "test"
+  }
+
+  rate_limits {
+    max_concurrent_dispatches = 3
+    max_dispatches_per_second = 2
+  }
+
+  retry_config {
+    max_attempts = 5
+    max_retry_duration = "4s"
+    max_backoff = "3s"
+    min_backoff = "2s"
+    max_doublings = 1
+  }
+
+  stackdriver_logging_config {
+    sampling_ratio = 0.9
+  }
+}
+`, context)
+}
+
+func testAccCheckCloudTasksQueueDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_cloud_tasks_queue" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			if err == nil {
+				return fmt.Errorf("CloudTasksQueue still exists at %s", url)
+			}
+		}
+
+		return nil
+	}
 }

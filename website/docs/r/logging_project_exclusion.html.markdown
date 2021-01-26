@@ -1,5 +1,5 @@
 ---
-subcategory: "Stackdriver Logging"
+subcategory: "Cloud (Stackdriver) Logging"
 layout: "google"
 page_title: "Google: google_logging_project_exclusion"
 sidebar_current: "docs-google-logging-project-exclusion"
@@ -46,6 +46,12 @@ The following arguments are supported:
 
 * `project` - (Optional) The project to create the exclusion in. If omitted, the project associated with the provider is
     used.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/exclusions/{{name}}`
 
 ## Import
 

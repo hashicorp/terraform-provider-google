@@ -1,0 +1,3 @@
+```release-note:bug
+kms: fixed the `id` value in the `google_kms_crypto_key_version` datasource to include an `/v1` part following `//cloudkms.googleapis.com/`, making it useful for interpolation into Binary Authorization.
+```

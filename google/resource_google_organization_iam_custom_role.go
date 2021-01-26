@@ -3,8 +3,8 @@ package google
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -21,46 +21,63 @@ func resourceGoogleOrganizationIamCustomRole() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"role_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The role id to use for this role.`,
 			},
 			"org_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The numeric ID of the organization in which you want to create a custom role.`,
 			},
 			"title": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `A human-readable title for the role.`,
 			},
 			"permissions": {
-				Type:     schema.TypeSet,
-				Required: true,
-				MinItems: 1,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeSet,
+				Required:    true,
+				MinItems:    1,
+				Description: `The names of the permissions this role grants when bound in an IAM policy. At least one permission must be specified.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"stage": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Default:          "GA",
+				Description:      `The current launch stage of the role. Defaults to GA.`,
 				ValidateFunc:     validation.StringInSlice([]string{"ALPHA", "BETA", "GA", "DEPRECATED", "DISABLED", "EAP"}, false),
 				DiffSuppressFunc: emptyOrDefaultStringSuppress("ALPHA"),
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A human-readable description for the role.`,
 			},
 			"deleted": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `The current deleted state of the role.`,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the role in the format organizations/{{org_id}}/roles/{{role_id}}. Like id, this field can be used as a reference in other resources such as IAM role bindings.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	org := d.Get("org_id").(string)
 	roleId := fmt.Sprintf("organizations/%s/roles/%s", org, d.Get("role_id").(string))
@@ -68,8 +85,8 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 
 	// Look for role with given ID.
 	// If it exists in deleted state, update to match "created" role state
-	// If it exists and and is enabled, return error - we should not try to recreate.
-	r, err := config.clientIAM.Organizations.Roles.Get(roleId).Do()
+	// If it exists and is enabled, return error - we should not try to recreate.
+	r, err := config.NewIamClient(userAgent).Organizations.Roles.Get(roleId).Do()
 	if err == nil {
 		if r.Deleted {
 			// This role was soft-deleted; update to match new state.
@@ -85,7 +102,7 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 		}
 	} else if err := handleNotFoundError(err, d, fmt.Sprintf("Custom Organization Role %q", roleId)); err == nil {
 		// If no role was found, actually create a new role.
-		role, err := config.clientIAM.Organizations.Roles.Create(orgId, &iam.CreateRoleRequest{
+		role, err := config.NewIamClient(userAgent).Organizations.Roles.Create(orgId, &iam.CreateRoleRequest{
 			RoleId: d.Get("role_id").(string),
 			Role: &iam.Role{
 				Title:               d.Get("title").(string),
@@ -108,8 +125,12 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 
 func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
-	role, err := config.clientIAM.Organizations.Roles.Get(d.Id()).Do()
+	role, err := config.NewIamClient(userAgent).Organizations.Roles.Get(d.Id()).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, d.Id())
 	}
@@ -119,40 +140,59 @@ func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	d.Set("role_id", parsedRoleName.Name)
-	d.Set("org_id", parsedRoleName.OrgId)
-	d.Set("title", role.Title)
-	d.Set("description", role.Description)
-	d.Set("permissions", role.IncludedPermissions)
-	d.Set("stage", role.Stage)
-	d.Set("deleted", role.Deleted)
+	if err := d.Set("role_id", parsedRoleName.Name); err != nil {
+		return fmt.Errorf("Error setting role_id: %s", err)
+	}
+	if err := d.Set("org_id", parsedRoleName.OrgId); err != nil {
+		return fmt.Errorf("Error setting org_id: %s", err)
+	}
+	if err := d.Set("title", role.Title); err != nil {
+		return fmt.Errorf("Error setting title: %s", err)
+	}
+	if err := d.Set("name", role.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("description", role.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("permissions", role.IncludedPermissions); err != nil {
+		return fmt.Errorf("Error setting permissions: %s", err)
+	}
+	if err := d.Set("stage", role.Stage); err != nil {
+		return fmt.Errorf("Error setting stage: %s", err)
+	}
+	if err := d.Set("deleted", role.Deleted); err != nil {
+		return fmt.Errorf("Error setting deleted: %s", err)
+	}
 
 	return nil
 }
 
 func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	d.Partial(true)
 
 	// We want to update the role to some undeleted state.
 	// Make sure the role with given ID exists and is un-deleted before patching.
-	r, err := config.clientIAM.Organizations.Roles.Get(d.Id()).Do()
+	r, err := config.NewIamClient(userAgent).Organizations.Roles.Get(d.Id()).Do()
 	if err != nil {
 		return fmt.Errorf("unable to find custom project role %s to update: %v", d.Id(), err)
 	}
 
 	if r.Deleted {
-		_, err := config.clientIAM.Organizations.Roles.Undelete(d.Id(), &iam.UndeleteRoleRequest{}).Do()
+		_, err := config.NewIamClient(userAgent).Organizations.Roles.Undelete(d.Id(), &iam.UndeleteRoleRequest{}).Do()
 		if err != nil {
 			return fmt.Errorf("Error undeleting the custom organization role %s: %s", d.Get("title").(string), err)
 		}
-
-		d.SetPartial("deleted")
 	}
 
 	if d.HasChange("title") || d.HasChange("description") || d.HasChange("stage") || d.HasChange("permissions") {
-		_, err := config.clientIAM.Organizations.Roles.Patch(d.Id(), &iam.Role{
+		_, err := config.NewIamClient(userAgent).Organizations.Roles.Patch(d.Id(), &iam.Role{
 			Title:               d.Get("title").(string),
 			Description:         d.Get("description").(string),
 			Stage:               d.Get("stage").(string),
@@ -162,11 +202,6 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 		if err != nil {
 			return fmt.Errorf("Error updating the custom organization role %s: %s", d.Get("title").(string), err)
 		}
-
-		d.SetPartial("title")
-		d.SetPartial("description")
-		d.SetPartial("stage")
-		d.SetPartial("permissions")
 	}
 
 	d.Partial(false)
@@ -175,14 +210,18 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 
 func resourceGoogleOrganizationIamCustomRoleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
-	r, err := config.clientIAM.Organizations.Roles.Get(d.Id()).Do()
+	r, err := config.NewIamClient(userAgent).Organizations.Roles.Get(d.Id()).Do()
 	if err == nil && r != nil && r.Deleted && d.Get("deleted").(bool) {
 		// This role has already been deleted, don't try again.
 		return nil
 	}
 
-	_, err = config.clientIAM.Organizations.Roles.Delete(d.Id()).Do()
+	_, err = config.NewIamClient(userAgent).Organizations.Roles.Delete(d.Id()).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting the custom organization role %s: %s", d.Get("title").(string), err)
 	}

@@ -3,8 +3,9 @@ package google
 import (
 	"fmt"
 	"log"
+	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -17,36 +18,49 @@ func resourceProjectUsageBucket() *schema.Resource {
 			State: resourceProjectUsageBucketImportState,
 		},
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"bucket_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The bucket to store reports in.`,
 			},
 			"prefix": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `A prefix for the reports, for instance, the project name.`,
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The project to set the export bucket on. If it is not provided, the provider project is used.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	p, err := config.clientCompute.Projects.Get(project).Do()
+	p, err := config.NewComputeClient(userAgent).Projects.Get(project).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Project data for project %s", project))
 	}
@@ -57,21 +71,31 @@ func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) er
 		return nil
 	}
 
-	d.Set("project", project)
-	d.Set("prefix", p.UsageExportLocation.ReportNamePrefix)
-	d.Set("bucket_name", p.UsageExportLocation.BucketName)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("prefix", p.UsageExportLocation.ReportNamePrefix); err != nil {
+		return fmt.Errorf("Error setting prefix: %s", err)
+	}
+	if err := d.Set("bucket_name", p.UsageExportLocation.BucketName); err != nil {
+		return fmt.Errorf("Error setting bucket_name: %s", err)
+	}
 	return nil
 }
 
 func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	op, err := config.clientCompute.Projects.SetUsageExportBucket(project, &compute.UsageExportLocation{
+	op, err := config.NewComputeClient(userAgent).Projects.SetUsageExportBucket(project, &compute.UsageExportLocation{
 		ReportNamePrefix: d.Get("prefix").(string),
 		BucketName:       d.Get("bucket_name").(string),
 	}).Do()
@@ -79,32 +103,38 @@ func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 	d.SetId(project)
-	err = computeOperationWait(config, op, project, "Setting usage export bucket.")
+	err = computeOperationWaitTime(config, op, project, "Setting usage export bucket.", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return err
 	}
 
-	d.Set("project", project)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 
 	return resourceProjectUsageBucketRead(d, meta)
 }
 
 func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	op, err := config.clientCompute.Projects.SetUsageExportBucket(project, nil).Do()
+	op, err := config.NewComputeClient(userAgent).Projects.SetUsageExportBucket(project, nil).Do()
 	if err != nil {
 		return err
 	}
 
-	err = computeOperationWait(config, op, project,
-		"Setting usage export bucket to nil, automatically disabling usage export.")
+	err = computeOperationWaitTime(config, op, project,
+		"Setting usage export bucket to nil, automatically disabling usage export.", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}
@@ -115,6 +145,8 @@ func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) 
 
 func resourceProjectUsageBucketImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	project := d.Id()
-	d.Set("project", project)
+	if err := d.Set("project", project); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }

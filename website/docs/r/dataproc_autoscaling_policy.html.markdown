@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Dataproc"
+subcategory: "Dataproc"
 layout: "google"
 page_title: "Google: google_dataproc_autoscaling_policy"
 sidebar_current: "docs-google-dataproc-autoscaling-policy"
@@ -36,7 +36,7 @@ Describes an autoscaling policy for Dataproc cluster autoscaler.
 
 ```hcl
 resource "google_dataproc_cluster" "basic" {
-  name     = "tf-dataproc-test-"
+  name     = "dataproc-policy"
   region   = "us-central1"
 
   cluster_config {
@@ -47,7 +47,7 @@ resource "google_dataproc_cluster" "basic" {
 }
 
 resource "google_dataproc_autoscaling_policy" "asp" {
-  policy_id = "tf-dataproc-test-"
+  policy_id = "dataproc-policy"
   location  = "us-central1"
 
   worker_config {
@@ -82,19 +82,22 @@ The following arguments are supported:
 
 * `worker_config` -
   (Optional)
-  Describes how the autoscaler will operate for primary workers.  Structure is documented below.
+  Describes how the autoscaler will operate for primary workers.
+  Structure is documented below.
 
 * `secondary_worker_config` -
   (Optional)
-  Describes how the autoscaler will operate for secondary workers.  Structure is documented below.
+  Describes how the autoscaler will operate for secondary workers.
+  Structure is documented below.
 
 * `basic_algorithm` -
   (Optional)
-  Basic algorithm for autoscaling.  Structure is documented below.
+  Basic algorithm for autoscaling.
+  Structure is documented below.
 
 * `location` -
   (Optional)
-  The  location where the autoscaling poicy should reside.
+  The  location where the autoscaling policy should reside.
   The default value is `global`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -163,7 +166,8 @@ The `basic_algorithm` block supports:
 
 * `yarn_config` -
   (Required)
-  YARN autoscaling configuration.  Structure is documented below.
+  YARN autoscaling configuration.
+  Structure is documented below.
 
 
 The `yarn_config` block supports:
@@ -213,6 +217,7 @@ The `yarn_config` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/autoscalingPolicies/{{policy_id}}`
 
 * `name` -
   The "resource name" of the autoscaling policy.
@@ -229,6 +234,7 @@ This resource provides the following
 
 ## Import
 
+
 AutoscalingPolicy can be imported using any of these accepted formats:
 
 ```
@@ -236,9 +242,6 @@ $ terraform import google_dataproc_autoscaling_policy.default projects/{{project
 $ terraform import google_dataproc_autoscaling_policy.default {{project}}/{{location}}/{{policy_id}}
 $ terraform import google_dataproc_autoscaling_policy.default {{location}}/{{policy_id}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

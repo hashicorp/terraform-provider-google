@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
 )
 
@@ -38,37 +38,30 @@ func resourceContainerNodePool() *schema.Resource {
 			resourceNodeConfigEmptyGuestAccelerator,
 		),
 
+		UseJSONNumber: true,
+
 		Schema: mergeSchemas(
 			schemaNodePool,
 			map[string]*schema.Schema{
 				"project": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Computed: true,
-					ForceNew: true,
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					ForceNew:    true,
+					Description: `The ID of the project in which to create the node pool. If blank, the provider-configured project will be used.`,
 				},
 				"cluster": {
-					Type:     schema.TypeString,
-					Required: true,
-					ForceNew: true,
-				},
-				"zone": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Removed:  "use location instead",
-					Computed: true,
-				},
-				"region": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Removed:  "use location instead",
-					Computed: true,
+					Type:        schema.TypeString,
+					Required:    true,
+					ForceNew:    true,
+					Description: `The cluster to create the node pool for. Cluster must be present in location provided for zonal clusters.`,
 				},
 				"location": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Computed: true,
-					ForceNew: true,
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					ForceNew:    true,
+					Description: `The location (region or zone) of the cluster.`,
 				},
 			}),
 	}
@@ -76,95 +69,141 @@ func resourceContainerNodePool() *schema.Resource {
 
 var schemaNodePool = map[string]*schema.Schema{
 	"autoscaling": {
-		Type:     schema.TypeList,
-		Optional: true,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: `Configuration required by cluster autoscaler to adjust the size of the node pool to the current cluster usage.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"min_node_count": {
 					Type:         schema.TypeInt,
 					Required:     true,
 					ValidateFunc: validation.IntAtLeast(0),
+					Description:  `Minimum number of nodes in the NodePool. Must be >=0 and <= max_node_count.`,
 				},
 
 				"max_node_count": {
 					Type:         schema.TypeInt,
 					Required:     true,
 					ValidateFunc: validation.IntAtLeast(1),
+					Description:  `Maximum number of nodes in the NodePool. Must be >= min_node_count.`,
 				},
 			},
 		},
 	},
 
 	"max_pods_per_node": {
-		Type:     schema.TypeInt,
-		Optional: true,
-		ForceNew: true,
-		Computed: true,
+		Type:        schema.TypeInt,
+		Optional:    true,
+		ForceNew:    true,
+		Computed:    true,
+		Description: `The maximum number of pods per node in this node pool. Note that this does not work on node pools which are "route-based" - that is, node pools belonging to clusters that do not have IP Aliasing enabled.`,
+	},
+
+	"node_locations": {
+		Type:        schema.TypeSet,
+		Optional:    true,
+		Computed:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString},
+		Description: `The list of zones in which the node pool's nodes should be located. Nodes must be in the region of their regional cluster or in the same region as their cluster's zone for zonal clusters. If unspecified, the cluster-level node_locations will be used.`,
+	},
+
+	"upgrade_settings": {
+		Type:        schema.TypeList,
+		Optional:    true,
+		Computed:    true,
+		MaxItems:    1,
+		Description: `Specify node upgrade settings to change how many nodes GKE attempts to upgrade at once. The number of nodes upgraded simultaneously is the sum of max_surge and max_unavailable. The maximum number of nodes upgraded simultaneously is limited to 20.`,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"max_surge": {
+					Type:         schema.TypeInt,
+					Required:     true,
+					ValidateFunc: validation.IntAtLeast(0),
+					Description:  `The number of additional nodes that can be added to the node pool during an upgrade. Increasing max_surge raises the number of nodes that can be upgraded simultaneously. Can be set to 0 or greater.`,
+				},
+
+				"max_unavailable": {
+					Type:         schema.TypeInt,
+					Required:     true,
+					ValidateFunc: validation.IntAtLeast(0),
+					Description:  `The number of nodes that can be simultaneously unavailable during an upgrade. Increasing max_unavailable raises the number of nodes that can be upgraded in parallel. Can be set to 0 or greater.`,
+				},
+			},
+		},
 	},
 
 	"initial_node_count": {
-		Type:     schema.TypeInt,
-		Optional: true,
-		ForceNew: true,
-		Computed: true,
+		Type:        schema.TypeInt,
+		Optional:    true,
+		ForceNew:    true,
+		Computed:    true,
+		Description: `The initial number of nodes for the pool. In regional or multi-zonal clusters, this is the number of nodes per zone. Changing this will force recreation of the resource.`,
 	},
 
 	"instance_group_urls": {
-		Type:     schema.TypeList,
-		Computed: true,
-		Elem:     &schema.Schema{Type: schema.TypeString},
+		Type:        schema.TypeList,
+		Computed:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString},
+		Description: `The resource URLs of the managed instance groups associated with this node pool.`,
 	},
 
 	"management": {
-		Type:     schema.TypeList,
-		Optional: true,
-		Computed: true,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		Optional:    true,
+		Computed:    true,
+		MaxItems:    1,
+		Description: `Node management configuration, wherein auto-repair and auto-upgrade is configured.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"auto_repair": {
-					Type:     schema.TypeBool,
-					Optional: true,
-					Default:  false,
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Default:     false,
+					Description: `Whether the nodes will be automatically repaired.`,
 				},
 
 				"auto_upgrade": {
-					Type:     schema.TypeBool,
-					Optional: true,
-					Default:  false,
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Default:     false,
+					Description: `Whether the nodes will be automatically upgraded.`,
 				},
 			},
 		},
 	},
 
 	"name": {
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Optional:    true,
+		Computed:    true,
+		ForceNew:    true,
+		Description: `The name of the node pool. If left blank, Terraform will auto-generate a unique name.`,
 	},
 
 	"name_prefix": {
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Optional:    true,
+		Computed:    true,
+		ForceNew:    true,
+		Description: `Creates a unique name for the node pool beginning with the specified prefix. Conflicts with name.`,
 	},
 
-	"node_config": schemaNodeConfig,
+	"node_config": schemaNodeConfig(),
 
 	"node_count": {
 		Type:         schema.TypeInt,
 		Optional:     true,
 		Computed:     true,
 		ValidateFunc: validation.IntAtLeast(0),
+		Description:  `The number of nodes per instance group. This field can be used to update the number of nodes per instance group but should not be used alongside autoscaling.`,
 	},
 
 	"version": {
-		Type:     schema.TypeString,
-		Optional: true,
-		Computed: true,
+		Type:        schema.TypeString,
+		Optional:    true,
+		Computed:    true,
+		Description: `The Kubernetes version for the nodes in this pool. Note that if this field and auto_upgrade are both specified, they will fight each other for what the node version should be, so setting both is highly discouraged. While a fuzzy version can be specified, it's recommended that you specify explicit versions as Terraform will see spurious diffs when fuzzy versions are used. See the google_container_engine_versions data source's version_prefix field to approximate fuzzy versions in a Terraform-compatible way.`,
 	},
 }
 
@@ -218,6 +257,11 @@ func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePo
 
 func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return err
@@ -238,10 +282,18 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	timeout := d.Timeout(schema.TimeoutCreate)
 	startTime := time.Now()
 
+	// Set the ID before we attempt to create - that way, if we receive an error but
+	// the resource is created anyway, it will be refreshed on the next call to
+	// apply.
+	d.SetId(fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s", nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
+
 	var operation *containerBeta.Operation
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		operation, err = config.clientContainerBeta.
-			Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req).Do()
+		clusterNodePoolsCreateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req)
+		if config.UserProjectOverride {
+			clusterNodePoolsCreateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+		}
+		operation, err = clusterNodePoolsCreateCall.Do()
 
 		if err != nil {
 			if isFailedPreconditionError(err) {
@@ -258,11 +310,9 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	timeout -= time.Since(startTime)
 
-	d.SetId(fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s", nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
-
 	waitErr := containerOperationWait(config,
 		operation, nodePoolInfo.project,
-		nodePoolInfo.location, "creating GKE NodePool", int(timeout.Minutes()))
+		nodePoolInfo.location, "creating GKE NodePool", userAgent, timeout)
 
 	if waitErr != nil {
 		// The resource didn't actually create
@@ -272,33 +322,47 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[INFO] GKE NodePool %s has been created", nodePool.Name)
 
-	return resourceContainerNodePoolRead(d, meta)
-}
+	if err = resourceContainerNodePoolRead(d, meta); err != nil {
+		return err
+	}
 
-func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	nodePoolInfo, err := extractNodePoolInformation(d, config)
-
-	name := getNodePoolName(d.Id())
-
+	//Check cluster is in running state
+	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
 
-	var nodePool = &containerBeta.NodePool{}
-	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-		nodePool, err = config.clientContainerBeta.
-			Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name)).Do()
+	state, err := containerNodePoolAwaitRestingState(config, d.Id(), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
 
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		if nodePool.Status != "RUNNING" {
-			return resource.RetryableError(fmt.Errorf("Nodepool %q has status %q with message %q", d.Get("name"), nodePool.Status, nodePool.StatusMessage))
-		}
-		return nil
-	})
+	if containerNodePoolRestingStates[state] == ErrorState {
+		return fmt.Errorf("NodePool %s was created in the error state %q", nodePool.Name, state)
+	}
 
+	return nil
+}
+
+func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	nodePoolInfo, err := extractNodePoolInformation(d, config)
+	if err != nil {
+		return err
+	}
+
+	name := getNodePoolName(d.Id())
+
+	clusterNodePoolsGetCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name))
+	if config.UserProjectOverride {
+		clusterNodePoolsGetCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+	}
+	nodePool, err := clusterNodePoolsGetCall.Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, nodePoolInfo.cluster))
 	}
@@ -309,35 +373,70 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	for k, v := range npMap {
-		d.Set(k, v)
+		if err := d.Set(k, v); err != nil {
+			return fmt.Errorf("Error setting %s: %s", k, err)
+		}
 	}
 
-	d.Set("location", nodePoolInfo.location)
-	d.Set("project", nodePoolInfo.project)
+	if err := d.Set("location", nodePoolInfo.location); err != nil {
+		return fmt.Errorf("Error setting location: %s", err)
+	}
+	if err := d.Set("project", nodePoolInfo.project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 
 	return nil
 }
 
 func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutUpdate).Minutes())
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return err
 	}
+	name := getNodePoolName(d.Id())
+
+	//Check cluster is in running state
+	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
+
+	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
 
 	d.Partial(true)
-	if err := nodePoolUpdate(d, meta, nodePoolInfo, "", timeoutInMinutes); err != nil {
+	if err := nodePoolUpdate(d, meta, nodePoolInfo, "", d.Timeout(schema.TimeoutUpdate)); err != nil {
 		return err
 	}
 	d.Partial(false)
+
+	//Check cluster is in running state
+	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
+	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
 
 	return resourceContainerNodePoolRead(d, meta)
 }
 
 func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
@@ -346,25 +445,47 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 
 	name := getNodePoolName(d.Id())
 
-	timeoutInMinutes := int(d.Timeout(schema.TimeoutDelete).Minutes())
+	//Check cluster is in running state
+	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return err
+	}
+
+	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		// If the node pool doesn't get created and then we try to delete it, we get an error,
+		// but I don't think we need an error during delete if it doesn't exist
+		if isGoogleApiErrorWithCode(err, 404) {
+			log.Printf("node pool %q not found, doesn't need to be cleaned up", name)
+			return nil
+		} else {
+			return err
+		}
+	}
 
 	mutexKV.Lock(nodePoolInfo.lockKey())
 	defer mutexKV.Unlock(nodePoolInfo.lockKey())
 
-	var op = &containerBeta.Operation{}
-	var count = 0
-	err = resource.Retry(30*time.Second, func() *resource.RetryError {
-		count++
-		op, err = config.clientContainerBeta.Projects.Locations.
-			Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName(name)).Do()
+	timeout := d.Timeout(schema.TimeoutDelete)
+	startTime := time.Now()
+
+	var operation *containerBeta.Operation
+	err = resource.Retry(timeout, func() *resource.RetryError {
+		clusterNodePoolsDeleteCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName(name))
+		if config.UserProjectOverride {
+			clusterNodePoolsDeleteCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+		}
+		operation, err = clusterNodePoolsDeleteCall.Do()
 
 		if err != nil {
-			return resource.RetryableError(err)
+			if isFailedPreconditionError(err) {
+				// We get failed precondition errors if the cluster is updating
+				// while we try to delete the node pool.
+				return resource.RetryableError(err)
+			}
+			return resource.NonRetryableError(err)
 		}
 
-		if count == 15 {
-			return resource.NonRetryableError(fmt.Errorf("Error retrying to delete node pool %s", name))
-		}
 		return nil
 	})
 
@@ -372,8 +493,10 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error deleting NodePool: %s", err)
 	}
 
+	timeout -= time.Since(startTime)
+
 	// Wait until it's deleted
-	waitErr := containerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "deleting GKE NodePool", timeoutInMinutes)
+	waitErr := containerOperationWait(config, operation, nodePoolInfo.project, nodePoolInfo.location, "deleting GKE NodePool", userAgent, timeout)
 	if waitErr != nil {
 		return waitErr
 	}
@@ -387,15 +510,23 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (bool, error) {
 	config := meta.(*Config)
-
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return false, err
 	}
 
-	name := getNodePoolName(d.Id())
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return false, err
+	}
 
-	_, err = config.clientContainerBeta.Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name)).Do()
+	name := getNodePoolName(d.Id())
+	clusterNodePoolsGetCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name))
+	if config.UserProjectOverride {
+		clusterNodePoolsGetCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+	}
+	_, err = clusterNodePoolsGetCall.Do()
+
 	if err != nil {
 		if err = handleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", name)); err == nil {
 			return false, nil
@@ -408,6 +539,12 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 
 func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<cluster>[^/]+)/nodePools/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)", "(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
@@ -416,7 +553,28 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return nil, err
 	}
+
 	d.SetId(id)
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	nodePoolInfo, err := extractNodePoolInformation(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	//Check cluster is in running state
+	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := containerNodePoolAwaitRestingState(config, d.Id(), project, userAgent, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return nil, err
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -445,10 +603,16 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 		nodeCount = nc.(int)
 	}
 
+	var locations []string
+	if v, ok := d.GetOk("node_locations"); ok && v.(*schema.Set).Len() > 0 {
+		locations = convertStringSet(v.(*schema.Set))
+	}
+
 	np := &containerBeta.NodePool{
 		Name:             name,
 		InitialNodeCount: int64(nodeCount),
 		Config:           expandNodeConfig(d.Get(prefix + "node_config")),
+		Locations:        locations,
 		Version:          d.Get(prefix + "version").(string),
 	}
 
@@ -481,33 +645,62 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*containerBeta.NodeP
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "upgrade_settings"); ok {
+		upgradeSettingsConfig := v.([]interface{})[0].(map[string]interface{})
+		np.UpgradeSettings = &containerBeta.UpgradeSettings{}
+
+		if v, ok := upgradeSettingsConfig["max_surge"]; ok {
+			np.UpgradeSettings.MaxSurge = int64(v.(int))
+		}
+
+		if v, ok := upgradeSettingsConfig["max_unavailable"]; ok {
+			np.UpgradeSettings.MaxUnavailable = int64(v.(int))
+		}
+	}
+
 	return np, nil
 }
 
 func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.NodePool, prefix string) (map[string]interface{}, error) {
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	// Node pools don't expose the current node count in their API, so read the
 	// instance groups instead. They should all have the same size, but in case a resize
 	// failed or something else strange happened, we'll just use the average size.
 	size := 0
+	igmUrls := []string{}
 	for _, url := range np.InstanceGroupUrls {
 		// retrieve instance group manager (InstanceGroupUrls are actually URLs for InstanceGroupManagers)
 		matches := instanceGroupManagerURL.FindStringSubmatch(url)
 		if len(matches) < 4 {
 			return nil, fmt.Errorf("Error reading instance group manage URL '%q'", url)
 		}
-		igm, err := config.clientComputeBeta.InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
+		igm, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
+		if isGoogleApiErrorWithCode(err, 404) {
+			// The IGM URL in is stale; don't include it
+			continue
+		}
 		if err != nil {
 			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %q", err)
 		}
 		size += int(igm.TargetSize)
+		igmUrls = append(igmUrls, url)
+	}
+	nodeCount := 0
+	if len(igmUrls) > 0 {
+		nodeCount = size / len(igmUrls)
 	}
 	nodePool := map[string]interface{}{
 		"name":                np.Name,
 		"name_prefix":         d.Get(prefix + "name_prefix"),
 		"initial_node_count":  np.InitialNodeCount,
-		"node_count":          size / len(np.InstanceGroupUrls),
+		"node_locations":      schema.NewSet(schema.HashString, convertStringArrToInterface(np.Locations)),
+		"node_count":          nodeCount,
 		"node_config":         flattenNodeConfig(np.Config),
-		"instance_group_urls": np.InstanceGroupUrls,
+		"instance_group_urls": igmUrls,
 		"version":             np.Version,
 	}
 
@@ -535,15 +728,30 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 		},
 	}
 
+	if np.UpgradeSettings != nil {
+		nodePool["upgrade_settings"] = []map[string]interface{}{
+			{
+				"max_surge":       np.UpgradeSettings.MaxSurge,
+				"max_unavailable": np.UpgradeSettings.MaxUnavailable,
+			},
+		}
+	} else {
+		delete(nodePool, "upgrade_settings")
+	}
+
 	return nodePool, nil
 }
 
-func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *NodePoolInformation, prefix string, timeoutInMinutes int) error {
+func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *NodePoolInformation, prefix string, timeout time.Duration) error {
 	config := meta.(*Config)
-
 	name := d.Get(prefix + "name").(string)
 
 	lockKey := nodePoolInfo.lockKey()
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	if d.HasChange(prefix + "autoscaling") {
 		update := &containerBeta.ClusterUpdate{
@@ -568,7 +776,11 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		}
 
 		updateF := func() error {
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(nodePoolInfo.parent(), req).Do()
+			clusterUpdateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.Update(nodePoolInfo.parent(), req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+			}
+			op, err := clusterUpdateCall.Do()
 			if err != nil {
 				return err
 			}
@@ -576,8 +788,8 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			// Wait until it's updated
 			return containerOperationWait(config, op,
 				nodePoolInfo.project,
-				nodePoolInfo.location, "updating GKE node pool",
-				timeoutInMinutes)
+				nodePoolInfo.location, "updating GKE node pool", userAgent,
+				timeout)
 		}
 
 		// Call update serially.
@@ -586,10 +798,6 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		}
 
 		log.Printf("[INFO] Updated autoscaling in Node Pool %s", d.Id())
-
-		if prefix == "" {
-			d.SetPartial("autoscaling")
-		}
 	}
 
 	if d.HasChange(prefix + "node_config") {
@@ -602,7 +810,11 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			}
 
 			updateF := func() error {
-				op, err := config.clientContainerBeta.Projects.Locations.Clusters.Update(nodePoolInfo.parent(), req).Do()
+				clusterUpdateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.Update(nodePoolInfo.parent(), req)
+				if config.UserProjectOverride {
+					clusterUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterUpdateCall.Do()
 				if err != nil {
 					return err
 				}
@@ -610,8 +822,8 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				// Wait until it's updated
 				return containerOperationWait(config, op,
 					nodePoolInfo.project,
-					nodePoolInfo.location, "updating GKE node pool",
-					timeoutInMinutes)
+					nodePoolInfo.location, "updating GKE node pool", userAgent,
+					timeout)
 			}
 
 			// Call update serially.
@@ -622,9 +834,42 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			log.Printf("[INFO] Updated image type in Node Pool %s", d.Id())
 		}
 
-		if prefix == "" {
-			d.SetPartial("node_config")
+		if d.HasChange(prefix + "node_config.0.workload_metadata_config") {
+			req := &containerBeta.UpdateNodePoolRequest{
+				NodePoolId: name,
+				WorkloadMetadataConfig: expandWorkloadMetadataConfig(
+					d.Get(prefix + "node_config.0.workload_metadata_config")),
+			}
+			if req.WorkloadMetadataConfig == nil {
+				req.ForceSendFields = []string{"WorkloadMetadataConfig"}
+			}
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return containerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool workload_metadata_config", userAgent,
+					timeout)
+			}
+
+			// Call update serially.
+			if err := lockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated workload_metadata_config for node pool %s", name)
 		}
+
 	}
 
 	if d.HasChange(prefix + "node_count") {
@@ -633,7 +878,11 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			NodeCount: newSize,
 		}
 		updateF := func() error {
-			op, err := config.clientContainerBeta.Projects.Locations.Clusters.NodePools.SetSize(nodePoolInfo.fullyQualifiedName(name), req).Do()
+			clusterNodePoolsSetSizeCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.SetSize(nodePoolInfo.fullyQualifiedName(name), req)
+			if config.UserProjectOverride {
+				clusterNodePoolsSetSizeCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+			}
+			op, err := clusterNodePoolsSetSizeCall.Do()
 
 			if err != nil {
 				return err
@@ -642,8 +891,8 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			// Wait until it's updated
 			return containerOperationWait(config, op,
 				nodePoolInfo.project,
-				nodePoolInfo.location, "updating GKE node pool size",
-				timeoutInMinutes)
+				nodePoolInfo.location, "updating GKE node pool size", userAgent,
+				timeout)
 		}
 
 		// Call update serially.
@@ -652,10 +901,6 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		}
 
 		log.Printf("[INFO] GKE node pool %s size has been updated to %d", name, newSize)
-
-		if prefix == "" {
-			d.SetPartial("node_count")
-		}
 	}
 
 	if d.HasChange(prefix + "management") {
@@ -671,8 +916,11 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		}
 
 		updateF := func() error {
-			op, err := config.clientContainerBeta.Projects.Locations.
-				Clusters.NodePools.SetManagement(nodePoolInfo.fullyQualifiedName(name), req).Do()
+			clusterNodePoolsSetManagementCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.SetManagement(nodePoolInfo.fullyQualifiedName(name), req)
+			if config.UserProjectOverride {
+				clusterNodePoolsSetManagementCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+			}
+			op, err := clusterNodePoolsSetManagementCall.Do()
 
 			if err != nil {
 				return err
@@ -681,7 +929,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			// Wait until it's updated
 			return containerOperationWait(config, op,
 				nodePoolInfo.project,
-				nodePoolInfo.location, "updating GKE node pool management", timeoutInMinutes)
+				nodePoolInfo.location, "updating GKE node pool management", userAgent, timeout)
 		}
 
 		// Call update serially.
@@ -690,10 +938,6 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		}
 
 		log.Printf("[INFO] Updated management in Node Pool %s", name)
-
-		if prefix == "" {
-			d.SetPartial("management")
-		}
 	}
 
 	if d.HasChange(prefix + "version") {
@@ -702,8 +946,11 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			NodeVersion: d.Get(prefix + "version").(string),
 		}
 		updateF := func() error {
-			op, err := config.clientContainerBeta.Projects.
-				Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req).Do()
+			clusterNodePoolsUpdateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+			if config.UserProjectOverride {
+				clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+			}
+			op, err := clusterNodePoolsUpdateCall.Do()
 
 			if err != nil {
 				return err
@@ -712,7 +959,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			// Wait until it's updated
 			return containerOperationWait(config, op,
 				nodePoolInfo.project,
-				nodePoolInfo.location, "updating GKE node pool version", timeoutInMinutes)
+				nodePoolInfo.location, "updating GKE node pool version", userAgent, timeout)
 		}
 
 		// Call update serially.
@@ -721,10 +968,66 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		}
 
 		log.Printf("[INFO] Updated version in Node Pool %s", name)
+	}
 
-		if prefix == "" {
-			d.SetPartial("version")
+	if d.HasChange(prefix + "node_locations") {
+		req := &containerBeta.UpdateNodePoolRequest{
+			Locations: convertStringSet(d.Get(prefix + "node_locations").(*schema.Set)),
 		}
+		updateF := func() error {
+			clusterNodePoolsUpdateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+			if config.UserProjectOverride {
+				clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+			}
+			op, err := clusterNodePoolsUpdateCall.Do()
+
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "updating GKE node pool node locations", userAgent, timeout)
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] Updated node locations in Node Pool %s", name)
+	}
+
+	if d.HasChange(prefix + "upgrade_settings") {
+		upgradeSettings := &containerBeta.UpgradeSettings{}
+		if v, ok := d.GetOk(prefix + "upgrade_settings"); ok {
+			upgradeSettingsConfig := v.([]interface{})[0].(map[string]interface{})
+			upgradeSettings.MaxSurge = int64(upgradeSettingsConfig["max_surge"].(int))
+			upgradeSettings.MaxUnavailable = int64(upgradeSettingsConfig["max_unavailable"].(int))
+		}
+		req := &containerBeta.UpdateNodePoolRequest{
+			UpgradeSettings: upgradeSettings,
+		}
+		updateF := func() error {
+			clusterNodePoolsUpdateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+			if config.UserProjectOverride {
+				clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+			}
+			op, err := clusterNodePoolsUpdateCall.Do()
+
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			return containerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "updating GKE node pool upgrade settings", userAgent, timeout)
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] Updated upgrade settings in Node Pool %s", name)
 	}
 
 	return nil
@@ -734,4 +1037,39 @@ func getNodePoolName(id string) string {
 	// name can be specified with name, name_prefix, or neither, so read it from the id.
 	splits := strings.Split(id, "/")
 	return splits[len(splits)-1]
+}
+
+var containerNodePoolRestingStates = RestingStates{
+	"RUNNING":            ReadyState,
+	"RUNNING_WITH_ERROR": ErrorState,
+	"ERROR":              ErrorState,
+}
+
+// takes in a config object, full node pool name, project name and the current CRUD action timeout
+// returns a state with no error if the state is a resting state, and the last state with an error otherwise
+func containerNodePoolAwaitRestingState(config *Config, name, project, userAgent string, timeout time.Duration) (state string, err error) {
+	err = resource.Retry(timeout, func() *resource.RetryError {
+		clusterNodePoolsGetCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.Get(name)
+		if config.UserProjectOverride {
+			clusterNodePoolsGetCall.Header().Add("X-Goog-User-Project", project)
+		}
+		nodePool, gErr := clusterNodePoolsGetCall.Do()
+		if gErr != nil {
+			return resource.NonRetryableError(gErr)
+		}
+
+		state = nodePool.Status
+		switch stateType := containerNodePoolRestingStates[state]; stateType {
+		case ReadyState:
+			log.Printf("[DEBUG] NodePool %q has status %q with message %q.", name, state, nodePool.StatusMessage)
+			return nil
+		case ErrorState:
+			log.Printf("[DEBUG] NodePool %q has error state %q with message %q.", name, state, nodePool.StatusMessage)
+			return nil
+		default:
+			return resource.RetryableError(fmt.Errorf("NodePool %q has state %q with message %q", name, state, nodePool.StatusMessage))
+		}
+	})
+
+	return state, err
 }

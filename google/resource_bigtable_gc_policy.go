@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigtable"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const (
@@ -24,70 +24,96 @@ func resourceBigtableGCPolicy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"instance_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareResourceNames,
+				Description:      `The name of the Bigtable instance.`,
 			},
 
 			"table": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the table.`,
 			},
 
 			"column_family": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the column family.`,
 			},
 
 			"mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
+				Description:  `If multiple policies are set, you should choose between UNION OR INTERSECTION.`,
 				ValidateFunc: validation.StringInSlice([]string{GCPolicyModeIntersection, GCPolicyModeUnion}, false),
 			},
 
 			"max_age": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `GC policy that applies to all cells older than the given age.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"days": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Deprecated:   "Deprecated in favor of duration",
+							Description:  `Number of days before applying GC policy.`,
+							ExactlyOneOf: []string{"max_age.0.days", "max_age.0.duration"},
+						},
+						"duration": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Duration before applying GC policy`,
+							ValidateFunc: validateDuration(),
+							ExactlyOneOf: []string{"max_age.0.days", "max_age.0.duration"},
 						},
 					},
 				},
 			},
 
 			"max_version": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `GC policy that applies to all versions of a cell except for the most recent.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"number": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `Number of version before applying the GC policy.`,
 						},
 					},
 				},
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	ctx := context.Background()
 
 	project, err := getProject(d, config)
@@ -95,10 +121,13 @@ func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	instanceName := d.Get("instance_name").(string)
-	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
+	c, err := config.BigTableClientFactory(userAgent).NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
+	}
+	if err := d.Set("instance_name", instanceName); err != nil {
+		return fmt.Errorf("Error setting instance_name: %s", err)
 	}
 
 	defer c.Close()
@@ -131,6 +160,10 @@ func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 	ctx := context.Background()
 
 	project, err := getProject(d, config)
@@ -138,8 +171,8 @@ func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	instanceName := d.Get("instance_name").(string)
-	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
+	c, err := config.BigTableClientFactory(userAgent).NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
 	}
@@ -161,13 +194,19 @@ func resourceBigtableGCPolicyRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	d.Set("project", project)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 
 	return nil
 }
 
 func resourceBigtableGCPolicyDestroy(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 	ctx := context.Background()
 
 	project, err := getProject(d, config)
@@ -175,8 +214,8 @@ func resourceBigtableGCPolicyDestroy(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	instanceName := d.Get("instance_name").(string)
-	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
+	c, err := config.BigTableClientFactory(userAgent).NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
 	}
@@ -208,9 +247,12 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 
 	if aok {
 		l, _ := ma.([]interface{})
-		d, _ := l[0].(map[string]interface{})["days"].(int)
+		d, err := getMaxAgeDuration(l[0].(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
 
-		policies = append(policies, bigtable.MaxAgePolicy(time.Duration(d)*time.Hour*24))
+		policies = append(policies, bigtable.MaxAgePolicy(d))
 	}
 
 	if vok {
@@ -228,4 +270,15 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	}
 
 	return policies[0], nil
+}
+
+func getMaxAgeDuration(values map[string]interface{}) (time.Duration, error) {
+	d := values["duration"].(string)
+	if d != "" {
+		return time.ParseDuration(d)
+	}
+
+	days := values["days"].(int)
+
+	return time.Hour * 24 * time.Duration(days), nil
 }

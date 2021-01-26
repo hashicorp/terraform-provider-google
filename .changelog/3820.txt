@@ -1,0 +1,3 @@
+```release-note:enhancement
+appengine: converted `google_app_engine_standard_app_version`'s `inbound_services` to an enum array, which enhances docs and provides some client-side validation.
+```

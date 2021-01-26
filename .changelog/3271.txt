@@ -1,0 +1,6 @@
+```release-note:enhancement
+kms: Added new field "Additional Authenticated Data" for Cloud KMS data source `google_kms_secret`
+```
+```release-note:enhancement
+kms: Added new field "Additional Authenticated Data" for Cloud KMS resource `google_kms_secret_ciphertext`
+```

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	spanner "google.golang.org/api/spanner/v1"
 )
@@ -29,10 +29,11 @@ var IamSpannerInstanceSchema = map[string]*schema.Schema{
 type SpannerInstanceIamUpdater struct {
 	project  string
 	instance string
+	d        TerraformResourceData
 	Config   *Config
 }
 
-func NewSpannerInstanceIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewSpannerInstanceIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -41,6 +42,7 @@ func NewSpannerInstanceIamUpdater(d *schema.ResourceData, config *Config) (Resou
 	return &SpannerInstanceIamUpdater{
 		project:  project,
 		instance: d.Get("instance").(string),
+		d:        d,
 		Config:   config,
 	}, nil
 }
@@ -50,8 +52,12 @@ func SpannerInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	if err != nil {
 		return err
 	}
-	d.Set("instance", id.Instance)
-	d.Set("project", id.Project)
+	if err := d.Set("instance", id.Instance); err != nil {
+		return fmt.Errorf("Error setting instance: %s", err)
+	}
+	if err := d.Set("project", id.Project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 
 	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
 	d.SetId(id.terraformId())
@@ -59,7 +65,12 @@ func SpannerInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 }
 
 func (u *SpannerInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	p, err := u.Config.clientSpanner.Projects.Instances.GetIamPolicy(spannerInstanceId{
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewSpannerClient(userAgent).Projects.Instances.GetIamPolicy(spannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
 	}.instanceUri(), &spanner.GetIamPolicyRequest{}).Do()
@@ -84,7 +95,12 @@ func (u *SpannerInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
-	_, err = u.Config.clientSpanner.Projects.Instances.SetIamPolicy(spannerInstanceId{
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.Config.NewSpannerClient(userAgent).Projects.Instances.SetIamPolicy(spannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
 	}.instanceUri(), &spanner.SetIamPolicyRequest{

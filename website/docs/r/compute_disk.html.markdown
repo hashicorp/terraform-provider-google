@@ -46,9 +46,8 @@ To get more information about Disk, see:
 * How-to Guides
     * [Adding a persistent disk](https://cloud.google.com/compute/docs/disks/add-persistent-disk)
 
-~> **Warning:** All arguments including the disk encryption key will be stored in the raw
-state as plain-text.
-[Read more about sensitive data in state](/docs/state/sensitive-data.html).
+~> **Warning:** All arguments including `disk_encryption_key.raw_key` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=disk_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -63,7 +62,7 @@ resource "google_compute_disk" "default" {
   name  = "test-disk"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-8-jessie-v20170523"
+  image = "debian-9-stretch-v20200805"
   labels = {
     environment = "dev"
   }
@@ -117,6 +116,12 @@ The following arguments are supported:
   If an unsupported value is requested, the error message will list
   the supported values for the caller's project.
 
+* `interface` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the disk interface to use for attaching this disk, which is either SCSI or NVME. The default is SCSI.
+  Default value is `SCSI`.
+  Possible values are `SCSI` and `NVME`.
+
 * `type` -
   (Optional)
   URL of the disk type resource describing which disk type to use to
@@ -130,9 +135,22 @@ The following arguments are supported:
   `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
   `{project}/{image}`, `{family}`, or `{image}`. If referred by family, the
   images names must include the family name. If they don't, use the
-  [google_compute_image data source](/docs/providers/google/d/datasource_compute_image.html).
+  [google_compute_image data source](/docs/providers/google/d/compute_image.html).
   For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
   These images can be referred by family name here.
+
+* `resource_policies` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Resource policies applied to this disk for automatic snapshot creations.
+  ~>**NOTE** This value does not support updating the
+  resource policy, as resource policies can not be updated more than
+  one at a time. Use
+  [`google_compute_disk_resource_policy_attachment`](https://www.terraform.io/docs/providers/google/r/compute_disk_resource_policy_attachment.html)
+  to allow for updating the resource policy attached to the disk.
+
+* `multi_writer` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Indicates whether or not the disk can be read/write attached to more than one instance.
 
 * `zone` -
   (Optional)
@@ -141,7 +159,8 @@ The following arguments are supported:
 * `source_image_encryption_key` -
   (Optional)
   The customer-supplied encryption key of the source image. Required if
-  the source image is protected by a customer-supplied encryption key.  Structure is documented below.
+  the source image is protected by a customer-supplied encryption key.
+  Structure is documented below.
 
 * `disk_encryption_key` -
   (Optional)
@@ -153,7 +172,8 @@ The following arguments are supported:
   the disk.
   If you do not provide an encryption key when creating the disk, then
   the disk will be encrypted using an automatically generated key and
-  you do not need to provide a key to use the disk later.  Structure is documented below.
+  you do not need to provide a key to use the disk later.
+  Structure is documented below.
 
 * `snapshot` -
   (Optional)
@@ -170,7 +190,8 @@ The following arguments are supported:
   (Optional)
   The customer-supplied encryption key of the source snapshot. Required
   if the source snapshot is protected by a customer-supplied encryption
-  key.  Structure is documented below.
+  key.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -195,12 +216,18 @@ The `source_image_encryption_key` block supports:
   `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
   See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
 
+* `kms_key_service_account` -
+  (Optional)
+  The service account used for the encryption request for the given KMS key.
+  If absent, the Compute Engine Service Agent service account is used.
+
 The `disk_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
@@ -213,6 +240,11 @@ The `disk_encryption_key` block supports:
   (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
   `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
   See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+
+* `kms_key_service_account` -
+  (Optional)
+  The service account used for the encryption request for the given KMS key.
+  If absent, the Compute Engine Service Agent service account is used.
 
 The `source_snapshot_encryption_key` block supports:
 
@@ -233,10 +265,16 @@ The `source_snapshot_encryption_key` block supports:
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
 
+* `kms_key_service_account` -
+  (Optional)
+  The service account used for the encryption request for the given KMS key. 
+  If absent, the Compute Engine Service Agent service account is used.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/disks/{{name}}`
 
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used
@@ -283,6 +321,7 @@ This resource provides the following
 
 ## Import
 
+
 Disk can be imported using any of these accepted formats:
 
 ```
@@ -291,9 +330,6 @@ $ terraform import google_compute_disk.default {{project}}/{{zone}}/{{name}}
 $ terraform import google_compute_disk.default {{zone}}/{{name}}
 $ terraform import google_compute_disk.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

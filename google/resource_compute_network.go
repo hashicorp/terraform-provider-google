@@ -18,10 +18,12 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/api/googleapi"
 )
 
 func resourceComputeNetwork() *schema.Resource {
@@ -73,6 +75,14 @@ the user can explicitly connect subnetwork resources.`,
 				Description: `An optional description of this resource. The resource must be
 recreated to modify this field.`,
 			},
+			"mtu": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `Maximum Transmission Unit in bytes. The minimum value for this field is 1460
+and the maximum value is 1500 bytes.`,
+			},
 			"routing_mode": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -82,7 +92,7 @@ recreated to modify this field.`,
 network's cloud routers will only advertise routes with subnetworks
 of this network in the same region as the router. If set to 'GLOBAL',
 this network's cloud routers will advertise routes with all
-subnetworks of this network, across regions.`,
+subnetworks of this network, across regions. Possible values: ["REGIONAL", "GLOBAL"]`,
 			},
 
 			"gateway_ipv4": {
@@ -96,11 +106,6 @@ is selected by GCP.`,
 				Optional: true,
 				Default:  false,
 			},
-			"ipv4_range": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Removed:  "Legacy Networks are deprecated and you will no longer be able to create them using this field from Feb 1, 2020 onwards.",
-			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -112,11 +117,16 @@ is selected by GCP.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeNetworkDescription(d.Get("description"), d, config)
@@ -143,6 +153,12 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if !isEmptyValue(reflect.ValueOf(routingConfigProp)) {
 		obj["routingConfig"] = routingConfigProp
 	}
+	mtuProp, err := expandComputeNetworkMtu(d.Get("mtu"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mtu"); !isEmptyValue(reflect.ValueOf(mtuProp)) && (ok || !reflect.DeepEqual(v, mtuProp)) {
+		obj["mtu"] = mtuProp
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks")
 	if err != nil {
@@ -150,11 +166,20 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Creating new Network: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Network: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Network: %s", err)
 	}
@@ -167,8 +192,8 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Network",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		config, res, project, "Creating Network", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -181,10 +206,13 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	if d.Get("delete_default_routes_on_create").(bool) {
 		token := ""
 		for paginate := true; paginate; {
-			networkLink := fmt.Sprintf("%s/%s", url, d.Get("name").(string))
-			filter := fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", networkLink)
+			network, err := config.NewComputeClient(userAgent).Networks.Get(project, d.Get("name").(string)).Do()
+			if err != nil {
+				return fmt.Errorf("Error finding network in proj: %s", err)
+			}
+			filter := fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", network.SelfLink)
 			log.Printf("[DEBUG] Getting routes for network %q with filter '%q'", d.Get("name").(string), filter)
-			resp, err := config.clientCompute.Routes.List(project).Filter(filter).Do()
+			resp, err := config.NewComputeClient(userAgent).Routes.List(project).Filter(filter).Do()
 			if err != nil {
 				return fmt.Errorf("Error listing routes in proj: %s", err)
 			}
@@ -192,11 +220,11 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 			log.Printf("[DEBUG] Found %d routes rules in %q network", len(resp.Items), d.Get("name").(string))
 
 			for _, route := range resp.Items {
-				op, err := config.clientCompute.Routes.Delete(project, route.Name).Do()
+				op, err := config.NewComputeClient(userAgent).Routes.Delete(project, route.Name).Do()
 				if err != nil {
 					return fmt.Errorf("Error deleting route: %s", err)
 				}
-				err = computeOperationWait(config, op, project, "Deleting Route")
+				err = computeOperationWaitTime(config, op, project, "Deleting Route", userAgent, d.Timeout(schema.TimeoutCreate))
 				if err != nil {
 					return err
 				}
@@ -212,51 +240,73 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Network: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetwork %q", d.Id()))
 	}
 
 	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOk("delete_default_routes_on_create"); !ok {
-		d.Set("delete_default_routes_on_create", false)
+	if _, ok := d.GetOkExists("delete_default_routes_on_create"); !ok {
+		if err := d.Set("delete_default_routes_on_create", false); err != nil {
+			return fmt.Errorf("Error setting delete_default_routes_on_create: %s", err)
+		}
 	}
-
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 
-	if err := d.Set("description", flattenComputeNetworkDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeNetworkDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err := d.Set("gateway_ipv4", flattenComputeNetworkGatewayIpv4(res["gatewayIPv4"], d)); err != nil {
+	if err := d.Set("gateway_ipv4", flattenComputeNetworkGatewayIpv4(res["gatewayIPv4"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err := d.Set("name", flattenComputeNetworkName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeNetworkName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err := d.Set("auto_create_subnetworks", flattenComputeNetworkAutoCreateSubnetworks(res["autoCreateSubnetworks"], d)); err != nil {
+	if err := d.Set("auto_create_subnetworks", flattenComputeNetworkAutoCreateSubnetworks(res["autoCreateSubnetworks"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
 	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenComputeNetworkRoutingConfig(res["routingConfig"], d); flattenedProp != nil {
+	if flattenedProp := flattenComputeNetworkRoutingConfig(res["routingConfig"], d, config); flattenedProp != nil {
+		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
+			return fmt.Errorf("Error reading Network: %s", gerr)
+		}
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
-				d.Set(k, v)
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
 			}
 		}
+	}
+	if err := d.Set("mtu", flattenComputeNetworkMtu(res["mtu"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
@@ -267,11 +317,18 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Network: %s", err)
+	}
+	billingProject = project
 
 	d.Partial(true)
 
@@ -281,7 +338,7 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 		routingConfigProp, err := expandComputeNetworkRoutingConfig(nil, d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("routing_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, routingConfigProp)) {
+		} else if !isEmptyValue(reflect.ValueOf(routingConfigProp)) {
 			obj["routingConfig"] = routingConfigProp
 		}
 
@@ -289,19 +346,25 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Network %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Network %q: %#v", d.Id(), res)
 		}
 
 		err = computeOperationWaitTime(
-			config, res, project, "Updating Network",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			config, res, project, "Updating Network", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("routing_mode")
 	}
 
 	d.Partial(false)
@@ -311,11 +374,18 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Network: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{name}}")
 	if err != nil {
@@ -325,14 +395,19 @@ func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) erro
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Network %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Network")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Network",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, res, project, "Deleting Network", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -360,28 +435,30 @@ func resourceComputeNetworkImport(d *schema.ResourceData, meta interface{}) ([]*
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import
-	d.Set("delete_default_routes_on_create", false)
+	if err := d.Set("delete_default_routes_on_create", false); err != nil {
+		return nil, fmt.Errorf("Error setting delete_default_routes_on_create: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNetworkDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkGatewayIpv4(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkGatewayIpv4(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkAutoCreateSubnetworks(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkAutoCreateSubnetworks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -391,11 +468,28 @@ func flattenComputeNetworkRoutingConfig(v interface{}, d *schema.ResourceData) i
 	}
 	transformed := make(map[string]interface{})
 	transformed["routing_mode"] =
-		flattenComputeNetworkRoutingConfigRoutingMode(original["routingMode"], d)
+		flattenComputeNetworkRoutingConfigRoutingMode(original["routingMode"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenComputeNetworkMtu(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func expandComputeNetworkDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -423,5 +517,9 @@ func expandComputeNetworkRoutingConfig(v interface{}, d TerraformResourceData, c
 }
 
 func expandComputeNetworkRoutingConfigRoutingMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkMtu(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

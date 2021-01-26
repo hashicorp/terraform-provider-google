@@ -1,5 +1,5 @@
 ---
-subcategory: "Stackdriver Logging"
+subcategory: "Cloud (Stackdriver) Logging"
 layout: "google"
 page_title: "Google: google_logging_billing_account_sink"
 sidebar_current: "docs-google-logging-billing-account-sink"
@@ -23,6 +23,7 @@ typical IAM roles granted on a project.
 ```hcl
 resource "google_logging_billing_account_sink" "my-sink" {
   name            = "my-sink"
+  description = "some explaination on what this is"
   billing_account = "ABCDEF-012345-GHIJKL"
 
   # Can export to pubsub, cloud storage, or bigquery
@@ -51,17 +52,22 @@ The following arguments are supported:
 * `billing_account` - (Required) The billing account exported to the sink.
 
 * `destination` - (Required) The destination of the sink (or, in other words, where logs are written to). Can be a
-    Cloud Storage bucket, a PubSub topic, or a BigQuery dataset. Examples:
+    Cloud Storage bucket, a PubSub topic, a BigQuery dataset or a Cloud Logging bucket. Examples:
 ```
 "storage.googleapis.com/[GCS_BUCKET]"
 "bigquery.googleapis.com/projects/[PROJECT_ID]/datasets/[DATASET]"
 "pubsub.googleapis.com/projects/[PROJECT_ID]/topics/[TOPIC_ID]"
+"logging.googleapis.com/projects/[PROJECT_ID]]/locations/global/buckets/[BUCKET_ID]"
 ```
     The writer associated with the sink must have access to write to the above resource.
 
 * `filter` - (Optional) The filter to apply when exporting logs. Only log entries that match the filter are exported.
     See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced_filters) for information on how to
     write a filter.
+
+* `description` - (Optional) A description of this sink. The maximum length of the description is 8000 characters.
+
+* `disabled` - (Optional) If set to True, then this sink is disabled and it does not export any log entries.
 
 * `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure documented below.
 
@@ -76,6 +82,8 @@ The `bigquery_options` block supports:
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
+
+* `id` - an identifier for the resource with format `billingAccounts/{{billing_account_id}}/sinks/{{sink_id}}`
 
 * `writer_identity` - The identity associated with this sink. This identity must be granted write access to the
     configured `destination`.

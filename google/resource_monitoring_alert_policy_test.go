@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // Stackdriver tests cannot be run in parallel otherwise they will error out with:
@@ -17,6 +16,7 @@ func TestAccMonitoringAlertPolicy(t *testing.T) {
 		"basic":  testAccMonitoringAlertPolicy_basic,
 		"full":   testAccMonitoringAlertPolicy_full,
 		"update": testAccMonitoringAlertPolicy_update,
+		"mql":    testAccMonitoringAlertPolicy_mql,
 	}
 
 	for name, tc := range testCases {
@@ -33,14 +33,14 @@ func TestAccMonitoringAlertPolicy(t *testing.T) {
 
 func testAccMonitoringAlertPolicy_basic(t *testing.T) {
 
-	alertName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	conditionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	alertName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	conditionName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	filter := `metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" AND resource.type=\"gce_instance\"`
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAlertPolicyDestroy,
+		CheckDestroy: testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, "ALIGN_RATE", filter),
@@ -56,17 +56,17 @@ func testAccMonitoringAlertPolicy_basic(t *testing.T) {
 
 func testAccMonitoringAlertPolicy_update(t *testing.T) {
 
-	alertName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	conditionName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	alertName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	conditionName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	filter1 := `metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" AND resource.type=\"gce_instance\"`
 	aligner1 := "ALIGN_RATE"
 	filter2 := `metric.type=\"compute.googleapis.com/instance/cpu/utilization\" AND resource.type=\"gce_instance\"`
 	aligner2 := "ALIGN_MAX"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAlertPolicyDestroy,
+		CheckDestroy: testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner1, filter1),
@@ -90,14 +90,14 @@ func testAccMonitoringAlertPolicy_update(t *testing.T) {
 
 func testAccMonitoringAlertPolicy_full(t *testing.T) {
 
-	alertName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	conditionName1 := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	conditionName2 := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	alertName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	conditionName1 := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	conditionName2 := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAlertPolicyDestroy,
+		CheckDestroy: testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringAlertPolicy_fullCfg(alertName, conditionName1, conditionName2),
@@ -111,25 +111,49 @@ func testAccMonitoringAlertPolicy_full(t *testing.T) {
 	})
 }
 
-func testAccCheckAlertPolicyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccMonitoringAlertPolicy_mql(t *testing.T) {
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_monitoring_alert_policy" {
-			continue
+	alertName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	conditionName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAlertPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringAlertPolicy_mqlCfg(alertName, conditionName),
+			},
+			{
+				ResourceName:      "google_monitoring_alert_policy.mql",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCheckAlertPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
+
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_monitoring_alert_policy" {
+				continue
+			}
+
+			name := rs.Primary.Attributes["name"]
+
+			url := fmt.Sprintf("https://monitoring.googleapis.com/v3/%s", name)
+			_, err := sendRequest(config, "GET", "", url, config.userAgent, nil)
+
+			if err == nil {
+				return fmt.Errorf("Error, alert policy %s still exists", name)
+			}
 		}
 
-		name := rs.Primary.Attributes["name"]
-
-		url := fmt.Sprintf("https://monitoring.googleapis.com/v3/%s", name)
-		_, err := sendRequest(config, "GET", "", url, nil)
-
-		if err == nil {
-			return fmt.Errorf("Error, alert policy %s still exists", name)
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner, filter string) string {
@@ -224,4 +248,32 @@ resource "google_monitoring_alert_policy" "full" {
   }
 }
 `, alertName, conditionName1, conditionName2)
+}
+
+func testAccMonitoringAlertPolicy_mqlCfg(alertName, conditionName string) string {
+	return fmt.Sprintf(`
+resource "google_monitoring_alert_policy" "mql" {
+  display_name = "%s"
+  combiner     = "OR"
+  enabled      = true
+
+  conditions {
+    display_name = "%s"
+
+    condition_monitoring_query_language {
+      query           = "fetch gce_instance::compute.googleapis.com/instance/cpu/utilization | align mean_aligner() | window 5m | condition value.utilization > .15 '10^2.%%'"
+      duration        = "60s"
+
+      trigger {
+        count = 2
+      }
+    }
+  }
+
+  documentation {
+    content   = "test content"
+    mime_type = "text/markdown"
+  }
+}
+`, alertName, conditionName)
 }

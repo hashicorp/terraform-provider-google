@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDataSourceGoogleKmsKeyRing_basic(t *testing.T) {
@@ -15,7 +15,7 @@ func TestAccDataSourceGoogleKmsKeyRing_basic(t *testing.T) {
 	keyParts := strings.Split(kms.KeyRing.Name, "/")
 	keyRingId := keyParts[len(keyParts)-1]
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

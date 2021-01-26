@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Platform"
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_project_usage_export_bucket"
 sidebar_current: "docs-google-project-usage-export-bucket"
@@ -38,6 +38,14 @@ resource "google_project_usage_export_bucket" "usage_export" {
 * `prefix`: (Optional) A prefix for the reports, for instance, the project name.
 
 * `project`: (Optional) The project to set the export bucket on. If it is not provided, the provider project is used.
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
 
 ## Import
 

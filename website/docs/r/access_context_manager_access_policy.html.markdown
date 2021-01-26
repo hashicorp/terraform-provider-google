@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Access Context Manager"
+subcategory: "Access Context Manager (VPC Service Controls)"
 layout: "google"
 page_title: "Google: google_access_context_manager_access_policy"
 sidebar_current: "docs-google-access-context-manager-access-policy"
@@ -36,6 +36,12 @@ To get more information about AccessPolicy, see:
 * [API documentation](https://cloud.google.com/access-context-manager/docs/reference/rest/v1/accessPolicies)
 * How-to Guides
     * [Access Policy Quickstart](https://cloud.google.com/access-context-manager/docs/quickstart)
+
+~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
+you must specify a `billing_project` and set `user_project_override` to true 
+in the provider configuration. Otherwise the ACM API will return a 403 error. 
+Your account must have the `serviceusage.services.use` permission on the 
+`billing_project` you defined.
 
 ## Example Usage - Access Context Manager Access Policy Basic
 
@@ -70,6 +76,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   Resource name of the AccessPolicy. Format: {policy_id}
@@ -92,11 +99,9 @@ This resource provides the following
 
 ## Import
 
+
 AccessPolicy can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_access_context_manager_access_policy.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.

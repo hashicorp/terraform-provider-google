@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: made incompatible changes to the `google_bigquery_table.schema` field cause the resource to be recreated
+```

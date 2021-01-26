@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	strcase "github.com/stoewer/go-strcase"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	compute "google.golang.org/api/compute/v1"
 )
@@ -24,6 +23,7 @@ func resourceComputeInstanceFromTemplate() *schema.Resource {
 
 		Schema:        computeInstanceFromTemplateSchema(),
 		CustomizeDiff: resourceComputeInstance().CustomizeDiff,
+		UseJSONNumber: true,
 	}
 }
 
@@ -62,15 +62,16 @@ func computeInstanceFromTemplateSchema() map[string]*schema.Schema {
 
 		// Make non-required fields computed since they'll be set by the template.
 		// Leave deprecated and removed fields alone because we don't set them.
-		if !field.Required && !(field.Deprecated != "" || field.Removed != "") {
+		if !field.Required && !(field.Deprecated != "") {
 			field.Computed = true
 		}
 	})
 
 	s["source_instance_template"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `Name or self link of an instance template to create the instance based on.`,
 	}
 
 	return s
@@ -89,6 +90,10 @@ func recurseOnSchema(s map[string]*schema.Schema, f func(*schema.Schema)) {
 
 func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -101,7 +106,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 	log.Printf("[DEBUG] Loading zone: %s", z)
-	zone, err := config.clientCompute.Zones.Get(project, z).Do()
+	zone, err := config.NewComputeClient(userAgent).Zones.Get(project, z).Do()
 	if err != nil {
 		return fmt.Errorf("Error loading zone '%s': %s", z, err)
 	}
@@ -116,7 +121,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	it, err := config.clientComputeBeta.InstanceTemplates.Get(project, tpl.Name).Do()
+	it, err := config.NewComputeBetaClient(userAgent).InstanceTemplates.Get(project, tpl.Name).Do()
 	if err != nil {
 		return err
 	}
@@ -124,6 +129,12 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	instance.Disks, err = adjustInstanceFromTemplateDisks(d, config, it, zone, project)
 	if err != nil {
 		return err
+	}
+
+	// when we make the original call to expandComputeInstance expandScheduling is called, which sets default values.
+	// However, we want the values to be read from the template instead.
+	if _, hasSchedule := d.GetOk("scheduling"); !hasSchedule {
+		instance.Scheduling = it.Properties.Scheduling
 	}
 
 	// Force send all top-level fields that have been set in case they're overridden to zero values.
@@ -142,12 +153,12 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 			// Assume for now that all fields are exact snake_case versions of the API fields.
 			// This won't necessarily always be true, but it serves as a good approximation and
 			// can be adjusted later as we discover issues.
-			instance.ForceSendFields = append(instance.ForceSendFields, strcase.UpperCamelCase(f))
+			instance.ForceSendFields = append(instance.ForceSendFields, SnakeToPascalCase(f))
 		}
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
-	op, err := config.clientComputeBeta.Instances.Insert(project, zone.Name, instance).SourceInstanceTemplate(tpl.RelativeLink()).Do()
+	op, err := config.NewComputeBetaClient(userAgent).Instances.Insert(project, zone.Name, instance).SourceInstanceTemplate(tpl.RelativeLink()).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance: %s", err)
 	}
@@ -157,7 +168,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 
 	// Wait for the operation to complete
 	waitErr := computeOperationWaitTime(config, op, project,
-		"instance to create", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		"instance to create", userAgent, d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		// The resource didn't actually create
 		d.SetId("")

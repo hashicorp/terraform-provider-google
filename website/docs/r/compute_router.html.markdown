@@ -90,7 +90,8 @@ The following arguments are supported:
 
 * `bgp` -
   (Optional)
-  BGP information specific to this router.  Structure is documented below.
+  BGP information specific to this router.
+  Structure is documented below.
 
 * `region` -
   (Optional)
@@ -112,7 +113,8 @@ The `bgp` block supports:
 * `advertise_mode` -
   (Optional)
   User-specified flag to indicate which mode to use for advertisement.
-  Valid values of this enum field are: DEFAULT, CUSTOM
+  Default value is `DEFAULT`.
+  Possible values are `DEFAULT` and `CUSTOM`.
 
 * `advertised_groups` -
   (Optional)
@@ -129,7 +131,8 @@ The `bgp` block supports:
   custom mode. This field can only be populated if advertiseMode
   is CUSTOM and is advertised to all peers of the router. These IP
   ranges will be advertised in addition to any specified groups.
-  Leave this field blank to advertise no custom IP ranges.  Structure is documented below.
+  Leave this field blank to advertise no custom IP ranges.
+  Structure is documented below.
 
 
 The `advertised_ip_ranges` block supports:
@@ -147,6 +150,7 @@ The `advertised_ip_ranges` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/routers/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -164,6 +168,7 @@ This resource provides the following
 
 ## Import
 
+
 Router can be imported using any of these accepted formats:
 
 ```
@@ -172,9 +177,6 @@ $ terraform import google_compute_router.default {{project}}/{{region}}/{{name}}
 $ terraform import google_compute_router.default {{region}}/{{name}}
 $ terraform import google_compute_router.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

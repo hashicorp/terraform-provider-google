@@ -15,26 +15,24 @@
 package google
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNetworkPeeringRoutesConfigDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(context),
@@ -60,27 +58,27 @@ resource "google_compute_network_peering_routes_config" "peering_primary_routes"
 }
 
 resource "google_compute_network_peering" "peering_primary" {
-  name         = "primary-peering%{random_suffix}"
-  network      = google_compute_network.network_primary.self_link
-  peer_network = google_compute_network.network_secondary.self_link
+  name         = "tf-test-primary-peering%{random_suffix}"
+  network      = google_compute_network.network_primary.id
+  peer_network = google_compute_network.network_secondary.id
 
   import_custom_routes = true
   export_custom_routes = true
 }
 
 resource "google_compute_network_peering" "peering_secondary" {
-  name         = "secondary-peering%{random_suffix}"
-  network      = google_compute_network.network_secondary.self_link
-  peer_network = google_compute_network.network_primary.self_link
+  name         = "tf-test-secondary-peering%{random_suffix}"
+  network      = google_compute_network.network_secondary.id
+  peer_network = google_compute_network.network_primary.id
 }
 
 resource "google_compute_network" "network_primary" {
-  name                    = "primary-network%{random_suffix}"
+  name                    = "tf-test-primary-network%{random_suffix}"
   auto_create_subnetworks = "false"
 }
 
 resource "google_compute_network" "network_secondary" {
-  name                    = "secondary-network%{random_suffix}"
+  name                    = "tf-test-secondary-network%{random_suffix}"
   auto_create_subnetworks = "false"
 }
 `, context)
@@ -90,13 +88,15 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExamp
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeNetworkPeeringRoutesConfigDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExample(context),
@@ -122,12 +122,12 @@ resource "google_compute_network_peering_routes_config" "peering_gke_routes" {
 }
 
 resource "google_compute_network" "container_network" {
-  name                    = "container-network%{random_suffix}"
+  name                    = "tf-test-container-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "container_subnetwork" {
-  name                     = "container-subnetwork%{random_suffix}"
+  name                     = "tf-test-container-subnetwork%{random_suffix}"
   region                   = "us-central1"
   network                  = google_compute_network.container_network.name
   ip_cidr_range            = "10.0.36.0/24"
@@ -145,7 +145,7 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 }
 
 resource "google_container_cluster" "private_cluster" {
-  name               = "private-cluster%{random_suffix}"
+  name               = "tf-test-private-cluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
 
@@ -166,29 +166,4 @@ resource "google_container_cluster" "private_cluster" {
   }
 }
 `, context)
-}
-
-func testAccCheckComputeNetworkPeeringRoutesConfigDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_network_peering_routes_config" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
-		}
-
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{network}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeNetworkPeeringRoutesConfig still exists at %s", url)
-		}
-	}
-
-	return nil
 }

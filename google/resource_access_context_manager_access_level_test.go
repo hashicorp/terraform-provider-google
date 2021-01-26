@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // Since each test here is acting on the same organization and only one AccessPolicy
-// can exist, they need to be ran serially. See AccessPolicy for the test runner.
+// can exist, they need to be run serially. See AccessPolicy for the test runner.
 
 func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroy,
+		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerAccessLevel_basic(org, "my policy", "level"),
@@ -42,10 +42,10 @@ func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 func testAccAccessContextManagerAccessLevel_fullTest(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroy,
+		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerAccessLevel_full(org, "my policy", "level"),
@@ -59,26 +59,48 @@ func testAccAccessContextManagerAccessLevel_fullTest(t *testing.T) {
 	})
 }
 
-func testAccCheckAccessContextManagerAccessLevelDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_access_context_manager_access_level" {
-			continue
+func testAccCheckAccessContextManagerAccessLevelDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_access_context_manager_access_level" {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			if err == nil {
+				return fmt.Errorf("AccessLevel still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("AccessLevel still exists at %s", url)
-		}
+		return nil
 	}
+}
 
-	return nil
+func testAccAccessContextManagerAccessLevel_customTest(t *testing.T) {
+	org := getTestOrgFromEnv(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAccessContextManagerAccessLevel_custom(org, "my policy", "level"),
+			},
+			{
+				ResourceName:      "google_access_context_manager_access_level.test-access",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func testAccAccessContextManagerAccessLevel_basic(org, policyTitle, levelTitleName string) string {
@@ -98,6 +120,27 @@ resource "google_access_context_manager_access_level" "test-access" {
     conditions {
       ip_subnetworks = ["192.0.4.0/24"]
     }
+  }
+}
+`, org, policyTitle, levelTitleName, levelTitleName)
+}
+
+func testAccAccessContextManagerAccessLevel_custom(org, policyTitle, levelTitleName string) string {
+	return fmt.Sprintf(`
+resource "google_access_context_manager_access_policy" "test-access" {
+  parent = "organizations/%s"
+  title  = "%s"
+}
+
+resource "google_access_context_manager_access_level" "test-access" {
+  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/%s"
+  title       = "%s"
+  description = "hello"
+    custom {
+		expr {
+			expression = "device.os_type == OsType.DESKTOP_MAC"
+		}
   }
 }
 `, org, policyTitle, levelTitleName, levelTitleName)
@@ -151,6 +194,10 @@ resource "google_access_context_manager_access_level" "test-access" {
           os_type = "DESKTOP_CHROME_OS"
         }
       }
+      regions = [
+        "IT",
+        "US",
+      ]
     }
   }
 }

@@ -18,6 +18,10 @@ import (
 var DefaultRequestTimeout = 5 * time.Minute
 
 func isEmptyValue(v reflect.Value) bool {
+	if !v.IsValid() {
+		return true
+	}
+
 	switch v.Kind() {
 	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
 		return v.Len() == 0
@@ -35,13 +39,13 @@ func isEmptyValue(v reflect.Value) bool {
 	return false
 }
 
-func sendRequest(config *Config, method, project, rawurl string, body map[string]interface{}, errorRetryPredicates ...func(e error) (bool, string)) (map[string]interface{}, error) {
-	return sendRequestWithTimeout(config, method, project, rawurl, body, DefaultRequestTimeout, errorRetryPredicates...)
+func sendRequest(config *Config, method, project, rawurl, userAgent string, body map[string]interface{}, errorRetryPredicates ...RetryErrorPredicateFunc) (map[string]interface{}, error) {
+	return sendRequestWithTimeout(config, method, project, rawurl, userAgent, body, DefaultRequestTimeout, errorRetryPredicates...)
 }
 
-func sendRequestWithTimeout(config *Config, method, project, rawurl string, body map[string]interface{}, timeout time.Duration, errorRetryPredicates ...func(e error) (bool, string)) (map[string]interface{}, error) {
+func sendRequestWithTimeout(config *Config, method, project, rawurl, userAgent string, body map[string]interface{}, timeout time.Duration, errorRetryPredicates ...RetryErrorPredicateFunc) (map[string]interface{}, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("User-Agent", config.userAgent)
+	reqHeaders.Set("User-Agent", userAgent)
 	reqHeaders.Set("Content-Type", "application/json")
 
 	if config.UserProjectOverride && project != "" {
@@ -95,7 +99,7 @@ func sendRequestWithTimeout(config *Config, method, project, rawurl string, body
 	}
 
 	if res == nil {
-		return nil, fmt.Errorf("Unable to parse server response. This is most likely a terraform problem, please file a bug at https://github.com/terraform-providers/terraform-provider-google/issues.")
+		return nil, fmt.Errorf("Unable to parse server response. This is most likely a terraform problem, please file a bug at https://github.com/hashicorp/terraform-provider-google/issues.")
 	}
 
 	// The defer call must be made outside of the retryFunc otherwise it's closed too soon.

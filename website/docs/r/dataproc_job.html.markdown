@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Dataproc"
+subcategory: "Dataproc"
 layout: "google"
 page_title: "Google: google_dataproc_job"
 sidebar_current: "docs-google-dataproc-job"
@@ -338,6 +338,9 @@ exported:
 
 * `driver_controls_files_uri` - If present, the location of miscellaneous control files which may be used as part of job setup and handling. If not present, control files may be placed in the same location as driver_output_uri.
 
+## Import
+
+This resource does not support import.
 
 ## Timeouts
 

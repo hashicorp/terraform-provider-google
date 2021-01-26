@@ -43,8 +43,8 @@ var imageMap = map[string]string{
 	"windows-sql": "windows-sql-cloud",
 }
 
-func resolveImageImageExists(c *Config, project, name string) (bool, error) {
-	if _, err := c.clientCompute.Images.Get(project, name).Do(); err == nil {
+func resolveImageImageExists(c *Config, project, name, userAgent string) (bool, error) {
+	if _, err := c.NewComputeClient(userAgent).Images.Get(project, name).Do(); err == nil {
 		return true, nil
 	} else if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 		return false, nil
@@ -53,8 +53,8 @@ func resolveImageImageExists(c *Config, project, name string) (bool, error) {
 	}
 }
 
-func resolveImageFamilyExists(c *Config, project, name string) (bool, error) {
-	if _, err := c.clientCompute.Images.GetFromFamily(project, name).Do(); err == nil {
+func resolveImageFamilyExists(c *Config, project, name, userAgent string) (bool, error) {
+	if _, err := c.NewComputeClient(userAgent).Images.GetFromFamily(project, name).Do(); err == nil {
 		return true, nil
 	} else if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
 		return false, nil
@@ -83,7 +83,7 @@ func sanityTestRegexMatches(expected int, got []string, regexType, name string) 
 //    If not, check if it could be a GCP-provided image, and if it exists. If it does, return it as projects/{project}/global/images/{image}.
 //    If not, check if it's a family in the current project. If it is, return it as global/images/family/{family}.
 //    If not, check if it could be a GCP-provided family, and if it exists. If it does, return it as projects/{project}/global/images/family/{family}
-func resolveImage(c *Config, project, name string) (string, error) {
+func resolveImage(c *Config, project, name, userAgent string) (string, error) {
 	var builtInProject string
 	for k, v := range imageMap {
 		if strings.Contains(name, k) {
@@ -123,13 +123,13 @@ func resolveImage(c *Config, project, name string) (string, error) {
 		if err := sanityTestRegexMatches(1, res, "family family", name); err != nil {
 			return "", err
 		}
-		if ok, err := resolveImageFamilyExists(c, project, res[1]); err != nil {
+		if ok, err := resolveImageFamilyExists(c, project, res[1], userAgent); err != nil {
 			return "", err
 		} else if ok {
 			return fmt.Sprintf("global/images/family/%s", res[1]), nil
 		}
 		if builtInProject != "" {
-			if ok, err := resolveImageFamilyExists(c, builtInProject, res[1]); err != nil {
+			if ok, err := resolveImageFamilyExists(c, builtInProject, res[1], userAgent); err != nil {
 				return "", err
 			} else if ok {
 				return fmt.Sprintf("projects/%s/global/images/family/%s", builtInProject, res[1]), nil
@@ -140,7 +140,7 @@ func resolveImage(c *Config, project, name string) (string, error) {
 		if err := sanityTestRegexMatches(2, res, "project image shorthand", name); err != nil {
 			return "", err
 		}
-		if ok, err := resolveImageImageExists(c, res[1], res[2]); err != nil {
+		if ok, err := resolveImageImageExists(c, res[1], res[2], userAgent); err != nil {
 			return "", err
 		} else if ok {
 			return fmt.Sprintf("projects/%s/global/images/%s", res[1], res[2]), nil
@@ -151,7 +151,7 @@ func resolveImage(c *Config, project, name string) (string, error) {
 		if err := sanityTestRegexMatches(2, res, "project family shorthand", name); err != nil {
 			return "", err
 		}
-		if ok, err := resolveImageFamilyExists(c, res[1], res[2]); err != nil {
+		if ok, err := resolveImageFamilyExists(c, res[1], res[2], userAgent); err != nil {
 			return "", err
 		} else if ok {
 			return fmt.Sprintf("projects/%s/global/images/family/%s", res[1], res[2]), nil
@@ -161,14 +161,14 @@ func resolveImage(c *Config, project, name string) (string, error) {
 		if err := sanityTestRegexMatches(1, res, "image", name); err != nil {
 			return "", err
 		}
-		if ok, err := resolveImageImageExists(c, project, res[1]); err != nil {
+		if ok, err := resolveImageImageExists(c, project, res[1], userAgent); err != nil {
 			return "", err
 		} else if ok {
 			return fmt.Sprintf("global/images/%s", res[1]), nil
 		}
 		if builtInProject != "" {
 			// check the images GCP provides
-			if ok, err := resolveImageImageExists(c, builtInProject, res[1]); err != nil {
+			if ok, err := resolveImageImageExists(c, builtInProject, res[1], userAgent); err != nil {
 				return "", err
 			} else if ok {
 				return fmt.Sprintf("projects/%s/global/images/%s", builtInProject, res[1]), nil
@@ -180,14 +180,14 @@ func resolveImage(c *Config, project, name string) (string, error) {
 		if err := sanityTestRegexMatches(1, res, "family", name); err != nil {
 			return "", err
 		}
-		if ok, err := resolveImageFamilyExists(c, c.Project, res[1]); err != nil {
+		if ok, err := resolveImageFamilyExists(c, c.Project, res[1], userAgent); err != nil {
 			return "", err
 		} else if ok {
 			return fmt.Sprintf("global/images/family/%s", res[1]), nil
 		}
 		if builtInProject != "" {
 			// check the families GCP provides
-			if ok, err := resolveImageFamilyExists(c, builtInProject, res[1]); err != nil {
+			if ok, err := resolveImageFamilyExists(c, builtInProject, res[1], userAgent); err != nil {
 				return "", err
 			} else if ok {
 				return fmt.Sprintf("projects/%s/global/images/family/%s", builtInProject, res[1]), nil

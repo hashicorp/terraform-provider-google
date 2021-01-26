@@ -1,0 +1,4 @@
+```release-note:bug
+compute: added fingerprint on private_ipv6_google_access for `google_compute_subnetwork`
+
+```

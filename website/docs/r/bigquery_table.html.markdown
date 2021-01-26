@@ -112,12 +112,8 @@ The following arguments are supported:
 
 * `labels` - (Optional) A mapping of labels to assign to the resource.
 
-* `schema` - (Optional) A JSON schema for the table. Schema is required
-    for CSV and JSON formats and is disallowed for Google Cloud
-    Bigtable, Cloud Datastore backups, and Avro formats when using
-    external tables. For more information see the
-    [BigQuery API documentation](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#resource).
-    ~>**NOTE**: Because this field expects a JSON string, any changes to the
+* `schema` - (Optional) A JSON schema for the table.
+    ~>**NOTE:** Because this field expects a JSON string, any changes to the
     string will create a diff, even if the JSON itself hasn't changed.
     If the API returns a different value for the same schema, e.g. it
     switched the order of values or replaced `STRUCT` field type with `RECORD`
@@ -127,11 +123,17 @@ The following arguments are supported:
 * `time_partitioning` - (Optional) If specified, configures time-based
     partitioning for this table. Structure is documented below.
 
+* `range_partitioning` - (Optional) If specified, configures range-based
+    partitioning for this table. Structure is documented below.
+
 * `clustering` - (Optional) Specifies column names to use for data clustering.
     Up to four top-level columns are allowed, and should be specified in
     descending priority order.
 
 * `view` - (Optional) If specified, configures this table as a view.
+    Structure is documented below.
+
+* `materialized_view` - (Optional) If specified, configures this table as a materialized view.
     Structure is documented below.
 
 The `external_data_configuration` block supports:
@@ -149,6 +151,11 @@ The `external_data_configuration` block supports:
     `source_format` is set to "GOOGLE_SHEETS". Structure is
     documented below.
 
+* `hive_partitioning_options` (Optional) - When set, configures hive partitioning
+    support. Not all storage formats support hive partitioning -- requesting hive
+    partitioning on an unsupported format will lead to an error, as will providing
+    an invalid specification.
+
 * `ignore_unknown_values` (Optional) - Indicates if BigQuery should
     allow extra values that are not represented in the table schema.
     If true, the extra values are ignored. If false, records with
@@ -159,9 +166,21 @@ The `external_data_configuration` block supports:
 * `max_bad_records` (Optional) - The maximum number of bad records that
     BigQuery can ignore when reading data.
 
+* `schema` - (Optional) A JSON schema for the external table. Schema is required
+    for CSV and JSON formats if autodetect is not on. Schema is disallowed
+    for Google Cloud Bigtable, Cloud Datastore backups, Avro, ORC and Parquet formats.
+    ~>**NOTE:** Because this field expects a JSON string, any changes to the
+    string will create a diff, even if the JSON itself hasn't changed.
+    Furthermore drift for this field cannot not be detected because BigQuery
+    only uses this schema to compute the effective schema for the table, therefore
+    any changes on the configured value will force the table to be recreated.
+    This schema is effectively only applied when creating a table from an external
+    datasource, after creation the computed schema will be stored in
+    `google_bigquery_table.schema`
+
 * `source_format` (Required) - The data format. Supported values are:
-    "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO",
-    and "DATSTORE_BACKUP". To use "GOOGLE_SHEETS"
+    "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "PARQUET", "ORC"
+    and "DATASTORE_BACKUP". To use "GOOGLE_SHEETS"
     the `scopes` must include
     "https://www.googleapis.com/auth/drive.readonly".
 
@@ -176,7 +195,7 @@ The `csv_options` block supports:
     characters, you must also set the `allow_quoted_newlines` property to true.
     The API-side default is `"`, specified in Terraform escaped as `\"`. Due to
     limitations with Terraform default values, this value is required to be
-    explicitly set. 
+    explicitly set.
 
 * `allow_jagged_rows` (Optional) - Indicates if BigQuery should accept rows
     that are missing trailing optional columns.
@@ -204,6 +223,26 @@ The `google_sheets_options` block supports:
     that BigQuery will skip when reading the data. At least one of `range` or
     `skip_leading_rows` must be set.
 
+The `hive_partitioning_options` block supports:
+
+* `mode` (Optional) - When set, what mode of hive partitioning to use when
+    reading data. The following modes are supported.
+    * AUTO: automatically infer partition key name(s) and type(s).
+    * STRINGS: automatically infer partition key name(s). All types are
+      Not all storage formats support hive partitioning. Requesting hive
+      partitioning on an unsupported format will lead to an error.
+      Currently supported formats are: JSON, CSV, ORC, Avro and Parquet.
+    * CUSTOM: when set to `CUSTOM`, you must encode the partition key schema within the `source_uri_prefix` by setting `source_uri_prefix` to `gs://bucket/path_to_table/{key1:TYPE1}/{key2:TYPE2}/{key3:TYPE3}`.
+
+* `source_uri_prefix` (Optional) - When hive partition detection is requested,
+    a common for all source uris must be required. The prefix must end immediately
+    before the partition key encoding begins. For example, consider files following
+    this data layout. `gs://bucket/path_to_table/dt=2019-06-01/country=USA/id=7/file.avro`
+    `gs://bucket/path_to_table/dt=2019-05-31/country=CA/id=3/file.avro` When hive
+    partitioning is requested with either AUTO or STRINGS detection, the common prefix
+    can be either of `gs://bucket/path_to_table` or `gs://bucket/path_to_table/`.
+    Note that when `mode` is set to `CUSTOM`, you must encode the partition key schema within the `source_uri_prefix` by setting `source_uri_prefix` to `gs://bucket/path_to_table/{key1:TYPE1}/{key2:TYPE2}/{key3:TYPE3}`.
+
 The `time_partitioning` block supports:
 
 * `expiration_ms` -  (Optional) Number of milliseconds for which to keep the
@@ -213,12 +252,28 @@ The `time_partitioning` block supports:
     partition. If time-based partitioning is enabled without this value, the
     table is partitioned based on the load time.
 
-* `type` - (Required) The only type supported is DAY, which will generate
-    one partition per day based on data loading time.
+* `type` - (Required) The supported types are DAY, HOUR, MONTH, and YEAR,
+    which will generate one partition per day, hour, month, and year, respectively.
 
 * `require_partition_filter` - (Optional) If set to true, queries over this table
     require a partition filter that can be used for partition elimination to be
     specified.
+
+The `range_partitioning` block supports:
+
+* `field` - (Required) The field used to determine how to create a range-based
+    partition.
+
+* `range` - (Required) Information required to partition based on ranges.
+    Structure is documented below.
+
+The `range` block supports:
+
+* `start` - (Required) Start of the range partitioning, inclusive.
+
+* `end` - (Required) End of the range partitioning, exclusive.
+
+* `interval` - (Required) The width of each range within the partition.
 
 The `view` block supports:
 
@@ -226,6 +281,16 @@ The `view` block supports:
 
 * `use_legacy_sql` - (Optional) Specifies whether to use BigQuery's legacy SQL for this view.
     The default value is true. If set to false, the view will use BigQuery's standard SQL.
+
+The `materialized_view` block supports:
+
+* `query` - (Required) A query whose result is persisted.
+
+* `enable_refresh` - (Optional) Specifies whether to use BigQuery's automatic refresh for this materialized view when the base table is updated.
+    The default value is true.
+
+* `refresh_interval_ms` - (Optional) The maximum frequency at which this materialized view will be refreshed.
+    The default value is 1800000
 
 The `encryption_configuration` block supports the following arguments:
 
@@ -239,6 +304,8 @@ The `encryption_configuration` block supports the following arguments:
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/datasets/{{dataset}}/tables/{{name}}`
 
 * `creation_time` - The time when this table was created, in milliseconds since the epoch.
 

@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed bug where `google_compute_instance_from_template` instance defaults were overriding `scheduling`
+```

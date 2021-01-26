@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceAccessContextManagerAccessPolicy() *schema.Resource {
@@ -70,11 +70,16 @@ Format: organizations/{organization_id}`,
 				Description: `Time the AccessPolicy was updated in UTC.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	parentProp, err := expandAccessContextManagerAccessPolicyParent(d.Get("parent"), d, config)
@@ -96,7 +101,14 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	}
 
 	log.Printf("[DEBUG] Creating new AccessPolicy: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating AccessPolicy: %s", err)
 	}
@@ -108,15 +120,28 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	err = accessContextManagerOperationWaitTime(
-		config, res, "Creating AccessPolicy",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
+	// Use the resource in the operation response to populate
+	// identity fields and d.Id() before read
+	var opRes map[string]interface{}
+	err = accessContextManagerOperationWaitTimeWithResponse(
+		config, res, &opRes, "Creating AccessPolicy", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create AccessPolicy: %s", err)
 	}
+
+	if err := d.Set("name", flattenAccessContextManagerAccessPolicyName(opRes["name"], d, config)); err != nil {
+		return err
+	}
+
+	// This may have caused the ID to update - update it if so.
+	id, err = replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating AccessPolicy %q: %#v", d.Id(), res)
 
@@ -127,7 +152,9 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	resp := res["response"].(map[string]interface{})
 	name := GetResourceNameFromSelfLink(resp["name"].(string))
 	log.Printf("[DEBUG] Setting AccessPolicy name, id to %s", name)
-	d.Set("name", name)
+	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name)
 
 	return resourceAccessContextManagerAccessPolicyRead(d, meta)
@@ -135,30 +162,41 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 
 func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAccessPolicy %q", d.Id()))
 	}
 
-	if err := d.Set("name", flattenAccessContextManagerAccessPolicyName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenAccessContextManagerAccessPolicyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessPolicy: %s", err)
 	}
-	if err := d.Set("create_time", flattenAccessContextManagerAccessPolicyCreateTime(res["createTime"], d)); err != nil {
+	if err := d.Set("create_time", flattenAccessContextManagerAccessPolicyCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessPolicy: %s", err)
 	}
-	if err := d.Set("update_time", flattenAccessContextManagerAccessPolicyUpdateTime(res["updateTime"], d)); err != nil {
+	if err := d.Set("update_time", flattenAccessContextManagerAccessPolicyUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessPolicy: %s", err)
 	}
-	if err := d.Set("parent", flattenAccessContextManagerAccessPolicyParent(res["parent"], d)); err != nil {
+	if err := d.Set("parent", flattenAccessContextManagerAccessPolicyParent(res["parent"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessPolicy: %s", err)
 	}
-	if err := d.Set("title", flattenAccessContextManagerAccessPolicyTitle(res["title"], d)); err != nil {
+	if err := d.Set("title", flattenAccessContextManagerAccessPolicyTitle(res["title"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessPolicy: %s", err)
 	}
 
@@ -167,6 +205,12 @@ func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta i
 
 func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	titleProp, err := expandAccessContextManagerAccessPolicyTitle(d.Get("title"), d, config)
@@ -193,15 +237,23 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 	if err != nil {
 		return err
 	}
-	res, err := sendRequestWithTimeout(config, "PATCH", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating AccessPolicy %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating AccessPolicy %q: %#v", d.Id(), res)
 	}
 
 	err = accessContextManagerOperationWaitTime(
-		config, res, "Updating AccessPolicy",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		config, res, "Updating AccessPolicy", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err
@@ -212,6 +264,12 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 
 func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
 
 	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
@@ -221,14 +279,19 @@ func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting AccessPolicy %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "AccessPolicy")
 	}
 
 	err = accessContextManagerOperationWaitTime(
-		config, res, "Deleting AccessPolicy",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, res, "Deleting AccessPolicy", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -256,26 +319,26 @@ func resourceAccessContextManagerAccessPolicyImport(d *schema.ResourceData, meta
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAccessContextManagerAccessPolicyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessPolicyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenAccessContextManagerAccessPolicyCreateTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessPolicyCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessPolicyUpdateTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessPolicyUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessPolicyParent(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessPolicyParent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessPolicyTitle(v interface{}, d *schema.ResourceData) interface{} {
+func flattenAccessContextManagerAccessPolicyTitle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

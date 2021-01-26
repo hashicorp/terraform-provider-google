@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud KMS"
+subcategory: "Cloud Key Management Service"
 layout: "google"
 page_title: "Google: google_kms_secret_ciphertext"
 sidebar_current: "docs-google-kms-secret-ciphertext"
@@ -25,7 +25,7 @@ description: |-
 Encrypts secret data with Google Cloud KMS and provides access to the ciphertext.
 
 
-~> **NOTE**: Using this resource will allow you to conceal secret data within your
+~> **NOTE:** Using this resource will allow you to conceal secret data within your
 resource definitions, but it does not take care of protecting that data in the
 logging output, plan output, or state output.  Please take care to secure your secret
 data outside of resource definitions.
@@ -36,6 +36,9 @@ To get more information about SecretCiphertext, see:
 * [API documentation](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/encrypt)
 * How-to Guides
     * [Encrypting and decrypting data with a symmetric key](https://cloud.google.com/kms/docs/encrypt-decrypt)
+
+~> **Warning:** All arguments including `plaintext` and `additional_authenticated_data` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
 
 ## Example Usage - Kms Secret Ciphertext Basic
 
@@ -63,7 +66,7 @@ resource "google_kms_secret_ciphertext" "my_password" {
 
 resource "google_compute_instance" "instance" {
   name         = "my-instance"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -93,6 +96,7 @@ The following arguments are supported:
 * `plaintext` -
   (Required)
   The plaintext to be encrypted.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `crypto_key` -
   (Required)
@@ -103,11 +107,17 @@ The following arguments are supported:
 - - -
 
 
+* `additional_authenticated_data` -
+  (Optional)
+  The additional authenticated data used for integrity checks during encryption and decryption.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{crypto_key}}/{{ciphertext}}`
 
 * `ciphertext` -
   Contains the result of encrypting the provided plaintext, encoded in base64.
@@ -120,6 +130,10 @@ This resource provides the following
 
 - `create` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
+
+## Import
+
+This resource does not support import.
 
 ## User Project Overrides
 

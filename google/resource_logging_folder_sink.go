@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceLoggingFolderSink() *schema.Resource {
@@ -17,20 +17,23 @@ func resourceLoggingFolderSink() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceLoggingSinkImportState("folder"),
 		},
+		UseJSONNumber: true,
 	}
 	schm.Schema["folder"] = &schema.Schema{
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The folder to be exported to the sink. Note that either [FOLDER_ID] or "folders/[FOLDER_ID]" is accepted.`,
 		StateFunc: func(v interface{}) string {
 			return strings.Replace(v.(string), "folders/", "", 1)
 		},
 	}
 	schm.Schema["include_children"] = &schema.Schema{
-		Type:     schema.TypeBool,
-		Optional: true,
-		ForceNew: true,
-		Default:  false,
+		Type:        schema.TypeBool,
+		Optional:    true,
+		ForceNew:    true,
+		Default:     false,
+		Description: `Whether or not to include children folders in the sink export. If true, logs associated with child projects are also exported; otherwise only logs relating to the provided folder are included.`,
 	}
 
 	return schm
@@ -38,13 +41,17 @@ func resourceLoggingFolderSink() *schema.Resource {
 
 func resourceLoggingFolderSinkCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	folder := parseFolderId(d.Get("folder"))
 	id, sink := expandResourceLoggingSink(d, "folders", folder)
 	sink.IncludeChildren = d.Get("include_children").(bool)
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err := config.clientLogging.Folders.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
+	_, err = config.NewLoggingClient(userAgent).Folders.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
 	}
@@ -55,20 +62,33 @@ func resourceLoggingFolderSinkCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceLoggingFolderSinkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
-	sink, err := config.clientLogging.Folders.Sinks.Get(d.Id()).Do()
+	sink, err := config.NewLoggingClient(userAgent).Folders.Sinks.Get(d.Id()).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Folder Logging Sink %s", d.Get("name").(string)))
 	}
 
-	flattenResourceLoggingSink(d, sink)
-	d.Set("include_children", sink.IncludeChildren)
+	if err := flattenResourceLoggingSink(d, sink); err != nil {
+		return err
+	}
+
+	if err := d.Set("include_children", sink.IncludeChildren); err != nil {
+		return fmt.Errorf("Error setting include_children: %s", err)
+	}
 
 	return nil
 }
 
 func resourceLoggingFolderSinkUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
 	// It seems the API might actually accept an update for include_children; this is not in the list of updatable
@@ -77,7 +97,7 @@ func resourceLoggingFolderSinkUpdate(d *schema.ResourceData, meta interface{}) e
 	sink.ForceSendFields = append(sink.ForceSendFields, "IncludeChildren")
 
 	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err := config.clientLogging.Folders.Sinks.Patch(d.Id(), sink).
+	_, err = config.NewLoggingClient(userAgent).Folders.Sinks.Patch(d.Id(), sink).
 		UpdateMask(updateMask).UniqueWriterIdentity(true).Do()
 	if err != nil {
 		return err
@@ -88,8 +108,12 @@ func resourceLoggingFolderSinkUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceLoggingFolderSinkDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
-	_, err := config.clientLogging.Projects.Sinks.Delete(d.Id()).Do()
+	_, err = config.NewLoggingClient(userAgent).Projects.Sinks.Delete(d.Id()).Do()
 	if err != nil {
 		return err
 	}

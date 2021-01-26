@@ -1,0 +1,3 @@
+```release-note:new-datasource
+monitoring: `google_monitoring_uptime_check_ips`
+```

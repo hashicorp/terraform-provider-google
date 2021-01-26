@@ -27,9 +27,11 @@ Configuration for an automated build in response to source repository changes.
 
 To get more information about Trigger, see:
 
-* [API documentation](https://cloud.google.com/cloud-build/docs/api/reference/rest/)
+* [API documentation](https://cloud.google.com/cloud-build/docs/api/reference/rest/v1/projects.triggers)
 * How-to Guides
     * [Automating builds using build triggers](https://cloud.google.com/cloud-build/docs/running-builds/automate-builds)
+
+~> **Note:** You can retrieve the email of the Cloud Build Service Account used in jobs by using the `google_project_service_identity` resource.
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_filename&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -54,6 +56,74 @@ resource "google_cloudbuild_trigger" "filename-trigger" {
   filename = "cloudbuild.yaml"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_build&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Build
+
+
+```hcl
+resource "google_cloudbuild_trigger" "build-trigger" {
+  trigger_template {
+    branch_name = "master"
+    repo_name   = "my-repo"
+  }
+  
+  build {
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "120s"
+    }
+
+    source {
+      storage_source {
+        bucket = "mybucket"
+        object = "source_code.tar.gz"
+      }
+    }
+    tags = ["build", "newFeature"]
+    substitutions = {
+      _FOO = "bar"
+      _BAZ = "qux"
+    }
+    queue_ttl = "20s"
+    logs_bucket = "gs://mybucket/logs"
+    secret {
+      kms_key_name = "projects/myProject/locations/global/keyRings/keyring-name/cryptoKeys/key-name"
+      secret_env = {
+        PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
+      }
+    }
+    artifacts {
+      images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+      objects {
+        location = "gs://bucket/path/to/somewhere/"
+        paths = ["path"]
+      }
+    }
+    options {
+      source_provenance_hash = ["MD5"]
+      requested_verify_option = "VERIFIED"
+      machine_type = "N1_HIGHCPU_8"
+      disk_size_gb = 100
+      substitution_option = "ALLOW_LOOSE"
+      dynamic_substitutions = true
+      log_streaming_option = "STREAM_OFF"
+      worker_pool = "pool"
+      logging = "LEGACY"
+      env = ["ekey = evalue"]
+      secret_env = ["secretenv = svalue"]
+      volumes {
+        name = "v1"
+        path = "v1"
+      }
+    }
+  }  
+}
+```
 
 ## Argument Reference
 
@@ -71,6 +141,10 @@ The following arguments are supported:
 * `description` -
   (Optional)
   Human-readable description of the trigger.
+
+* `tags` -
+  (Optional)
+  Tags for annotation of a BuildTrigger
 
 * `disabled` -
   (Optional)
@@ -96,7 +170,7 @@ The following arguments are supported:
 
 * `included_files` -
   (Optional)
-  ignoredFiles and includedFiles are file glob matches using http://godoc/pkg/path/filepath#Match
+  ignoredFiles and includedFiles are file glob matches using https://golang.org/pkg/path/filepath/#Match
   extended with support for `**`.
   If any of the files altered in the commit pass the ignoredFiles filter
   and includedFiles is empty, then as far as this filter is concerned, we
@@ -112,11 +186,19 @@ The following arguments are supported:
   Branch and tag names in trigger templates are interpreted as regular
   expressions. Any branch or tag change that matches that regular
   expression will trigger a build.
-  One of `trigger_template` or `github` must be provided.  Structure is documented below.
+  One of `trigger_template` or `github` must be provided.
+  Structure is documented below.
+
+* `github` -
+  (Optional)
+  Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
+  One of `trigger_template` or `github` must be provided.
+  Structure is documented below.
 
 * `build` -
   (Optional)
-  Contents of the build template. Either a filename or build template must be provided.  Structure is documented below.
+  Contents of the build template. Either a filename or build template must be provided.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -140,6 +222,10 @@ The `trigger_template` block supports:
   is an absolute path, this value is ignored for that step's
   execution.
 
+* `invert_regex` -
+  (Optional)
+  Only trigger a build if the revision regex does NOT match the revision regex.
+
 * `branch_name` -
   (Optional)
   Name of the branch to build. Exactly one a of branch name, tag, or commit SHA must be provided.
@@ -154,7 +240,65 @@ The `trigger_template` block supports:
   (Optional)
   Explicit commit SHA to build. Exactly one of a branch name, tag, or commit SHA must be provided.
 
+The `github` block supports:
+
+* `owner` -
+  (Optional)
+  Owner of the repository. For example: The owner for
+  https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".
+
+* `name` -
+  (Optional)
+  Name of the repository. For example: The name for
+  https://github.com/googlecloudplatform/cloud-builders is "cloud-builders".
+
+* `pull_request` -
+  (Optional)
+  filter to match changes in pull requests.  Specify only one of pullRequest or push.
+  Structure is documented below.
+
+* `push` -
+  (Optional)
+  filter to match changes in refs, like branches or tags.  Specify only one of pullRequest or push.
+  Structure is documented below.
+
+
+The `pull_request` block supports:
+
+* `branch` -
+  (Required)
+  Regex of branches to match.
+
+* `comment_control` -
+  (Optional)
+  Whether to block builds on a "/gcbrun" comment from a repository owner or collaborator.
+  Possible values are `COMMENTS_DISABLED`, `COMMENTS_ENABLED`, and `COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY`.
+
+* `invert_regex` -
+  (Optional)
+  If true, branches that do NOT match the git_ref will trigger a build.
+
+The `push` block supports:
+
+* `invert_regex` -
+  (Optional)
+  When true, only trigger a build if the revision regex does NOT match the git_ref regex.
+
+* `branch` -
+  (Optional)
+  Regex of branches to match.  Specify only one of branch or tag.
+
+* `tag` -
+  (Optional)
+  Regex of tags to match.  Specify only one of branch or tag.
+
 The `build` block supports:
+
+* `source` -
+  (Optional)
+  The location of the source files to build.
+  One of `storageSource` or `repoSource` must be provided.
+  Structure is documented below.
 
 * `tags` -
   (Optional)
@@ -167,18 +311,133 @@ The `build` block supports:
   The digests of the pushed images will be stored in the Build resource's results field.
   If any of the images fail to be pushed, the build status is marked FAILURE.
 
+* `substitutions` -
+  (Optional)
+  Substitutions data for Build resource.
+
+* `queue_ttl` -
+  (Optional)
+  TTL in queue for this build. If provided and the build is enqueued longer than this value, 
+  the build will expire and the build status will be EXPIRED.
+  The TTL starts ticking from createTime.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+
+* `logs_bucket` -
+  (Optional)
+  Google Cloud Storage bucket where logs should be written. 
+  Logs file names will be of the format ${logsBucket}/log-${build_id}.txt.
+
 * `timeout` -
   (Optional)
-  Amount of time that this build should be allowed to run, to second granularity. 
+  Amount of time that this build should be allowed to run, to second granularity.
   If this amount of time elapses, work on the build will cease and the build status will be TIMEOUT.
   This timeout must be equal to or greater than the sum of the timeouts for build steps within the build.
   The expected format is the number of seconds followed by s.
   Default time is ten minutes (600s).
 
+* `secret` -
+  (Optional)
+  Secrets to decrypt using Cloud Key Management Service.
+  Structure is documented below.
+
 * `step` -
   (Required)
-  The operations to be performed on the workspace.  Structure is documented below.
+  The operations to be performed on the workspace.
+  Structure is documented below.
 
+* `artifacts` -
+  (Optional)
+  Artifacts produced by the build that should be uploaded upon successful completion of all build steps.
+  Structure is documented below.
+
+* `options` -
+  (Optional)
+  Special options for this build.
+  Structure is documented below.
+
+
+The `source` block supports:
+
+* `storage_source` -
+  (Optional)
+  Location of the source in an archive file in Google Cloud Storage.
+  Structure is documented below.
+
+* `repo_source` -
+  (Optional)
+  Location of the source in a Google Cloud Source Repository.
+  Structure is documented below.
+
+
+The `storage_source` block supports:
+
+* `bucket` -
+  (Required)
+  Google Cloud Storage bucket containing the source.
+
+* `object` -
+  (Required)
+  Google Cloud Storage object containing the source.
+  This object must be a gzipped archive file (.tar.gz) containing source to build.
+
+* `generation` -
+  (Optional)
+  Google Cloud Storage generation for the object. 
+  If the generation is omitted, the latest generation will be used
+
+The `repo_source` block supports:
+
+* `project_id` -
+  (Optional)
+  ID of the project that owns the Cloud Source Repository. 
+  If omitted, the project ID requesting the build is assumed.
+
+* `repo_name` -
+  (Required)
+  Name of the Cloud Source Repository.
+
+* `dir` -
+  (Optional)
+  Directory, relative to the source root, in which to run the build.
+  This must be a relative path. If a step's dir is specified and is an absolute path, 
+  this value is ignored for that step's execution.
+
+* `invert_regex` -
+  (Optional)
+  Only trigger a build if the revision regex does NOT match the revision regex.
+
+* `substitutions` -
+  (Optional)
+  Substitutions to use in a triggered build. Should only be used with triggers.run
+
+* `branch_name` -
+  (Optional)
+  Regex matching branches to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+  The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+  described at https://github.com/google/re2/wiki/Syntax
+
+* `tag_name` -
+  (Optional)
+  Regex matching tags to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+  The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+  described at https://github.com/google/re2/wiki/Syntax
+
+* `commit_sha` -
+  (Optional)
+  Explicit commit SHA to build. Exactly one a of branch name, tag, or commit SHA must be provided.
+
+The `secret` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Cloud KMS key name to use to decrypt these envs.
+
+* `secret_env` -
+  (Optional)
+  Map of environment variable name to its encrypted value.
+  Secret environment variables must be unique across all of a build's secrets, 
+  and must be used by at least one build step. Values can be at most 64 KB in size. 
+  There can be at most 100 secret values across all of a build's secrets.
 
 The `step` block supports:
 
@@ -189,7 +448,8 @@ The `step` block supports:
   run directly. If not, the host will attempt to pull the image first, using
   the builder service account's credentials if necessary.
   The Docker daemon's cache will already have the latest versions of all of
-  the officially supported build steps (https://github.com/GoogleCloudPlatform/cloud-builders).
+  the officially supported build steps (see https://github.com/GoogleCloudPlatform/cloud-builders 
+  for images and examples).
   The Docker daemon will also have cached many of the layers for some popular
   images, like "ubuntu", "debian", but they will be refreshed at the time
   you attempt to use them.
@@ -261,7 +521,8 @@ The `step` block supports:
   build step. Upon completion of the build, volumes and their contents
   are discarded.
   Using a named volume in only one step is not valid as it is
-  indicative of a build request with an incorrect configuration.  Structure is documented below.
+  indicative of a build request with an incorrect configuration.
+  Structure is documented below.
 
 * `wait_for` -
   (Optional)
@@ -286,10 +547,151 @@ The `volumes` block supports:
   Paths must be absolute and cannot conflict with other volume paths on
   the same build step or with certain reserved volume paths.
 
+The `artifacts` block supports:
+
+* `images` -
+  (Optional)
+  A list of images to be pushed upon the successful completion of all build steps.
+  The images will be pushed using the builder service account's credentials.
+  The digests of the pushed images will be stored in the Build resource's results field.
+  If any of the images fail to be pushed, the build is marked FAILURE.
+
+* `objects` -
+  (Optional)
+  A list of objects to be uploaded to Cloud Storage upon successful completion of all build steps.
+  Files in the workspace matching specified paths globs will be uploaded to the
+  Cloud Storage location using the builder service account's credentials.
+  The location and generation of the uploaded objects will be stored in the Build resource's results field.
+  If any objects fail to be pushed, the build is marked FAILURE.
+  Structure is documented below.
+
+
+The `objects` block supports:
+
+* `location` -
+  (Optional)
+  Cloud Storage bucket and optional object path, in the form "gs://bucket/path/to/somewhere/".
+  Files in the workspace matching any path pattern will be uploaded to Cloud Storage with
+  this location as a prefix.
+
+* `paths` -
+  (Optional)
+  Path globs used to match files in the build's workspace.
+
+* `timing` -
+  Output only. Stores timing information for pushing all artifact objects.
+  Structure is documented below.
+
+
+The `timing` block contains:
+
+* `start_time` -
+  (Optional)
+  Start of time span.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
+  nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `end_time` -
+  (Optional)
+  End of time span.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
+  nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+The `options` block supports:
+
+* `source_provenance_hash` -
+  (Optional)
+  Requested hash for SourceProvenance.
+  Each value may be one of `NONE`, `SHA256`, and `MD5`.
+
+* `requested_verify_option` -
+  (Optional)
+  Requested verifiability options.
+  Possible values are `NOT_VERIFIED` and `VERIFIED`.
+
+* `machine_type` -
+  (Optional)
+  Compute Engine machine type on which to run the build.
+  Possible values are `UNSPECIFIED`, `N1_HIGHCPU_8`, and `N1_HIGHCPU_32`.
+
+* `disk_size_gb` -
+  (Optional)
+  Requested disk size for the VM that runs the build. Note that this is NOT "disk free";
+  some of the space will be used by the operating system and build utilities.
+  Also note that this is the minimum disk size that will be allocated for the build --
+  the build may run with a larger disk than requested. At present, the maximum disk size
+  is 1000GB; builds that request more than the maximum are rejected with an error.
+
+* `substitution_option` -
+  (Optional)
+  Option to specify behavior when there is an error in the substitution checks.
+  NOTE this is always set to ALLOW_LOOSE for triggered builds and cannot be overridden
+  in the build configuration file.
+  Possible values are `MUST_MATCH` and `ALLOW_LOOSE`.
+
+* `dynamic_substitutions` -
+  (Optional)
+  Option to specify whether or not to apply bash style string operations to the substitutions.
+  NOTE this is always enabled for triggered builds and cannot be overridden in the build configuration file.
+
+* `log_streaming_option` -
+  (Optional)
+  Option to define build log streaming behavior to Google Cloud Storage.
+  Possible values are `STREAM_DEFAULT`, `STREAM_ON`, and `STREAM_OFF`.
+
+* `worker_pool` -
+  (Optional)
+  Option to specify a WorkerPool for the build. Format projects/{project}/workerPools/{workerPool}
+  This field is experimental.
+
+* `logging` -
+  (Optional)
+  Option to specify the logging mode, which determines if and where build logs are stored.
+  Possible values are `LOGGING_UNSPECIFIED`, `LEGACY`, `GCS_ONLY`, `STACKDRIVER_ONLY`, and `NONE`.
+
+* `env` -
+  (Optional)
+  A list of global environment variable definitions that will exist for all build steps
+  in this build. If a variable is defined in both globally and in a build step,
+  the variable will use the build step value.
+  The elements are of the form "KEY=VALUE" for the environment variable "KEY" being given the value "VALUE".
+
+* `secret_env` -
+  (Optional)
+  A list of global environment variables, which are encrypted using a Cloud Key Management
+  Service crypto key. These values must be specified in the build's Secret. These variables
+  will be available to all build steps in this build.
+
+* `volumes` -
+  (Optional)
+  Global list of volumes to mount for ALL build steps
+  Each volume is created as an empty volume prior to starting the build process.
+  Upon completion of the build, volumes and their contents are discarded. Global
+  volume names and paths cannot conflict with the volumes defined a build step.
+  Using a global volume in a build with only one step is not valid as it is indicative
+  of a build request with an incorrect configuration.
+  Structure is documented below.
+
+
+The `volumes` block supports:
+
+* `name` -
+  (Optional)
+  Name of the volume to mount.
+  Volume names must be unique per build step and must be valid names for Docker volumes.
+  Each named volume must be used by at least two build steps.
+
+* `path` -
+  (Optional)
+  Path at which to mount the volume.
+  Paths must be absolute and cannot conflict with other volume paths on the same
+  build step or with certain reserved volume paths.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/triggers/{{trigger_id}}`
 
 * `trigger_id` -
   The unique identifier for the trigger.
@@ -309,6 +711,7 @@ This resource provides the following
 
 ## Import
 
+
 Trigger can be imported using any of these accepted formats:
 
 ```
@@ -316,9 +719,6 @@ $ terraform import google_cloudbuild_trigger.default projects/{{project}}/trigge
 $ terraform import google_cloudbuild_trigger.default {{project}}/{{trigger_id}}
 $ terraform import google_cloudbuild_trigger.default {{trigger_id}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

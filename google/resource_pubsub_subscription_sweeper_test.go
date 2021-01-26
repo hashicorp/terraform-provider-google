@@ -18,8 +18,9 @@ import (
 	"context"
 	"log"
 	"strings"
+	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func init() {
@@ -46,13 +47,17 @@ func testSweepPubsubSubscription(region string) error {
 		return err
 	}
 
+	t := &testing.T{}
+	billingId := getTestBillingAccountFromEnv(t)
+
 	// Setup variables to replace in list template
 	d := &ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
-			"project":  config.Project,
-			"region":   region,
-			"location": region,
-			"zone":     "-",
+			"project":         config.Project,
+			"region":          region,
+			"location":        region,
+			"zone":            "-",
+			"billing_account": billingId,
 		},
 	}
 
@@ -63,7 +68,7 @@ func testSweepPubsubSubscription(region string) error {
 		return nil
 	}
 
-	res, err := sendRequest(config, "GET", config.Project, listUrl, nil)
+	res, err := sendRequest(config, "GET", config.Project, listUrl, config.userAgent, nil)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
 		return nil
@@ -78,7 +83,7 @@ func testSweepPubsubSubscription(region string) error {
 	rl := resourceList.([]interface{})
 
 	log.Printf("[INFO][SWEEPER_LOG] Found %d items in %s list response.", len(rl), resourceName)
-	// items who don't match the tf-test prefix
+	// Keep count of items that aren't sweepable for logging.
 	nonPrefixCount := 0
 	for _, ri := range rl {
 		obj := ri.(map[string]interface{})
@@ -88,8 +93,8 @@ func testSweepPubsubSubscription(region string) error {
 		}
 
 		name := GetResourceNameFromSelfLink(obj["name"].(string))
-		// Only sweep resources with the test prefix
-		if !strings.HasPrefix(name, "tf-test") {
+		// Skip resources that shouldn't be sweeped
+		if !isSweepableTestResource(name) {
 			nonPrefixCount++
 			continue
 		}
@@ -103,7 +108,7 @@ func testSweepPubsubSubscription(region string) error {
 		deleteUrl = deleteUrl + name
 
 		// Don't wait on operations as we may have a lot to delete
-		_, err = sendRequest(config, "DELETE", config.Project, deleteUrl, nil)
+		_, err = sendRequest(config, "DELETE", config.Project, deleteUrl, config.userAgent, nil)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 		} else {
@@ -112,7 +117,7 @@ func testSweepPubsubSubscription(region string) error {
 	}
 
 	if nonPrefixCount > 0 {
-		log.Printf("[INFO][SWEEPER_LOG] %d items without tf_test prefix remain.", nonPrefixCount)
+		log.Printf("[INFO][SWEEPER_LOG] %d items were non-sweepable and skipped.", nonPrefixCount)
 	}
 
 	return nil

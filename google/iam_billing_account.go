@@ -3,7 +3,7 @@ package google
 import (
 	"fmt"
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -18,23 +18,32 @@ var IamBillingAccountSchema = map[string]*schema.Schema{
 
 type BillingAccountIamUpdater struct {
 	billingAccountId string
+	d                TerraformResourceData
 	Config           *Config
 }
 
-func NewBillingAccountIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewBillingAccountIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &BillingAccountIamUpdater{
 		billingAccountId: canonicalBillingAccountId(d.Get("billing_account_id").(string)),
+		d:                d,
 		Config:           config,
 	}, nil
 }
 
 func BillingAccountIdParseFunc(d *schema.ResourceData, _ *Config) error {
-	d.Set("billing_account_id", d.Id())
+	if err := d.Set("billing_account_id", d.Id()); err != nil {
+		return fmt.Errorf("Error setting billing_account_id: %s", err)
+	}
 	return nil
 }
 
 func (u *BillingAccountIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	return getBillingAccountIamPolicyByBillingAccountName(u.billingAccountId, u.Config)
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	return getBillingAccountIamPolicyByBillingAccountName(u.billingAccountId, u.Config, userAgent)
 }
 
 func (u *BillingAccountIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
@@ -43,7 +52,12 @@ func (u *BillingAccountIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 		return err
 	}
 
-	_, err = u.Config.clientBilling.BillingAccounts.SetIamPolicy("billingAccounts/"+u.billingAccountId, &cloudbilling.SetIamPolicyRequest{
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.Config.NewBillingClient(userAgent).BillingAccounts.SetIamPolicy("billingAccounts/"+u.billingAccountId, &cloudbilling.SetIamPolicyRequest{
 		Policy: billingPolicy,
 	}).Do()
 
@@ -89,8 +103,8 @@ func billingToResourceManagerPolicy(p *cloudbilling.Policy) (*cloudresourcemanag
 }
 
 // Retrieve the existing IAM Policy for a billing account
-func getBillingAccountIamPolicyByBillingAccountName(resource string, config *Config) (*cloudresourcemanager.Policy, error) {
-	p, err := config.clientBilling.BillingAccounts.GetIamPolicy("billingAccounts/" + resource).Do()
+func getBillingAccountIamPolicyByBillingAccountName(resource string, config *Config, userAgent string) (*cloudresourcemanager.Policy, error) {
+	p, err := config.NewBillingClient(userAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + resource).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for billing account %q: {{err}}", resource), err)

@@ -2,13 +2,14 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/api/storagetransfer/v1"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/api/storagetransfer/v1"
 )
 
 var (
@@ -44,19 +45,22 @@ func resourceStorageTransferJob() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the Transfer Job.`,
 			},
 			"description": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringLenBetween(0, 1024),
+				Description:  `Unique description to identify the Transfer Job.`,
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 			"transfer_spec": {
 				Type:     schema.TypeList,
@@ -67,10 +71,11 @@ func resourceStorageTransferJob() *schema.Resource {
 						"object_conditions": objectConditionsSchema(),
 						"transfer_options":  transferOptionsSchema(),
 						"gcs_data_sink": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem:     gcsDataSchema(),
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Elem:        gcsDataSchema(),
+							Description: `A Google Cloud Storage data sink.`,
 						},
 						"gcs_data_source": {
 							Type:         schema.TypeList,
@@ -78,6 +83,7 @@ func resourceStorageTransferJob() *schema.Resource {
 							MaxItems:     1,
 							Elem:         gcsDataSchema(),
 							ExactlyOneOf: transferSpecDataSourceKeys,
+							Description:  `A Google Cloud Storage data source.`,
 						},
 						"aws_s3_data_source": {
 							Type:         schema.TypeList,
@@ -85,6 +91,7 @@ func resourceStorageTransferJob() *schema.Resource {
 							MaxItems:     1,
 							Elem:         awsS3DataSchema(),
 							ExactlyOneOf: transferSpecDataSourceKeys,
+							Description:  `An AWS S3 data source.`,
 						},
 						"http_data_source": {
 							Type:         schema.TypeList,
@@ -92,9 +99,11 @@ func resourceStorageTransferJob() *schema.Resource {
 							MaxItems:     1,
 							Elem:         httpDataSchema(),
 							ExactlyOneOf: transferSpecDataSourceKeys,
+							Description:  `An HTTP URL data source.`,
 						},
 					},
 				},
+				Description: `Transfer specification.`,
 			},
 			"schedule": {
 				Type:     schema.TypeList,
@@ -103,18 +112,20 @@ func resourceStorageTransferJob() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"schedule_start_date": {
-							Type:     schema.TypeList,
-							Required: true,
-							ForceNew: true,
-							MaxItems: 1,
-							Elem:     dateObjectSchema(),
+							Type:        schema.TypeList,
+							Required:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Elem:        dateObjectSchema(),
+							Description: `The first day the recurring transfer is scheduled to run. If schedule_start_date is in the past, the transfer will run for the first time on the following day.`,
 						},
 						"schedule_end_date": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							MaxItems: 1,
-							Elem:     dateObjectSchema(),
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Elem:        dateObjectSchema(),
+							Description: `The last day the recurring transfer will be run. If schedule_end_date is the same as schedule_start_date, the transfer will be executed only once.`,
 						},
 						"start_time_of_day": {
 							Type:             schema.TypeList,
@@ -123,29 +134,36 @@ func resourceStorageTransferJob() *schema.Resource {
 							MaxItems:         1,
 							Elem:             timeObjectSchema(),
 							DiffSuppressFunc: diffSuppressEmptyStartTimeOfDay,
+							Description:      `The time in UTC at which the transfer will be scheduled to start in a day. Transfers may start later than this time. If not specified, recurring and one-time transfers that are scheduled to run today will run immediately; recurring transfers that are scheduled to run on a future date will start at approximately midnight UTC on that date. Note that when configuring a transfer with the Cloud Platform Console, the transfer's start time in a day is specified in your local timezone.`,
 						},
 					},
 				},
+				Description: `Schedule specification defining when the Transfer Job should be scheduled to start, end and what time to run.`,
 			},
 			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "ENABLED",
 				ValidateFunc: validation.StringInSlice([]string{"ENABLED", "DISABLED", "DELETED"}, false),
+				Description:  `Status of the job. Default: ENABLED. NOTE: The effect of the new job status takes place during a subsequent job run. For example, if you change the job status from ENABLED to DISABLED, and an operation spawned by the transfer is running, the status change would not affect the current operation.`,
 			},
 			"creation_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `When the Transfer Job was created.`,
 			},
 			"last_modification_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `When the Transfer Job was last modified.`,
 			},
 			"deletion_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `When the Transfer Job was deleted.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -161,12 +179,14 @@ func objectConditionsSchema() *schema.Schema {
 					ValidateFunc: validateDuration(),
 					Optional:     true,
 					AtLeastOneOf: objectConditionsKeys,
+					Description:  `A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
 				},
 				"max_time_elapsed_since_last_modification": {
 					Type:         schema.TypeString,
 					ValidateFunc: validateDuration(),
 					Optional:     true,
 					AtLeastOneOf: objectConditionsKeys,
+					Description:  `A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
 				},
 				"include_prefixes": {
 					Type:         schema.TypeList,
@@ -176,6 +196,7 @@ func objectConditionsSchema() *schema.Schema {
 						MaxItems: 1000,
 						Type:     schema.TypeString,
 					},
+					Description: `If include_refixes is specified, objects that satisfy the object conditions must have names that start with one of the include_prefixes and that do not start with any of the exclude_prefixes. If include_prefixes is not specified, all objects except those that have names starting with one of the exclude_prefixes must satisfy the object conditions.`,
 				},
 				"exclude_prefixes": {
 					Type:         schema.TypeList,
@@ -185,9 +206,11 @@ func objectConditionsSchema() *schema.Schema {
 						MaxItems: 1000,
 						Type:     schema.TypeString,
 					},
+					Description: `exclude_prefixes must follow the requirements described for include_prefixes.`,
 				},
 			},
 		},
+		Description: `Only objects that satisfy these object conditions are included in the set of data source and data sink objects. Object conditions based on objects' last_modification_time do not exclude objects in a data sink.`,
 	}
 }
 
@@ -202,21 +225,25 @@ func transferOptionsSchema() *schema.Schema {
 					Type:         schema.TypeBool,
 					Optional:     true,
 					AtLeastOneOf: transferOptionsKeys,
+					Description:  `Whether overwriting objects that already exist in the sink is allowed.`,
 				},
 				"delete_objects_unique_in_sink": {
 					Type:          schema.TypeBool,
 					Optional:      true,
 					AtLeastOneOf:  transferOptionsKeys,
 					ConflictsWith: []string{"transfer_spec.transfer_options.delete_objects_from_source_after_transfer"},
+					Description:   `Whether objects that exist only in the sink should be deleted. Note that this option and delete_objects_from_source_after_transfer are mutually exclusive.`,
 				},
 				"delete_objects_from_source_after_transfer": {
 					Type:          schema.TypeBool,
 					Optional:      true,
 					AtLeastOneOf:  transferOptionsKeys,
 					ConflictsWith: []string{"transfer_spec.transfer_options.delete_objects_unique_in_sink"},
+					Description:   `Whether objects should be deleted from the source after they are transferred to the sink. Note that this option and delete_objects_unique_in_sink are mutually exclusive.`,
 				},
 			},
 		},
+		Description: `Characteristics of how to treat files from datasource and sink during job. If the option delete_objects_unique_in_sink is true, object conditions based on objects' last_modification_time are ignored and do not exclude objects in a data source or a data sink.`,
 	}
 }
 
@@ -228,24 +255,28 @@ func timeObjectSchema() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 24),
+				Description:  `Hours of day in 24 hour format. Should be from 0 to 23.`,
 			},
 			"minutes": {
 				Type:         schema.TypeInt,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 59),
+				Description:  `Minutes of hour of day. Must be from 0 to 59.`,
 			},
 			"seconds": {
 				Type:         schema.TypeInt,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 60),
+				Description:  `Seconds of minutes of the time. Must normally be from 0 to 59.`,
 			},
 			"nanos": {
 				Type:         schema.TypeInt,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 999999999),
+				Description:  `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
 			},
 		},
 	}
@@ -259,6 +290,7 @@ func dateObjectSchema() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 9999),
+				Description:  `Year of date. Must be from 1 to 9999.`,
 			},
 
 			"month": {
@@ -266,6 +298,7 @@ func dateObjectSchema() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(1, 12),
+				Description:  `Month of year. Must be from 1 to 12.`,
 			},
 
 			"day": {
@@ -273,6 +306,7 @@ func dateObjectSchema() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(0, 31),
+				Description:  `Day of month. Must be from 1 to 31 and valid for the year and month.`,
 			},
 		},
 	}
@@ -282,8 +316,9 @@ func gcsDataSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"bucket_name": {
-				Required: true,
-				Type:     schema.TypeString,
+				Required:    true,
+				Type:        schema.TypeString,
+				Description: `Google Cloud Storage bucket name.`,
 			},
 		},
 	}
@@ -293,8 +328,9 @@ func awsS3DataSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"bucket_name": {
-				Required: true,
-				Type:     schema.TypeString,
+				Required:    true,
+				Type:        schema.TypeString,
+				Description: `S3 Bucket name.`,
 			},
 			"aws_access_key": {
 				Type:     schema.TypeList,
@@ -303,17 +339,20 @@ func awsS3DataSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"access_key_id": {
-							Type:      schema.TypeString,
-							Required:  true,
-							Sensitive: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Sensitive:   true,
+							Description: `AWS Key ID.`,
 						},
 						"secret_access_key": {
-							Type:      schema.TypeString,
-							Required:  true,
-							Sensitive: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Sensitive:   true,
+							Description: `AWS Secret Access Key.`,
 						},
 					},
 				},
+				Description: `AWS credentials block.`,
 			},
 		},
 	}
@@ -323,8 +362,9 @@ func httpDataSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"list_url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The URL that points to the file that stores the object list entries. This file must allow public access. Currently, only URLs with HTTP and HTTPS schemes are supported.`,
 			},
 		},
 	}
@@ -336,6 +376,10 @@ func diffSuppressEmptyStartTimeOfDay(k, old, new string, d *schema.ResourceData)
 
 func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -353,7 +397,7 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 	var res *storagetransfer.TransferJob
 
 	err = retry(func() error {
-		res, err = config.clientStorageTransfer.TransferJobs.Create(transferJob).Do()
+		res, err = config.NewStorageTransferClient(userAgent).TransferJobs.Create(transferJob).Do()
 		return err
 	})
 
@@ -362,7 +406,9 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	d.Set("name", res.Name)
+	if err := d.Set("name", res.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 
 	name := GetResourceNameFromSelfLink(res.Name)
 	d.SetId(fmt.Sprintf("%s/%s", project, name))
@@ -372,6 +418,10 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 
 func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -379,18 +429,30 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	name := d.Get("name").(string)
-	res, err := config.clientStorageTransfer.TransferJobs.Get(name).ProjectId(project).Do()
+	res, err := config.NewStorageTransferClient(userAgent).TransferJobs.Get(name, project).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Transfer Job %q", name))
 	}
 	log.Printf("[DEBUG] Read transfer job: %v in project: %v \n\n", res.Name, res.ProjectId)
 
-	d.Set("project", res.ProjectId)
-	d.Set("description", res.Description)
-	d.Set("status", res.Status)
-	d.Set("last_modification_time", res.LastModificationTime)
-	d.Set("creation_time", res.CreationTime)
-	d.Set("deletion_time", res.DeletionTime)
+	if err := d.Set("project", res.ProjectId); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("description", res.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("status", res.Status); err != nil {
+		return fmt.Errorf("Error setting status: %s", err)
+	}
+	if err := d.Set("last_modification_time", res.LastModificationTime); err != nil {
+		return fmt.Errorf("Error setting last_modification_time: %s", err)
+	}
+	if err := d.Set("creation_time", res.CreationTime); err != nil {
+		return fmt.Errorf("Error setting creation_time: %s", err)
+	}
+	if err := d.Set("deletion_time", res.DeletionTime); err != nil {
+		return fmt.Errorf("Error setting deletion_time: %s", err)
+	}
 
 	err = d.Set("schedule", flattenTransferSchedule(res.Schedule))
 	if err != nil {
@@ -407,6 +469,10 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -451,7 +517,7 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 
 	updateRequest.UpdateTransferJobFieldMask = strings.Join(fieldMask, ",")
 
-	res, err := config.clientStorageTransfer.TransferJobs.Patch(d.Get("name").(string), updateRequest).Do()
+	res, err := config.NewStorageTransferClient(userAgent).TransferJobs.Patch(d.Get("name").(string), updateRequest).Do()
 	if err != nil {
 		return err
 	}
@@ -462,6 +528,10 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 
 func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -486,7 +556,7 @@ func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) 
 	// Update transfer job with status set to DELETE
 	log.Printf("[DEBUG] Setting status to DELETE for: %v\n\n", transferJobName)
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
-		_, err := config.clientStorageTransfer.TransferJobs.Patch(transferJobName, updateRequest).Do()
+		_, err := config.NewStorageTransferClient(userAgent).TransferJobs.Patch(transferJobName, updateRequest).Do()
 		if err != nil {
 			return resource.RetryableError(err)
 		}
@@ -508,8 +578,12 @@ func resourceStorageTransferJobStateImporter(d *schema.ResourceData, meta interf
 	parts := strings.Split(d.Id(), "/")
 	switch len(parts) {
 	case 2:
-		d.Set("project", parts[0])
-		d.Set("name", fmt.Sprintf("transferJobs/%s", parts[1]))
+		if err := d.Set("project", parts[0]); err != nil {
+			return nil, fmt.Errorf("Error setting project: %s", err)
+		}
+		if err := d.Set("name", fmt.Sprintf("transferJobs/%s", parts[1])); err != nil {
+			return nil, fmt.Errorf("Error setting name: %s", err)
+		}
 	default:
 		return nil, fmt.Errorf("Invalid transfer job specifier. Expecting {projectId}/{transferJobName}")
 	}

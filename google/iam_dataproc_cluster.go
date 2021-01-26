@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/dataproc/v1"
 )
@@ -33,10 +33,11 @@ type DataprocClusterIamUpdater struct {
 	project string
 	region  string
 	cluster string
+	d       TerraformResourceData
 	Config  *Config
 }
 
-func NewDataprocClusterUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewDataprocClusterUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -47,13 +48,18 @@ func NewDataprocClusterUpdater(d *schema.ResourceData, config *Config) (Resource
 		return nil, err
 	}
 
-	d.Set("project", project)
-	d.Set("region", region)
+	if err := d.Set("project", project); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("region", region); err != nil {
+		return nil, fmt.Errorf("Error setting region: %s", err)
+	}
 
 	return &DataprocClusterIamUpdater{
 		project: project,
 		region:  region,
 		cluster: d.Get("cluster").(string),
+		d:       d,
 		Config:  config,
 	}, nil
 }
@@ -64,9 +70,15 @@ func DataprocClusterIdParseFunc(d *schema.ResourceData, config *Config) error {
 		return err
 	}
 
-	d.Set("project", fv.Project)
-	d.Set("region", fv.Region)
-	d.Set("cluster", fv.Name)
+	if err := d.Set("project", fv.Project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("region", fv.Region); err != nil {
+		return fmt.Errorf("Error setting region: %s", err)
+	}
+	if err := d.Set("cluster", fv.Name); err != nil {
+		return fmt.Errorf("Error setting cluster: %s", err)
+	}
 
 	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
 	d.SetId(fv.RelativeLink())
@@ -75,7 +87,13 @@ func DataprocClusterIdParseFunc(d *schema.ResourceData, config *Config) error {
 
 func (u *DataprocClusterIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	req := &dataproc.GetIamPolicyRequest{}
-	p, err := u.Config.clientDataproc.Projects.Regions.Clusters.GetIamPolicy(u.GetResourceId(), req).Do()
+
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewDataprocClient(userAgent).Projects.Regions.Clusters.GetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -94,8 +112,13 @@ func (u *DataprocClusterIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	req := &dataproc.SetIamPolicyRequest{Policy: dataprocPolicy}
-	_, err = u.Config.clientDataproc.Projects.Regions.Clusters.SetIamPolicy(u.GetResourceId(), req).Do()
+	_, err = u.Config.NewDataprocClient(userAgent).Projects.Regions.Clusters.SetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

@@ -54,8 +54,8 @@ resource "google_compute_network_peering_routes_config" "peering_primary_routes"
 
 resource "google_compute_network_peering" "peering_primary" {
   name         = "primary-peering"
-  network      = google_compute_network.network_primary.self_link
-  peer_network = google_compute_network.network_secondary.self_link
+  network      = google_compute_network.network_primary.id
+  peer_network = google_compute_network.network_secondary.id
 
   import_custom_routes = true
   export_custom_routes = true
@@ -63,8 +63,8 @@ resource "google_compute_network_peering" "peering_primary" {
 
 resource "google_compute_network_peering" "peering_secondary" {
   name         = "secondary-peering"
-  network      = google_compute_network.network_secondary.self_link
-  peer_network = google_compute_network.network_primary.self_link
+  network      = google_compute_network.network_secondary.id
+  peer_network = google_compute_network.network_primary.id
 }
 
 resource "google_compute_network" "network_primary" {
@@ -169,6 +169,12 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/global/networks/{{network}}/networkPeerings/{{peering}}`
+
 
 ## Timeouts
 
@@ -181,6 +187,7 @@ This resource provides the following
 
 ## Import
 
+
 NetworkPeeringRoutesConfig can be imported using any of these accepted formats:
 
 ```
@@ -188,9 +195,6 @@ $ terraform import google_compute_network_peering_routes_config.default projects
 $ terraform import google_compute_network_peering_routes_config.default {{project}}/{{network}}/{{peering}}
 $ terraform import google_compute_network_peering_routes_config.default {{network}}/{{peering}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

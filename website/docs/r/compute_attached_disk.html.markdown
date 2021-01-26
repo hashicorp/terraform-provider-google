@@ -28,13 +28,13 @@ To get more information about attaching disks, see:
 ## Example Usage
 ```hcl
 resource "google_compute_attached_disk" "default" {
-  disk     = google_compute_disk.default.self_link
-  instance = google_compute_instance.default.self_link
+  disk     = google_compute_disk.default.id
+  instance = google_compute_instance.default.id
 }
 
 resource "google_compute_instance" "default" {
   name         = "attached-disk-instance"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-west1-a"
 
   boot_disk {
@@ -103,6 +103,12 @@ The following arguments are supported:
 	Possible values:
 	  "READ_ONLY"
 	  "READ_WRITE"
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/disks/{{disk.name}}`
 
 ## Timeouts
 

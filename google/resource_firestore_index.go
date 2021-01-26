@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceFirestoreIndex() *schema.Resource {
@@ -66,7 +66,7 @@ ordered '"ASCENDING"' (unless explicitly specified otherwise).`,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"CONTAINS", ""}, false),
 							Description: `Indicates that this field supports operations on arrayValues. Only one of 'order' and 'arrayConfig' can
-be specified.`,
+be specified. Possible values: ["CONTAINS"]`,
 						},
 						"field_path": {
 							Type:        schema.TypeString,
@@ -80,7 +80,7 @@ be specified.`,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"ASCENDING", "DESCENDING", ""}, false),
 							Description: `Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
-Only one of 'order' and 'arrayConfig' can be specified.`,
+Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCENDING", "DESCENDING"]`,
 						},
 					},
 				},
@@ -97,9 +97,8 @@ Only one of 'order' and 'arrayConfig' can be specified.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"COLLECTION", "COLLECTION_GROUP", ""}, false),
-				Description: `The scope at which a query is run. One of '"COLLECTION"' or
-'"COLLECTION_GROUP"'. Defaults to '"COLLECTION"'.`,
-				Default: "COLLECTION",
+				Description:  `The scope at which a query is run. Default value: "COLLECTION" Possible values: ["COLLECTION", "COLLECTION_GROUP"]`,
+				Default:      "COLLECTION",
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -114,11 +113,16 @@ Only one of 'order' and 'arrayConfig' can be specified.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	databaseProp, err := expandFirestoreIndexDatabase(d.Get("database"), d, config)
@@ -157,11 +161,20 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Creating new Index: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Index: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Index: %s", err)
 	}
@@ -173,15 +186,28 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	err = firestoreOperationWaitTime(
-		config, res, project, "Creating Index",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
+	// Use the resource in the operation response to populate
+	// identity fields and d.Id() before read
+	var opRes map[string]interface{}
+	err = firestoreOperationWaitTimeWithResponse(
+		config, res, &opRes, project, "Creating Index", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create Index: %s", err)
 	}
+
+	if err := d.Set("name", flattenFirestoreIndexName(opRes["name"], d, config)); err != nil {
+		return err
+	}
+
+	// This may have caused the ID to update - update it if so.
+	id, err = replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Index %q: %#v", d.Id(), res)
 
@@ -190,7 +216,9 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	metadata := res["metadata"].(map[string]interface{})
 	name := metadata["index"].(string)
 	log.Printf("[DEBUG] Setting Index name, id to %s", name)
-	d.Set("name", name)
+	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name)
 
 	return resourceFirestoreIndexRead(d, meta)
@@ -198,17 +226,30 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Index: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("FirestoreIndex %q", d.Id()))
 	}
@@ -217,13 +258,13 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 
-	if err := d.Set("name", flattenFirestoreIndexName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenFirestoreIndexName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
-	if err := d.Set("query_scope", flattenFirestoreIndexQueryScope(res["queryScope"], d)); err != nil {
+	if err := d.Set("query_scope", flattenFirestoreIndexQueryScope(res["queryScope"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
-	if err := d.Set("fields", flattenFirestoreIndexFields(res["fields"], d)); err != nil {
+	if err := d.Set("fields", flattenFirestoreIndexFields(res["fields"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 
@@ -232,11 +273,18 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Index: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
@@ -246,14 +294,19 @@ func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Index %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Index")
 	}
 
 	err = firestoreOperationWaitTime(
-		config, res, project, "Deleting Index",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, res, project, "Deleting Index", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -281,19 +334,27 @@ func resourceFirestoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*
 		)
 	}
 
-	d.Set("project", stringParts[1])
+	if err := d.Set("project", stringParts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("database", stringParts[3]); err != nil {
+		return nil, fmt.Errorf("Error setting database: %s", err)
+	}
+	if err := d.Set("collection", stringParts[5]); err != nil {
+		return nil, fmt.Errorf("Error setting collection: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenFirestoreIndexName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexQueryScope(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexQueryScope(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -306,22 +367,22 @@ func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData) interfac
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"field_path":   flattenFirestoreIndexFieldsFieldPath(original["fieldPath"], d),
-			"order":        flattenFirestoreIndexFieldsOrder(original["order"], d),
-			"array_config": flattenFirestoreIndexFieldsArrayConfig(original["arrayConfig"], d),
+			"field_path":   flattenFirestoreIndexFieldsFieldPath(original["fieldPath"], d, config),
+			"order":        flattenFirestoreIndexFieldsOrder(original["order"], d, config),
+			"array_config": flattenFirestoreIndexFieldsArrayConfig(original["arrayConfig"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenFirestoreIndexFieldsFieldPath(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFieldsFieldPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexFieldsOrder(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFieldsOrder(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenFirestoreIndexFieldsArrayConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenFirestoreIndexFieldsArrayConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

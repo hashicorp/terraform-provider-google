@@ -15,13 +15,27 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+var sensitiveLabels = []string{"auth_token", "service_key", "password"}
+
+func sensitiveLabelCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	for _, sl := range sensitiveLabels {
+		mapLabel := diff.Get("labels." + sl).(string)
+		authLabel := diff.Get("sensitive_labels.0." + sl).(string)
+		if mapLabel != "" && authLabel != "" {
+			return fmt.Errorf("Sensitive label [%s] cannot be set in both `labels` and the `sensitive_labels` block.", sl)
+		}
+	}
+	return nil
+}
 
 func resourceMonitoringNotificationChannel() *schema.Resource {
 	return &schema.Resource{
@@ -40,12 +54,9 @@ func resourceMonitoringNotificationChannel() *schema.Resource {
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
+		CustomizeDiff: sensitiveLabelCustomizeDiff,
+
 		Schema: map[string]*schema.Schema{
-			"display_name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `An optional human-readable name for this notification channel. It is recommended that you specify a non-empty and unique name in order to make it easier to identify the channels in your project, though this is not enforced. The display name is limited to 512 Unicode characters.`,
-			},
 			"type": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -55,6 +66,11 @@ func resourceMonitoringNotificationChannel() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `An optional human-readable description of this notification channel. This description may provide additional details, beyond the display name, for the channel. This may not exceed 1024 Unicode characters.`,
+			},
+			"display_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `An optional human-readable name for this notification channel. It is recommended that you specify a non-empty and unique name in order to make it easier to identify the channels in your project, though this is not enforced. The display name is limited to 512 Unicode characters.`,
 			},
 			"enabled": {
 				Type:        schema.TypeBool,
@@ -69,16 +85,47 @@ func resourceMonitoringNotificationChannel() *schema.Resource {
 permissible and required labels are specified in the
 NotificationChannelDescriptor corresponding to the type field.
 
-**Note**: Some NotificationChannelDescriptor labels are
-sensitive and the API will return an partially-obfuscated value.
-For example, for '"type": "slack"' channels, an 'auth_token'
-label with value "SECRET" will be obfuscated as "**CRET". In order
-to avoid a diff, Terraform will use the state value if it appears
-that the obfuscated value matches the state value in
-length/unobfuscated characters. However, Terraform will not detect a
-diff if the obfuscated portion of the value was changed outside of
-Terraform.`,
+Labels with sensitive data are obfuscated by the API and therefore Terraform cannot
+determine if there are upstream changes to these fields. They can also be configured via
+the sensitive_labels block, but cannot be configured in both places.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"sensitive_labels": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Different notification type behaviors are configured primarily using the the 'labels' field on this
+resource. This block contains the labels which contain secrets or passwords so that they can be marked
+sensitive and hidden from plan output. The name of the field, eg: password, will be the key
+in the 'labels' map in the api request.
+
+Credentials may not be specified in both locations and will cause an error. Changing from one location
+to a different credential configuration in the config will require an apply to update state.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auth_token": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `An authorization token for a notification channel. Channel types that support this field include: slack`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key"},
+						},
+						"password": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `An password for a notification channel. Channel types that support this field include: webhook_basicauth`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key"},
+						},
+						"service_key": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `An servicekey token for a notification channel. Channel types that support this field include: pagerduty`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"sensitive_labels.0.auth_token", "sensitive_labels.0.password", "sensitive_labels.0.service_key"},
+						},
+					},
+				},
 			},
 			"user_labels": {
 				Type:        schema.TypeMap,
@@ -105,11 +152,16 @@ The [CHANNEL_ID] is automatically assigned by the server on creation.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandMonitoringNotificationChannelLabels(d.Get("labels"), d, config)
@@ -149,6 +201,11 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 		obj["enabled"] = enabledProp
 	}
 
+	obj, err = resourceMonitoringNotificationChannelEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	lockName, err := replaceVars(d, config, "stackdriver/notifications/{{project}}")
 	if err != nil {
 		return err
@@ -156,19 +213,31 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}projects/{{project}}/notificationChannels")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/notificationChannels")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new NotificationChannel: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NotificationChannel: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringRetryableError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating NotificationChannel: %s", err)
+	}
+	if err := d.Set("name", flattenMonitoringNotificationChannelName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
 
 	// Store the ID now
@@ -183,9 +252,19 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 	// `name` is autogenerated from the api so needs to be set post-create
 	name, ok := res["name"]
 	if !ok {
-		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
+		respBody, ok := res["response"]
+		if !ok {
+			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
+		}
+
+		name, ok = respBody.(map[string]interface{})["name"]
+		if !ok {
+			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
+		}
 	}
-	d.Set("name", name.(string))
+	if err := d.Set("name", name.(string)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name.(string))
 
 	return resourceMonitoringNotificationChannelRead(d, meta)
@@ -193,47 +272,72 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 
 func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NotificationChannel: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringRetryableError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringNotificationChannel %q", d.Id()))
+	}
+
+	res, err = resourceMonitoringNotificationChannelDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing MonitoringNotificationChannel because it no longer exists.")
+		d.SetId("")
+		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
 
-	if err := d.Set("labels", flattenMonitoringNotificationChannelLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenMonitoringNotificationChannelLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("name", flattenMonitoringNotificationChannelName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenMonitoringNotificationChannelName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("verification_status", flattenMonitoringNotificationChannelVerificationStatus(res["verificationStatus"], d)); err != nil {
+	if err := d.Set("verification_status", flattenMonitoringNotificationChannelVerificationStatus(res["verificationStatus"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("type", flattenMonitoringNotificationChannelType(res["type"], d)); err != nil {
+	if err := d.Set("type", flattenMonitoringNotificationChannelType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("user_labels", flattenMonitoringNotificationChannelUserLabels(res["userLabels"], d)); err != nil {
+	if err := d.Set("user_labels", flattenMonitoringNotificationChannelUserLabels(res["userLabels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("description", flattenMonitoringNotificationChannelDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenMonitoringNotificationChannelDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("display_name", flattenMonitoringNotificationChannelDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenMonitoringNotificationChannelDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
-	if err := d.Set("enabled", flattenMonitoringNotificationChannelEnabled(res["enabled"], d)); err != nil {
+	if err := d.Set("enabled", flattenMonitoringNotificationChannelEnabled(res["enabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NotificationChannel: %s", err)
 	}
 
@@ -242,11 +346,18 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 
 func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for NotificationChannel: %s", err)
+	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandMonitoringNotificationChannelLabels(d.Get("labels"), d, config)
@@ -286,6 +397,11 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 		obj["enabled"] = enabledProp
 	}
 
+	obj, err = resourceMonitoringNotificationChannelEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	lockName, err := replaceVars(d, config, "stackdriver/notifications/{{project}}")
 	if err != nil {
 		return err
@@ -293,16 +409,24 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Updating NotificationChannel %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringRetryableError)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating NotificationChannel %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating NotificationChannel %q: %#v", d.Id(), res)
 	}
 
 	return resourceMonitoringNotificationChannelRead(d, meta)
@@ -310,11 +434,18 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 
 func resourceMonitoringNotificationChannelDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for NotificationChannel: %s", err)
+	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "stackdriver/notifications/{{project}}")
 	if err != nil {
@@ -323,7 +454,7 @@ func resourceMonitoringNotificationChannelDelete(d *schema.ResourceData, meta in
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -331,7 +462,12 @@ func resourceMonitoringNotificationChannelDelete(d *schema.ResourceData, meta in
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting NotificationChannel %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringRetryableError)
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, "NotificationChannel")
 	}
@@ -345,87 +481,42 @@ func resourceMonitoringNotificationChannelImport(d *schema.ResourceData, meta in
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := parseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
 		return nil, err
 	}
 
 	return []*schema.ResourceData{d}, nil
 }
 
-// Some labels are obfuscated for monitoring channels
-// e.g. if the value is "SECRET", the server will return "**CRET"
-// This method checks to see if the value read from the server looks like
-// the obfuscated version of the state value. If so, it will just use the state
-// value to avoid permadiff.
-func flattenMonitoringNotificationChannelLabels(v interface{}, d *schema.ResourceData) interface{} {
-	if v == nil {
-		return v
-	}
-	readLabels := v.(map[string]interface{})
-
-	stateLabelsRaw, ok := d.GetOk("labels")
-	if !ok {
-		return v
-	}
-	stateLabels := stateLabelsRaw.(map[string]interface{})
-
-	for k, serverV := range readLabels {
-		stateV, ok := stateLabels[k]
-		if !ok {
-			continue
-		}
-		useStateV := isMonitoringNotificationChannelLabelsObfuscated(serverV.(string), stateV.(string))
-		if useStateV {
-			readLabels[k] = stateV.(string)
-		}
-	}
-	return readLabels
-}
-
-func isMonitoringNotificationChannelLabelsObfuscated(serverLabel, stateLabel string) bool {
-	if stateLabel == serverLabel {
-		return false
-	}
-
-	if len(stateLabel) != len(serverLabel) {
-		return false
-	}
-
-	// Check if value read from GCP has either the same character or replaced
-	// it with '*'.
-	for i := 0; i < len(stateLabel); i++ {
-		if serverLabel[i] != '*' && stateLabel[i] != serverLabel[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func flattenMonitoringNotificationChannelName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringNotificationChannelLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelVerificationStatus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringNotificationChannelName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringNotificationChannelVerificationStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelUserLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringNotificationChannelType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringNotificationChannelUserLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringNotificationChannelDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelEnabled(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringNotificationChannelDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringNotificationChannelEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -465,4 +556,41 @@ func expandMonitoringNotificationChannelDisplayName(v interface{}, d TerraformRe
 
 func expandMonitoringNotificationChannelEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceMonitoringNotificationChannelEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	labelmap, ok := obj["labels"]
+	if !ok {
+		labelmap = make(map[string]string)
+	}
+
+	var labels map[string]string
+	labels = labelmap.(map[string]string)
+
+	for _, sl := range sensitiveLabels {
+		if auth, _ := d.GetOkExists("sensitive_labels.0." + sl); auth != "" {
+			labels[sl] = auth.(string)
+		}
+	}
+
+	obj["labels"] = labels
+
+	return obj, nil
+}
+
+func resourceMonitoringNotificationChannelDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	if labelmap, ok := res["labels"]; ok {
+		labels := labelmap.(map[string]interface{})
+		for _, sl := range sensitiveLabels {
+			if _, apiOk := labels[sl]; apiOk {
+				if _, exists := d.GetOkExists("sensitive_labels.0." + sl); exists {
+					delete(labels, sl)
+				} else {
+					labels[sl] = d.Get("labels." + sl)
+				}
+			}
+		}
+	}
+
+	return res, nil
 }

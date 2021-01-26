@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/spanner/v1"
 )
@@ -33,10 +33,11 @@ type SpannerDatabaseIamUpdater struct {
 	project  string
 	instance string
 	database string
+	d        TerraformResourceData
 	Config   *Config
 }
 
-func NewSpannerDatabaseIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewSpannerDatabaseIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -46,6 +47,7 @@ func NewSpannerDatabaseIamUpdater(d *schema.ResourceData, config *Config) (Resou
 		project:  project,
 		instance: d.Get("instance").(string),
 		database: d.Get("database").(string),
+		d:        d,
 		Config:   config,
 	}, nil
 }
@@ -55,7 +57,12 @@ func SpannerDatabaseIdParseFunc(d *schema.ResourceData, config *Config) error {
 }
 
 func (u *SpannerDatabaseIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	p, err := u.Config.clientSpanner.Projects.Instances.Databases.GetIamPolicy(spannerDatabaseId{
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewSpannerClient(userAgent).Projects.Instances.Databases.GetIamPolicy(spannerDatabaseId{
 		Project:  u.project,
 		Database: u.database,
 		Instance: u.instance,
@@ -81,7 +88,12 @@ func (u *SpannerDatabaseIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
-	_, err = u.Config.clientSpanner.Projects.Instances.Databases.SetIamPolicy(spannerDatabaseId{
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.Config.NewSpannerClient(userAgent).Projects.Instances.Databases.SetIamPolicy(spannerDatabaseId{
 		Project:  u.project,
 		Database: u.database,
 		Instance: u.instance,

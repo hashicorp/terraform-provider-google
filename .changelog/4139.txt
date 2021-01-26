@@ -1,0 +1,3 @@
+```release-note:new-resource
+compute: promoted `google_compute_region_network_endpoint_group` to GA
+```

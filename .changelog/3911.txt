@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added field `multiwriter` to resource `disk` (beta)
+```

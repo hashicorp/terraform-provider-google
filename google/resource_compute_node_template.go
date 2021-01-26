@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceComputeNodeTemplate() *schema.Resource {
@@ -126,11 +126,16 @@ If it is not provided, the provider region is used.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeNodeTemplateDescription(d.Get("description"), d, config)
@@ -176,11 +181,20 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Creating new NodeTemplate: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NodeTemplate: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating NodeTemplate: %s", err)
 	}
@@ -193,8 +207,8 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating NodeTemplate",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		config, res, project, "Creating NodeTemplate", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -209,17 +223,30 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 
 func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NodeTemplate: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNodeTemplate %q", d.Id()))
 	}
@@ -228,25 +255,25 @@ func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeNodeTemplateCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeNodeTemplateCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("description", flattenComputeNodeTemplateDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeNodeTemplateDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("name", flattenComputeNodeTemplateName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeNodeTemplateName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("node_affinity_labels", flattenComputeNodeTemplateNodeAffinityLabels(res["nodeAffinityLabels"], d)); err != nil {
+	if err := d.Set("node_affinity_labels", flattenComputeNodeTemplateNodeAffinityLabels(res["nodeAffinityLabels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("node_type", flattenComputeNodeTemplateNodeType(res["nodeType"], d)); err != nil {
+	if err := d.Set("node_type", flattenComputeNodeTemplateNodeType(res["nodeType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("node_type_flexibility", flattenComputeNodeTemplateNodeTypeFlexibility(res["nodeTypeFlexibility"], d)); err != nil {
+	if err := d.Set("node_type_flexibility", flattenComputeNodeTemplateNodeTypeFlexibility(res["nodeTypeFlexibility"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
-	if err := d.Set("region", flattenComputeNodeTemplateRegion(res["region"], d)); err != nil {
+	if err := d.Set("region", flattenComputeNodeTemplateRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -258,11 +285,18 @@ func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeNodeTemplateDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for NodeTemplate: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
 	if err != nil {
@@ -272,14 +306,19 @@ func resourceComputeNodeTemplateDelete(d *schema.ResourceData, meta interface{})
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting NodeTemplate %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "NodeTemplate")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting NodeTemplate",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, res, project, "Deleting NodeTemplate", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -310,27 +349,27 @@ func resourceComputeNodeTemplateImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeNodeTemplateCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateNodeAffinityLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeAffinityLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateNodeType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateNodeTypeFlexibility(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeTypeFlexibility(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -340,26 +379,26 @@ func flattenComputeNodeTemplateNodeTypeFlexibility(v interface{}, d *schema.Reso
 	}
 	transformed := make(map[string]interface{})
 	transformed["cpus"] =
-		flattenComputeNodeTemplateNodeTypeFlexibilityCpus(original["cpus"], d)
+		flattenComputeNodeTemplateNodeTypeFlexibilityCpus(original["cpus"], d, config)
 	transformed["memory"] =
-		flattenComputeNodeTemplateNodeTypeFlexibilityMemory(original["memory"], d)
+		flattenComputeNodeTemplateNodeTypeFlexibilityMemory(original["memory"], d, config)
 	transformed["local_ssd"] =
-		flattenComputeNodeTemplateNodeTypeFlexibilityLocalSsd(original["localSsd"], d)
+		flattenComputeNodeTemplateNodeTypeFlexibilityLocalSsd(original["localSsd"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeNodeTemplateNodeTypeFlexibilityCpus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeTypeFlexibilityCpus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateNodeTypeFlexibilityMemory(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeTypeFlexibilityMemory(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateNodeTypeFlexibilityLocalSsd(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateNodeTypeFlexibilityLocalSsd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeNodeTemplateRegion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeNodeTemplateRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

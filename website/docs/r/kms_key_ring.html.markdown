@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud KMS"
+subcategory: "Cloud Key Management Service"
 layout: "google"
 page_title: "Google: google_kms_key_ring"
 sidebar_current: "docs-google-kms-key-ring"
@@ -27,7 +27,7 @@ A `KeyRing` is a toplevel logical grouping of `CryptoKeys`.
 
 ~> **Note:** KeyRings cannot be deleted from Google Cloud Platform.
 Destroying a Terraform-managed KeyRing will remove it from state but
-*will not delete the resource on the server.*
+*will not delete the resource from the project.*
 
 
 To get more information about KeyRing, see:
@@ -72,6 +72,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/keyRings/{{name}}`
 
 
 * `self_link`: The self link of the created KeyRing in the format `projects/{project}/locations/{location}/keyRings/{name}`
@@ -86,6 +87,7 @@ This resource provides the following
 
 ## Import
 
+
 KeyRing can be imported using any of these accepted formats:
 
 ```
@@ -93,9 +95,6 @@ $ terraform import google_kms_key_ring.default projects/{{project}}/locations/{{
 $ terraform import google_kms_key_ring.default {{project}}/{{location}}/{{name}}
 $ terraform import google_kms_key_ring.default {{location}}/{{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

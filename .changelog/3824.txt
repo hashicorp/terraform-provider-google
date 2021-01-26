@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added confidential_instance_config block to google_compute_instance 
+```
+```release-note:enhancement
+compute: added confidential_instance_config block to google_compute_instance_template
+```

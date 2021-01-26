@@ -17,11 +17,11 @@ layout: "google"
 page_title: "Google: google_sourcerepo_repository_iam"
 sidebar_current: "docs-google-sourcerepo-repository-iam"
 description: |-
-  Collection of resources to manage IAM policy for SourceRepoRepository
+  Collection of resources to manage IAM policy for Cloud Source Repositories Repository
 ---
 
-# IAM policy for SourceRepoRepository
-Three different resources help you manage your IAM policy for SourceRepo Repository. Each of these resources serves a different use case:
+# IAM policy for Cloud Source Repositories Repository
+Three different resources help you manage your IAM policy for Cloud Source Repositories Repository. Each of these resources serves a different use case:
 
 * `google_sourcerepo_repository_iam_policy`: Authoritative. Sets the IAM policy for the repository and replaces any existing policy already attached.
 * `google_sourcerepo_repository_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the repository are preserved.
@@ -30,6 +30,7 @@ Three different resources help you manage your IAM policy for SourceRepo Reposit
 ~> **Note:** `google_sourcerepo_repository_iam_policy` **cannot** be used in conjunction with `google_sourcerepo_repository_iam_binding` and `google_sourcerepo_repository_iam_member` or they will fight over what your policy should be.
 
 ~> **Note:** `google_sourcerepo_repository_iam_binding` resources **can be** used in conjunction with `google_sourcerepo_repository_iam_member` resources **only if** they do not grant privilege to the same role.
+
 
 
 
@@ -45,19 +46,19 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_sourcerepo_repository_iam_policy" "editor" {
-  project = "${google_sourcerepo_repository.my-repo.project}"
-  repository = "${google_sourcerepo_repository.my-repo.name}"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+resource "google_sourcerepo_repository_iam_policy" "policy" {
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
 ## google\_sourcerepo\_repository\_iam\_binding
 
 ```hcl
-resource "google_sourcerepo_repository_iam_binding" "editor" {
-  project = "${google_sourcerepo_repository.my-repo.project}"
-  repository = "${google_sourcerepo_repository.my-repo.name}"
+resource "google_sourcerepo_repository_iam_binding" "binding" {
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
   role = "roles/viewer"
   members = [
     "user:jane@example.com",
@@ -68,9 +69,9 @@ resource "google_sourcerepo_repository_iam_binding" "editor" {
 ## google\_sourcerepo\_repository\_iam\_member
 
 ```hcl
-resource "google_sourcerepo_repository_iam_member" "editor" {
-  project = "${google_sourcerepo_repository.my-repo.project}"
-  repository = "${google_sourcerepo_repository.my-repo.name}"
+resource "google_sourcerepo_repository_iam_member" "member" {
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
   role = "roles/viewer"
   member = "user:jane@example.com"
 }
@@ -117,11 +118,11 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-SourceRepo repository IAM resources can be imported using the resource identifiers, role, and member.
+Cloud Source Repositories repository IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_sourcerepo_repository_iam_member.editor "projects/{{project}}/repos/{{repository}} roles/viewer jane@example.com"
+$ terraform import google_sourcerepo_repository_iam_member.editor "projects/{{project}}/repos/{{repository}} roles/viewer user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
@@ -133,9 +134,6 @@ IAM policy imports use the identifier of the resource in question, e.g.
 ```
 $ terraform import google_sourcerepo_repository_iam_policy.editor projects/{{project}}/repos/{{repository}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.

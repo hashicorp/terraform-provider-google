@@ -17,11 +17,11 @@ layout: "google"
 page_title: "Google: google_cloud_run_service_iam"
 sidebar_current: "docs-google-cloud-run-service-iam"
 description: |-
-  Collection of resources to manage IAM policy for CloudRunService
+  Collection of resources to manage IAM policy for Cloud Run Service
 ---
 
-# IAM policy for CloudRunService
-Three different resources help you manage your IAM policy for CloudRun Service. Each of these resources serves a different use case:
+# IAM policy for Cloud Run Service
+Three different resources help you manage your IAM policy for Cloud Run Service. Each of these resources serves a different use case:
 
 * `google_cloud_run_service_iam_policy`: Authoritative. Sets the IAM policy for the service and replaces any existing policy already attached.
 * `google_cloud_run_service_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the service are preserved.
@@ -30,6 +30,7 @@ Three different resources help you manage your IAM policy for CloudRun Service. 
 ~> **Note:** `google_cloud_run_service_iam_policy` **cannot** be used in conjunction with `google_cloud_run_service_iam_binding` and `google_cloud_run_service_iam_member` or they will fight over what your policy should be.
 
 ~> **Note:** `google_cloud_run_service_iam_binding` resources **can be** used in conjunction with `google_cloud_run_service_iam_member` resources **only if** they do not grant privilege to the same role.
+
 
 
 
@@ -45,21 +46,21 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_cloud_run_service_iam_policy" "editor" {
-  location = "${google_cloud_run_service.default.location}"
-  project = "${google_cloud_run_service.default.project}"
-  service = "${google_cloud_run_service.default.name}"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+resource "google_cloud_run_service_iam_policy" "policy" {
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
 ## google\_cloud\_run\_service\_iam\_binding
 
 ```hcl
-resource "google_cloud_run_service_iam_binding" "editor" {
-  location = "${google_cloud_run_service.default.location}"
-  project = "${google_cloud_run_service.default.project}"
-  service = "${google_cloud_run_service.default.name}"
+resource "google_cloud_run_service_iam_binding" "binding" {
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
   role = "roles/viewer"
   members = [
     "user:jane@example.com",
@@ -70,10 +71,10 @@ resource "google_cloud_run_service_iam_binding" "editor" {
 ## google\_cloud\_run\_service\_iam\_member
 
 ```hcl
-resource "google_cloud_run_service_iam_member" "editor" {
-  location = "${google_cloud_run_service.default.location}"
-  project = "${google_cloud_run_service.default.project}"
-  service = "${google_cloud_run_service.default.name}"
+resource "google_cloud_run_service_iam_member" "member" {
+  location = google_cloud_run_service.default.location
+  project = google_cloud_run_service.default.project
+  service = google_cloud_run_service.default.name
   role = "roles/viewer"
   member = "user:jane@example.com"
 }
@@ -123,11 +124,11 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-CloudRun service IAM resources can be imported using the resource identifiers, role, and member.
+Cloud Run service IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_cloud_run_service_iam_member.editor "locations/{{location}}/namespaces/{{project}}/services/{{service}} roles/viewer jane@example.com"
+$ terraform import google_cloud_run_service_iam_member.editor "projects/{{project}}/locations/{{location}}/services/{{service}} roles/viewer user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
@@ -139,9 +140,6 @@ IAM policy imports use the identifier of the resource in question, e.g.
 ```
 $ terraform import google_cloud_run_service_iam_policy.editor projects/{{project}}/locations/{{location}}/services/{{service}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.

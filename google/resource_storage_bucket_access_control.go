@@ -20,8 +20,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceStorageBucketAccessControl() *schema.Resource {
@@ -73,7 +73,7 @@ Examples:
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"OWNER", "READER", "WRITER", ""}, false),
-				Description:  `The access permission for the entity.`,
+				Description:  `The access permission for the entity. Possible values: ["OWNER", "READER", "WRITER"]`,
 			},
 			"domain": {
 				Type:        schema.TypeString,
@@ -86,11 +86,16 @@ Examples:
 				Description: `The email address associated with the entity.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceStorageBucketAccessControlCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	bucketProp, err := expandStorageBucketAccessControlBucket(d.Get("bucket"), d, config)
@@ -112,13 +117,27 @@ func resourceStorageBucketAccessControlCreate(d *schema.ResourceData, meta inter
 		obj["role"] = roleProp
 	}
 
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new BucketAccessControl: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating BucketAccessControl: %s", err)
 	}
@@ -137,30 +156,41 @@ func resourceStorageBucketAccessControlCreate(d *schema.ResourceData, meta inter
 
 func resourceStorageBucketAccessControlRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("StorageBucketAccessControl %q", d.Id()))
 	}
 
-	if err := d.Set("bucket", flattenStorageBucketAccessControlBucket(res["bucket"], d)); err != nil {
+	if err := d.Set("bucket", flattenStorageBucketAccessControlBucket(res["bucket"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
 	}
-	if err := d.Set("domain", flattenStorageBucketAccessControlDomain(res["domain"], d)); err != nil {
+	if err := d.Set("domain", flattenStorageBucketAccessControlDomain(res["domain"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
 	}
-	if err := d.Set("email", flattenStorageBucketAccessControlEmail(res["email"], d)); err != nil {
+	if err := d.Set("email", flattenStorageBucketAccessControlEmail(res["email"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
 	}
-	if err := d.Set("entity", flattenStorageBucketAccessControlEntity(res["entity"], d)); err != nil {
+	if err := d.Set("entity", flattenStorageBucketAccessControlEntity(res["entity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
 	}
-	if err := d.Set("role", flattenStorageBucketAccessControlRole(res["role"], d)); err != nil {
+	if err := d.Set("role", flattenStorageBucketAccessControlRole(res["role"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BucketAccessControl: %s", err)
 	}
 
@@ -169,6 +199,12 @@ func resourceStorageBucketAccessControlRead(d *schema.ResourceData, meta interfa
 
 func resourceStorageBucketAccessControlUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
 
 	obj := make(map[string]interface{})
 	bucketProp, err := expandStorageBucketAccessControlBucket(d.Get("bucket"), d, config)
@@ -190,16 +226,31 @@ func resourceStorageBucketAccessControlUpdate(d *schema.ResourceData, meta inter
 		obj["role"] = roleProp
 	}
 
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Updating BucketAccessControl %q: %#v", d.Id(), obj)
-	_, err = sendRequestWithTimeout(config, "PUT", "", url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating BucketAccessControl %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating BucketAccessControl %q: %#v", d.Id(), res)
 	}
 
 	return resourceStorageBucketAccessControlRead(d, meta)
@@ -207,6 +258,19 @@ func resourceStorageBucketAccessControlUpdate(d *schema.ResourceData, meta inter
 
 func resourceStorageBucketAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
 	if err != nil {
@@ -216,7 +280,12 @@ func resourceStorageBucketAccessControlDelete(d *schema.ResourceData, meta inter
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting BucketAccessControl %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "BucketAccessControl")
 	}
@@ -243,26 +312,26 @@ func resourceStorageBucketAccessControlImport(d *schema.ResourceData, meta inter
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenStorageBucketAccessControlBucket(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageBucketAccessControlBucket(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenStorageBucketAccessControlDomain(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageBucketAccessControlDomain(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageBucketAccessControlEmail(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageBucketAccessControlEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageBucketAccessControlEntity(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageBucketAccessControlEntity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenStorageBucketAccessControlRole(v interface{}, d *schema.ResourceData) interface{} {
+func flattenStorageBucketAccessControlRole(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

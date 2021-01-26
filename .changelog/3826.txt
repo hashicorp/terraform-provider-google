@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: fixed validation rules for `google_monitoring_slo` `windows_based_sli.metric_sum_in_range.max` field
+```

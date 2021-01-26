@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -44,7 +45,7 @@ type (
 	}
 
 	// Factory for generating ResourceIamUpdater for given ResourceData resource
-	newResourceIamUpdaterFunc func(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error)
+	newResourceIamUpdaterFunc func(d TerraformResourceData, config *Config) (ResourceIamUpdater, error)
 
 	// Describes how to modify a policy for a given Terraform IAM (_policy/_member/_binding/_audit_config) resource
 	iamPolicyModifyFunc func(p *cloudresourcemanager.Policy) error
@@ -117,7 +118,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 				}
 				log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
 				if new_p == nil {
-					// https://github.com/terraform-providers/terraform-provider-google/issues/2625
+					// https://github.com/hashicorp/terraform-provider-google/issues/2625
 					fetchBackoff = fetchBackoff * 2
 					continue
 				}
@@ -265,7 +266,17 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindi
 // Return list of Bindings for a map of role to member sets
 func listFromIamBindingMap(bm map[iamBindingKey]map[string]struct{}) []*cloudresourcemanager.Binding {
 	rb := make([]*cloudresourcemanager.Binding, 0, len(bm))
-	for key, members := range bm {
+	var keys []iamBindingKey
+	for k := range bm {
+		keys = append(keys, k)
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		keyI := keys[i]
+		keyJ := keys[j]
+		return fmt.Sprintf("%s%s", keyI.Role, keyI.Condition.String()) < fmt.Sprintf("%s%s", keyJ.Role, keyJ.Condition.String())
+	})
+	for _, key := range keys {
+		members := bm[key]
 		if len(members) == 0 {
 			continue
 		}
@@ -346,16 +357,25 @@ func listFromIamAuditConfigMap(acMap map[string]map[string]map[string]struct{}) 
 }
 
 func jsonPolicyDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if old == "" && new == "" {
+		return true
+	}
+
 	var oldPolicy, newPolicy cloudresourcemanager.Policy
-	if err := json.Unmarshal([]byte(old), &oldPolicy); err != nil {
-		log.Printf("[ERROR] Could not unmarshal old policy %s: %v", old, err)
-		return false
+	if old != "" && new != "" {
+		if err := json.Unmarshal([]byte(old), &oldPolicy); err != nil {
+			log.Printf("[ERROR] Could not unmarshal old policy %s: %v", old, err)
+			return false
+		}
+		if err := json.Unmarshal([]byte(new), &newPolicy); err != nil {
+			log.Printf("[ERROR] Could not unmarshal new policy %s: %v", new, err)
+			return false
+		}
+
+		return compareIamPolicies(&newPolicy, &oldPolicy)
 	}
-	if err := json.Unmarshal([]byte(new), &newPolicy); err != nil {
-		log.Printf("[ERROR] Could not unmarshal new policy %s: %v", new, err)
-		return false
-	}
-	return compareIamPolicies(&newPolicy, &oldPolicy)
+
+	return false
 }
 
 func compareIamPolicies(a, b *cloudresourcemanager.Policy) bool {

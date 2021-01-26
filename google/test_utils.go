@@ -1,10 +1,12 @@
 package google
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
+	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 type ResourceDataMock struct {
@@ -61,18 +63,37 @@ func (d *ResourceDataMock) Id() string {
 	return d.id
 }
 
+func (d *ResourceDataMock) GetProviderMeta(dst interface{}) error {
+	return nil
+}
+
+func (d *ResourceDataMock) Timeout(key string) time.Duration {
+	return time.Duration(1)
+}
+
 type ResourceDiffMock struct {
-	Before  map[string]interface{}
-	After   map[string]interface{}
-	Cleared map[string]struct{}
+	Before     map[string]interface{}
+	After      map[string]interface{}
+	Cleared    map[string]struct{}
+	IsForceNew bool
 }
 
 func (d *ResourceDiffMock) GetChange(key string) (interface{}, interface{}) {
 	return d.Before[key], d.After[key]
 }
 
+func (d *ResourceDiffMock) HasChange(key string) bool {
+	old, new := d.GetChange(key)
+	return old != new
+}
+
 func (d *ResourceDiffMock) Get(key string) interface{} {
 	return d.After[key]
+}
+
+func (d *ResourceDiffMock) GetOk(key string) (interface{}, bool) {
+	v, ok := d.After[key]
+	return v, ok
 }
 
 func (d *ResourceDiffMock) Clear(key string) error {
@@ -80,6 +101,11 @@ func (d *ResourceDiffMock) Clear(key string) error {
 		d.Cleared = map[string]struct{}{}
 	}
 	d.Cleared[key] = struct{}{}
+	return nil
+}
+
+func (d *ResourceDiffMock) ForceNew(key string) error {
+	d.IsForceNew = true
 	return nil
 }
 
@@ -111,13 +137,20 @@ func checkDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 			if _, ok := ignoreFields[k]; ok {
 				continue
 			}
+			if k == "%" {
+				continue
+			}
 			if dsAttr[k] != rsAttr[k] {
+				// ignore data sources where an empty list is being compared against a null list.
+				if k[len(k)-1:] == "#" && (dsAttr[k] == "" || dsAttr[k] == "0") && (rsAttr[k] == "" || rsAttr[k] == "0") {
+					continue
+				}
 				errMsg += fmt.Sprintf("%s is %s; want %s\n", k, dsAttr[k], rsAttr[k])
 			}
 		}
 
 		if errMsg != "" {
-			return fmt.Errorf(errMsg)
+			return errors.New(errMsg)
 		}
 
 		return nil

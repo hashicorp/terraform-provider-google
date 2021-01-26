@@ -3,37 +3,47 @@ package google
 import (
 	"fmt"
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
 var IamOrganizationSchema = map[string]*schema.Schema{
 	"org_id": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The numeric ID of the organization in which you want to manage the audit logging config.`,
 	},
 }
 
 type OrganizationIamUpdater struct {
 	resourceId string
+	d          TerraformResourceData
 	Config     *Config
 }
 
-func NewOrganizationIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewOrganizationIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &OrganizationIamUpdater{
 		resourceId: d.Get("org_id").(string),
+		d:          d,
 		Config:     config,
 	}, nil
 }
 
 func OrgIdParseFunc(d *schema.ResourceData, _ *Config) error {
-	d.Set("org_id", d.Id())
+	if err := d.Set("org_id", d.Id()); err != nil {
+		return fmt.Errorf("Error setting org_id: %s", err)
+	}
 	return nil
 }
 
 func (u *OrganizationIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	p, err := u.Config.clientResourceManager.Organizations.GetIamPolicy("organizations/"+u.resourceId, &cloudresourcemanager.GetIamPolicyRequest{}).Do()
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := u.Config.NewResourceManagerClient(userAgent).Organizations.GetIamPolicy("organizations/"+u.resourceId, &cloudresourcemanager.GetIamPolicyRequest{}).Do()
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -42,7 +52,12 @@ func (u *OrganizationIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.P
 }
 
 func (u *OrganizationIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
-	_, err := u.Config.clientResourceManager.Organizations.SetIamPolicy("organizations/"+u.resourceId, &cloudresourcemanager.SetIamPolicyRequest{
+	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.Config.NewResourceManagerClient(userAgent).Organizations.SetIamPolicy("organizations/"+u.resourceId, &cloudresourcemanager.SetIamPolicyRequest{
 		Policy:     policy,
 		UpdateMask: "bindings,etag,auditConfigs",
 	}).Do()

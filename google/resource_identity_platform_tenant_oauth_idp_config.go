@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceIdentityPlatformTenantOauthIdpConfig() *schema.Resource {
@@ -86,11 +86,16 @@ func resourceIdentityPlatformTenantOauthIdpConfig() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceIdentityPlatformTenantOauthIdpConfigCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandIdentityPlatformTenantOauthIdpConfigName(d.Get("name"), d, config)
@@ -136,11 +141,20 @@ func resourceIdentityPlatformTenantOauthIdpConfigCreate(d *schema.ResourceData, 
 	}
 
 	log.Printf("[DEBUG] Creating new TenantOauthIdpConfig: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TenantOauthIdpConfig: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating TenantOauthIdpConfig: %s", err)
 	}
@@ -159,17 +173,30 @@ func resourceIdentityPlatformTenantOauthIdpConfigCreate(d *schema.ResourceData, 
 
 func resourceIdentityPlatformTenantOauthIdpConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TenantOauthIdpConfig: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IdentityPlatformTenantOauthIdpConfig %q", d.Id()))
 	}
@@ -178,22 +205,22 @@ func resourceIdentityPlatformTenantOauthIdpConfigRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenIdentityPlatformTenantOauthIdpConfigName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenIdentityPlatformTenantOauthIdpConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
-	if err := d.Set("display_name", flattenIdentityPlatformTenantOauthIdpConfigDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenIdentityPlatformTenantOauthIdpConfigDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
-	if err := d.Set("enabled", flattenIdentityPlatformTenantOauthIdpConfigEnabled(res["enabled"], d)); err != nil {
+	if err := d.Set("enabled", flattenIdentityPlatformTenantOauthIdpConfigEnabled(res["enabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
-	if err := d.Set("issuer", flattenIdentityPlatformTenantOauthIdpConfigIssuer(res["issuer"], d)); err != nil {
+	if err := d.Set("issuer", flattenIdentityPlatformTenantOauthIdpConfigIssuer(res["issuer"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
-	if err := d.Set("client_id", flattenIdentityPlatformTenantOauthIdpConfigClientId(res["clientId"], d)); err != nil {
+	if err := d.Set("client_id", flattenIdentityPlatformTenantOauthIdpConfigClientId(res["clientId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
-	if err := d.Set("client_secret", flattenIdentityPlatformTenantOauthIdpConfigClientSecret(res["clientSecret"], d)); err != nil {
+	if err := d.Set("client_secret", flattenIdentityPlatformTenantOauthIdpConfigClientSecret(res["clientSecret"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TenantOauthIdpConfig: %s", err)
 	}
 
@@ -202,11 +229,18 @@ func resourceIdentityPlatformTenantOauthIdpConfigRead(d *schema.ResourceData, me
 
 func resourceIdentityPlatformTenantOauthIdpConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for TenantOauthIdpConfig: %s", err)
+	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandIdentityPlatformTenantOauthIdpConfigDisplayName(d.Get("display_name"), d, config)
@@ -273,10 +307,18 @@ func resourceIdentityPlatformTenantOauthIdpConfigUpdate(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating TenantOauthIdpConfig %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating TenantOauthIdpConfig %q: %#v", d.Id(), res)
 	}
 
 	return resourceIdentityPlatformTenantOauthIdpConfigRead(d, meta)
@@ -284,11 +326,18 @@ func resourceIdentityPlatformTenantOauthIdpConfigUpdate(d *schema.ResourceData, 
 
 func resourceIdentityPlatformTenantOauthIdpConfigDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for TenantOauthIdpConfig: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
 	if err != nil {
@@ -298,7 +347,12 @@ func resourceIdentityPlatformTenantOauthIdpConfigDelete(d *schema.ResourceData, 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting TenantOauthIdpConfig %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "TenantOauthIdpConfig")
 	}
@@ -327,30 +381,30 @@ func resourceIdentityPlatformTenantOauthIdpConfigImport(d *schema.ResourceData, 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigEnabled(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigIssuer(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigIssuer(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigClientId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantOauthIdpConfigClientSecret(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantOauthIdpConfigClientSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

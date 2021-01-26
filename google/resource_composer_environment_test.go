@@ -10,14 +10,13 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/storage/v1"
 )
 
-const testComposerEnvironmentPrefix = "tf-cc-testenv"
-const testComposerNetworkPrefix = "tf-cc-testnet"
+const testComposerEnvironmentPrefix = "tf-test-composer-env"
+const testComposerNetworkPrefix = "tf-test-composer-net"
 
 func init() {
 	resource.AddTestSweepers("gcp_composer_environment", &resource.Sweeper{
@@ -54,13 +53,13 @@ func TestComposerImageVersionDiffSuppress(t *testing.T) {
 func TestAccComposerEnvironment_basic(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_basic(envName, network, subnetwork),
@@ -89,7 +88,7 @@ func TestAccComposerEnvironment_basic(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_basic(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
@@ -100,14 +99,14 @@ func TestAccComposerEnvironment_basic(t *testing.T) {
 func TestAccComposerEnvironment_update(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_basic(envName, network, subnetwork),
@@ -127,7 +126,7 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_update(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
@@ -137,14 +136,14 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 func TestAccComposerEnvironment_private(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_private(envName, network, subnetwork),
@@ -167,7 +166,7 @@ func TestAccComposerEnvironment_private(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_private(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
@@ -177,15 +176,15 @@ func TestAccComposerEnvironment_private(t *testing.T) {
 func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
-	serviceAccount := acctest.RandomWithPrefix("tf-test")
+	serviceAccount := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_nodeCfg(envName, network, subnetwork, serviceAccount),
@@ -202,7 +201,7 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_nodeCfg(envName, network, subnetwork, serviceAccount),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
@@ -210,14 +209,14 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 
 func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
 	t.Parallel()
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_softwareCfg(envName, network, subnetwork),
@@ -234,7 +233,7 @@ func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_softwareCfg(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
@@ -245,14 +244,14 @@ func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
 func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
 	t.Parallel()
 
-	envName := acctest.RandomWithPrefix(testComposerEnvironmentPrefix)
-	network := acctest.RandomWithPrefix(testComposerNetworkPrefix)
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
 	subnetwork := network + "-1"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroy,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_updateOnlyFields(envName, network, subnetwork),
@@ -269,65 +268,67 @@ func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
 				Config:             testAccComposerEnvironment_updateOnlyFields(envName, network, subnetwork),
-				Check:              testAccCheckClearComposerEnvironmentFirewalls(network),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
 }
 
-func testAccComposerEnvironmentDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccComposerEnvironmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_composer_environment" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_composer_environment" {
+				continue
+			}
+
+			idTokens := strings.Split(rs.Primary.ID, "/")
+			if len(idTokens) != 6 {
+				return fmt.Errorf("Invalid ID %q, expected format projects/{project}/regions/{region}/environments/{environment}", rs.Primary.ID)
+			}
+			envName := &composerEnvironmentName{
+				Project:     idTokens[1],
+				Region:      idTokens[3],
+				Environment: idTokens[5],
+			}
+
+			_, err := config.NewComposerClient(config.userAgent).Projects.Locations.Environments.Get(envName.resourceName()).Do()
+			if err == nil {
+				return fmt.Errorf("environment %s still exists", envName.resourceName())
+			}
 		}
 
-		idTokens := strings.Split(rs.Primary.ID, "/")
-		if len(idTokens) != 6 {
-			return fmt.Errorf("Invalid ID %q, expected format projects/{project}/regions/{region}/environments/{environment}", rs.Primary.ID)
-		}
-		envName := &composerEnvironmentName{
-			Project:     idTokens[1],
-			Region:      idTokens[3],
-			Environment: idTokens[5],
-		}
-
-		_, err := config.clientComposer.Projects.Locations.Environments.Get(envName.resourceName()).Do()
-		if err == nil {
-			return fmt.Errorf("environment %s still exists", envName.resourceName())
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccComposerEnvironment_basic(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-    }
-  }
+	name   = "%s"
+	region = "us-central1"
+	config {
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
+		}
+	}
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
 }
 `, name, network, subnetwork)
 }
@@ -335,38 +336,38 @@ resource "google_compute_subnetwork" "test" {
 func testAccComposerEnvironment_private(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
+	name   = "%s"
+	region = "us-central1"
 
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-      ip_allocation_policy {
-        use_ip_aliases          = true
-        cluster_ipv4_cidr_block = "10.0.0.0/16"
-      }
-    }
-    private_environment_config {
-      enable_private_endpoint = true
-    }
-  }
+	config {
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
+			ip_allocation_policy {
+				use_ip_aliases          = true
+				cluster_ipv4_cidr_block = "10.0.0.0/16"
+			}
+		}
+		private_environment_config {
+			enable_private_endpoint = true
+		}
+	}
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name                     = "%s"
-  ip_cidr_range            = "10.2.0.0/16"
-  region                   = "us-central1"
-  network                  = google_compute_network.test.self_link
-  private_ip_google_access = true
+	name                     = "%s"
+	ip_cidr_range            = "10.2.0.0/16"
+	region                   = "us-central1"
+	network                  = google_compute_network.test.self_link
+	private_ip_google_access = true
 }
 `, name, network, subnetwork)
 }
@@ -377,52 +378,52 @@ data "google_composer_image_versions" "all" {
 }
 
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
+	name   = "%s"
+	region = "us-central1"
 
-  config {
-    node_count = 4
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-    }
+	config {
+		node_count = 4
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
+		}
 
-    software_config {
-      image_version = data.google_composer_image_versions.all.image_versions[0].image_version_id
+		software_config {
+			image_version = data.google_composer_image_versions.all.image_versions[0].image_version_id
 
-      airflow_config_overrides = {
-        core-load_example = "True"
-      }
+			airflow_config_overrides = {
+				core-load_example = "True"
+			}
 
-      pypi_packages = {
-        numpy = ""
-      }
+			pypi_packages = {
+				numpy = ""
+			}
 
-      env_variables = {
-        FOO = "bar"
-      }
-    }
-  }
+			env_variables = {
+				FOO = "bar"
+			}
+		}
+	}
 
-  labels = {
-    foo          = "bar"
-    anotherlabel = "boo"
-  }
+	labels = {
+		foo          = "bar"
+		anotherlabel = "boo"
+	}
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
 }
 `, name, network, subnetwork)
 }
@@ -430,41 +431,41 @@ resource "google_compute_subnetwork" "test" {
 func testAccComposerEnvironment_nodeCfg(environment, network, subnetwork, serviceAccount string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
+	name   = "%s"
+	region = "us-central1"
+	config {
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
 
-      service_account = google_service_account.test.name
-    }
-  }
+			service_account = google_service_account.test.name
+		}
+	}
 
-  depends_on = [google_project_iam_member.composer-worker]
+	depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
 }
 
 resource "google_service_account" "test" {
-  account_id   = "%s"
-  display_name = "Test Service Account for Composer Environment"
+	account_id   = "%s"
+	display_name = "Test Service Account for Composer Environment"
 }
 
 resource "google_project_iam_member" "composer-worker" {
-  role   = "roles/composer.worker"
-  member = "serviceAccount:${google_service_account.test.email}"
+	role   = "roles/composer.worker"
+	member = "serviceAccount:${google_service_account.test.email}"
 }
 `, environment, network, subnetwork, serviceAccount)
 }
@@ -475,33 +476,33 @@ data "google_composer_image_versions" "all" {
 }
 
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-    }
-    software_config {
-      image_version  = data.google_composer_image_versions.all.image_versions[0].image_version_id
-      python_version = "3"
-    }
-  }
+	name   = "%s"
+	region = "us-central1"
+	config {
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
+		}
+		software_config {
+			image_version  = data.google_composer_image_versions.all.image_versions[0].image_version_id
+			python_version = "3"
+		}
+	}
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
 }
 `, name, network, subnetwork)
 }
@@ -509,34 +510,34 @@ resource "google_compute_subnetwork" "test" {
 func testAccComposerEnvironment_updateOnlyFields(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
 resource "google_composer_environment" "test" {
-  name   = "%s"
-  region = "us-central1"
-  config {
-    node_config {
-      network    = google_compute_network.test.self_link
-      subnetwork = google_compute_subnetwork.test.self_link
-      zone       = "us-central1-a"
-    }
-    software_config {
-      pypi_packages = {
-        scipy = "==1.1.0"
-      }
-    }
-  }
+	name   = "%s"
+	region = "us-central1"
+	config {
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
+		}
+		software_config {
+			pypi_packages = {
+				numpy = ""
+			}
+		}
+	}
 }
 
 // use a separate network to avoid conflicts with other tests running in parallel
 // that use the default network/subnet
 resource "google_compute_network" "test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
+	name                    = "%s"
+	auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "test" {
-  name          = "%s"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.self_link
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
 }
 `, name, network, subnetwork)
 }
@@ -571,46 +572,52 @@ func testSweepComposerResources(region string) error {
 }
 
 func testSweepComposerEnvironments(config *Config) error {
-	found, err := config.clientComposer.Projects.Locations.Environments.List(
+	found, err := config.NewComposerClient(config.userAgent).Projects.Locations.Environments.List(
 		fmt.Sprintf("projects/%s/locations/%s", config.Project, config.Region)).Do()
 	if err != nil {
 		return fmt.Errorf("error listing storage buckets for composer environment: %s", err)
 	}
 
 	if len(found.Environments) == 0 {
-		log.Printf("No environment need to be cleaned up")
+		log.Printf("composer: no environments need to be cleaned up")
 		return nil
 	}
+
+	log.Printf("composer: %d environments need to be cleaned up", len(found.Environments))
 
 	var allErrors error
 	for _, e := range found.Environments {
 		createdAt, err := time.Parse(time.RFC3339Nano, e.CreateTime)
 		if err != nil {
-			return fmt.Errorf("[ERROR] Environment %q has invalid create time %q", e.Name, e.CreateTime)
+			return fmt.Errorf("composer: environment %q has invalid create time %q", e.Name, e.CreateTime)
 		}
 		// Skip environments that were created in same day
 		// This sweeper should really only clean out very old environments.
 		if time.Since(createdAt) < time.Hour*24 {
+			log.Printf("composer: skipped environment %q, it was created today", e.Name)
 			continue
 		}
 
 		switch e.State {
 		case "CREATING":
+			fallthrough
 		case "UPDATING":
-			log.Printf("Skipping pending Environment %q with state %q", e.Name, e.State)
+			log.Printf("composer: skipping pending Environment %q with state %q", e.Name, e.State)
 		case "DELETING":
-			log.Printf("Skipping pending Environment %q that is currently deleting", e.Name)
+			log.Printf("composer: skipping pending Environment %q that is currently deleting", e.Name)
 		case "RUNNING":
+			fallthrough
 		case "ERROR":
+			fallthrough
 		default:
-			op, deleteErr := config.clientComposer.Projects.Locations.Environments.Delete(e.Name).Do()
+			op, deleteErr := config.NewComposerClient(config.userAgent).Projects.Locations.Environments.Delete(e.Name).Do()
 			if deleteErr != nil {
-				allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete environment %q: %s", e.Name, deleteErr))
+				allErrors = multierror.Append(allErrors, fmt.Errorf("composer: unable to delete environment %q: %s", e.Name, deleteErr))
 				continue
 			}
-			waitErr := composerOperationWaitTime(config.clientComposer, op, config.Project, "Sweeping old test environments", 10)
+			waitErr := composerOperationWaitTime(config, op, config.Project, "Sweeping old test environments", config.userAgent, 10*time.Minute)
 			if waitErr != nil {
-				allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete environment %q: %s", e.Name, waitErr))
+				allErrors = multierror.Append(allErrors, fmt.Errorf("composer: unable to delete environment %q: %s", e.Name, waitErr))
 			}
 		}
 	}
@@ -619,7 +626,7 @@ func testSweepComposerEnvironments(config *Config) error {
 
 func testSweepComposerEnvironmentBuckets(config *Config) error {
 	artifactsBName := fmt.Sprintf("artifacts.%s.appspot.com", config.Project)
-	artifactBucket, err := config.clientStorage.Buckets.Get(artifactsBName).Do()
+	artifactBucket, err := config.NewStorageClient(config.userAgent).Buckets.Get(artifactsBName).Do()
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {
 			log.Printf("composer environment bucket %q not found, doesn't need to be cleaned up", artifactsBName)
@@ -630,7 +637,7 @@ func testSweepComposerEnvironmentBuckets(config *Config) error {
 		return err
 	}
 
-	found, err := config.clientStorage.Buckets.List(config.Project).Prefix(config.Region).Do()
+	found, err := config.NewStorageClient(config.userAgent).Buckets.List(config.Project).Prefix(config.Region).Do()
 	if err != nil {
 		return fmt.Errorf("error listing storage buckets created when testing composer environment: %s", err)
 	}
@@ -652,20 +659,20 @@ func testSweepComposerEnvironmentBuckets(config *Config) error {
 
 func testSweepComposerEnvironmentCleanUpBucket(config *Config, bucket *storage.Bucket) error {
 	var allErrors error
-	objList, err := config.clientStorage.Objects.List(bucket.Name).Do()
+	objList, err := config.NewStorageClient(config.userAgent).Objects.List(bucket.Name).Do()
 	if err != nil {
 		allErrors = multierror.Append(allErrors,
 			fmt.Errorf("Unable to list objects to delete for bucket %q: %s", bucket.Name, err))
 	}
 
 	for _, o := range objList.Items {
-		if err := config.clientStorage.Objects.Delete(bucket.Name, o.Name).Do(); err != nil {
+		if err := config.NewStorageClient(config.userAgent).Objects.Delete(bucket.Name, o.Name).Do(); err != nil {
 			allErrors = multierror.Append(allErrors,
 				fmt.Errorf("Unable to delete object %q from bucket %q: %s", o.Name, bucket.Name, err))
 		}
 	}
 
-	if err := config.clientStorage.Buckets.Delete(bucket.Name).Do(); err != nil {
+	if err := config.NewStorageClient(config.userAgent).Buckets.Delete(bucket.Name).Do(); err != nil {
 		allErrors = multierror.Append(allErrors, fmt.Errorf("Unable to delete bucket %q: %s", bucket.Name, err))
 	}
 
@@ -682,16 +689,16 @@ func testSweepComposerEnvironmentCleanUpBucket(config *Config, bucket *storage.B
 // but will not remove them when the Environment is deleted.
 //
 // Destroy test step for config with a network will fail unless we clean up the firewalls before.
-func testAccCheckClearComposerEnvironmentFirewalls(networkName string) resource.TestCheckFunc {
+func testAccCheckClearComposerEnvironmentFirewalls(t *testing.T, networkName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 		config.Project = getTestProjectFromEnv()
-		network, err := config.clientCompute.Networks.Get(getTestProjectFromEnv(), networkName).Do()
+		network, err := config.NewComputeClient(config.userAgent).Networks.Get(getTestProjectFromEnv(), networkName).Do()
 		if err != nil {
 			return err
 		}
 
-		foundFirewalls, err := config.clientCompute.Firewalls.List(config.Project).Do()
+		foundFirewalls, err := config.NewComputeClient(config.userAgent).Firewalls.List(config.Project).Do()
 		if err != nil {
 			return fmt.Errorf("Unable to list firewalls for network %q: %s", network.Name, err)
 		}
@@ -702,7 +709,7 @@ func testAccCheckClearComposerEnvironmentFirewalls(networkName string) resource.
 				continue
 			}
 			log.Printf("[DEBUG] Deleting firewall %q for test-resource network %q", firewall.Name, network.Name)
-			op, err := config.clientCompute.Firewalls.Delete(config.Project, firewall.Name).Do()
+			op, err := config.NewComputeClient(config.userAgent).Firewalls.Delete(config.Project, firewall.Name).Do()
 			if err != nil {
 				allErrors = multierror.Append(allErrors,
 					fmt.Errorf("Unable to delete firewalls for network %q: %s", network.Name, err))
@@ -710,7 +717,7 @@ func testAccCheckClearComposerEnvironmentFirewalls(networkName string) resource.
 			}
 
 			waitErr := computeOperationWaitTime(config, op, config.Project,
-				"Sweeping test composer environment firewalls", 10)
+				"Sweeping test composer environment firewalls", config.userAgent, 10)
 			if waitErr != nil {
 				allErrors = multierror.Append(allErrors,
 					fmt.Errorf("Error while waiting to delete firewall %q: %s", firewall.Name, waitErr))

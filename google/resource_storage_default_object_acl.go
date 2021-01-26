@@ -2,7 +2,7 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/storage/v1"
 )
 
@@ -30,11 +30,16 @@ func resourceStorageDefaultObjectAcl() *schema.Resource {
 				},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	bucket := d.Get("bucket").(string)
 	defaultObjectAcl := []*storage.ObjectAccessControl{}
@@ -46,20 +51,27 @@ func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta in
 		})
 	}
 
-	res, err := config.clientStorage.Buckets.Get(bucket).Do()
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
+	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
 	if err != nil {
 		return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
 	}
 
 	// Even with ForceSendFields the empty array wasn't working. Luckily, this is the same thing
 	if len(defaultObjectAcl) == 0 {
-		_, err = config.clientStorage.Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).PredefinedDefaultObjectAcl("private").Do()
+		_, err = config.NewStorageClient(userAgent).Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).PredefinedDefaultObjectAcl("private").Do()
 		if err != nil {
 			return fmt.Errorf("Error updating default object acl to empty for bucket %s: %v", bucket, err)
 		}
 	} else {
 		res.DefaultObjectAcl = defaultObjectAcl
-		_, err = config.clientStorage.Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).Do()
+		_, err = config.NewStorageClient(userAgent).Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating default object acl for bucket %s: %v", bucket, err)
 		}
@@ -70,9 +82,13 @@ func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta in
 
 func resourceStorageDefaultObjectAclRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	bucket := d.Get("bucket").(string)
-	res, err := config.clientStorage.Buckets.Get(bucket).Projection("full").Do()
+	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Projection("full").Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Default Storage Object ACL for Bucket %q", d.Get("bucket").(string)))
 	}
@@ -95,14 +111,25 @@ func resourceStorageDefaultObjectAclRead(d *schema.ResourceData, meta interface{
 
 func resourceStorageDefaultObjectAclDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	bucket := d.Get("bucket").(string)
-	res, err := config.clientStorage.Buckets.Get(bucket).Do()
+	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
 	if err != nil {
 		return fmt.Errorf("Error reading bucket %s: %v", bucket, err)
 	}
 
-	_, err = config.clientStorage.Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).PredefinedDefaultObjectAcl("private").Do()
+	_, err = config.NewStorageClient(userAgent).Buckets.Update(bucket, res).IfMetagenerationMatch(res.Metageneration).PredefinedDefaultObjectAcl("private").Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting (updating to private) default object acl for bucket %s: %v", bucket, err)
 	}

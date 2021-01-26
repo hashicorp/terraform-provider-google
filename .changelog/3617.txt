@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: Fixed range_partitioning.range.start so that the value `0` is sent in `google_bigquery_table`
+```

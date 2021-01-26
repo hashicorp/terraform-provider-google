@@ -18,7 +18,7 @@ This provider plugin is maintained by:
 Requirements
 ------------
 
-- [Terraform](https://www.terraform.io/downloads.html) 0.10+
+- [Terraform](https://www.terraform.io/downloads.html) 0.12+
 
 
 Using the provider
@@ -27,13 +27,13 @@ Using the provider
 See the [Google Provider documentation](https://www.terraform.io/docs/providers/google/index.html) to get started using the
 Google provider.
 
-We recently introduced the `google-beta` provider. See [Provider Versions](https://www.terraform.io/docs/providers/google/provider_versions.html)
+We also maintain the 'google-beta' provider for preview features and features at a beta [launch stage](https://cloud.google.com/products#product-launch-stages). See [Provider Versions](https://www.terraform.io/docs/providers/google/provider_versions.html)
 for more details on how to use `google-beta`.
 
 Upgrading the provider
 ----------------------
 
-The Google provider doesn't upgrade automatically once you've started using it. After a new release you can run 
+The Google provider doesn't upgrade automatically once you've started using it. After a new release you can run
 
 ```bash
 terraform init -upgrade
@@ -45,17 +45,17 @@ for more information on provider upgrades, and how to set version constraints on
 Building the provider
 ---------------------
 
-Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-google`
+Clone repository to: `$GOPATH/src/github.com/hashicorp/terraform-provider-google`
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-$ git clone git@github.com:terraform-providers/terraform-provider-google
+$ mkdir -p $GOPATH/src/github.com/hashicorp; cd $GOPATH/src/github.com/hashicorp
+$ git clone git@github.com:hashicorp/terraform-provider-google
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-google
+$ cd $GOPATH/src/github.com/hashicorp/terraform-provider-google
 $ make build
 ```
 
@@ -63,7 +63,7 @@ Developing the provider
 ---------------------------
 
 If you wish to work on the provider, you'll first need [Go](http://www.golang.org)
-installed on your machine (version 1.13.0+ is *required*). You can use [goenv](https://github.com/syndbg/goenv)
+installed on your machine (version 1.14.0+ is *required*). You can use [goenv](https://github.com/syndbg/goenv)
 to manage your Go version. You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH),
 as well as adding `$GOPATH/bin` to your `$PATH`.
 
@@ -79,5 +79,5 @@ $ $GOPATH/bin/terraform-provider-google
 ```
 
 For guidance on common development practices such as testing changes or
-vendoring libraries, see the [contribution guidelines](https://github.com/terraform-providers/terraform-provider-google/blob/master/.github/CONTRIBUTING.md).
+vendoring libraries, see the [contribution guidelines](https://github.com/hashicorp/terraform-provider-google/blob/master/.github/CONTRIBUTING.md).
 If you have other development questions we don't cover, please file an issue!

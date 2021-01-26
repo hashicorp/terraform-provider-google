@@ -26,6 +26,11 @@ A named resource to which messages are sent by publishers.
 
 
 
+~> **Warning:** This resource requires an App Engine application to be created on the
+project you're provisioning it on. If you haven't already enabled it, you
+can create a `google_app_engine_application` resource to do so. This
+resource's location will be the same as the App Engine location specified.
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=queue_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -38,6 +43,43 @@ A named resource to which messages are sent by publishers.
 resource "google_cloud_tasks_queue" "default" {
   name = "cloud-tasks-queue-test"
   location = "us-central1"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_tasks_queue_advanced&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloud Tasks Queue Advanced
+
+
+```hcl
+resource "google_cloud_tasks_queue" "advanced_configuration" {
+  name = "instance-name"
+  location = "us-central1"
+
+  app_engine_routing_override {
+    service = "worker"
+    version = "1.0"
+    instance = "test"
+  }
+
+  rate_limits {
+    max_concurrent_dispatches = 3
+    max_dispatches_per_second = 2
+  }
+
+  retry_config {
+    max_attempts = 5
+    max_retry_duration = "4s"
+    max_backoff = "3s"
+    min_backoff = "2s"
+    max_doublings = 1
+  }
+
+  stackdriver_logging_config {
+    sampling_ratio = 0.9
+  }
 }
 ```
 
@@ -61,7 +103,8 @@ The following arguments are supported:
 * `app_engine_routing_override` -
   (Optional)
   Overrides for task-level appEngineRouting. These settings apply only
-  to App Engine tasks in this queue  Structure is documented below.
+  to App Engine tasks in this queue
+  Structure is documented below.
 
 * `rate_limits` -
   (Optional)
@@ -71,11 +114,18 @@ The following arguments are supported:
   * User-specified throttling: rateLimits, retryConfig, and the queue's state.
   * System throttling due to 429 (Too Many Requests) or 503 (Service
     Unavailable) responses from the worker, high error rates, or to
-    smooth sudden large traffic spikes.  Structure is documented below.
+    smooth sudden large traffic spikes.
+  Structure is documented below.
 
 * `retry_config` -
   (Optional)
-  Settings that determine the retry behavior.  Structure is documented below.
+  Settings that determine the retry behavior.
+  Structure is documented below.
+
+* `stackdriver_logging_config` -
+  (Optional)
+  Configuration options for writing logs to Stackdriver Logging.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -162,6 +212,20 @@ The `retry_config` block supports:
   then increases linearly, and finally retries retries at intervals of maxBackoff
   up to maxAttempts times.
 
+The `stackdriver_logging_config` block supports:
+
+* `sampling_ratio` -
+  (Required)
+  Specifies the fraction of operations to write to Stackdriver Logging.
+  This field may contain any value between 0.0 and 1.0, inclusive. 0.0 is the
+  default and means that no operations are logged.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/queues/{{name}}`
+
 
 ## Timeouts
 
@@ -174,6 +238,7 @@ This resource provides the following
 
 ## Import
 
+
 Queue can be imported using any of these accepted formats:
 
 ```
@@ -181,9 +246,6 @@ $ terraform import google_cloud_tasks_queue.default projects/{{project}}/locatio
 $ terraform import google_cloud_tasks_queue.default {{project}}/{{location}}/{{name}}
 $ terraform import google_cloud_tasks_queue.default {{location}}/{{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

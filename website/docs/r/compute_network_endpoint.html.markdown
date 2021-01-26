@@ -24,8 +24,8 @@ description: |-
 # google\_compute\_network\_endpoint
 
 A Network endpoint represents a IP address and port combination that is
-part of a specific network endpoint group (NEG). NEGs are zonals
-collection of these endpoints for GCP resources within a
+part of a specific network endpoint group (NEG). NEGs are zonal
+collections of these endpoints for GCP resources within a
 single subnet. **NOTE**: Network endpoints cannot be created outside of a
 network endpoint group.
 
@@ -55,7 +55,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "endpoint-instance" {
   name         = "endpoint-instance"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
@@ -64,7 +64,7 @@ resource "google_compute_instance" "endpoint-instance" {
   }
 
   network_interface {
-    subnetwork = google_compute_subnetwork.default.self_link
+    subnetwork = google_compute_subnetwork.default.id
     access_config {
     }
   }
@@ -72,8 +72,8 @@ resource "google_compute_instance" "endpoint-instance" {
 
 resource "google_compute_network_endpoint_group" "group" {
   name         = "my-lb-neg"
-  network      = google_compute_network.default.self_link
-  subnetwork   = google_compute_subnetwork.default.self_link
+  network      = google_compute_network.default.id
+  subnetwork   = google_compute_subnetwork.default.id
   default_port = "90"
   zone         = "us-central1-a"
 }
@@ -87,7 +87,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "neg-subnetwork"
   ip_cidr_range = "10.0.0.1/16"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 ```
 
@@ -128,6 +128,12 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}/{{zone}}/{{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}`
+
 
 ## Timeouts
 
@@ -139,6 +145,7 @@ This resource provides the following
 
 ## Import
 
+
 NetworkEndpoint can be imported using any of these accepted formats:
 
 ```
@@ -147,9 +154,6 @@ $ terraform import google_compute_network_endpoint.default {{project}}/{{zone}}/
 $ terraform import google_compute_network_endpoint.default {{zone}}/{{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}
 $ terraform import google_compute_network_endpoint.default {{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

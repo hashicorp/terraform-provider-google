@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: added `resource_usage_export_config` to `google_container_cluster`, previously only available in `google-beta` (ga only)
+```
+```release-note:enhancement
+container: added `enable_resource_consumption_metering` to `resource_usage_export_config` in `google_container_cluster` (beta only)
+```

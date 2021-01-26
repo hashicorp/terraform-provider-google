@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"golang.org/x/oauth2/google"
 )
 
@@ -64,8 +63,8 @@ func TestConfigLoadAndValidate_accountFileJSONInvalid(t *testing.T) {
 }
 
 func TestAccConfigLoadValidate_credentials(t *testing.T) {
-	if os.Getenv(resource.TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	if os.Getenv(TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
 	}
 	testAccPreCheck(t)
 
@@ -85,15 +84,85 @@ func TestAccConfigLoadValidate_credentials(t *testing.T) {
 		t.Fatalf("error: %v", err)
 	}
 
-	_, err = config.clientCompute.Zones.Get(proj, "us-central1-a").Do()
+	_, err = config.NewComputeClient(config.userAgent).Zones.Get(proj, "us-central1-a").Do()
 	if err != nil {
 		t.Fatalf("expected call with loaded config client to work, got error: %s", err)
 	}
 }
 
+func TestAccConfigLoadValidate_impersonated(t *testing.T) {
+	if os.Getenv(TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+	}
+	testAccPreCheck(t)
+
+	serviceaccount := multiEnvSearch([]string{"IMPERSONATE_SERVICE_ACCOUNT_ACCTEST"})
+	creds := getTestCredsFromEnv()
+	proj := getTestProjectFromEnv()
+
+	config := &Config{
+		Credentials:               creds,
+		ImpersonateServiceAccount: serviceaccount,
+		Project:                   proj,
+		Region:                    "us-central1",
+	}
+
+	ConfigureBasePaths(config)
+
+	err := config.LoadAndValidate(context.Background())
+	if err != nil {
+		t.Fatalf("error: %v", err)
+	}
+
+	_, err = config.NewComputeClient(config.userAgent).Zones.Get(proj, "us-central1-a").Do()
+	if err != nil {
+		t.Fatalf("expected API call with loaded config to work, got error: %s", err)
+	}
+}
+
+func TestAccConfigLoadValidate_accessTokenImpersonated(t *testing.T) {
+	if os.Getenv(TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
+	}
+	testAccPreCheck(t)
+
+	creds := getTestCredsFromEnv()
+	proj := getTestProjectFromEnv()
+	serviceaccount := multiEnvSearch([]string{"IMPERSONATE_SERVICE_ACCOUNT_ACCTEST"})
+
+	c, err := google.CredentialsFromJSON(context.Background(), []byte(creds), DefaultClientScopes...)
+	if err != nil {
+		t.Fatalf("invalid test credentials: %s", err)
+	}
+
+	token, err := c.TokenSource.Token()
+	if err != nil {
+		t.Fatalf("Unable to generate test access token: %s", err)
+	}
+
+	config := &Config{
+		AccessToken:               token.AccessToken,
+		ImpersonateServiceAccount: serviceaccount,
+		Project:                   proj,
+		Region:                    "us-central1",
+	}
+
+	ConfigureBasePaths(config)
+
+	err = config.LoadAndValidate(context.Background())
+	if err != nil {
+		t.Fatalf("error: %v", err)
+	}
+
+	_, err = config.NewComputeClient(config.userAgent).Zones.Get(proj, "us-central1-a").Do()
+	if err != nil {
+		t.Fatalf("expected API call with loaded config to work, got error: %s", err)
+	}
+}
+
 func TestAccConfigLoadValidate_accessToken(t *testing.T) {
-	if os.Getenv(resource.TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+	if os.Getenv(TestEnvVar) == "" {
+		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", TestEnvVar))
 	}
 	testAccPreCheck(t)
 
@@ -123,7 +192,7 @@ func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 		t.Fatalf("error: %v", err)
 	}
 
-	_, err = config.clientCompute.Zones.Get(proj, "us-central1-a").Do()
+	_, err = config.NewComputeClient(config.userAgent).Zones.Get(proj, "us-central1-a").Do()
 	if err != nil {
 		t.Fatalf("expected API call with loaded config to work, got error: %s", err)
 	}

@@ -126,6 +126,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/httpHealthChecks/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -143,6 +144,7 @@ This resource provides the following
 
 ## Import
 
+
 HttpHealthCheck can be imported using any of these accepted formats:
 
 ```
@@ -150,9 +152,6 @@ $ terraform import google_compute_http_health_check.default projects/{{project}}
 $ terraform import google_compute_http_health_check.default {{project}}/{{name}}
 $ terraform import google_compute_http_health_check.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

@@ -5,8 +5,15 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/compute/v1"
+)
+
+type metadataPresentBehavior bool
+
+const (
+	failIfPresent    metadataPresentBehavior = true
+	overwritePresent metadataPresentBehavior = false
 )
 
 func resourceComputeProjectMetadataItem() *schema.Resource {
@@ -21,19 +28,22 @@ func resourceComputeProjectMetadataItem() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"key": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The metadata key to set.`,
 			},
 			"value": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The value to set for the given metadata key.`,
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 		},
 
@@ -42,11 +52,16 @@ func resourceComputeProjectMetadataItem() *schema.Resource {
 			Update: schema.DefaultTimeout(7 * time.Minute),
 			Delete: schema.DefaultTimeout(7 * time.Minute),
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	projectID, err := getProject(d, config)
 	if err != nil {
@@ -56,7 +71,7 @@ func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta inter
 	key := d.Get("key").(string)
 	val := d.Get("value").(string)
 
-	err = updateComputeCommonInstanceMetadata(config, projectID, key, &val, int(d.Timeout(schema.TimeoutCreate).Minutes()))
+	err = updateComputeCommonInstanceMetadata(config, projectID, key, userAgent, &val, d.Timeout(schema.TimeoutCreate), failIfPresent)
 	if err != nil {
 		return err
 	}
@@ -68,6 +83,10 @@ func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta inter
 
 func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	projectID, err := getProject(d, config)
 	if err != nil {
@@ -75,7 +94,7 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 	}
 
 	log.Printf("[DEBUG] Loading project metadata: %s", projectID)
-	project, err := config.clientCompute.Projects.Get(projectID).Do()
+	project, err := config.NewComputeClient(userAgent).Projects.Get(projectID).Do()
 	if err != nil {
 		return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 	}
@@ -88,15 +107,25 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 		return nil
 	}
 
-	d.Set("project", projectID)
-	d.Set("key", d.Id())
-	d.Set("value", val)
+	if err := d.Set("project", projectID); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("key", d.Id()); err != nil {
+		return fmt.Errorf("Error setting key: %s", err)
+	}
+	if err := d.Set("value", val); err != nil {
+		return fmt.Errorf("Error setting value: %s", err)
+	}
 
 	return nil
 }
 
 func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	projectID, err := getProject(d, config)
 	if err != nil {
@@ -108,7 +137,7 @@ func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta inter
 		_, n := d.GetChange("value")
 		new := n.(string)
 
-		err = updateComputeCommonInstanceMetadata(config, projectID, key, &new, int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		err = updateComputeCommonInstanceMetadata(config, projectID, key, userAgent, &new, d.Timeout(schema.TimeoutUpdate), overwritePresent)
 		if err != nil {
 			return err
 		}
@@ -118,6 +147,10 @@ func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta inter
 
 func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	projectID, err := getProject(d, config)
 	if err != nil {
@@ -126,7 +159,7 @@ func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta inter
 
 	key := d.Get("key").(string)
 
-	err = updateComputeCommonInstanceMetadata(config, projectID, key, nil, int(d.Timeout(schema.TimeoutDelete).Minutes()))
+	err = updateComputeCommonInstanceMetadata(config, projectID, key, userAgent, nil, d.Timeout(schema.TimeoutDelete), overwritePresent)
 	if err != nil {
 		return err
 	}
@@ -135,10 +168,10 @@ func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta inter
 	return nil
 }
 
-func updateComputeCommonInstanceMetadata(config *Config, projectID string, key string, afterVal *string, timeout int) error {
+func updateComputeCommonInstanceMetadata(config *Config, projectID, key, userAgent string, afterVal *string, timeout time.Duration, failIfPresent metadataPresentBehavior) error {
 	updateMD := func() error {
 		log.Printf("[DEBUG] Loading project metadata: %s", projectID)
-		project, err := config.clientCompute.Projects.Get(projectID).Do()
+		project, err := config.NewComputeClient(userAgent).Projects.Get(projectID).Do()
 		if err != nil {
 			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 		}
@@ -153,6 +186,9 @@ func updateComputeCommonInstanceMetadata(config *Config, projectID string, key s
 				return nil
 			}
 		} else {
+			if failIfPresent {
+				return fmt.Errorf("key %q already present in metadata for project %q. Use `terraform import` to manage it with Terraform", key, projectID)
+			}
 			if afterVal != nil && *afterVal == val {
 				// Asked to set a value and it's already set - we're done.
 				return nil
@@ -166,7 +202,7 @@ func updateComputeCommonInstanceMetadata(config *Config, projectID string, key s
 		}
 
 		// Attempt to write the new value now
-		op, err := config.clientCompute.Projects.SetCommonInstanceMetadata(
+		op, err := config.NewComputeClient(userAgent).Projects.SetCommonInstanceMetadata(
 			projectID,
 			&compute.Metadata{
 				Fingerprint: project.CommonInstanceMetadata.Fingerprint,
@@ -180,7 +216,7 @@ func updateComputeCommonInstanceMetadata(config *Config, projectID string, key s
 
 		log.Printf("[DEBUG] SetCommonInstanceMetadata: %d (%s)", op.Id, op.SelfLink)
 
-		return computeOperationWaitTime(config, op, project.Name, "SetCommonInstanceMetadata", timeout)
+		return computeOperationWaitTime(config, op, project.Name, "SetCommonInstanceMetadata", userAgent, timeout)
 	}
 
 	return MetadataRetryWrapper(updateMD)

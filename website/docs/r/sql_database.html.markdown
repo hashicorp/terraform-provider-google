@@ -44,10 +44,12 @@ resource "google_sql_database" "database" {
 
 resource "google_sql_database_instance" "instance" {
   name   = "my-database-instance"
-  region = "us-central"
+  region = "us-central1"
   settings {
-    tier = "D0"
+    tier = "db-f1-micro"
   }
+
+  deletion_protection  = "true"
 }
 ```
 
@@ -90,6 +92,13 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/instances/{{instance}}/databases/{{name}}`
+* `self_link` - The URI of the created resource.
+
 
 ## Timeouts
 
@@ -102,6 +111,7 @@ This resource provides the following
 
 ## Import
 
+
 Database can be imported using any of these accepted formats:
 
 ```
@@ -111,9 +121,6 @@ $ terraform import google_sql_database.default {{project}}/{{instance}}/{{name}}
 $ terraform import google_sql_database.default {{instance}}/{{name}}
 $ terraform import google_sql_database.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

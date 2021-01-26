@@ -1,0 +1,3 @@
+```release-note:bug
+osconfig: fixed an issue where the `rollout.disruption_budget.percentage` field in `google_os_config_patch_deployment` did not correspond to a field in the API
+```

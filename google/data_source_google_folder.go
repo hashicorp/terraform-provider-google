@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleFolder() *schema.Resource {
@@ -14,6 +14,10 @@ func dataSourceGoogleFolder() *schema.Resource {
 			"folder": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"folder_id": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -50,6 +54,10 @@ func dataSourceGoogleFolder() *schema.Resource {
 
 func dataSourceFolderRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	d.SetId(canonicalFolderName(d.Get("folder").(string)))
 	if err := resourceGoogleFolderRead(d, meta); err != nil {
@@ -61,12 +69,14 @@ func dataSourceFolderRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if v, ok := d.GetOk("lookup_organization"); ok && v.(bool) {
-		organization, err := lookupOrganizationName(d.Id(), d, config)
+		organization, err := lookupOrganizationName(d.Id(), userAgent, d, config)
 		if err != nil {
 			return err
 		}
 
-		d.Set("organization", organization)
+		if err := d.Set("organization", organization); err != nil {
+			return fmt.Errorf("Error setting organization: %s", err)
+		}
 	}
 
 	return nil
@@ -80,15 +90,15 @@ func canonicalFolderName(ba string) string {
 	return "folders/" + ba
 }
 
-func lookupOrganizationName(parent string, d *schema.ResourceData, config *Config) (string, error) {
+func lookupOrganizationName(parent, userAgent string, d *schema.ResourceData, config *Config) (string, error) {
 	if parent == "" || strings.HasPrefix(parent, "organizations/") {
 		return parent, nil
 	} else if strings.HasPrefix(parent, "folders/") {
-		parentFolder, err := getGoogleFolder(parent, d, config)
+		parentFolder, err := getGoogleFolder(parent, userAgent, d, config)
 		if err != nil {
 			return "", fmt.Errorf("Error getting parent folder '%s': %s", parent, err)
 		}
-		return lookupOrganizationName(parentFolder.Parent, d, config)
+		return lookupOrganizationName(parentFolder.Parent, userAgent, d, config)
 	} else {
 		return "", fmt.Errorf("Unknown parent type '%s' on folder '%s'", parent, d.Id())
 	}

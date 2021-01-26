@@ -44,7 +44,7 @@ To get more information about FirewallRule, see:
 ```hcl
 resource "google_project" "my_project" {
   name       = "tf-test-project"
-  project_id = "tf-test-project"
+  project_id = "ae-project"
   org_id     = "123456789"
 }
 
@@ -73,6 +73,7 @@ The following arguments are supported:
 * `action` -
   (Required)
   The action to take if this rule matches.
+  Possible values are `UNSPECIFIED_ACTION`, `ALLOW`, and `DENY`.
 
 
 - - -
@@ -94,6 +95,12 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `apps/{{project}}/firewall/ingressRules/{{priority}}`
+
 
 ## Timeouts
 
@@ -106,6 +113,7 @@ This resource provides the following
 
 ## Import
 
+
 FirewallRule can be imported using any of these accepted formats:
 
 ```
@@ -113,9 +121,6 @@ $ terraform import google_app_engine_firewall_rule.default apps/{{project}}/fire
 $ terraform import google_app_engine_firewall_rule.default {{project}}/{{priority}}
 $ terraform import google_app_engine_firewall_rule.default {{priority}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

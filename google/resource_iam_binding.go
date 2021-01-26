@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -28,6 +28,31 @@ var iamBindingSchema = map[string]*schema.Schema{
 		},
 		Set: func(v interface{}) int {
 			return schema.HashString(strings.ToLower(v.(string)))
+		},
+	},
+	"condition": {
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		ForceNew: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"expression": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+				"title": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+				"description": {
+					Type:     schema.TypeString,
+					Optional: true,
+					ForceNew: true,
+				},
+			},
 		},
 	},
 	"etag": {
@@ -51,6 +76,7 @@ func ResourceIamBindingWithBatching(parentSpecificSchema map[string]*schema.Sche
 		Importer: &schema.ResourceImporter{
 			State: iamBindingImport(newUpdaterFunc, resourceIdParser),
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -81,6 +107,9 @@ func resourceIamBindingCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc, en
 		}
 
 		d.SetId(updater.GetResourceId() + "/" + binding.Role)
+		if k := conditionKeyFromCondition(binding.Condition); !k.Empty() {
+			d.SetId(d.Id() + "/" + k.String())
+		}
 		return resourceIamBindingRead(newUpdaterFunc)(d, meta)
 	}
 }
@@ -88,6 +117,7 @@ func resourceIamBindingCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc, en
 func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err
@@ -113,14 +143,27 @@ func resourceIamBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Rea
 		if binding == nil {
 			log.Printf("[WARNING] Binding for role %q not found, assuming it has no members. If you expected existing members bound for this role, make sure your role is correctly formatted.", eBinding.Role)
 			log.Printf("[DEBUG] Binding for role %q and condition %+v not found in policy for %s, assuming it has no members.", eBinding.Role, eCondition, updater.DescribeResource())
-			d.Set("role", eBinding.Role)
-			d.Set("members", nil)
+			if err := d.Set("role", eBinding.Role); err != nil {
+				return fmt.Errorf("Error setting role: %s", err)
+			}
+			if err := d.Set("members", nil); err != nil {
+				return fmt.Errorf("Error setting members: %s", err)
+			}
 			return nil
 		} else {
-			d.Set("role", binding.Role)
-			d.Set("members", binding.Members)
+			if err := d.Set("role", binding.Role); err != nil {
+				return fmt.Errorf("Error setting role: %s", err)
+			}
+			if err := d.Set("members", binding.Members); err != nil {
+				return fmt.Errorf("Error setting members: %s", err)
+			}
+			if err := d.Set("condition", flattenIamCondition(binding.Condition)); err != nil {
+				return fmt.Errorf("Error setting condition: %s", err)
+			}
 		}
-		d.Set("etag", p.Etag)
+		if err := d.Set("etag", p.Etag); err != nil {
+			return fmt.Errorf("Error setting etag: %s", err)
+		}
 		return nil
 	}
 }
@@ -133,15 +176,24 @@ func iamBindingImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser
 		config := m.(*Config)
 		s := strings.Fields(d.Id())
 		var id, role string
-		if len(s) != 2 {
+		if len(s) < 2 {
 			d.SetId("")
-			return nil, fmt.Errorf("Wrong number of parts to Binding id %s; expected 'resource_name role'.", s)
+			return nil, fmt.Errorf("Wrong number of parts to Binding id %s; expected 'resource_name role [condition_title]'.", s)
 		}
-		id, role = s[0], s[1]
+
+		var conditionTitle string
+		if len(s) == 2 {
+			id, role = s[0], s[1]
+		} else {
+			// condition titles can have any characters in them, so re-join the split string
+			id, role, conditionTitle = s[0], s[1], strings.Join(s[2:], " ")
+		}
 
 		// Set the ID only to the first part so all IAM types can share the same resourceIdParserFunc.
 		d.SetId(id)
-		d.Set("role", role)
+		if err := d.Set("role", role); err != nil {
+			return nil, fmt.Errorf("Error setting role: %s", err)
+		}
 		err := resourceIdParser(d, config)
 		if err != nil {
 			return nil, err
@@ -150,6 +202,37 @@ func iamBindingImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser
 		// Set the ID again so that the ID matches the ID it would have if it had been created via TF.
 		// Use the current ID in case it changed in the resourceIdParserFunc.
 		d.SetId(d.Id() + "/" + role)
+
+		// Since condition titles can have any character in them, we can't separate them from any other
+		// field the user might set in import (like the condition description and expression). So, we
+		// have the user just specify the title and then read the upstream policy to set the full
+		// condition. We can't rely on the read fn to do this for us because it looks for a match of the
+		// full condition.
+		updater, err := newUpdaterFunc(d, config)
+		if err != nil {
+			return nil, err
+		}
+		p, err := iamPolicyReadWithRetry(updater)
+		if err != nil {
+			return nil, err
+		}
+		var binding *cloudresourcemanager.Binding
+		for _, b := range p.Bindings {
+			if b.Role == role && conditionKeyFromCondition(b.Condition).Title == conditionTitle {
+				if binding != nil {
+					return nil, fmt.Errorf("Cannot import IAM member with condition title %q, it matches multiple conditions", conditionTitle)
+				}
+				binding = b
+			}
+		}
+		if binding != nil {
+			if err := d.Set("condition", flattenIamCondition(binding.Condition)); err != nil {
+				return nil, fmt.Errorf("Error setting condition: %s", err)
+			}
+			if k := conditionKeyFromCondition(binding.Condition); !k.Empty() {
+				d.SetId(d.Id() + "/" + k.String())
+			}
+		}
 
 		// It is possible to return multiple bindings, since we can learn about all the bindings
 		// for this resource here.  Unfortunately, `terraform import` has some messy behavior here -
@@ -168,6 +251,7 @@ func iamBindingImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser
 func resourceIamBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err
@@ -199,5 +283,35 @@ func getResourceIamBinding(d *schema.ResourceData) *cloudresourcemanager.Binding
 		Members: convertStringArr(members),
 		Role:    d.Get("role").(string),
 	}
+	if c := expandIamCondition(d.Get("condition")); c != nil {
+		b.Condition = c
+	}
 	return b
+}
+
+func expandIamCondition(v interface{}) *cloudresourcemanager.Expr {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	original := l[0].(map[string]interface{})
+	return &cloudresourcemanager.Expr{
+		Description:     original["description"].(string),
+		Expression:      original["expression"].(string),
+		Title:           original["title"].(string),
+		ForceSendFields: []string{"Description", "Expression", "Title"},
+	}
+}
+
+func flattenIamCondition(condition *cloudresourcemanager.Expr) []map[string]interface{} {
+	if conditionKeyFromCondition(condition).Empty() {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"expression":  condition.Expression,
+			"title":       condition.Title,
+			"description": condition.Description,
+		},
+	}
 }

@@ -7,23 +7,35 @@ import (
 
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccEndpointsService_basic(t *testing.T) {
+	// Uses random provider
+	skipIfVcr(t)
 	t.Parallel()
-	serviceId := "tf-test" + acctest.RandString(10)
+	serviceId := "tf-test" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		CheckDestroy: testAccCheckEndpointServiceDestroy,
+		CheckDestroy: testAccCheckEndpointServiceDestroyProducer(t),
 		Providers:    testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv()),
-				Check:  testAccCheckEndpointExistsByName(serviceId),
+				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv(), "1"),
+				Check:  testAccCheckEndpointExistsByName(t, serviceId),
+			},
+			{
+				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv(), "2"),
+				Check:  testAccCheckEndpointExistsByName(t, serviceId),
+			},
+			{
+				Config: testAccEndpointsService_basic(serviceId, getTestProjectFromEnv(), "3"),
+				Check:  testAccCheckEndpointExistsByName(t, serviceId),
 			},
 		},
 	})
@@ -31,16 +43,16 @@ func TestAccEndpointsService_basic(t *testing.T) {
 
 func TestAccEndpointsService_grpc(t *testing.T) {
 	t.Parallel()
-	serviceId := "tf-test" + acctest.RandString(10)
+	serviceId := "tf-test" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckEndpointServiceDestroy,
+		CheckDestroy: testAccCheckEndpointServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEndpointsService_grpc(serviceId, getTestProjectFromEnv()),
-				Check:  testAccCheckEndpointExistsByName(serviceId),
+				Check:  testAccCheckEndpointExistsByName(t, serviceId),
 			},
 		},
 	})
@@ -98,7 +110,7 @@ func TestEndpointsService_grpcMigrateState(t *testing.T) {
 	}
 }
 
-func testAccEndpointsService_basic(serviceId, project string) string {
+func testAccEndpointsService_basic(serviceId, project, rev string) string {
 	return fmt.Sprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name   = "%[1]s.endpoints.%[2]s.cloud.goog"
@@ -107,7 +119,7 @@ resource "google_endpoints_service" "endpoints_service" {
 swagger: "2.0"
 info:
   description: "A simple Google Cloud Endpoints API example."
-  title: "Endpoints Example"
+  title: "Endpoints Example, rev. %[3]s"
   version: "1.0.0"
 host: "%[1]s.endpoints.%[2]s.cloud.goog"
 basePath: "/"
@@ -146,7 +158,14 @@ definitions:
 EOF
 
 }
-`, serviceId, project)
+
+resource "random_id" "foo" {
+  keepers = {
+    config_id = google_endpoints_service.endpoints_service.config_id
+  }
+  byte_length = 8
+}
+`, serviceId, project, rev)
 }
 
 func testAccEndpointsService_grpc(serviceId, project string) string {
@@ -169,10 +188,10 @@ EOF
 `, serviceId, project)
 }
 
-func testAccCheckEndpointExistsByName(serviceId string) resource.TestCheckFunc {
+func testAccCheckEndpointExistsByName(t *testing.T, serviceId string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
-		service, err := config.clientServiceMan.Services.GetConfig(
+		config := googleProviderConfig(t)
+		service, err := config.NewServiceManClient(config.userAgent).Services.GetConfig(
 			fmt.Sprintf("%s.endpoints.%s.cloud.goog", serviceId, config.Project)).Do()
 		if err != nil {
 			return err
@@ -185,28 +204,30 @@ func testAccCheckEndpointExistsByName(serviceId string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckEndpointServiceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckEndpointServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for name, rs := range s.RootModule().Resources {
-		if strings.HasPrefix(name, "data.") {
-			continue
-		}
-		if rs.Type != "google_endpoints_service" {
-			continue
-		}
+		for name, rs := range s.RootModule().Resources {
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+			if rs.Type != "google_endpoints_service" {
+				continue
+			}
 
-		serviceName := rs.Primary.Attributes["service_name"]
-		service, err := config.clientServiceMan.Services.GetConfig(serviceName).Do()
-		if err != nil {
-			// ServiceManagement returns 403 if service doesn't exist.
-			if !isGoogleApiErrorWithCode(err, 403) {
-				return err
+			serviceName := rs.Primary.Attributes["service_name"]
+			service, err := config.NewServiceManClient(config.userAgent).Services.GetConfig(serviceName).Do()
+			if err != nil {
+				// ServiceManagement returns 403 if service doesn't exist.
+				if !isGoogleApiErrorWithCode(err, 403) {
+					return err
+				}
+			}
+			if service != nil {
+				return fmt.Errorf("expected service %q to have been destroyed, got %+v", service.Name, service)
 			}
 		}
-		if service != nil {
-			return fmt.Errorf("expected service %q to have been destroyed, got %+v", service.Name, service)
-		}
+		return nil
 	}
-	return nil
 }

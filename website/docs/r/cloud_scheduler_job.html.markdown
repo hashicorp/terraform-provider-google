@@ -78,9 +78,14 @@ resource "google_cloud_scheduler_job" "job" {
   time_zone        = "America/New_York"
   attempt_deadline = "320s"
 
+  retry_config {
+    retry_count = 1
+  }
+
   http_target {
     http_method = "POST"
     uri         = "https://example.com/ping"
+    body        = base64encode("{\"foo\":\"bar\"}")
   }
 }
 ```
@@ -99,6 +104,13 @@ resource "google_cloud_scheduler_job" "job" {
   description      = "test app engine job"
   time_zone        = "Europe/London"
   attempt_deadline = "320s"
+
+  retry_config {
+    min_backoff_duration = "1s"
+    max_retry_duration = "10s"
+    max_doublings = 2
+    retry_count = 3
+  }
 
   app_engine_http_target {
     http_method = "POST"
@@ -181,10 +193,6 @@ The following arguments are supported:
   (Required)
   The name of the job.
 
-* `region` -
-  (Required)
-  Region where the scheduler job resides
-
 
 - - -
 
@@ -211,31 +219,40 @@ The following arguments are supported:
   The allowed duration for this deadline is:
   * For HTTP targets, between 15 seconds and 30 minutes.
   * For App Engine HTTP targets, between 15 seconds and 24 hours.
+  * **Note**: For PubSub targets, this field is ignored - setting it will introduce an unresolvable diff.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s"
 
 * `retry_config` -
   (Optional)
   By default, if a job does not complete successfully, 
   meaning that an acknowledgement is not received from the handler, 
-  then it will be retried with exponential backoff according to the settings  Structure is documented below.
+  then it will be retried with exponential backoff according to the settings
+  Structure is documented below.
 
 * `pubsub_target` -
   (Optional)
   Pub/Sub target
   If the job providers a Pub/Sub target the cron will publish
-  a message to the provided topic  Structure is documented below.
+  a message to the provided topic
+  Structure is documented below.
 
 * `app_engine_http_target` -
   (Optional)
   App Engine HTTP target.
   If the job providers a App Engine HTTP target the cron will 
-  send a request to the service instance  Structure is documented below.
+  send a request to the service instance
+  Structure is documented below.
 
 * `http_target` -
   (Optional)
   HTTP target.
   If the job providers a http_target the cron will 
-  send a request to the targeted url  Structure is documented below.
+  send a request to the targeted url
+  Structure is documented below.
+
+* `region` -
+  (Optional)
+  Region where the scheduler job resides. If it is not provided, Terraform will use the provider default.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -277,7 +294,7 @@ The `pubsub_target` block supports:
 * `topic_name` -
   (Required)
   The full resource name for the Cloud Pub/Sub topic to which
-  messages will be published when a job is delivered. ~>**NOTE**:
+  messages will be published when a job is delivered. ~>**NOTE:**
   The topic name must be in the same format as required by PubSub's
   PublishRequest.name, e.g. `projects/my-project/topics/my-topic`.
 
@@ -299,7 +316,8 @@ The `app_engine_http_target` block supports:
 
 * `app_engine_routing` -
   (Optional)
-  App Engine Routing setting for the job.  Structure is documented below.
+  App Engine Routing setting for the job.
+  Structure is documented below.
 
 * `relative_uri` -
   (Required)
@@ -314,6 +332,7 @@ The `app_engine_http_target` block supports:
   HTTP request body. 
   A request body is allowed only if the HTTP method is POST or PUT. 
   It will result in invalid argument error to set a body on a job with an incompatible HttpMethod.
+  A base64-encoded string.
 
 * `headers` -
   (Optional)
@@ -354,6 +373,7 @@ The `http_target` block supports:
   HTTP request body. 
   A request body is allowed only if the HTTP method is POST, PUT, or PATCH. 
   It is an error to set body on a job with an incompatible HttpMethod.
+  A base64-encoded string.
 
 * `headers` -
   (Optional)
@@ -363,12 +383,14 @@ The `http_target` block supports:
 * `oauth_token` -
   (Optional)
   Contains information needed for generating an OAuth token.
-  This type of authorization should be used when sending requests to a GCP endpoint.  Structure is documented below.
+  This type of authorization should be used when sending requests to a GCP endpoint.
+  Structure is documented below.
 
 * `oidc_token` -
   (Optional)
   Contains information needed for generating an OpenID Connect token.
-  This type of authorization should be used when sending requests to third party endpoints or Cloud Run.  Structure is documented below.
+  This type of authorization should be used when sending requests to third party endpoints or Cloud Run.
+  Structure is documented below.
 
 
 The `oauth_token` block supports:
@@ -395,6 +417,12 @@ The `oidc_token` block supports:
   Audience to be used when generating OIDC token. If not specified,
   the URI specified in target will be used.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{region}}/jobs/{{name}}`
+
 
 ## Timeouts
 
@@ -402,9 +430,11 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Job can be imported using any of these accepted formats:
 
@@ -414,9 +444,6 @@ $ terraform import google_cloud_scheduler_job.default {{project}}/{{region}}/{{n
 $ terraform import google_cloud_scheduler_job.default {{region}}/{{name}}
 $ terraform import google_cloud_scheduler_job.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

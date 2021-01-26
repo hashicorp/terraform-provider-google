@@ -9,13 +9,21 @@ description: |-
 
 # google\_container\_node\_pool
 
+-> See the [Using GKE with Terraform](/docs/providers/google/guides/using_gke_with_terraform.html)
+guide for more information about using GKE with Terraform.
+
 Manages a node pool in a Google Kubernetes Engine (GKE) cluster separately from
 the cluster control plane. For more information see [the official documentation](https://cloud.google.com/container-engine/docs/node-pools)
-and [the API reference](https://cloud.google.com/container-engine/reference/rest/v1/projects.zones.clusters.nodePools).
+and [the API reference](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters.nodePools).
 
 ### Example Usage - using a separately managed node pool (recommended)
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service-account-id"
+  display_name = "Service Account"
+}
+
 resource "google_container_cluster" "primary" {
   name     = "my-gke-cluster"
   location = "us-central1"
@@ -35,11 +43,12 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 
   node_config {
     preemptible  = true
-    machine_type = "n1-standard-1"
+    machine_type = "e2-medium"
 
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
     oauth_scopes = [
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
 }
@@ -48,12 +57,23 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 ### Example Usage - 2 node pools, 1 separately managed + the default node pool
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service-account-id"
+  display_name = "Service Account"
+}
+
 resource "google_container_node_pool" "np" {
   name       = "my-node-pool"
   location   = "us-central1-a"
   cluster    = google_container_cluster.primary.name
-  node_count = 3
-
+  node_config {
+    machine_type = "e2-medium"
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
+    oauth_scopes    = [
+      "https://www.googleapis.com/auth/cloud-platform"
+    ]
+  }
   timeouts {
     create = "30m"
     update = "20m"
@@ -69,25 +89,12 @@ resource "google_container_cluster" "primary" {
     "us-central1-c",
   ]
 
-  master_auth {
-    username = ""
-    password = ""
-
-    client_certificate_config {
-      issue_client_certificate = false
-    }
-  }
-
   node_config {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
     oauth_scopes = [
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/cloud-platform"
     ]
-
-    metadata = {
-      disable-legacy-endpoints = "true"
-    }
-
     guest_accelerator {
       type  = "nvidia-tesla-k80"
       count = 1
@@ -110,19 +117,23 @@ resource "google_container_cluster" "primary" {
     the size of the node pool to the current cluster usage. Structure is documented below.
 
 * `initial_node_count` - (Optional) The initial number of nodes for the pool. In
-regional or multi-zonal clusters, this is the number of nodes per zone. Changing
-this will force recreation of the resource.
+    regional or multi-zonal clusters, this is the number of nodes per zone. Changing
+    this will force recreation of the resource. WARNING: Resizing your node pool manually
+    may change this value in your existing cluster, which will trigger destruction
+    and recreation on the next Terraform run (to rectify the discrepancy).  If you don't
+    need this value, don't set it.  If you do need it, you can [use a lifecycle block to
+    ignore subsqeuent changes to this field](https://github.com/hashicorp/terraform-provider-google/issues/6901#issuecomment-667369691).
 
 * `management` - (Optional) Node management configuration, wherein auto-repair and
     auto-upgrade is configured. Structure is documented below.
 
-* `max_pods_per_node` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The maximum number of pods per node in this node pool.
+* `max_pods_per_node` - (Optional) The maximum number of pods per node in this node pool.
     Note that this does not work on node pools which are "route-based" - that is, node
     pools belonging to clusters that do not have IP Aliasing enabled.
     See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
     for more information.
 
-* `node_locations` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `node_locations` - (Optional)
 The list of zones in which the node pool's nodes should be located. Nodes must
 be in the region of their regional cluster or in the same region as their
 cluster's zone for zonal clusters. If unspecified, the cluster-level
@@ -147,7 +158,7 @@ cluster.
 * `project` - (Optional) The ID of the project in which to create the node pool. If blank,
     the provider-configured project will be used.
 
-* `upgrade_settings` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Specify node upgrade settings to change how many nodes GKE attempts to
+* `upgrade_settings` (Optional) Specify node upgrade settings to change how many nodes GKE attempts to
     upgrade at once. The number of nodes upgraded simultaneously is the sum of `max_surge` and `max_unavailable`.
     The maximum number of nodes upgraded simultaneously is limited to 20.
 
@@ -186,6 +197,8 @@ The `upgrade_settings` block supports:
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}/{{zone}}/{{cluster}}/{{name}}`
 
 * `instance_group_urls` - The resource URLs of the managed instance groups associated with this node pool.
 

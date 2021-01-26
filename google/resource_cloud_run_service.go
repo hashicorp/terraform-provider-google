@@ -15,14 +15,43 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"google.golang.org/api/googleapi"
 )
+
+func revisionNameCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	autogen := diff.Get("autogenerate_revision_name").(bool)
+	if autogen && diff.HasChange("template.0.metadata.0.name") {
+		return fmt.Errorf("google_cloud_run_service: `template.metadata.name` cannot be set while `autogenerate_revision_name` is true. Please remove the field or set `autogenerate_revision_name` to false.")
+	}
+	return nil
+}
+
+var cloudRunGoogleProvidedAnnotations = regexp.MustCompile("serving\\.knative\\.dev/(?:(?:creator)|(?:lastModifier))$")
+
+func cloudrunAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the annotations provided by Google
+	if cloudRunGoogleProvidedAnnotations.MatchString(k) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by annotations (above)
+	if strings.Contains(k, "annotations.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
 
 func resourceCloudRunService() *schema.Resource {
 	return &schema.Resource{
@@ -37,9 +66,12 @@ func resourceCloudRunService() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(6 * time.Minute),
-			Update: schema.DefaultTimeout(6 * time.Minute),
+			Update: schema.DefaultTimeout(15 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
+
+		SchemaVersion: 1,
+		CustomizeDiff: revisionNameCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"location": {
@@ -74,14 +106,16 @@ responsible for materializing the container image from source.`,
 					Schema: map[string]*schema.Schema{
 						"spec": {
 							Type:        schema.TypeList,
-							Required:    true,
+							Computed:    true,
+							Optional:    true,
 							Description: `RevisionSpec holds the desired state of the Revision (from the client).`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"containers": {
 										Type:     schema.TypeList,
-										Required: true,
+										Computed: true,
+										Optional: true,
 										Description: `Container defines the unit of execution for this Revision.
 In the context of a Revision, we disallow a number of the fields of
 this Container, including: name, ports, and volumeMounts.
@@ -238,17 +272,46 @@ https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names`,
 														},
 													},
 												},
+												"ports": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Optional: true,
+													Description: `List of open ports in the container.
+More Info: 
+https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"container_port": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: `Port number.`,
+															},
+															"name": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Name of the port.`,
+															},
+															"protocol": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Protocol used on port. Defaults to TCP.`,
+															},
+														},
+													},
+												},
 												"resources": {
 													Type:     schema.TypeList,
+													Computed: true,
 													Optional: true,
 													Description: `Compute Resources required by this container. Used to set values such as max memory
 More info:
-https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources`,
+https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits`,
 													MaxItems: 1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"limits": {
 																Type:     schema.TypeMap,
+																Computed: true,
 																Optional: true,
 																Description: `Limits describes the maximum amount of compute resources allowed.
 The values of the map is string form of the 'quantity' k8s type:
@@ -282,6 +345,7 @@ might be configured in the container image.`,
 									},
 									"container_concurrency": {
 										Type:     schema.TypeInt,
+										Computed: true,
 										Optional: true,
 										Description: `ContainerConcurrency specifies the maximum allowed in-flight (concurrent)
 requests per container of the Revision. Values are:
@@ -298,6 +362,12 @@ service. The service account represents the identity of the running revision,
 and determines what permissions the revision has. If not provided, the revision
 will use the project's default service account.`,
 									},
+									"timeout_seconds": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Optional:    true,
+										Description: `TimeoutSeconds holds the max duration the instance is allowed for responding to a request.`,
+									},
 									"serving_state": {
 										Type:       schema.TypeString,
 										Computed:   true,
@@ -312,11 +382,12 @@ that the system will manipulate this based on routability and load.`,
 						},
 						"metadata": {
 							Type:     schema.TypeList,
+							Computed: true,
 							Optional: true,
 							Description: `Optional metadata for this Revision, including labels and annotations.
 Name will be generated by the Configuration. To set minimum instances
 for this revision, use the "autoscaling.knative.dev/minScale" annotation
-key. To set maximum instances for this revision, use the
+key (Cloud Run on GKE only). To set maximum instances for this revision, use the
 "autoscaling.knative.dev/maxScale" annotation key. To set Cloud SQL
 connections for the revision, use the "run.googleapis.com/cloudsql-instances"
 annotation key.`,
@@ -325,10 +396,15 @@ annotation key.`,
 								Schema: map[string]*schema.Schema{
 									"annotations": {
 										Type:     schema.TypeMap,
+										Computed: true,
 										Optional: true,
 										Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
-info: http://kubernetes.io/docs/user-guide/annotations`,
+info: http://kubernetes.io/docs/user-guide/annotations
+
+**Note**: The Cloud Run API may add additional annotations that were not provided in your config.
+If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
+or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.`,
 										Elem: &schema.Schema{Type: schema.TypeString},
 									},
 									"labels": {
@@ -432,12 +508,17 @@ and annotations.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"annotations": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Optional: true,
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							DiffSuppressFunc: cloudrunAnnotationDiffSuppress,
 							Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
-info: http://kubernetes.io/docs/user-guide/annotations`,
+info: http://kubernetes.io/docs/user-guide/annotations
+
+**Note**: The Cloud Run API may add additional annotations that were not provided in your config.
+If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
+or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"labels": {
@@ -494,7 +575,6 @@ More info: http://kubernetes.io/docs/user-guide/identifiers#uids`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The current status of the Service.`,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"conditions": {
@@ -559,6 +639,11 @@ https://{route-hash}-{project-hash}-{cluster-level-suffix}.a.run.app`,
 					},
 				},
 			},
+			"autogenerate_revision_name": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -566,11 +651,16 @@ https://{route-hash}-{project-hash}-{cluster-level-suffix}.a.run.app`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	specProp, err := expandCloudRunServiceSpec(nil, d, config)
@@ -597,11 +687,20 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Creating new Service: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Service: %s", err)
 	}
@@ -613,15 +712,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	waitURL, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	err = cloudRunPollingWaitTime(
-		config, res, project, waitURL, "Creating Service",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
+	err = PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatus, "Creating Service", d.Timeout(schema.TimeoutCreate), 1)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create Service: %s", err)
 	}
@@ -631,19 +722,79 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 	return resourceCloudRunServiceRead(d, meta)
 }
 
+func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+
+		url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+		if err != nil {
+			return nil, err
+		}
+
+		billingProject := ""
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, fmt.Errorf("Error fetching project for Service: %s", err)
+		}
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+		if err != nil {
+			return res, err
+		}
+		res, err = resourceCloudRunServiceDecoder(d, meta, res)
+		if err != nil {
+			return nil, err
+		}
+		if res == nil {
+			// Decoded object not found, spoof a 404 error for poll
+			return nil, &googleapi.Error{
+				Code:    404,
+				Message: "could not find object CloudRunService",
+			}
+		}
+
+		return res, nil
+	}
+}
+
 func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudRunService %q", d.Id()))
 	}
@@ -660,24 +811,35 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("autogenerate_revision_name"); !ok {
+		if err := d.Set("autogenerate_revision_name", false); err != nil {
+			return fmt.Errorf("Error setting autogenerate_revision_name: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
 
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
 	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
-	if flattenedProp := flattenCloudRunServiceSpec(res["spec"], d); flattenedProp != nil {
+	if flattenedProp := flattenCloudRunServiceSpec(res["spec"], d, config); flattenedProp != nil {
+		if gerr, ok := flattenedProp.(*googleapi.Error); ok {
+			return fmt.Errorf("Error reading Service: %s", gerr)
+		}
 		casted := flattenedProp.([]interface{})[0]
 		if casted != nil {
 			for k, v := range casted.(map[string]interface{}) {
-				d.Set(k, v)
+				if err := d.Set(k, v); err != nil {
+					return fmt.Errorf("Error setting %s: %s", k, err)
+				}
 			}
 		}
 	}
-	if err := d.Set("status", flattenCloudRunServiceStatus(res["status"], d)); err != nil {
+	if err := d.Set("status", flattenCloudRunServiceStatus(res["status"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
-	if err := d.Set("metadata", flattenCloudRunServiceMetadata(res["metadata"], d)); err != nil {
+	if err := d.Set("metadata", flattenCloudRunServiceMetadata(res["metadata"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
 
@@ -686,17 +848,24 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Service: %s", err)
+	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	specProp, err := expandCloudRunServiceSpec(nil, d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("spec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, specProp)) {
+	} else if !isEmptyValue(reflect.ValueOf(specProp)) {
 		obj["spec"] = specProp
 	}
 	metadataProp, err := expandCloudRunServiceMetadata(d.Get("metadata"), d, config)
@@ -717,21 +886,21 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Service %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PUT", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Service %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Service %q: %#v", d.Id(), res)
 	}
 
-	waitURL, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	err = cloudRunPollingWaitTime(
-		config, res, project, waitURL, "Updating Service",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
-
+	err = PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatus, "Updating Service", d.Timeout(schema.TimeoutUpdate), 1)
 	if err != nil {
 		return err
 	}
@@ -741,11 +910,18 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Service: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
@@ -755,7 +931,12 @@ func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) err
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Service %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Service")
 	}
@@ -781,10 +962,15 @@ func resourceCloudRunServiceImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 	d.SetId(id)
 
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("autogenerate_revision_name", false); err != nil {
+		return nil, fmt.Errorf("Error setting autogenerate_revision_name: %s", err)
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCloudRunServiceSpec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -794,12 +980,12 @@ func flattenCloudRunServiceSpec(v interface{}, d *schema.ResourceData) interface
 	}
 	transformed := make(map[string]interface{})
 	transformed["traffic"] =
-		flattenCloudRunServiceSpecTraffic(original["traffic"], d)
+		flattenCloudRunServiceSpecTraffic(original["traffic"], d, config)
 	transformed["template"] =
-		flattenCloudRunServiceSpecTemplate(original["template"], d)
+		flattenCloudRunServiceSpecTemplate(original["template"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunServiceSpecTraffic(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTraffic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -812,32 +998,39 @@ func flattenCloudRunServiceSpecTraffic(v interface{}, d *schema.ResourceData) in
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"revision_name":   flattenCloudRunServiceSpecTrafficRevisionName(original["revisionName"], d),
-			"percent":         flattenCloudRunServiceSpecTrafficPercent(original["percent"], d),
-			"latest_revision": flattenCloudRunServiceSpecTrafficLatestRevision(original["latestRevision"], d),
+			"revision_name":   flattenCloudRunServiceSpecTrafficRevisionName(original["revisionName"], d, config),
+			"percent":         flattenCloudRunServiceSpecTrafficPercent(original["percent"], d, config),
+			"latest_revision": flattenCloudRunServiceSpecTrafficLatestRevision(original["latestRevision"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenCloudRunServiceSpecTrafficRevisionName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTrafficRevisionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTrafficPercent(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTrafficPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTrafficLatestRevision(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTrafficLatestRevision(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenCloudRunServiceSpecTemplate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -847,12 +1040,12 @@ func flattenCloudRunServiceSpecTemplate(v interface{}, d *schema.ResourceData) i
 	}
 	transformed := make(map[string]interface{})
 	transformed["metadata"] =
-		flattenCloudRunServiceSpecTemplateMetadata(original["metadata"], d)
+		flattenCloudRunServiceSpecTemplateMetadata(original["metadata"], d, config)
 	transformed["spec"] =
-		flattenCloudRunServiceSpecTemplateSpec(original["spec"], d)
+		flattenCloudRunServiceSpecTemplateSpec(original["spec"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunServiceSpecTemplateMetadata(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateMetadata(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -862,62 +1055,69 @@ func flattenCloudRunServiceSpecTemplateMetadata(v interface{}, d *schema.Resourc
 	}
 	transformed := make(map[string]interface{})
 	transformed["labels"] =
-		flattenCloudRunServiceSpecTemplateMetadataLabels(original["labels"], d)
+		flattenCloudRunServiceSpecTemplateMetadataLabels(original["labels"], d, config)
 	transformed["generation"] =
-		flattenCloudRunServiceSpecTemplateMetadataGeneration(original["generation"], d)
+		flattenCloudRunServiceSpecTemplateMetadataGeneration(original["generation"], d, config)
 	transformed["resource_version"] =
-		flattenCloudRunServiceSpecTemplateMetadataResourceVersion(original["resourceVersion"], d)
+		flattenCloudRunServiceSpecTemplateMetadataResourceVersion(original["resourceVersion"], d, config)
 	transformed["self_link"] =
-		flattenCloudRunServiceSpecTemplateMetadataSelfLink(original["selfLink"], d)
+		flattenCloudRunServiceSpecTemplateMetadataSelfLink(original["selfLink"], d, config)
 	transformed["uid"] =
-		flattenCloudRunServiceSpecTemplateMetadataUid(original["uid"], d)
+		flattenCloudRunServiceSpecTemplateMetadataUid(original["uid"], d, config)
 	transformed["namespace"] =
-		flattenCloudRunServiceSpecTemplateMetadataNamespace(original["namespace"], d)
+		flattenCloudRunServiceSpecTemplateMetadataNamespace(original["namespace"], d, config)
 	transformed["annotations"] =
-		flattenCloudRunServiceSpecTemplateMetadataAnnotations(original["annotations"], d)
+		flattenCloudRunServiceSpecTemplateMetadataAnnotations(original["annotations"], d, config)
 	transformed["name"] =
-		flattenCloudRunServiceSpecTemplateMetadataName(original["name"], d)
+		flattenCloudRunServiceSpecTemplateMetadataName(original["name"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunServiceSpecTemplateMetadataLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateMetadataLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateMetadataGeneration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateMetadataGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTemplateMetadataResourceVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateMetadataResourceVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateMetadataSelfLink(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateMetadataSelfLink(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateMetadataUid(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateMetadataUid(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateMetadataNamespace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateMetadataNamespace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateMetadataAnnotations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateMetadataAnnotations(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateMetadataName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateMetadataName(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenCloudRunServiceSpecTemplateSpec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -927,16 +1127,18 @@ func flattenCloudRunServiceSpecTemplateSpec(v interface{}, d *schema.ResourceDat
 	}
 	transformed := make(map[string]interface{})
 	transformed["containers"] =
-		flattenCloudRunServiceSpecTemplateSpecContainers(original["containers"], d)
+		flattenCloudRunServiceSpecTemplateSpecContainers(original["containers"], d, config)
 	transformed["container_concurrency"] =
-		flattenCloudRunServiceSpecTemplateSpecContainerConcurrency(original["containerConcurrency"], d)
+		flattenCloudRunServiceSpecTemplateSpecContainerConcurrency(original["containerConcurrency"], d, config)
+	transformed["timeout_seconds"] =
+		flattenCloudRunServiceSpecTemplateSpecTimeoutSeconds(original["timeoutSeconds"], d, config)
 	transformed["service_account_name"] =
-		flattenCloudRunServiceSpecTemplateSpecServiceAccountName(original["serviceAccountName"], d)
+		flattenCloudRunServiceSpecTemplateSpecServiceAccountName(original["serviceAccountName"], d, config)
 	transformed["serving_state"] =
-		flattenCloudRunServiceSpecTemplateSpecServingState(original["servingState"], d)
+		flattenCloudRunServiceSpecTemplateSpecServingState(original["servingState"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunServiceSpecTemplateSpecContainers(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -949,26 +1151,27 @@ func flattenCloudRunServiceSpecTemplateSpecContainers(v interface{}, d *schema.R
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"working_dir": flattenCloudRunServiceSpecTemplateSpecContainersWorkingDir(original["workingDir"], d),
-			"args":        flattenCloudRunServiceSpecTemplateSpecContainersArgs(original["args"], d),
-			"env_from":    flattenCloudRunServiceSpecTemplateSpecContainersEnvFrom(original["envFrom"], d),
-			"image":       flattenCloudRunServiceSpecTemplateSpecContainersImage(original["image"], d),
-			"command":     flattenCloudRunServiceSpecTemplateSpecContainersCommand(original["command"], d),
-			"env":         flattenCloudRunServiceSpecTemplateSpecContainersEnv(original["env"], d),
-			"resources":   flattenCloudRunServiceSpecTemplateSpecContainersResources(original["resources"], d),
+			"working_dir": flattenCloudRunServiceSpecTemplateSpecContainersWorkingDir(original["workingDir"], d, config),
+			"args":        flattenCloudRunServiceSpecTemplateSpecContainersArgs(original["args"], d, config),
+			"env_from":    flattenCloudRunServiceSpecTemplateSpecContainersEnvFrom(original["envFrom"], d, config),
+			"image":       flattenCloudRunServiceSpecTemplateSpecContainersImage(original["image"], d, config),
+			"command":     flattenCloudRunServiceSpecTemplateSpecContainersCommand(original["command"], d, config),
+			"env":         flattenCloudRunServiceSpecTemplateSpecContainersEnv(original["env"], d, config),
+			"ports":       flattenCloudRunServiceSpecTemplateSpecContainersPorts(original["ports"], d, config),
+			"resources":   flattenCloudRunServiceSpecTemplateSpecContainersResources(original["resources"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenCloudRunServiceSpecTemplateSpecContainersWorkingDir(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersWorkingDir(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersArgs(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersArgs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvFrom(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvFrom(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -981,18 +1184,18 @@ func flattenCloudRunServiceSpecTemplateSpecContainersEnvFrom(v interface{}, d *s
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"prefix":         flattenCloudRunServiceSpecTemplateSpecContainersEnvFromPrefix(original["prefix"], d),
-			"config_map_ref": flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRef(original["configMapRef"], d),
-			"secret_ref":     flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRef(original["secretRef"], d),
+			"prefix":         flattenCloudRunServiceSpecTemplateSpecContainersEnvFromPrefix(original["prefix"], d, config),
+			"config_map_ref": flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRef(original["configMapRef"], d, config),
+			"secret_ref":     flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRef(original["secretRef"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromPrefix(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromPrefix(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRef(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRef(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1002,16 +1205,16 @@ func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRef(v inter
 	}
 	transformed := make(map[string]interface{})
 	transformed["optional"] =
-		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefOptional(original["optional"], d)
+		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefOptional(original["optional"], d, config)
 	transformed["local_object_reference"] =
-		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefLocalObjectReference(original["localObjectReference"], d)
+		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefLocalObjectReference(original["localObjectReference"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefOptional(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefOptional(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefLocalObjectReference(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefLocalObjectReference(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1021,14 +1224,14 @@ func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefLocalObj
 	}
 	transformed := make(map[string]interface{})
 	transformed["name"] =
-		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefLocalObjectReferenceName(original["name"], d)
+		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefLocalObjectReferenceName(original["name"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefLocalObjectReferenceName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromConfigMapRefLocalObjectReferenceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRef(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRef(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1038,12 +1241,12 @@ func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRef(v interfac
 	}
 	transformed := make(map[string]interface{})
 	transformed["local_object_reference"] =
-		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefLocalObjectReference(original["localObjectReference"], d)
+		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefLocalObjectReference(original["localObjectReference"], d, config)
 	transformed["optional"] =
-		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefOptional(original["optional"], d)
+		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefOptional(original["optional"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefLocalObjectReference(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefLocalObjectReference(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1053,26 +1256,26 @@ func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefLocalObject
 	}
 	transformed := make(map[string]interface{})
 	transformed["name"] =
-		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefLocalObjectReferenceName(original["name"], d)
+		flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefLocalObjectReferenceName(original["name"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefLocalObjectReferenceName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefLocalObjectReferenceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefOptional(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvFromSecretRefOptional(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersImage(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersImage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersCommand(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersCommand(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersEnv(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnv(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1085,21 +1288,66 @@ func flattenCloudRunServiceSpecTemplateSpecContainersEnv(v interface{}, d *schem
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":  flattenCloudRunServiceSpecTemplateSpecContainersEnvName(original["name"], d),
-			"value": flattenCloudRunServiceSpecTemplateSpecContainersEnvValue(original["value"], d),
+			"name":  flattenCloudRunServiceSpecTemplateSpecContainersEnvName(original["name"], d, config),
+			"value": flattenCloudRunServiceSpecTemplateSpecContainersEnvValue(original["value"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersEnvValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersEnvValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersResources(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersPorts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":           flattenCloudRunServiceSpecTemplateSpecContainersPortsName(original["name"], d, config),
+			"protocol":       flattenCloudRunServiceSpecTemplateSpecContainersPortsProtocol(original["protocol"], d, config),
+			"container_port": flattenCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(original["containerPort"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudRunServiceSpecTemplateSpecContainersPortsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersPortsProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTemplateSpecContainersResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1109,38 +1357,62 @@ func flattenCloudRunServiceSpecTemplateSpecContainersResources(v interface{}, d 
 	}
 	transformed := make(map[string]interface{})
 	transformed["limits"] =
-		flattenCloudRunServiceSpecTemplateSpecContainersResourcesLimits(original["limits"], d)
+		flattenCloudRunServiceSpecTemplateSpecContainersResourcesLimits(original["limits"], d, config)
 	transformed["requests"] =
-		flattenCloudRunServiceSpecTemplateSpecContainersResourcesRequests(original["requests"], d)
+		flattenCloudRunServiceSpecTemplateSpecContainersResourcesRequests(original["requests"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunServiceSpecTemplateSpecContainersResourcesLimits(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersResourcesLimits(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainersResourcesRequests(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainersResourcesRequests(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecContainerConcurrency(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecContainerConcurrency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTemplateSpecTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceSpecTemplateSpecServiceAccountName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecServiceAccountName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceSpecTemplateSpecServingState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceSpecTemplateSpecServingState(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenCloudRunServiceStatus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1150,18 +1422,18 @@ func flattenCloudRunServiceStatus(v interface{}, d *schema.ResourceData) interfa
 	}
 	transformed := make(map[string]interface{})
 	transformed["conditions"] =
-		flattenCloudRunServiceStatusConditions(original["conditions"], d)
+		flattenCloudRunServiceStatusConditions(original["conditions"], d, config)
 	transformed["url"] =
-		flattenCloudRunServiceStatusUrl(original["url"], d)
+		flattenCloudRunServiceStatusUrl(original["url"], d, config)
 	transformed["observed_generation"] =
-		flattenCloudRunServiceStatusObservedGeneration(original["observedGeneration"], d)
+		flattenCloudRunServiceStatusObservedGeneration(original["observedGeneration"], d, config)
 	transformed["latest_created_revision_name"] =
-		flattenCloudRunServiceStatusLatestCreatedRevisionName(original["latestCreatedRevisionName"], d)
+		flattenCloudRunServiceStatusLatestCreatedRevisionName(original["latestCreatedRevisionName"], d, config)
 	transformed["latest_ready_revision_name"] =
-		flattenCloudRunServiceStatusLatestReadyRevisionName(original["latestReadyRevisionName"], d)
+		flattenCloudRunServiceStatusLatestReadyRevisionName(original["latestReadyRevisionName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunServiceStatusConditions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceStatusConditions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1174,53 +1446,60 @@ func flattenCloudRunServiceStatusConditions(v interface{}, d *schema.ResourceDat
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"message": flattenCloudRunServiceStatusConditionsMessage(original["message"], d),
-			"status":  flattenCloudRunServiceStatusConditionsStatus(original["status"], d),
-			"reason":  flattenCloudRunServiceStatusConditionsReason(original["reason"], d),
-			"type":    flattenCloudRunServiceStatusConditionsType(original["type"], d),
+			"message": flattenCloudRunServiceStatusConditionsMessage(original["message"], d, config),
+			"status":  flattenCloudRunServiceStatusConditionsStatus(original["status"], d, config),
+			"reason":  flattenCloudRunServiceStatusConditionsReason(original["reason"], d, config),
+			"type":    flattenCloudRunServiceStatusConditionsType(original["type"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenCloudRunServiceStatusConditionsMessage(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceStatusConditionsMessage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceStatusConditionsStatus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceStatusConditionsStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceStatusConditionsReason(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceStatusConditionsReason(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceStatusConditionsType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceStatusConditionsType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceStatusUrl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceStatusUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceStatusObservedGeneration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceStatusObservedGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceStatusLatestCreatedRevisionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceStatusLatestCreatedRevisionName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceStatusLatestReadyRevisionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceStatusLatestReadyRevisionName(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenCloudRunServiceMetadata(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceMetadata(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1230,52 +1509,59 @@ func flattenCloudRunServiceMetadata(v interface{}, d *schema.ResourceData) inter
 	}
 	transformed := make(map[string]interface{})
 	transformed["labels"] =
-		flattenCloudRunServiceMetadataLabels(original["labels"], d)
+		flattenCloudRunServiceMetadataLabels(original["labels"], d, config)
 	transformed["generation"] =
-		flattenCloudRunServiceMetadataGeneration(original["generation"], d)
+		flattenCloudRunServiceMetadataGeneration(original["generation"], d, config)
 	transformed["resource_version"] =
-		flattenCloudRunServiceMetadataResourceVersion(original["resourceVersion"], d)
+		flattenCloudRunServiceMetadataResourceVersion(original["resourceVersion"], d, config)
 	transformed["self_link"] =
-		flattenCloudRunServiceMetadataSelfLink(original["selfLink"], d)
+		flattenCloudRunServiceMetadataSelfLink(original["selfLink"], d, config)
 	transformed["uid"] =
-		flattenCloudRunServiceMetadataUid(original["uid"], d)
+		flattenCloudRunServiceMetadataUid(original["uid"], d, config)
 	transformed["namespace"] =
-		flattenCloudRunServiceMetadataNamespace(original["namespace"], d)
+		flattenCloudRunServiceMetadataNamespace(original["namespace"], d, config)
 	transformed["annotations"] =
-		flattenCloudRunServiceMetadataAnnotations(original["annotations"], d)
+		flattenCloudRunServiceMetadataAnnotations(original["annotations"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunServiceMetadataLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceMetadataLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceMetadataGeneration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceMetadataGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceMetadataResourceVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceMetadataResourceVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceMetadataSelfLink(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceMetadataSelfLink(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceMetadataUid(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunServiceMetadataUid(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenCloudRunServiceMetadataNamespace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceMetadataNamespace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return d.Get("project")
 }
 
-func flattenCloudRunServiceMetadataAnnotations(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunServiceMetadataAnnotations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1490,6 +1776,9 @@ func expandCloudRunServiceSpecTemplateMetadataAnnotations(v interface{}, d Terra
 }
 
 func expandCloudRunServiceSpecTemplateMetadataName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	if d.Get("autogenerate_revision_name") == true {
+		return nil, nil
+	}
 	return v, nil
 }
 
@@ -1514,6 +1803,13 @@ func expandCloudRunServiceSpecTemplateSpec(v interface{}, d TerraformResourceDat
 		return nil, err
 	} else if val := reflect.ValueOf(transformedContainerConcurrency); val.IsValid() && !isEmptyValue(val) {
 		transformed["containerConcurrency"] = transformedContainerConcurrency
+	}
+
+	transformedTimeoutSeconds, err := expandCloudRunServiceSpecTemplateSpecTimeoutSeconds(original["timeout_seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeoutSeconds); val.IsValid() && !isEmptyValue(val) {
+		transformed["timeoutSeconds"] = transformedTimeoutSeconds
 	}
 
 	transformedServiceAccountName, err := expandCloudRunServiceSpecTemplateSpecServiceAccountName(original["service_account_name"], d, config)
@@ -1583,6 +1879,13 @@ func expandCloudRunServiceSpecTemplateSpecContainers(v interface{}, d TerraformR
 			return nil, err
 		} else if val := reflect.ValueOf(transformedEnv); val.IsValid() && !isEmptyValue(val) {
 			transformed["env"] = transformedEnv
+		}
+
+		transformedPorts, err := expandCloudRunServiceSpecTemplateSpecContainersPorts(original["ports"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPorts); val.IsValid() && !isEmptyValue(val) {
+			transformed["ports"] = transformedPorts
 		}
 
 		transformedResources, err := expandCloudRunServiceSpecTemplateSpecContainersResources(original["resources"], d, config)
@@ -1796,6 +2099,54 @@ func expandCloudRunServiceSpecTemplateSpecContainersEnvValue(v interface{}, d Te
 	return v, nil
 }
 
+func expandCloudRunServiceSpecTemplateSpecContainersPorts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandCloudRunServiceSpecTemplateSpecContainersPortsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedProtocol, err := expandCloudRunServiceSpecTemplateSpecContainersPortsProtocol(original["protocol"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedProtocol); val.IsValid() && !isEmptyValue(val) {
+			transformed["protocol"] = transformedProtocol
+		}
+
+		transformedContainerPort, err := expandCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(original["container_port"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedContainerPort); val.IsValid() && !isEmptyValue(val) {
+			transformed["containerPort"] = transformedContainerPort
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersPortsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersPortsProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandCloudRunServiceSpecTemplateSpecContainersResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -1845,6 +2196,10 @@ func expandCloudRunServiceSpecTemplateSpecContainersResourcesRequests(v interfac
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainerConcurrency(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecTimeoutSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

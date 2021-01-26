@@ -89,7 +89,8 @@ The following arguments are supported:
 * `pubsub_configs` -
   (Optional)
   How this repository publishes a change in the repository through Cloud Pub/Sub. 
-  Keyed by the topic names.  Structure is documented below.
+  Keyed by the topic names.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -104,6 +105,7 @@ The `pubsub_configs` block supports:
   The format of the Cloud Pub/Sub messages. 
   - PROTOBUF: The message payload is a serialized protocol buffer of SourceRepoEvent.
   - JSON: The message payload is a JSON string of SourceRepoEvent.
+  Possible values are `PROTOBUF` and `JSON`.
 
 * `service_account_email` -
   (Optional)
@@ -116,6 +118,7 @@ The `pubsub_configs` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/repos/{{name}}`
 
 * `url` -
   URL to clone the repository from Google Cloud Source Repositories.
@@ -135,15 +138,13 @@ This resource provides the following
 
 ## Import
 
+
 Repository can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_sourcerepo_repository.default projects/{{project}}/repos/{{name}}
 $ terraform import google_sourcerepo_repository.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceComputeRoute() *schema.Resource {
@@ -173,11 +173,16 @@ Default value is 1000. Valid range is 0 through 65535.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	destRangeProp, err := expandComputeRouteDestRange(d.Get("dest_range"), d, config)
@@ -247,17 +252,33 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["nextHopIlb"] = nextHopIlbProp
 	}
 
+	lockName, err := replaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/peerings")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new Route: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Route: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isPeeringOperationInProgress)
 	if err != nil {
 		return fmt.Errorf("Error creating Route: %s", err)
 	}
@@ -270,8 +291,8 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Route",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		config, res, project, "Creating Route", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -286,17 +307,30 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Route: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, isPeeringOperationInProgress)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRoute %q", d.Id()))
 	}
@@ -317,40 +351,40 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
 
-	if err := d.Set("dest_range", flattenComputeRouteDestRange(res["destRange"], d)); err != nil {
+	if err := d.Set("dest_range", flattenComputeRouteDestRange(res["destRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("description", flattenComputeRouteDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeRouteDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("name", flattenComputeRouteName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeRouteName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("network", flattenComputeRouteNetwork(res["network"], d)); err != nil {
+	if err := d.Set("network", flattenComputeRouteNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("priority", flattenComputeRoutePriority(res["priority"], d)); err != nil {
+	if err := d.Set("priority", flattenComputeRoutePriority(res["priority"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("tags", flattenComputeRouteTags(res["tags"], d)); err != nil {
+	if err := d.Set("tags", flattenComputeRouteTags(res["tags"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("next_hop_gateway", flattenComputeRouteNextHopGateway(res["nextHopGateway"], d)); err != nil {
+	if err := d.Set("next_hop_gateway", flattenComputeRouteNextHopGateway(res["nextHopGateway"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("next_hop_instance", flattenComputeRouteNextHopInstance(res["nextHopInstance"], d)); err != nil {
+	if err := d.Set("next_hop_instance", flattenComputeRouteNextHopInstance(res["nextHopInstance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("next_hop_ip", flattenComputeRouteNextHopIp(res["nextHopIp"], d)); err != nil {
+	if err := d.Set("next_hop_ip", flattenComputeRouteNextHopIp(res["nextHopIp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("next_hop_vpn_tunnel", flattenComputeRouteNextHopVpnTunnel(res["nextHopVpnTunnel"], d)); err != nil {
+	if err := d.Set("next_hop_vpn_tunnel", flattenComputeRouteNextHopVpnTunnel(res["nextHopVpnTunnel"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("next_hop_network", flattenComputeRouteNextHopNetwork(res["nextHopNetwork"], d)); err != nil {
+	if err := d.Set("next_hop_network", flattenComputeRouteNextHopNetwork(res["nextHopNetwork"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("next_hop_ilb", flattenComputeRouteNextHopIlb(res["nextHopIlb"], d)); err != nil {
+	if err := d.Set("next_hop_ilb", flattenComputeRouteNextHopIlb(res["nextHopIlb"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -362,11 +396,25 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Route: %s", err)
+	}
+	billingProject = project
+
+	lockName, err := replaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/peerings")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
@@ -376,14 +424,19 @@ func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Route %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isPeeringOperationInProgress)
 	if err != nil {
 		return handleNotFoundError(err, d, "Route")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Route",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, res, project, "Deleting Route", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -413,69 +466,76 @@ func resourceComputeRouteImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeRouteDestRange(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouteDestRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouteDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouteDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouteName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouteName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouteNetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouteNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeRoutePriority(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRoutePriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRouteTags(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouteTags(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeRouteNextHopGateway(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouteNextHopGateway(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouteNextHopInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouteNextHopInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeRouteNextHopIp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouteNextHopIp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouteNextHopVpnTunnel(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouteNextHopVpnTunnel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeRouteNextHopNetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouteNextHopNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouteNextHopIlb(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouteNextHopIlb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -526,7 +586,13 @@ func expandComputeRouteNextHopInstance(v interface{}, d TerraformResourceData, c
 	if err != nil {
 		return nil, err
 	}
-	nextInstance, err := config.clientCompute.Instances.Get(val.Project, val.Zone, val.Name).Do()
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	nextInstance, err := config.NewComputeClient(userAgent).Instances.Get(val.Project, val.Zone, val.Name).Do()
 	if err != nil {
 		return nil, err
 	}
@@ -559,7 +625,9 @@ func resourceComputeRouteDecoder(d *schema.ResourceData, meta interface{}, res m
 		if err != nil {
 			return nil, err
 		}
-		d.Set("next_hop_instance_zone", val.Zone)
+		if err := d.Set("next_hop_instance_zone", val.Zone); err != nil {
+			return nil, fmt.Errorf("Error setting next_hop_instance_zone: %s", err)
+		}
 		res["nextHopInstance"] = val.RelativeLink()
 	}
 

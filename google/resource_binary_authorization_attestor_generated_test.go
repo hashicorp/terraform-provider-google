@@ -19,22 +19,24 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(context),
@@ -51,7 +53,7 @@ func TestAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(
 func testAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -78,7 +80,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -88,27 +90,35 @@ resource "google_container_analysis_note" "note" {
 `, context)
 }
 
-func testAccCheckBinaryAuthorizationAttestorDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_binary_authorization_attestor" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckBinaryAuthorizationAttestorDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_binary_authorization_attestor" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			if err == nil {
+				return fmt.Errorf("BinaryAuthorizationAttestor still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("BinaryAuthorizationAttestor still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

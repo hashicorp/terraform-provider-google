@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceIdentityPlatformTenant() *schema.Resource {
@@ -76,11 +76,16 @@ are not able to manage its users.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceIdentityPlatformTenantCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandIdentityPlatformTenantDisplayName(d.Get("display_name"), d, config)
@@ -114,13 +119,25 @@ func resourceIdentityPlatformTenantCreate(d *schema.ResourceData, meta interface
 	}
 
 	log.Printf("[DEBUG] Creating new Tenant: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Tenant: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Tenant: %s", err)
+	}
+	if err := d.Set("name", flattenIdentityPlatformTenantName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
 
 	// Store the ID now
@@ -137,7 +154,9 @@ func resourceIdentityPlatformTenantCreate(d *schema.ResourceData, meta interface
 	if !ok {
 		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 	}
-	d.Set("name", GetResourceNameFromSelfLink(name.(string)))
+	if err := d.Set("name", GetResourceNameFromSelfLink(name.(string))); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	// Store the ID now that we have set the computed name
 	id, err = replaceVars(d, config, "projects/{{project}}/tenants/{{name}}")
 	if err != nil {
@@ -150,17 +169,30 @@ func resourceIdentityPlatformTenantCreate(d *schema.ResourceData, meta interface
 
 func resourceIdentityPlatformTenantRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Tenant: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IdentityPlatformTenant %q", d.Id()))
 	}
@@ -169,19 +201,19 @@ func resourceIdentityPlatformTenantRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Tenant: %s", err)
 	}
 
-	if err := d.Set("name", flattenIdentityPlatformTenantName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenIdentityPlatformTenantName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tenant: %s", err)
 	}
-	if err := d.Set("display_name", flattenIdentityPlatformTenantDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenIdentityPlatformTenantDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tenant: %s", err)
 	}
-	if err := d.Set("allow_password_signup", flattenIdentityPlatformTenantAllowPasswordSignup(res["allowPasswordSignup"], d)); err != nil {
+	if err := d.Set("allow_password_signup", flattenIdentityPlatformTenantAllowPasswordSignup(res["allowPasswordSignup"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tenant: %s", err)
 	}
-	if err := d.Set("enable_email_link_signin", flattenIdentityPlatformTenantEnableEmailLinkSignin(res["enableEmailLinkSignin"], d)); err != nil {
+	if err := d.Set("enable_email_link_signin", flattenIdentityPlatformTenantEnableEmailLinkSignin(res["enableEmailLinkSignin"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tenant: %s", err)
 	}
-	if err := d.Set("disable_auth", flattenIdentityPlatformTenantDisableAuth(res["disableAuth"], d)); err != nil {
+	if err := d.Set("disable_auth", flattenIdentityPlatformTenantDisableAuth(res["disableAuth"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tenant: %s", err)
 	}
 
@@ -190,11 +222,18 @@ func resourceIdentityPlatformTenantRead(d *schema.ResourceData, meta interface{}
 
 func resourceIdentityPlatformTenantUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Tenant: %s", err)
+	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandIdentityPlatformTenantDisplayName(d.Get("display_name"), d, config)
@@ -251,10 +290,18 @@ func resourceIdentityPlatformTenantUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Tenant %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Tenant %q: %#v", d.Id(), res)
 	}
 
 	return resourceIdentityPlatformTenantRead(d, meta)
@@ -262,11 +309,18 @@ func resourceIdentityPlatformTenantUpdate(d *schema.ResourceData, meta interface
 
 func resourceIdentityPlatformTenantDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Tenant: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{name}}")
 	if err != nil {
@@ -276,7 +330,12 @@ func resourceIdentityPlatformTenantDelete(d *schema.ResourceData, meta interface
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Tenant %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Tenant")
 	}
@@ -305,26 +364,26 @@ func resourceIdentityPlatformTenantImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIdentityPlatformTenantName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenIdentityPlatformTenantDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantAllowPasswordSignup(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantAllowPasswordSignup(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantEnableEmailLinkSignin(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantEnableEmailLinkSignin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantDisableAuth(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformTenantDisableAuth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

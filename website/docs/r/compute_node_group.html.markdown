@@ -45,14 +45,10 @@ Terraform to delete and recreate the node group.
 
 
 ```hcl
-data "google_compute_node_types" "central1a" {
-  zone = "us-central1-a"
-}
-
 resource "google_compute_node_template" "soletenant-tmpl" {
   name      = "soletenant-tmpl"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 }
 
 resource "google_compute_node_group" "nodes" {
@@ -61,7 +57,36 @@ resource "google_compute_node_group" "nodes" {
   description = "example google_compute_node_group for Terraform Google Provider"
 
   size          = 1
-  node_template = google_compute_node_template.soletenant-tmpl.self_link
+  node_template = google_compute_node_template.soletenant-tmpl.id
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=node_group_autoscaling_policy&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Node Group Autoscaling Policy
+
+
+```hcl
+resource "google_compute_node_template" "soletenant-tmpl" {
+  name      = "soletenant-tmpl"
+  region    = "us-central1"
+  node_type = "n1-node-96-624"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name        = "soletenant-group"
+  zone        = "us-central1-a"
+  description = "example google_compute_node_group for Terraform Google Provider"
+  maintenance_policy = "RESTART_IN_PLACE"
+  size          = 1
+  node_template = google_compute_node_template.soletenant-tmpl.id
+  autoscaling_policy {
+    mode      = "ONLY_SCALE_OUT"
+    min_nodes = 1
+    max_nodes = 10
+  }
 }
 ```
 
@@ -90,6 +115,16 @@ The following arguments are supported:
   (Optional)
   Name of the resource.
 
+* `maintenance_policy` -
+  (Optional)
+  Specifies how to handle instances when a node in the group undergoes maintenance. Set to one of: DEFAULT, RESTART_IN_PLACE, or MIGRATE_WITHIN_NODE_GROUP. The default value is DEFAULT.
+
+* `autoscaling_policy` -
+  (Optional)
+  If you use sole-tenant nodes for your workloads, you can use the node
+  group autoscaler to automatically manage the sizes of your node groups.
+  Structure is documented below.
+
 * `zone` -
   (Optional)
   Zone where this node group is located
@@ -98,10 +133,33 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+The `autoscaling_policy` block supports:
+
+* `mode` -
+  (Required)
+  The autoscaling mode. Set to one of the following:
+    - OFF: Disables the autoscaler.
+    - ON: Enables scaling in and scaling out.
+    - ONLY_SCALE_OUT: Enables only scaling out.
+    You must use this mode if your node groups are configured to
+    restart their hosted VMs on minimal servers.
+  Possible values are `OFF`, `ON`, and `ONLY_SCALE_OUT`.
+
+* `min_nodes` -
+  (Optional)
+  Minimum size of the node group. Must be less
+  than or equal to max-nodes. The default value is 0.
+
+* `max_nodes` -
+  (Required)
+  Maximum size of the node group. Set to a value less than or equal
+  to 100 and greater than or equal to min-nodes.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -119,6 +177,7 @@ This resource provides the following
 
 ## Import
 
+
 NodeGroup can be imported using any of these accepted formats:
 
 ```
@@ -127,9 +186,6 @@ $ terraform import google_compute_node_group.default {{project}}/{{zone}}/{{name
 $ terraform import google_compute_node_group.default {{zone}}/{{name}}
 $ terraform import google_compute_node_group.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

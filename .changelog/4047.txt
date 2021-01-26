@@ -1,0 +1,12 @@
+```release-note:enhancement
+compute: Marked `stateful_disk` as GA in `google_compute_ instance_group_manager` 
+```
+```release-note:enhancement
+compute: Marked `stateful_disk` as GA in `google_compute_ region_instance_group_manager` 
+```
+```release-note:enhancement
+compute: Marked `google_compute_ per_instance_config` as GA
+```
+```release-note:enhancement
+compute: Marked `google_compute_ region_per_instance_config` as GA
+```

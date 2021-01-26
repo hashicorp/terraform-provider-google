@@ -100,12 +100,14 @@ The following arguments are supported:
   (Optional)
   The list of ALLOW rules specified by this firewall. Each rule
   specifies a protocol and port-range tuple that describes a permitted
-  connection.  Structure is documented below.
+  connection.
+  Structure is documented below.
 
 * `deny` -
   (Optional)
   The list of DENY rules specified by this firewall. Each rule specifies
-  a protocol and port-range tuple that describes a denied connection.  Structure is documented below.
+  a protocol and port-range tuple that describes a denied connection.
+  Structure is documented below.
 
 * `description` -
   (Optional)
@@ -124,6 +126,7 @@ The following arguments are supported:
   INGRESS. Note: For INGRESS traffic, it is NOT supported to specify
   destinationRanges; For EGRESS traffic, it is NOT supported to specify
   sourceRanges OR sourceTags.
+  Possible values are `INGRESS` and `EGRESS`.
 
 * `disabled` -
   (Optional)
@@ -132,11 +135,11 @@ The following arguments are supported:
   not enforced and the network behaves as if it did not exist. If this
   is unspecified, the firewall rule will be enabled.
 
-* `enable_logging` -
+* `log_config` -
   (Optional)
-  This field denotes whether to enable logging for a particular
-  firewall rule. If logging is enabled, logs will be exported to
-  Stackdriver.
+  This field denotes the logging options for a particular firewall rule.
+  If defined, logging is enabled, and logs will be exported to Cloud Logging.
+  Structure is documented below.
 
 * `priority` -
   (Optional)
@@ -203,6 +206,8 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `enable_logging` - (Optional, Deprecated) This field denotes whether to enable logging for a particular firewall rule.
+If logging is enabled, logs will be exported to Stackdriver. Deprecated in favor of `log_config`
 
 The `allow` block supports:
 
@@ -211,7 +216,7 @@ The `allow` block supports:
   The IP protocol to which this rule applies. The protocol type is
   required when creating a firewall rule. This value can either be
   one of the following well known protocol strings (tcp, udp,
-  icmp, esp, ah, sctp), or the IP protocol number.
+  icmp, esp, ah, sctp, ipip, all), or the IP protocol number.
 
 * `ports` -
   (Optional)
@@ -229,7 +234,7 @@ The `deny` block supports:
   The IP protocol to which this rule applies. The protocol type is
   required when creating a firewall rule. This value can either be
   one of the following well known protocol strings (tcp, udp,
-  icmp, esp, ah, sctp), or the IP protocol number.
+  icmp, esp, ah, sctp, ipip, all), or the IP protocol number.
 
 * `ports` -
   (Optional)
@@ -240,10 +245,18 @@ The `deny` block supports:
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
 
+The `log_config` block supports:
+
+* `metadata` -
+  (Required)
+  This field denotes whether to include or exclude metadata for firewall logs.
+  Possible values are `EXCLUDE_ALL_METADATA` and `INCLUDE_ALL_METADATA`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/firewalls/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -261,6 +274,7 @@ This resource provides the following
 
 ## Import
 
+
 Firewall can be imported using any of these accepted formats:
 
 ```
@@ -268,9 +282,6 @@ $ terraform import google_compute_firewall.default projects/{{project}}/global/f
 $ terraform import google_compute_firewall.default {{project}}/{{name}}
 $ terraform import google_compute_firewall.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

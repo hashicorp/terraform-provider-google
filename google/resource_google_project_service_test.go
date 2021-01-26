@@ -6,26 +6,27 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // Test that services can be enabled and disabled on a project
 func TestAccProjectService_basic(t *testing.T) {
 	t.Parallel()
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	services := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_basic(services, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectService(services, pid, true),
+					testAccCheckProjectService(t, services, pid, true),
 				),
 			},
 			{
@@ -38,27 +39,27 @@ func TestAccProjectService_basic(t *testing.T) {
 				ResourceName:            "google_project_service.test2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
+				ImportStateVerifyIgnore: []string{"disable_on_destroy", "project"},
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectService(services, pid, false),
+					testAccCheckProjectService(t, services, pid, false),
 				),
 			},
 			// Create services with disabling turned off.
 			{
 				Config: testAccProjectService_noDisable(services, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectService(services, pid, true),
+					testAccCheckProjectService(t, services, pid, true),
 				),
 			},
 			// Check that services are still enabled even after the resources are deleted.
 			{
 				Config: testAccProject_create(pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectService(services, pid, true),
+					testAccCheckProjectService(t, services, pid, true),
 				),
 			},
 		},
@@ -66,14 +67,16 @@ func TestAccProjectService_basic(t *testing.T) {
 }
 
 func TestAccProjectService_disableDependentServices(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
 	billingId := getTestBillingAccountFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	services := []string{"cloudbuild.googleapis.com", "containerregistry.googleapis.com"}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -100,8 +103,8 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"disable_on_destroy"},
 			},
 			{
-				Config:             testAccProjectService_dependencyRemoved(services, pid, pname, org, billingId),
-				ExpectNonEmptyPlan: true,
+				Config:      testAccProjectService_dependencyRemoved(services, pid, pname, org, billingId),
+				ExpectError: regexp.MustCompile("service .* not in enabled services for project"),
 			},
 		},
 	})
@@ -111,16 +114,16 @@ func TestAccProjectService_handleNotFound(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	service := "iam.googleapis.com"
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_handleNotFound(service, pid, pname, org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckProjectService([]string{service}, pid, true),
+					testAccCheckProjectService(t, []string{service}, pid, true),
 				),
 			},
 			// Delete the project, implicitly deletes service, expect the plan to want to create the service again
@@ -136,8 +139,8 @@ func TestAccProjectService_renamedService(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	pid := acctest.RandomWithPrefix("tf-test")
-	resource.Test(t, resource.TestCase{
+	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -154,11 +157,11 @@ func TestAccProjectService_renamedService(t *testing.T) {
 	})
 }
 
-func testAccCheckProjectService(services []string, pid string, expectEnabled bool) resource.TestCheckFunc {
+func testAccCheckProjectService(t *testing.T, services []string, pid string, expectEnabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
-		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config, time.Minute*10)
+		currentlyEnabled, err := listCurrentlyEnabledServices(pid, config.userAgent, config, time.Minute*10)
 		if err != nil {
 			return fmt.Errorf("Error listing services for project %q: %v", pid, err)
 		}
@@ -184,6 +187,9 @@ func testAccCheckProjectService(services []string, pid string, expectEnabled boo
 
 func testAccProjectService_basic(services []string, pid, name, org string) string {
 	return fmt.Sprintf(`
+provider "google" {
+  user_project_override = true
+}
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
@@ -196,7 +202,7 @@ resource "google_project_service" "test" {
 }
 
 resource "google_project_service" "test2" {
-  project = google_project.acceptance.project_id
+  project = google_project.acceptance.id
   service = "%s"
 }
 `, pid, name, org, services[0], services[1])

@@ -1,0 +1,3 @@
+```release-note:bug
+runtimeconfig: fixed `Requested entity was not found.` error when config was deleted outside of terraform.
+```

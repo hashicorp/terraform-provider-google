@@ -28,7 +28,7 @@ resource "google_sql_database_instance" "master" {
   name = "master-instance-${random_id.db_name_suffix.hex}"
 
   settings {
-    tier = "D0"
+    tier = "db-f1-micro"
   }
 }
 
@@ -37,6 +37,34 @@ resource "google_sql_user" "users" {
   instance = google_sql_database_instance.master.name
   host     = "me.com"
   password = "changeme"
+}
+```
+
+Example creating a Cloud IAM User.
+
+```hcl
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
+resource "google_sql_database_instance" "master" {
+  name             = "master-instance-${random_id.db_name_suffix.hex}"
+  database_version = "POSTGRES_9_6"
+
+  settings {
+    tier = "db-f1-micro"
+
+    datagbase_flags {
+      name  = "cloudsql.iam_authentication"
+      value = "on"
+    }
+  }
+}
+
+resource "google_sql_user" "users" {
+  name     = "me"
+  instance = google_sql_database_instance.master.name
+  type     = "CLOUD_IAM_USER"
 }
 ```
 
@@ -50,7 +78,18 @@ The following arguments are supported:
 * `name` - (Required) The name of the user. Changing this forces a new resource
     to be created.
 
-* `password` - (Optional) The password for the user. Can be updated.
+* `password` - (Optional) The password for the user. Can be updated. For Postgres
+    instances this is a Required field.
+
+* `type` - (Optional) The user type. It determines the method to authenticate the
+    user during login. The default is the database's built-in user type. Flags
+    include "BUILT_IN", "CLOUD_IAM_USER", or "CLOUD_IAM_SERVICE_ACCOUNT".
+
+* `deletion_policy` - (Optional) The deletion policy for the user.
+    Setting `ABANDON` allows the resource to be abandoned rather than deleted. This is useful
+    for Postgres, where users cannot be deleted from the API if they have been granted SQL roles.
+    
+    Possible values are: `ABANDON`.
 
 - - -
 
@@ -64,6 +103,15 @@ The following arguments are supported:
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 10 minutes.
+- `update` - Default is 10 minutes.
+- `delete` - Default is 10 minutes.
 
 ## Import
 

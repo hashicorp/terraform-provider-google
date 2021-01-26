@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"google.golang.org/api/dataproc/v1"
 )
@@ -58,21 +59,21 @@ func (w *DataprocJobOperationWaiter) OpName() string {
 }
 
 func (w *DataprocJobOperationWaiter) PendingStates() []string {
-	return []string{"PENDING", "CANCEL_PENDING", "CANCEL_STARTED", "SETUP_DONE", "RUNNING"}
+	return []string{"PENDING", "CANCEL_PENDING", "CANCEL_STARTED", "SETUP_DONE"}
 }
 
 func (w *DataprocJobOperationWaiter) TargetStates() []string {
-	return []string{"CANCELLED", "DONE", "ATTEMPT_FAILURE", "ERROR"}
+	return []string{"CANCELLED", "DONE", "ATTEMPT_FAILURE", "ERROR", "RUNNING"}
 }
 
-func dataprocJobOperationWait(config *Config, region, projectId, jobId string, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+func dataprocJobOperationWait(config *Config, region, projectId, jobId, activity, userAgent string, timeout time.Duration) error {
 	w := &DataprocJobOperationWaiter{
-		Service:   config.clientDataproc,
+		Service:   config.NewDataprocClient(userAgent),
 		Region:    region,
 		ProjectId: projectId,
 		JobId:     jobId,
 	}
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }
 
 type DataprocDeleteJobOperationWaiter struct {
@@ -103,14 +104,14 @@ func (w *DataprocDeleteJobOperationWaiter) QueryOp() (interface{}, error) {
 	return job, err
 }
 
-func dataprocDeleteOperationWait(config *Config, region, projectId, jobId string, activity string, timeoutMinutes, minTimeoutSeconds int) error {
+func dataprocDeleteOperationWait(config *Config, region, projectId, jobId, activity, userAgent string, timeout time.Duration) error {
 	w := &DataprocDeleteJobOperationWaiter{
 		DataprocJobOperationWaiter{
-			Service:   config.clientDataproc,
+			Service:   config.NewDataprocClient(userAgent),
 			Region:    region,
 			ProjectId: projectId,
 			JobId:     jobId,
 		},
 	}
-	return OperationWait(w, activity, timeoutMinutes)
+	return OperationWait(w, activity, timeout, config.PollInterval)
 }

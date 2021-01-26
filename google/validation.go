@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 const (
@@ -30,6 +30,9 @@ const (
 
 	// https://cloud.google.com/iam/docs/understanding-custom-roles#naming_the_role
 	IAMCustomRoleIDRegex = "^[a-zA-Z0-9_\\.]{3,64}$"
+
+	// https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains/create#query-parameters
+	ADDomainNameRegex = "^[a-z][a-z0-9-]{0,14}\\.[a-z0-9-\\.]*[a-z]+[a-z0-9]*$"
 )
 
 var (
@@ -61,6 +64,15 @@ var (
 
 	ProjectNameInDNSFormRegex = "[-a-z0-9\\.]{1,63}"
 	ProjectNameRegex          = "^[A-Za-z0-9-'\"\\s!]{4,30}$"
+
+	// Valid range for Cloud Router ASN values as per RFC6996
+	// https://tools.ietf.org/html/rfc6996
+	// Must be explicitly int64 to avoid overflow when building Terraform for 32bit architectures
+	Rfc6996Asn16BitMin  = int64(64512)
+	Rfc6996Asn16BitMax  = int64(65534)
+	Rfc6996Asn32BitMin  = int64(4200000000)
+	Rfc6996Asn32BitMax  = int64(4294967294)
+	GcpRouterPartnerAsn = int64(16550)
 )
 
 var rfc1918Networks = []string{
@@ -72,6 +84,19 @@ var rfc1918Networks = []string{
 func validateGCPName(v interface{}, k string) (ws []string, errors []error) {
 	re := `^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$`
 	return validateRegexp(re)(v, k)
+}
+
+// Ensure that the BGP ASN value of Cloud Router is a valid value as per RFC6996 or a value of 16550
+func validateRFC6996Asn(v interface{}, k string) (ws []string, errors []error) {
+	value := int64(v.(int))
+	if !(value >= Rfc6996Asn16BitMin && value <= Rfc6996Asn16BitMax) &&
+		!(value >= Rfc6996Asn32BitMin && value <= Rfc6996Asn32BitMax) &&
+		value != GcpRouterPartnerAsn {
+		errors = append(errors, fmt.Errorf(`expected %q to be a RFC6996-compliant Local ASN:
+must be either in the private ASN ranges: [64512..65534], [4200000000..4294967294];
+or be the value of [%d], got %d`, k, GcpRouterPartnerAsn, value))
+	}
+	return
 }
 
 func validateRegexp(re string) schema.SchemaValidateFunc {
@@ -89,7 +114,7 @@ func validateRegexp(re string) schema.SchemaValidateFunc {
 func validateRFC1918Network(min, max int) schema.SchemaValidateFunc {
 	return func(i interface{}, k string) (s []string, es []error) {
 
-		s, es = validation.CIDRNetwork(min, max)(i, k)
+		s, es = validation.IsCIDRNetwork(min, max)(i, k)
 		if len(es) > 0 {
 			return
 		}
@@ -280,4 +305,24 @@ func validateHourlyOnly(val interface{}, key string) (warns []string, errs []err
 		errs = append(errs, fmt.Errorf("%q does not specify a valid hour, it must be in the format HH:00 where HH : [00-23], got: %s", key, v))
 	}
 	return
+}
+
+func validateRFC3339Date(v interface{}, k string) (warnings []string, errors []error) {
+	_, err := time.Parse(time.RFC3339, v.(string))
+	if err != nil {
+		errors = append(errors, err)
+	}
+	return
+}
+
+func validateADDomainName() schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(string)
+
+		if len(value) > 64 || !regexp.MustCompile(ADDomainNameRegex).MatchString(value) {
+			errors = append(errors, fmt.Errorf(
+				"%q (%q) doesn't match regexp %q, domain_name must be 2 to 64 with lowercase letters, digits, hyphens, dots and start with a letter", k, value, ADDomainNameRegex))
+		}
+		return
+	}
 }

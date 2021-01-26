@@ -6,9 +6,10 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/servicenetworking/v1"
 )
@@ -23,12 +24,19 @@ func resourceServiceNetworkingConnection() *schema.Resource {
 			State: resourceServiceNetworkingConnectionImportState,
 		},
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"network": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Name of VPC network connected with service producers using VPC peering.`,
 			},
 			// NOTE(craigatgoogle): This field is weird, it's required to make the Insert/List calls as a parameter
 			// named "parent", however it's also defined in the response as an output field called "peering", which
@@ -37,28 +45,35 @@ func resourceServiceNetworkingConnection() *schema.Resource {
 			// delimiter.
 			// See: https://cloud.google.com/vpc/docs/configure-private-services-access#creating-connection
 			"service": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Provider peering service that is managing peering connectivity for a service provider organization. For Google services that support this functionality it is 'servicenetworking.googleapis.com'.`,
 			},
 			"reserved_peering_ranges": {
-				Type:     schema.TypeList,
-				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeList,
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `Named IP address range(s) of PEERING type reserved for this service provider. Note that invoking this method with a different range when connection is already established will not reallocate already provisioned service producer subnetworks.`,
 			},
 			"peering": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	network := d.Get("network").(string)
-	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
+	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
 	if err != nil {
 		return errwrap.Wrapf("Failed to find Service Networking Connection, err: {{err}}", err)
 	}
@@ -83,12 +98,12 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 	// The API docs don't specify that you can do connections/-,
 	// but that's what gcloud does, and it's easier than grabbing
 	// the connection name.
-	op, err := config.clientServiceNetworking.Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true).Do()
+	op, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true).Do()
 	if err != nil {
 		return err
 	}
 
-	if err := serviceNetworkingOperationWait(config, op, "Create Service Networking Connection"); err != nil {
+	if err := serviceNetworkingOperationWaitTime(config, op, "Create Service Networking Connection", userAgent, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return err
 	}
 
@@ -103,19 +118,23 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 
 func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	connectionId, err := parseConnectionId(d.Id())
 	if err != nil {
 		return errwrap.Wrapf("Unable to parse Service Networking Connection id, err: {{err}}", err)
 	}
 
-	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, connectionId.Network)
+	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, connectionId.Network, userAgent)
 	if err != nil {
 		return errwrap.Wrapf("Failed to find Service Networking Connection, err: {{err}}", err)
 	}
 
 	parentService := formatParentService(connectionId.Service)
-	response, err := config.clientServiceNetworking.Services.Connections.List(parentService).
+	response, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.List(parentService).
 		Network(serviceNetworkingNetworkName).Do()
 	if err != nil {
 		return err
@@ -135,15 +154,27 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 		return nil
 	}
 
-	d.Set("network", connectionId.Network)
-	d.Set("service", connectionId.Service)
-	d.Set("peering", connection.Peering)
-	d.Set("reserved_peering_ranges", connection.ReservedPeeringRanges)
+	if err := d.Set("network", connectionId.Network); err != nil {
+		return fmt.Errorf("Error setting network: %s", err)
+	}
+	if err := d.Set("service", connectionId.Service); err != nil {
+		return fmt.Errorf("Error setting service: %s", err)
+	}
+	if err := d.Set("peering", connection.Peering); err != nil {
+		return fmt.Errorf("Error setting peering: %s", err)
+	}
+	if err := d.Set("reserved_peering_ranges", connection.ReservedPeeringRanges); err != nil {
+		return fmt.Errorf("Error setting reserved_peering_ranges: %s", err)
+	}
 	return nil
 }
 
 func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	connectionId, err := parseConnectionId(d.Id())
 	if err != nil {
@@ -154,7 +185,7 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("reserved_peering_ranges") {
 		network := d.Get("network").(string)
-		serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
+		serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
 		if err != nil {
 			return errwrap.Wrapf("Failed to find Service Networking Connection, err: {{err}}", err)
 		}
@@ -166,11 +197,11 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 
 		// The API docs don't specify that you can do connections/-, but that's what gcloud does,
 		// and it's easier than grabbing the connection name.
-		op, err := config.clientServiceNetworking.Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true).Do()
+		op, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true).Do()
 		if err != nil {
 			return err
 		}
-		if err := serviceNetworkingOperationWait(config, op, "Update Service Networking Connection"); err != nil {
+		if err := serviceNetworkingOperationWaitTime(config, op, "Update Service Networking Connection", userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return err
 		}
 	}
@@ -179,9 +210,13 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 
 func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	network := d.Get("network").(string)
-	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network)
+	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
 	if err != nil {
 		return err
 	}
@@ -197,7 +232,7 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	project := networkFieldValue.Project
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "POST", project, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ServiceNetworkingConnection %q", d.Id()))
 	}
@@ -209,8 +244,7 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	err = computeOperationWaitTime(
-		config, op, project, "Updating Network",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		config, op, project, "Updating Network", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}
@@ -227,8 +261,12 @@ func resourceServiceNetworkingConnectionImportState(d *schema.ResourceData, meta
 		return nil, err
 	}
 
-	d.Set("network", connectionId.Network)
-	d.Set("service", connectionId.Service)
+	if err := d.Set("network", connectionId.Network); err != nil {
+		return nil, fmt.Errorf("Error setting network: %s", err)
+	}
+	if err := d.Set("service", connectionId.Service); err != nil {
+		return nil, fmt.Errorf("Error setting service: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -273,7 +311,7 @@ func parseConnectionId(id string) (*connectionId, error) {
 // NOTE(craigatgoogle): An out of band aspect of this API is that it uses a unique formatting of network
 // different from the standard self_link URI. It requires a call to the resource manager to get the project
 // number for the current project.
-func retrieveServiceNetworkingNetworkName(d *schema.ResourceData, config *Config, network string) (string, error) {
+func retrieveServiceNetworkingNetworkName(d *schema.ResourceData, config *Config, network, userAgent string) (string, error) {
 	networkFieldValue, err := ParseNetworkFieldValue(network, d, config)
 	if err != nil {
 		return "", errwrap.Wrapf("Failed to retrieve network field value, err: {{err}}", err)
@@ -283,10 +321,12 @@ func retrieveServiceNetworkingNetworkName(d *schema.ResourceData, config *Config
 	if pid == "" {
 		return "", fmt.Errorf("Could not determine project")
 	}
-
-	project, err := config.clientResourceManager.Projects.Get(pid).Do()
+	log.Printf("[DEBUG] Retrieving project number by doing a GET with the project id, as required by service networking")
+	project, err := config.NewResourceManagerClient(userAgent).Projects.Get(pid).Do()
 	if err != nil {
-		return "", fmt.Errorf("Failed to retrieve project, pid: %s, err: %s", pid, err)
+		// note: returning a wrapped error is part of this method's contract!
+		// https://blog.golang.org/go1.13-errors
+		return "", fmt.Errorf("Failed to retrieve project, pid: %s, err: %w", pid, err)
 	}
 
 	networkName := networkFieldValue.Name

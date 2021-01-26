@@ -59,7 +59,7 @@ resource "google_compute_image" "example" {
   name = "example-image"
 
   raw_disk {
-    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
   }
 }
 ```
@@ -76,7 +76,7 @@ resource "google_compute_image" "example" {
   name = "example-image"
 
   raw_disk {
-    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
   }
 
   guest_os_features {
@@ -128,7 +128,8 @@ The following arguments are supported:
 * `guest_os_features` -
   (Optional)
   A list of features to enable on the guest operating system.
-  Applicable only for bootable images.  Structure is documented below.
+  Applicable only for bootable images.
+  Structure is documented below.
 
 * `labels` -
   (Optional)
@@ -140,13 +141,33 @@ The following arguments are supported:
 
 * `raw_disk` -
   (Optional)
-  The parameters of the raw disk image.  Structure is documented below.
+  The parameters of the raw disk image.
+  Structure is documented below.
 
 * `source_disk` -
   (Optional)
   The source disk to create this image based on.
   You must provide either this property or the
   rawDisk.source property but not both to create an image.
+
+* `source_image` -
+  (Optional)
+  URL of the source image used to create this image. In order to create an image, you must provide the full or partial
+  URL of one of the following:
+  * The selfLink URL
+  * This property
+  * The rawDisk.source URL
+  * The sourceDisk URL
+
+* `source_snapshot` -
+  (Optional)
+  URL of the source snapshot used to create this image.
+  In order to create an image, you must provide the full or partial URL of one of the following:
+  * The selfLink URL
+  * This property
+  * The sourceImage URL
+  * The rawDisk.source URL
+  * The sourceDisk URL
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -157,6 +178,7 @@ The `guest_os_features` block supports:
 * `type` -
   (Required)
   The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
+  Possible values are `MULTI_IP_SUBNET`, `SECURE_BOOT`, `SEV_CAPABLE`, `UEFI_COMPATIBLE`, `VIRTIO_SCSI_MULTIQUEUE`, `WINDOWS`, and `GVNIC`.
 
 The `raw_disk` block supports:
 
@@ -166,6 +188,8 @@ The `raw_disk` block supports:
   should be TAR. This is just a container and transmission format
   and not a runtime format. Provided by the client when the disk
   image is created.
+  Default value is `TAR`.
+  Possible values are `TAR`.
 
 * `sha1` -
   (Optional)
@@ -182,6 +206,7 @@ The `raw_disk` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/images/{{name}}`
 
 * `archive_size_bytes` -
   Size of the image tar.gz archive stored in Google Cloud Storage (in
@@ -207,6 +232,7 @@ This resource provides the following
 
 ## Import
 
+
 Image can be imported using any of these accepted formats:
 
 ```
@@ -214,9 +240,6 @@ $ terraform import google_compute_image.default projects/{{project}}/global/imag
 $ terraform import google_compute_image.default {{project}}/{{name}}
 $ terraform import google_compute_image.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

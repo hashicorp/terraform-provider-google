@@ -18,22 +18,21 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccIapAppEngineServiceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(10),
+		"random_suffix":   randString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(10)),
+		"project_id":      fmt.Sprintf("tf-test%s", randString(t, 10)),
 		"org_id":          getTestOrgFromEnv(t),
 		"billing_account": getTestBillingAccountFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -64,14 +63,14 @@ func TestAccIapAppEngineServiceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(10),
+		"random_suffix":   randString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(10)),
+		"project_id":      fmt.Sprintf("tf-test%s", randString(t, 10)),
 		"org_id":          getTestOrgFromEnv(t),
 		"billing_account": getTestBillingAccountFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -93,14 +92,14 @@ func TestAccIapAppEngineServiceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(10),
+		"random_suffix":   randString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(10)),
+		"project_id":      fmt.Sprintf("tf-test%s", randString(t, 10)),
 		"org_id":          getTestOrgFromEnv(t),
 		"billing_account": getTestBillingAccountFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -255,7 +254,7 @@ resource "google_iap_app_engine_service_iam_policy" "foo" {
   project = "${google_app_engine_standard_app_version.version.project}"
   app_id = "${google_app_engine_standard_app_version.version.project}"
   service = "${google_app_engine_standard_app_version.version.service}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -321,7 +320,7 @@ resource "google_iap_app_engine_service_iam_policy" "foo" {
   project = "${google_app_engine_standard_app_version.version.project}"
   app_id = "${google_app_engine_standard_app_version.version.project}"
   service = "${google_app_engine_standard_app_version.version.service}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }

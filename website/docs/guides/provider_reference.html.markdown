@@ -18,7 +18,6 @@ location (`zone` and/or `region`) for your resources.
 
 ```hcl
 provider "google" {
-  credentials = "${file("account.json")}"
   project     = "my-project-id"
   region      = "us-central1"
   zone        = "us-central1-c"
@@ -27,7 +26,6 @@ provider "google" {
 
 ```hcl
 provider "google-beta" {
-  credentials = "${file("account.json")}"
   project     = "my-project-id"
   region      = "us-central1"
   zone        = "us-central1-c"
@@ -48,13 +46,13 @@ the Google provider.
 
 ```hcl
 resource "google_compute_instance" "ga-instance" {
-  provider = "google"
+  provider = google
 
   # ...
 }
 
 resource "google_compute_instance" "beta-instance" {
-  provider = "google-beta"
+  provider = google-beta
 
   # ...
 }
@@ -62,6 +60,29 @@ resource "google_compute_instance" "beta-instance" {
 provider "google-beta" {}
 ```
 
+## Authentication
+
+### Running Terraform on your workstation.
+
+If you are using terraform on your workstation, you will need to install the Google Cloud SDK and authenticate using [User Application Default
+Credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default).
+
+A quota project must be set which gcloud automatically reads from the `core/project` value. You can override this project by specifying `--project` flag when running `gcloud auth application-default login`. The SDK should return this message if you have set the correct billing project. `Quota project "your-project" was added to ADC which can be used by Google client libraries for billing and quota.`
+
+### Running Terraform on Google Cloud
+
+If you are running terraform on Google Cloud, you can configure that instance or cluster to use a [Google Service
+Account](https://cloud.google.com/compute/docs/authentication). This will allow Terraform to authenticate to Google Cloud without having to bake in a separate
+credential/authentication file. Make sure that the scope of the VM/Cluster is set to cloud-platform.
+
+### Running Terraform outside of Google Cloud
+
+If you are running terraform outside of Google Cloud, generate a service account key and set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to
+the path of the service account key. Terraform will use that key for authentication.
+
+### Impersonating Service Accounts
+
+Terraform can impersonate a Google Service Account as described [here](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials). A valid credential must be provided as mentioned in the earlier section and that identity must have the `roles/iam.serviceAccountTokenCreator` role on the service account you are impersonating.
 
 ## Configuration Reference
 
@@ -71,10 +92,6 @@ if you're interested in more details. Both `google` and `google-beta` share the
 same configuration.
 
 ### Quick Reference
-
-* `credentials` - (Optional) Either the path to or the contents of a
-[service account key file] in JSON format. You can
-[manage key files using the Cloud Console].
 
 * `project` - (Optional) The default project to manage resources in. If another
 project is specified on a resource, it will take precedence.
@@ -86,7 +103,13 @@ region is specified on a regional resource, it will take precedence.
 zone should be within the default region you specified. If another zone is
 specified on a zonal resource, it will take precedence.
 
----
+* `impersonate_service_account` - (Optional) The service account to impersonate for all Google API Calls.
+You must have `roles/iam.serviceAccountTokenCreator` role on that account for the impersonation to succeed.
+
+* `credentials` - (Optional) Either the path to or the contents of a
+[service account key file] in JSON format. You can
+[manage key files using the Cloud Console].  If not provided, the
+application default credentials will be used.
 
 * `scopes` - (Optional) The list of OAuth 2.0 [scopes] requested when generating
 an access token using the service account key specified in `credentials`.
@@ -102,6 +125,11 @@ resource project for preconditions, quota, and billing, instead of the project
 the credentials belong to. Not all resources support this- see the
 documentation for each resource to learn whether it does.
 
+* `billing_project` - (Optional) This fields specifies a project that's used for
+preconditions, quota, and billing for requests. All resources that support user project
+overrides will use this project instead of the resource's project (if available). This
+field is ignored if `user_project_override` is set to false or unset.
+
 * `{{service}}_custom_endpoint` - (Optional) The endpoint for a service's APIs,
 such as `compute_custom_endpoint`. Defaults to the production GCP endpoint for
 the service. This can be used to configure the Google provider to communicate
@@ -110,7 +138,7 @@ Values are expected to include the version of the service, such as
 `https://www.googleapis.com/compute/v1/`.
 
 * `batching` - (Optional) This block controls batching GCP calls for groups of specific resource types. Structure is documented below.
-~>**NOTE**: Batching is not implemented for the majority or resources/request types and is bounded by two values. If you are running into issues with slow batches
+~>**NOTE:** Batching is not implemented for the majority or resources/request types and is bounded by two values. If you are running into issues with slow batches
 resources, you may need to adjust one or both of 1) the core [`-parallelism`](https://www.terraform.io/docs/commands/apply.html#parallelism-n) flag, which controls how many concurrent resources are being operated on and 2) `send_after`, the time interval after which a batch is sent.
 
 * `request_timeout` - (Optional) A duration string controlling the amount of time
@@ -156,9 +184,16 @@ are automatically available. See
 for more details.
 
 * On your computer, you can make your Google identity available by
-running [`gcloud auth application-default login`][gcloud adc]. This
-approach isn't recommended- some APIs are not compatible with
-credentials obtained through `gcloud`.
+running [`gcloud auth application-default login`][gcloud adc].
+
+---
+* `impersonate_service_account` - (Optional) The service account to impersonate for all Google API Calls.
+You must have `roles/iam.serviceAccountTokenCreator` role on that account for the impersonation to succeed.
+If you are using a delegation chain, you can specify that using the `impersonate_service_account_delegates` field.
+Alternatively, this can be specified using the `GOOGLE_IMPERSONATE_SERVICE_ACCOUNT` environment
+variable.
+
+* `impersonate_service_account_delegates` - (Optional) The delegation chain for an impersonating a service account as described [here](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials#sa-credentials-delegated).
 
 ---
 
@@ -171,6 +206,13 @@ following ordered by precedence.
     * GOOGLE_CLOUD_PROJECT
     * GCLOUD_PROJECT
     * CLOUDSDK_CORE_PROJECT
+
+---
+
+* `billing_project` - (Optional) This fields allows Terraform to set X-Goog-User-Project
+for APIs that require a billing project to be specified like Access Context Manager APIs if
+User ADCs are being used. This can also be
+specified using the `GOOGLE_BILLING_PROJECT` environment variable.
 
 ---
 
@@ -265,7 +307,7 @@ be used for configuration are below:
 * `iam_credentials_custom_endpoint` (`GOOGLE_IAM_CREDENTIALS_CUSTOM_ENDPOINT`) - `https://iamcredentials.googleapis.com/v1/`
 * `kms_custom_endpoint` (`GOOGLE_KMS_CUSTOM_ENDPOINT`) - `https://cloudkms.googleapis.com/v1/`
 * `logging_custom_endpoint` (`GOOGLE_LOGGING_CUSTOM_ENDPOINT`) - `https://logging.googleapis.com/v2/`
-* `monitoring_custom_endpoint` (`GOOGLE_MONITORING_CUSTOM_ENDPOINT`) - `https://monitoring.googleapis.com/v3/`
+* `monitoring_custom_endpoint` (`GOOGLE_MONITORING_CUSTOM_ENDPOINT`) - `https://monitoring.googleapis.com/`
 * `pubsub_custom_endpoint` (`GOOGLE_PUBSUB_CUSTOM_ENDPOINT`) - `https://pubsub.googleapis.com/v1/`
 * `redis_custom_endpoint` (`GOOGLE_REDIS_CUSTOM_ENDPOINT`) - `https://redis.googleapis.com/v1/` | `https://redis.googleapis.com/v1beta1/`
 * `resource_manager_custom_endpoint` (`GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT`) - `https://cloudresourcemanager.googleapis.com/v1/`
@@ -308,12 +350,12 @@ as their versioned counterpart but that won't necessarily always be the case.
 
 * `batching` - (Optional) Controls batching for specific GCP request types
   where users have encountered quota or speed issues using `count` with
-  resources that affect the same GCP resource (e.g. `google_project_service`). 
+  resources that affect the same GCP resource (e.g. `google_project_service`).
   It is not used for every resource/request type and can only group parallel
   similar calls for nodes at a similar traversal time in the graph during
   `terraform apply` (e.g. resources created using `count` that affect a single
-  `project`). Thus, it is also bounded by the `terraform` 
-  [`-parallelism`](https://www.terraform.io/docs/commands/apply.html#parallelism-n) 
+  `project`). Thus, it is also bounded by the `terraform`
+  [`-parallelism`](https://www.terraform.io/docs/commands/apply.html#parallelism-n)
   flag, as reducing the number of parallel calls will reduce the number of
   simultaneous requests being added to a batcher.
 
@@ -335,7 +377,7 @@ after which a request should be sent. Defaults to 10s. Should be a non-negative
 integer or float string with a unit suffix, such as "300ms", "1.5h" or "2h45m".
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 
-* `disable_batching` - (Optional) Defaults to false. If true, disables global
+* `enable_batching` - (Optional) Defaults to true. If false, disables global
 batching and each request is sent normally.
 
 ---
@@ -355,7 +397,8 @@ to create the resource.  This may help in those cases.
 * `user_project_override` - (Optional) Defaults to false. If true, uses the
 resource project for preconditions, quota, and billing, instead of the project
 the credentials belong to. Not all resources support this- see the
-documentation for each resource to learn whether it does.
+documentation for each resource to learn whether it does. Alternatively, this can
+be specified using the `USER_PROJECT_OVERRIDE` environment variable.
 
 When set to false, the project the credentials belong to will be billed for the
 request, and quota / API enablement checks will be done against that project.

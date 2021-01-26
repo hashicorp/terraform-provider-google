@@ -1,0 +1,3 @@
+```release-note:bug
+all: bump default request timeout to avoid conflicts if creating a resource takes longer than expected
+```

@@ -1,0 +1,3 @@
+```release-note:bug
+spanner: marked `google_spanner_instance.config` as ForceNew as is not updatable
+```

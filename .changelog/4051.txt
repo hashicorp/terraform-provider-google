@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added additional fields to the `google_compute_forwarding_rule` datasource.
+```

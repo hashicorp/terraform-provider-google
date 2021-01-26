@@ -1,0 +1,3 @@
+```release-note:bug
+fixed data_source_secret_manager_secret_version on its id value
+```

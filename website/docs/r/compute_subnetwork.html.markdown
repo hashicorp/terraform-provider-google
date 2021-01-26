@@ -49,7 +49,7 @@ of the network, even entire subnets, using firewall rules.
 
 To get more information about Subnetwork, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/subnetworks)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/subnetworks)
 * How-to Guides
     * [Private Google Access](https://cloud.google.com/vpc/docs/configure-private-google-access)
     * [Cloud Networking](https://cloud.google.com/vpc/docs/using-vpc)
@@ -67,7 +67,7 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
   name          = "test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.custom-test.self_link
+  network       = google_compute_network.custom-test.id
   secondary_ip_range {
     range_name    = "tf-test-secondary-range-update1"
     ip_cidr_range = "192.168.10.0/24"
@@ -92,7 +92,7 @@ resource "google_compute_subnetwork" "subnet-with-logging" {
   name          = "log-test-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.custom-test.self_link
+  network       = google_compute_network.custom-test.id
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
@@ -123,7 +123,7 @@ resource "google_compute_subnetwork" "network-for-l7lb" {
   region        = "us-central1"
   purpose       = "INTERNAL_HTTPS_LOAD_BALANCER"
   role          = "ACTIVE"
-  network       = google_compute_network.custom-test.self_link
+  network       = google_compute_network.custom-test.id
 }
 
 resource "google_compute_network" "custom-test" {
@@ -171,30 +171,57 @@ The following arguments are supported:
   you create the resource. This field can be set only at resource
   creation time.
 
+* `purpose` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The purpose of the resource. This field can be either PRIVATE
+  or INTERNAL_HTTPS_LOAD_BALANCER. A subnetwork with purpose set to
+  INTERNAL_HTTPS_LOAD_BALANCER is a user-created subnetwork that is
+  reserved for Internal HTTP(S) Load Balancing. If unspecified, the
+  purpose defaults to PRIVATE.
+  If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set the role.
+  Possible values are `INTERNAL_HTTPS_LOAD_BALANCER` and `PRIVATE`.
+
+* `role` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The role of subnetwork. Currently, this field is only used when
+  purpose = INTERNAL_HTTPS_LOAD_BALANCER. The value can be set to ACTIVE
+  or BACKUP. An ACTIVE subnetwork is one that is currently being used
+  for Internal HTTP(S) Load Balancing. A BACKUP subnetwork is one that
+  is ready to be promoted to ACTIVE or is currently draining.
+  Possible values are `ACTIVE` and `BACKUP`.
+
 * `secondary_ip_range` -
   (Optional)
   An array of configurations for secondary IP ranges for VM instances
   contained in this subnetwork. The primary IP of such VM must belong
   to the primary ipCidrRange of the subnetwork. The alias IPs may belong
   to either primary or secondary ranges.
-  This field uses attr-as-block mode to avoid breaking
-  users during the 0.12 upgrade. See [the Attr-as-Block page](https://www.terraform.io/docs/configuration/attr-as-blocks.html)
-  for more details.  Structure is documented below.
+  **Note**: This field uses [attr-as-block mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html) to avoid
+  breaking users during the 0.12 upgrade. To explicitly send a list
+  of zero objects you must use the following syntax:
+  `example=[]`
+  For more details about this behavior, see [this section](https://www.terraform.io/docs/configuration/attr-as-blocks.html#defining-a-fixed-object-collection-value).
+  Structure is documented below.
 
 * `private_ip_google_access` -
   (Optional)
   When enabled, VMs in this subnetwork without external IP addresses can
   access Google APIs and services by using Private Google Access.
 
+* `private_ipv6_google_access` -
+  (Optional)
+  The private IPv6 google access type for the VMs in this subnet.
+
 * `region` -
   (Optional)
-  URL of the GCP region for this subnetwork.
+  The GCP region for this subnetwork.
 
 * `log_config` -
   (Optional)
   Denotes the logging options for the subnetwork flow logs. If logging is enabled
   logs will be exported to Stackdriver. This field cannot be set if the `purpose` of this
-  subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER`  Structure is documented below.
+  subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER`
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -224,8 +251,8 @@ The `log_config` block supports:
   Toggles the aggregation interval for collecting flow logs. Increasing the
   interval time will reduce the amount of generated flow logs for long
   lasting connections. Default is an interval of 5 seconds per connection.
-  Possible values are INTERVAL_5_SEC, INTERVAL_30_SEC, INTERVAL_1_MIN,
-  INTERVAL_5_MIN, INTERVAL_10_MIN, INTERVAL_15_MIN
+  Default value is `INTERVAL_5_SEC`.
+  Possible values are `INTERVAL_5_SEC`, `INTERVAL_30_SEC`, `INTERVAL_1_MIN`, `INTERVAL_5_MIN`, `INTERVAL_10_MIN`, and `INTERVAL_15_MIN`.
 
 * `flow_sampling` -
   (Optional)
@@ -239,12 +266,26 @@ The `log_config` block supports:
   (Optional)
   Can only be specified if VPC flow logging for this subnetwork is enabled.
   Configures whether metadata fields should be added to the reported VPC
-  flow logs. Default is `INCLUDE_ALL_METADATA`.
+  flow logs.
+  Default value is `INCLUDE_ALL_METADATA`.
+  Possible values are `EXCLUDE_ALL_METADATA`, `INCLUDE_ALL_METADATA`, and `CUSTOM_METADATA`.
+
+* `metadata_fields` -
+  (Optional)
+  List of metadata fields that should be added to reported logs.
+  Can only be specified if VPC flow logs for this subnetwork is enabled and "metadata" is set to CUSTOM_METADATA.
+
+* `filter_expr` -
+  (Optional)
+  Export filter used to define which VPC flow logs should be logged, as as CEL expression. See
+  https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.
+  The default value is 'true', which evaluates to include everything.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/subnetworks/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -266,6 +307,7 @@ This resource provides the following
 
 ## Import
 
+
 Subnetwork can be imported using any of these accepted formats:
 
 ```
@@ -274,9 +316,6 @@ $ terraform import google_compute_subnetwork.default {{project}}/{{region}}/{{na
 $ terraform import google_compute_subnetwork.default {{region}}/{{name}}
 $ terraform import google_compute_subnetwork.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

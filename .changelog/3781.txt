@@ -1,0 +1,3 @@
+```release-note:bug
+endpoints: Fixed a crash when `google_endpoints_service` is used on a machine without timezone data
+```

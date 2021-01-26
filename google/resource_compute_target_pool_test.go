@@ -4,27 +4,26 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeTargetPool_basic(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeTargetPoolDestroy,
+		CheckDestroy: testAccCheckComputeTargetPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeTargetPool_basic(),
+				Config: testAccComputeTargetPool_basic(randString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetPoolExists(
-						"google_compute_target_pool.foo"),
+						t, "google_compute_target_pool.foo"),
 					testAccCheckComputeTargetPoolHealthCheck("google_compute_target_pool.foo", "google_compute_http_health_check.foobar"),
 					testAccCheckComputeTargetPoolExists(
-						"google_compute_target_pool.bar"),
+						t, "google_compute_target_pool.bar"),
 					testAccCheckComputeTargetPoolHealthCheck("google_compute_target_pool.bar", "google_compute_http_health_check.foobar"),
 				),
 			},
@@ -40,14 +39,14 @@ func TestAccComputeTargetPool_basic(t *testing.T) {
 func TestAccComputeTargetPool_update(t *testing.T) {
 	t.Parallel()
 
-	tpname := fmt.Sprintf("tptest-%s", acctest.RandString(10))
-	name1 := fmt.Sprintf("tptest-%s", acctest.RandString(10))
-	name2 := fmt.Sprintf("tptest-%s", acctest.RandString(10))
+	tpname := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	name1 := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	name2 := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeTargetPoolDestroy,
+		CheckDestroy: testAccCheckComputeTargetPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				// Create target pool with no instances attached
@@ -80,25 +79,27 @@ func TestAccComputeTargetPool_update(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeTargetPoolDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckComputeTargetPoolDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_target_pool" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_target_pool" {
+				continue
+			}
+
+			_, err := config.NewComputeClient(config.userAgent).TargetPools.Get(
+				config.Project, config.Region, rs.Primary.Attributes["name"]).Do()
+			if err == nil {
+				return fmt.Errorf("TargetPool still exists")
+			}
 		}
 
-		_, err := config.clientCompute.TargetPools.Get(
-			config.Project, config.Region, rs.Primary.Attributes["name"]).Do()
-		if err == nil {
-			return fmt.Errorf("TargetPool still exists")
-		}
+		return nil
 	}
-
-	return nil
 }
 
-func testAccCheckComputeTargetPoolExists(n string) resource.TestCheckFunc {
+func testAccCheckComputeTargetPoolExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -109,9 +110,9 @@ func testAccCheckComputeTargetPoolExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
-		found, err := config.clientCompute.TargetPools.Get(
+		found, err := config.NewComputeClient(config.userAgent).TargetPools.Get(
 			config.Project, config.Region, rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -146,7 +147,7 @@ func testAccCheckComputeTargetPoolHealthCheck(targetPool, healthCheck string) re
 	}
 }
 
-func testAccComputeTargetPool_basic() string {
+func testAccComputeTargetPool_basic(suffix string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -159,8 +160,8 @@ resource "google_compute_http_health_check" "foobar" {
 }
 
 resource "google_compute_instance" "foobar" {
-  name         = "inst-tp-test-%s"
-  machine_type = "n1-standard-1"
+  name         = "tf-test-%s"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -186,25 +187,25 @@ resource "google_compute_target_pool" "foo" {
 
 resource "google_compute_target_pool" "bar" {
   description = "Resource created for Terraform acceptance testing"
-  name        = "tpool-test-%s"
+  name        = "tpool-test-2-%s"
   health_checks = [
     google_compute_http_health_check.foobar.self_link,
   ]
 }
-`, acctest.RandString(10), acctest.RandString(10), acctest.RandString(10), acctest.RandString(10))
+`, suffix, suffix, suffix, suffix)
 }
 
 func testAccComputeTargetPool_update(tpname, instances, name1, name2 string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_pool" "foo" {
   description = "Resource created for Terraform acceptance testing"
-  name        = "tpool-test-%s"
+  name        = "%s"
   instances   = [%s]
 }
 
 resource "google_compute_instance" "foo" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -220,7 +221,7 @@ resource "google_compute_instance" "foo" {
 
 resource "google_compute_instance" "bar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {

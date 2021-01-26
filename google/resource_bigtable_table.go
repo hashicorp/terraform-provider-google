@@ -5,65 +5,82 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceBigtableTable() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigtableTableCreate,
 		Read:   resourceBigtableTableRead,
+		Update: resourceBigtableTableUpdate,
 		Delete: resourceBigtableTableDestroy,
 
 		Importer: &schema.ResourceImporter{
 			State: resourceBigtableTableImport,
 		},
 
+		// ----------------------------------------------------------------------
+		// IMPORTANT: Do not add any additional ForceNew fields to this resource.
+		// Destroying/recreating tables can lead to data loss for users.
+		// ----------------------------------------------------------------------
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the table.`,
 			},
 
 			"column_family": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: `A group of columns within a table which share a common configuration. This can be specified multiple times.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"family": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the column family.`,
 						},
 					},
 				},
 			},
 
 			"instance_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareResourceNames,
+				Description:      `The name of the Bigtable instance.`,
 			},
 
 			"split_keys": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A list of predefined keys to split the table on. !> Warning: Modifying the split_keys of an existing table will cause Terraform to delete/recreate the entire google_bigtable_table resource.`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	ctx := context.Background()
 
 	project, err := getProject(d, config)
@@ -71,10 +88,13 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	instanceName := d.Get("instance_name").(string)
-	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
+	c, err := config.BigTableClientFactory(userAgent).NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
+	}
+	if err := d.Set("instance_name", instanceName); err != nil {
+		return fmt.Errorf("Error setting instance_name: %s", err)
 	}
 
 	defer c.Close()
@@ -122,6 +142,10 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 	ctx := context.Background()
 
 	project, err := getProject(d, config)
@@ -129,8 +153,8 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	instanceName := d.Get("instance_name").(string)
-	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
+	c, err := config.BigTableClientFactory(userAgent).NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
 	}
@@ -145,14 +169,22 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	d.Set("project", project)
-	d.Set("column_family", flattenColumnFamily(table.Families))
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("column_family", flattenColumnFamily(table.Families)); err != nil {
+		return fmt.Errorf("Error setting column_family: %s", err)
+	}
 
 	return nil
 }
 
-func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) error {
+func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 	ctx := context.Background()
 
 	project, err := getProject(d, config)
@@ -160,8 +192,61 @@ func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	instanceName := d.Get("instance_name").(string)
-	c, err := config.bigtableClientFactory.NewAdminClient(project, instanceName)
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
+	c, err := config.BigTableClientFactory(userAgent).NewAdminClient(project, instanceName)
+	if err != nil {
+		return fmt.Errorf("Error starting admin client. %s", err)
+	}
+	defer c.Close()
+
+	o, n := d.GetChange("column_family")
+	oSet := o.(*schema.Set)
+	nSet := n.(*schema.Set)
+	name := d.Get("name").(string)
+
+	// Add column families that are in new but not in old
+	for _, new := range nSet.Difference(oSet).List() {
+		column := new.(map[string]interface{})
+
+		if v, ok := column["family"]; ok {
+			log.Printf("[DEBUG] adding column family %q", v)
+			if err := c.CreateColumnFamily(ctx, name, v.(string)); err != nil {
+				return fmt.Errorf("Error creating column family %q: %s", v, err)
+			}
+		}
+	}
+
+	// Remove column families that are in old but not in new
+	for _, old := range oSet.Difference(nSet).List() {
+		column := old.(map[string]interface{})
+
+		if v, ok := column["family"]; ok {
+			log.Printf("[DEBUG] removing column family %q", v)
+			if err := c.DeleteColumnFamily(ctx, name, v.(string)); err != nil {
+				return fmt.Errorf("Error deleting column family %q: %s", v, err)
+			}
+		}
+	}
+
+	return resourceBigtableTableRead(d, meta)
+}
+
+func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return err
+	}
+
+	instanceName := GetResourceNameFromSelfLink(d.Get("instance_name").(string))
+	c, err := config.BigTableClientFactory(userAgent).NewAdminClient(project, instanceName)
 	if err != nil {
 		return fmt.Errorf("Error starting admin client. %s", err)
 	}

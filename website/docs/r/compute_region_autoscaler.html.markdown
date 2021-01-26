@@ -36,92 +36,6 @@ To get more information about RegionAutoscaler, see:
     * [Autoscaling Groups of Instances](https://cloud.google.com/compute/docs/autoscaler/)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_autoscaler_beta&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Region Autoscaler Beta
-
-
-```hcl
-resource "google_compute_region_autoscaler" "foobar" {
-  provider = google-beta
-
-  name   = "my-region-autoscaler"
-  region = "us-central1"
-  target = google_compute_region_instance_group_manager.foobar.self_link
-
-  autoscaling_policy {
-    max_replicas    = 5
-    min_replicas    = 1
-    cooldown_period = 60
-
-    cpu_utilization {
-      target = 0.5
-    }
-  }
-}
-
-resource "google_compute_instance_template" "foobar" {
-  provider = google-beta
-
-  name           = "my-instance-template"
-  machine_type   = "n1-standard-1"
-  can_ip_forward = false
-
-  tags = ["foo", "bar"]
-
-  disk {
-    source_image = data.google_compute_image.debian_9.self_link
-  }
-
-  network_interface {
-    network = "default"
-  }
-
-  metadata = {
-    foo = "bar"
-  }
-
-  service_account {
-    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-  }
-}
-
-resource "google_compute_target_pool" "foobar" {
-  provider = google-beta
-
-  name = "my-target-pool"
-}
-
-resource "google_compute_region_instance_group_manager" "foobar" {
-  provider = google-beta
-
-  name   = "my-region-igm"
-  region = "us-central1"
-
-  version {
-    instance_template = google_compute_instance_template.foobar.self_link
-    name              = "primary"
-  }
-
-  target_pools       = [google_compute_target_pool.foobar.self_link]
-  base_instance_name = "foobar"
-}
-
-data "google_compute_image" "debian_9" {
-  provider = google-beta
-
-  family  = "debian-9"
-  project = "debian-cloud"
-}
-
-provider "google-beta" {
-  region = "us-central1"
-  zone   = "us-central1-a"
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_autoscaler_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -133,7 +47,7 @@ provider "google-beta" {
 resource "google_compute_region_autoscaler" "foobar" {
   name   = "my-region-autoscaler"
   region = "us-central1"
-  target = google_compute_region_instance_group_manager.foobar.self_link
+  target = google_compute_region_instance_group_manager.foobar.id
 
   autoscaling_policy {
     max_replicas    = 5
@@ -148,13 +62,13 @@ resource "google_compute_region_autoscaler" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name           = "my-instance-template"
-  machine_type   = "n1-standard-1"
+    machine_type   = "e2-medium"
   can_ip_forward = false
 
   tags = ["foo", "bar"]
 
   disk {
-    source_image = data.google_compute_image.debian_9.self_link
+    source_image = data.google_compute_image.debian_9.id
   }
 
   network_interface {
@@ -179,11 +93,11 @@ resource "google_compute_region_instance_group_manager" "foobar" {
   region = "us-central1"
 
   version {
-    instance_template  = google_compute_instance_template.foobar.self_link
+    instance_template  = google_compute_instance_template.foobar.id
     name               = "primary"
   }
 
-  target_pools       = [google_compute_target_pool.foobar.self_link]
+  target_pools       = [google_compute_target_pool.foobar.id]
   base_instance_name = "foobar"
 }
 
@@ -212,7 +126,8 @@ The following arguments are supported:
   define one or more of the policies for an autoscaler: cpuUtilization,
   customMetricUtilizations, and loadBalancingUtilization.
   If none of these are specified, the default will be to autoscale based
-  on cpuUtilization to 0.6 or 60%.  Structure is documented below.
+  on cpuUtilization to 0.6 or 60%.
+  Structure is documented below.
 
 * `target` -
   (Required)
@@ -247,22 +162,96 @@ The `autoscaling_policy` block supports:
   instance may take to initialize. To do this, create an instance
   and time the startup process.
 
+* `mode` -
+  (Optional)
+  Defines operating mode for this policy.
+  Default value is `ON`.
+  Possible values are `OFF`, `ONLY_UP`, and `ON`.
+
+* `scale_down_control` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Defines scale down controls to reduce the risk of response latency
+  and outages due to abrupt scale-in events
+  Structure is documented below.
+
+* `scale_in_control` -
+  (Optional)
+  Defines scale in controls to reduce the risk of response latency
+  and outages due to abrupt scale-in events
+  Structure is documented below.
+
 * `cpu_utilization` -
   (Optional)
   Defines the CPU utilization policy that allows the autoscaler to
   scale based on the average CPU utilization of a managed instance
-  group.  Structure is documented below.
+  group.
+  Structure is documented below.
 
 * `metric` -
   (Optional)
-  Defines the CPU utilization policy that allows the autoscaler to
-  scale based on the average CPU utilization of a managed instance
-  group.  Structure is documented below.
+  Configuration parameters of autoscaling based on a custom metric.
+  Structure is documented below.
 
 * `load_balancing_utilization` -
   (Optional)
-  Configuration parameters of autoscaling based on a load balancer.  Structure is documented below.
+  Configuration parameters of autoscaling based on a load balancer.
+  Structure is documented below.
 
+* `scaling_schedules` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Scaling schedules defined for an autoscaler. Multiple schedules can be set on an autoscaler and they can overlap.
+  Structure is documented below.
+
+
+The `scale_down_control` block supports:
+
+* `max_scaled_down_replicas` -
+  (Optional)
+  A nested object resource
+  Structure is documented below.
+
+* `time_window_sec` -
+  (Optional)
+  How long back autoscaling should look when computing recommendations
+  to include directives regarding slower scale down, as described above.
+
+
+The `max_scaled_down_replicas` block supports:
+
+* `fixed` -
+  (Optional)
+  Specifies a fixed number of VM instances. This must be a positive
+  integer.
+
+* `percent` -
+  (Optional)
+  Specifies a percentage of instances between 0 to 100%, inclusive.
+  For example, specify 80 for 80%.
+
+The `scale_in_control` block supports:
+
+* `max_scaled_in_replicas` -
+  (Optional)
+  A nested object resource
+  Structure is documented below.
+
+* `time_window_sec` -
+  (Optional)
+  How long back autoscaling should look when computing recommendations
+  to include directives regarding slower scale down, as described above.
+
+
+The `max_scaled_in_replicas` block supports:
+
+* `fixed` -
+  (Optional)
+  Specifies a fixed number of VM instances. This must be a positive
+  integer.
+
+* `percent` -
+  (Optional)
+  Specifies a percentage of instances between 0 to 100%, inclusive.
+  For example, specify 80 for 80%.
 
 The `cpu_utilization` block supports:
 
@@ -288,6 +277,23 @@ The `metric` block supports:
   The metric cannot have negative values.
   The metric must have a value type of INT64 or DOUBLE.
 
+* `single_instance_assignment` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  If scaling is based on a per-group metric value that represents the
+  total amount of work to be done or resource usage, set this value to
+  an amount assigned for a single instance of the scaled group.
+  The autoscaler will keep the number of instances proportional to the
+  value of this metric, the metric itself should not change value due
+  to group resizing.
+  For example, a good metric to use with the target is
+  `pubsub.googleapis.com/subscription/num_undelivered_messages`
+  or a custom metric exporting the total number of requests coming to
+  your instances.
+  A bad example would be a metric exporting an average or median
+  latency, since this value can't include a chunk assignable to a
+  single instance, it could be better used with utilization_target
+  instead.
+
 * `target` -
   (Optional)
   The target value of the metric that autoscaler should
@@ -302,8 +308,38 @@ The `metric` block supports:
 * `type` -
   (Optional)
   Defines how target utilization value is expressed for a
-  Stackdriver Monitoring metric. Either GAUGE, DELTA_PER_SECOND,
-  or DELTA_PER_MINUTE.
+  Stackdriver Monitoring metric.
+  Possible values are `GAUGE`, `DELTA_PER_SECOND`, and `DELTA_PER_MINUTE`.
+
+* `filter` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A filter string to be used as the filter string for
+  a Stackdriver Monitoring TimeSeries.list API call.
+  This filter is used to select a specific TimeSeries for
+  the purpose of autoscaling and to determine whether the metric
+  is exporting per-instance or per-group data.
+  You can only use the AND operator for joining selectors.
+  You can only use direct equality comparison operator (=) without
+  any functions for each selector.
+  You can specify the metric in both the filter string and in the
+  metric field. However, if specified in both places, the metric must
+  be identical.
+  The monitored resource type determines what kind of values are
+  expected for the metric. If it is a gce_instance, the autoscaler
+  expects the metric to include a separate TimeSeries for each
+  instance in a group. In such a case, you cannot filter on resource
+  labels.
+  If the resource type is any other value, the autoscaler expects
+  this metric to contain values that apply to the entire autoscaled
+  instance group and resource label filtering can be performed to
+  point autoscaler at the correct TimeSeries to scale upon.
+  This is called a per-group metric for the purpose of autoscaling.
+  If not specified, the type defaults to gce_instance.
+  You should provide a filter that is selective enough to pick just
+  one TimeSeries for the autoscaled group or for each of the instances
+  (if you are using gce_instance resource type). If multiple
+  TimeSeries are returned upon the query execution, the autoscaler
+  will sum their respective values to obtain its scaling value.
 
 The `load_balancing_utilization` block supports:
 
@@ -312,6 +348,34 @@ The `load_balancing_utilization` block supports:
   Fraction of backend capacity utilization (set in HTTP(s) load
   balancing configuration) that autoscaler should maintain. Must
   be a positive float value. If not defined, the default is 0.8.
+
+The `scaling_schedules` block supports:
+
+* `name` - (Required) The identifier for this object. Format specified above.
+
+* `min_required_replicas` -
+  (Required)
+  Minimum number of VM instances that autoscaler will recommend in time intervals starting according to schedule.
+
+* `schedule` -
+  (Required)
+  The start timestamps of time intervals when this scaling schedule should provide a scaling signal. This field uses the extended cron format (with an optional year field).
+
+* `time_zone` -
+  (Optional)
+  The time zone to be used when interpreting the schedule. The value of this field must be a time zone name from the tz database: http://en.wikipedia.org/wiki/Tz_database.
+
+* `duration_sec` -
+  (Required)
+  The duration of time intervals (in seconds) for which this scaling schedule will be running. The minimum allowed value is 300.
+
+* `disabled` -
+  (Optional)
+  A boolean value that specifies if a scaling schedule can influence autoscaler recommendations. If set to true, then a scaling schedule has no effect.
+
+* `description` -
+  (Optional)
+  A description of a scaling schedule.
 
 - - -
 
@@ -332,6 +396,7 @@ The `load_balancing_utilization` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/autoscalers/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -349,6 +414,7 @@ This resource provides the following
 
 ## Import
 
+
 RegionAutoscaler can be imported using any of these accepted formats:
 
 ```
@@ -357,9 +423,6 @@ $ terraform import google_compute_region_autoscaler.default {{project}}/{{region
 $ terraform import google_compute_region_autoscaler.default {{region}}/{{name}}
 $ terraform import google_compute_region_autoscaler.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

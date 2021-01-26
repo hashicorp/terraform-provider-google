@@ -26,11 +26,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = google_compute_network.peering_network.self_link
+  network       = google_compute_network.peering_network.id
 }
 
 resource "google_service_networking_connection" "foobar" {
-  network                 = google_compute_network.peering_network.self_link
+  network                 = google_compute_network.peering_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
@@ -49,3 +49,10 @@ The following arguments are supported:
 * `reserved_peering_ranges` - (Required) Named IP address range(s) of PEERING type reserved for
   this service provider. Note that invoking this method with a different range when connection
   is already established will not reallocate already provisioned service producer subnetworks.
+
+## Import 
+ServiceNetworkingConnection can be imported using any of these accepted formats
+
+* terraform import google_service_networking_connection.peering_connection {{peering-network}}:{{service}}
+
+* terraform import google_service_networking_connection.peering_connection /projects/{{project}}/global/networks/{{peering-network}}:{{service}}

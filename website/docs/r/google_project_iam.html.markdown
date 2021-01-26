@@ -16,10 +16,14 @@ Four different resources help you manage your IAM policy for a project. Each of 
 * `google_project_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the project are preserved.
 * `google_project_iam_audit_config`: Authoritative for a given service. Updates the IAM policy to enable audit logging for the given service.
 
+~> **Note:** `google_project_iam_policy` **cannot** be used in conjunction with `google_project_iam_binding`, `google_project_iam_member`, or `google_project_iam_audit_config` or they will fight over what your policy should be.
 
 ~> **Note:** `google_project_iam_policy` **cannot** be used in conjunction with `google_project_iam_binding`, `google_project_iam_member`, or `google_project_iam_audit_config` or they will fight over what your policy should be.
 
 ~> **Note:** `google_project_iam_binding` resources **can be** used in conjunction with `google_project_iam_member` resources **only if** they do not grant privilege to the same role.
+
+~> **Note:** The underlying API method `projects.setIamPolicy` has a lot of constraints which are documented [here](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy). In addition to these constraints, 
+   IAM Conditions cannot be used with Basic Roles such as Owner. Violating these constraints will result in the API returning 400 error code so please review these if you encounter errors with this resource.
 
 ## google\_project\_iam\_policy
 
@@ -28,7 +32,8 @@ Four different resources help you manage your IAM policy for a project. Each of 
    from anyone without organization-level access to the project. Proceed with caution.
    It's not recommended to use `google_project_iam_policy` with your provider project
    to avoid locking yourself out, and it should generally only be used with projects
-   fully managed by Terraform.
+   fully managed by Terraform. If you do use this resource, it is recommended to **import** the policy before
+   applying the change.
 
 ```hcl
 resource "google_project_iam_policy" "project" {
@@ -47,7 +52,7 @@ data "google_iam_policy" "admin" {
 }
 ```
 
-With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
+With IAM Conditions:
 
 ```hcl
 resource "google_project_iam_policy" "project" {
@@ -57,7 +62,7 @@ resource "google_project_iam_policy" "project" {
 
 data "google_iam_policy" "admin" {
   binding {
-    role = "roles/editor"
+    role = "roles/compute.admin"
 
     members = [
       "user:jane@example.com",
@@ -74,8 +79,6 @@ data "google_iam_policy" "admin" {
 
 ## google\_project\_iam\_binding
 
-~> **Note:** If `role` is set to `roles/owner` and you don't specify a user or service account you have access to in `members`, you can lock yourself out of your project.
-
 ```hcl
 resource "google_project_iam_binding" "project" {
   project = "your-project-id"
@@ -87,12 +90,12 @@ resource "google_project_iam_binding" "project" {
 }
 ```
 
-With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
+With IAM Conditions:
 
 ```hcl
 resource "google_project_iam_binding" "project" {
   project = "your-project-id"
-  role    = "roles/editor"
+  role    = "roles/container.admin"
 
   members = [
     "user:jane@example.com",
@@ -116,12 +119,12 @@ resource "google_project_iam_member" "project" {
 }
 ```
 
-With IAM Conditions ([beta](https://terraform.io/docs/providers/google/provider_versions.html)):
+With IAM Conditions:
 
 ```hcl
 resource "google_project_iam_member" "project" {
   project = "your-project-id"
-  role    = "roles/editor"
+  role    = "roles/firebase.admin"
   member  = "user:jane@example.com"
 
   condition {
@@ -138,6 +141,9 @@ resource "google_project_iam_member" "project" {
 resource "google_project_iam_audit_config" "project" {
   project = "your-project-id"
   service = "allServices"
+  audit_log_config {
+    log_type = "ADMIN_READ"
+  }
   audit_log_config {
     log_type = "DATA_READ"
     exempted_members = [
@@ -179,7 +185,7 @@ will not be inferred from the provider.
 
 * `audit_log_config` - (Required only by google\_project\_iam\_audit\_config) The configuration for logging of each type of permission.  This can be specified multiple times.  Structure is documented below.
 
-* `condition` - (Optional, [Beta](https://terraform.io/docs/providers/google/provider_versions.html)) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
+* `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
   Structure is documented below.
 
 ---
@@ -238,4 +244,3 @@ terraform import google_project_iam_audit_config.my_project "your-project-id foo
 
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
-

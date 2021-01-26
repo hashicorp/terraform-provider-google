@@ -8,8 +8,7 @@ import (
 
 	"google.golang.org/api/compute/v1"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func resourceComputeInstanceMigrateState(
@@ -162,7 +161,7 @@ func migrateStateV1toV2(is *terraform.InstanceState) (*terraform.InstanceState, 
 
 	for service_acct_index, newScopes := range newScopesMap {
 		for _, newScope := range newScopes {
-			hash := hashcode.String(canonicalizeServiceScope(newScope))
+			hash := hashcode(canonicalizeServiceScope(newScope))
 			newKey := fmt.Sprintf("service_account.%s.scopes.%d", service_acct_index, hash)
 			is.Attributes[newKey] = newScope
 		}
@@ -330,7 +329,7 @@ func getInstanceFromInstanceState(config *Config, is *terraform.InstanceState) (
 		}
 	}
 
-	instance, err := config.clientCompute.Instances.Get(
+	instance, err := config.NewComputeClient(config.userAgent).Instances.Get(
 		project, zone, is.ID).Do()
 	if err != nil {
 		return nil, fmt.Errorf("error reading instance: %s", err)
@@ -361,7 +360,7 @@ func getAllDisksFromInstanceState(config *Config, is *terraform.InstanceState) (
 	diskList := []*compute.Disk{}
 	token := ""
 	for {
-		disks, err := config.clientCompute.Disks.List(project, zone).PageToken(token).Do()
+		disks, err := config.NewComputeClient(config.userAgent).Disks.List(project, zone).PageToken(token).Do()
 		if err != nil {
 			return nil, fmt.Errorf("error reading disks: %s", err)
 		}
@@ -449,7 +448,7 @@ func getDiskFromEncryptionKey(instance *compute.Instance, encryptionKey string) 
 }
 
 func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, allDisks map[string]*compute.Disk, autoDelete bool, image, project, zone string) (*compute.AttachedDisk, error) {
-	img, err := resolveImage(config, project, image)
+	img, err := resolveImage(config, project, image, config.userAgent)
 	if err != nil {
 		return nil, err
 	}

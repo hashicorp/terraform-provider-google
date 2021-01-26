@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataSourceComputeInstance_basic(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("data-instance-test-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeInstanceConfig(instanceName),
@@ -53,6 +52,7 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 		instanceAttrsToTest := []string{
 			"name",
 			"machine_type",
+			"current_status",
 			"can_ip_forward",
 			"description",
 			"deletion_protection",
@@ -89,7 +89,7 @@ func testAccDataSourceComputeInstanceConfig(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "foo" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "n1-standard-1"   // can't be e2 because of local-ssd
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]

@@ -1,0 +1,3 @@
+```release-note:bug
+appengine: added ability to fully sync `StandardAppVersion` resources
+```

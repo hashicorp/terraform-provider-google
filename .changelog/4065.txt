@@ -1,0 +1,3 @@
+```release-note:bug
+accessapproval: fixed issue where, due to a recent API change, `google_*_access_approval.enrolled_services.cloud_product` entries specified as a URL would result in a permadiff
+```

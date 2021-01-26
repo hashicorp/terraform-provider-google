@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -156,7 +156,9 @@ func TestGetZone(t *testing.T) {
 	if zone, err := getZone(d, &config); err != nil || zone != "foo" {
 		t.Fatalf("Zone '%s' != 'foo', %s", zone, err)
 	}
-	d.Set("zone", "")
+	if err := d.Set("zone", ""); err != nil {
+		t.Fatalf("Error setting zone: %s", err)
+	}
 	if zone, err := getZone(d, &config); err != nil || zone != "bar" {
 		t.Fatalf("Zone '%s' != 'bar', %s", zone, err)
 	}
@@ -179,7 +181,9 @@ func TestGetRegion(t *testing.T) {
 	}
 
 	config.Zone = "bar"
-	d.Set("zone", "")
+	if err := d.Set("zone", ""); err != nil {
+		t.Fatalf("Error setting zone: %s", err)
+	}
 	if region, err := getRegion(d, &config); err != nil || region != barRegionName {
 		t.Fatalf("Zone '%s' != '%s', %s", region, barRegionName, err)
 	}
@@ -506,8 +510,17 @@ func TestRetryTimeDuration_wrapped(t *testing.T) {
 		}
 		return errwrap.Wrapf("nested error: {{err}}", err)
 	}
-	if err := retryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil || err.(*googleapi.Error).Code != 500 {
-		t.Errorf("unexpected error retrying: %v", err)
+	if err := retryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil {
+		t.Errorf("unexpected nil error, expected an error")
+	} else {
+		innerErr := errwrap.GetType(err, &googleapi.Error{})
+		if innerErr == nil {
+			t.Errorf("unexpected error %v does not have a google api error", err)
+		}
+		gerr := innerErr.(*googleapi.Error)
+		if gerr.Code != 500 {
+			t.Errorf("unexpected googleapi error expected code 500, error: %v", gerr)
+		}
 	}
 	if i < 2 {
 		t.Errorf("expected error function to be called at least twice, but was called %d times", i)
@@ -560,5 +573,37 @@ func TestRetryTimeDuration_URLTimeoutsShouldRetry(t *testing.T) {
 	expectedRunCount := 2
 	if runCount != expectedRunCount {
 		t.Errorf("expected the retryFunc to be called %v time(s), instead was called %v time(s)", expectedRunCount, runCount)
+	}
+}
+
+func TestConflictError(t *testing.T) {
+	confErr := &googleapi.Error{
+		Code: 409,
+	}
+	if !isConflictError(confErr) {
+		t.Error("did not find that a 409 was a conflict error.")
+	}
+	if !isConflictError(errwrap.Wrapf("wrap", confErr)) {
+		t.Error("did not find that a wrapped 409 was a conflict error.")
+	}
+	confErr = &googleapi.Error{
+		Code: 412,
+	}
+	if !isConflictError(confErr) {
+		t.Error("did not find that a 412 was a conflict error.")
+	}
+	if !isConflictError(errwrap.Wrapf("wrap", confErr)) {
+		t.Error("did not find that a wrapped 412 was a conflict error.")
+	}
+	// skipping negative tests as other cases may be added later.
+}
+
+func TestSnakeToPascalCase(t *testing.T) {
+	input := "boot_disk"
+	expected := "BootDisk"
+	actual := SnakeToPascalCase(input)
+
+	if actual != expected {
+		t.Fatalf("(%s) did not match expected value: %s", actual, expected)
 	}
 }

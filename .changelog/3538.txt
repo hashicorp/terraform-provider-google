@@ -1,0 +1,3 @@
+```release-note:bug
+compute: Fixed `google_compute_interconnect_attachment` `edge_availability_domain` diff when the field is unspecified
+```

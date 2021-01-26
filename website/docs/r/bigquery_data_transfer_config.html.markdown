@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "BigQueryDataTransfer"
+subcategory: "BigQuery Data Transfer"
 layout: "google"
 page_title: "Google: google_bigquery_data_transfer_config"
 sidebar_current: "docs-google-bigquery-data-transfer-config"
@@ -32,7 +32,10 @@ To get more information about Config, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/bigquery/docs/reference/datatransfer/rest/)
 
-## Example Usage - Scheduled Query
+~> **Warning:** All arguments including `sensitive_params.secret_access_key` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+
+## Example Usage - Bigquerydatatransfer Config Scheduled Query
 
 
 ```hcl
@@ -53,7 +56,7 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   schedule               = "first sunday of quarter 00:00"
   destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
   params = {
-    destination_table_name_template = "my-table"
+    destination_table_name_template = "my_table"
     write_disposition               = "WRITE_APPEND"
     query                           = "SELECT name FROM tabl WHERE x = 'y'"
   }
@@ -105,6 +108,22 @@ The following arguments are supported:
   https://cloud.google.com/appengine/docs/flexible/python/scheduling-jobs-with-cron-yaml#the_schedule_format
   NOTE: the granularity should be at least 8 hours, or less frequent.
 
+* `schedule_options` -
+  (Optional)
+  Options customizing the data transfer schedule.
+  Structure is documented below.
+
+* `email_preferences` -
+  (Optional)
+  Email notifications will be sent according to these preferences to the
+  email address of the user who owns this transfer config.
+  Structure is documented below.
+
+* `notification_pubsub_topic` -
+  (Optional)
+  Pub/Sub topic where notifications will be sent after transfer runs
+  associated with this transfer config finish.
+
 * `data_refresh_window_days` -
   (Optional)
   The number of days to look back to automatically refresh the data.
@@ -117,19 +136,74 @@ The following arguments are supported:
   (Optional)
   When set to true, no runs are scheduled for a given transfer.
 
+* `sensitive_params` -
+  (Optional)
+  Different parameters are configured primarily using the the `params` field on this
+  resource. This block contains the parameters which contain secrets or passwords so that they can be marked
+  sensitive and hidden from plan output. The name of the field, eg: secret_access_key, will be the key
+  in the `params` map in the api request.
+  Credentials may not be specified in both locations and will cause an error. Changing from one location
+  to a different credential configuration in the config will require an apply to update state.
+  Structure is documented below.
+
 * `location` -
   (Optional)
   The geographic location where the transfer config should reside.
   Examples: US, EU, asia-northeast1. The default value is US.
 
+* `service_account_name` -
+  (Optional)
+  Optional service account name. If this field is set, transfer config will
+  be created with this service account credentials. It requires that
+  requesting user calling this API has permissions to act as this service account.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `schedule_options` block supports:
+
+* `disable_auto_scheduling` -
+  (Optional)
+  If true, automatic scheduling of data transfer runs for this
+  configuration will be disabled. The runs can be started on ad-hoc
+  basis using transferConfigs.startManualRuns API. When automatic
+  scheduling is disabled, the TransferConfig.schedule field will
+  be ignored.
+
+* `start_time` -
+  (Optional)
+  Specifies time to start scheduling transfer runs. The first run will be
+  scheduled at or after the start time according to a recurrence pattern
+  defined in the schedule string. The start time can be changed at any
+  moment. The time when a data transfer can be triggered manually is not
+  limited by this option.
+
+* `end_time` -
+  (Optional)
+  Defines time to stop scheduling transfer runs. A transfer run cannot be
+  scheduled at or after the end time. The end time can be changed at any
+  moment. The time when a data transfer can be triggered manually is not
+  limited by this option.
+
+The `email_preferences` block supports:
+
+* `enable_failure_email` -
+  (Required)
+  If true, email notifications will be sent on transfer run failures.
+
+The `sensitive_params` block supports:
+
+* `secret_access_key` -
+  (Required)
+  The Secret Access Key of the AWS account transferring data from.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   The resource name of the transfer config. Transfer config names have the
@@ -149,14 +223,12 @@ This resource provides the following
 
 ## Import
 
+
 Config can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_bigquery_data_transfer_config.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

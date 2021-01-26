@@ -34,6 +34,10 @@ continue to poll unhealthy instances. If an instance later responds
 successfully to some number of consecutive probes, it is marked
 healthy again and can receive new connections.
 
+~>**NOTE**: Legacy HTTP(S) health checks must be used for target pool-based network
+load balancers. See the [official guide](https://cloud.google.com/load-balancing/docs/health-check-concepts#selecting_hc)
+for choosing a type of health check.
+
 
 To get more information about HealthCheck, see:
 
@@ -279,6 +283,74 @@ resource "google_compute_health_check" "http2-health-check" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_grpc&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Grpc
+
+
+```hcl
+resource "google_compute_health_check" "grpc-health-check" {
+  name = "grpc-health-check"
+
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  grpc_health_check {
+    port = "443"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_grpc_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check Grpc Full
+
+
+```hcl
+resource "google_compute_health_check" "grpc-health-check" {
+  name = "grpc-health-check"
+
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  grpc_health_check {
+    port_name          = "health-check-port"
+    port_specification = "USE_NAMED_PORT"
+    grpc_service_name  = "testservice"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=health_check_with_logging&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Health Check With Logging
+
+
+```hcl
+resource "google_compute_health_check" "health-check-with-logging" {
+  provider = google-beta
+
+  name = "tcp-health-check"
+
+  timeout_sec        = 1
+  check_interval_sec = 1
+
+  tcp_health_check {
+    port = "22"
+  }
+
+  log_config {
+    enable = true
+  }
+}
+```
 
 ## Argument Reference
 
@@ -327,23 +399,38 @@ The following arguments are supported:
 
 * `http_health_check` -
   (Optional)
-  A nested object resource  Structure is documented below.
+  A nested object resource
+  Structure is documented below.
 
 * `https_health_check` -
   (Optional)
-  A nested object resource  Structure is documented below.
+  A nested object resource
+  Structure is documented below.
 
 * `tcp_health_check` -
   (Optional)
-  A nested object resource  Structure is documented below.
+  A nested object resource
+  Structure is documented below.
 
 * `ssl_health_check` -
   (Optional)
-  A nested object resource  Structure is documented below.
+  A nested object resource
+  Structure is documented below.
 
 * `http2_health_check` -
   (Optional)
-  A nested object resource  Structure is documented below.
+  A nested object resource
+  Structure is documented below.
+
+* `grpc_health_check` -
+  (Optional)
+  A nested object resource
+  Structure is documented below.
+
+* `log_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configure logging on this health check.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -381,7 +468,9 @@ The `http_health_check` block supports:
 * `proxy_header` -
   (Optional)
   Specifies the type of proxy header to append before sending data to the
-  backend, either NONE or PROXY_V1. The default is NONE.
+  backend.
+  Default value is `NONE`.
+  Possible values are `NONE` and `PROXY_V1`.
 
 * `port_specification` -
   (Optional)
@@ -395,6 +484,7 @@ The `http_health_check` block supports:
     checking.
   If not specified, HTTP health check follows behavior specified in `port` and
   `portName` fields.
+  Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
 The `https_health_check` block supports:
 
@@ -428,7 +518,9 @@ The `https_health_check` block supports:
 * `proxy_header` -
   (Optional)
   Specifies the type of proxy header to append before sending data to the
-  backend, either NONE or PROXY_V1. The default is NONE.
+  backend.
+  Default value is `NONE`.
+  Possible values are `NONE` and `PROXY_V1`.
 
 * `port_specification` -
   (Optional)
@@ -442,6 +534,7 @@ The `https_health_check` block supports:
     checking.
   If not specified, HTTPS health check follows behavior specified in `port` and
   `portName` fields.
+  Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
 The `tcp_health_check` block supports:
 
@@ -471,7 +564,9 @@ The `tcp_health_check` block supports:
 * `proxy_header` -
   (Optional)
   Specifies the type of proxy header to append before sending data to the
-  backend, either NONE or PROXY_V1. The default is NONE.
+  backend.
+  Default value is `NONE`.
+  Possible values are `NONE` and `PROXY_V1`.
 
 * `port_specification` -
   (Optional)
@@ -485,6 +580,7 @@ The `tcp_health_check` block supports:
     checking.
   If not specified, TCP health check follows behavior specified in `port` and
   `portName` fields.
+  Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
 The `ssl_health_check` block supports:
 
@@ -514,7 +610,9 @@ The `ssl_health_check` block supports:
 * `proxy_header` -
   (Optional)
   Specifies the type of proxy header to append before sending data to the
-  backend, either NONE or PROXY_V1. The default is NONE.
+  backend.
+  Default value is `NONE`.
+  Possible values are `NONE` and `PROXY_V1`.
 
 * `port_specification` -
   (Optional)
@@ -528,6 +626,7 @@ The `ssl_health_check` block supports:
     checking.
   If not specified, SSL health check follows behavior specified in `port` and
   `portName` fields.
+  Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
 The `http2_health_check` block supports:
 
@@ -561,7 +660,9 @@ The `http2_health_check` block supports:
 * `proxy_header` -
   (Optional)
   Specifies the type of proxy header to append before sending data to the
-  backend, either NONE or PROXY_V1. The default is NONE.
+  backend.
+  Default value is `NONE`.
+  Possible values are `NONE` and `PROXY_V1`.
 
 * `port_specification` -
   (Optional)
@@ -575,11 +676,55 @@ The `http2_health_check` block supports:
     checking.
   If not specified, HTTP2 health check follows behavior specified in `port` and
   `portName` fields.
+  Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
+
+The `grpc_health_check` block supports:
+
+* `port` -
+  (Optional)
+  The port number for the health check request. 
+  Must be specified if portName and portSpecification are not set 
+  or if port_specification is USE_FIXED_PORT. Valid values are 1 through 65535.
+
+* `port_name` -
+  (Optional)
+  Port name as defined in InstanceGroup#NamedPort#name. If both port and
+  port_name are defined, port takes precedence.
+
+* `port_specification` -
+  (Optional)
+  Specifies how port is selected for health checking, can be one of the
+  following values:
+    * `USE_FIXED_PORT`: The port number in `port` is used for health checking.
+    * `USE_NAMED_PORT`: The `portName` is used for health checking.
+    * `USE_SERVING_PORT`: For NetworkEndpointGroup, the port specified for each
+    network endpoint is used for health checking. For other backends, the
+    port or named port specified in the Backend Service is used for health
+    checking.
+  If not specified, gRPC health check follows behavior specified in `port` and
+  `portName` fields.
+  Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
+
+* `grpc_service_name` -
+  (Optional)
+  The gRPC service name for the health check. 
+  The value of grpcServiceName has the following meanings by convention:
+    - Empty serviceName means the overall status of all services at the backend.
+    - Non-empty serviceName means the health of that gRPC service, as defined by the owner of the service.
+  The grpcServiceName can only be ASCII.
+
+The `log_config` block supports:
+
+* `enable` -
+  (Optional)
+  Indicates whether or not to export logs. This is false by default,
+  which means no health check logging will be done.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/healthChecks/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -600,6 +745,7 @@ This resource provides the following
 
 ## Import
 
+
 HealthCheck can be imported using any of these accepted formats:
 
 ```
@@ -607,9 +753,6 @@ $ terraform import google_compute_health_check.default projects/{{project}}/glob
 $ terraform import google_compute_health_check.default {{project}}/{{name}}
 $ terraform import google_compute_health_check.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

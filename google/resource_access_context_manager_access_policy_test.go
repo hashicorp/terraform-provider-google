@@ -7,8 +7,8 @@ import (
 	neturl "net/url"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func init() {
@@ -40,9 +40,10 @@ func testSweepAccessContextManagerPolicies(region string) error {
 	parent := neturl.QueryEscape(fmt.Sprintf("organizations/%s", testOrg))
 	listUrl := fmt.Sprintf("%saccessPolicies?parent=%s", config.AccessContextManagerBasePath, parent)
 
-	resp, err := sendRequest(config, "GET", "", listUrl, nil)
+	resp, err := sendRequest(config, "GET", "", listUrl, config.userAgent, nil)
 	if err != nil && !isGoogleApiErrorWithCode(err, 404) {
-		return fmt.Errorf("unable to list AccessPolicies for organization %q: %v", testOrg, err)
+		log.Printf("unable to list AccessPolicies for organization %q: %v", testOrg, err)
+		return nil
 	}
 	var policies []interface{}
 	if resp != nil {
@@ -56,29 +57,37 @@ func testSweepAccessContextManagerPolicies(region string) error {
 		return nil
 	}
 	if len(policies) > 1 {
-		return fmt.Errorf("unexpected - more than one access policies found, change the tests")
+		log.Printf("unexpected - more than one access policies found, change the tests")
+		return nil
 	}
 
 	policy := policies[0].(map[string]interface{})
 	log.Printf("[DEBUG] Deleting test Access Policies %q", policy["name"])
 
 	policyUrl := config.AccessContextManagerBasePath + policy["name"].(string)
-	if _, err := sendRequest(config, "DELETE", "", policyUrl, nil); err != nil && !isGoogleApiErrorWithCode(err, 404) {
-		return fmt.Errorf("unable to delete access policy %q", policy["name"].(string))
+	if _, err := sendRequest(config, "DELETE", "", policyUrl, config.userAgent, nil); err != nil && !isGoogleApiErrorWithCode(err, 404) {
+		log.Printf("unable to delete access policy %q", policy["name"].(string))
+		return nil
 	}
 
 	return nil
 }
 
 // Since each test here is acting on the same organization and only one AccessPolicy
-// can exist, they need to be ran serially
+// can exist, they need to be run serially
 func TestAccAccessContextManager(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"access_policy":            testAccAccessContextManagerAccessPolicy_basicTest,
-		"service_perimeter":        testAccAccessContextManagerServicePerimeter_basicTest,
-		"service_perimeter_update": testAccAccessContextManagerServicePerimeter_updateTest,
-		"access_level":             testAccAccessContextManagerAccessLevel_basicTest,
-		"access_level_full":        testAccAccessContextManagerAccessLevel_fullTest,
+		"access_policy":              testAccAccessContextManagerAccessPolicy_basicTest,
+		"service_perimeter":          testAccAccessContextManagerServicePerimeter_basicTest,
+		"service_perimeter_update":   testAccAccessContextManagerServicePerimeter_updateTest,
+		"service_perimeter_resource": testAccAccessContextManagerServicePerimeterResource_basicTest,
+		"access_level":               testAccAccessContextManagerAccessLevel_basicTest,
+		"access_level_full":          testAccAccessContextManagerAccessLevel_fullTest,
+		"access_level_custom":        testAccAccessContextManagerAccessLevel_customTest,
+		"access_levels":              testAccAccessContextManagerAccessLevels_basicTest,
+		"access_level_condition":     testAccAccessContextManagerAccessLevelCondition_basicTest,
+		"service_perimeters":         testAccAccessContextManagerServicePerimeters_basicTest,
+		"gcp_user_access_binding":    testAccAccessContextManagerGcpUserAccessBinding_basicTest,
 	}
 
 	for name, tc := range testCases {
@@ -96,10 +105,10 @@ func TestAccAccessContextManager(t *testing.T) {
 func testAccAccessContextManagerAccessPolicy_basicTest(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerAccessPolicyDestroy,
+		CheckDestroy: testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerAccessPolicy_basic(org, "my policy"),
@@ -121,26 +130,28 @@ func testAccAccessContextManagerAccessPolicy_basicTest(t *testing.T) {
 	})
 }
 
-func testAccCheckAccessContextManagerAccessPolicyDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_access_context_manager_access_policy" {
-			continue
+func testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_access_context_manager_access_policy" {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			if err == nil {
+				return fmt.Errorf("AccessPolicy still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("AccessPolicy still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }
 
 func testAccAccessContextManagerAccessPolicy_basic(org, title string) string {

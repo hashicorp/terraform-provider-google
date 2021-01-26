@@ -1,0 +1,3 @@
+```release-note:enhancement
+iam: made the `condition` block GA for all IAM resource and datasource types.
+```

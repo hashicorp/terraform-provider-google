@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added Flexible Cache Control features to `google_compute_backend_service`.
+```
+```release-note:enhancement
+compute: added CDN features to `google_compute_region_backend_service`.
+```

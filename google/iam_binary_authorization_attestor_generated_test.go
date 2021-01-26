@@ -18,19 +18,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccBinaryAuthorizationAttestorIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -39,7 +38,7 @@ func TestAccBinaryAuthorizationAttestorIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +48,7 @@ func TestAccBinaryAuthorizationAttestorIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -61,11 +60,11 @@ func TestAccBinaryAuthorizationAttestorIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -75,7 +74,7 @@ func TestAccBinaryAuthorizationAttestorIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -87,11 +86,11 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -100,7 +99,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", getTestProjectFromEnv(), fmt.Sprintf("test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", getTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -109,7 +108,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", getTestProjectFromEnv(), fmt.Sprintf("test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", getTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -120,7 +119,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 func testAccBinaryAuthorizationAttestorIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -147,7 +146,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -156,8 +155,8 @@ resource "google_container_analysis_note" "note" {
 }
 
 resource "google_binary_authorization_attestor_iam_member" "foo" {
-  project = "${google_binary_authorization_attestor.attestor.project}"
-  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
   role = "%{role}"
   member = "user:admin@hashicorptest.com"
 }
@@ -167,7 +166,7 @@ resource "google_binary_authorization_attestor_iam_member" "foo" {
 func testAccBinaryAuthorizationAttestorIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -194,7 +193,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -210,9 +209,9 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_binary_authorization_attestor_iam_policy" "foo" {
-  project = "${google_binary_authorization_attestor.attestor.project}"
-  attestor = "${google_binary_authorization_attestor.attestor.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -220,7 +219,7 @@ resource "google_binary_authorization_attestor_iam_policy" "foo" {
 func testAccBinaryAuthorizationAttestorIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -247,7 +246,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -259,9 +258,9 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_binary_authorization_attestor_iam_policy" "foo" {
-  project = "${google_binary_authorization_attestor.attestor.project}"
-  attestor = "${google_binary_authorization_attestor.attestor.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -269,7 +268,7 @@ resource "google_binary_authorization_attestor_iam_policy" "foo" {
 func testAccBinaryAuthorizationAttestorIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -296,7 +295,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -305,8 +304,8 @@ resource "google_container_analysis_note" "note" {
 }
 
 resource "google_binary_authorization_attestor_iam_binding" "foo" {
-  project = "${google_binary_authorization_attestor.attestor.project}"
-  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com"]
 }
@@ -316,7 +315,7 @@ resource "google_binary_authorization_attestor_iam_binding" "foo" {
 func testAccBinaryAuthorizationAttestorIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
-  name = "test-attestor%{random_suffix}"
+  name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
     note_reference = google_container_analysis_note.note.name
     public_keys {
@@ -343,7 +342,7 @@ EOF
 }
 
 resource "google_container_analysis_note" "note" {
-  name = "test-attestor-note%{random_suffix}"
+  name = "tf-test-test-attestor-note%{random_suffix}"
   attestation_authority {
     hint {
       human_readable_name = "Attestor Note"
@@ -352,8 +351,8 @@ resource "google_container_analysis_note" "note" {
 }
 
 resource "google_binary_authorization_attestor_iam_binding" "foo" {
-  project = "${google_binary_authorization_attestor.attestor.project}"
-  attestor = "${google_binary_authorization_attestor.attestor.name}"
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }

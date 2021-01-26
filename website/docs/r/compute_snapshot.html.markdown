@@ -42,6 +42,9 @@ To get more information about Snapshot, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/compute/docs/disks/create-snapshots)
 
+~> **Warning:** All arguments including `snapshot_encryption_key.raw_key` and `source_disk_encryption_key.raw_key` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=snapshot_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -58,6 +61,7 @@ resource "google_compute_snapshot" "snapshot" {
   labels = {
     my_label = "value"
   }
+  storage_locations = ["us-central1"]
 }
 
 data "google_compute_image" "debian" {
@@ -101,6 +105,10 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `storage_locations` -
+  (Optional)
+  Cloud Storage bucket storage location of the snapshot (regional or multi-regional).
+
 * `labels` -
   (Optional)
   Labels to apply to this Snapshot.
@@ -112,13 +120,15 @@ The following arguments are supported:
 * `snapshot_encryption_key` -
   (Optional)
   The customer-supplied encryption key of the snapshot. Required if the
-  source snapshot is protected by a customer-supplied encryption key.  Structure is documented below.
+  source snapshot is protected by a customer-supplied encryption key.
+  Structure is documented below.
 
 * `source_disk_encryption_key` -
   (Optional)
   The customer-supplied encryption key of the source snapshot. Required
   if the source snapshot is protected by a customer-supplied encryption
-  key.  Structure is documented below.
+  key.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -127,13 +137,23 @@ The following arguments are supported:
 The `snapshot_encryption_key` block supports:
 
 * `raw_key` -
-  (Required)
+  (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `sha256` -
   The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied
   encryption key that protects this resource.
+
+* `kms_key_self_link` -
+  (Optional)
+  The name of the encryption key that is stored in Google Cloud KMS.
+
+* `kms_key_service_account` -
+  (Optional)
+  The service account used for the encryption request for the given KMS key.
+  If absent, the Compute Engine Service Agent service account is used.
 
 The `source_disk_encryption_key` block supports:
 
@@ -141,11 +161,18 @@ The `source_disk_encryption_key` block supports:
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `kms_key_service_account` -
+  (Optional)
+  The service account used for the encryption request for the given KMS key.
+  If absent, the Compute Engine Service Agent service account is used.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/snapshots/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -157,7 +184,7 @@ In addition to the arguments listed above, the following computed attributes are
   Size of the snapshot, specified in GB.
 
 * `storage_bytes` -
-  A size of the the storage used by the snapshot. As snapshots share
+  A size of the storage used by the snapshot. As snapshots share
   storage, this number is expected to change with snapshot
   creation/deletion.
 
@@ -184,6 +211,7 @@ This resource provides the following
 
 ## Import
 
+
 Snapshot can be imported using any of these accepted formats:
 
 ```
@@ -191,9 +219,6 @@ $ terraform import google_compute_snapshot.default projects/{{project}}/global/s
 $ terraform import google_compute_snapshot.default {{project}}/{{name}}
 $ terraform import google_compute_snapshot.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

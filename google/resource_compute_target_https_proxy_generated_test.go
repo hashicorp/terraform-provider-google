@@ -19,30 +19,33 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_target_https_proxy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_target_https_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ssl_policy", "url_map"},
 			},
 		},
 	})
@@ -51,22 +54,22 @@ func TestAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(t *testing.T) {
 func testAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_target_https_proxy" "default" {
-  name             = "test-proxy%{random_suffix}"
-  url_map          = google_compute_url_map.default.self_link
-  ssl_certificates = [google_compute_ssl_certificate.default.self_link]
+  name             = "tf-test-test-proxy%{random_suffix}"
+  url_map          = google_compute_url_map.default.id
+  ssl_certificates = [google_compute_ssl_certificate.default.id]
 }
 
 resource "google_compute_ssl_certificate" "default" {
-  name        = "my-certificate%{random_suffix}"
+  name        = "tf-test-my-certificate%{random_suffix}"
   private_key = file("test-fixtures/ssl_cert/test.key")
   certificate = file("test-fixtures/ssl_cert/test.crt")
 }
 
 resource "google_compute_url_map" "default" {
-  name        = "url-map%{random_suffix}"
+  name        = "tf-test-url-map%{random_suffix}"
   description = "a description"
 
-  default_service = google_compute_backend_service.default.self_link
+  default_service = google_compute_backend_service.default.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -75,26 +78,26 @@ resource "google_compute_url_map" "default" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = google_compute_backend_service.default.self_link
+    default_service = google_compute_backend_service.default.id
 
     path_rule {
       paths   = ["/*"]
-      service = google_compute_backend_service.default.self_link
+      service = google_compute_backend_service.default.id
     }
   }
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "backend-service%{random_suffix}"
+  name        = "tf-test-backend-service%{random_suffix}"
   port_name   = "http"
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_http_health_check.default.self_link]
+  health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "http-health-check%{random_suffix}"
+  name               = "tf-test-http-health-check%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
@@ -102,27 +105,35 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
-func testAccCheckComputeTargetHttpsProxyDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_target_https_proxy" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckComputeTargetHttpsProxyDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_target_https_proxy" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			if err == nil {
+				return fmt.Errorf("ComputeTargetHttpsProxy still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpsProxies/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeTargetHttpsProxy still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

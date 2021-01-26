@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleContainerEngineVersions() *schema.Resource {
@@ -23,18 +23,6 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
-			},
-			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Removed:  "Use location instead",
-				Computed: true,
-			},
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Removed:  "Use location instead",
-				Computed: true,
 			},
 			"default_cluster_version": {
 				Type:     schema.TypeString,
@@ -58,12 +46,21 @@ func dataSourceGoogleContainerEngineVersions() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"release_channel_default_version": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
 
 func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -79,7 +76,7 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 	}
 
 	location = fmt.Sprintf("projects/%s/locations/%s", project, location)
-	resp, err := config.clientContainerBeta.Projects.Locations.GetServerConfig(location).Do()
+	resp, err := config.NewContainerBetaClient(userAgent).Projects.Locations.GetServerConfig(location).Do()
 	if err != nil {
 		return fmt.Errorf("Error retrieving available container cluster versions: %s", err.Error())
 	}
@@ -98,17 +95,35 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 		}
 	}
 
-	d.Set("valid_master_versions", validMasterVersions)
+	if err := d.Set("valid_master_versions", validMasterVersions); err != nil {
+		return fmt.Errorf("Error setting valid_master_versions: %s", err)
+	}
 	if len(validMasterVersions) > 0 {
-		d.Set("latest_master_version", validMasterVersions[0])
+		if err := d.Set("latest_master_version", validMasterVersions[0]); err != nil {
+			return fmt.Errorf("Error setting latest_master_version: %s", err)
+		}
 	}
 
-	d.Set("valid_node_versions", validNodeVersions)
+	if err := d.Set("valid_node_versions", validNodeVersions); err != nil {
+		return fmt.Errorf("Error setting valid_node_versions: %s", err)
+	}
 	if len(validNodeVersions) > 0 {
-		d.Set("latest_node_version", validNodeVersions[0])
+		if err := d.Set("latest_node_version", validNodeVersions[0]); err != nil {
+			return fmt.Errorf("Error setting latest_node_version: %s", err)
+		}
 	}
 
-	d.Set("default_cluster_version", resp.DefaultClusterVersion)
+	if err := d.Set("default_cluster_version", resp.DefaultClusterVersion); err != nil {
+		return fmt.Errorf("Error setting default_cluster_version: %s", err)
+	}
+
+	channels := map[string]string{}
+	for _, v := range resp.Channels {
+		channels[v.Channel] = v.DefaultVersion
+	}
+	if err := d.Set("release_channel_default_version", channels); err != nil {
+		return fmt.Errorf("Error setting release_channel_default_version: %s", err)
+	}
 
 	d.SetId(time.Now().UTC().String())
 	return nil

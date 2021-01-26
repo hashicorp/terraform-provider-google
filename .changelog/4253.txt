@@ -1,0 +1,4 @@
+```release-note:enhancement
+notebooks: promoted `google_notebooks_instance` to GA
+notebooks: promoted `google_notebooks_environment` to GA
+```

@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccRedisInstance_update(t *testing.T) {
 	t.Parallel()
 
-	name := acctest.RandomWithPrefix("tf-test")
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRedisInstanceDestroy,
+		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRedisInstance_update(name),
@@ -41,7 +40,7 @@ func TestAccRedisInstance_update(t *testing.T) {
 func TestAccRedisInstance_regionFromLocation(t *testing.T) {
 	t.Parallel()
 
-	name := acctest.RandomWithPrefix("tf-test")
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
 
 	// Pick a zone that isn't in the provider-specified region so we know we
 	// didn't fall back to that one.
@@ -52,10 +51,10 @@ func TestAccRedisInstance_regionFromLocation(t *testing.T) {
 		zone = "us-central1-a"
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRedisInstanceDestroy,
+		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRedisInstance_regionFromLocation(name, zone),
@@ -65,6 +64,43 @@ func TestAccRedisInstance_regionFromLocation(t *testing.T) {
 				ResourceName:      "google_redis_instance.test",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccRedisInstance_redisInstanceAuthEnabled(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisInstance_redisInstanceAuthEnabled(context),
+			},
+			{
+				ResourceName:            "google_redis_instance.cache",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+			{
+				Config: testAccRedisInstance_redisInstanceAuthDisabled(context),
+			},
+			{
+				ResourceName:            "google_redis_instance.cache",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -119,4 +155,24 @@ resource "google_redis_instance" "test" {
   location_id    = "%s"
 }
 `, name, zone)
+}
+
+func testAccRedisInstance_redisInstanceAuthEnabled(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_redis_instance" "cache" {
+  name           = "tf-test-memory-cache%{random_suffix}"
+  memory_size_gb = 1
+  auth_enabled = true
+}
+`, context)
+}
+
+func testAccRedisInstance_redisInstanceAuthDisabled(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_redis_instance" "cache" {
+  name           = "tf-test-memory-cache%{random_suffix}"
+  memory_size_gb = 1
+  auth_enabled = false
+}
+`, context)
 }

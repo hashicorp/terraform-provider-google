@@ -1,0 +1,4 @@
+```release-note:enhancement
+pubsub: added `retry_policy` to `google_pubsub_subscription` resource
+
+```

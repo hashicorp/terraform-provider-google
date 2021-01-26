@@ -2,9 +2,8 @@ package google
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleClientOpenIDUserinfo() *schema.Resource {
@@ -21,16 +20,18 @@ func dataSourceGoogleClientOpenIDUserinfo() *schema.Resource {
 
 func dataSourceGoogleClientOpenIDUserinfoRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	// See https://github.com/golang/oauth2/issues/306 for a recommendation to do this from a Go maintainer
-	// URL retrieved from https://accounts.google.com/.well-known/openid-configuration
-	res, err := sendRequest(config, "GET", "", "https://openidconnect.googleapis.com/v1/userinfo", nil)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
-		return fmt.Errorf("error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope? error: %s", err)
+		return err
 	}
 
-	d.SetId(time.Now().UTC().String())
-	d.Set("email", res["email"])
-
+	email, err := GetCurrentUserEmail(config, userAgent)
+	if err != nil {
+		return err
+	}
+	d.SetId(email)
+	if err := d.Set("email", email); err != nil {
+		return fmt.Errorf("Error setting email: %s", err)
+	}
 	return nil
 }

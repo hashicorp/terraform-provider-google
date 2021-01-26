@@ -27,7 +27,7 @@ Resource to hold the state and status of a user's domain mapping.
 
 To get more information about DomainMapping, see:
 
-* [API documentation](https://cloud.google.com/run/docs/reference/rest/v1alpha1/projects.locations.domainmappings)
+* [API documentation](https://cloud.google.com/run/docs/reference/rest/v1/projects.locations.domainmappings)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/run/docs/mapping-custom-domains)
 
@@ -42,7 +42,7 @@ To get more information about DomainMapping, see:
 ```hcl
 
 resource "google_cloud_run_service" "default" {
-  name     = "tftest-cloudrun"
+  name     = "cloudrun-srv"
   location = "us-central1"
 
   metadata {
@@ -52,7 +52,7 @@ resource "google_cloud_run_service" "default" {
   template {
     spec {
       containers {
-        image = "gcr.io/cloudrun/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
       }
     }
   }
@@ -83,11 +83,13 @@ The following arguments are supported:
 
 * `spec` -
   (Required)
-  The spec for this DomainMapping.  Structure is documented below.
+  The spec for this DomainMapping.
+  Structure is documented below.
 
 * `metadata` -
   (Required)
-  Metadata associated with this DomainMapping.  Structure is documented below.
+  Metadata associated with this DomainMapping.
+  Structure is documented below.
 
 * `location` -
   (Required)
@@ -111,6 +113,8 @@ The `spec` block supports:
 * `certificate_mode` -
   (Optional)
   The mode of the certificate.
+  Default value is `AUTOMATIC`.
+  Possible values are `NONE` and `AUTOMATIC`.
 
 The `metadata` block supports:
 
@@ -151,6 +155,9 @@ The `metadata` block supports:
   Annotations is a key value map stored with a resource that
   may be set by external tools to store and retrieve arbitrary metadata. More
   info: http://kubernetes.io/docs/user-guide/annotations
+  **Note**: The Cloud Run API may add additional annotations that were not provided in your config.
+  If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
+  or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.
 
 - - -
 
@@ -163,16 +170,19 @@ The `metadata` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `locations/{{location}}/namespaces/{{project}}/domainmappings/{{name}}`
 
 * `status` -
-  The current status of the DomainMapping.  Structure is documented below.
+  The current status of the DomainMapping.
+  Structure is documented below.
 
 
 The `status` block contains:
 
 * `conditions` -
   Array of observed DomainMappingConditions, indicating the current state
-  of the DomainMapping.  Structure is documented below.
+  of the DomainMapping.
+  Structure is documented below.
 
 * `observed_generation` -
   ObservedGeneration is the 'Generation' of the DomainMapping that
@@ -182,7 +192,8 @@ The `status` block contains:
   (Optional)
   The resource records required to configure this domain mapping. These
   records must be added to the domain's DNS configuration in order to
-  serve the application via this domain mapping.  Structure is documented below.
+  serve the application via this domain mapping.
+  Structure is documented below.
 
 * `mapped_route_name` -
   The name of the route that the mapping currently points to.
@@ -207,6 +218,7 @@ The `resource_records` block supports:
 * `type` -
   (Optional)
   Resource record type. Example: `AAAA`.
+  Possible values are `A`, `AAAA`, and `CNAME`.
 
 * `rrdata` -
   Data for this record. Values vary by record type, as defined in RFC 1035
@@ -226,6 +238,7 @@ This resource provides the following
 
 ## Import
 
+
 DomainMapping can be imported using any of these accepted formats:
 
 ```
@@ -233,9 +246,6 @@ $ terraform import google_cloud_run_domain_mapping.default locations/{{location}
 $ terraform import google_cloud_run_domain_mapping.default {{location}}/{{project}}/{{name}}
 $ terraform import google_cloud_run_domain_mapping.default {{location}}/{{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

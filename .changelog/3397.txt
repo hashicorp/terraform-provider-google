@@ -1,0 +1,3 @@
+```release-note:bug
+sql: Allowed `binary_log_enabled` to be disabled.
+```

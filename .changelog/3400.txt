@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_logging_folder_bucket_config`
+```
+```release-note:new-resource
+`google_logging_project_bucket_config`
+```
+```release-note:new-resource
+`google_logging_organization_bucket_config`
+```
+```release-note:new-resource
+`google_logging_billing_account_bucket_config`
+```

@@ -1,0 +1,3 @@
+```release-note:bug
+firestore: fixed import of `google_firestore_index` when database or collection were non-default.
+```

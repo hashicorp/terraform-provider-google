@@ -46,7 +46,7 @@ To get more information about TargetTcpProxy, see:
 ```hcl
 resource "google_compute_target_tcp_proxy" "default" {
   name            = "test-proxy"
-  backend_service = google_compute_backend_service.default.self_link
+  backend_service = google_compute_backend_service.default.id
 }
 
 resource "google_compute_backend_service" "default" {
@@ -54,7 +54,7 @@ resource "google_compute_backend_service" "default" {
   protocol    = "TCP"
   timeout_sec = 10
 
-  health_checks = [google_compute_health_check.default.self_link]
+  health_checks = [google_compute_health_check.default.id]
 }
 
 resource "google_compute_health_check" "default" {
@@ -98,7 +98,9 @@ The following arguments are supported:
 * `proxy_header` -
   (Optional)
   Specifies the type of proxy header to append before sending data to
-  the backend, either NONE or PROXY_V1. The default is NONE.
+  the backend.
+  Default value is `NONE`.
+  Possible values are `NONE` and `PROXY_V1`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -108,6 +110,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/targetTcpProxies/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -128,6 +131,7 @@ This resource provides the following
 
 ## Import
 
+
 TargetTcpProxy can be imported using any of these accepted formats:
 
 ```
@@ -135,9 +139,6 @@ $ terraform import google_compute_target_tcp_proxy.default projects/{{project}}/
 $ terraform import google_compute_target_tcp_proxy.default {{project}}/{{name}}
 $ terraform import google_compute_target_tcp_proxy.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

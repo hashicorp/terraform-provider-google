@@ -1,0 +1,3 @@
+```release-note:bug
+os_login: Fixed `google_os_login_ssh_public_key` `key` field attempting to update in-place
+```

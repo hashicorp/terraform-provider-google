@@ -1,0 +1,4 @@
+```release-note:new-datasource
+`google_monitoring_cluster_istio_service`
+`google_monitoring_mesh_istio_service`
+```

@@ -24,7 +24,7 @@ This resource is specifically to create a compute instance from a given
 ```hcl
 resource "google_compute_instance_template" "tpl" {
   name         = "template"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = "debian-cloud/debian-9"
@@ -48,7 +48,7 @@ resource "google_compute_instance_from_template" "tpl" {
   name = "instance-from-template"
   zone = "us-central1-a"
 
-  source_instance_template = google_compute_instance_template.tpl.self_link
+  source_instance_template = google_compute_instance_template.tpl.id
 
   // Override fields from instance template
   can_ip_forward = false
@@ -86,6 +86,16 @@ are marked [Attributes as Blocks](/docs/configuration/attr-as-blocks.html):
 * `scratch_disk`
 * `network_interface.alias_ip_range`
 * `network_interface.access_config`
+
+## Attributes Reference
+
+All exported attributes from `google_compute_instance` are exported here.
+See https://www.terraform.io/docs/providers/google/r/compute_instance.html#attributes-reference
+for details.
+
+## Import
+
+This resource does not support import.
 
 ## Timeouts
 

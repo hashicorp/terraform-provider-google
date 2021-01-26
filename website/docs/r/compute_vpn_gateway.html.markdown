@@ -30,6 +30,9 @@ To get more information about VpnGateway, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/targetVpnGateways)
 
+~> **Warning:** Classic VPN is deprecating certain functionality on October 31, 2021. For more information,
+see the [Classic VPN partial deprecation page](https://cloud.google.com/network-connectivity/docs/vpn/deprecations/classic-vpn-deprecation).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=target_vpn_gateway_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -41,7 +44,7 @@ To get more information about VpnGateway, see:
 ```hcl
 resource "google_compute_vpn_gateway" "target_gateway" {
   name    = "vpn1"
-  network = google_compute_network.network1.self_link
+  network = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
@@ -56,7 +59,7 @@ resource "google_compute_forwarding_rule" "fr_esp" {
   name        = "fr-esp"
   ip_protocol = "ESP"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_forwarding_rule" "fr_udp500" {
@@ -64,7 +67,7 @@ resource "google_compute_forwarding_rule" "fr_udp500" {
   ip_protocol = "UDP"
   port_range  = "500"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_forwarding_rule" "fr_udp4500" {
@@ -72,7 +75,7 @@ resource "google_compute_forwarding_rule" "fr_udp4500" {
   ip_protocol = "UDP"
   port_range  = "4500"
   ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.self_link
+  target      = google_compute_vpn_gateway.target_gateway.id
 }
 
 resource "google_compute_vpn_tunnel" "tunnel1" {
@@ -80,7 +83,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
   peer_ip       = "15.0.0.120"
   shared_secret = "a secret message"
 
-  target_vpn_gateway = google_compute_vpn_gateway.target_gateway.self_link
+  target_vpn_gateway = google_compute_vpn_gateway.target_gateway.id
 
   depends_on = [
     google_compute_forwarding_rule.fr_esp,
@@ -95,7 +98,7 @@ resource "google_compute_route" "route1" {
   dest_range = "15.0.0.0/24"
   priority   = 1000
 
-  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.self_link
+  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.id
 }
 ```
 
@@ -138,6 +141,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/targetVpnGateways/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -157,6 +161,7 @@ This resource provides the following
 
 ## Import
 
+
 VpnGateway can be imported using any of these accepted formats:
 
 ```
@@ -165,9 +170,6 @@ $ terraform import google_compute_vpn_gateway.default {{project}}/{{region}}/{{n
 $ terraform import google_compute_vpn_gateway.default {{region}}/{{name}}
 $ terraform import google_compute_vpn_gateway.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

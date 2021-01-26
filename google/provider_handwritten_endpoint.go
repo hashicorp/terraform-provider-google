@@ -1,7 +1,7 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // For generated resources, endpoint entries live in product-specific provider
@@ -17,17 +17,6 @@ var CloudBillingCustomEndpointEntry = &schema.Schema{
 	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 		"GOOGLE_CLOUD_BILLING_CUSTOM_ENDPOINT",
 	}, CloudBillingDefaultBasePath),
-}
-
-var CloudIoTDefaultBasePath = "https://cloudiot.googleapis.com/v1/"
-var CloudIoTCustomEndpointEntryKey = "cloud_iot_custom_endpoint"
-var CloudIoTCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_CLOUD_IOT_CUSTOM_ENDPOINT",
-	}, CloudIoTDefaultBasePath),
 }
 
 var ComposerDefaultBasePath = "https://composer.googleapis.com/v1beta1/"
@@ -149,17 +138,6 @@ var RuntimeConfigCustomEndpointEntry = &schema.Schema{
 	}, RuntimeConfigDefaultBasePath),
 }
 
-var ServiceManagementDefaultBasePath = "https://servicemanagement.googleapis.com/v1/"
-var ServiceManagementCustomEndpointEntryKey = "service_management_custom_endpoint"
-var ServiceManagementCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_SERVICE_MANAGEMENT_CUSTOM_ENDPOINT",
-	}, ServiceManagementDefaultBasePath),
-}
-
 var ServiceNetworkingDefaultBasePath = "https://servicenetworking.googleapis.com/v1/"
 var ServiceNetworkingCustomEndpointEntryKey = "service_networking_custom_endpoint"
 var ServiceNetworkingCustomEndpointEntry = &schema.Schema{
@@ -171,7 +149,6 @@ var ServiceNetworkingCustomEndpointEntry = &schema.Schema{
 	}, ServiceNetworkingDefaultBasePath),
 }
 
-var ServiceUsageDefaultBasePath = "https://serviceusage.googleapis.com/v1/"
 var ServiceUsageCustomEndpointEntryKey = "service_usage_custom_endpoint"
 var ServiceUsageCustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,

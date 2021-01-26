@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 var (
@@ -55,6 +55,10 @@ func dataSourceGoogleComputeAddress() *schema.Resource {
 
 func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -66,16 +70,26 @@ func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}
 	}
 	name := d.Get("name").(string)
 
-	address, err := config.clientCompute.Addresses.Get(project, region, name).Do()
+	address, err := config.NewComputeClient(userAgent).Addresses.Get(project, region, name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Address Not Found : %s", name))
 	}
 
-	d.Set("address", address.Address)
-	d.Set("status", address.Status)
-	d.Set("self_link", address.SelfLink)
-	d.Set("project", project)
-	d.Set("region", region)
+	if err := d.Set("address", address.Address); err != nil {
+		return fmt.Errorf("Error setting address: %s", err)
+	}
+	if err := d.Set("status", address.Status); err != nil {
+		return fmt.Errorf("Error setting status: %s", err)
+	}
+	if err := d.Set("self_link", address.SelfLink); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("region", region); err != nil {
+		return fmt.Errorf("Error setting region: %s", err)
+	}
 
 	d.SetId(fmt.Sprintf("projects/%s/regions/%s/addresses/%s", project, region, name))
 	return nil

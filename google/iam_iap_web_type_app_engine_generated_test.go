@@ -18,21 +18,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccIapWebTypeAppEngineIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
-		"project_id":    fmt.Sprintf("tf-test%s", acctest.RandString(10)),
+		"project_id":    fmt.Sprintf("tf-test%s", randString(t, 10)),
 		"org_id":        getTestOrgFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -63,13 +62,13 @@ func TestAccIapWebTypeAppEngineIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
-		"project_id":    fmt.Sprintf("tf-test%s", acctest.RandString(10)),
+		"project_id":    fmt.Sprintf("tf-test%s", randString(t, 10)),
 		"org_id":        getTestOrgFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -91,13 +90,13 @@ func TestAccIapWebTypeAppEngineIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
-		"project_id":    fmt.Sprintf("tf-test%s", acctest.RandString(10)),
+		"project_id":    fmt.Sprintf("tf-test%s", randString(t, 10)),
 		"org_id":        getTestOrgFromEnv(t),
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -142,8 +141,8 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_iap_web_type_app_engine_iam_member" "foo" {
-  project = "${google_app_engine_application.app.project}"
-  app_id = "${google_app_engine_application.app.app_id}"
+  project = google_app_engine_application.app.project
+  app_id = google_app_engine_application.app.app_id
   role = "%{role}"
   member = "user:admin@hashicorptest.com"
 }
@@ -176,9 +175,9 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_iap_web_type_app_engine_iam_policy" "foo" {
-  project = "${google_app_engine_application.app.project}"
-  app_id = "${google_app_engine_application.app.app_id}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_app_engine_application.app.project
+  app_id = google_app_engine_application.app.app_id
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -205,9 +204,9 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_iap_web_type_app_engine_iam_policy" "foo" {
-  project = "${google_app_engine_application.app.project}"
-  app_id = "${google_app_engine_application.app.app_id}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_app_engine_application.app.project
+  app_id = google_app_engine_application.app.app_id
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -231,8 +230,8 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_iap_web_type_app_engine_iam_binding" "foo" {
-  project = "${google_app_engine_application.app.project}"
-  app_id = "${google_app_engine_application.app.app_id}"
+  project = google_app_engine_application.app.project
+  app_id = google_app_engine_application.app.app_id
   role = "%{role}"
   members = ["user:admin@hashicorptest.com"]
 }
@@ -258,8 +257,8 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_iap_web_type_app_engine_iam_binding" "foo" {
-  project = "${google_app_engine_application.app.project}"
-  app_id = "${google_app_engine_application.app.app_id}"
+  project = google_app_engine_application.app.project
+  app_id = google_app_engine_application.app.app_id
   role = "%{role}"
   members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }

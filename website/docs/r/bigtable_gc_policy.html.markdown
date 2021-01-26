@@ -1,5 +1,5 @@
 ---
-subcategory: "Bigtable"
+subcategory: "Cloud Bigtable"
 layout: "google"
 page_title: "Google: google_bigtable_gc_policy"
 sidebar_current: "docs-google-bigtable-gc-policy"
@@ -21,7 +21,6 @@ resource "google_bigtable_instance" "instance" {
   name = "tf-instance"
   cluster {
     cluster_id   = "tf-instance-cluster"
-    zone         = "us-central1-b"
     num_nodes    = 3
     storage_type = "HDD"
   }
@@ -42,7 +41,7 @@ resource "google_bigtable_gc_policy" "policy" {
   column_family = "name"
 
   max_age {
-    days = 7
+    duration = "168h"
   }
 }
 ```
@@ -58,7 +57,7 @@ resource "google_bigtable_gc_policy" "policy" {
   mode = "UNION"
 
   max_age {
-    days = 7
+    duration = "168h" # 7 days
   }
 
   max_version {
@@ -89,7 +88,9 @@ The following arguments are supported:
 
 `max_age` supports the following arguments:
 
-* `days` - (Required) Number of days before applying GC policy.
+* `days` - (Optional, Deprecated in favor of duration) Number of days before applying GC policy.
+
+* `duration` - (Optional) Duration before applying GC policy (ex. "8h"). This is required when `days` isn't set
 
 -----
 
@@ -100,3 +101,7 @@ The following arguments are supported:
 ## Attributes Reference
 
 Only the arguments listed above are exposed as attributes.
+
+## Import
+
+This resource does not support import.

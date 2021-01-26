@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceMonitoringNotificationChannel() *schema.Resource {
@@ -25,8 +25,12 @@ func dataSourceMonitoringNotificationChannel() *schema.Resource {
 
 func dataSourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}projects/{{project}}/notificationChannels")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/notificationChannels")
 	if err != nil {
 		return err
 	}
@@ -80,7 +84,7 @@ func dataSourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	response, err := sendRequest(config, "GET", project, url, nil)
+	response, err := sendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error retrieving NotificationChannels: %s", err)
 	}
@@ -97,8 +101,10 @@ func dataSourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta in
 	}
 	res := channels[0].(map[string]interface{})
 
-	name := flattenMonitoringNotificationChannelName(res["name"], d).(string)
-	d.Set("name", name)
+	name := flattenMonitoringNotificationChannelName(res["name"], d, config).(string)
+	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name)
 
 	return resourceMonitoringNotificationChannelRead(d, meta)

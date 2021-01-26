@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceIdentityPlatformInboundSamlConfig() *schema.Resource {
@@ -141,11 +141,16 @@ and accept an authentication assertion issued by a SAML identity provider.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceIdentityPlatformInboundSamlConfigCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandIdentityPlatformInboundSamlConfigName(d.Get("name"), d, config)
@@ -185,11 +190,20 @@ func resourceIdentityPlatformInboundSamlConfigCreate(d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Creating new InboundSamlConfig: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for InboundSamlConfig: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating InboundSamlConfig: %s", err)
 	}
@@ -208,17 +222,30 @@ func resourceIdentityPlatformInboundSamlConfigCreate(d *schema.ResourceData, met
 
 func resourceIdentityPlatformInboundSamlConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/inboundSamlConfigs/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for InboundSamlConfig: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IdentityPlatformInboundSamlConfig %q", d.Id()))
 	}
@@ -227,19 +254,19 @@ func resourceIdentityPlatformInboundSamlConfigRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
 
-	if err := d.Set("name", flattenIdentityPlatformInboundSamlConfigName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenIdentityPlatformInboundSamlConfigName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
-	if err := d.Set("display_name", flattenIdentityPlatformInboundSamlConfigDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenIdentityPlatformInboundSamlConfigDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
-	if err := d.Set("enabled", flattenIdentityPlatformInboundSamlConfigEnabled(res["enabled"], d)); err != nil {
+	if err := d.Set("enabled", flattenIdentityPlatformInboundSamlConfigEnabled(res["enabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
-	if err := d.Set("idp_config", flattenIdentityPlatformInboundSamlConfigIdpConfig(res["idpConfig"], d)); err != nil {
+	if err := d.Set("idp_config", flattenIdentityPlatformInboundSamlConfigIdpConfig(res["idpConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
-	if err := d.Set("sp_config", flattenIdentityPlatformInboundSamlConfigSpConfig(res["spConfig"], d)); err != nil {
+	if err := d.Set("sp_config", flattenIdentityPlatformInboundSamlConfigSpConfig(res["spConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InboundSamlConfig: %s", err)
 	}
 
@@ -248,11 +275,18 @@ func resourceIdentityPlatformInboundSamlConfigRead(d *schema.ResourceData, meta 
 
 func resourceIdentityPlatformInboundSamlConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for InboundSamlConfig: %s", err)
+	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandIdentityPlatformInboundSamlConfigDisplayName(d.Get("display_name"), d, config)
@@ -309,10 +343,18 @@ func resourceIdentityPlatformInboundSamlConfigUpdate(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating InboundSamlConfig %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating InboundSamlConfig %q: %#v", d.Id(), res)
 	}
 
 	return resourceIdentityPlatformInboundSamlConfigRead(d, meta)
@@ -320,11 +362,18 @@ func resourceIdentityPlatformInboundSamlConfigUpdate(d *schema.ResourceData, met
 
 func resourceIdentityPlatformInboundSamlConfigDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for InboundSamlConfig: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/inboundSamlConfigs/{{name}}")
 	if err != nil {
@@ -334,7 +383,12 @@ func resourceIdentityPlatformInboundSamlConfigDelete(d *schema.ResourceData, met
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting InboundSamlConfig %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "InboundSamlConfig")
 	}
@@ -363,22 +417,22 @@ func resourceIdentityPlatformInboundSamlConfigImport(d *schema.ResourceData, met
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIdentityPlatformInboundSamlConfigName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenIdentityPlatformInboundSamlConfigDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigEnabled(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -388,28 +442,28 @@ func flattenIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d *schema.
 	}
 	transformed := make(map[string]interface{})
 	transformed["idp_entity_id"] =
-		flattenIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(original["idpEntityId"], d)
+		flattenIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(original["idpEntityId"], d, config)
 	transformed["sso_url"] =
-		flattenIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(original["ssoUrl"], d)
+		flattenIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(original["ssoUrl"], d, config)
 	transformed["sign_request"] =
-		flattenIdentityPlatformInboundSamlConfigIdpConfigSignRequest(original["signRequest"], d)
+		flattenIdentityPlatformInboundSamlConfigIdpConfigSignRequest(original["signRequest"], d, config)
 	transformed["idp_certificates"] =
-		flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(original["idpCertificates"], d)
+		flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(original["idpCertificates"], d, config)
 	return []interface{}{transformed}
 }
-func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfigSignRequest(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigSignRequest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -422,16 +476,16 @@ func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interfac
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"x509_certificate": flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(original["x509Certificate"], d),
+			"x509_certificate": flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(original["x509Certificate"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -441,22 +495,22 @@ func flattenIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d *schema.R
 	}
 	transformed := make(map[string]interface{})
 	transformed["sp_entity_id"] =
-		flattenIdentityPlatformInboundSamlConfigSpConfigSpEntityId(original["spEntityId"], d)
+		flattenIdentityPlatformInboundSamlConfigSpConfigSpEntityId(original["spEntityId"], d, config)
 	transformed["callback_uri"] =
-		flattenIdentityPlatformInboundSamlConfigSpConfigCallbackUri(original["callbackUri"], d)
+		flattenIdentityPlatformInboundSamlConfigSpConfigCallbackUri(original["callbackUri"], d, config)
 	transformed["sp_certificates"] =
-		flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(original["spCertificates"], d)
+		flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(original["spCertificates"], d, config)
 	return []interface{}{transformed}
 }
-func flattenIdentityPlatformInboundSamlConfigSpConfigSpEntityId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigSpEntityId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigSpConfigCallbackUri(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigCallbackUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -469,12 +523,12 @@ func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"x509_certificate": flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(original["x509Certificate"], d),
+			"x509_certificate": flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(original["x509Certificate"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(v interface{}, d *schema.ResourceData) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

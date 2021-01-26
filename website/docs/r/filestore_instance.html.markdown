@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Filestore"
+subcategory: "Filestore"
 layout: "google"
 page_title: "Google: google_filestore_instance"
 sidebar_current: "docs-google-filestore-instance"
@@ -58,6 +58,46 @@ resource "google_filestore_instance" "instance" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=filestore_instance_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Filestore Instance Full
+
+
+```hcl
+resource "google_filestore_instance" "instance" {
+  provider = google-beta
+  name = "test-instance"
+  zone = "us-central1-b"
+  tier = "BASIC_SSD"
+
+  file_shares {
+    capacity_gb = 2660
+    name        = "share1"
+
+    nfs_export_options {
+      ip_ranges = ["10.0.0.0/24"]
+      access_mode = "READ_WRITE"
+      squash_mode = "NO_ROOT_SQUASH"
+   }
+
+   nfs_export_options {
+      ip_ranges = ["10.10.0.0/24"]
+      access_mode = "READ_ONLY"
+      squash_mode = "ROOT_SQUASH"
+      anon_uid = 123
+      anon_gid = 456
+   }
+  }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -71,16 +111,19 @@ The following arguments are supported:
 * `tier` -
   (Required)
   The service tier of the instance.
+  Possible values are `TIER_UNSPECIFIED`, `STANDARD`, `PREMIUM`, `BASIC_HDD`, `BASIC_SSD`, and `HIGH_SCALE_SSD`.
 
 * `file_shares` -
   (Required)
   File system shares on the instance. For this version, only a
-  single file share is supported.  Structure is documented below.
+  single file share is supported.
+  Structure is documented below.
 
 * `networks` -
   (Required)
   VPC networks to which the instance is connected. For this version,
-  only a single network is supported.  Structure is documented below.
+  only a single network is supported.
+  Structure is documented below.
 
 * `zone` -
   (Required)
@@ -98,6 +141,46 @@ The `file_shares` block supports:
   File share capacity in GiB. This must be at least 1024 GiB
   for the standard tier, or 2560 GiB for the premium tier.
 
+* `nfs_export_options` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Nfs Export Options. There is a limit of 10 export options per file share.
+  Structure is documented below.
+
+
+The `nfs_export_options` block supports:
+
+* `ip_ranges` -
+  (Optional)
+  List of either IPv4 addresses, or ranges in CIDR notation which may mount the file share.
+  Overlapping IP ranges are not allowed, both within and across NfsExportOptions. An error will be returned.
+  The limit is 64 IP ranges/addresses for each FileShareConfig among all NfsExportOptions.
+
+* `access_mode` -
+  (Optional)
+  Either READ_ONLY, for allowing only read requests on the exported directory,
+  or READ_WRITE, for allowing both read and write requests. The default is READ_WRITE.
+  Default value is `READ_WRITE`.
+  Possible values are `READ_ONLY` and `READ_WRITE`.
+
+* `squash_mode` -
+  (Optional)
+  Either NO_ROOT_SQUASH, for allowing root access on the exported directory, or ROOT_SQUASH,
+  for not allowing root access. The default is NO_ROOT_SQUASH.
+  Default value is `NO_ROOT_SQUASH`.
+  Possible values are `NO_ROOT_SQUASH` and `ROOT_SQUASH`.
+
+* `anon_uid` -
+  (Optional)
+  An integer representing the anonymous user id with a default value of 65534.
+  Anon_uid may only be set with squashMode of ROOT_SQUASH. An error will be returned
+  if this field is specified for other squashMode settings.
+
+* `anon_gid` -
+  (Optional)
+  An integer representing the anonymous group id with a default value of 65534.
+  Anon_gid may only be set with squashMode of ROOT_SQUASH. An error will be returned
+  if this field is specified for other squashMode settings.
+
 The `networks` block supports:
 
 * `network` -
@@ -109,6 +192,7 @@ The `networks` block supports:
   (Required)
   IP versions for which the instance has
   IP addresses assigned.
+  Each value may be one of `ADDRESS_MODE_UNSPECIFIED`, `MODE_IPV4`, and `MODE_IPV6`.
 
 * `reserved_ip_range` -
   (Optional)
@@ -137,6 +221,7 @@ The `networks` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{zone}}/instances/{{name}}`
 
 * `create_time` -
   Creation timestamp in RFC3339 text format.
@@ -157,6 +242,7 @@ This resource provides the following
 
 ## Import
 
+
 Instance can be imported using any of these accepted formats:
 
 ```
@@ -165,9 +251,6 @@ $ terraform import google_filestore_instance.default {{project}}/{{zone}}/{{name
 $ terraform import google_filestore_instance.default {{zone}}/{{name}}
 $ terraform import google_filestore_instance.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

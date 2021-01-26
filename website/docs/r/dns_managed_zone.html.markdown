@@ -77,10 +77,10 @@ resource "google_dns_managed_zone" "private-zone" {
 
   private_visibility_config {
     networks {
-      network_url = google_compute_network.network-1.self_link
+      network_url = google_compute_network.network-1.id
     }
     networks {
-      network_url = google_compute_network.network-2.self_link
+      network_url = google_compute_network.network-2.id
     }
   }
 }
@@ -100,7 +100,6 @@ resource "google_compute_network" "network-2" {
 
 ```hcl
 resource "google_dns_managed_zone" "private-zone" {
-  provider    = google-beta
   name        = "private-zone"
   dns_name    = "private.example.com."
   description = "Example private DNS zone"
@@ -112,10 +111,10 @@ resource "google_dns_managed_zone" "private-zone" {
 
   private_visibility_config {
     networks {
-      network_url = google_compute_network.network-1.self_link
+      network_url = google_compute_network.network-1.id
     }
     networks {
-      network_url = google_compute_network.network-2.self_link
+      network_url = google_compute_network.network-2.id
     }
   }
 
@@ -149,8 +148,6 @@ resource "google_compute_network" "network-2" {
 
 ```hcl
 resource "google_dns_managed_zone" "peering-zone" {
-  provider = google-beta
-
   name        = "peering-zone"
   dns_name    = "peering.example.com."
   description = "Example private DNS peering zone"
@@ -159,34 +156,64 @@ resource "google_dns_managed_zone" "peering-zone" {
 
   private_visibility_config {
     networks {
-      network_url = google_compute_network.network-source.self_link
+      network_url = google_compute_network.network-source.id
     }
   }
 
   peering_config {
     target_network {
-      network_url = google_compute_network.network-target.self_link
+      network_url = google_compute_network.network-target.id
     }
   }
 }
 
 resource "google_compute_network" "network-source" {
-  provider = google-beta
-
   name                    = "network-source"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network-target" {
-  provider = google-beta
-
   name                    = "network-target"
   auto_create_subnetworks = false
 }
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dns_managed_zone_service_directory&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dns Managed Zone Service Directory
 
-provider "google-beta" {
-  region = "us-central1"
-  zone   = "us-central1-a"
+
+```hcl
+resource "google_dns_managed_zone" "sd-zone" {
+  provider = google-beta
+
+  name        = "peering-zone"
+  dns_name    = "services.example.com."
+  description = "Example private DNS Service Directory zone"
+
+  visibility = "private"
+
+  service_directory_config {
+    namespace {
+      namespace_url = google_service_directory_namespace.example.id
+    }
+  }
+}
+
+resource "google_service_directory_namespace" "example" {
+  provider = google-beta
+
+  namespace_id = "example"
+  location     = "us-central1"
+}
+
+resource "google_compute_network" "network" {
+  provider = google-beta
+
+  name                    = "network"
+  auto_create_subnetworks = false
 }
 ```
 
@@ -214,7 +241,8 @@ The following arguments are supported:
 
 * `dnssec_config` -
   (Optional)
-  DNSSEC configuration  Structure is documented below.
+  DNSSEC configuration
+  Structure is documented below.
 
 * `labels` -
   (Optional)
@@ -224,16 +252,43 @@ The following arguments are supported:
   (Optional)
   The zone's visibility: public zones are exposed to the Internet,
   while private zones are visible only to Virtual Private Cloud resources.
-  Must be one of: `public`, `private`.
+  Default value is `public`.
+  Possible values are `private` and `public`.
 
 * `private_visibility_config` -
   (Optional)
   For privately visible zones, the set of Virtual Private Cloud
-  resources that the zone is visible from.  Structure is documented below.
+  resources that the zone is visible from.
+  Structure is documented below.
+
+* `forwarding_config` -
+  (Optional)
+  The presence for this field indicates that outbound forwarding is enabled
+  for this zone. The value of this field contains the set of destinations
+  to forward to.
+  Structure is documented below.
+
+* `peering_config` -
+  (Optional)
+  The presence of this field indicates that DNS Peering is enabled for this
+  zone. The value of this field contains the network to peer with.
+  Structure is documented below.
+
+* `reverse_lookup` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies if this is a managed reverse lookup zone. If true, Cloud DNS will resolve reverse
+  lookup queries using automatically configured records for VPC resources. This only applies
+  to networks listed under `private_visibility_config`.
+
+* `service_directory_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The presence of this field indicates that this zone is backed by Service Directory. The value of this field contains information related to the namespace associated with the zone.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `force_destroy` - (Optional) Set this true to delete all records in the zone.
 
 The `dnssec_config` block supports:
 
@@ -244,16 +299,21 @@ The `dnssec_config` block supports:
 * `non_existence` -
   (Optional)
   Specifies the mechanism used to provide authenticated denial-of-existence responses.
+  non_existence can only be updated when the state is `off`.
+  Possible values are `nsec` and `nsec3`.
 
 * `state` -
   (Optional)
   Specifies whether DNSSEC is enabled, and what mode it is in
+  Possible values are `off`, `on`, and `transfer`.
 
 * `default_key_specs` -
   (Optional)
   Specifies parameters that will be used for generating initial DnsKeys
   for this ManagedZone. If you provide a spec for keySigning or zoneSigning,
-  you must also provide one for the other.  Structure is documented below.
+  you must also provide one for the other.
+  default_key_specs can only be updated when the state is `off`.
+  Structure is documented below.
 
 
 The `default_key_specs` block supports:
@@ -261,6 +321,7 @@ The `default_key_specs` block supports:
 * `algorithm` -
   (Optional)
   String mnemonic specifying the DNSSEC algorithm of this key
+  Possible values are `ecdsap256sha256`, `ecdsap384sha384`, `rsasha1`, `rsasha256`, and `rsasha512`.
 
 * `key_length` -
   (Optional)
@@ -274,6 +335,7 @@ The `default_key_specs` block supports:
   resource record sets of type DNSKEY. Zone signing keys do
   not have the Secure Entry Point flag set and will be used
   to sign all other types of resource record sets.
+  Possible values are `keySigning` and `zoneSigning`.
 
 * `kind` -
   (Optional)
@@ -287,21 +349,80 @@ The `private_visibility_config` block supports:
   may experience issues with this resource while updating. If you've defined a `networks` block and
   add another `networks` block while keeping the old block, Terraform will see an incorrect diff
   and apply an incorrect update to the resource. If you encounter this issue, remove all `networks`
-  blocks in an update and then apply another update adding all of them back simultaneously.  Structure is documented below.
+  blocks in an update and then apply another update adding all of them back simultaneously.
+  Structure is documented below.
 
 
 The `networks` block supports:
 
 * `network_url` -
   (Required)
-  The fully qualified URL of the VPC network to bind to.
-  This should be formatted like
+  The id or fully qualified URL of the VPC network to bind to.
+  This should be formatted like `projects/{project}/global/networks/{network}` or
   `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
+
+The `forwarding_config` block supports:
+
+* `target_name_servers` -
+  (Required)
+  List of target name servers to forward to. Cloud DNS will
+  select the best available name server if more than
+  one target is given.
+  Structure is documented below.
+
+
+The `target_name_servers` block supports:
+
+* `ipv4_address` -
+  (Required)
+  IPv4 address of a target name server.
+
+* `forwarding_path` -
+  (Optional)
+  Forwarding path for this TargetNameServer. If unset or `default` Cloud DNS will make forwarding
+  decision based on address ranges, i.e. RFC1918 addresses go to the VPC, Non-RFC1918 addresses go
+  to the Internet. When set to `private`, Cloud DNS will always send queries through VPC for this target
+  Possible values are `default` and `private`.
+
+The `peering_config` block supports:
+
+* `target_network` -
+  (Required)
+  The network with which to peer.
+  Structure is documented below.
+
+
+The `target_network` block supports:
+
+* `network_url` -
+  (Required)
+  The id or fully qualified URL of the VPC network to forward queries to.
+  This should be formatted like `projects/{project}/global/networks/{network}` or
+  `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
+
+The `service_directory_config` block supports:
+
+* `namespace` -
+  (Required)
+  The namespace associated with the zone.
+  Structure is documented below.
+
+
+The `namespace` block supports:
+
+* `namespace_url` -
+  (Required)
+  The fully qualified or partial URL of the service directory namespace that should be
+  associated with the zone. This should be formatted like
+  `https://servicedirectory.googleapis.com/v1/projects/{project}/locations/{location}/namespaces/{namespace_id}`
+  or simply `projects/{project}/locations/{location}/namespaces/{namespace_id}`
+  Ignored for `public` visibility zones.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/managedZones/{{name}}`
 
 * `name_servers` -
   Delegate your managed_zone to these virtual name servers;
@@ -319,6 +440,7 @@ This resource provides the following
 
 ## Import
 
+
 ManagedZone can be imported using any of these accepted formats:
 
 ```
@@ -326,9 +448,6 @@ $ terraform import google_dns_managed_zone.default projects/{{project}}/managedZ
 $ terraform import google_dns_managed_zone.default {{project}}/{{name}}
 $ terraform import google_dns_managed_zone.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

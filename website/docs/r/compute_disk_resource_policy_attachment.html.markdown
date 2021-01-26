@@ -25,7 +25,7 @@ description: |-
 Adds existing resource policies to a disk. You can only add one policy
 which will be applied to this disk for scheduling snapshot creation.
 
-~> **Note:** This resource does not support regional disks (`google_compute_region_disk`).
+~> **Note:** This resource does not support regional disks (`google_compute_region_disk`). For regional disks, please refer to [`google_compute_region_disk_resource_policy_attachment`](https://www.terraform.io/docs/providers/google/r/compute_region_disk_resource_policy_attachment.html)
 
 
 
@@ -97,6 +97,12 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}/{{zone}}/{{disk}}/{{name}}`
+
 
 ## Timeouts
 
@@ -108,6 +114,7 @@ This resource provides the following
 
 ## Import
 
+
 DiskResourcePolicyAttachment can be imported using any of these accepted formats:
 
 ```
@@ -116,9 +123,6 @@ $ terraform import google_compute_disk_resource_policy_attachment.default {{proj
 $ terraform import google_compute_disk_resource_policy_attachment.default {{zone}}/{{disk}}/{{name}}
 $ terraform import google_compute_disk_resource_policy_attachment.default {{disk}}/{{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

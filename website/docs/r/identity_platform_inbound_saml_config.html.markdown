@@ -45,7 +45,7 @@ resource "google_identity_platform_inbound_saml_config" "saml_config" {
   idp_config {
     idp_entity_id = "tf-idp"
     sign_request  = true
-    sso_url       = "example.com"
+    sso_url       = "https://example.com"
     idp_certificates {
       x509_certificate = file("test-fixtures/rsa_cert.pem")
     }
@@ -75,12 +75,14 @@ The following arguments are supported:
 
 * `idp_config` -
   (Required)
-  SAML IdP configuration when the project acts as the relying party  Structure is documented below.
+  SAML IdP configuration when the project acts as the relying party
+  Structure is documented below.
 
 * `sp_config` -
   (Required)
   SAML SP (Service Provider) configuration when the project acts as the relying party to receive
-  and accept an authentication assertion issued by a SAML identity provider.  Structure is documented below.
+  and accept an authentication assertion issued by a SAML identity provider.
+  Structure is documented below.
 
 
 The `idp_config` block supports:
@@ -99,7 +101,8 @@ The `idp_config` block supports:
 
 * `idp_certificates` -
   (Required)
-  The IdP's certificate data to verify the signature in the SAMLResponse issued by the IDP.  Structure is documented below.
+  The IdP's certificate data to verify the signature in the SAMLResponse issued by the IDP.
+  Structure is documented below.
 
 
 The `idp_certificates` block supports:
@@ -119,7 +122,8 @@ The `sp_config` block supports:
   Callback URI where responses from IDP are handled. Must start with `https://`.
 
 * `sp_certificates` -
-  The IDP's certificate data to verify the signature in the SAMLResponse issued by the IDP.  Structure is documented below.
+  The IDP's certificate data to verify the signature in the SAMLResponse issued by the IDP.
+  Structure is documented below.
 
 
 The `sp_certificates` block contains:
@@ -138,6 +142,12 @@ The `sp_certificates` block contains:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/inboundSamlConfigs/{{name}}`
+
 
 ## Timeouts
 
@@ -150,6 +160,7 @@ This resource provides the following
 
 ## Import
 
+
 InboundSamlConfig can be imported using any of these accepted formats:
 
 ```
@@ -157,9 +168,6 @@ $ terraform import google_identity_platform_inbound_saml_config.default projects
 $ terraform import google_identity_platform_inbound_saml_config.default {{project}}/{{name}}
 $ terraform import google_identity_platform_inbound_saml_config.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

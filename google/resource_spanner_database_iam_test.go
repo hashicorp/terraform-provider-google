@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccSpannerDatabaseIamBinding(t *testing.T) {
 	t.Parallel()
 
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/spanner.databaseAdmin"
 	project := getTestProjectFromEnv()
-	database := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	instance := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	database := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instance := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -56,12 +55,12 @@ func TestAccSpannerDatabaseIamMember(t *testing.T) {
 	t.Parallel()
 
 	project := getTestProjectFromEnv()
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/spanner.databaseAdmin"
-	database := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	instance := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	database := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instance := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -87,12 +86,12 @@ func TestAccSpannerDatabaseIamPolicy(t *testing.T) {
 	t.Parallel()
 
 	project := getTestProjectFromEnv()
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/spanner.databaseAdmin"
-	database := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	instance := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	database := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	instance := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -131,6 +130,7 @@ resource "google_spanner_instance" "instance" {
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
   name     = "%s"
+  deletion_protection = false
 }
 
 resource "google_spanner_database_iam_binding" "foo" {
@@ -165,6 +165,7 @@ resource "google_spanner_instance" "instance" {
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
   name     = "%s"
+  deletion_protection = false
 }
 
 resource "google_spanner_database_iam_binding" "foo" {
@@ -197,6 +198,7 @@ resource "google_spanner_instance" "instance" {
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
   name     = "%s"
+  deletion_protection = false
 }
 
 resource "google_spanner_database_iam_member" "foo" {
@@ -226,6 +228,7 @@ resource "google_spanner_instance" "instance" {
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
   name     = "%s"
+  deletion_protection = false
 }
 
 data "google_iam_policy" "foo" {

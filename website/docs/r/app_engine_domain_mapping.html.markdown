@@ -64,12 +64,15 @@ The following arguments are supported:
 
 * `ssl_settings` -
   (Optional)
-  SSL configuration for this domain. If unconfigured, this domain will not serve with SSL.  Structure is documented below.
+  SSL configuration for this domain. If unconfigured, this domain will not serve with SSL.
+  Structure is documented below.
 
 * `override_strategy` -
   (Optional)
   Whether the domain creation should override any existing mappings for this domain.
   By default, overrides are rejected.
+  Default value is `STRICT`.
+  Possible values are `STRICT` and `OVERRIDE`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -90,6 +93,7 @@ The `ssl_settings` block supports:
   (Required)
   SSL management type for this domain. If `AUTOMATIC`, a managed certificate is automatically provisioned.
   If `MANUAL`, `certificateId` must be manually specified in order to configure SSL for this domain.
+  Possible values are `AUTOMATIC` and `MANUAL`.
 
 * `pending_managed_certificate_id` -
   ID of the managed `AuthorizedCertificate` resource currently being provisioned, if applicable. Until the new
@@ -102,13 +106,15 @@ The `ssl_settings` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `apps/{{project}}/domainMappings/{{domain_name}}`
 
 * `name` -
   Full path to the DomainMapping resource in the API. Example: apps/myapp/domainMapping/example.com.
 
 * `resource_records` -
   The resource records required to configure this domain mapping. These records must be added to the domain's DNS
-  configuration in order to serve the application via this domain mapping.  Structure is documented below.
+  configuration in order to serve the application via this domain mapping.
+  Structure is documented below.
 
 
 The `resource_records` block contains:
@@ -124,6 +130,7 @@ The `resource_records` block contains:
 * `type` -
   (Optional)
   Resource record type. Example: `AAAA`.
+  Possible values are `A`, `AAAA`, and `CNAME`.
 
 ## Timeouts
 
@@ -136,6 +143,7 @@ This resource provides the following
 
 ## Import
 
+
 DomainMapping can be imported using any of these accepted formats:
 
 ```
@@ -143,9 +151,6 @@ $ terraform import google_app_engine_domain_mapping.default apps/{{project}}/dom
 $ terraform import google_app_engine_domain_mapping.default {{project}}/{{domain_name}}
 $ terraform import google_app_engine_domain_mapping.default {{domain_name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

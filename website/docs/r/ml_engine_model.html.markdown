@@ -85,7 +85,8 @@ The following arguments are supported:
 * `default_version` -
   (Optional)
   The default version of the model. This version will be used to handle
-  prediction requests that do not specify a version.  Structure is documented below.
+  prediction requests that do not specify a version.
+  Structure is documented below.
 
 * `regions` -
   (Optional)
@@ -114,6 +115,12 @@ The `default_version` block supports:
   (Required)
   The name specified for the version when it was created.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/models/{{name}}`
+
 
 ## Timeouts
 
@@ -125,6 +132,7 @@ This resource provides the following
 
 ## Import
 
+
 Model can be imported using any of these accepted formats:
 
 ```
@@ -132,9 +140,6 @@ $ terraform import google_ml_engine_model.default projects/{{project}}/models/{{
 $ terraform import google_ml_engine_model.default {{project}}/{{name}}
 $ terraform import google_ml_engine_model.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

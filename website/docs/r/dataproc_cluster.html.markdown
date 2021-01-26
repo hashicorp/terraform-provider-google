@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Dataproc"
+subcategory: "Dataproc"
 layout: "google"
 page_title: "Google: google_dataproc_cluster"
 sidebar_current: "docs-google-dataproc-cluster"
@@ -29,9 +29,15 @@ resource "google_dataproc_cluster" "simplecluster" {
 ## Example Usage - Advanced
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service-account-id"
+  display_name = "Service Account"
+}
+
 resource "google_dataproc_cluster" "mycluster" {
   name     = "mycluster"
   region   = "us-central1"
+  graceful_decommission_timeout = "120s"
   labels = {
     foo = "bar"
   }
@@ -41,7 +47,7 @@ resource "google_dataproc_cluster" "mycluster" {
 
     master_config {
       num_instances = 1
-      machine_type  = "n1-standard-1"
+      machine_type  = "e2-medium"
       disk_config {
         boot_disk_type    = "pd-ssd"
         boot_disk_size_gb = 15
@@ -50,7 +56,7 @@ resource "google_dataproc_cluster" "mycluster" {
 
     worker_config {
       num_instances    = 2
-      machine_type     = "n1-standard-1"
+      machine_type     = "e2-medium"
       min_cpu_platform = "Intel Skylake"
       disk_config {
         boot_disk_size_gb = 15
@@ -72,11 +78,10 @@ resource "google_dataproc_cluster" "mycluster" {
 
     gce_cluster_config {
       tags = ["foo", "bar"]
+      # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+      service_account = google_service_account.default.email
       service_account_scopes = [
-        "https://www.googleapis.com/auth/monitoring",
-        "useraccounts-ro",
-        "storage-rw",
-        "logging-write",
+        "cloud-platform"
       ]
     }
 
@@ -131,6 +136,14 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
 * `cluster_config` - (Optional) Allows you to configure various aspects of the cluster.
    Structure defined below.
 
+* `graceful_decommission_timout` - (Optional) Allows graceful decomissioning when you change the number of worker nodes directly through a terraform apply.
+      Does not affect auto scaling decomissioning from an autoscaling policy.
+      Graceful decommissioning allows removing nodes from the cluster without interrupting jobs in progress.
+      Timeout specifies how long to wait for jobs in progress to finish before forcefully removing nodes (and potentially interrupting jobs).
+      Default timeout is 0 (for forceful decommission), and the maximum allowed timeout is 1 day. (see JSON representation of
+      [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)).
+      Only supported on Dataproc image versions 1.2 and higher.
+      For more context see the [docs](https://cloud.google.com/dataproc/docs/reference/rest/v1/projects.regions.clusters/patch#query-parameters)
 - - -
 
 The `cluster_config` block supports:
@@ -146,6 +159,7 @@ The `cluster_config` block supports:
         # You can define multiple initialization_action blocks
         initialization_action     { ... }
         encryption_config         { ... }
+        endpoint_config           { ... }
     }
 ```
 
@@ -156,6 +170,10 @@ The `cluster_config` block supports:
    an auto generated bucket which is solely dedicated to your cluster; it may be shared
    with other clusters in the same region/zone also choosing to use the auto generation
    option.
+
+* `temp_bucket` - (Optional) The Cloud Storage temp bucket used to store ephemeral cluster
+   and jobs data, such as Spark and MapReduce history files.
+   Note: If you don't explicitly specify a `temp_bucket` then GCP will auto create / assign one for you.
 
 * `gce_cluster_config` (Optional) Common config settings for resources of Google Compute Engine cluster
    instances, applicable to all instances in the cluster. Structure defined below.
@@ -175,6 +193,8 @@ The `cluster_config` block supports:
 * `security_config` (Optional) Security related configuration. Structure defined below.
 
 * `autoscaling_config` (Optional)  The autoscaling policy config associated with the cluster.
+   Note that once set, if `autoscaling_config` is the only field set in `cluster_config`, it can
+   only be removed by setting `policy_uri = ""`, rather than removing the whole block.
    Structure defined below.
 
 * `initialization_action` (Optional) Commands to execute on each node after config is completed.
@@ -186,6 +206,8 @@ The `cluster_config` block supports:
 * `lifecycle_config` (Optional, Beta) The settings for auto deletion cluster schedule.
    Structure defined below.
 
+* `endpoint_config` (Optional, Beta) The config settings for port access on the cluster.
+   Structure defined below.
 - - -
 
 The `cluster_config.gce_cluster_config` block supports:
@@ -224,21 +246,17 @@ The `cluster_config.gce_cluster_config` block supports:
 
 * `service_account_scopes` - (Optional, Computed) The set of Google API scopes
     to be made available on all of the node VMs under the `service_account`
-    specified. These can be	either FQDNs, or scope aliases. The following scopes
-    must be set if any other scopes are set. They're necessary to ensure the
-    correct functioning ofthe cluster, and are set automatically by the API:
-
-  * `useraccounts-ro` (`https://www.googleapis.com/auth/cloud.useraccounts.readonly`)
-  * `storage-rw`      (`https://www.googleapis.com/auth/devstorage.read_write`)
-  * `logging-write`   (`https://www.googleapis.com/auth/logging.write`)
+    specified. Both OAuth2 URLs and gcloud
+    short names are supported. To allow full access to all Cloud APIs, use the
+    `cloud-platform` scope. See a complete list of scopes [here](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes).
 
 * `tags` - (Optional) The list of instance tags applied to instances in the cluster.
    Tags are used to identify valid sources or targets for network firewalls.
 
-* `internal_ip_only` - (Optional) By default, clusters are not restricted to internal IP addresses, 
-   and will have ephemeral external IP addresses assigned to each instance. If set to true, all 
-   instances in the cluster will only have internal IP addresses. Note: Private Google Access 
-   (also known as `privateIpGoogleAccess`) must be enabled on the subnetwork that the cluster 
+* `internal_ip_only` - (Optional) By default, clusters are not restricted to internal IP addresses,
+   and will have ephemeral external IP addresses assigned to each instance. If set to true, all
+   instances in the cluster will only have internal IP addresses. Note: Private Google Access
+   (also known as `privateIpGoogleAccess`) must be enabled on the subnetwork that the cluster
    will be launched in.
 
 * `metadata` - (Optional) A map of the Compute Engine metadata entries to add to all instances
@@ -252,7 +270,7 @@ The `cluster_config.master_config` block supports:
 cluster_config {
   master_config {
     num_instances    = 1
-    machine_type     = "n1-standard-1"
+    machine_type     = "e2-medium"
     min_cpu_platform = "Intel Skylake"
 
     disk_config {
@@ -311,7 +329,7 @@ The `cluster_config.worker_config` block supports:
 cluster_config {
   worker_config {
     num_instances    = 3
-    machine_type     = "n1-standard-1"
+    machine_type     = "e2-medium"
     min_cpu_platform = "Intel Skylake"
 
     disk_config {
@@ -430,6 +448,20 @@ cluster_config {
    used to modify various aspects of the common configuration files used when creating
    a cluster. For a list of valid properties please see
   [Cluster properties](https://cloud.google.com/dataproc/docs/concepts/cluster-properties)
+
+* `optional_components` - (Optional) The set of optional components to activate on the cluster.
+    Accepted values are:
+    * ANACONDA
+    * DRUID
+    * HBASE
+    * HIVE_WEBHCAT
+    * JUPYTER
+    * KERBEROS
+    * PRESTO
+    * RANGER
+    * SOLR
+    * ZEPPELIN
+    * ZOOKEEPER
 
 - - -
 
@@ -572,6 +604,21 @@ cluster_config {
   A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds.
   Example: "2014-10-02T15:01:23.045123456Z".
 
+- - -
+
+The `endpoint_config` block (Optional, Computed, Beta) supports:
+
+```hcl
+cluster_config {
+  endpoint_config {
+    enable_http_port_access = "true"
+  }
+}
+```
+
+* `enable_http_port_access` - (Optional) The flag to enable http access to specific ports
+  on the cluster from external sources (aka Component Gateway). Defaults to false.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -595,6 +642,13 @@ exported:
 
 * `cluster_config.0.lifecycle_config.0.idle_start_time` - Time when the cluster became idle
   (most recent job finished) and became eligible for deletion due to idleness.
+
+* `cluster_config.0.endpoint_config.0.http_ports` - The map of port descriptions to URLs. Will only be populated if
+  `enable_http_port_access` is true.
+
+## Import
+
+This resource does not support import.
 
 ## Timeouts
 

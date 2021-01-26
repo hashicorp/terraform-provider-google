@@ -98,6 +98,7 @@ The following arguments are supported:
 * `role` -
   (Required)
   The access permission for the entity.
+  Possible values are `OWNER` and `READER`.
 
 
 - - -
@@ -108,6 +109,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{bucket}}/{{object}}/{{entity}}`
 
 * `domain` -
   The domain associated with the entity.
@@ -122,7 +124,8 @@ In addition to the arguments listed above, the following computed attributes are
   The content generation of the object, if applied to an object.
 
 * `project_team` -
-  The project team associated with the entity  Structure is documented below.
+  The project team associated with the entity
+  Structure is documented below.
 
 
 The `project_team` block contains:
@@ -134,6 +137,7 @@ The `project_team` block contains:
 * `team` -
   (Optional)
   The team.
+  Possible values are `editors`, `owners`, and `viewers`.
 
 ## Timeouts
 
@@ -146,11 +150,9 @@ This resource provides the following
 
 ## Import
 
+
 ObjectAccessControl can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_storage_object_access_control.default {{bucket}}/{{object}}/{{entity}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.

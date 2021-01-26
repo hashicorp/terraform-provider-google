@@ -15,6 +15,7 @@
 package google
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"reflect"
@@ -22,9 +23,26 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+func resourceSourceRepoRepositoryPubSubConfigsHash(v interface{}) int {
+	if v == nil {
+		return 0
+	}
+
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+
+	buf.WriteString(fmt.Sprintf("%s-", GetResourceNameFromSelfLink(m["topic"].(string))))
+	buf.WriteString(fmt.Sprintf("%s-", m["message_format"].(string)))
+	if v, ok := m["service_account_email"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+
+	return hashcode(buf.String())
+}
 
 func resourceSourceRepoRepository() *schema.Resource {
 	return &schema.Resource{
@@ -68,7 +86,7 @@ Keyed by the topic names.`,
 							ValidateFunc: validation.StringInSlice([]string{"PROTOBUF", "JSON"}, false),
 							Description: `The format of the Cloud Pub/Sub messages. 
 - PROTOBUF: The message payload is a serialized protocol buffer of SourceRepoEvent.
-- JSON: The message payload is a JSON string of SourceRepoEvent.`,
+- JSON: The message payload is a JSON string of SourceRepoEvent. Possible values: ["PROTOBUF", "JSON"]`,
 						},
 						"service_account_email": {
 							Type:     schema.TypeString,
@@ -81,6 +99,7 @@ If unspecified, it defaults to the compute engine default service account.`,
 						},
 					},
 				},
+				Set: resourceSourceRepoRepositoryPubSubConfigsHash,
 			},
 			"size": {
 				Type:        schema.TypeInt,
@@ -99,11 +118,16 @@ If unspecified, it defaults to the compute engine default service account.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandSourceRepoRepositoryName(d.Get("name"), d, config)
@@ -125,11 +149,20 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Creating new Repository: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Repository: %s", err)
 	}
@@ -154,17 +187,30 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 
 func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SourceRepoRepository %q", d.Id()))
 	}
@@ -173,16 +219,16 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
-	if err := d.Set("name", flattenSourceRepoRepositoryName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenSourceRepoRepositoryName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
-	if err := d.Set("url", flattenSourceRepoRepositoryUrl(res["url"], d)); err != nil {
+	if err := d.Set("url", flattenSourceRepoRepositoryUrl(res["url"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
-	if err := d.Set("size", flattenSourceRepoRepositorySize(res["size"], d)); err != nil {
+	if err := d.Set("size", flattenSourceRepoRepositorySize(res["size"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
-	if err := d.Set("pubsub_configs", flattenSourceRepoRepositoryPubsubConfigs(res["pubsubConfigs"], d)); err != nil {
+	if err := d.Set("pubsub_configs", flattenSourceRepoRepositoryPubsubConfigs(res["pubsubConfigs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
@@ -191,11 +237,18 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
+	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	pubsubConfigsProp, err := expandSourceRepoRepositoryPubsubConfigs(d.Get("pubsub_configs"), d, config)
@@ -227,10 +280,18 @@ func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Repository %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Repository %q: %#v", d.Id(), res)
 	}
 
 	return resourceSourceRepoRepositoryRead(d, meta)
@@ -238,11 +299,18 @@ func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
 	if err != nil {
@@ -252,7 +320,12 @@ func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Repository %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Repository")
 	}
@@ -280,7 +353,7 @@ func resourceSourceRepoRepositoryImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSourceRepoRepositoryName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -290,21 +363,28 @@ func flattenSourceRepoRepositoryName(v interface{}, d *schema.ResourceData) inte
 	return parts[3]
 }
 
-func flattenSourceRepoRepositoryUrl(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
-func flattenSourceRepoRepositoryPubsubConfigs(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryPubsubConfigs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -314,17 +394,17 @@ func flattenSourceRepoRepositoryPubsubConfigs(v interface{}, d *schema.ResourceD
 		original := raw.(map[string]interface{})
 		transformed = append(transformed, map[string]interface{}{
 			"topic":                 k,
-			"message_format":        flattenSourceRepoRepositoryPubsubConfigsMessageFormat(original["messageFormat"], d),
-			"service_account_email": flattenSourceRepoRepositoryPubsubConfigsServiceAccountEmail(original["serviceAccountEmail"], d),
+			"message_format":        flattenSourceRepoRepositoryPubsubConfigsMessageFormat(original["messageFormat"], d, config),
+			"service_account_email": flattenSourceRepoRepositoryPubsubConfigsServiceAccountEmail(original["serviceAccountEmail"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenSourceRepoRepositoryPubsubConfigsMessageFormat(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryPubsubConfigsMessageFormat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenSourceRepoRepositoryPubsubConfigsServiceAccountEmail(v interface{}, d *schema.ResourceData) interface{} {
+func flattenSourceRepoRepositoryPubsubConfigsServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -344,15 +424,22 @@ func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d TerraformResourceD
 		transformedMessageFormat, err := expandSourceRepoRepositoryPubsubConfigsMessageFormat(original["message_format"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedMessageFormat); val.IsValid() && !isEmptyValue(val) {
+			transformed["messageFormat"] = transformedMessageFormat
 		}
-		transformed["messageFormat"] = transformedMessageFormat
+
 		transformedServiceAccountEmail, err := expandSourceRepoRepositoryPubsubConfigsServiceAccountEmail(original["service_account_email"], d, config)
 		if err != nil {
 			return nil, err
+		} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !isEmptyValue(val) {
+			transformed["serviceAccountEmail"] = transformedServiceAccountEmail
 		}
-		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
 
-		m[original["topic"].(string)] = transformed
+		transformedTopic, err := expandSourceRepoRepositoryPubsubConfigsTopic(original["topic"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedTopic] = transformed
 	}
 	return m, nil
 }

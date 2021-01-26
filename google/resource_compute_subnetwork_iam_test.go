@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 // Even though the resource has generated tests, keep this one around until we are able to generate
@@ -14,12 +13,12 @@ func TestAccComputeSubnetworkIamPolicy(t *testing.T) {
 	t.Parallel()
 
 	project := getTestProjectFromEnv()
-	account := acctest.RandomWithPrefix("tf-test")
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
 	role := "roles/compute.networkUser"
 	region := getTestRegionFromEnv()
-	subnetwork := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	subnetwork := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

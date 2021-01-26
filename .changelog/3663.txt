@@ -1,0 +1,3 @@
+```release-note:bug
+appengine: Added polling to `google_app_engine_firewall_rule` to prevent issues with eventually consistent creation
+```

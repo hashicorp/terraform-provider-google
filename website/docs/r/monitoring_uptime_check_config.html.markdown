@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Stackdriver Monitoring"
+subcategory: "Cloud (Stackdriver) Monitoring"
 layout: "google"
 page_title: "Google: google_monitoring_uptime_check_config"
 sidebar_current: "docs-google-monitoring-uptime-check-config"
@@ -31,6 +31,9 @@ To get more information about UptimeCheckConfig, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/monitoring/uptime-checks/)
 
+~> **Warning:** All arguments including `http_check.auth_info.password` will be stored in the raw
+state as plain-text. [Read more about sensitive data in state](/docs/state/sensitive-data.html).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=uptime_check_config_http&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -47,6 +50,9 @@ resource "google_monitoring_uptime_check_config" "http" {
   http_check {
     path = "/some-path"
     port = "8010"
+    request_method = "POST"
+    content_type = "URL_ENCODED"
+    body = "Zm9vJTI1M0RiYXI="
   }
 
   monitored_resource {
@@ -147,7 +153,8 @@ The following arguments are supported:
 
 * `content_matchers` -
   (Optional)
-  The expected content on the page the check is run against. Currently, only the first entry in the list is supported, and other entries will be ignored. The server will look for an exact match of the string in the page response's content. This field is optional and should only be specified if a content match is required.  Structure is documented below.
+  The expected content on the page the check is run against. Currently, only the first entry in the list is supported, and other entries will be ignored. The server will look for an exact match of the string in the page response's content. This field is optional and should only be specified if a content match is required.
+  Structure is documented below.
 
 * `selected_regions` -
   (Optional)
@@ -155,19 +162,23 @@ The following arguments are supported:
 
 * `http_check` -
   (Optional)
-  Contains information needed to make an HTTP or HTTPS check.  Structure is documented below.
+  Contains information needed to make an HTTP or HTTPS check.
+  Structure is documented below.
 
 * `tcp_check` -
   (Optional)
-  Contains information needed to make a TCP check.  Structure is documented below.
+  Contains information needed to make a TCP check.
+  Structure is documented below.
 
 * `resource_group` -
   (Optional)
-  The group resource associated with the configuration.  Structure is documented below.
+  The group resource associated with the configuration.
+  Structure is documented below.
 
 * `monitored_resource` -
   (Optional)
-  The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance  aws_elb_load_balancer  Structure is documented below.
+  The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance  aws_elb_load_balancer
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -179,11 +190,29 @@ The `content_matchers` block supports:
   (Required)
   String or regex content to match (max 1024 bytes)
 
+* `matcher` -
+  (Optional)
+  The type of content matcher that will be applied to the server output, compared to the content string when the check is run.
+  Default value is `CONTAINS_STRING`.
+  Possible values are `CONTAINS_STRING`, `NOT_CONTAINS_STRING`, `MATCHES_REGEX`, and `NON_MATCHES_REGEX`.
+
 The `http_check` block supports:
+
+* `request_method` -
+  (Optional)
+  The HTTP request method to use for the check. If set to METHOD_UNSPECIFIED then requestMethod defaults to GET.
+  Default value is `GET`.
+  Possible values are `METHOD_UNSPECIFIED`, `GET`, and `POST`.
+
+* `content_type` -
+  (Optional)
+  The content type to use for the check.
+  Possible values are `TYPE_UNSPECIFIED` and `URL_ENCODED`.
 
 * `auth_info` -
   (Optional)
-  The authentication information. Optional when creating an HTTP check; defaults to empty.  Structure is documented below.
+  The authentication information. Optional when creating an HTTP check; defaults to empty.
+  Structure is documented below.
 
 * `port` -
   (Optional)
@@ -209,12 +238,17 @@ The `http_check` block supports:
   (Optional)
   Boolean specifying whether to encrypt the header information. Encryption should be specified for any headers related to authentication that you do not wish to be seen when retrieving the configuration. The server will be responsible for encrypting the headers. On Get/List calls, if mask_headers is set to True then the headers will be obscured with ******.
 
+* `body` -
+  (Optional)
+  The request body associated with the HTTP POST request. If contentType is URL_ENCODED, the body passed in must be URL-encoded. Users can provide a Content-Length header via the headers field or the API will do so. If the requestMethod is GET and body is not empty, the API will return an error. The maximum byte size is 1 megabyte. Note - As with all bytes fields JSON representations are base64 encoded. e.g. "foo=bar" in URL-encoded form is "foo%3Dbar" and in base64 encoding is "Zm9vJTI1M0RiYXI=".
+
 
 The `auth_info` block supports:
 
 * `password` -
   (Required)
   The password to authenticate.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `username` -
   (Required)
@@ -231,6 +265,7 @@ The `resource_group` block supports:
 * `resource_type` -
   (Optional)
   The resource type of the group members.
+  Possible values are `RESOURCE_TYPE_UNSPECIFIED`, `INSTANCE`, and `AWS_ELB_LOAD_BALANCER`.
 
 * `group_id` -
   (Optional)
@@ -250,6 +285,7 @@ The `monitored_resource` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   A unique resource name for this UptimeCheckConfig. The format is projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID].
@@ -269,14 +305,12 @@ This resource provides the following
 
 ## Import
 
+
 UptimeCheckConfig can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_monitoring_uptime_check_config.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

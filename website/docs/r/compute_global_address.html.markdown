@@ -75,10 +75,14 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `labels` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Labels to apply to this address.  A list of key->value pairs.
+
 * `ip_version` -
   (Optional)
-  The IP Version that will be used by this address. Valid options are
-  `IPV4` or `IPV6`. The default value is `IPV4`.
+  The IP Version that will be used by this address. The default value is `IPV4`.
+  Possible values are `IPV4` and `IPV6`.
 
 * `prefix_length` -
   (Optional)
@@ -88,15 +92,18 @@ The following arguments are supported:
 
 * `address_type` -
   (Optional)
-  The type of the address to reserve, default is EXTERNAL.
+  The type of the address to reserve.
   * EXTERNAL indicates public/external single IP address.
   * INTERNAL indicates internal IP ranges belonging to some network.
+  Default value is `EXTERNAL`.
+  Possible values are `EXTERNAL` and `INTERNAL`.
 
 * `purpose` -
   (Optional)
   The purpose of the resource. For global internal addresses it can be
   * VPC_PEERING - for peer networks
   This should only be set when using an Internal address.
+  Possible values are `VPC_PEERING`.
 
 * `network` -
   (Optional)
@@ -113,9 +120,14 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/addresses/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
+* `label_fingerprint` -
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
 * `self_link` - The URI of the created resource.
 
 
@@ -125,9 +137,11 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 GlobalAddress can be imported using any of these accepted formats:
 
@@ -136,9 +150,6 @@ $ terraform import google_compute_global_address.default projects/{{project}}/gl
 $ terraform import google_compute_global_address.default {{project}}/{{name}}
 $ terraform import google_compute_global_address.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

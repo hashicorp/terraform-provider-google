@@ -15,29 +15,36 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func customDiffDeploymentManagerDeployment(d *schema.ResourceDiff, meta interface{}) error {
+func customDiffDeploymentManagerDeployment(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	if preview := d.Get("preview").(bool); preview {
 		log.Printf("[WARN] Deployment preview set to true - Terraform will treat Deployment as recreate-only")
 
 		if d.HasChange("preview") {
-			d.ForceNew("preview")
+			if err := d.ForceNew("preview"); err != nil {
+				return err
+			}
 		}
 
 		if d.HasChange("target") {
-			d.ForceNew("target")
+			if err := d.ForceNew("target"); err != nil {
+				return err
+			}
 		}
 
 		if d.HasChange("labels") {
-			d.ForceNew("labels")
+			if err := d.ForceNew("labels"); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -126,7 +133,7 @@ configuration.`,
 create and update. Valid values are 'CREATE_OR_ACQUIRE' (default) or
 'ACQUIRE'. If set to 'ACQUIRE' and resources do not already exist,
 the deployment will fail. Note that updating this field does not
-actually affect the deployment, just how it is updated.`,
+actually affect the deployment, just how it is updated. Default value: "CREATE_OR_ACQUIRE" Possible values: ["ACQUIRE", "CREATE_OR_ACQUIRE"]`,
 				Default: "CREATE_OR_ACQUIRE",
 			},
 			"delete_policy": {
@@ -139,7 +146,7 @@ Valid values are 'DELETE' (default) or 'ABANDON'. If 'DELETE',
 resource is deleted after removal from Deployment Manager. If
 'ABANDON', the resource is only removed from Deployment Manager
 and is not actually deleted. Note that updating this field does not
-actually change the deployment, just how it is updated.`,
+actually change the deployment, just how it is updated. Default value: "DELETE" Possible values: ["ABANDON", "DELETE"]`,
 				Default: "DELETE",
 			},
 			"description": {
@@ -161,7 +168,7 @@ actually change the deployment, just how it is updated.`,
 that are not actually instantiated. This allows you to preview a
 deployment. It can be updated to false to actually deploy
 with real resources.
- ~>**NOTE**: Deployment Manager does not allow update
+ ~>**NOTE:** Deployment Manager does not allow update
 of a deployment in preview (unless updating to preview=false). Thus,
 Terraform will force-recreate deployments if either preview is updated
 to true or if other fields are updated while preview is true.`,
@@ -190,6 +197,7 @@ was successfully deployed.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -212,6 +220,10 @@ func deploymentmanagerDeploymentLabelsSchema() *schema.Resource {
 
 func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandDeploymentManagerDeploymentName(d.Get("name"), d, config)
@@ -245,11 +257,20 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new Deployment: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Deployment: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Deployment: %s", err)
 	}
@@ -262,8 +283,8 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 	d.SetId(id)
 
 	err = deploymentManagerOperationWaitTime(
-		config, res, project, "Creating Deployment",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		config, res, project, "Creating Deployment", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		resourceDeploymentManagerDeploymentPostCreateFailure(d, meta)
@@ -279,17 +300,30 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 
 func resourceDeploymentManagerDeploymentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Deployment: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
 	}
@@ -298,22 +332,22 @@ func resourceDeploymentManagerDeploymentRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
 
-	if err := d.Set("name", flattenDeploymentManagerDeploymentName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenDeploymentManagerDeploymentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
-	if err := d.Set("description", flattenDeploymentManagerDeploymentDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenDeploymentManagerDeploymentDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
-	if err := d.Set("labels", flattenDeploymentManagerDeploymentLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenDeploymentManagerDeploymentLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
-	if err := d.Set("deployment_id", flattenDeploymentManagerDeploymentDeploymentId(res["id"], d)); err != nil {
+	if err := d.Set("deployment_id", flattenDeploymentManagerDeploymentDeploymentId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
-	if err := d.Set("manifest", flattenDeploymentManagerDeploymentManifest(res["manifest"], d)); err != nil {
+	if err := d.Set("manifest", flattenDeploymentManagerDeploymentManifest(res["manifest"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
-	if err := d.Set("self_link", flattenDeploymentManagerDeploymentSelfLink(res["selfLink"], d)); err != nil {
+	if err := d.Set("self_link", flattenDeploymentManagerDeploymentSelfLink(res["selfLink"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
 
@@ -322,11 +356,18 @@ func resourceDeploymentManagerDeploymentRead(d *schema.ResourceData, meta interf
 
 func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Deployment: %s", err)
+	}
+	billingProject = project
 
 	d.Partial(true)
 
@@ -337,7 +378,13 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		getRes, err := sendRequest(config, "GET", billingProject, getUrl, userAgent, nil)
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
 		}
@@ -348,19 +395,25 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Deployment %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Deployment %q: %#v", d.Id(), res)
 		}
 
 		err = deploymentManagerOperationWaitTime(
-			config, res, project, "Updating Deployment",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			config, res, project, "Updating Deployment", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("preview")
 	}
 	if d.HasChange("description") || d.HasChange("labels") || d.HasChange("target") {
 		obj := make(map[string]interface{})
@@ -369,7 +422,13 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		getRes, err := sendRequest(config, "GET", project, getUrl, nil)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		getRes, err := sendRequest(config, "GET", billingProject, getUrl, userAgent, nil)
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
 		}
@@ -399,21 +458,25 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Deployment %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Deployment %q: %#v", d.Id(), res)
 		}
 
 		err = deploymentManagerOperationWaitTime(
-			config, res, project, "Updating Deployment",
-			int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+			config, res, project, "Updating Deployment", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
-
-		d.SetPartial("description")
-		d.SetPartial("labels")
-		d.SetPartial("target")
 	}
 
 	d.Partial(false)
@@ -423,11 +486,18 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 
 func resourceDeploymentManagerDeploymentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Deployment: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}?deletePolicy={{delete_policy}}")
 	if err != nil {
@@ -437,14 +507,19 @@ func resourceDeploymentManagerDeploymentDelete(d *schema.ResourceData, meta inte
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Deployment %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Deployment")
 	}
 
 	err = deploymentManagerOperationWaitTime(
-		config, res, project, "Deleting Deployment",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, res, project, "Deleting Deployment", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -474,15 +549,15 @@ func resourceDeploymentManagerDeploymentImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDeploymentManagerDeploymentName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -495,29 +570,29 @@ func flattenDeploymentManagerDeploymentLabels(v interface{}, d *schema.ResourceD
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"key":   flattenDeploymentManagerDeploymentLabelsKey(original["key"], d),
-			"value": flattenDeploymentManagerDeploymentLabelsValue(original["value"], d),
+			"key":   flattenDeploymentManagerDeploymentLabelsKey(original["key"], d, config),
+			"value": flattenDeploymentManagerDeploymentLabelsValue(original["value"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenDeploymentManagerDeploymentLabelsKey(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentLabelsKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentLabelsValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentLabelsValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentDeploymentId(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentDeploymentId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentManifest(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentManifest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentSelfLink(v interface{}, d *schema.ResourceData) interface{} {
+func flattenDeploymentManagerDeploymentSelfLink(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

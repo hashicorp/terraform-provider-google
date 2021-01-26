@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeTargetInstance() *schema.Resource {
@@ -77,7 +77,7 @@ character, which cannot be a dash.`,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"NO_NAT", ""}, false),
 				Description: `NAT option controlling how IPs are NAT'ed to the instance.
-Currently only NO_NAT (default value) is supported.`,
+Currently only NO_NAT (default value) is supported. Default value: "NO_NAT" Possible values: ["NO_NAT"]`,
 				Default: "NO_NAT",
 			},
 			"zone": {
@@ -104,11 +104,16 @@ Currently only NO_NAT (default value) is supported.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceComputeTargetInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandComputeTargetInstanceName(d.Get("name"), d, config)
@@ -148,11 +153,20 @@ func resourceComputeTargetInstanceCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new TargetInstance: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetInstance: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating TargetInstance: %s", err)
 	}
@@ -165,8 +179,8 @@ func resourceComputeTargetInstanceCreate(d *schema.ResourceData, meta interface{
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating TargetInstance",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		config, res, project, "Creating TargetInstance", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -181,17 +195,30 @@ func resourceComputeTargetInstanceCreate(d *schema.ResourceData, meta interface{
 
 func resourceComputeTargetInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/targetInstances/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetInstance: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeTargetInstance %q", d.Id()))
 	}
@@ -200,22 +227,22 @@ func resourceComputeTargetInstanceRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeTargetInstanceName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeTargetInstanceName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeTargetInstanceCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeTargetInstanceCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
-	if err := d.Set("description", flattenComputeTargetInstanceDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeTargetInstanceDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
-	if err := d.Set("instance", flattenComputeTargetInstanceInstance(res["instance"], d)); err != nil {
+	if err := d.Set("instance", flattenComputeTargetInstanceInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
-	if err := d.Set("nat_policy", flattenComputeTargetInstanceNatPolicy(res["natPolicy"], d)); err != nil {
+	if err := d.Set("nat_policy", flattenComputeTargetInstanceNatPolicy(res["natPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
-	if err := d.Set("zone", flattenComputeTargetInstanceZone(res["zone"], d)); err != nil {
+	if err := d.Set("zone", flattenComputeTargetInstanceZone(res["zone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetInstance: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -227,11 +254,18 @@ func resourceComputeTargetInstanceRead(d *schema.ResourceData, meta interface{})
 
 func resourceComputeTargetInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for TargetInstance: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/targetInstances/{{name}}")
 	if err != nil {
@@ -241,14 +275,19 @@ func resourceComputeTargetInstanceDelete(d *schema.ResourceData, meta interface{
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting TargetInstance %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "TargetInstance")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting TargetInstance",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, res, project, "Deleting TargetInstance", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -279,30 +318,30 @@ func resourceComputeTargetInstanceImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeTargetInstanceName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetInstanceCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetInstanceDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetInstanceInstance(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeTargetInstanceNatPolicy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceNatPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetInstanceZone(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeTargetInstanceZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

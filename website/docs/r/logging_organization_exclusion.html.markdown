@@ -1,5 +1,5 @@
 ---
-subcategory: "Stackdriver Logging"
+subcategory: "Cloud (Stackdriver) Logging"
 layout: "google"
 page_title: "Google: google_logging_organization_exclusion"
 sidebar_current: "docs-google-logging-organization-exclusion"
@@ -47,10 +47,16 @@ The following arguments are supported:
     See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced-filters) for information on how to
     write a filter.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `organizations/{{organization}}/exclusions/{{name}}`
+
 ## Import
 
 Organization-level logging exclusions can be imported using their URI, e.g.
 
 ```
-$ terraform import google_logging_organization_exclusion.my_exclusion organizations/my-organization/exclusions/my-exclusion
+$ terraform import google_logging_organization_exclusion.my_exclusion organizations/{{organization}}/exclusions/{{name}}
 ```

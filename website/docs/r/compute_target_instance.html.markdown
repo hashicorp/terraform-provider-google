@@ -48,7 +48,7 @@ To get more information about TargetInstance, see:
 ```hcl
 resource "google_compute_target_instance" "default" {
   name     = "target"
-  instance = google_compute_instance.target-vm.self_link
+  instance = google_compute_instance.target-vm.id
 }
 
 data "google_compute_image" "vmimage" {
@@ -58,7 +58,51 @@ data "google_compute_image" "vmimage" {
 
 resource "google_compute_instance" "target-vm" {
   name         = "target-vm"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.vmimage.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=target_instance_custom_network&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Target Instance Custom Network
+
+
+```hcl
+resource "google_compute_target_instance" "custom_network" {
+  provider = google-beta
+  name     = "custom-network"
+  instance = google_compute_instance.target-vm.id
+  network  = data.google_compute_network.target-vm.self_link
+}
+
+data "google_compute_network" "target-vm" {
+  provider = google-beta
+  name = "default"
+}
+
+data "google_compute_image" "vmimage" {
+  provider = google-beta
+  family  = "debian-10"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "target-vm" {
+  provider = google-beta
+  name         = "custom-network-target-vm"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -101,6 +145,10 @@ The following arguments are supported:
 - - -
 
 
+* `network` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The URL of the network this target instance uses to forward traffic. If not specified, the traffic will be forwarded to the network that the default network interface belongs to.
+
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -109,6 +157,8 @@ The following arguments are supported:
   (Optional)
   NAT option controlling how IPs are NAT'ed to the instance.
   Currently only NO_NAT (default value) is supported.
+  Default value is `NO_NAT`.
+  Possible values are `NO_NAT`.
 
 * `zone` -
   (Optional)
@@ -122,6 +172,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/targetInstances/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -138,6 +189,7 @@ This resource provides the following
 
 ## Import
 
+
 TargetInstance can be imported using any of these accepted formats:
 
 ```
@@ -146,9 +198,6 @@ $ terraform import google_compute_target_instance.default {{project}}/{{zone}}/{
 $ terraform import google_compute_target_instance.default {{zone}}/{{name}}
 $ terraform import google_compute_target_instance.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

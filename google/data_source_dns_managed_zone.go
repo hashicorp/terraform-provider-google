@@ -3,7 +3,7 @@ package google
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceDnsManagedZone() *schema.Resource {
@@ -50,6 +50,10 @@ func dataSourceDnsManagedZone() *schema.Resource {
 
 func dataSourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -59,18 +63,30 @@ func dataSourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) erro
 	name := d.Get("name").(string)
 	d.SetId(fmt.Sprintf("projects/%s/managedZones/%s", project, name))
 
-	zone, err := config.clientDns.ManagedZones.Get(
+	zone, err := config.NewDnsClient(userAgent).ManagedZones.Get(
 		project, name).Do()
 	if err != nil {
 		return err
 	}
 
-	d.Set("name_servers", zone.NameServers)
-	d.Set("name", zone.Name)
-	d.Set("dns_name", zone.DnsName)
-	d.Set("description", zone.Description)
-	d.Set("visibility", zone.Visibility)
-	d.Set("project", project)
+	if err := d.Set("name_servers", zone.NameServers); err != nil {
+		return fmt.Errorf("Error setting name_servers: %s", err)
+	}
+	if err := d.Set("name", zone.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("dns_name", zone.DnsName); err != nil {
+		return fmt.Errorf("Error setting dns_name: %s", err)
+	}
+	if err := d.Set("description", zone.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("visibility", zone.Visibility); err != nil {
+		return fmt.Errorf("Error setting visibility: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
 
 	return nil
 }

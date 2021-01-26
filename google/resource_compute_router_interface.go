@@ -3,10 +3,11 @@ package google
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -20,16 +21,23 @@ func resourceComputeRouterInterface() *schema.Resource {
 			State: resourceComputeRouterInterfaceImportState,
 		},
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `A unique name for the interface, required by GCE. Changing this forces a new interface to be created.`,
 			},
 			"router": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the router this interface will be attached to. Changing this forces a new interface to be created.`,
 			},
 			"vpn_tunnel": {
 				Type:             schema.TypeString,
@@ -38,6 +46,7 @@ func resourceComputeRouterInterface() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				AtLeastOneOf:     []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
+				Description:      `The name or resource link to the VPN tunnel this interface will be linked to. Changing this forces a new interface to be created. Only one of vpn_tunnel and interconnect_attachment can be specified.`,
 			},
 			"interconnect_attachment": {
 				Type:             schema.TypeString,
@@ -46,33 +55,41 @@ func resourceComputeRouterInterface() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				AtLeastOneOf:     []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
+				Description:      `The name or resource link to the VLAN interconnect for this interface. Changing this forces a new interface to be created. Only one of vpn_tunnel and interconnect_attachment can be specified.`,
 			},
 			"ip_range": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				AtLeastOneOf: []string{"vpn_tunnel", "interconnect_attachment", "ip_range"},
+				Description:  `IP address and range of the interface. The IP range must be in the RFC3927 link-local IP space. Changing this forces a new interface to be created.`,
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which this interface's router belongs. If it is not provided, the provider project is used. Changing this forces a new interface to be created.`,
 			},
 
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The region this interface's router sits in. If not specified, the project region will be used. Changing this forces a new interface to be created.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface{}) error {
-
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -91,7 +108,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	mutexKV.Lock(routerLock)
 	defer mutexKV.Unlock(routerLock)
 
-	routersService := config.clientCompute.Routers
+	routersService := config.NewComputeClient(userAgent).Routers
 	router, err := routersService.Get(project, region, routerName).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
@@ -119,7 +136,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	}
 
 	if vpnVal, ok := d.GetOk("vpn_tunnel"); ok {
-		vpnTunnel, err := getVpnTunnelLink(config, project, region, vpnVal.(string))
+		vpnTunnel, err := getVpnTunnelLink(config, project, region, vpnVal.(string), userAgent)
 		if err != nil {
 			return err
 		}
@@ -127,7 +144,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	}
 
 	if icVal, ok := d.GetOk("interconnect_attachment"); ok {
-		interconnectAttachment, err := getInterconnectAttachmentLink(config, project, region, icVal.(string))
+		interconnectAttachment, err := getInterconnectAttachmentLink(config, project, region, icVal.(string), userAgent)
 		if err != nil {
 			return err
 		}
@@ -146,7 +163,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 	d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
-	err = computeOperationWait(config, op, project, "Patching router")
+	err = computeOperationWaitTime(config, op, project, "Patching router", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
@@ -156,8 +173,11 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}) error {
-
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -172,7 +192,7 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 	routerName := d.Get("router").(string)
 	ifaceName := d.Get("name").(string)
 
-	routersService := config.clientCompute.Routers
+	routersService := config.NewComputeClient(userAgent).Routers
 	router, err := routersService.Get(project, region, routerName).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
@@ -189,11 +209,21 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 
 		if iface.Name == ifaceName {
 			d.SetId(fmt.Sprintf("%s/%s/%s", region, routerName, ifaceName))
-			d.Set("vpn_tunnel", iface.LinkedVpnTunnel)
-			d.Set("interconnect_attachment", iface.LinkedInterconnectAttachment)
-			d.Set("ip_range", iface.IpRange)
-			d.Set("region", region)
-			d.Set("project", project)
+			if err := d.Set("vpn_tunnel", iface.LinkedVpnTunnel); err != nil {
+				return fmt.Errorf("Error setting vpn_tunnel: %s", err)
+			}
+			if err := d.Set("interconnect_attachment", iface.LinkedInterconnectAttachment); err != nil {
+				return fmt.Errorf("Error setting interconnect_attachment: %s", err)
+			}
+			if err := d.Set("ip_range", iface.IpRange); err != nil {
+				return fmt.Errorf("Error setting ip_range: %s", err)
+			}
+			if err := d.Set("region", region); err != nil {
+				return fmt.Errorf("Error setting region: %s", err)
+			}
+			if err := d.Set("project", project); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 			return nil
 		}
 	}
@@ -204,8 +234,11 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface{}) error {
-
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	region, err := getRegion(d, config)
 	if err != nil {
@@ -224,7 +257,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 	mutexKV.Lock(routerLock)
 	defer mutexKV.Unlock(routerLock)
 
-	routersService := config.clientCompute.Routers
+	routersService := config.NewComputeClient(userAgent).Routers
 	router, err := routersService.Get(project, region, routerName).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
@@ -271,7 +304,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error patching router %s/%s: %s", region, routerName, err)
 	}
 
-	err = computeOperationWait(config, op, project, "Patching router")
+	err = computeOperationWaitTime(config, op, project, "Patching router", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return fmt.Errorf("Error waiting to patch router %s/%s: %s", region, routerName, err)
 	}
@@ -286,9 +319,15 @@ func resourceComputeRouterInterfaceImportState(d *schema.ResourceData, meta inte
 		return nil, fmt.Errorf("Invalid router interface specifier. Expecting {region}/{router}/{interface}")
 	}
 
-	d.Set("region", parts[0])
-	d.Set("router", parts[1])
-	d.Set("name", parts[2])
+	if err := d.Set("region", parts[0]); err != nil {
+		return nil, fmt.Errorf("Error setting region: %s", err)
+	}
+	if err := d.Set("router", parts[1]); err != nil {
+		return nil, fmt.Errorf("Error setting router: %s", err)
+	}
+	if err := d.Set("name", parts[2]); err != nil {
+		return nil, fmt.Errorf("Error setting name: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

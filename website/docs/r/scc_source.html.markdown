@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Security Command Center"
+subcategory: "Security Command Center (SCC)"
 layout: "google"
 page_title: "Google: google_scc_source"
 sidebar_current: "docs-google-scc-source"
@@ -32,7 +32,7 @@ To get more information about Source, see:
 
 * [API documentation](https://cloud.google.com/security-command-center/docs/reference/rest/v1beta1/organizations.sources)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/binary-authorization/)
+    * [Official Documentation](https://cloud.google.com/security-command-center/docs)
 
 ## Example Usage - Scc Source Basic
 
@@ -76,6 +76,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   The resource name of this source, in the format
@@ -93,12 +94,10 @@ This resource provides the following
 
 ## Import
 
+
 Source can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_scc_source.default organizations/{{organization}}/sources/{{name}}
 $ terraform import google_scc_source.default {{organization}}/{{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.

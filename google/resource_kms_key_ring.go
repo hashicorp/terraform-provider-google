@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceKMSKeyRing() *schema.Resource {
@@ -63,11 +63,16 @@ A full list of valid locations can be found by running 'gcloud kms locations lis
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceKMSKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandKMSKeyRingName(d.Get("name"), d, config)
@@ -94,11 +99,20 @@ func resourceKMSKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Creating new KeyRing: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for KeyRing: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating KeyRing: %s", err)
 	}
@@ -117,17 +131,30 @@ func resourceKMSKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKMSKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}projects/{{project}}/locations/{{location}}/keyRings/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for KeyRing: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("KMSKeyRing %q", d.Id()))
 	}
@@ -148,7 +175,7 @@ func resourceKMSKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading KeyRing: %s", err)
 	}
 
-	if err := d.Set("name", flattenKMSKeyRingName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenKMSKeyRingName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading KeyRing: %s", err)
 	}
 
@@ -157,8 +184,8 @@ func resourceKMSKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKMSKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[WARNING] KMS KeyRing resources"+
-		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
-		" state, but will still be present on the server.", d.Id())
+		" cannot be deleted from Google Cloud. The resource %s will be removed from Terraform"+
+		" state, but will still be present on Google Cloud.", d.Id())
 	d.SetId("")
 
 	return nil
@@ -184,7 +211,7 @@ func resourceKMSKeyRingImport(d *schema.ResourceData, meta interface{}) ([]*sche
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenKMSKeyRingName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenKMSKeyRingName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -206,7 +233,9 @@ func resourceKMSKeyRingDecoder(d *schema.ResourceData, meta interface{}, res map
 	// We can't just ignore_read on `name` as the linter will
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
-	d.Set("self_link", res["name"].(string))
+	if err := d.Set("self_link", res["name"].(string)); err != nil {
+		return nil, fmt.Errorf("Error setting self_link: %s", err)
+	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
 }

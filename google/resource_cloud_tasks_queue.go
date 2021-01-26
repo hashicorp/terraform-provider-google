@@ -22,8 +22,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+func suppressOmittedMaxDuration(_, old, new string, _ *schema.ResourceData) bool {
+	if old == "" && new == "0s" {
+		log.Printf("[INFO] max retry is 0s and api omitted field, suppressing diff")
+		return true
+	}
+	return false
+}
 
 func resourceCloudTasksQueue() *schema.Resource {
 	return &schema.Resource{
@@ -180,9 +188,10 @@ then increases linearly, and finally retries retries at intervals of maxBackoff
 up to maxAttempts times.`,
 						},
 						"max_retry_duration": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Optional: true,
+							Type:             schema.TypeString,
+							Computed:         true,
+							Optional:         true,
+							DiffSuppressFunc: suppressOmittedMaxDuration,
 							Description: `If positive, maxRetryDuration specifies the time limit for
 retrying a failed task, measured from when the task was first
 attempted. Once maxRetryDuration time has passed and the task has
@@ -202,6 +211,23 @@ specifies that the task should be retried.`,
 					},
 				},
 			},
+			"stackdriver_logging_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration options for writing logs to Stackdriver Logging.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"sampling_ratio": {
+							Type:     schema.TypeFloat,
+							Required: true,
+							Description: `Specifies the fraction of operations to write to Stackdriver Logging.
+This field may contain any value between 0.0 and 1.0, inclusive. 0.0 is the
+default and means that no operations are logged.`,
+						},
+					},
+				},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -209,11 +235,16 @@ specifies that the task should be retried.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandCloudTasksQueueName(d.Get("name"), d, config)
@@ -240,6 +271,12 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("retry_config"); !isEmptyValue(reflect.ValueOf(retryConfigProp)) && (ok || !reflect.DeepEqual(v, retryConfigProp)) {
 		obj["retryConfig"] = retryConfigProp
 	}
+	stackdriverLoggingConfigProp, err := expandCloudTasksQueueStackdriverLoggingConfig(d.Get("stackdriver_logging_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("stackdriver_logging_config"); !isEmptyValue(reflect.ValueOf(stackdriverLoggingConfigProp)) && (ok || !reflect.DeepEqual(v, stackdriverLoggingConfigProp)) {
+		obj["stackdriverLoggingConfig"] = stackdriverLoggingConfigProp
+	}
 
 	url, err := replaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues")
 	if err != nil {
@@ -247,11 +284,20 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Creating new Queue: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Queue: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Queue: %s", err)
 	}
@@ -270,17 +316,30 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceCloudTasksQueueRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Queue: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudTasksQueue %q", d.Id()))
 	}
@@ -289,16 +348,19 @@ func resourceCloudTasksQueueRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
 
-	if err := d.Set("name", flattenCloudTasksQueueName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenCloudTasksQueueName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
-	if err := d.Set("app_engine_routing_override", flattenCloudTasksQueueAppEngineRoutingOverride(res["appEngineRoutingOverride"], d)); err != nil {
+	if err := d.Set("app_engine_routing_override", flattenCloudTasksQueueAppEngineRoutingOverride(res["appEngineRoutingOverride"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
-	if err := d.Set("rate_limits", flattenCloudTasksQueueRateLimits(res["rateLimits"], d)); err != nil {
+	if err := d.Set("rate_limits", flattenCloudTasksQueueRateLimits(res["rateLimits"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
-	if err := d.Set("retry_config", flattenCloudTasksQueueRetryConfig(res["retryConfig"], d)); err != nil {
+	if err := d.Set("retry_config", flattenCloudTasksQueueRetryConfig(res["retryConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Queue: %s", err)
+	}
+	if err := d.Set("stackdriver_logging_config", flattenCloudTasksQueueStackdriverLoggingConfig(res["stackdriverLoggingConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
 
@@ -307,11 +369,18 @@ func resourceCloudTasksQueueRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Queue: %s", err)
+	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	appEngineRoutingOverrideProp, err := expandCloudTasksQueueAppEngineRoutingOverride(d.Get("app_engine_routing_override"), d, config)
@@ -331,6 +400,12 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("retry_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retryConfigProp)) {
 		obj["retryConfig"] = retryConfigProp
+	}
+	stackdriverLoggingConfigProp, err := expandCloudTasksQueueStackdriverLoggingConfig(d.Get("stackdriver_logging_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("stackdriver_logging_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, stackdriverLoggingConfigProp)) {
+		obj["stackdriverLoggingConfig"] = stackdriverLoggingConfigProp
 	}
 
 	url, err := replaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
@@ -352,16 +427,28 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("retry_config") {
 		updateMask = append(updateMask, "retryConfig")
 	}
+
+	if d.HasChange("stackdriver_logging_config") {
+		updateMask = append(updateMask, "stackdriverLoggingConfig")
+	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
 	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Queue %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Queue %q: %#v", d.Id(), res)
 	}
 
 	return resourceCloudTasksQueueRead(d, meta)
@@ -369,11 +456,18 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceCloudTasksQueueDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Queue: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
 	if err != nil {
@@ -383,7 +477,12 @@ func resourceCloudTasksQueueDelete(d *schema.ResourceData, meta interface{}) err
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Queue %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Queue")
 	}
@@ -412,7 +511,7 @@ func resourceCloudTasksQueueImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCloudTasksQueueName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -420,7 +519,7 @@ func flattenCloudTasksQueueName(v interface{}, d *schema.ResourceData) interface
 }
 
 // service, version, and instance are input-only. host is output-only.
-func flattenCloudTasksQueueAppEngineRoutingOverride(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueAppEngineRoutingOverride(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -438,7 +537,7 @@ func flattenCloudTasksQueueAppEngineRoutingOverride(v interface{}, d *schema.Res
 	return []interface{}{transformed}
 }
 
-func flattenCloudTasksQueueRateLimits(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRateLimits(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -448,38 +547,52 @@ func flattenCloudTasksQueueRateLimits(v interface{}, d *schema.ResourceData) int
 	}
 	transformed := make(map[string]interface{})
 	transformed["max_dispatches_per_second"] =
-		flattenCloudTasksQueueRateLimitsMaxDispatchesPerSecond(original["maxDispatchesPerSecond"], d)
+		flattenCloudTasksQueueRateLimitsMaxDispatchesPerSecond(original["maxDispatchesPerSecond"], d, config)
 	transformed["max_concurrent_dispatches"] =
-		flattenCloudTasksQueueRateLimitsMaxConcurrentDispatches(original["maxConcurrentDispatches"], d)
+		flattenCloudTasksQueueRateLimitsMaxConcurrentDispatches(original["maxConcurrentDispatches"], d, config)
 	transformed["max_burst_size"] =
-		flattenCloudTasksQueueRateLimitsMaxBurstSize(original["maxBurstSize"], d)
+		flattenCloudTasksQueueRateLimitsMaxBurstSize(original["maxBurstSize"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudTasksQueueRateLimitsMaxDispatchesPerSecond(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRateLimitsMaxDispatchesPerSecond(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudTasksQueueRateLimitsMaxConcurrentDispatches(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRateLimitsMaxConcurrentDispatches(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
-func flattenCloudTasksQueueRateLimitsMaxBurstSize(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRateLimitsMaxBurstSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
-func flattenCloudTasksQueueRetryConfig(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRetryConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -489,46 +602,77 @@ func flattenCloudTasksQueueRetryConfig(v interface{}, d *schema.ResourceData) in
 	}
 	transformed := make(map[string]interface{})
 	transformed["max_attempts"] =
-		flattenCloudTasksQueueRetryConfigMaxAttempts(original["maxAttempts"], d)
+		flattenCloudTasksQueueRetryConfigMaxAttempts(original["maxAttempts"], d, config)
 	transformed["max_retry_duration"] =
-		flattenCloudTasksQueueRetryConfigMaxRetryDuration(original["maxRetryDuration"], d)
+		flattenCloudTasksQueueRetryConfigMaxRetryDuration(original["maxRetryDuration"], d, config)
 	transformed["min_backoff"] =
-		flattenCloudTasksQueueRetryConfigMinBackoff(original["minBackoff"], d)
+		flattenCloudTasksQueueRetryConfigMinBackoff(original["minBackoff"], d, config)
 	transformed["max_backoff"] =
-		flattenCloudTasksQueueRetryConfigMaxBackoff(original["maxBackoff"], d)
+		flattenCloudTasksQueueRetryConfigMaxBackoff(original["maxBackoff"], d, config)
 	transformed["max_doublings"] =
-		flattenCloudTasksQueueRetryConfigMaxDoublings(original["maxDoublings"], d)
+		flattenCloudTasksQueueRetryConfigMaxDoublings(original["maxDoublings"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudTasksQueueRetryConfigMaxAttempts(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRetryConfigMaxAttempts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudTasksQueueRetryConfigMaxRetryDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudTasksQueueRetryConfigMaxRetryDuration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRetryConfigMinBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudTasksQueueRetryConfigMinBackoff(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRetryConfigMaxBackoff(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudTasksQueueRetryConfigMaxBackoff(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenCloudTasksQueueRetryConfigMaxDoublings(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudTasksQueueRetryConfigMaxDoublings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudTasksQueueStackdriverLoggingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["sampling_ratio"] =
+		flattenCloudTasksQueueStackdriverLoggingConfigSamplingRatio(original["samplingRatio"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudTasksQueueStackdriverLoggingConfigSamplingRatio(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -701,5 +845,28 @@ func expandCloudTasksQueueRetryConfigMaxBackoff(v interface{}, d TerraformResour
 }
 
 func expandCloudTasksQueueRetryConfigMaxDoublings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueStackdriverLoggingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSamplingRatio, err := expandCloudTasksQueueStackdriverLoggingConfigSamplingRatio(original["sampling_ratio"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSamplingRatio); val.IsValid() && !isEmptyValue(val) {
+		transformed["samplingRatio"] = transformedSamplingRatio
+	}
+
+	return transformed, nil
+}
+
+func expandCloudTasksQueueStackdriverLoggingConfigSamplingRatio(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

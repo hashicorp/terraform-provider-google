@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	compute "google.golang.org/api/compute/v1"
 )
 
@@ -31,45 +31,56 @@ func resourceComputeAttachedDisk() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
+				Description:      `name or self_link of the disk that will be attached.`,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"instance": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
+				Description:      `name or self_link of the compute instance that the disk will be attached to. If the self_link is provided then zone and project are extracted from the self link. If only the name is used then zone and project must be defined as properties on the resource or provider.`,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 			},
 			"project": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Computed:    true,
+				Optional:    true,
+				Description: `The project that the referenced compute instance is a part of. If instance is referenced by its self_link the project defined in the link will take precedence.`,
 			},
 			"zone": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Computed:    true,
+				Optional:    true,
+				Description: `The zone that the referenced compute instance is located within. If instance is referenced by its self_link the zone defined in the link will take precedence.`,
 			},
 			"device_name": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies a unique device name of your choice that is reflected into the /dev/disk/by-id/google-* tree of a Linux operating system running within the instance. This name can be used to reference the device for mounting, resizing, and so on, from within the instance. If not specified, the server chooses a default device name to apply to this disk, in the form persistent-disks-x, where x is a number assigned by Google Compute Engine.`,
 			},
 			"mode": {
 				Type:         schema.TypeString,
 				ForceNew:     true,
 				Optional:     true,
 				Default:      "READ_WRITE",
+				Description:  `The mode in which to attach this disk, either READ_WRITE or READ_ONLY. If not specified, the default is to attach the disk in READ_WRITE mode.`,
 				ValidateFunc: validation.StringInSlice([]string{"READ_ONLY", "READ_WRITE"}, false),
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
@@ -95,7 +106,7 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 		DeviceName: d.Get("device_name").(string),
 	}
 
-	op, err := config.clientCompute.Instances.AttachDisk(zv.Project, zv.Zone, zv.Name, &attachedDisk).Do()
+	op, err := config.NewComputeClient(userAgent).Instances.AttachDisk(zv.Project, zv.Zone, zv.Name, &attachedDisk).Do()
 	if err != nil {
 		return err
 	}
@@ -103,7 +114,7 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s/%s", zv.Project, zv.Zone, zv.Name, diskName))
 
 	waitErr := computeOperationWaitTime(config, op, zv.Project,
-		"disk to attach", int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		"disk to attach", userAgent, d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		d.SetId("")
 		return waitErr
@@ -114,17 +125,25 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
 		return err
 	}
-	d.Set("project", zv.Project)
-	d.Set("zone", zv.Zone)
+	if err := d.Set("project", zv.Project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("zone", zv.Zone); err != nil {
+		return fmt.Errorf("Error setting zone: %s", err)
+	}
 
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
-	instance, err := config.clientCompute.Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
+	instance, err := config.NewComputeClient(userAgent).Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AttachedDisk %q", d.Id()))
 	}
@@ -138,26 +157,38 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	d.Set("device_name", ad.DeviceName)
-	d.Set("mode", ad.Mode)
+	if err := d.Set("device_name", ad.DeviceName); err != nil {
+		return fmt.Errorf("Error setting device_name: %s", err)
+	}
+	if err := d.Set("mode", ad.Mode); err != nil {
+		return fmt.Errorf("Error setting mode: %s", err)
+	}
 
 	// Force the referenced resources to a self-link in state because it's more specific then name.
 	instancePath, err := getRelativePath(instance.SelfLink)
 	if err != nil {
 		return err
 	}
-	d.Set("instance", instancePath)
+	if err := d.Set("instance", instancePath); err != nil {
+		return fmt.Errorf("Error setting instance: %s", err)
+	}
 	diskPath, err := getRelativePath(ad.Source)
 	if err != nil {
 		return err
 	}
-	d.Set("disk", diskPath)
+	if err := d.Set("disk", diskPath); err != nil {
+		return fmt.Errorf("Error setting disk: %s", err)
+	}
 
 	return nil
 }
 
 func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
@@ -166,7 +197,7 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 
 	diskName := GetResourceNameFromSelfLink(d.Get("disk").(string))
 
-	instance, err := config.clientCompute.Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
+	instance, err := config.NewComputeClient(userAgent).Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
 	if err != nil {
 		return err
 	}
@@ -178,13 +209,13 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 		return nil
 	}
 
-	op, err := config.clientCompute.Instances.DetachDisk(zv.Project, zv.Zone, zv.Name, ad.DeviceName).Do()
+	op, err := config.NewComputeClient(userAgent).Instances.DetachDisk(zv.Project, zv.Zone, zv.Name, ad.DeviceName).Do()
 	if err != nil {
 		return err
 	}
 
 	waitErr := computeOperationWaitTime(config, op, zv.Project,
-		fmt.Sprintf("Detaching disk from %s", zv.Name), int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		fmt.Sprintf("Detaching disk from %s", zv.Name), userAgent, d.Timeout(schema.TimeoutDelete))
 	if waitErr != nil {
 		return waitErr
 	}

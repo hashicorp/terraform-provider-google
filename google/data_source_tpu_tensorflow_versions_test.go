@@ -6,14 +6,14 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccTPUTensorflowVersions_basic(t *testing.T) {
 	t.Parallel()
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -35,12 +35,12 @@ func testAccCheckGoogleTpuTensorflowVersions(n string) resource.TestCheckFunc {
 		}
 
 		if rs.Primary.ID == "" {
-			return errors.New("data source ID not set.")
+			return errors.New("data source id not set")
 		}
 
 		count, ok := rs.Primary.Attributes["versions.#"]
 		if !ok {
-			return errors.New("can't find 'names' attribute")
+			return errors.New("can't find 'versions' attribute")
 		}
 
 		cnt, err := strconv.Atoi(count)

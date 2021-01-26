@@ -74,12 +74,12 @@ resource "google_compute_subnetwork" "default" {
   name          = "my-subnet"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 
 resource "google_compute_address" "internal_with_subnet_and_address" {
   name         = "my-internal-address"
-  subnetwork   = google_compute_subnetwork.default.self_link
+  subnetwork   = google_compute_subnetwork.default.id
   address_type = "INTERNAL"
   address      = "10.0.42.42"
   region       = "us-central1"
@@ -165,8 +165,9 @@ The following arguments are supported:
 
 * `address_type` -
   (Optional)
-  The type of address to reserve, either INTERNAL or EXTERNAL.
-  If unspecified, defaults to EXTERNAL.
+  The type of address to reserve.
+  Default value is `EXTERNAL`.
+  Possible values are `INTERNAL` and `EXTERNAL`.
 
 * `description` -
   (Optional)
@@ -175,14 +176,17 @@ The following arguments are supported:
 * `purpose` -
   (Optional)
   The purpose of this resource, which can be one of the following values:
-  - GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
+  * GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
+  * SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal load balancers.
+  * VPC_PEERING for addresses that are reserved for VPC peer networks.
   This should only be set when using an Internal address.
+  Possible values are `GCE_ENDPOINT`, `VPC_PEERING`, and `SHARED_LOADBALANCER_VIP`.
 
 * `network_tier` -
   (Optional)
-  The networking tier used for configuring this address. This field can
-  take the following values: PREMIUM or STANDARD. If this field is not
+  The networking tier used for configuring this address. If this field is not
   specified, it is assumed to be PREMIUM.
+  Possible values are `PREMIUM` and `STANDARD`.
 
 * `subnetwork` -
   (Optional)
@@ -190,6 +194,10 @@ The following arguments are supported:
   address is specified, it must be within the subnetwork's IP range.
   This field can only be used with INTERNAL type with
   GCE_ENDPOINT/DNS_RESOLVER purposes.
+
+* `labels` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Labels to apply to this address.  A list of key->value pairs.
 
 * `region` -
   (Optional)
@@ -204,16 +212,19 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/addresses/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
 
 * `users` -
   The URLs of the resources that are using this address.
+
+* `label_fingerprint` -
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
 * `self_link` - The URI of the created resource.
 
-
-* `address` - The IP of the created resource.
 
 ## Timeouts
 
@@ -221,9 +232,11 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Address can be imported using any of these accepted formats:
 
@@ -233,9 +246,6 @@ $ terraform import google_compute_address.default {{project}}/{{region}}/{{name}
 $ terraform import google_compute_address.default {{region}}/{{name}}
 $ terraform import google_compute_address.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

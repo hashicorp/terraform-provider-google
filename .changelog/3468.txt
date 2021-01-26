@@ -1,0 +1,3 @@
+```release-note:bug
+compute: Remove permadiff or errors on update for `google_compute_backend_service` and `google_compute_region_backend_service` when `consistent_hash` values were previously set on  backend service but are not supported by updated value of `locality_lb_policy`
+```

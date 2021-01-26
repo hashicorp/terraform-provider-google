@@ -19,22 +19,24 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudSchedulerJobDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudSchedulerJob_schedulerJobPubsubExample(context),
@@ -52,11 +54,11 @@ func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobPubsubExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_pubsub_topic" "topic" {
-  name = "job-topic%{random_suffix}"
+  name = "tf-test-job-topic%{random_suffix}"
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name        = "test-job%{random_suffix}"
+  name        = "tf-test-test-job%{random_suffix}"
   description = "test job"
   schedule    = "*/2 * * * *"
 
@@ -73,13 +75,16 @@ func TestAccCloudSchedulerJob_schedulerJobHttpExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudSchedulerJobDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudSchedulerJob_schedulerJobHttpExample(context),
@@ -97,15 +102,20 @@ func TestAccCloudSchedulerJob_schedulerJobHttpExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobHttpExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
-  name             = "test-job%{random_suffix}"
+  name             = "tf-test-test-job%{random_suffix}"
   description      = "test http job"
   schedule         = "*/8 * * * *"
   time_zone        = "America/New_York"
   attempt_deadline = "320s"
 
+  retry_config {
+    retry_count = 1
+  }
+
   http_target {
     http_method = "POST"
     uri         = "https://example.com/ping"
+    body        = base64encode("{\"foo\":\"bar\"}")
   }
 }
 `, context)
@@ -115,13 +125,16 @@ func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudSchedulerJobDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudSchedulerJob_schedulerJobAppEngineExample(context),
@@ -139,11 +152,18 @@ func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
 func testAccCloudSchedulerJob_schedulerJobAppEngineExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
-  name             = "test-job%{random_suffix}"
+  name             = "tf-test-test-job%{random_suffix}"
   schedule         = "*/4 * * * *"
   description      = "test app engine job"
   time_zone        = "Europe/London"
   attempt_deadline = "320s"
+
+  retry_config {
+    min_backoff_duration = "1s"
+    max_retry_duration = "10s"
+    max_doublings = 2
+    retry_count = 3
+  }
 
   app_engine_http_target {
     http_method = "POST"
@@ -166,13 +186,16 @@ func TestAccCloudSchedulerJob_schedulerJobOauthExample(t *testing.T) {
 	context := map[string]interface{}{
 		"project_name":  getTestProjectFromEnv(),
 		"region":        getTestRegionFromEnv(),
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudSchedulerJobDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudSchedulerJob_schedulerJobOauthExample(context),
@@ -193,7 +216,7 @@ data "google_compute_default_service_account" "default" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name             = "test-job%{random_suffix}"
+  name             = "tf-test-test-job%{random_suffix}"
   description      = "test http job"
   schedule         = "*/8 * * * *"
   time_zone        = "America/New_York"
@@ -215,13 +238,16 @@ func TestAccCloudSchedulerJob_schedulerJobOidcExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCloudSchedulerJobDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckCloudSchedulerJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudSchedulerJob_schedulerJobOidcExample(context),
@@ -242,7 +268,7 @@ data "google_compute_default_service_account" "default" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name             = "test-job%{random_suffix}"
+  name             = "tf-test-test-job%{random_suffix}"
   description      = "test http job"
   schedule         = "*/8 * * * *"
   time_zone        = "America/New_York"
@@ -260,27 +286,35 @@ resource "google_cloud_scheduler_job" "job" {
 `, context)
 }
 
-func testAccCheckCloudSchedulerJobDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_cloud_scheduler_job" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckCloudSchedulerJobDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_cloud_scheduler_job" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			if err == nil {
+				return fmt.Errorf("CloudSchedulerJob still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("CloudSchedulerJob still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

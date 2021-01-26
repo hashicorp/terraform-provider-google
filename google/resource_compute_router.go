@@ -15,15 +15,34 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"strconv"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+// customizeDiff func for additional checks on google_compute_router properties:
+func resourceComputeRouterCustomDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+
+	block := diff.Get("bgp.0").(map[string]interface{})
+	advertiseMode := block["advertise_mode"]
+	advertisedGroups := block["advertised_groups"].([]interface{})
+	advertisedIPRanges := block["advertised_ip_ranges"].([]interface{})
+
+	if advertiseMode == "DEFAULT" && len(advertisedGroups) != 0 {
+		return fmt.Errorf("Error in bgp: advertised_groups cannot be specified when using advertise_mode DEFAULT")
+	}
+	if advertiseMode == "DEFAULT" && len(advertisedIPRanges) != 0 {
+		return fmt.Errorf("Error in bgp: advertised_ip_ranges cannot be specified when using advertise_mode DEFAULT")
+	}
+
+	return nil
+}
 
 func resourceComputeRouter() *schema.Resource {
 	return &schema.Resource{
@@ -41,6 +60,8 @@ func resourceComputeRouter() *schema.Resource {
 			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
+
+		CustomizeDiff: resourceComputeRouterCustomDiff,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -70,8 +91,9 @@ except the last character, which cannot be a dash.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"asn": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validateRFC6996Asn,
 							Description: `Local BGP Autonomous System Number (ASN). Must be an RFC6996
 private ASN, either 16-bit or 32-bit. The value will be fixed for
 this router resource. All VPN tunnels that link to this router
@@ -81,10 +103,8 @@ will have the same local ASN.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "CUSTOM", ""}, false),
-							Description: `User-specified flag to indicate which mode to use for advertisement.
-
-Valid values of this enum field are: DEFAULT, CUSTOM`,
-							Default: "DEFAULT",
+							Description:  `User-specified flag to indicate which mode to use for advertisement. Default value: "DEFAULT" Possible values: ["DEFAULT", "CUSTOM"]`,
+							Default:      "DEFAULT",
 						},
 						"advertised_groups": {
 							Type:     schema.TypeList,
@@ -156,11 +176,16 @@ CIDR-formatted string.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandComputeRouterName(d.Get("name"), d, config)
@@ -207,11 +232,20 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Creating new Router: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Router: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Router: %s", err)
 	}
@@ -224,8 +258,8 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Router",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		config, res, project, "Creating Router", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -240,17 +274,30 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Router: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRouter %q", d.Id()))
 	}
@@ -259,22 +306,22 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
 
-	if err := d.Set("creation_timestamp", flattenComputeRouterCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeRouterCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err := d.Set("name", flattenComputeRouterName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeRouterName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err := d.Set("description", flattenComputeRouterDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeRouterDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err := d.Set("network", flattenComputeRouterNetwork(res["network"], d)); err != nil {
+	if err := d.Set("network", flattenComputeRouterNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err := d.Set("bgp", flattenComputeRouterBgp(res["bgp"], d)); err != nil {
+	if err := d.Set("bgp", flattenComputeRouterBgp(res["bgp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err := d.Set("region", flattenComputeRouterRegion(res["region"], d)); err != nil {
+	if err := d.Set("region", flattenComputeRouterRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -286,11 +333,18 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Router: %s", err)
+	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	descriptionProp, err := expandComputeRouterDescription(d.Get("description"), d, config)
@@ -319,15 +373,23 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Updating Router %q: %#v", d.Id(), obj)
-	res, err := sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Router %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Router %q: %#v", d.Id(), res)
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Updating Router",
-		int(d.Timeout(schema.TimeoutUpdate).Minutes()))
+		config, res, project, "Updating Router", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return err
@@ -338,11 +400,18 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Router: %s", err)
+	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "router/{{region}}/{{name}}")
 	if err != nil {
@@ -359,14 +428,19 @@ func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Router %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Router")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Router",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, res, project, "Deleting Router", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -397,26 +471,26 @@ func resourceComputeRouterImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeRouterCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterNetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeRouterBgp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -426,34 +500,41 @@ func flattenComputeRouterBgp(v interface{}, d *schema.ResourceData) interface{} 
 	}
 	transformed := make(map[string]interface{})
 	transformed["asn"] =
-		flattenComputeRouterBgpAsn(original["asn"], d)
+		flattenComputeRouterBgpAsn(original["asn"], d, config)
 	transformed["advertise_mode"] =
-		flattenComputeRouterBgpAdvertiseMode(original["advertiseMode"], d)
+		flattenComputeRouterBgpAdvertiseMode(original["advertiseMode"], d, config)
 	transformed["advertised_groups"] =
-		flattenComputeRouterBgpAdvertisedGroups(original["advertisedGroups"], d)
+		flattenComputeRouterBgpAdvertisedGroups(original["advertisedGroups"], d, config)
 	transformed["advertised_ip_ranges"] =
-		flattenComputeRouterBgpAdvertisedIpRanges(original["advertisedIpRanges"], d)
+		flattenComputeRouterBgpAdvertisedIpRanges(original["advertisedIpRanges"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRouterBgpAsn(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpAsn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRouterBgpAdvertiseMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpAdvertiseMode(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpAdvertisedGroups(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpAdvertisedGroups(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenComputeRouterBgpAdvertisedIpRanges(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpAdvertisedIpRanges(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -466,21 +547,21 @@ func flattenComputeRouterBgpAdvertisedIpRanges(v interface{}, d *schema.Resource
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"range":       flattenComputeRouterBgpAdvertisedIpRangesRange(original["range"], d),
-			"description": flattenComputeRouterBgpAdvertisedIpRangesDescription(original["description"], d),
+			"range":       flattenComputeRouterBgpAdvertisedIpRangesRange(original["range"], d, config),
+			"description": flattenComputeRouterBgpAdvertisedIpRangesDescription(original["description"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenComputeRouterBgpAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeRouterRegion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeRouterRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

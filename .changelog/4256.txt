@@ -1,0 +1,4 @@
+```release-note:enhancement
+container : added cluster state check in `resource_container_node_pool`
+
+```

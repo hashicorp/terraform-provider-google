@@ -78,7 +78,8 @@ The following arguments are supported:
 
 * `specific_reservation` -
   (Required)
-  Reservation for instances with specific machine shapes.  Structure is documented below.
+  Reservation for instances with specific machine shapes.
+  Structure is documented below.
 
 * `zone` -
   (Required)
@@ -96,7 +97,8 @@ The `specific_reservation` block supports:
 
 * `instance_properties` -
   (Required)
-  The instance properties for the reservation.  Structure is documented below.
+  The instance properties for the reservation.
+  Structure is documented below.
 
 
 The `instance_properties` block supports:
@@ -114,12 +116,14 @@ The `instance_properties` block supports:
 
 * `guest_accelerators` -
   (Optional)
-  Guest accelerator type and count.  Structure is documented below.
+  Guest accelerator type and count.
+  Structure is documented below.
 
 * `local_ssds` -
   (Optional)
   The amount of local ssd to reserve with each instance. This
-  reserves disks of type `local-ssd`.  Structure is documented below.
+  reserves disks of type `local-ssd`.
+  Structure is documented below.
 
 
 The `guest_accelerators` block supports:
@@ -140,8 +144,9 @@ The `local_ssds` block supports:
 
 * `interface` -
   (Optional)
-  The disk interface to use for attaching this disk, one
-  of `SCSI` or `NVME`. The default is `SCSI`.
+  The disk interface to use for attaching this disk.
+  Default value is `SCSI`.
+  Possible values are `SCSI` and `NVME`.
 
 * `disk_size_gb` -
   (Required)
@@ -168,6 +173,7 @@ The `local_ssds` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/reservations/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -187,9 +193,11 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Reservation can be imported using any of these accepted formats:
 
@@ -199,9 +207,6 @@ $ terraform import google_compute_reservation.default {{project}}/{{zone}}/{{nam
 $ terraform import google_compute_reservation.default {{zone}}/{{name}}
 $ terraform import google_compute_reservation.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

@@ -4,19 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
+	// Randomness in instance template
+	skipIfVcr(t)
 	t.Parallel()
-	name := "acctest-" + acctest.RandString(6)
-	resource.Test(t, resource.TestCase{
+	name := "tf-test-" + randString(t, 6)
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceRegionInstanceGroup_basic(name),
+				Config: testAccDataSourceRegionInstanceGroup_basic(fmt.Sprintf("tf-test-rigm--%d", randInt(t)), name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "name", name),
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "project", getTestProjectFromEnv()),
@@ -26,7 +27,7 @@ func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
 	})
 }
 
-func testAccDataSourceRegionInstanceGroup_basic(instanceManagerName string) string {
+func testAccDataSourceRegionInstanceGroup_basic(rigmName, instanceManagerName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_pool" "foo" {
   name = "%s"
@@ -38,7 +39,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_instance_template" "foo" {
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   disk {
     source_image = data.google_compute_image.debian.self_link
   }
@@ -70,5 +71,5 @@ resource "google_compute_region_instance_group_manager" "foo" {
 data "google_compute_region_instance_group" "data_source" {
   self_link = google_compute_region_instance_group_manager.foo.instance_group
 }
-`, acctest.RandomWithPrefix("test-rigm-"), instanceManagerName)
+`, rigmName, instanceManagerName)
 }

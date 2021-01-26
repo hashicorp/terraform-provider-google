@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Firestore"
+subcategory: "Firestore"
 layout: "google"
 page_title: "Google: google_firestore_index"
 sidebar_current: "docs-google-firestore-index"
@@ -32,6 +32,12 @@ To get more information about Index, see:
 * [API documentation](https://cloud.google.com/firestore/docs/reference/rest/v1/projects.databases.collectionGroups.indexes)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/firestore/docs/query-data/indexing)
+
+~> **Warning:** This resource creates a Firestore Index on a project that already has
+Firestore enabled. If you haven't already enabled it, you can create a
+`google_app_engine_application` resource with `database_type` set to
+`"CLOUD_FIRESTORE"` to do so. Your Firestore location will be the same as
+the App Engine location specified.
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=firestore_index_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -80,7 +86,8 @@ The following arguments are supported:
   specified as the last field, it will be added automatically with the
   same direction as that of the last field defined. If the final field
   in a composite index is not directional, the `__name__` will be
-  ordered `"ASCENDING"` (unless explicitly specified otherwise).  Structure is documented below.
+  ordered `"ASCENDING"` (unless explicitly specified otherwise).
+  Structure is documented below.
 
 
 The `fields` block supports:
@@ -93,11 +100,13 @@ The `fields` block supports:
   (Optional)
   Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
   Only one of `order` and `arrayConfig` can be specified.
+  Possible values are `ASCENDING` and `DESCENDING`.
 
 * `array_config` -
   (Optional)
   Indicates that this field supports operations on arrayValues. Only one of `order` and `arrayConfig` can
   be specified.
+  Possible values are `CONTAINS`.
 
 - - -
 
@@ -108,8 +117,9 @@ The `fields` block supports:
 
 * `query_scope` -
   (Optional)
-  The scope at which a query is run. One of `"COLLECTION"` or
-  `"COLLECTION_GROUP"`. Defaults to `"COLLECTION"`.
+  The scope at which a query is run.
+  Default value is `COLLECTION`.
+  Possible values are `COLLECTION` and `COLLECTION_GROUP`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -119,6 +129,7 @@ The `fields` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   A server defined name for this index. Format:
@@ -135,14 +146,12 @@ This resource provides the following
 
 ## Import
 
+
 Index can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_firestore_index.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

@@ -99,6 +99,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}`
 
 * `name` -
   The name of the default supported IDP config resource
@@ -115,6 +116,7 @@ This resource provides the following
 
 ## Import
 
+
 TenantDefaultSupportedIdpConfig can be imported using any of these accepted formats:
 
 ```
@@ -122,9 +124,6 @@ $ terraform import google_identity_platform_tenant_default_supported_idp_config.
 $ terraform import google_identity_platform_tenant_default_supported_idp_config.default {{project}}/{{tenant}}/{{idp_id}}
 $ terraform import google_identity_platform_tenant_default_supported_idp_config.default {{tenant}}/{{idp_id}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

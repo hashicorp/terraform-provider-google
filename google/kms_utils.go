@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudkms/v1"
 )
 
@@ -174,8 +174,8 @@ func parseKmsCryptoKeyId(id string, config *Config) (*kmsCryptoKeyId, error) {
 	return nil, fmt.Errorf("Invalid CryptoKey id format, expecting `{projectId}/{locationId}/{KeyringName}/{cryptoKeyName}` or `{locationId}/{keyRingName}/{cryptoKeyName}, got id: %s`", id)
 }
 
-func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, config *Config) error {
-	versionsClient := config.clientKms.Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions
+func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, userAgent string, config *Config) error {
+	versionsClient := config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions
 
 	listCall := versionsClient.List(cryptoKeyId.cryptoKeyId())
 	if config.UserProjectOverride {
@@ -203,8 +203,8 @@ func clearCryptoKeyVersions(cryptoKeyId *kmsCryptoKeyId, config *Config) error {
 	return nil
 }
 
-func disableCryptoKeyRotation(cryptoKeyId *kmsCryptoKeyId, config *Config) error {
-	keyClient := config.clientKms.Projects.Locations.KeyRings.CryptoKeys
+func disableCryptoKeyRotation(cryptoKeyId *kmsCryptoKeyId, userAgent string, config *Config) error {
+	keyClient := config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys
 	patchCall := keyClient.Patch(cryptoKeyId.cryptoKeyId(), &cloudkms.CryptoKey{
 		NullFields: []string{"rotationPeriod", "nextRotationTime"},
 	}).

@@ -1,15 +1,18 @@
+//
 package google
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	computeBeta "google.golang.org/api/compute/v0.beta"
 )
@@ -29,6 +32,8 @@ var (
 	}
 )
 
+var REQUIRED_SCRATCH_DISK_SIZE_GB = 375
+
 func resourceComputeInstanceTemplate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceTemplateCreate,
@@ -45,6 +50,11 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 		),
 		MigrateState: resourceComputeInstanceTemplateMigrateState,
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
+		},
+
 		// A compute instance template is more or less a subset of a compute
 		// instance. Please attempt to maintain consistency with the
 		// resource_compute_instance schema when updating this one.
@@ -56,13 +66,15 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"name_prefix"},
 				ValidateFunc:  validateGCPName,
+				Description:   `The name of the instance template. If you leave this blank, Terraform will auto-generate a unique name.`,
 			},
 
 			"name_prefix": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Creates a unique name beginning with the specified prefix. Conflicts with name.`,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					// https://cloud.google.com/compute/docs/reference/latest/instanceTemplates#resource
 					// uuid is 26 characters, limit the prefix to 37.
@@ -76,49 +88,57 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			},
 
 			"disk": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Disks to attach to instances created from this template. This can be specified multiple times for multiple disks.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auto_delete": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
-							ForceNew: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							ForceNew:    true,
+							Description: `Whether or not the disk should be auto-deleted. This defaults to true.`,
 						},
 
 						"boot": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `Indicates that this is a boot disk.`,
 						},
 
 						"device_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: `A unique device name that is reflected into the /dev/ tree of a Linux operating system running within the instance. If not specified, the server chooses a default device name to apply to this disk.`,
 						},
 
 						"disk_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Name of the disk. When not provided, this defaults to the name of the instance.`,
 						},
 
 						"disk_size_gb": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be exactly 375GB.`,
 						},
 
 						"disk_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `The Google Compute Engine disk type. Can be either "pd-ssd", "local-ssd", "pd-balanced" or "pd-standard".`,
 						},
 
 						"labels": {
@@ -128,46 +148,54 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: `A set of key/value label pairs to assign to disks,`,
 						},
 
 						"source_image": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: `The image from which to initialize this disk. This can be one of: the image's self_link, projects/{project}/global/images/{image}, projects/{project}/global/images/family/{family}, global/images/{image}, global/images/family/{family}, family/{family}, {project}/{family}, {project}/{image}, {family}, or {image}. ~> Note: Either source or source_image is required when creating a new instance except for when creating a local SSD.`,
 						},
 
 						"interface": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `Specifies the disk interface to use for attaching this disk.`,
 						},
 
 						"mode": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `The mode in which to attach this disk, either READ_WRITE or READ_ONLY. If you are attaching or creating a boot disk, this must read-write mode.`,
 						},
 
 						"source": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The name (not self_link) of the disk (such as those managed by google_compute_disk) to attach. ~> Note: Either source or source_image is required when creating a new instance except for when creating a local SSD.`,
 						},
 
 						"type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `The type of Google Compute Engine disk, can be either "SCRATCH" or "PERSISTENT".`,
 						},
 
 						"disk_encryption_key": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							MaxItems: 1,
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Description: `Encrypts or decrypts a disk using a customer-supplied encryption key.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"kms_key_self_link": {
@@ -175,6 +203,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Required:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: compareSelfLinkRelativePaths,
+										Description:      `The self link of the encryption key that is stored in Google Cloud KMS.`,
 									},
 								},
 							},
@@ -184,57 +213,66 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			},
 
 			"machine_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The machine type to create. To create a machine with a custom type (such as extended memory), format the value like custom-VCPUS-MEM_IN_MB like custom-6-20480 for 6 vCPU and 20GB of RAM.`,
 			},
 
 			"can_ip_forward": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-				ForceNew: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				ForceNew:    true,
+				Description: `Whether to allow sending and receiving of packets with non-matching source or destination IPs. This defaults to false.`,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `A brief description of this resource.`,
 			},
 
 			"enable_display": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Enable Virtual Displays on this instance. Note: allow_stopping_for_update must be set to true in order to update this field.`,
 			},
 
 			"instance_description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `A description of the instance.`,
 			},
 
 			"metadata": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Metadata key/value pairs to make available from within instances created from this template.`,
 			},
 
 			"metadata_startup_script": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An alternative to using the startup-script metadata key, mostly to match the compute_instance resource. This replaces the startup-script metadata key on the created instance and thus the two mechanisms are not allowed to be used simultaneously.`,
 			},
 
 			"metadata_fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique fingerprint of the metadata.`,
 			},
 
 			"network_interface": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Networks to attach to instances created from this template. This can be specified multiple times for multiple networks.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"network": {
@@ -243,12 +281,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							ForceNew:         true,
 							Computed:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
-						},
-
-						"network_ip": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Description:      `The name or self_link of the network to attach this interface to. Use network attribute for Legacy or Auto subnetted networks and subnetwork for custom subnetted networks.`,
 						},
 
 						"subnetwork": {
@@ -257,41 +290,67 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							ForceNew:         true,
 							Computed:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The name of the subnetwork to attach this interface to. The subnetwork must exist in the same region this instance will be created in. Either network or subnetwork must be provided.`,
 						},
 
 						"subnetwork_project": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `The ID of the project in which the subnetwork belongs. If it is not provided, the provider project is used.`,
+						},
+
+						"network_ip": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The private IP address to assign to the instance. If empty, the address will be automatically assigned.`,
+						},
+
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the network_interface.`,
 						},
 
 						"access_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Access configurations, i.e. IPs via which this instance can be accessed via the Internet. Omit to ensure that the instance is not accessible from the Internet (this means that ssh provisioners will not work unless you are running Terraform can send traffic to the instance's network (e.g. via tunnel or because it is running on another cloud instance on that network). This block can be repeated multiple times.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"nat_ip": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-										Computed: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Computed:    true,
+										Description: `The IP address that will be 1:1 mapped to the instance's network ip. If not given, one will be generated.`,
 									},
 									"network_tier": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										Computed:     true,
+										ForceNew:     true,
+										Description:  `The networking tier used for configuring this instance template. This field can take the following values: PREMIUM or STANDARD. If this field is not specified, it is assumed to be PREMIUM.`,
 										ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD"}, false),
+									},
+									// Possibly configurable- this was added so we don't break if it's inadvertently set
+									"public_ptr_domain_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The DNS domain name for the public PTR record.The DNS domain name for the public PTR record.`,
 									},
 								},
 							},
 						},
 
 						"alias_ip_range": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `An array of alias IP ranges for this network interface. Can only be specified for network interfaces on subnet-mode networks.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"ip_cidr_range": {
@@ -299,11 +358,13 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Required:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: ipCidrRangeDiffSuppress,
+										Description:      `The IP CIDR range represented by this alias IP range. This IP CIDR range must belong to the specified subnetwork and cannot contain IP addresses reserved by system or used by other network interfaces. At the time of writing only a netmask (e.g. /24) may be supplied, with a CIDR format resulting in an API error.`,
 									},
 									"subnetwork_range_name": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The subnetwork secondary range name specifying the secondary range from which to allocate the IP CIDR range for this alias IP range. If left unspecified, the primary range of the subnetwork will be used.`,
 									},
 								},
 							},
@@ -313,25 +374,28 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `An instance template is a global resource that is not bound to a zone or a region. However, you can still specify some regional resources in an instance template, which restricts the template to the region where that resource resides. For example, a custom subnetwork resource is tied to a specific region. Defaults to the region of the Provider if no value is given.`,
 			},
 
 			"scheduling": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Description: `The scheduling strategy to use.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"preemptible": {
@@ -340,6 +404,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							AtLeastOneOf: schedulingInstTemplateKeys,
 							Default:      false,
 							ForceNew:     true,
+							Description:  `Allows instance to be preempted. This defaults to false.`,
 						},
 
 						"automatic_restart": {
@@ -348,6 +413,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							AtLeastOneOf: schedulingInstTemplateKeys,
 							Default:      true,
 							ForceNew:     true,
+							Description:  `Specifies whether the instance should be automatically restarted if it is terminated by Compute Engine (not terminated by a user). This defaults to true.`,
 						},
 
 						"on_host_maintenance": {
@@ -356,6 +422,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Computed:     true,
 							AtLeastOneOf: schedulingInstTemplateKeys,
 							ForceNew:     true,
+							Description:  `Defines the maintenance behavior for this instance.`,
 						},
 
 						"node_affinities": {
@@ -365,34 +432,39 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							ForceNew:         true,
 							Elem:             instanceSchedulingNodeAffinitiesElemSchema(),
 							DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
+							Description:      `Specifies node affinities or anti-affinities to determine which sole-tenant nodes your instances and managed instance groups will use as host systems.`,
 						},
 					},
 				},
 			},
 
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The URI of the created resource.`,
 			},
 
 			"service_account": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Service account to attach to the instance.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"email": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: `The service account e-mail address. If not given, the default Google Compute Engine service account is used.`,
 						},
 
 						"scopes": {
-							Type:     schema.TypeSet,
-							Required: true,
-							ForceNew: true,
+							Type:        schema.TypeSet,
+							Required:    true,
+							ForceNew:    true,
+							Description: `A list of service scopes. Both OAuth2 URLs and gcloud short names are supported. To allow full access to all Cloud APIs, use the cloud-platform scope.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 								StateFunc: func(v interface{}) string {
@@ -406,10 +478,11 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 			},
 
 			"shielded_instance_config": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Enable Shielded VM on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Note: shielded_instance_config can only be used with boot images with shielded vm support.`,
 				// Since this block is used by the API based on which
 				// image being used, the field needs to be marked as Computed.
 				Computed:         true,
@@ -422,6 +495,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							AtLeastOneOf: shieldedInstanceTemplateConfigKeys,
 							Default:      false,
 							ForceNew:     true,
+							Description:  `Verify the digital signature of all boot components, and halt the boot process if signature verification fails. Defaults to false.`,
 						},
 
 						"enable_vtpm": {
@@ -430,6 +504,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							AtLeastOneOf: shieldedInstanceTemplateConfigKeys,
 							Default:      true,
 							ForceNew:     true,
+							Description:  `Use a virtualized trusted platform module, which is a specialized computer chip you can use to encrypt objects like keys and certificates. Defaults to true.`,
 						},
 
 						"enable_integrity_monitoring": {
@@ -438,63 +513,88 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							AtLeastOneOf: shieldedInstanceTemplateConfigKeys,
 							Default:      true,
 							ForceNew:     true,
+							Description:  `Compare the most recent boot measurements to the integrity policy baseline and return a pair of pass/fail results depending on whether they match or not. Defaults to true.`,
 						},
 					},
 				},
 			},
-
+			"confidential_instance_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The Confidential VM config being used by the instance. on_host_maintenance has to be set to TERMINATE or this will fail to create.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_confidential_compute": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `Defines whether the instance should have confidential compute enabled.`,
+						},
+					},
+				},
+			},
 			"guest_accelerator": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `List of the type and count of accelerator cards attached to the instance.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"count": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
+							Type:        schema.TypeInt,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The number of the guest accelerator cards exposed to this instance.`,
 						},
 						"type": {
 							Type:             schema.TypeString,
 							Required:         true,
 							ForceNew:         true,
 							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The accelerator type resource to expose to this instance. E.g. nvidia-tesla-k80.`,
 						},
 					},
 				},
 			},
 
 			"min_cpu_platform": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specifies a minimum CPU platform. Applicable values are the friendly names of CPU platforms, such as Intel Haswell or Intel Skylake.`,
 			},
 
 			"tags": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: `Tags to attach to the instance.`,
 			},
 
 			"tags_fingerprint": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique fingerprint of the tags.`,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: `A set of key/value label pairs to assign to instances created from this template,`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
-func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceComputeInstanceTemplateSourceImageCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	config := meta.(*Config)
 
 	numDisks := diff.Get("disk.#").(int)
@@ -504,21 +604,16 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.Resour
 			var err error
 			old, new := diff.GetChange(key)
 			if old == "" || new == "" {
-				// no sense in resolving empty strings
-				err = diff.ForceNew(key)
-				if err != nil {
-					return err
-				}
 				continue
 			}
 			// project must be retrieved once we know there is a diff to resolve, otherwise it will
 			// attempt to retrieve project during `plan` before all calculated fields are ready
-			// see https://github.com/terraform-providers/terraform-provider-google/issues/2878
+			// see https://github.com/hashicorp/terraform-provider-google/issues/2878
 			project, err := getProjectFromDiff(diff, config)
 			if err != nil {
 				return err
 			}
-			oldResolved, err := resolveImage(config, project, old.(string))
+			oldResolved, err := resolveImage(config, project, old.(string), config.userAgent)
 			if err != nil {
 				return err
 			}
@@ -526,7 +621,7 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.Resour
 			if err != nil {
 				return err
 			}
-			newResolved, err := resolveImage(config, project, new.(string))
+			newResolved, err := resolveImage(config, project, new.(string), config.userAgent)
 			if err != nil {
 				return err
 			}
@@ -535,10 +630,6 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.Resour
 				return err
 			}
 			if oldResolved != newResolved {
-				err = diff.ForceNew(key)
-				if err != nil {
-					return err
-				}
 				continue
 			}
 			err = diff.Clear(key)
@@ -550,7 +641,7 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(diff *schema.Resour
 	return nil
 }
 
-func resourceComputeInstanceTemplateScratchDiskCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceComputeInstanceTemplateScratchDiskCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	// separate func to allow unit testing
 	return resourceComputeInstanceTemplateScratchDiskCustomizeDiffFunc(diff)
 }
@@ -570,15 +661,15 @@ func resourceComputeInstanceTemplateScratchDiskCustomizeDiffFunc(diff TerraformR
 		}
 
 		diskSize := diff.Get(fmt.Sprintf("disk.%d.disk_size_gb", i)).(int)
-		if typee == "SCRATCH" && diskSize != 375 {
-			return fmt.Errorf("SCRATCH disks must be exactly 375GB, disk %d is %d", i, diskSize)
+		if typee == "SCRATCH" && diskSize != REQUIRED_SCRATCH_DISK_SIZE_GB {
+			return fmt.Errorf("SCRATCH disks must be exactly %dGB, disk %d is %d", REQUIRED_SCRATCH_DISK_SIZE_GB, i, diskSize)
 		}
 	}
 
 	return nil
 }
 
-func resourceComputeInstanceTemplateBootDiskCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+func resourceComputeInstanceTemplateBootDiskCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	numDisks := diff.Get("disk.#").(int)
 	// No disk except the first can be the boot disk
 	for i := 1; i < numDisks; i++ {
@@ -594,6 +685,11 @@ func resourceComputeInstanceTemplateBootDiskCustomizeDiff(diff *schema.ResourceD
 
 func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.AttachedDisk, error) {
 	project, err := getProject(d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -651,7 +747,7 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 
 			if v, ok := d.GetOk(prefix + ".source_image"); ok {
 				imageName := v.(string)
-				imageUrl, err := resolveImage(config, project, imageName)
+				imageUrl, err := resolveImage(config, project, imageName, userAgent)
 				if err != nil {
 					return nil, fmt.Errorf(
 						"Error resolving image name '%s': %s",
@@ -715,6 +811,10 @@ func expandInstanceTemplateGuestAccelerators(d TerraformResourceData, config *Co
 
 func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -742,19 +842,20 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	}
 
 	instanceProperties := &computeBeta.InstanceProperties{
-		CanIpForward:      d.Get("can_ip_forward").(bool),
-		Description:       d.Get("instance_description").(string),
-		GuestAccelerators: expandInstanceTemplateGuestAccelerators(d, config),
-		MachineType:       d.Get("machine_type").(string),
-		MinCpuPlatform:    d.Get("min_cpu_platform").(string),
-		Disks:             disks,
-		Metadata:          metadata,
-		NetworkInterfaces: networks,
-		Scheduling:        scheduling,
-		ServiceAccounts:   expandServiceAccounts(d.Get("service_account").([]interface{})),
-		Tags:              resourceInstanceTags(d),
-		ShieldedVmConfig:  expandShieldedVmConfigs(d),
-		DisplayDevice:     expandDisplayDevice(d),
+		CanIpForward:               d.Get("can_ip_forward").(bool),
+		Description:                d.Get("instance_description").(string),
+		GuestAccelerators:          expandInstanceTemplateGuestAccelerators(d, config),
+		MachineType:                d.Get("machine_type").(string),
+		MinCpuPlatform:             d.Get("min_cpu_platform").(string),
+		Disks:                      disks,
+		Metadata:                   metadata,
+		NetworkInterfaces:          networks,
+		Scheduling:                 scheduling,
+		ServiceAccounts:            expandServiceAccounts(d.Get("service_account").([]interface{})),
+		Tags:                       resourceInstanceTags(d),
+		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
+		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
+		DisplayDevice:              expandDisplayDevice(d),
 	}
 
 	if _, ok := d.GetOk("labels"); ok {
@@ -775,7 +876,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Name:        itName,
 	}
 
-	op, err := config.clientComputeBeta.InstanceTemplates.Insert(project, instanceTemplate).Do()
+	op, err := config.NewComputeBetaClient(userAgent).InstanceTemplates.Insert(project, instanceTemplate).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance template: %s", err)
 	}
@@ -783,7 +884,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	// Store the ID now
 	d.SetId(fmt.Sprintf("projects/%s/global/instanceTemplates/%s", project, instanceTemplate.Name))
 
-	err = computeOperationWait(config, op, project, "Creating Instance Template")
+	err = computeOperationWaitTime(config, op, project, "Creating Instance Template", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -842,8 +943,14 @@ func flattenDisk(disk *computeBeta.AttachedDisk, defaultProject string) (map[str
 		}
 		diskMap["disk_type"] = disk.InitializeParams.DiskType
 		diskMap["disk_name"] = disk.InitializeParams.DiskName
-		diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
 		diskMap["labels"] = disk.InitializeParams.Labels
+		// The API does not return a disk size value for scratch disks. They can only be one size,
+		// so we can assume that size here.
+		if disk.InitializeParams.DiskSizeGb == 0 && disk.Type == "SCRATCH" {
+			diskMap["disk_size_gb"] = REQUIRED_SCRATCH_DISK_SIZE_GB
+		} else {
+			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
+		}
 	}
 
 	if disk.DiskEncryptionKey != nil {
@@ -998,13 +1105,18 @@ func flattenDisks(disks []*computeBeta.AttachedDisk, d *schema.ResourceData, def
 
 func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
 	}
 
 	splits := strings.Split(d.Id(), "/")
-	instanceTemplate, err := config.clientComputeBeta.InstanceTemplates.Get(project, splits[len(splits)-1]).Do()
+	instanceTemplate, err := config.NewComputeBetaClient(userAgent).InstanceTemplates.Get(project, splits[len(splits)-1]).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
 	}
@@ -1036,10 +1148,14 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
 	} else {
-		d.Set("tags_fingerprint", "")
+		if err := d.Set("tags_fingerprint", ""); err != nil {
+			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
+		}
 	}
 	if instanceTemplate.Properties.Labels != nil {
-		d.Set("labels", instanceTemplate.Properties.Labels)
+		if err := d.Set("labels", instanceTemplate.Properties.Labels); err != nil {
+			return fmt.Errorf("Error setting labels: %s", err)
+		}
 	}
 	if err = d.Set("self_link", instanceTemplate.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
@@ -1117,8 +1233,14 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	if instanceTemplate.Properties.ShieldedVmConfig != nil {
-		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instanceTemplate.Properties.ShieldedVmConfig)); err != nil {
+		if err = d.Set("shielded_instance_config", flattenShieldedVmConfig(instanceTemplate.Properties.ShieldedInstanceConfig)); err != nil {
 			return fmt.Errorf("Error setting shielded_instance_config: %s", err)
+		}
+	}
+
+	if instanceTemplate.Properties.ConfidentialInstanceConfig != nil {
+		if err = d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(instanceTemplate.Properties.ConfidentialInstanceConfig)); err != nil {
+			return fmt.Errorf("Error setting confidential_instance_config: %s", err)
 		}
 	}
 	if instanceTemplate.Properties.DisplayDevice != nil {
@@ -1131,6 +1253,10 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 
 func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1138,13 +1264,13 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 	}
 
 	splits := strings.Split(d.Id(), "/")
-	op, err := config.clientCompute.InstanceTemplates.Delete(
+	op, err := config.NewComputeClient(userAgent).InstanceTemplates.Delete(
 		project, splits[len(splits)-1]).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting instance template: %s", err)
 	}
 
-	err = computeOperationWait(config, op, project, "Deleting Instance Template")
+	err = computeOperationWaitTime(config, op, project, "Deleting Instance Template", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}

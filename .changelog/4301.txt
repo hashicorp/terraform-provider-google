@@ -1,0 +1,3 @@
+```release-note:enhancement
+logging: added plan time validation for `unique_writer_identity` on `google_logging_project_sink`
+```

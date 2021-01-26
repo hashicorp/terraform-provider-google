@@ -20,8 +20,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeAddress() *schema.Resource {
@@ -67,9 +67,8 @@ if any.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"INTERNAL", "EXTERNAL", ""}, false),
-				Description: `The type of address to reserve, either INTERNAL or EXTERNAL.
-If unspecified, defaults to EXTERNAL.`,
-				Default: "EXTERNAL",
+				Description:  `The type of address to reserve. Default value: "EXTERNAL" Possible values: ["INTERNAL", "EXTERNAL"]`,
+				Default:      "EXTERNAL",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -83,21 +82,24 @@ If unspecified, defaults to EXTERNAL.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD", ""}, false),
-				Description: `The networking tier used for configuring this address. This field can
-take the following values: PREMIUM or STANDARD. If this field is not
-specified, it is assumed to be PREMIUM.`,
+				Description: `The networking tier used for configuring this address. If this field is not
+specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]`,
 			},
 			"purpose": {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"GCE_ENDPOINT", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"GCE_ENDPOINT", "VPC_PEERING", "SHARED_LOADBALANCER_VIP", ""}, false),
 				Description: `The purpose of this resource, which can be one of the following values:
 
-- GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
+* GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
 
-This should only be set when using an Internal address.`,
+* SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal load balancers.
+
+* VPC_PEERING for addresses that are reserved for VPC peer networks.
+
+This should only be set when using an Internal address. Possible values: ["GCE_ENDPOINT", "VPC_PEERING", "SHARED_LOADBALANCER_VIP"]`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -143,11 +145,16 @@ GCE_ENDPOINT/DNS_RESOLVER purposes.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	addressProp, err := expandComputeAddressAddress(d.Get("address"), d, config)
@@ -205,11 +212,20 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Creating new Address: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Address: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Address: %s", err)
 	}
@@ -222,8 +238,8 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating Address",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		config, res, project, "Creating Address", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -238,17 +254,30 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/addresses/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Address: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeAddress %q", d.Id()))
 	}
@@ -257,34 +286,34 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 
-	if err := d.Set("address", flattenComputeAddressAddress(res["address"], d)); err != nil {
+	if err := d.Set("address", flattenComputeAddressAddress(res["address"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("address_type", flattenComputeAddressAddressType(res["addressType"], d)); err != nil {
+	if err := d.Set("address_type", flattenComputeAddressAddressType(res["addressType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("creation_timestamp", flattenComputeAddressCreationTimestamp(res["creationTimestamp"], d)); err != nil {
+	if err := d.Set("creation_timestamp", flattenComputeAddressCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("description", flattenComputeAddressDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenComputeAddressDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("name", flattenComputeAddressName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenComputeAddressName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("purpose", flattenComputeAddressPurpose(res["purpose"], d)); err != nil {
+	if err := d.Set("purpose", flattenComputeAddressPurpose(res["purpose"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("network_tier", flattenComputeAddressNetworkTier(res["networkTier"], d)); err != nil {
+	if err := d.Set("network_tier", flattenComputeAddressNetworkTier(res["networkTier"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("subnetwork", flattenComputeAddressSubnetwork(res["subnetwork"], d)); err != nil {
+	if err := d.Set("subnetwork", flattenComputeAddressSubnetwork(res["subnetwork"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("users", flattenComputeAddressUsers(res["users"], d)); err != nil {
+	if err := d.Set("users", flattenComputeAddressUsers(res["users"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
-	if err := d.Set("region", flattenComputeAddressRegion(res["region"], d)); err != nil {
+	if err := d.Set("region", flattenComputeAddressRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -296,11 +325,18 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Address: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/addresses/{{name}}")
 	if err != nil {
@@ -310,14 +346,19 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Address %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Address")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting Address",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, res, project, "Deleting Address", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -348,11 +389,11 @@ func resourceComputeAddressImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeAddressAddress(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressAddressType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressAddressType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "EXTERNAL"
 	}
@@ -360,38 +401,38 @@ func flattenComputeAddressAddressType(v interface{}, d *schema.ResourceData) int
 	return v
 }
 
-func flattenComputeAddressCreationTimestamp(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressPurpose(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressPurpose(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressNetworkTier(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressNetworkTier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressSubnetwork(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressSubnetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeAddressUsers(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressUsers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressRegion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenComputeAddressRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}

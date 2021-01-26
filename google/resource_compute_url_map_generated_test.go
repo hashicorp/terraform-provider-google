@@ -19,30 +19,33 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccComputeUrlMap_urlMapBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -54,35 +57,45 @@ resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
 
-  default_service = google_compute_backend_service.home.self_link
+  default_service = google_compute_backend_bucket.static.id
 
   host_rule {
     hosts        = ["mysite.com"]
-    path_matcher = "allpaths"
+    path_matcher = "mysite"
+  }
+
+  host_rule {
+    hosts        = ["myothersite.com"]
+    path_matcher = "otherpaths"
   }
 
   path_matcher {
-    name            = "allpaths"
-    default_service = google_compute_backend_service.home.self_link
+    name            = "mysite"
+    default_service = google_compute_backend_bucket.static.id
 
     path_rule {
       paths   = ["/home"]
-      service = google_compute_backend_service.home.self_link
+      service = google_compute_backend_bucket.static.id
     }
 
     path_rule {
       paths   = ["/login"]
-      service = google_compute_backend_service.login.self_link
+      service = google_compute_backend_service.login.id
     }
 
     path_rule {
       paths   = ["/static"]
-      service = google_compute_backend_bucket.static.self_link
+      service = google_compute_backend_bucket.static.id
     }
   }
 
+  path_matcher {
+    name            = "otherpaths"
+    default_service = google_compute_backend_bucket.static.id
+  }
+
   test {
-    service = google_compute_backend_service.home.self_link
+    service = google_compute_backend_bucket.static.id
     host    = "hi.com"
     path    = "/home"
   }
@@ -94,33 +107,24 @@ resource "google_compute_backend_service" "login" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_http_health_check.default.self_link]
-}
-
-resource "google_compute_backend_service" "home" {
-  name        = "home%{random_suffix}"
-  port_name   = "http"
-  protocol    = "HTTP"
-  timeout_sec = 10
-
-  health_checks = [google_compute_http_health_check.default.self_link]
+  health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_backend_bucket" "static" {
-  name        = "static-asset-backend-bucket%{random_suffix}"
+  name        = "tf-test-static-asset-backend-bucket%{random_suffix}"
   bucket_name = google_storage_bucket.static.name
   enable_cdn  = true
 }
 
 resource "google_storage_bucket" "static" {
-  name     = "static-asset-bucket%{random_suffix}"
+  name     = "tf-test-static-asset-bucket%{random_suffix}"
   location = "US"
 }
 `, context)
@@ -130,21 +134,25 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRouteExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorRouteExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -155,7 +163,7 @@ func testAccComputeUrlMap_urlMapTrafficDirectorRouteExample(context map[string]i
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
-  default_service = google_compute_backend_service.home.self_link
+  default_service = google_compute_backend_service.home.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -164,7 +172,7 @@ resource "google_compute_url_map" "urlmap" {
 
   path_matcher {
     name = "allpaths"
-    default_service = google_compute_backend_service.home.self_link
+    default_service = google_compute_backend_service.home.id
 
     route_rules {
       priority = 1
@@ -213,7 +221,7 @@ resource "google_compute_url_map" "urlmap" {
   }
 
   test {
-    service = google_compute_backend_service.home.self_link
+    service = google_compute_backend_service.home.id
     host    = "hi.com"
     path    = "/home"
   }
@@ -225,12 +233,12 @@ resource "google_compute_backend_service" "home" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_health_check.default.self_link]
+  health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   http_health_check {
     port = 80
   }
@@ -242,21 +250,25 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(t *testing.T)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -267,7 +279,7 @@ func testAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(context map[s
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
-  default_service = google_compute_backend_service.home.self_link
+  default_service = google_compute_backend_service.home.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -276,7 +288,7 @@ resource "google_compute_url_map" "urlmap" {
 
   path_matcher {
     name = "allpaths"
-    default_service = google_compute_backend_service.home.self_link
+    default_service = google_compute_backend_service.home.id
 
     route_rules {
       priority = 1
@@ -296,7 +308,7 @@ resource "google_compute_url_map" "urlmap" {
   }
 
   test {
-    service = google_compute_backend_service.home.self_link
+    service = google_compute_backend_service.home.id
     host    = "hi.com"
     path    = "/home"
   }
@@ -308,12 +320,12 @@ resource "google_compute_backend_service" "home" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_health_check.default.self_link]
+  health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   http_health_check {
     port = 80
   }
@@ -325,21 +337,25 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorPathExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -350,7 +366,7 @@ func testAccComputeUrlMap_urlMapTrafficDirectorPathExample(context map[string]in
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
-  default_service = google_compute_backend_service.home.self_link
+  default_service = google_compute_backend_service.home.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -359,7 +375,7 @@ resource "google_compute_url_map" "urlmap" {
 
   path_matcher {
     name = "allpaths"
-    default_service = google_compute_backend_service.home.self_link
+    default_service = google_compute_backend_service.home.id
 
     path_rule {
       paths   = ["/home"]
@@ -388,7 +404,7 @@ resource "google_compute_url_map" "urlmap" {
           }
         }
         request_mirror_policy {
-          backend_service = google_compute_backend_service.home.self_link
+          backend_service = google_compute_backend_service.home.id
         }
         retry_policy {
           num_retries = 4
@@ -406,7 +422,7 @@ resource "google_compute_url_map" "urlmap" {
           path_prefix_rewrite = "A replacement path"
         }
         weighted_backend_services {
-          backend_service = google_compute_backend_service.home.self_link
+          backend_service = google_compute_backend_service.home.id
           weight = 400
           header_action {
             request_headers_to_remove = ["RemoveMe"]
@@ -428,7 +444,7 @@ resource "google_compute_url_map" "urlmap" {
   }
 
   test {
-    service = google_compute_backend_service.home.self_link
+    service = google_compute_backend_service.home.id
     host    = "hi.com"
     path    = "/home"
   }
@@ -440,12 +456,12 @@ resource "google_compute_backend_service" "home" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_health_check.default.self_link]
+  health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   http_health_check {
     port = 80
   }
@@ -457,21 +473,25 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(t *testing.T) 
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(context),
 			},
 			{
-				ResourceName:      "google_compute_url_map.urlmap",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
 			},
 		},
 	})
@@ -482,7 +502,7 @@ func testAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(context map[st
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
-  default_service = google_compute_backend_service.home.self_link
+  default_service = google_compute_backend_service.home.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -491,7 +511,7 @@ resource "google_compute_url_map" "urlmap" {
 
   path_matcher {
     name = "allpaths"
-    default_service = google_compute_backend_service.home.self_link
+    default_service = google_compute_backend_service.home.id
 
     path_rule {
       paths   = ["/home"]
@@ -507,7 +527,7 @@ resource "google_compute_url_map" "urlmap" {
           disabled = false
         }
         weighted_backend_services {
-          backend_service = google_compute_backend_service.home.self_link
+          backend_service = google_compute_backend_service.home.id
           weight = 400
           header_action {
             request_headers_to_remove = ["RemoveMe"]
@@ -529,7 +549,7 @@ resource "google_compute_url_map" "urlmap" {
   }
 
   test {
-    service = google_compute_backend_service.home.self_link
+    service = google_compute_backend_service.home.id
     host    = "hi.com"
     path    = "/home"
   }
@@ -541,12 +561,12 @@ resource "google_compute_backend_service" "home" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_health_check.default.self_link]
+  health_checks = [google_compute_health_check.default.id]
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "health-check%{random_suffix}"
+  name               = "tf-test-health-check%{random_suffix}"
   http_health_check {
     port = 80
   }
@@ -554,27 +574,249 @@ resource "google_compute_health_check" "default" {
 `, context)
 }
 
-func testAccCheckComputeUrlMapDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_url_map" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
-		}
+func TestAccComputeUrlMap_urlMapHeaderBasedRoutingExample(t *testing.T) {
+	t.Parallel()
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/urlMaps/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("ComputeUrlMap still exists at %s", url)
-		}
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
 	}
 
-	return nil
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_urlMapHeaderBasedRoutingExample(context),
+			},
+			{
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
+			},
+		},
+	})
+}
+
+func testAccComputeUrlMap_urlMapHeaderBasedRoutingExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_url_map" "urlmap" {
+  name        = "urlmap%{random_suffix}"
+  description = "header-based routing example"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts = ["*"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    route_rules {
+      priority = 1
+      service = google_compute_backend_service.service-a.id
+      match_rules {
+        prefix_match = "/"
+        ignore_case = true
+        header_matches {
+          header_name = "abtest"
+          exact_match = "a"
+        }
+      }
+    }
+    route_rules {
+      priority = 2
+      service = google_compute_backend_service.service-b.id
+      match_rules {
+        ignore_case = true
+        prefix_match = "/"
+        header_matches {
+          header_name = "abtest"
+          exact_match = "b"
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name        = "default%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "service-a" {
+  name        = "tf-test-service-a%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "service-b" {
+  name        = "tf-test-service-b%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "tf-test-health-check%{random_suffix}"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, context)
+}
+
+func TestAccComputeUrlMap_urlMapParameterBasedRoutingExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_urlMapParameterBasedRoutingExample(context),
+			},
+			{
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
+			},
+		},
+	})
+}
+
+func testAccComputeUrlMap_urlMapParameterBasedRoutingExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_url_map" "urlmap" {
+  name        = "urlmap%{random_suffix}"
+  description = "parameter-based routing example"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts = ["*"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    route_rules {
+      priority = 1
+      service = google_compute_backend_service.service-a.id
+      match_rules {
+        prefix_match = "/"
+        ignore_case = true
+        query_parameter_matches {
+          name = "abtest"
+          exact_match = "a"
+        }
+      }
+    }
+    route_rules {
+      priority = 2
+      service = google_compute_backend_service.service-b.id
+      match_rules {
+        ignore_case = true
+        prefix_match = "/"
+        query_parameter_matches {
+          name = "abtest"
+          exact_match = "b"
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name        = "default%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "service-a" {
+  name        = "tf-test-service-a%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "service-b" {
+  name        = "tf-test-service-b%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "tf-test-health-check%{random_suffix}"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, context)
+}
+
+func testAccCheckComputeUrlMapDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_url_map" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/urlMaps/{{name}}")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			if err == nil {
+				return fmt.Errorf("ComputeUrlMap still exists at %s", url)
+			}
+		}
+
+		return nil
+	}
 }

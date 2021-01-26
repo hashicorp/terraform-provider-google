@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `replacement_method` field to `update_policy` block of `google_compute_instance_group_manager`
+```
+```release-note:enhancement
+compute: added `replacement_method` field to `update_policy` block of `google_compute_region_instance_group_manager`
+```

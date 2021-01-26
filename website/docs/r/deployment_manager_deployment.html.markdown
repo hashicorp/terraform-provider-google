@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Deployment Manager"
+subcategory: "Cloud Deployment Manager"
 layout: "google"
 page_title: "Google: google_deployment_manager_deployment"
 sidebar_current: "docs-google-deployment-manager-deployment"
@@ -107,20 +107,23 @@ The following arguments are supported:
 * `target` -
   (Required)
   Parameters that define your deployment, including the deployment
-  configuration and relevant templates.  Structure is documented below.
+  configuration and relevant templates.
+  Structure is documented below.
 
 
 The `target` block supports:
 
 * `config` -
   (Required)
-  The root configuration file to use for this deployment.  Structure is documented below.
+  The root configuration file to use for this deployment.
+  Structure is documented below.
 
 * `imports` -
   (Optional)
   Specifies import files for this configuration. This can be
   used to import templates or other files. For example, you might
-  import a text file in order to use the file in a template.  Structure is documented below.
+  import a text file in order to use the file in a template.
+  Structure is documented below.
 
 
 The `config` block supports:
@@ -149,7 +152,8 @@ The `imports` block supports:
 
 * `labels` -
   (Optional)
-  Key-value pairs to apply to this labels.  Structure is documented below.
+  Key-value pairs to apply to this labels.
+  Structure is documented below.
 
 * `create_policy` -
   (Optional)
@@ -158,6 +162,8 @@ The `imports` block supports:
   `ACQUIRE`. If set to `ACQUIRE` and resources do not already exist,
   the deployment will fail. Note that updating this field does not
   actually affect the deployment, just how it is updated.
+  Default value is `CREATE_OR_ACQUIRE`.
+  Possible values are `ACQUIRE` and `CREATE_OR_ACQUIRE`.
 
 * `delete_policy` -
   (Optional)
@@ -167,6 +173,8 @@ The `imports` block supports:
   `ABANDON`, the resource is only removed from Deployment Manager
   and is not actually deleted. Note that updating this field does not
   actually change the deployment, just how it is updated.
+  Default value is `DELETE`.
+  Possible values are `ABANDON` and `DELETE`.
 
 * `preview` -
   (Optional)
@@ -174,7 +182,7 @@ The `imports` block supports:
   that are not actually instantiated. This allows you to preview a
   deployment. It can be updated to false to actually deploy
   with real resources.
-   ~>**NOTE**: Deployment Manager does not allow update
+   ~>**NOTE:** Deployment Manager does not allow update
   of a deployment in preview (unless updating to preview=false). Thus,
   Terraform will force-recreate deployments if either preview is updated
   to true or if other fields are updated while preview is true.
@@ -197,6 +205,7 @@ The `labels` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/deployments/{{name}}`
 
 * `deployment_id` -
   Unique identifier for deployment. Output only.
@@ -220,6 +229,7 @@ This resource provides the following
 
 ## Import
 
+
 Deployment can be imported using any of these accepted formats:
 
 ```
@@ -227,9 +237,6 @@ $ terraform import google_deployment_manager_deployment.default projects/{{proje
 $ terraform import google_deployment_manager_deployment.default {{project}}/{{name}}
 $ terraform import google_deployment_manager_deployment.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

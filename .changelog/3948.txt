@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed bug where `delete_default_routes_on_create=true` was not actually deleting the default routes on create.
+```

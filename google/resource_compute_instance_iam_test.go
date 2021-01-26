@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 // Even though the resource has generated tests, keep this one around until we are able to generate
@@ -16,9 +15,9 @@ func TestAccComputeInstanceIamPolicy(t *testing.T) {
 	project := getTestProjectFromEnv()
 	role := "roles/compute.osLogin"
 	zone := getTestZoneFromEnv()
-	instanceName := fmt.Sprintf("tf-test-instance-%s", acctest.RandString(10))
+	instanceName := fmt.Sprintf("tf-test-instance-%s", randString(t, 10))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -59,7 +58,7 @@ func testAccComputeInstanceIamPolicy_basic(zone, instanceName, roleId string) st
   resource "google_compute_instance" "test_vm" {
     zone         = "%s"
     name         = "%s"
-    machine_type = "n1-standard-1"
+    machine_type = "e2-medium"
 
     boot_disk {
       initialize_params {

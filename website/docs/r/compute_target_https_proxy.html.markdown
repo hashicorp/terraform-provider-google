@@ -44,8 +44,8 @@ To get more information about TargetHttpsProxy, see:
 ```hcl
 resource "google_compute_target_https_proxy" "default" {
   name             = "test-proxy"
-  url_map          = google_compute_url_map.default.self_link
-  ssl_certificates = [google_compute_ssl_certificate.default.self_link]
+  url_map          = google_compute_url_map.default.id
+  ssl_certificates = [google_compute_ssl_certificate.default.id]
 }
 
 resource "google_compute_ssl_certificate" "default" {
@@ -58,7 +58,7 @@ resource "google_compute_url_map" "default" {
   name        = "url-map"
   description = "a description"
 
-  default_service = google_compute_backend_service.default.self_link
+  default_service = google_compute_backend_service.default.id
 
   host_rule {
     hosts        = ["mysite.com"]
@@ -67,11 +67,11 @@ resource "google_compute_url_map" "default" {
 
   path_matcher {
     name            = "allpaths"
-    default_service = google_compute_backend_service.default.self_link
+    default_service = google_compute_backend_service.default.id
 
     path_rule {
       paths   = ["/*"]
-      service = google_compute_backend_service.default.self_link
+      service = google_compute_backend_service.default.id
     }
   }
 }
@@ -82,7 +82,7 @@ resource "google_compute_backend_service" "default" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_http_health_check.default.self_link]
+  health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_http_health_check" "default" {
@@ -133,8 +133,9 @@ The following arguments are supported:
   whether the load balancer will attempt to negotiate QUIC with clients
   or not. Can specify one of NONE, ENABLE, or DISABLE. If NONE is
   specified, uses the QUIC policy with no user overrides, which is
-  equivalent to DISABLE. Not specifying this field is equivalent to
-  specifying NONE.
+  equivalent to DISABLE.
+  Default value is `NONE`.
+  Possible values are `NONE`, `ENABLE`, and `DISABLE`.
 
 * `ssl_policy` -
   (Optional)
@@ -150,6 +151,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/targetHttpsProxies/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -170,6 +172,7 @@ This resource provides the following
 
 ## Import
 
+
 TargetHttpsProxy can be imported using any of these accepted formats:
 
 ```
@@ -177,9 +180,6 @@ $ terraform import google_compute_target_https_proxy.default projects/{{project}
 $ terraform import google_compute_target_https_proxy.default {{project}}/{{name}}
 $ terraform import google_compute_target_https_proxy.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

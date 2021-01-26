@@ -3,7 +3,7 @@ package google
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDataSourceGoogleComputeDefaultServiceAccount_basic(t *testing.T) {
@@ -11,7 +11,7 @@ func TestAccDataSourceGoogleComputeDefaultServiceAccount_basic(t *testing.T) {
 
 	resourceName := "data.google_compute_default_service_account.default"
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -30,5 +30,5 @@ func TestAccDataSourceGoogleComputeDefaultServiceAccount_basic(t *testing.T) {
 }
 
 const testAccCheckGoogleComputeDefaultServiceAccount_basic = `
-data "google_compute_default_service_account" "default" { }
+data "google_compute_default_service_account" "default" {}
 `

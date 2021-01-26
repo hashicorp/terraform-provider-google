@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudfunctions: fixed a bug with `google_cloudfunction_function` that blocked updates when Organization Policies are enabled.
+```

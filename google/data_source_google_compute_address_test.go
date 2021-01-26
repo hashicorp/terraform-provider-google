@@ -2,10 +2,11 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestComputeAddressIdParsing(t *testing.T) {
@@ -76,22 +77,22 @@ func TestAccDataSourceComputeAddress(t *testing.T) {
 	dsName := "my_address"
 	dsFullName := fmt.Sprintf("data.google_compute_address.%s", dsName)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDataSourceComputeAddressDestroy(rsFullName),
+		CheckDestroy: testAccCheckDataSourceComputeAddressDestroy(t, rsFullName),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeAddressConfig(rsName, dsName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceComputeAddressCheck(dsFullName, rsFullName),
+					testAccDataSourceComputeAddressCheck(t, dsFullName, rsFullName),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceComputeAddressCheck(data_source_name string, resource_name string) resource.TestCheckFunc {
+func testAccDataSourceComputeAddressCheck(t *testing.T, data_source_name string, resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[data_source_name]
 		if !ok {
@@ -134,24 +135,29 @@ func testAccDataSourceComputeAddressCheck(data_source_name string, resource_name
 	}
 }
 
-func testAccCheckDataSourceComputeAddressDestroy(resource_name string) resource.TestCheckFunc {
+func testAccCheckDataSourceComputeAddressDestroy(t *testing.T, name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_compute_address" {
+				continue
+			}
 
-		rs, ok := s.RootModule().Resources[resource_name]
-		if !ok {
-			return fmt.Errorf("can't find %s in state", resource_name)
-		}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
 
-		addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
-		if err != nil {
-			return err
-		}
+			config := googleProviderConfig(t)
 
-		_, err = config.clientCompute.Addresses.Get(
-			config.Project, addressId.Region, addressId.Name).Do()
-		if err == nil {
-			return fmt.Errorf("Address still exists")
+			addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
+			if err != nil {
+				return err
+			}
+
+			_, err = config.NewComputeClient(config.userAgent).Addresses.Get(
+				config.Project, addressId.Region, addressId.Name).Do()
+			if err == nil {
+				return fmt.Errorf("Address still exists")
+			}
 		}
 
 		return nil

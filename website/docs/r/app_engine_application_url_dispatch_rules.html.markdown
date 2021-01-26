@@ -92,7 +92,8 @@ The following arguments are supported:
 
 * `dispatch_rules` -
   (Required)
-  Rules to match an HTTP request and dispatch that request to a service.  Structure is documented below.
+  Rules to match an HTTP request and dispatch that request to a service.
+  Structure is documented below.
 
 
 The `dispatch_rules` block supports:
@@ -119,6 +120,12 @@ The `dispatch_rules` block supports:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `{{project}}`
+
 
 ## Timeouts
 
@@ -131,14 +138,12 @@ This resource provides the following
 
 ## Import
 
+
 ApplicationUrlDispatchRules can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_app_engine_application_url_dispatch_rules.default {{project}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

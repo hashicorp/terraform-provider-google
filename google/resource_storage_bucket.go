@@ -2,6 +2,7 @@ package google
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -12,11 +13,10 @@ import (
 	"time"
 
 	"github.com/gammazero/workerpool"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
@@ -37,9 +37,10 @@ func resourceStorageBucket() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the bucket.`,
 			},
 
 			"encryption": {
@@ -49,28 +50,33 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"default_kms_key_name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `A Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no encryption method is specified. You must pay attention to whether the crypto key is available in the location that this bucket is created in. See the docs for more details.`,
 						},
 					},
 				},
+				Description: `The bucket's encryption configuration.`,
 			},
 
 			"requester_pays": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Enables Requester Pays on a storage bucket.`,
 			},
 
 			"force_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `When deleting a bucket, this boolean option will delete all contained objects. If you try to delete a bucket that contains objects, Terraform will fail that run.`,
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A set of key/value label pairs to assign to the bucket.`,
 			},
 
 			"location": {
@@ -81,29 +87,34 @@ func resourceStorageBucket() *schema.Resource {
 				StateFunc: func(s interface{}) string {
 					return strings.ToUpper(s.(string))
 				},
+				Description: `The Google Cloud Storage location`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The URI of the created resource.`,
 			},
 
 			"url": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The base URL of the bucket, in the format gs://<bucket-name>.`,
 			},
 
 			"storage_class": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "STANDARD",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "STANDARD",
+				Description: `The Storage Class of the new bucket. Supported values include: STANDARD, MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE.`,
 			},
 
 			"lifecycle_rule": {
@@ -121,15 +132,18 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"type": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The type of the action of this Lifecycle Rule. Supported values include: Delete and SetStorageClass.`,
 									},
 									"storage_class": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The target Storage Class of objects affected by this Lifecycle Rule. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE.`,
 									},
 								},
 							},
+							Description: `The Lifecycle Rule's action configuration. A single block of this type is supported.`,
 						},
 						"condition": {
 							Type:     schema.TypeSet,
@@ -140,40 +154,62 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"age": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Minimum age of an object in days to satisfy this condition.`,
 									},
 									"created_before": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
 									},
-									"is_live": {
-										Type:     schema.TypeBool,
+									"custom_time_before": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
+									},
+									"days_since_custom_time": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Number of days elapsed since the user-specified timestamp set on an object.`,
+									},
+									"days_since_noncurrent_time": {
+										Type:     schema.TypeInt,
 										Optional: true,
-										Removed:  "Please use `with_state` instead",
-										Computed: true,
+										Description: `Number of days elapsed since the noncurrent timestamp of an object. This
+										condition is relevant only for versioned objects.`,
+									},
+									"noncurrent_time_before": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
 									},
 									"with_state": {
 										Type:         schema.TypeString,
 										Computed:     true,
 										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"LIVE", "ARCHIVED", "ANY", ""}, false),
+										Description:  `Match to live and/or archived objects. Unversioned buckets have only live objects. Supported values include: "LIVE", "ARCHIVED", "ANY".`,
 									},
 									"matches_storage_class": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MinItems: 1,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										Type:        schema.TypeList,
+										Optional:    true,
+										MinItems:    1,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: `Storage Class of objects to satisfy this condition. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE, STANDARD, DURABLE_REDUCED_AVAILABILITY.`,
 									},
 									"num_newer_versions": {
-										Type:     schema.TypeInt,
-										Optional: true,
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition.`,
 									},
 								},
 							},
+							Description: `The Lifecycle Rule's condition configuration.`,
 						},
 					},
 				},
+				Description: `The bucket's Lifecycle Rules configuration.`,
 			},
 
 			"versioning": {
@@ -183,11 +219,13 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `While set to true, versioning is fully enabled for this bucket.`,
 						},
 					},
 				},
+				Description: `The bucket's Versioning configuration.`,
 			},
 
 			"website": {
@@ -200,14 +238,17 @@ func resourceStorageBucket() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							AtLeastOneOf: []string{"website.0.not_found_page", "website.0.main_page_suffix"},
+							Description:  `Behaves as the bucket's directory index where missing objects are treated as potential directories.`,
 						},
 						"not_found_page": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							AtLeastOneOf: []string{"website.0.main_page_suffix", "website.0.not_found_page"},
+							Description:  `The custom object to return when a requested resource is not found.`,
 						},
 					},
 				},
+				Description: `Configuration if the bucket acts as a website.`,
 			},
 
 			"retention_policy": {
@@ -217,17 +258,20 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"is_locked": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: `If set to true, the bucket will be locked and permanently restrict edits to the bucket's retention policy.  Caution: Locking a bucket is an irreversible action.`,
 						},
 						"retention_period": {
 							Type:         schema.TypeInt,
 							Required:     true,
 							ValidateFunc: validation.IntBetween(1, math.MaxInt32),
+							Description:  `The period of time, in seconds, that objects in the bucket must be retained and cannot be deleted, overwritten, or archived. The value must be less than 3,155,760,000 seconds.`,
 						},
 					},
 				},
+				Description: `Configuration of the bucket's data retention policy for how long objects in the bucket should be retained.`,
 			},
 
 			"cors": {
@@ -241,6 +285,7 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: `The list of Origins eligible to receive CORS response headers. Note: "*" is permitted in the list of origins, and means "any Origin".`,
 						},
 						"method": {
 							Type:     schema.TypeList,
@@ -248,6 +293,7 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: `The list of HTTP methods on which to include CORS response headers, (GET, OPTIONS, POST, etc) Note: "*" is permitted in the list of methods, and means "any method".`,
 						},
 						"response_header": {
 							Type:     schema.TypeList,
@@ -255,13 +301,16 @@ func resourceStorageBucket() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: `The list of HTTP headers other than the simple response headers to give permission for the user-agent to share across domains.`,
 						},
 						"max_age_seconds": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `The value, in seconds, to return in the Access-Control-Max-Age header used in preflight responses.`,
 						},
 					},
 				},
+				Description: `The bucket's Cross-Origin Resource Sharing (CORS) configuration.`,
 			},
 
 			"default_event_based_hold": {
@@ -276,28 +325,42 @@ func resourceStorageBucket() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"log_bucket": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The bucket that will receive log objects.`,
 						},
 						"log_object_prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `The object prefix for log objects. If it's not provided, by default Google Cloud Storage sets this to this bucket's name.`,
 						},
 					},
 				},
+				Description: `The bucket's Access & Storage Logs configuration.`,
 			},
 			"bucket_policy_only": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Computed:      true,
+				Description:   `Enables Bucket Policy Only access to a bucket.`,
+				Deprecated:    `Please use the uniform_bucket_level_access as this field has been renamed by Google.`,
+				ConflictsWith: []string{"uniform_bucket_level_access"},
+			},
+			"uniform_bucket_level_access": {
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Computed:      true,
+				Description:   `Enables uniform bucket-level access on a bucket.`,
+				ConflictsWith: []string{"bucket_policy_only"},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 // Is the old bucket retention policy locked?
-func isPolicyLocked(old, new, _ interface{}) bool {
+func isPolicyLocked(_ context.Context, old, new, _ interface{}) bool {
 	if old == nil || new == nil {
 		return false
 	}
@@ -312,6 +375,10 @@ func isPolicyLocked(old, new, _ interface{}) bool {
 
 func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -349,14 +416,17 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if v, ok := d.GetOk("retention_policy"); ok {
+		// Not using expandBucketRetentionPolicy() here because `is_locked` cannot be set on creation.
 		retention_policies := v.([]interface{})
 
-		sb.RetentionPolicy = &storage.BucketRetentionPolicy{}
+		if len(retention_policies) > 0 {
+			sb.RetentionPolicy = &storage.BucketRetentionPolicy{}
 
-		retentionPolicy := retention_policies[0].(map[string]interface{})
+			retentionPolicy := retention_policies[0].(map[string]interface{})
 
-		if v, ok := retentionPolicy["retention_period"]; ok {
-			sb.RetentionPolicy.RetentionPeriod = int64(v.(int))
+			if v, ok := retentionPolicy["retention_period"]; ok {
+				sb.RetentionPolicy.RetentionPeriod = int64(v.(int))
+			}
 		}
 	}
 
@@ -385,7 +455,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	var res *storage.Bucket
 
 	err = retry(func() error {
-		res, err = config.clientStorage.Buckets.Insert(project, sb).Do()
+		res, err = config.NewStorageClient(userAgent).Buckets.Insert(project, sb).Do()
 		return err
 	})
 
@@ -407,7 +477,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 		retentionPolicy := retention_policies[0].(map[string]interface{})
 
 		if locked, ok := retentionPolicy["is_locked"]; ok && locked.(bool) {
-			err = lockRetentionPolicy(config.clientStorage.Buckets, bucket, res.Metageneration)
+			err = lockRetentionPolicy(config.NewStorageClient(userAgent).Buckets, bucket, res.Metageneration)
 			if err != nil {
 				return err
 			}
@@ -421,10 +491,14 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	sb := &storage.Bucket{}
 
-	if d.HasChange("lifecycle_rule") {
+	if detectLifecycleChange(d) {
 		lifecycle, err := expandStorageBucketLifecycle(d.Get("lifecycle_rule"))
 		if err != nil {
 			return err
@@ -458,8 +532,12 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if v, ok := d.GetOk("cors"); ok {
-		sb.Cors = expandCors(v.([]interface{}))
+	if d.HasChange("cors") {
+		if v, ok := d.GetOk("cors"); ok {
+			sb.Cors = expandCors(v.([]interface{}))
+		} else {
+			sb.NullFields = append(sb.NullFields, "Cors")
+		}
 	}
 
 	if d.HasChange("default_event_based_hold") {
@@ -509,15 +587,20 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("bucket_policy_only") {
 		sb.IamConfiguration = expandIamConfiguration(d)
 	}
+	if d.HasChange("uniform_bucket_level_access") {
+		sb.IamConfiguration = expandIamConfiguration(d)
+	}
 
-	res, err := config.clientStorage.Buckets.Patch(d.Get("name").(string), sb).Do()
+	res, err := config.NewStorageClient(userAgent).Buckets.Patch(d.Get("name").(string), sb).Do()
 
 	if err != nil {
 		return err
 	}
 
 	// Assign the bucket ID as the resource ID
-	d.Set("self_link", res.SelfLink)
+	if err := d.Set("self_link", res.SelfLink); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
 
 	if d.HasChange("retention_policy") {
 		if v, ok := d.GetOk("retention_policy"); ok {
@@ -528,7 +611,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 			retentionPolicy := retention_policies[0].(map[string]interface{})
 
 			if locked, ok := retentionPolicy["is_locked"]; ok && locked.(bool) && d.HasChange("retention_policy.0.is_locked") {
-				err = lockRetentionPolicy(config.clientStorage.Buckets, d.Get("name").(string), res.Metageneration)
+				err = lockRetentionPolicy(config.NewStorageClient(userAgent).Buckets, d.Get("name").(string), res.Metageneration)
 				if err != nil {
 					return err
 				}
@@ -545,10 +628,14 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
-	res, err := config.clientStorage.Buckets.Get(bucket).Do()
+	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
 	}
@@ -565,42 +652,87 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	// from the projectNumber which is included in the bucket API response
 	if d.Get("project") == "" {
 		project, _ := getProject(d, config)
-		d.Set("project", project)
+		if err := d.Set("project", project); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
 	}
 	if d.Get("project") == "" {
-		proj, err := config.clientCompute.Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
+		proj, err := config.NewComputeClient(userAgent).Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
 		if err != nil {
 			return err
 		}
 		log.Printf("[DEBUG] Bucket %v is in project number %v, which is project ID %s.\n", res.Name, res.ProjectNumber, proj.Name)
-		d.Set("project", proj.Name)
+		if err := d.Set("project", proj.Name); err != nil {
+			return fmt.Errorf("Error setting project: %s", err)
+		}
 	}
 
 	// Update the bucket ID according to the resource ID
-	d.Set("self_link", res.SelfLink)
-	d.Set("url", fmt.Sprintf("gs://%s", bucket))
-	d.Set("storage_class", res.StorageClass)
-	d.Set("encryption", flattenBucketEncryption(res.Encryption))
-	d.Set("location", res.Location)
-	d.Set("cors", flattenCors(res.Cors))
-	d.Set("default_event_based_hold", res.DefaultEventBasedHold)
-	d.Set("logging", flattenBucketLogging(res.Logging))
-	d.Set("versioning", flattenBucketVersioning(res.Versioning))
-	d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle))
-	d.Set("labels", res.Labels)
-	d.Set("website", flattenBucketWebsite(res.Website))
-	d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy))
+	if err := d.Set("self_link", res.SelfLink); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("url", fmt.Sprintf("gs://%s", bucket)); err != nil {
+		return fmt.Errorf("Error setting url: %s", err)
+	}
+	if err := d.Set("storage_class", res.StorageClass); err != nil {
+		return fmt.Errorf("Error setting storage_class: %s", err)
+	}
+	if err := d.Set("encryption", flattenBucketEncryption(res.Encryption)); err != nil {
+		return fmt.Errorf("Error setting encryption: %s", err)
+	}
+	if err := d.Set("location", res.Location); err != nil {
+		return fmt.Errorf("Error setting location: %s", err)
+	}
+	if err := d.Set("cors", flattenCors(res.Cors)); err != nil {
+		return fmt.Errorf("Error setting cors: %s", err)
+	}
+	if err := d.Set("default_event_based_hold", res.DefaultEventBasedHold); err != nil {
+		return fmt.Errorf("Error setting default_event_based_hold: %s", err)
+	}
+	if err := d.Set("logging", flattenBucketLogging(res.Logging)); err != nil {
+		return fmt.Errorf("Error setting logging: %s", err)
+	}
+	if err := d.Set("versioning", flattenBucketVersioning(res.Versioning)); err != nil {
+		return fmt.Errorf("Error setting versioning: %s", err)
+	}
+	if err := d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle)); err != nil {
+		return fmt.Errorf("Error setting lifecycle_rule: %s", err)
+	}
+	if err := d.Set("labels", res.Labels); err != nil {
+		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := d.Set("website", flattenBucketWebsite(res.Website)); err != nil {
+		return fmt.Errorf("Error setting website: %s", err)
+	}
+	if err := d.Set("retention_policy", flattenBucketRetentionPolicy(res.RetentionPolicy)); err != nil {
+		return fmt.Errorf("Error setting retention_policy: %s", err)
+	}
 
-	if res.IamConfiguration != nil && res.IamConfiguration.BucketPolicyOnly != nil {
-		d.Set("bucket_policy_only", res.IamConfiguration.BucketPolicyOnly.Enabled)
+	// Delete the bucket_policy_only field in the next major version of the provider.
+	if res.IamConfiguration != nil && res.IamConfiguration.UniformBucketLevelAccess != nil {
+		if err := d.Set("uniform_bucket_level_access", res.IamConfiguration.UniformBucketLevelAccess.Enabled); err != nil {
+			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
+		}
+		if err := d.Set("bucket_policy_only", res.IamConfiguration.BucketPolicyOnly.Enabled); err != nil {
+			return fmt.Errorf("Error setting bucket_policy_only: %s", err)
+		}
 	} else {
-		d.Set("bucket_policy_only", false)
+		if err := d.Set("bucket_policy_only", false); err != nil {
+			return fmt.Errorf("Error setting bucket_policy_only: %s", err)
+		}
+		if err := d.Set("uniform_bucket_level_access", false); err != nil {
+			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
+		}
 	}
 
 	if res.Billing == nil {
-		d.Set("requester_pays", nil)
+		if err := d.Set("requester_pays", nil); err != nil {
+			return fmt.Errorf("Error setting requester_pays: %s", err)
+		}
 	} else {
-		d.Set("requester_pays", res.Billing.RequesterPays)
+		if err := d.Set("requester_pays", res.Billing.RequesterPays); err != nil {
+			return fmt.Errorf("Error setting requester_pays: %s", err)
+		}
 	}
 
 	d.SetId(res.Id)
@@ -609,13 +741,17 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	// Get the bucket
 	bucket := d.Get("name").(string)
 
-	var listError error
-	for {
-		res, err := config.clientStorage.Objects.List(bucket).Versions(true).Do()
+	var listError, deleteObjectError error
+	for deleteObjectError == nil {
+		res, err := config.NewStorageClient(userAgent).Objects.List(bucket).Versions(true).Do()
 		if err != nil {
 			log.Printf("Error listing contents of bucket %s: %v", bucket, err)
 			// If we can't list the contents, try deleting the bucket anyway in case it's empty
@@ -642,7 +778,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 		}
 
 		if !d.Get("force_destroy").(bool) {
-			deleteErr := errors.New("Error trying to delete a bucket containing objects without `force_destroy` set to true")
+			deleteErr := fmt.Errorf("Error trying to delete bucket %s containing objects without `force_destroy` set to true", bucket)
 			log.Printf("Error! %s : %s\n\n", bucket, deleteErr)
 			return deleteErr
 		}
@@ -668,11 +804,8 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 
 			wp.Submit(func() {
 				log.Printf("[TRACE] Attempting to delete %s", object.Name)
-				if err := config.clientStorage.Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
-					// We should really return an error here, but it doesn't really
-					// matter since the following step (bucket deletion) will fail
-					// with an error indicating objects are still present, and this
-					// log line will point to that object.
+				if err := config.NewStorageClient(userAgent).Objects.Delete(bucket, object.Name).Generation(object.Generation).Do(); err != nil {
+					deleteObjectError = err
 					log.Printf("[ERR] Failed to delete storage object %s: %s", object.Name, err)
 				} else {
 					log.Printf("[TRACE] Successfully deleted %s", object.Name)
@@ -685,8 +818,8 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// remove empty bucket
-	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
-		err := config.clientStorage.Buckets.Delete(bucket).Do()
+	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
+		err := config.NewStorageClient(userAgent).Buckets.Delete(bucket).Do()
 		if err == nil {
 			return nil
 		}
@@ -697,6 +830,9 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	})
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && listError != nil {
 		return fmt.Errorf("could not delete non-empty bucket due to error when listing contents: %v", listError)
+	}
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && deleteObjectError != nil {
+		return fmt.Errorf("could not delete non-empty bucket due to error when deleting contents: %v", deleteObjectError)
 	}
 	if err != nil {
 		log.Printf("Error deleting bucket %s: %v", bucket, err)
@@ -714,17 +850,28 @@ func resourceStorageBucketStateImporter(d *schema.ResourceData, meta interface{}
 	// is a valid state as the project_id will be retrieved in READ
 	parts := strings.Split(d.Id(), "/")
 	if len(parts) == 1 {
-		d.Set("name", parts[0])
+		if err := d.Set("name", parts[0]); err != nil {
+			return nil, fmt.Errorf("Error setting name: %s", err)
+		}
 	} else if len(parts) > 1 {
-		d.Set("project", parts[0])
-		d.Set("name", parts[1])
+		if err := d.Set("project", parts[0]); err != nil {
+			return nil, fmt.Errorf("Error setting project: %s", err)
+		}
+		if err := d.Set("name", parts[1]); err != nil {
+			return nil, fmt.Errorf("Error setting name: %s", err)
+		}
 	}
 
-	d.Set("force_destroy", false)
+	if err := d.Set("force_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting force_destroy: %s", err)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 
 func expandCors(configured []interface{}) []*storage.BucketCors {
+	if len(configured) == 0 {
+		return nil
+	}
 	corsRules := make([]*storage.BucketCors, 0, len(configured))
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
@@ -819,6 +966,9 @@ func flattenBucketLogging(bucketLogging *storage.BucketLogging) []map[string]int
 
 func expandBucketRetentionPolicy(configured interface{}) *storage.BucketRetentionPolicy {
 	retentionPolicies := configured.([]interface{})
+	if len(retentionPolicies) == 0 {
+		return nil
+	}
 	retentionPolicy := retentionPolicies[0].(map[string]interface{})
 
 	bucketRetentionPolicy := &storage.BucketRetentionPolicy{
@@ -901,10 +1051,14 @@ func flattenBucketLifecycleRuleAction(action *storage.BucketLifecycleRuleAction)
 
 func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
 	ruleCondition := map[string]interface{}{
-		"age":                   int(condition.Age),
-		"created_before":        condition.CreatedBefore,
-		"matches_storage_class": convertStringArrToInterface(condition.MatchesStorageClass),
-		"num_newer_versions":    int(condition.NumNewerVersions),
+		"age":                        int(condition.Age),
+		"created_before":             condition.CreatedBefore,
+		"matches_storage_class":      convertStringArrToInterface(condition.MatchesStorageClass),
+		"num_newer_versions":         int(condition.NumNewerVersions),
+		"custom_time_before":         condition.CustomTimeBefore,
+		"days_since_custom_time":     int(condition.DaysSinceCustomTime),
+		"days_since_noncurrent_time": int(condition.DaysSinceNoncurrentTime),
+		"noncurrent_time_before":     condition.NoncurrentTimeBefore,
 	}
 	if condition.IsLive == nil {
 		ruleCondition["with_state"] = "ANY"
@@ -951,19 +1105,40 @@ func expandBucketWebsite(v interface{}) *storage.BucketWebsite {
 	if v := website["main_page_suffix"]; v != "" {
 		w.MainPageSuffix = v.(string)
 	}
-
 	return w
 }
 
+// remove this on next major release of the provider.
 func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfiguration {
+	// We are checking for a change because the last else block is only executed on Create.
+	enabled := false
+	if d.HasChange("bucket_policy_only") {
+		enabled = d.Get("bucket_policy_only").(bool)
+	} else if d.HasChange("uniform_bucket_level_access") {
+		enabled = d.Get("uniform_bucket_level_access").(bool)
+	} else {
+		enabled = d.Get("bucket_policy_only").(bool) || d.Get("uniform_bucket_level_access").(bool)
+	}
+
 	return &storage.BucketIamConfiguration{
-		ForceSendFields: []string{"BucketPolicyOnly"},
-		BucketPolicyOnly: &storage.BucketIamConfigurationBucketPolicyOnly{
-			Enabled:         d.Get("bucket_policy_only").(bool),
+		ForceSendFields: []string{"UniformBucketLevelAccess"},
+		UniformBucketLevelAccess: &storage.BucketIamConfigurationUniformBucketLevelAccess{
+			Enabled:         enabled,
 			ForceSendFields: []string{"Enabled"},
 		},
 	}
 }
+
+// Uncomment once the previous function is removed.
+// func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfiguration {
+// 	return &storage.BucketIamConfiguration{
+// 		ForceSendFields: []string{"UniformBucketLevelAccess"},
+// 		UniformBucketLevelAccess: &storage.BucketIamConfigurationUniformBucketLevelAccess{
+// 			Enabled:         d.Get("uniform_bucket_level_access").(bool),
+// 			ForceSendFields: []string{"Enabled"},
+// 		},
+// 	}
+// }
 
 func expandStorageBucketLifecycle(v interface{}) (*storage.BucketLifecycle, error) {
 	if v == nil {
@@ -1097,6 +1272,22 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 		transformed.NumNewerVersions = int64(v.(int))
 	}
 
+	if v, ok := condition["custom_time_before"]; ok {
+		transformed.CustomTimeBefore = v.(string)
+	}
+
+	if v, ok := condition["days_since_custom_time"]; ok {
+		transformed.DaysSinceCustomTime = int64(v.(int))
+	}
+
+	if v, ok := condition["days_since_noncurrent_time"]; ok {
+		transformed.DaysSinceNoncurrentTime = int64(v.(int))
+	}
+
+	if v, ok := condition["noncurrent_time_before"]; ok {
+		transformed.NoncurrentTimeBefore = v.(string)
+	}
+
 	return transformed, nil
 }
 
@@ -1114,7 +1305,7 @@ func resourceGCSBucketLifecycleRuleActionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 
-	return hashcode.String(buf.String())
+	return hashcode(buf.String())
 }
 
 func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
@@ -1154,7 +1345,7 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
 	}
 
-	return hashcode.String(buf.String())
+	return hashcode(buf.String())
 }
 
 func lockRetentionPolicy(bucketsService *storage.BucketsService, bucketName string, metageneration int64) error {
@@ -1164,4 +1355,23 @@ func lockRetentionPolicy(bucketsService *storage.BucketsService, bucketName stri
 	}
 
 	return nil
+}
+
+// d.HasChange("lifecycle_rule") always returns true, giving false positives. This function detects changes
+// to the list size or the actions/conditions of rules directly.
+func detectLifecycleChange(d *schema.ResourceData) bool {
+	if d.HasChange("lifecycle_rule.#") {
+		return true
+	}
+
+	if l, ok := d.GetOk("lifecycle_rule"); ok {
+		lifecycleRules := l.([]interface{})
+		for i := range lifecycleRules {
+			if d.HasChange(fmt.Sprintf("lifecycle_rule.%d.action", i)) || d.HasChange(fmt.Sprintf("lifecycle_rule.%d.condition", i)) {
+				return true
+			}
+		}
+	}
+
+	return false
 }

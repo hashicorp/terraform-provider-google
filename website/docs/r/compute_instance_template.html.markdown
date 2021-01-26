@@ -18,6 +18,11 @@ and
 ## Example Usage
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service-account-id"
+  display_name = "Service Account"
+}
+
 resource "google_compute_instance_template" "default" {
   name        = "appserver-template"
   description = "This template is used to create app server instances."
@@ -29,7 +34,7 @@ resource "google_compute_instance_template" "default" {
   }
 
   instance_description = "description assigned to instances"
-  machine_type         = "n1-standard-1"
+  machine_type         = "e2-medium"
   can_ip_forward       = false
 
   scheduling {
@@ -61,7 +66,9 @@ resource "google_compute_instance_template" "default" {
   }
 
   service_account {
-    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = google_service_account.default.email
+    scopes = ["cloud-platform"]
   }
 }
 
@@ -92,7 +99,7 @@ with `name_prefix`.  Example:
 ```hcl
 resource "google_compute_instance_template" "instance_template" {
   name_prefix  = "instance-template-"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   region       = "us-central1"
 
   // boot disk
@@ -112,7 +119,7 @@ resource "google_compute_instance_template" "instance_template" {
 
 resource "google_compute_instance_group_manager" "instance_group_manager" {
   name               = "instance-group-manager"
-  instance_template  = google_compute_instance_template.instance_template.self_link
+  instance_template  = google_compute_instance_template.instance_template.id
   base_instance_name = "instance-group-manager"
   zone               = "us-central1-f"
   target_size        = "1"
@@ -136,7 +143,7 @@ group manager.
 If you're not sure, we recommend deploying the latest image available when Terraform runs,
 because this means all the instances in your group will be based on the same image, always,
 and means that no upgrades or changes to your instances happen outside of a `terraform apply`.
-You can achieve this by using the [`google_compute_image`](../d/datasource_compute_image.html)
+You can achieve this by using the [`google_compute_image`](../d/compute_image.html)
 data source, which will retrieve the latest image on every `terraform apply`, and will update
 the template to use that specific image:
 
@@ -148,7 +155,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "instance_template" {
   name_prefix  = "instance-template-"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   region       = "us-central1"
 
   // boot disk
@@ -165,7 +172,7 @@ the image for the template to the family:
 ```tf
 resource "google_compute_instance_template" "instance_template" {
   name_prefix  = "instance-template-"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   region       = "us-central1"
 
   // boot disk
@@ -247,6 +254,8 @@ The following arguments are supported:
 * `enable_display` - (Optional) Enable [Virtual Displays](https://cloud.google.com/compute/docs/instances/enable-instance-virtual-display#verify_display_driver) on this instance.
 **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
+* `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
+
 The `disk` block supports:
 
 * `auto_delete` - (Optional) Whether or not the disk should be auto-deleted.
@@ -261,25 +270,29 @@ The `disk` block supports:
 * `disk_name` - (Optional) Name of the disk. When not provided, this defaults
     to the name of the instance.
 
-* `source_image` - (Required if source not set) The image from which to
+* `source_image` - (Optional) The image from which to
     initialize this disk. This can be one of: the image's `self_link`,
     `projects/{project}/global/images/{image}`,
     `projects/{project}/global/images/family/{family}`, `global/images/{image}`,
     `global/images/family/{family}`, `family/{family}`, `{project}/{family}`,
     `{project}/{image}`, `{family}`, or `{image}`.
+~> **Note:** Either `source` or `source_image` is **required** in a disk block unless the disk type is `local-ssd`. Check the API [docs](https://cloud.google.com/compute/docs/reference/rest/v1/instanceTemplates/insert) for details.
 
-* `interface` - (Optional) Specifies the disk interface to use for attaching
-    this disk.
+* `interface` - (Optional) Specifies the disk interface to use for attaching this disk, 
+    which is either SCSI or NVME. The default is SCSI. Persistent disks must always use SCSI 
+    and the request will fail if you attempt to attach a persistent disk in any other format 
+    than SCSI. Local SSDs can use either NVME or SCSI.
 
 * `mode` - (Optional) The mode in which to attach this disk, either READ_WRITE
     or READ_ONLY. If you are attaching or creating a boot disk, this must
     read-write mode.
 
-* `source` - (Required if source_image not set) The name (**not self_link**)
+* `source` - (Optional) The name (**not self_link**)
     of the disk (such as those managed by `google_compute_disk`) to attach.
+~> **Note:** Either `source` or `source_image` is **required** in a disk block unless the disk type is `local-ssd`. Check the API [docs](https://cloud.google.com/compute/docs/reference/rest/v1/instanceTemplates/insert) for details.
 
 * `disk_type` - (Optional) The GCE disk type. Can be either `"pd-ssd"`,
-    `"local-ssd"`, or `"pd-standard"`.
+    `"local-ssd"`, `"pd-balanced"` or `"pd-standard"`.
 
 * `disk_size_gb` - (Optional) The size of the image in gigabytes. If not
     specified, it will inherit the size of its base image. For SCRATCH disks,
@@ -394,7 +407,7 @@ The `node_affinities` block supports:
 * `key` (Required) - The key for the node affinity label.
 
 * `operator` (Required) - The operator. Can be `IN` for node-affinities
-    or `NOT` for anti-affinities.
+    or `NOT_IN` for anti-affinities.
 
 * `value` (Required) - The values for the node affinity label.
 
@@ -406,10 +419,16 @@ The `shielded_instance_config` block supports:
 
 * `enable_integrity_monitoring` (Optional) -- Compare the most recent boot measurements to the integrity policy baseline and return a pair of pass/fail results depending on whether they match or not. Defaults to true.
 
+The `confidential_instance_config` block supports:
+
+* `enable_confidential_compute` (Optional) Defines whether the instance should have confidential compute enabled. [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/global/instanceTemplates/{{name}}`
 
 * `metadata_fingerprint` - The unique fingerprint of the metadata.
 
@@ -419,6 +438,14 @@ exported:
 
 [1]: /docs/providers/google/r/compute_instance_group_manager.html
 [2]: /docs/configuration/resources.html#lifecycle
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
 
 ## Import
 

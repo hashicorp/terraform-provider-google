@@ -1,0 +1,3 @@
+```release-note:note
+* This release includes website changes to put data sources and resources in submenus in the products they're part of.
+```

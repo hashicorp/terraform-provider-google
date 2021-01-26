@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/logging/v2"
 )
 
@@ -19,15 +19,22 @@ var BillingAccountLoggingExclusionSchema = map[string]*schema.Schema{
 type BillingAccountLoggingExclusionUpdater struct {
 	resourceType string
 	resourceId   string
+	userAgent    string
 	Config       *Config
 }
 
 func NewBillingAccountLoggingExclusionUpdater(d *schema.ResourceData, config *Config) (ResourceLoggingExclusionUpdater, error) {
 	billingAccount := d.Get("billing_account").(string)
 
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	return &BillingAccountLoggingExclusionUpdater{
 		resourceType: "billingAccounts",
 		resourceId:   billingAccount,
+		userAgent:    userAgent,
 		Config:       config,
 	}, nil
 }
@@ -42,12 +49,14 @@ func billingAccountLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config
 		return fmt.Errorf("Error importing logging exclusion, invalid resourceType %#v", loggingExclusionId.resourceType)
 	}
 
-	d.Set("billing_account", loggingExclusionId.resourceId)
+	if err := d.Set("billing_account", loggingExclusionId.resourceId); err != nil {
+		return fmt.Errorf("Error setting billing_account: %s", err)
+	}
 	return nil
 }
 
 func (u *BillingAccountLoggingExclusionUpdater) CreateLoggingExclusion(parent string, exclusion *logging.LogExclusion) error {
-	_, err := u.Config.clientLogging.BillingAccounts.Exclusions.Create(parent, exclusion).Do()
+	_, err := u.Config.NewLoggingClient(u.userAgent).BillingAccounts.Exclusions.Create(parent, exclusion).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error creating logging exclusion for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -56,7 +65,7 @@ func (u *BillingAccountLoggingExclusionUpdater) CreateLoggingExclusion(parent st
 }
 
 func (u *BillingAccountLoggingExclusionUpdater) ReadLoggingExclusion(id string) (*logging.LogExclusion, error) {
-	exclusion, err := u.Config.clientLogging.BillingAccounts.Exclusions.Get(id).Do()
+	exclusion, err := u.Config.NewLoggingClient(u.userAgent).BillingAccounts.Exclusions.Get(id).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving logging exclusion for %s: {{err}}", u.DescribeResource()), err)
@@ -66,7 +75,7 @@ func (u *BillingAccountLoggingExclusionUpdater) ReadLoggingExclusion(id string) 
 }
 
 func (u *BillingAccountLoggingExclusionUpdater) UpdateLoggingExclusion(id string, exclusion *logging.LogExclusion, updateMask string) error {
-	_, err := u.Config.clientLogging.BillingAccounts.Exclusions.Patch(id, exclusion).UpdateMask(updateMask).Do()
+	_, err := u.Config.NewLoggingClient(u.userAgent).BillingAccounts.Exclusions.Patch(id, exclusion).UpdateMask(updateMask).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error updating logging exclusion for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -75,7 +84,7 @@ func (u *BillingAccountLoggingExclusionUpdater) UpdateLoggingExclusion(id string
 }
 
 func (u *BillingAccountLoggingExclusionUpdater) DeleteLoggingExclusion(id string) error {
-	_, err := u.Config.clientLogging.BillingAccounts.Exclusions.Delete(id).Do()
+	_, err := u.Config.NewLoggingClient(u.userAgent).BillingAccounts.Exclusions.Delete(id).Do()
 	if err != nil {
 		return errwrap.Wrap(fmt.Errorf("Error deleting logging exclusion for %s.", u.DescribeResource()), err)
 	}

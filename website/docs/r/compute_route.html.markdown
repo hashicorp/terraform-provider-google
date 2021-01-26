@@ -91,7 +91,7 @@ resource "google_compute_subnetwork" "default" {
   name          = "compute-subnet"
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
-  network       = google_compute_network.default.self_link
+  network       = google_compute_network.default.id
 }
 
 resource "google_compute_health_check" "hc" {
@@ -107,7 +107,7 @@ resource "google_compute_health_check" "hc" {
 resource "google_compute_region_backend_service" "backend" {
   name          = "compute-backend"
   region        = "us-central1"
-  health_checks = [google_compute_health_check.hc.self_link]
+  health_checks = [google_compute_health_check.hc.id]
 }
 
 resource "google_compute_forwarding_rule" "default" {
@@ -115,7 +115,7 @@ resource "google_compute_forwarding_rule" "default" {
   region   = "us-central1"
 
   load_balancing_scheme = "INTERNAL"
-  backend_service       = google_compute_region_backend_service.backend.self_link
+  backend_service       = google_compute_region_backend_service.backend.id
   all_ports             = true
   network               = google_compute_network.default.name
   subnetwork            = google_compute_subnetwork.default.name
@@ -125,7 +125,7 @@ resource "google_compute_route" "route-ilb" {
   name         = "route-ilb"
   dest_range   = "0.0.0.0/0"
   network      = google_compute_network.default.name
-  next_hop_ilb = google_compute_forwarding_rule.default.self_link
+  next_hop_ilb = google_compute_forwarding_rule.default.id
   priority     = 2000
 }
 ```
@@ -213,7 +213,6 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-
 * `next_hop_instance_zone` - (Optional when `next_hop_instance` is
   specified)  The zone of the instance specified in
   `next_hop_instance`.  Omit if `next_hop_instance` is specified as
@@ -223,6 +222,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/global/routes/{{name}}`
 
 * `next_hop_network` -
   URL to a Network that should handle matching packets.
@@ -239,6 +239,7 @@ This resource provides the following
 
 ## Import
 
+
 Route can be imported using any of these accepted formats:
 
 ```
@@ -246,9 +247,6 @@ $ terraform import google_compute_route.default projects/{{project}}/global/rout
 $ terraform import google_compute_route.default {{project}}/{{name}}
 $ terraform import google_compute_route.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

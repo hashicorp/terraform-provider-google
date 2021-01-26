@@ -1,0 +1,9 @@
+```release-note:new-resource
+`google_folder_access_approval_settings`
+```
+```release-note:new-resource
+`google_organization_access_approval_settings`
+```
+```release-note:new-resource
+`google_project_access_approval_settings`
+```

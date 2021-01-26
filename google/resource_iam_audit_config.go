@@ -6,35 +6,40 @@ import (
 	"log"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
 var iamAuditConfigSchema = map[string]*schema.Schema{
 	"service": {
-		Type:     schema.TypeString,
-		Required: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		Description: `Service which will be enabled for audit logging. The special value allServices covers all services.`,
 	},
 	"audit_log_config": {
-		Type:     schema.TypeSet,
-		Required: true,
+		Type:        schema.TypeSet,
+		Required:    true,
+		Description: `The configuration for logging of each type of permission. This can be specified multiple times.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"log_type": {
-					Type:     schema.TypeString,
-					Required: true,
+					Type:        schema.TypeString,
+					Required:    true,
+					Description: `Permission type for which logging is to be configured. Must be one of DATA_READ, DATA_WRITE, or ADMIN_READ.`,
 				},
 				"exempted_members": {
-					Type:     schema.TypeSet,
-					Elem:     &schema.Schema{Type: schema.TypeString},
-					Optional: true,
+					Type:        schema.TypeSet,
+					Elem:        &schema.Schema{Type: schema.TypeString},
+					Optional:    true,
+					Description: `Identities that do not cause logging for this type of permission. Each entry can have one of the following values:user:{emailid}: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com. serviceAccount:{emailid}: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com. group:{emailid}: An email address that represents a Google group. For example, admins@example.com. domain:{domain}: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.`,
 				},
 			},
 		},
 	},
 	"etag": {
-		Type:     schema.TypeString,
-		Computed: true,
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: `The etag of iam policy`,
 	},
 }
 
@@ -52,6 +57,7 @@ func ResourceIamAuditConfigWithBatching(parentSpecificSchema map[string]*schema.
 		Importer: &schema.ResourceImporter{
 			State: iamAuditConfigImport(resourceIdParser),
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -84,12 +90,16 @@ func resourceIamAuditConfigRead(newUpdaterFunc newResourceIamUpdaterFunc) schema
 			return nil
 		}
 
-		d.Set("etag", p.Etag)
+		if err := d.Set("etag", p.Etag); err != nil {
+			return fmt.Errorf("Error setting etag: %s", err)
+		}
 		err = d.Set("audit_log_config", flattenAuditLogConfigs(ac.AuditLogConfigs))
 		if err != nil {
 			return fmt.Errorf("Error flattening audit log config: %s", err)
 		}
-		d.Set("service", ac.Service)
+		if err := d.Set("service", ac.Service); err != nil {
+			return fmt.Errorf("Error setting service: %s", err)
+		}
 		return nil
 	}
 }
@@ -109,7 +119,9 @@ func iamAuditConfigImport(resourceIdParser resourceIdParserFunc) schema.StateFun
 
 		// Set the ID only to the first part so all IAM types can share the same resourceIdParserFunc.
 		d.SetId(id)
-		d.Set("service", service)
+		if err := d.Set("service", service); err != nil {
+			return nil, fmt.Errorf("Error setting service: %s", err)
+		}
 		err := resourceIdParser(d, config)
 		if err != nil {
 			return nil, err
@@ -125,6 +137,7 @@ func iamAuditConfigImport(resourceIdParser resourceIdParserFunc) schema.StateFun
 func resourceIamAuditConfigCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err
@@ -153,6 +166,7 @@ func resourceIamAuditConfigCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc
 func resourceIamAuditConfigDelete(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
+
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
 			return err

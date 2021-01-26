@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/logging/v2"
 )
 
@@ -19,15 +19,22 @@ var OrganizationLoggingExclusionSchema = map[string]*schema.Schema{
 type OrganizationLoggingExclusionUpdater struct {
 	resourceType string
 	resourceId   string
+	userAgent    string
 	Config       *Config
 }
 
 func NewOrganizationLoggingExclusionUpdater(d *schema.ResourceData, config *Config) (ResourceLoggingExclusionUpdater, error) {
 	organization := d.Get("org_id").(string)
 
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	return &OrganizationLoggingExclusionUpdater{
 		resourceType: "organizations",
 		resourceId:   organization,
+		userAgent:    userAgent,
 		Config:       config,
 	}, nil
 }
@@ -42,12 +49,14 @@ func organizationLoggingExclusionIdParseFunc(d *schema.ResourceData, _ *Config) 
 		return fmt.Errorf("Error importing logging exclusion, invalid resourceType %#v", loggingExclusionId.resourceType)
 	}
 
-	d.Set("org_id", loggingExclusionId.resourceId)
+	if err := d.Set("org_id", loggingExclusionId.resourceId); err != nil {
+		return fmt.Errorf("Error setting org_id: %s", err)
+	}
 	return nil
 }
 
 func (u *OrganizationLoggingExclusionUpdater) CreateLoggingExclusion(parent string, exclusion *logging.LogExclusion) error {
-	_, err := u.Config.clientLogging.Organizations.Exclusions.Create(parent, exclusion).Do()
+	_, err := u.Config.NewLoggingClient(u.userAgent).Organizations.Exclusions.Create(parent, exclusion).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error creating logging exclusion for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -56,7 +65,7 @@ func (u *OrganizationLoggingExclusionUpdater) CreateLoggingExclusion(parent stri
 }
 
 func (u *OrganizationLoggingExclusionUpdater) ReadLoggingExclusion(id string) (*logging.LogExclusion, error) {
-	exclusion, err := u.Config.clientLogging.Organizations.Exclusions.Get(id).Do()
+	exclusion, err := u.Config.NewLoggingClient(u.userAgent).Organizations.Exclusions.Get(id).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving logging exclusion for %s: {{err}}", u.DescribeResource()), err)
@@ -66,7 +75,7 @@ func (u *OrganizationLoggingExclusionUpdater) ReadLoggingExclusion(id string) (*
 }
 
 func (u *OrganizationLoggingExclusionUpdater) UpdateLoggingExclusion(id string, exclusion *logging.LogExclusion, updateMask string) error {
-	_, err := u.Config.clientLogging.Organizations.Exclusions.Patch(id, exclusion).UpdateMask(updateMask).Do()
+	_, err := u.Config.NewLoggingClient(u.userAgent).Organizations.Exclusions.Patch(id, exclusion).UpdateMask(updateMask).Do()
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error updating logging exclusion for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -75,7 +84,7 @@ func (u *OrganizationLoggingExclusionUpdater) UpdateLoggingExclusion(id string, 
 }
 
 func (u *OrganizationLoggingExclusionUpdater) DeleteLoggingExclusion(id string) error {
-	_, err := u.Config.clientLogging.Organizations.Exclusions.Delete(id).Do()
+	_, err := u.Config.NewLoggingClient(u.userAgent).Organizations.Exclusions.Delete(id).Do()
 	if err != nil {
 		return errwrap.Wrap(fmt.Errorf("Error deleting logging exclusion for %s.", u.DescribeResource()), err)
 	}

@@ -17,11 +17,11 @@ layout: "google"
 page_title: "Google: google_pubsub_topic_iam"
 sidebar_current: "docs-google-pubsub-topic-iam"
 description: |-
-  Collection of resources to manage IAM policy for PubsubTopic
+  Collection of resources to manage IAM policy for Cloud Pub/Sub Topic
 ---
 
-# IAM policy for PubsubTopic
-Three different resources help you manage your IAM policy for Pubsub Topic. Each of these resources serves a different use case:
+# IAM policy for Cloud Pub/Sub Topic
+Three different resources help you manage your IAM policy for Cloud Pub/Sub Topic. Each of these resources serves a different use case:
 
 * `google_pubsub_topic_iam_policy`: Authoritative. Sets the IAM policy for the topic and replaces any existing policy already attached.
 * `google_pubsub_topic_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the topic are preserved.
@@ -30,6 +30,7 @@ Three different resources help you manage your IAM policy for Pubsub Topic. Each
 ~> **Note:** `google_pubsub_topic_iam_policy` **cannot** be used in conjunction with `google_pubsub_topic_iam_binding` and `google_pubsub_topic_iam_member` or they will fight over what your policy should be.
 
 ~> **Note:** `google_pubsub_topic_iam_binding` resources **can be** used in conjunction with `google_pubsub_topic_iam_member` resources **only if** they do not grant privilege to the same role.
+
 
 
 
@@ -45,19 +46,19 @@ data "google_iam_policy" "admin" {
   }
 }
 
-resource "google_pubsub_topic_iam_policy" "editor" {
-  project = "${google_pubsub_topic.example.project}"
-  topic = "${google_pubsub_topic.example.name}"
-  policy_data = "${data.google_iam_policy.admin.policy_data}"
+resource "google_pubsub_topic_iam_policy" "policy" {
+  project = google_pubsub_topic.example.project
+  topic = google_pubsub_topic.example.name
+  policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
 
 ## google\_pubsub\_topic\_iam\_binding
 
 ```hcl
-resource "google_pubsub_topic_iam_binding" "editor" {
-  project = "${google_pubsub_topic.example.project}"
-  topic = "${google_pubsub_topic.example.name}"
+resource "google_pubsub_topic_iam_binding" "binding" {
+  project = google_pubsub_topic.example.project
+  topic = google_pubsub_topic.example.name
   role = "roles/viewer"
   members = [
     "user:jane@example.com",
@@ -68,9 +69,9 @@ resource "google_pubsub_topic_iam_binding" "editor" {
 ## google\_pubsub\_topic\_iam\_member
 
 ```hcl
-resource "google_pubsub_topic_iam_member" "editor" {
-  project = "${google_pubsub_topic.example.project}"
-  topic = "${google_pubsub_topic.example.name}"
+resource "google_pubsub_topic_iam_member" "member" {
+  project = google_pubsub_topic.example.project
+  topic = google_pubsub_topic.example.name
   role = "roles/viewer"
   member = "user:jane@example.com"
 }
@@ -118,11 +119,11 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Pubsub topic IAM resources can be imported using the resource identifiers, role, and member.
+Cloud Pub/Sub topic IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
-$ terraform import google_pubsub_topic_iam_member.editor "projects/{{project}}/topics/{{topic}} roles/viewer jane@example.com"
+$ terraform import google_pubsub_topic_iam_member.editor "projects/{{project}}/topics/{{topic}} roles/viewer user:jane@example.com"
 ```
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
@@ -134,9 +135,6 @@ IAM policy imports use the identifier of the resource in question, e.g.
 ```
 $ terraform import google_pubsub_topic_iam_policy.editor projects/{{project}}/topics/{{topic}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.

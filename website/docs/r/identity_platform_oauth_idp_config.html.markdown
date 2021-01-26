@@ -86,6 +86,12 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/oauthIdpConfigs/{{name}}`
+
 
 ## Timeouts
 
@@ -98,6 +104,7 @@ This resource provides the following
 
 ## Import
 
+
 OauthIdpConfig can be imported using any of these accepted formats:
 
 ```
@@ -105,9 +112,6 @@ $ terraform import google_identity_platform_oauth_idp_config.default projects/{{
 $ terraform import google_identity_platform_oauth_idp_config.default {{project}}/{{name}}
 $ terraform import google_identity_platform_oauth_idp_config.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

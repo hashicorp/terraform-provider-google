@@ -1,0 +1,3 @@
+```release-note:bug
+netblock: fixed the google netblock ranges returned by the `google_netblock_ip_ranges` by targeting json on gstatic domain instead of reading SPF dns records (solution provided by network team)
+```

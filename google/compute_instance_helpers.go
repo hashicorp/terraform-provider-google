@@ -1,11 +1,12 @@
+//
 package google
 
 import (
 	"fmt"
 	"reflect"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/googleapi"
 )
@@ -22,7 +23,7 @@ func instanceSchedulingNodeAffinitiesElemSchema() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"IN", "NOT"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"IN", "NOT_IN"}, false),
 			},
 			"values": {
 				Type:     schema.TypeSet,
@@ -91,7 +92,6 @@ func expandScheduling(v interface{}) (*computeBeta.Scheduling, error) {
 	if v, ok := original["preemptible"]; ok {
 		scheduling.Preemptible = v.(bool)
 		scheduling.ForceSendFields = append(scheduling.ForceSendFields, "Preemptible")
-
 	}
 
 	if v, ok := original["on_host_maintenance"]; ok {
@@ -200,15 +200,16 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInt
 func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
 	acs := make([]*computeBeta.AccessConfig, len(configs))
 	for i, raw := range configs {
-		data := raw.(map[string]interface{})
-		acs[i] = &computeBeta.AccessConfig{
-			Type:        "ONE_TO_ONE_NAT",
-			NatIP:       data["nat_ip"].(string),
-			NetworkTier: data["network_tier"].(string),
-		}
-		if ptr, ok := data["public_ptr_domain_name"]; ok && ptr != "" {
-			acs[i].SetPublicPtr = true
-			acs[i].PublicPtrDomainName = ptr.(string)
+		acs[i] = &computeBeta.AccessConfig{}
+		acs[i].Type = "ONE_TO_ONE_NAT"
+		if raw != nil {
+			data := raw.(map[string]interface{})
+			acs[i].NatIP = data["nat_ip"].(string)
+			acs[i].NetworkTier = data["network_tier"].(string)
+			if ptr, ok := data["public_ptr_domain_name"]; ok && ptr != "" {
+				acs[i].SetPublicPtr = true
+				acs[i].PublicPtrDomainName = ptr.(string)
+			}
 		}
 	}
 	return acs
@@ -305,13 +306,13 @@ func resourceInstanceTags(d TerraformResourceData) *computeBeta.Tags {
 	return tags
 }
 
-func expandShieldedVmConfigs(d TerraformResourceData) *computeBeta.ShieldedVmConfig {
+func expandShieldedVmConfigs(d TerraformResourceData) *computeBeta.ShieldedInstanceConfig {
 	if _, ok := d.GetOk("shielded_instance_config"); !ok {
 		return nil
 	}
 
 	prefix := "shielded_instance_config.0"
-	return &computeBeta.ShieldedVmConfig{
+	return &computeBeta.ShieldedInstanceConfig{
 		EnableSecureBoot:          d.Get(prefix + ".enable_secure_boot").(bool),
 		EnableVtpm:                d.Get(prefix + ".enable_vtpm").(bool),
 		EnableIntegrityMonitoring: d.Get(prefix + ".enable_integrity_monitoring").(bool),
@@ -319,7 +320,29 @@ func expandShieldedVmConfigs(d TerraformResourceData) *computeBeta.ShieldedVmCon
 	}
 }
 
-func flattenShieldedVmConfig(shieldedVmConfig *computeBeta.ShieldedVmConfig) []map[string]bool {
+func expandConfidentialInstanceConfig(d TerraformResourceData) *computeBeta.ConfidentialInstanceConfig {
+	if _, ok := d.GetOk("confidential_instance_config"); !ok {
+		return nil
+	}
+
+	prefix := "confidential_instance_config.0"
+	return &computeBeta.ConfidentialInstanceConfig{
+		EnableConfidentialCompute: d.Get(prefix + ".enable_confidential_compute").(bool),
+		ForceSendFields:           []string{"EnableSecureBoot"},
+	}
+}
+
+func flattenConfidentialInstanceConfig(ConfidentialInstanceConfig *computeBeta.ConfidentialInstanceConfig) []map[string]bool {
+	if ConfidentialInstanceConfig == nil {
+		return nil
+	}
+
+	return []map[string]bool{{
+		"enable_confidential_compute": ConfidentialInstanceConfig.EnableConfidentialCompute,
+	}}
+}
+
+func flattenShieldedVmConfig(shieldedVmConfig *computeBeta.ShieldedInstanceConfig) []map[string]bool {
 	if shieldedVmConfig == nil {
 		return nil
 	}

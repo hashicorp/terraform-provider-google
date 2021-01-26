@@ -5,27 +5,31 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/logging/v2"
 )
 
 var LoggingExclusionBaseSchema = map[string]*schema.Schema{
 	"filter": {
-		Type:     schema.TypeString,
-		Required: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		Description: `The filter to apply when excluding logs. Only log entries that match the filter are excluded.`,
 	},
 	"name": {
-		Type:     schema.TypeString,
-		Required: true,
-		ForceNew: true,
+		Type:        schema.TypeString,
+		Required:    true,
+		ForceNew:    true,
+		Description: `The name of the logging exclusion.`,
 	},
 	"description": {
-		Type:     schema.TypeString,
-		Optional: true,
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: `A human-readable description.`,
 	},
 	"disabled": {
-		Type:     schema.TypeBool,
-		Optional: true,
+		Type:        schema.TypeBool,
+		Optional:    true,
+		Description: `Whether this exclusion rule should be disabled or not. This defaults to false.`,
 	},
 }
 
@@ -40,7 +44,8 @@ func ResourceLoggingExclusion(parentSpecificSchema map[string]*schema.Schema, ne
 			State: resourceLoggingExclusionImportState(resourceIdParser),
 		},
 
-		Schema: mergeSchemas(LoggingExclusionBaseSchema, parentSpecificSchema),
+		Schema:        mergeSchemas(LoggingExclusionBaseSchema, parentSpecificSchema),
+		UseJSONNumber: true,
 	}
 }
 
@@ -55,7 +60,7 @@ func resourceLoggingExclusionCreate(newUpdaterFunc newResourceLoggingExclusionUp
 		id, exclusion := expandResourceLoggingExclusion(d, updater.GetResourceType(), updater.GetResourceId())
 
 		// Logging exclusions don't seem to be able to be mutated in parallel, see
-		// https://github.com/terraform-providers/terraform-provider-google/issues/4796
+		// https://github.com/hashicorp/terraform-provider-google/issues/4796
 		mutexKV.Lock(id.parent())
 		defer mutexKV.Unlock(id.parent())
 
@@ -84,10 +89,14 @@ func resourceLoggingExclusionRead(newUpdaterFunc newResourceLoggingExclusionUpda
 			return handleNotFoundError(err, d, fmt.Sprintf("Logging Exclusion %s", d.Get("name").(string)))
 		}
 
-		flattenResourceLoggingExclusion(d, exclusion)
+		if err := flattenResourceLoggingExclusion(d, exclusion); err != nil {
+			return err
+		}
 
 		if updater.GetResourceType() == "projects" {
-			d.Set("project", updater.GetResourceId())
+			if err := d.Set("project", updater.GetResourceId()); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
 		}
 
 		return nil
@@ -106,7 +115,7 @@ func resourceLoggingExclusionUpdate(newUpdaterFunc newResourceLoggingExclusionUp
 		exclusion, updateMask := expandResourceLoggingExclusionForUpdate(d)
 
 		// Logging exclusions don't seem to be able to be mutated in parallel, see
-		// https://github.com/terraform-providers/terraform-provider-google/issues/4796
+		// https://github.com/hashicorp/terraform-provider-google/issues/4796
 		mutexKV.Lock(id.parent())
 		defer mutexKV.Unlock(id.parent())
 
@@ -129,7 +138,7 @@ func resourceLoggingExclusionDelete(newUpdaterFunc newResourceLoggingExclusionUp
 
 		id, _ := expandResourceLoggingExclusion(d, updater.GetResourceType(), updater.GetResourceId())
 		// Logging exclusions don't seem to be able to be mutated in parallel, see
-		// https://github.com/terraform-providers/terraform-provider-google/issues/4796
+		// https://github.com/hashicorp/terraform-provider-google/issues/4796
 		mutexKV.Lock(id.parent())
 		defer mutexKV.Unlock(id.parent())
 
@@ -170,11 +179,21 @@ func expandResourceLoggingExclusion(d *schema.ResourceData, resourceType, resour
 	return id, &exclusion
 }
 
-func flattenResourceLoggingExclusion(d *schema.ResourceData, exclusion *logging.LogExclusion) {
-	d.Set("name", exclusion.Name)
-	d.Set("description", exclusion.Description)
-	d.Set("filter", exclusion.Filter)
-	d.Set("disabled", exclusion.Disabled)
+func flattenResourceLoggingExclusion(d *schema.ResourceData, exclusion *logging.LogExclusion) error {
+	if err := d.Set("name", exclusion.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("description", exclusion.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("filter", exclusion.Filter); err != nil {
+		return fmt.Errorf("Error setting filter: %s", err)
+	}
+	if err := d.Set("disabled", exclusion.Disabled); err != nil {
+		return fmt.Errorf("Error setting disabled: %s", err)
+	}
+
+	return nil
 }
 
 func expandResourceLoggingExclusionForUpdate(d *schema.ResourceData) (*logging.LogExclusion, string) {

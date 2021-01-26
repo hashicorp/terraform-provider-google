@@ -4,16 +4,15 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccCloudTasksQueue_update(t *testing.T) {
 	t.Parallel()
 
-	name := "cloudtasksqueuetest-" + acctest.RandString(10)
+	name := "cloudtasksqueuetest-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -42,9 +41,9 @@ func TestAccCloudTasksQueue_update(t *testing.T) {
 func TestAccCloudTasksQueue_update2Basic(t *testing.T) {
 	t.Parallel()
 
-	name := "cloudtasksqueuetest-" + acctest.RandString(10)
+	name := "cloudtasksqueuetest-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -70,6 +69,26 @@ func TestAccCloudTasksQueue_update2Basic(t *testing.T) {
 	})
 }
 
+func TestAccCloudTasksQueue_MaxRetryDiffSuppress0s(t *testing.T) {
+	t.Parallel()
+	testID := randString(t, 10)
+	cloudTaskName := fmt.Sprintf("tf-test-%s", testID)
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudtasksQueueMaxRetry0s(cloudTaskName),
+			},
+			{
+				ResourceName:      "google_cloud_tasks_queue.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCloudTasksQueue_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloud_tasks_queue" "default" {
@@ -79,7 +98,7 @@ resource "google_cloud_tasks_queue" "default" {
   retry_config {
     max_attempts = 5
   }
-  
+
 }
 `, name)
 }
@@ -107,7 +126,11 @@ resource "google_cloud_tasks_queue" "default" {
     max_backoff = "3s"
     min_backoff = "2s"
     max_doublings = 1
-  }
+	}
+
+	stackdriver_logging_config {
+		sampling_ratio = 0.9
+	}
 }
 `, name)
 }
@@ -135,7 +158,28 @@ resource "google_cloud_tasks_queue" "default" {
     max_backoff = "4s"
     min_backoff = "3s"
     max_doublings = 2
-  }
+	}
+
+	stackdriver_logging_config {
+		sampling_ratio = 0.1
+	}
 }
 `, name)
+}
+
+func testAccCloudtasksQueueMaxRetry0s(cloudTaskName string) string {
+	return fmt.Sprintf(`
+	resource "google_cloud_tasks_queue" "default" {
+		name = "%s"
+		location = "us-central1"
+
+		retry_config {
+							max_attempts       = -1
+							max_backoff        = "3600s"
+							max_doublings      = 16
+							max_retry_duration = "0s"
+							min_backoff        = "0.100s"
+		}
+	}
+`, cloudTaskName)
 }

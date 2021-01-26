@@ -1,0 +1,3 @@
+```release-note:deprecation
+bigtable: Deprecated `instance_type` for `google_bigtable_instance` - it is now recommended to leave field unspecified.
+```

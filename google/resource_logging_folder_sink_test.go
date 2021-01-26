@@ -6,9 +6,8 @@ import (
 
 	"strconv"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/logging/v2"
 )
 
@@ -16,21 +15,21 @@ func TestAccLoggingFolderSink_basic(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
-	folderName := "tf-test-folder-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	folderName := "tf-test-folder-" + randString(t, 10)
 
 	var sink logging.LogSink
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroy,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_basic(sinkName, bucketName, folderName, "organizations/"+org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingFolderSinkExists("google_logging_folder_sink.basic", &sink),
+					testAccCheckLoggingFolderSinkExists(t, "google_logging_folder_sink.basic", &sink),
 					testAccCheckLoggingFolderSink(&sink, "google_logging_folder_sink.basic"),
 				),
 			}, {
@@ -42,18 +41,66 @@ func TestAccLoggingFolderSink_basic(t *testing.T) {
 	})
 }
 
+func TestAccLoggingFolderSink_described(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	folderName := "tf-test-folder-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingFolderSink_described(sinkName, bucketName, folderName, "organizations/"+org),
+			}, {
+				ResourceName:      "google_logging_folder_sink.described",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccLoggingFolderSink_disabled(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	folderName := "tf-test-folder-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingFolderSink_disabled(sinkName, bucketName, folderName, "organizations/"+org),
+			}, {
+				ResourceName:      "google_logging_folder_sink.disabled",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccLoggingFolderSink_removeOptionals(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
-	folderName := "tf-test-folder-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	folderName := "tf-test-folder-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroy,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_basic(sinkName, bucketName, folderName, "organizations/"+org),
@@ -79,21 +126,21 @@ func TestAccLoggingFolderSink_folderAcceptsFullFolderPath(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
-	folderName := "tf-test-folder-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	folderName := "tf-test-folder-" + randString(t, 10)
 
 	var sink logging.LogSink
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroy,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_withFullFolderPath(sinkName, bucketName, folderName, "organizations/"+org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingFolderSinkExists("google_logging_folder_sink.basic", &sink),
+					testAccCheckLoggingFolderSinkExists(t, "google_logging_folder_sink.basic", &sink),
 					testAccCheckLoggingFolderSink(&sink, "google_logging_folder_sink.basic"),
 				),
 			}, {
@@ -109,29 +156,29 @@ func TestAccLoggingFolderSink_update(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
-	updatedBucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
-	folderName := "tf-test-folder-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	updatedBucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	folderName := "tf-test-folder-" + randString(t, 10)
 	parent := "organizations/" + org
 
 	var sinkBefore, sinkAfter logging.LogSink
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroy,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_basic(sinkName, bucketName, folderName, parent),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingFolderSinkExists("google_logging_folder_sink.basic", &sinkBefore),
+					testAccCheckLoggingFolderSinkExists(t, "google_logging_folder_sink.basic", &sinkBefore),
 					testAccCheckLoggingFolderSink(&sinkBefore, "google_logging_folder_sink.basic"),
 				),
 			}, {
 				Config: testAccLoggingFolderSink_basic(sinkName, updatedBucketName, folderName, parent),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingFolderSinkExists("google_logging_folder_sink.basic", &sinkAfter),
+					testAccCheckLoggingFolderSinkExists(t, "google_logging_folder_sink.basic", &sinkAfter),
 					testAccCheckLoggingFolderSink(&sinkAfter, "google_logging_folder_sink.basic"),
 				),
 			}, {
@@ -156,14 +203,14 @@ func TestAccLoggingFolderSink_updateBigquerySink(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bqDatasetID := "tf_test_sink_" + acctest.RandString(10)
-	folderName := "tf-test-folder-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bqDatasetID := "tf_test_sink_" + randString(t, 10)
+	folderName := "tf-test-folder-" + randString(t, 10)
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroy,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_bigquery_before(sinkName, bqDatasetID, folderName, "organizations/"+org),
@@ -189,21 +236,21 @@ func TestAccLoggingFolderSink_heredoc(t *testing.T) {
 	t.Parallel()
 
 	org := getTestOrgFromEnv(t)
-	sinkName := "tf-test-sink-" + acctest.RandString(10)
-	bucketName := "tf-test-sink-bucket-" + acctest.RandString(10)
-	folderName := "tf-test-folder-" + acctest.RandString(10)
+	sinkName := "tf-test-sink-" + randString(t, 10)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	folderName := "tf-test-folder-" + randString(t, 10)
 
 	var sink logging.LogSink
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroy,
+		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_heredoc(sinkName, bucketName, folderName, "organizations/"+org),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLoggingFolderSinkExists("google_logging_folder_sink.heredoc", &sink),
+					testAccCheckLoggingFolderSinkExists(t, "google_logging_folder_sink.heredoc", &sink),
 					testAccCheckLoggingFolderSink(&sink, "google_logging_folder_sink.heredoc"),
 				),
 			}, {
@@ -215,34 +262,36 @@ func TestAccLoggingFolderSink_heredoc(t *testing.T) {
 	})
 }
 
-func testAccCheckLoggingFolderSinkDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+func testAccCheckLoggingFolderSinkDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		config := googleProviderConfig(t)
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_logging_folder_sink" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "google_logging_folder_sink" {
+				continue
+			}
+
+			attributes := rs.Primary.Attributes
+
+			_, err := config.NewLoggingClient(config.userAgent).Folders.Sinks.Get(attributes["id"]).Do()
+			if err == nil {
+				return fmt.Errorf("folder sink still exists")
+			}
 		}
 
-		attributes := rs.Primary.Attributes
-
-		_, err := config.clientLogging.Folders.Sinks.Get(attributes["id"]).Do()
-		if err == nil {
-			return fmt.Errorf("folder sink still exists")
-		}
+		return nil
 	}
-
-	return nil
 }
 
-func testAccCheckLoggingFolderSinkExists(n string, sink *logging.LogSink) resource.TestCheckFunc {
+func testAccCheckLoggingFolderSinkExists(t *testing.T, n string, sink *logging.LogSink) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		attributes, err := getResourceAttributes(n, s)
 		if err != nil {
 			return err
 		}
-		config := testAccProvider.Meta().(*Config)
+		config := googleProviderConfig(t)
 
-		si, err := config.clientLogging.Folders.Sinks.Get(attributes["id"]).Do()
+		si, err := config.NewLoggingClient(config.userAgent).Folders.Sinks.Get(attributes["id"]).Do()
 		if err != nil {
 			return err
 		}
@@ -307,22 +356,66 @@ resource "google_folder" "my-folder" {
 `, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
 }
 
-func testAccLoggingFolderSink_removeOptionals(sinkName, bucketName, folderName, folderParent string) string {
+func testAccLoggingFolderSink_described(sinkName, bucketName, folderName, folderParent string) string {
 	return fmt.Sprintf(`
-resource "google_logging_folder_sink" "basic" {
-	name             = "%s"
-	folder           = "${element(split("/", google_folder.my-folder.name), 1)}"
-	destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
-	filter           = ""
-	include_children = true
+resource "google_logging_folder_sink" "described" {
+  name             = "%s"
+  folder           = element(split("/", google_folder.my-folder.name), 1)
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  description      = "this is a description for a folder level logging sink"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "google_folder" "my-folder" {
-	display_name = "%s"
+  display_name = "%s"
+  parent       = "%s"
+}
+`, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
+}
+
+func testAccLoggingFolderSink_disabled(sinkName, bucketName, folderName, folderParent string) string {
+	return fmt.Sprintf(`
+resource "google_logging_folder_sink" "disabled" {
+  name             = "%s"
+  folder           = element(split("/", google_folder.my-folder.name), 1)
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  disabled         = true
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name = "%s"
+}
+
+resource "google_folder" "my-folder" {
+  display_name = "%s"
+  parent       = "%s"
+}
+`, sinkName, getTestProjectFromEnv(), bucketName, folderName, folderParent)
+}
+
+func testAccLoggingFolderSink_removeOptionals(sinkName, bucketName, folderName, folderParent string) string {
+	return fmt.Sprintf(`
+resource "google_logging_folder_sink" "basic" {
+  name             = "%s"
+  folder           = "${element(split("/", google_folder.my-folder.name), 1)}"
+  destination      = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter           = ""
+  include_children = true
+}
+
+resource "google_storage_bucket" "log-bucket" {
+  name = "%s"
+}
+
+resource "google_folder" "my-folder" {
+  display_name = "%s"
     parent       = "%s"
 }`, sinkName, bucketName, folderName, folderParent)
 }
@@ -356,7 +449,7 @@ resource "google_logging_folder_sink" "heredoc" {
   destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
   filter      = <<EOS
 
-	logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
+  logName="projects/%s/logs/compute.googleapis.com%%2Factivity_log"
 AND severity>=ERROR
 
 

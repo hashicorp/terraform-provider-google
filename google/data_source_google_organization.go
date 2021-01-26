@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -50,13 +50,17 @@ func dataSourceGoogleOrganization() *schema.Resource {
 
 func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	var organization *cloudresourcemanager.Organization
 	if v, ok := d.GetOk("domain"); ok {
 		filter := fmt.Sprintf("domain=%s", v.(string))
 		var resp *cloudresourcemanager.SearchOrganizationsResponse
 		err := retryTimeDuration(func() (err error) {
-			resp, err = config.clientResourceManager.Organizations.Search(&cloudresourcemanager.SearchOrganizationsRequest{
+			resp, err = config.NewResourceManagerClient(userAgent).Organizations.Search(&cloudresourcemanager.SearchOrganizationsRequest{
 				Filter: filter,
 			}).Do()
 			return err
@@ -70,14 +74,24 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 		}
 
 		if len(resp.Organizations) > 1 {
-			return fmt.Errorf("More than one matching organization found")
+			// Attempt to find an exact domain match
+			for _, org := range resp.Organizations {
+				if org.DisplayName == v.(string) {
+					organization = org
+					break
+				}
+			}
+			if organization == nil {
+				return fmt.Errorf("Received multiple organizations in the response, but could not find an exact domain match.")
+			}
+		} else {
+			organization = resp.Organizations[0]
 		}
 
-		organization = resp.Organizations[0]
 	} else if v, ok := d.GetOk("organization"); ok {
 		var resp *cloudresourcemanager.Organization
 		err := retryTimeDuration(func() (err error) {
-			resp, err = config.clientResourceManager.Organizations.Get(canonicalOrganizationName(v.(string))).Do()
+			resp, err = config.NewResourceManagerClient(userAgent).Organizations.Get(canonicalOrganizationName(v.(string))).Do()
 			return err
 		}, d.Timeout(schema.TimeoutRead))
 		if err != nil {
@@ -90,13 +104,25 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.SetId(organization.Name)
-	d.Set("name", organization.Name)
-	d.Set("org_id", GetResourceNameFromSelfLink(organization.Name))
-	d.Set("domain", organization.DisplayName)
-	d.Set("create_time", organization.CreationTime)
-	d.Set("lifecycle_state", organization.LifecycleState)
+	if err := d.Set("name", organization.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("org_id", GetResourceNameFromSelfLink(organization.Name)); err != nil {
+		return fmt.Errorf("Error setting org_id: %s", err)
+	}
+	if err := d.Set("domain", organization.DisplayName); err != nil {
+		return fmt.Errorf("Error setting domain: %s", err)
+	}
+	if err := d.Set("create_time", organization.CreationTime); err != nil {
+		return fmt.Errorf("Error setting create_time: %s", err)
+	}
+	if err := d.Set("lifecycle_state", organization.LifecycleState); err != nil {
+		return fmt.Errorf("Error setting lifecycle_state: %s", err)
+	}
 	if organization.Owner != nil {
-		d.Set("directory_customer_id", organization.Owner.DirectoryCustomerId)
+		if err := d.Set("directory_customer_id", organization.Owner.DirectoryCustomerId); err != nil {
+			return fmt.Errorf("Error setting directory_customer_id: %s", err)
+		}
 	}
 
 	return nil

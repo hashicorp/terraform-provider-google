@@ -19,11 +19,30 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/api/googleapi"
 )
+
+const domainMappingGoogleProvidedLabel = "cloud.googleapis.com/location"
+
+func domainMappingLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the label provided by Google
+	if strings.Contains(k, domainMappingGoogleProvidedLabel) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.Contains(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
 
 func resourceCloudRunDomainMapping() *schema.Resource {
 	return &schema.Resource{
@@ -63,20 +82,26 @@ func resourceCloudRunDomainMapping() *schema.Resource {
 project ID or project number.`,
 						},
 						"annotations": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: cloudrunAnnotationDiffSuppress,
 							Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
-info: http://kubernetes.io/docs/user-guide/annotations`,
+info: http://kubernetes.io/docs/user-guide/annotations
+
+**Note**: The Cloud Run API may add additional annotations that were not provided in your config.
+If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
+or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"labels": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: domainMappingLabelDiffSuppress,
 							Description: `Map of string keys and values that can be used to organize and categorize
 (scope and select) objects. May match selectors of replication controllers
 and routes.
@@ -143,7 +168,7 @@ The route must exist.`,
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"NONE", "AUTOMATIC", ""}, false),
-							Description:  `The mode of the certificate.`,
+							Description:  `The mode of the certificate. Default value: "AUTOMATIC" Possible values: ["NONE", "AUTOMATIC"]`,
 							Default:      "AUTOMATIC",
 						},
 						"force_override": {
@@ -162,7 +187,6 @@ has given such a warning.`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The current status of the DomainMapping.`,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_records": {
@@ -177,7 +201,7 @@ serve the application via this domain mapping.`,
 										Type:         schema.TypeString,
 										Optional:     true,
 										ValidateFunc: validation.StringInSlice([]string{"A", "AAAA", "CNAME", ""}, false),
-										Description:  `Resource record type. Example: 'AAAA'.`,
+										Description:  `Resource record type. Example: 'AAAA'. Possible values: ["A", "AAAA", "CNAME"]`,
 									},
 									"name": {
 										Type:     schema.TypeString,
@@ -245,11 +269,16 @@ was last processed by the controller.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	specProp, err := expandCloudRunDomainMappingSpec(d.Get("spec"), d, config)
@@ -276,11 +305,20 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating new DomainMapping: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating DomainMapping: %s", err)
 	}
@@ -292,15 +330,7 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	waitURL, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	err = cloudRunPollingWaitTime(
-		config, res, project, waitURL, "Creating DomainMapping",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
-
+	err = PollingWaitTime(resourceCloudRunDomainMappingPollRead(d, meta), PollCheckKnativeStatus, "Creating DomainMapping", d.Timeout(schema.TimeoutCreate), 1)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create DomainMapping: %s", err)
 	}
@@ -310,19 +340,79 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 	return resourceCloudRunDomainMappingRead(d, meta)
 }
 
+func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+
+		url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
+		if err != nil {
+			return nil, err
+		}
+
+		billingProject := ""
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, fmt.Errorf("Error fetching project for DomainMapping: %s", err)
+		}
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+		if err != nil {
+			return res, err
+		}
+		res, err = resourceCloudRunDomainMappingDecoder(d, meta, res)
+		if err != nil {
+			return nil, err
+		}
+		if res == nil {
+			// Decoded object not found, spoof a 404 error for poll
+			return nil, &googleapi.Error{
+				Code:    404,
+				Message: "could not find object CloudRunDomainMapping",
+			}
+		}
+
+		return res, nil
+	}
+}
+
 func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudRunDomainMapping %q", d.Id()))
 	}
@@ -343,13 +433,13 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading DomainMapping: %s", err)
 	}
 
-	if err := d.Set("status", flattenCloudRunDomainMappingStatus(res["status"], d)); err != nil {
+	if err := d.Set("status", flattenCloudRunDomainMappingStatus(res["status"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DomainMapping: %s", err)
 	}
-	if err := d.Set("spec", flattenCloudRunDomainMappingSpec(res["spec"], d)); err != nil {
+	if err := d.Set("spec", flattenCloudRunDomainMappingSpec(res["spec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DomainMapping: %s", err)
 	}
-	if err := d.Set("metadata", flattenCloudRunDomainMappingMetadata(res["metadata"], d)); err != nil {
+	if err := d.Set("metadata", flattenCloudRunDomainMappingMetadata(res["metadata"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DomainMapping: %s", err)
 	}
 
@@ -358,11 +448,18 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 
 func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
 	if err != nil {
@@ -372,7 +469,12 @@ func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting DomainMapping %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "DomainMapping")
 	}
@@ -401,7 +503,7 @@ func resourceCloudRunDomainMappingImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCloudRunDomainMappingStatus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -411,16 +513,16 @@ func flattenCloudRunDomainMappingStatus(v interface{}, d *schema.ResourceData) i
 	}
 	transformed := make(map[string]interface{})
 	transformed["conditions"] =
-		flattenCloudRunDomainMappingStatusConditions(original["conditions"], d)
+		flattenCloudRunDomainMappingStatusConditions(original["conditions"], d, config)
 	transformed["observed_generation"] =
-		flattenCloudRunDomainMappingStatusObservedGeneration(original["observedGeneration"], d)
+		flattenCloudRunDomainMappingStatusObservedGeneration(original["observedGeneration"], d, config)
 	transformed["resource_records"] =
-		flattenCloudRunDomainMappingStatusResourceRecords(original["resourceRecords"], d)
+		flattenCloudRunDomainMappingStatusResourceRecords(original["resourceRecords"], d, config)
 	transformed["mapped_route_name"] =
-		flattenCloudRunDomainMappingStatusMappedRouteName(original["mappedRouteName"], d)
+		flattenCloudRunDomainMappingStatusMappedRouteName(original["mappedRouteName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunDomainMappingStatusConditions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatusConditions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -433,41 +535,48 @@ func flattenCloudRunDomainMappingStatusConditions(v interface{}, d *schema.Resou
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"message": flattenCloudRunDomainMappingStatusConditionsMessage(original["message"], d),
-			"status":  flattenCloudRunDomainMappingStatusConditionsStatus(original["status"], d),
-			"reason":  flattenCloudRunDomainMappingStatusConditionsReason(original["reason"], d),
-			"type":    flattenCloudRunDomainMappingStatusConditionsType(original["type"], d),
+			"message": flattenCloudRunDomainMappingStatusConditionsMessage(original["message"], d, config),
+			"status":  flattenCloudRunDomainMappingStatusConditionsStatus(original["status"], d, config),
+			"reason":  flattenCloudRunDomainMappingStatusConditionsReason(original["reason"], d, config),
+			"type":    flattenCloudRunDomainMappingStatusConditionsType(original["type"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenCloudRunDomainMappingStatusConditionsMessage(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatusConditionsMessage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingStatusConditionsStatus(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatusConditionsStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingStatusConditionsReason(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatusConditionsReason(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingStatusConditionsType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatusConditionsType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingStatusObservedGeneration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatusObservedGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
-func flattenCloudRunDomainMappingStatusResourceRecords(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatusResourceRecords(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -480,30 +589,30 @@ func flattenCloudRunDomainMappingStatusResourceRecords(v interface{}, d *schema.
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"type":   flattenCloudRunDomainMappingStatusResourceRecordsType(original["type"], d),
-			"rrdata": flattenCloudRunDomainMappingStatusResourceRecordsRrdata(original["rrdata"], d),
-			"name":   flattenCloudRunDomainMappingStatusResourceRecordsName(original["name"], d),
+			"type":   flattenCloudRunDomainMappingStatusResourceRecordsType(original["type"], d, config),
+			"rrdata": flattenCloudRunDomainMappingStatusResourceRecordsRrdata(original["rrdata"], d, config),
+			"name":   flattenCloudRunDomainMappingStatusResourceRecordsName(original["name"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenCloudRunDomainMappingStatusResourceRecordsType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatusResourceRecordsType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingStatusResourceRecordsRrdata(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatusResourceRecordsRrdata(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingStatusResourceRecordsName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatusResourceRecordsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingStatusMappedRouteName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingStatusMappedRouteName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingSpec(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -513,26 +622,27 @@ func flattenCloudRunDomainMappingSpec(v interface{}, d *schema.ResourceData) int
 	}
 	transformed := make(map[string]interface{})
 	transformed["force_override"] =
-		flattenCloudRunDomainMappingSpecForceOverride(original["forceOverride"], d)
+		flattenCloudRunDomainMappingSpecForceOverride(original["forceOverride"], d, config)
 	transformed["route_name"] =
-		flattenCloudRunDomainMappingSpecRouteName(original["routeName"], d)
+		flattenCloudRunDomainMappingSpecRouteName(original["routeName"], d, config)
 	transformed["certificate_mode"] =
-		flattenCloudRunDomainMappingSpecCertificateMode(original["certificateMode"], d)
+		flattenCloudRunDomainMappingSpecCertificateMode(original["certificateMode"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunDomainMappingSpecForceOverride(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingSpecForceOverride(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// We want to ignore read on this field, but cannot because it is nested
+	return d.Get("spec.0.force_override")
+}
+
+func flattenCloudRunDomainMappingSpecRouteName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingSpecRouteName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingSpecCertificateMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingSpecCertificateMode(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenCloudRunDomainMappingMetadata(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingMetadata(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -542,52 +652,59 @@ func flattenCloudRunDomainMappingMetadata(v interface{}, d *schema.ResourceData)
 	}
 	transformed := make(map[string]interface{})
 	transformed["labels"] =
-		flattenCloudRunDomainMappingMetadataLabels(original["labels"], d)
+		flattenCloudRunDomainMappingMetadataLabels(original["labels"], d, config)
 	transformed["generation"] =
-		flattenCloudRunDomainMappingMetadataGeneration(original["generation"], d)
+		flattenCloudRunDomainMappingMetadataGeneration(original["generation"], d, config)
 	transformed["resource_version"] =
-		flattenCloudRunDomainMappingMetadataResourceVersion(original["resourceVersion"], d)
+		flattenCloudRunDomainMappingMetadataResourceVersion(original["resourceVersion"], d, config)
 	transformed["self_link"] =
-		flattenCloudRunDomainMappingMetadataSelfLink(original["selfLink"], d)
+		flattenCloudRunDomainMappingMetadataSelfLink(original["selfLink"], d, config)
 	transformed["uid"] =
-		flattenCloudRunDomainMappingMetadataUid(original["uid"], d)
+		flattenCloudRunDomainMappingMetadataUid(original["uid"], d, config)
 	transformed["namespace"] =
-		flattenCloudRunDomainMappingMetadataNamespace(original["namespace"], d)
+		flattenCloudRunDomainMappingMetadataNamespace(original["namespace"], d, config)
 	transformed["annotations"] =
-		flattenCloudRunDomainMappingMetadataAnnotations(original["annotations"], d)
+		flattenCloudRunDomainMappingMetadataAnnotations(original["annotations"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunDomainMappingMetadataLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingMetadataLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingMetadataGeneration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingMetadataGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunDomainMappingMetadataResourceVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingMetadataResourceVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingMetadataSelfLink(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingMetadataSelfLink(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingMetadataUid(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunDomainMappingMetadataUid(v interface{}, d *schema.ResourceData) interface{} {
-	return v
-}
-
-func flattenCloudRunDomainMappingMetadataNamespace(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingMetadataNamespace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return d.Get("project")
 }
 
-func flattenCloudRunDomainMappingMetadataAnnotations(v interface{}, d *schema.ResourceData) interface{} {
+func flattenCloudRunDomainMappingMetadataAnnotations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

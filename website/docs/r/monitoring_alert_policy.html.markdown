@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Stackdriver Monitoring"
+subcategory: "Cloud (Stackdriver) Monitoring"
 layout: "google"
 page_title: "Google: google_monitoring_alert_policy"
 sidebar_current: "docs-google-monitoring-alert-policy"
@@ -77,13 +77,15 @@ The following arguments are supported:
   (Required)
   How to combine the results of multiple conditions to
   determine if an incident should be opened.
+  Possible values are `AND`, `OR`, and `AND_WITH_MATCHING_RESOURCE`.
 
 * `conditions` -
   (Required)
   A list of conditions for the policy. The conditions are combined by
   AND or OR according to the combiner field. If the combined conditions
   evaluate to true, then an incident is created. A policy can have from
-  one to six conditions.  Structure is documented below.
+  one to six conditions.
+  Structure is documented below.
 
 
 The `conditions` block supports:
@@ -91,7 +93,8 @@ The `conditions` block supports:
 * `condition_absent` -
   (Optional)
   A condition that checks that a time series
-  continues to receive new data points.  Structure is documented below.
+  continues to receive new data points.
+  Structure is documented below.
 
 * `name` -
   The unique resource name for this condition.
@@ -101,10 +104,16 @@ The `conditions` block supports:
   the condition is created as part of a new or updated alerting
   policy.
 
+* `condition_monitoring_query_language` -
+  (Optional)
+  A Monitoring Query Language query that outputs a boolean stream
+  Structure is documented below.
+
 * `condition_threshold` -
   (Optional)
   A condition that compares a time series against a
-  threshold.  Structure is documented below.
+  threshold.
+  Structure is documented below.
 
 * `display_name` -
   (Required)
@@ -127,7 +136,8 @@ The `condition_absent` block supports:
   resource or when aggregating streams across
   all members of a group of resources).
   Multiple aggregations are applied in the
-  order specified.  Structure is documented below.
+  order specified.
+  Structure is documented below.
 
 * `trigger` -
   (Optional)
@@ -136,7 +146,8 @@ The `condition_absent` block supports:
   condition to trigger. If unspecified, then
   the condition will trigger if the comparison
   is true for any of the time series that have
-  been identified by filter and aggregations.  Structure is documented below.
+  been identified by filter and aggregations.
+  Structure is documented below.
 
 * `duration` -
   (Required)
@@ -183,6 +194,7 @@ The `aggregations` block supports:
   and alignmentPeriod must be
   specified; otherwise, an error is
   returned.
+  Possible values are `ALIGN_NONE`, `ALIGN_DELTA`, `ALIGN_RATE`, `ALIGN_INTERPOLATE`, `ALIGN_NEXT_OLDER`, `ALIGN_MIN`, `ALIGN_MAX`, `ALIGN_MEAN`, `ALIGN_COUNT`, `ALIGN_SUM`, `ALIGN_STDDEV`, `ALIGN_COUNT_TRUE`, `ALIGN_COUNT_FALSE`, `ALIGN_FRACTION_TRUE`, `ALIGN_PERCENTILE_99`, `ALIGN_PERCENTILE_95`, `ALIGN_PERCENTILE_50`, `ALIGN_PERCENTILE_05`, and `ALIGN_PERCENT_CHANGE`.
 
 * `group_by_fields` -
   (Optional)
@@ -248,6 +260,58 @@ The `aggregations` block supports:
   and alignmentPeriod must be
   specified; otherwise, an error is
   returned.
+  Possible values are `REDUCE_NONE`, `REDUCE_MEAN`, `REDUCE_MIN`, `REDUCE_MAX`, `REDUCE_SUM`, `REDUCE_STDDEV`, `REDUCE_COUNT`, `REDUCE_COUNT_TRUE`, `REDUCE_COUNT_FALSE`, `REDUCE_FRACTION_TRUE`, `REDUCE_PERCENTILE_99`, `REDUCE_PERCENTILE_95`, `REDUCE_PERCENTILE_50`, and `REDUCE_PERCENTILE_05`.
+
+The `trigger` block supports:
+
+* `percent` -
+  (Optional)
+  The percentage of time series that
+  must fail the predicate for the
+  condition to be triggered.
+
+* `count` -
+  (Optional)
+  The absolute number of time series
+  that must fail the predicate for the
+  condition to be triggered.
+
+The `condition_monitoring_query_language` block supports:
+
+* `query` -
+  (Required)
+  Monitoring Query Language query that outputs a boolean stream.
+
+* `duration` -
+  (Required)
+  The amount of time that a time series must
+  violate the threshold to be considered
+  failing. Currently, only values that are a
+  multiple of a minute--e.g., 0, 60, 120, or
+  300 seconds--are supported. If an invalid
+  value is given, an error will be returned.
+  When choosing a duration, it is useful to
+  keep in mind the frequency of the underlying
+  time series data (which may also be affected
+  by any alignments specified in the
+  aggregations field); a good duration is long
+  enough so that a single outlier does not
+  generate spurious alerts, but short enough
+  that unhealthy states are detected and
+  alerted on quickly.
+
+* `trigger` -
+  (Optional)
+  The number/percent of time series for which
+  the comparison must hold in order for the
+  condition to trigger. If unspecified, then
+  the condition will trigger if the comparison
+  is true for any of the time series that have
+  been identified by filter and aggregations,
+  or by the ratio, if denominator_filter and
+  denominator_aggregations are specified.
+  Structure is documented below.
+
 
 The `trigger` block supports:
 
@@ -305,7 +369,8 @@ The `condition_threshold` block supports:
   labels.This field is similar to the one in
   the MetricService.ListTimeSeries request. It
   is advisable to use the ListTimeSeries
-  method when debugging this field.  Structure is documented below.
+  method when debugging this field.
+  Structure is documented below.
 
 * `duration` -
   (Required)
@@ -335,6 +400,7 @@ The `condition_threshold` block supports:
   the left-hand side and the threshold on the
   right-hand side. Only COMPARISON_LT and
   COMPARISON_GT are supported currently.
+  Possible values are `COMPARISON_GT`, `COMPARISON_GE`, `COMPARISON_LT`, `COMPARISON_LE`, `COMPARISON_EQ`, and `COMPARISON_NE`.
 
 * `trigger` -
   (Optional)
@@ -345,7 +411,8 @@ The `condition_threshold` block supports:
   is true for any of the time series that have
   been identified by filter and aggregations,
   or by the ratio, if denominator_filter and
-  denominator_aggregations are specified.  Structure is documented below.
+  denominator_aggregations are specified.
+  Structure is documented below.
 
 * `aggregations` -
   (Optional)
@@ -361,7 +428,8 @@ The `condition_threshold` block supports:
   one in the MetricService.ListTimeSeries
   request. It is advisable to use the
   ListTimeSeries method when debugging this
-  field.  Structure is documented below.
+  field.
+  Structure is documented below.
 
 * `filter` -
   (Optional)
@@ -400,6 +468,7 @@ The `denominator_aggregations` block supports:
   and alignmentPeriod must be
   specified; otherwise, an error is
   returned.
+  Possible values are `ALIGN_NONE`, `ALIGN_DELTA`, `ALIGN_RATE`, `ALIGN_INTERPOLATE`, `ALIGN_NEXT_OLDER`, `ALIGN_MIN`, `ALIGN_MAX`, `ALIGN_MEAN`, `ALIGN_COUNT`, `ALIGN_SUM`, `ALIGN_STDDEV`, `ALIGN_COUNT_TRUE`, `ALIGN_COUNT_FALSE`, `ALIGN_FRACTION_TRUE`, `ALIGN_PERCENTILE_99`, `ALIGN_PERCENTILE_95`, `ALIGN_PERCENTILE_50`, `ALIGN_PERCENTILE_05`, and `ALIGN_PERCENT_CHANGE`.
 
 * `group_by_fields` -
   (Optional)
@@ -465,6 +534,7 @@ The `denominator_aggregations` block supports:
   and alignmentPeriod must be
   specified; otherwise, an error is
   returned.
+  Possible values are `REDUCE_NONE`, `REDUCE_MEAN`, `REDUCE_MIN`, `REDUCE_MAX`, `REDUCE_SUM`, `REDUCE_STDDEV`, `REDUCE_COUNT`, `REDUCE_COUNT_TRUE`, `REDUCE_COUNT_FALSE`, `REDUCE_FRACTION_TRUE`, `REDUCE_PERCENTILE_99`, `REDUCE_PERCENTILE_95`, `REDUCE_PERCENTILE_50`, and `REDUCE_PERCENTILE_05`.
 
 The `trigger` block supports:
 
@@ -501,6 +571,7 @@ The `aggregations` block supports:
   and alignmentPeriod must be
   specified; otherwise, an error is
   returned.
+  Possible values are `ALIGN_NONE`, `ALIGN_DELTA`, `ALIGN_RATE`, `ALIGN_INTERPOLATE`, `ALIGN_NEXT_OLDER`, `ALIGN_MIN`, `ALIGN_MAX`, `ALIGN_MEAN`, `ALIGN_COUNT`, `ALIGN_SUM`, `ALIGN_STDDEV`, `ALIGN_COUNT_TRUE`, `ALIGN_COUNT_FALSE`, `ALIGN_FRACTION_TRUE`, `ALIGN_PERCENTILE_99`, `ALIGN_PERCENTILE_95`, `ALIGN_PERCENTILE_50`, `ALIGN_PERCENTILE_05`, and `ALIGN_PERCENT_CHANGE`.
 
 * `group_by_fields` -
   (Optional)
@@ -566,6 +637,7 @@ The `aggregations` block supports:
   and alignmentPeriod must be
   specified; otherwise, an error is
   returned.
+  Possible values are `REDUCE_NONE`, `REDUCE_MEAN`, `REDUCE_MIN`, `REDUCE_MAX`, `REDUCE_SUM`, `REDUCE_STDDEV`, `REDUCE_COUNT`, `REDUCE_COUNT_TRUE`, `REDUCE_COUNT_FALSE`, `REDUCE_FRACTION_TRUE`, `REDUCE_PERCENTILE_99`, `REDUCE_PERCENTILE_95`, `REDUCE_PERCENTILE_50`, and `REDUCE_PERCENTILE_05`.
 
 - - -
 
@@ -594,10 +666,12 @@ The `aggregations` block supports:
 
 * `documentation` -
   (Optional)
-  A short name or phrase used to identify the policy in dashboards,
-  notifications, and incidents. To avoid confusion, don't use the same
-  display name for multiple policies in the same project. The name is
-  limited to 512 Unicode characters.  Structure is documented below.
+  Documentation that is included with notifications and incidents related
+  to this policy. Best practice is for the documentation to include information
+  to help responders understand, mitigate, escalate, and correct the underlying
+  problems detected by the alerting policy. Notification channels that have
+  limited capacity might not show this documentation.
+  Structure is documented below.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -621,6 +695,7 @@ The `documentation` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   The unique resource name for this policy.
@@ -629,7 +704,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `creation_record` -
   A read-only record of the creation of the alerting policy.
   If provided in a call to create or update, this field will
-  be ignored.  Structure is documented below.
+  be ignored.
+  Structure is documented below.
 
 
 The `creation_record` block contains:
@@ -651,14 +727,12 @@ This resource provides the following
 
 ## Import
 
+
 AlertPolicy can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_monitoring_alert_policy.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

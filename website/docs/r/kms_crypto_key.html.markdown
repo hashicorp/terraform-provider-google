@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud KMS"
+subcategory: "Cloud Key Management Service"
 layout: "google"
 page_title: "Google: google_kms_crypto_key"
 sidebar_current: "docs-google-kms-crypto-key"
@@ -28,7 +28,7 @@ A `CryptoKey` represents a logical key that can be used for cryptographic operat
 ~> **Note:** CryptoKeys cannot be deleted from Google Cloud Platform.
 Destroying a Terraform-managed CryptoKey will remove it from state
 and delete all CryptoKeyVersions, rendering the key unusable, but *will
-not delete the resource on the server.* When Terraform destroys these keys,
+not delete the resource from the project.* When Terraform destroys these keys,
 any data previously encrypted with these keys will be irrecoverable.
 For this reason, it is strongly recommended that you add lifecycle hooks
 to the resource to prevent accidental destruction.
@@ -51,7 +51,7 @@ resource "google_kms_key_ring" "keyring" {
 
 resource "google_kms_crypto_key" "example-key" {
   name            = "crypto-key-example"
-  key_ring        = google_kms_key_ring.keyring.self_link
+  key_ring        = google_kms_key_ring.keyring.id
   rotation_period = "100000s"
 
   lifecycle {
@@ -70,7 +70,7 @@ resource "google_kms_key_ring" "keyring" {
 
 resource "google_kms_crypto_key" "example-asymmetric-sign-key" {
   name     = "crypto-key-example"
-  key_ring = google_kms_key_ring.keyring.self_link
+  key_ring = google_kms_key_ring.keyring.id
   purpose  = "ASYMMETRIC_SIGN"
 
   version_template {
@@ -110,6 +110,8 @@ The following arguments are supported:
   The immutable purpose of this CryptoKey. See the
   [purpose reference](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKeyPurpose)
   for possible inputs.
+  Default value is `ENCRYPT_DECRYPT`.
+  Possible values are `ENCRYPT_DECRYPT`, `ASYMMETRIC_SIGN`, and `ASYMMETRIC_DECRYPT`.
 
 * `rotation_period` -
   (Optional)
@@ -120,7 +122,13 @@ The following arguments are supported:
 
 * `version_template` -
   (Optional)
-  A template describing settings for new crypto key versions.  Structure is documented below.
+  A template describing settings for new crypto key versions.
+  Structure is documented below.
+
+* `skip_initial_version_creation` -
+  (Optional)
+  If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 
+  You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
 
 
 The `version_template` block supports:
@@ -133,11 +141,14 @@ The `version_template` block supports:
 * `protection_level` -
   (Optional)
   The protection level to use when creating a version based on this template.
+  Default value is `SOFTWARE`.
+  Possible values are `SOFTWARE` and `HSM`.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{key_ring}}/cryptoKeys/{{name}}`
 
 
 * `self_link`: The self link of the created CryptoKey. Its format is `{{key_ring}}/cryptoKeys/{{name}}`.
@@ -153,15 +164,13 @@ This resource provides the following
 
 ## Import
 
+
 CryptoKey can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_kms_crypto_key.default {{key_ring}}/cryptoKeys/{{name}}
 $ terraform import google_kms_crypto_key.default {{key_ring}}/{{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

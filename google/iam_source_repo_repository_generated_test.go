@@ -18,19 +18,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccSourceRepoRepositoryIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -61,11 +60,11 @@ func TestAccSourceRepoRepositoryIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -87,11 +86,11 @@ func TestAccSourceRepoRepositoryIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -124,8 +123,8 @@ resource "google_sourcerepo_repository" "my-repo" {
 }
 
 resource "google_sourcerepo_repository_iam_member" "foo" {
-  project = "${google_sourcerepo_repository.my-repo.project}"
-  repository = "${google_sourcerepo_repository.my-repo.name}"
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
   role = "%{role}"
   member = "user:admin@hashicorptest.com"
 }
@@ -146,9 +145,9 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_sourcerepo_repository_iam_policy" "foo" {
-  project = "${google_sourcerepo_repository.my-repo.project}"
-  repository = "${google_sourcerepo_repository.my-repo.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -163,9 +162,9 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_sourcerepo_repository_iam_policy" "foo" {
-  project = "${google_sourcerepo_repository.my-repo.project}"
-  repository = "${google_sourcerepo_repository.my-repo.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -177,8 +176,8 @@ resource "google_sourcerepo_repository" "my-repo" {
 }
 
 resource "google_sourcerepo_repository_iam_binding" "foo" {
-  project = "${google_sourcerepo_repository.my-repo.project}"
-  repository = "${google_sourcerepo_repository.my-repo.name}"
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com"]
 }
@@ -192,8 +191,8 @@ resource "google_sourcerepo_repository" "my-repo" {
 }
 
 resource "google_sourcerepo_repository_iam_binding" "foo" {
-  project = "${google_sourcerepo_repository.my-repo.project}"
-  repository = "${google_sourcerepo_repository.my-repo.name}"
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }

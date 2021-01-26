@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceResourceManagerLien() *schema.Resource {
@@ -89,32 +89,37 @@ e.g. ['resourcemanager.projects.delete']`,
 				Description: `A system-generated unique identifier for this Lien.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
-	reasonProp, err := expandResourceManagerLienReason(d.Get("reason"), d, config)
+	reasonProp, err := expandNestedResourceManagerLienReason(d.Get("reason"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("reason"); !isEmptyValue(reflect.ValueOf(reasonProp)) && (ok || !reflect.DeepEqual(v, reasonProp)) {
 		obj["reason"] = reasonProp
 	}
-	originProp, err := expandResourceManagerLienOrigin(d.Get("origin"), d, config)
+	originProp, err := expandNestedResourceManagerLienOrigin(d.Get("origin"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("origin"); !isEmptyValue(reflect.ValueOf(originProp)) && (ok || !reflect.DeepEqual(v, originProp)) {
 		obj["origin"] = originProp
 	}
-	parentProp, err := expandResourceManagerLienParent(d.Get("parent"), d, config)
+	parentProp, err := expandNestedResourceManagerLienParent(d.Get("parent"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("parent"); !isEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
 		obj["parent"] = parentProp
 	}
-	restrictionsProp, err := expandResourceManagerLienRestrictions(d.Get("restrictions"), d, config)
+	restrictionsProp, err := expandNestedResourceManagerLienRestrictions(d.Get("restrictions"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("restrictions"); !isEmptyValue(reflect.ValueOf(restrictionsProp)) && (ok || !reflect.DeepEqual(v, restrictionsProp)) {
@@ -127,9 +132,19 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Creating new Lien: %#v", obj)
-	res, err := sendRequestWithTimeout(config, "POST", "", url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Lien: %s", err)
+	}
+	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
 
 	// Store the ID now
@@ -148,21 +163,34 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	// us to know the server-side generated name of the object we're
 	// trying to fetch, and the only way to know that is to capture
 	// it here.  The following two lines do that.
-	d.SetId(flattenResourceManagerLienName(res["name"], d).(string))
-	d.Set("name", flattenResourceManagerLienName(res["name"], d))
+	d.SetId(flattenNestedResourceManagerLienName(res["name"], d, config).(string))
+	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 
 	return resourceResourceManagerLienRead(d, meta)
 }
 
 func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
 	if err != nil {
 		return err
 	}
 
-	res, err := sendRequest(config, "GET", "", url, nil)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ResourceManagerLien %q", d.Id()))
 	}
@@ -191,22 +219,22 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		return nil
 	}
 
-	if err := d.Set("name", flattenResourceManagerLienName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("reason", flattenResourceManagerLienReason(res["reason"], d)); err != nil {
+	if err := d.Set("reason", flattenNestedResourceManagerLienReason(res["reason"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("origin", flattenResourceManagerLienOrigin(res["origin"], d)); err != nil {
+	if err := d.Set("origin", flattenNestedResourceManagerLienOrigin(res["origin"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("create_time", flattenResourceManagerLienCreateTime(res["createTime"], d)); err != nil {
+	if err := d.Set("create_time", flattenNestedResourceManagerLienCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("parent", flattenResourceManagerLienParent(res["parent"], d)); err != nil {
+	if err := d.Set("parent", flattenNestedResourceManagerLienParent(res["parent"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
-	if err := d.Set("restrictions", flattenResourceManagerLienRestrictions(res["restrictions"], d)); err != nil {
+	if err := d.Set("restrictions", flattenNestedResourceManagerLienRestrictions(res["restrictions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Lien: %s", err)
 	}
 
@@ -215,6 +243,12 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
 
 	url, err := replaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
 	if err != nil {
@@ -232,7 +266,12 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 	}
 	log.Printf("[DEBUG] Deleting Lien %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", "", url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Lien")
 	}
@@ -260,51 +299,53 @@ func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return nil, err
 	}
-	d.Set("parent", parent)
+	if err := d.Set("parent", parent); err != nil {
+		return nil, fmt.Errorf("Error setting parent: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenResourceManagerLienName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenNestedResourceManagerLienName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenResourceManagerLienReason(v interface{}, d *schema.ResourceData) interface{} {
+func flattenNestedResourceManagerLienReason(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienOrigin(v interface{}, d *schema.ResourceData) interface{} {
+func flattenNestedResourceManagerLienOrigin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienCreateTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenNestedResourceManagerLienCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienParent(v interface{}, d *schema.ResourceData) interface{} {
+func flattenNestedResourceManagerLienParent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenResourceManagerLienRestrictions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenNestedResourceManagerLienRestrictions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func expandResourceManagerLienReason(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedResourceManagerLienReason(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandResourceManagerLienOrigin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedResourceManagerLienOrigin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandResourceManagerLienParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedResourceManagerLienParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandResourceManagerLienRestrictions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedResourceManagerLienRestrictions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -336,6 +377,7 @@ func flattenNestedResourceManagerLien(d *schema.ResourceData, meta interface{}, 
 
 func resourceResourceManagerLienFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
 	expectedName := d.Get("name")
+	expectedFlattenedName := flattenNestedResourceManagerLienName(expectedName, d, meta.(*Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -350,9 +392,10 @@ func resourceResourceManagerLienFindNestedObjectInList(d *schema.ResourceData, m
 			return -1, nil, err
 		}
 
-		itemName := flattenResourceManagerLienName(item["name"], d)
-		if !reflect.DeepEqual(itemName, expectedName) {
-			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedName)
+		itemName := flattenNestedResourceManagerLienName(item["name"], d, meta.(*Config))
+		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
+			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
 			continue
 		}
 		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)
@@ -374,6 +417,12 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 	// 2) if either is non-numeric, a project with that ID exists.
 	// 3) the project IDs represented by both the new and old values are the same.
 	config := meta.(*Config)
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
 	new := res["parent"].(string)
 	old := d.Get("parent").(string)
 	if strings.HasPrefix(new, "projects/") {
@@ -395,7 +444,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 		log.Printf("[DEBUG] The old value was a real number: %d", oldVal)
 		oldProjId = oldVal
 	} else {
-		pOld, err := config.clientResourceManager.Projects.Get(old).Do()
+		pOld, err := config.NewResourceManagerClient(userAgent).Projects.Get(old).Do()
 		if err != nil {
 			return res, nil
 		}
@@ -405,7 +454,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 		log.Printf("[DEBUG] The new value was a real number: %d", newVal)
 		newProjId = newVal
 	} else {
-		pNew, err := config.clientResourceManager.Projects.Get(new).Do()
+		pNew, err := config.NewResourceManagerClient(userAgent).Projects.Get(new).Do()
 		if err != nil {
 			return res, nil
 		}

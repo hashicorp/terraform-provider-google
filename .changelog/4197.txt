@@ -1,0 +1,4 @@
+```release-note:enhancement
+container : added maintenance_exclusions_window to `resource_google_container_cluster`
+
+```

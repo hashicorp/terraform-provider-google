@@ -1,0 +1,3 @@
+```release-note:bug
+bigquerydatatransfer: fixed `params.secret_access_key` perma-diff for AWS S3 data transfer config types by adding a `sensitive_params` block with the `secret_access_key` attribute.
+```

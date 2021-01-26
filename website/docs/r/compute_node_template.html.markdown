@@ -42,14 +42,10 @@ To get more information about NodeTemplate, see:
 
 
 ```hcl
-data "google_compute_node_types" "central1a" {
-  zone = "us-central1-a"
-}
-
 resource "google_compute_node_template" "template" {
   name      = "soletenant-tmpl"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -76,7 +72,7 @@ resource "google_compute_node_template" "template" {
 
   name      = "soletenant-with-licenses"
   region    = "us-central1"
-  node_type = data.google_compute_node_types.central1a.names[0]
+  node_type = "n1-node-96-624"
 
   node_affinity_labels = {
     foo = "baz"
@@ -120,7 +116,20 @@ The following arguments are supported:
   Flexible properties for the desired node type. Node groups that
   use this node template will create nodes of a type that matches
   these properties. Only one of nodeTypeFlexibility and nodeType can
-  be specified.  Structure is documented below.
+  be specified.
+  Structure is documented below.
+
+* `server_binding` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The server binding policy for nodes using this template. Determines
+  where the nodes should restart following a maintenance event.
+  Structure is documented below.
+
+* `cpu_overcommit_type` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  CPU overcommit.
+  Default value is `NONE`.
+  Possible values are `ENABLED` and `NONE`.
 
 * `region` -
   (Optional)
@@ -144,10 +153,28 @@ The `node_type_flexibility` block supports:
 * `local_ssd` -
   Use local SSD
 
+The `server_binding` block supports:
+
+* `type` -
+  (Required)
+  Type of server binding policy. If `RESTART_NODE_ON_ANY_SERVER`,
+  nodes using this template will restart on any physical server
+  following a maintenance event.
+  If `RESTART_NODE_ON_MINIMAL_SERVER`, nodes using this template
+  will restart on the same physical server following a maintenance
+  event, instead of being live migrated to or restarted on a new
+  physical server. This option may be useful if you are using
+  software licenses tied to the underlying server characteristics
+  such as physical sockets or cores, to avoid the need for
+  additional licenses when maintenance occurs. However, VMs on such
+  nodes will experience outages while maintenance is applied.
+  Possible values are `RESTART_NODE_ON_ANY_SERVER` and `RESTART_NODE_ON_MINIMAL_SERVERS`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}`
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
@@ -164,6 +191,7 @@ This resource provides the following
 
 ## Import
 
+
 NodeTemplate can be imported using any of these accepted formats:
 
 ```
@@ -172,9 +200,6 @@ $ terraform import google_compute_node_template.default {{project}}/{{region}}/{
 $ terraform import google_compute_node_template.default {{region}}/{{name}}
 $ terraform import google_compute_node_template.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

@@ -1,0 +1,4 @@
+```release-note:enhancement
+logging: added bucket creation based on custom-id given for the resource `google_logging_project_bucket_config`
+
+```

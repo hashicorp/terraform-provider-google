@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Storage"
+subcategory: "Storage Transfer Service"
 layout: "google"
 page_title: "Google: google_storage_transfer_job"
 sidebar_current: "docs-google-storage-transfer-job-x"
@@ -97,7 +97,7 @@ The following arguments are supported:
 
 * `transfer_spec` - (Required) Transfer specification. Structure documented below.
 
-* `schedule` - (Required) Schedule specification defining when the Transfer Job should be scheduled to start, end and and what time to run. Structure documented below.
+* `schedule` - (Required) Schedule specification defining when the Transfer Job should be scheduled to start, end and what time to run. Structure documented below.
 
 - - -
 

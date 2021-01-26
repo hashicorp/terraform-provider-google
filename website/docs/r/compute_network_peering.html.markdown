@@ -24,14 +24,14 @@ to be functional.
 ```hcl
 resource "google_compute_network_peering" "peering1" {
   name         = "peering1"
-  network      = google_compute_network.default.self_link
-  peer_network = google_compute_network.other.self_link
+  network      = google_compute_network.default.id
+  peer_network = google_compute_network.other.id
 }
 
 resource "google_compute_network_peering" "peering2" {
   name         = "peering2"
-  network      = google_compute_network.other.self_link
-  peer_network = google_compute_network.default.self_link
+  network      = google_compute_network.other.id
+  peer_network = google_compute_network.default.id
 }
 
 resource "google_compute_network" "default" {
@@ -60,17 +60,33 @@ may belong to a different project.
 Whether to export the custom routes to the peer network. Defaults to `false`.
 
 * `import_custom_routes` - (Optional)
-Whether to export the custom routes from the peer network. Defaults to `false`.
+Whether to import the custom routes from the peer network. Defaults to `false`.
+
+* `export_subnet_routes_with_public_ip` - (Optional)
+Whether subnet routes with public IP range are exported. The default value is true, all subnet routes are exported. The IPv4 special-use ranges (https://en.wikipedia.org/wiki/IPv4#Special_addresses) are always exported to peers and are not controlled by this field.
+
+* `import_subnet_routes_with_public_ip` - (Optional)
+Whether subnet routes with public IP range are imported. The default value is false. The IPv4 special-use ranges (https://en.wikipedia.org/wiki/IPv4#Special_addresses) are always imported from peers and are not controlled by this field.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `id` - an identifier for the resource with format `{{network}}/{{name}}`
+
 * `state` - State for the peering, either `ACTIVE` or `INACTIVE`. The peering is
 `ACTIVE` when there's a matching configuration in the peer network.
 
 * `state_details` - Details about the current state of the peering.
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
 
 ## Import
 

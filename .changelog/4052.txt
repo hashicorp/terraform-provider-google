@@ -1,0 +1,3 @@
+```release-note:new-datasource
+compute: added `google_compute_global_forwarding_rule` datasource
+```

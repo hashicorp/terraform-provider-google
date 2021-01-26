@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	runtimeconfig "google.golang.org/api/runtimeconfig/v1beta1"
 )
 
@@ -21,46 +21,58 @@ func resourceRuntimeconfigVariable() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the variable to manage. Note that variable names can be hierarchical using slashes (e.g. "prod-variables/hostname").`,
 			},
 
 			"parent": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the RuntimeConfig resource containing this variable.`,
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
 			"value": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"text"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				ExactlyOneOf: []string{"text", "value"},
 			},
 
 			"text": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"value"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				ExactlyOneOf: []string{"text", "value"},
 			},
 
 			"update_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds, representing when the variable was last updated. Example: "2016-10-09T12:33:37.578138407Z".`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceRuntimeconfigVariableCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -71,7 +83,7 @@ func resourceRuntimeconfigVariableCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	createdVariable, err := config.clientRuntimeconfig.Projects.Configs.Variables.Create(resourceRuntimeconfigFullName(project, parent), variable).Do()
+	createdVariable, err := config.NewRuntimeconfigClient(userAgent).Projects.Configs.Variables.Create(resourceRuntimeconfigFullName(project, parent), variable).Do()
 	if err != nil {
 		return err
 	}
@@ -82,9 +94,13 @@ func resourceRuntimeconfigVariableCreate(d *schema.ResourceData, meta interface{
 
 func resourceRuntimeconfigVariableRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	fullName := d.Id()
-	createdVariable, err := config.clientRuntimeconfig.Projects.Configs.Variables.Get(fullName).Do()
+	createdVariable, err := config.NewRuntimeconfigClient(userAgent).Projects.Configs.Variables.Get(fullName).Do()
 	if err != nil {
 		return err
 	}
@@ -94,6 +110,10 @@ func resourceRuntimeconfigVariableRead(d *schema.ResourceData, meta interface{})
 
 func resourceRuntimeconfigVariableUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -108,7 +128,7 @@ func resourceRuntimeconfigVariableUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	createdVariable, err := config.clientRuntimeconfig.Projects.Configs.Variables.Update(variable.Name, variable).Do()
+	createdVariable, err := config.NewRuntimeconfigClient(userAgent).Projects.Configs.Variables.Update(variable.Name, variable).Do()
 	if err != nil {
 		return err
 	}
@@ -117,10 +137,15 @@ func resourceRuntimeconfigVariableUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceRuntimeconfigVariableDelete(d *schema.ResourceData, meta interface{}) error {
-	fullName := d.Id()
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
-	_, err := config.clientRuntimeconfig.Projects.Configs.Variables.Delete(fullName).Do()
+	fullName := d.Id()
+
+	_, err = config.NewRuntimeconfigClient(userAgent).Projects.Configs.Variables.Delete(fullName).Do()
 	if err != nil {
 		return err
 	}
@@ -166,13 +191,9 @@ func resourceRuntimeconfigVariableParseFullName(fullName string) (project, confi
 // newRuntimeconfigVariableFromResourceData builds a new runtimeconfig.Variable struct from the data stored in a
 // schema.ResourceData. Also returns the full name of the parent. Returns nil, "", err upon error.
 func newRuntimeconfigVariableFromResourceData(d *schema.ResourceData, project string) (variable *runtimeconfig.Variable, parent string, err error) {
-	// Validate that both text and value are not set
-	text, textSet := d.GetOk("text")
-	value, valueSet := d.GetOk("value")
 
-	if !textSet && !valueSet {
-		return nil, "", fmt.Errorf("You must specify one of value or text.")
-	}
+	text := d.Get("text")
+	value := d.Get("value")
 
 	// TODO(selmanj) here we assume it's a simple name, not a full name. Should probably support full name as well
 	parent = d.Get("parent").(string)
@@ -184,7 +205,7 @@ func newRuntimeconfigVariableFromResourceData(d *schema.ResourceData, project st
 		Name: fullName,
 	}
 
-	if textSet {
+	if text != "" {
 		variable.Text = text.(string)
 	} else {
 		variable.Value = value.(string)
@@ -199,12 +220,24 @@ func setRuntimeConfigVariableToResourceData(d *schema.ResourceData, variable run
 	if err != nil {
 		return err
 	}
-	d.Set("name", name)
-	d.Set("parent", parent)
-	d.Set("project", varProject)
-	d.Set("value", variable.Value)
-	d.Set("text", variable.Text)
-	d.Set("update_time", variable.UpdateTime)
+	if err := d.Set("name", name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("parent", parent); err != nil {
+		return fmt.Errorf("Error setting parent: %s", err)
+	}
+	if err := d.Set("project", varProject); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("value", variable.Value); err != nil {
+		return fmt.Errorf("Error setting value: %s", err)
+	}
+	if err := d.Set("text", variable.Text); err != nil {
+		return fmt.Errorf("Error setting text: %s", err)
+	}
+	if err := d.Set("update_time", variable.UpdateTime); err != nil {
+		return fmt.Errorf("Error setting update_time: %s", err)
+	}
 
 	return nil
 }

@@ -1,0 +1,6 @@
+```release-note:enhancement
+bigquery: Added support for `google_bigquery_table` `hive_partitioning_options`
+```
+```release-note:enhancement
+bigquery: Added `google_bigquery_table` `range_partitioning` to GA
+```

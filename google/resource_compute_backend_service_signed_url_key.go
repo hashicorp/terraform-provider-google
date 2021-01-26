@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceComputeBackendServiceSignedUrlKey() *schema.Resource {
@@ -64,26 +64,31 @@ valid RFC 4648 Section 5 base64url encoded string.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
-	keyNameProp, err := expandComputeBackendServiceSignedUrlKeyName(d.Get("name"), d, config)
+	keyNameProp, err := expandNestedComputeBackendServiceSignedUrlKeyName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(keyNameProp)) && (ok || !reflect.DeepEqual(v, keyNameProp)) {
 		obj["keyName"] = keyNameProp
 	}
-	keyValueProp, err := expandComputeBackendServiceSignedUrlKeyKeyValue(d.Get("key_value"), d, config)
+	keyValueProp, err := expandNestedComputeBackendServiceSignedUrlKeyKeyValue(d.Get("key_value"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("key_value"); !isEmptyValue(reflect.ValueOf(keyValueProp)) && (ok || !reflect.DeepEqual(v, keyValueProp)) {
 		obj["keyValue"] = keyValueProp
 	}
-	backendServiceProp, err := expandComputeBackendServiceSignedUrlKeyBackendService(d.Get("backend_service"), d, config)
+	backendServiceProp, err := expandNestedComputeBackendServiceSignedUrlKeyBackendService(d.Get("backend_service"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(backendServiceProp)) && (ok || !reflect.DeepEqual(v, backendServiceProp)) {
@@ -103,11 +108,20 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 	}
 
 	log.Printf("[DEBUG] Creating new BackendServiceSignedUrlKey: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendServiceSignedUrlKey: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating BackendServiceSignedUrlKey: %s", err)
 	}
@@ -120,8 +134,8 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 	d.SetId(id)
 
 	err = computeOperationWaitTime(
-		config, res, project, "Creating BackendServiceSignedUrlKey",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		config, res, project, "Creating BackendServiceSignedUrlKey", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
@@ -136,17 +150,30 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 
 func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendServiceSignedUrlKey: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeBackendServiceSignedUrlKey %q", d.Id()))
 	}
@@ -167,7 +194,7 @@ func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading BackendServiceSignedUrlKey: %s", err)
 	}
 
-	if err := d.Set("name", flattenComputeBackendServiceSignedUrlKeyName(res["keyName"], d)); err != nil {
+	if err := d.Set("name", flattenNestedComputeBackendServiceSignedUrlKeyName(res["keyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendServiceSignedUrlKey: %s", err)
 	}
 
@@ -176,11 +203,18 @@ func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta 
 
 func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for BackendServiceSignedUrlKey: %s", err)
+	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "signedUrlKey/{{project}}/backendServices/{{backend_service}}/")
 	if err != nil {
@@ -197,14 +231,19 @@ func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, met
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting BackendServiceSignedUrlKey %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "BackendServiceSignedUrlKey")
 	}
 
 	err = computeOperationWaitTime(
-		config, res, project, "Deleting BackendServiceSignedUrlKey",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, res, project, "Deleting BackendServiceSignedUrlKey", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -214,19 +253,19 @@ func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, met
 	return nil
 }
 
-func flattenComputeBackendServiceSignedUrlKeyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenNestedComputeBackendServiceSignedUrlKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func expandComputeBackendServiceSignedUrlKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeBackendServiceSignedUrlKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeBackendServiceSignedUrlKeyKeyValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeBackendServiceSignedUrlKeyKeyValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeBackendServiceSignedUrlKeyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeBackendServiceSignedUrlKeyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
@@ -267,10 +306,11 @@ func flattenNestedComputeBackendServiceSignedUrlKey(d *schema.ResourceData, meta
 }
 
 func resourceComputeBackendServiceSignedUrlKeyFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedName, err := expandComputeBackendServiceSignedUrlKeyName(d.Get("name"), d, meta.(*Config))
+	expectedName, err := expandNestedComputeBackendServiceSignedUrlKeyName(d.Get("name"), d, meta.(*Config))
 	if err != nil {
 		return -1, nil, err
 	}
+	expectedFlattenedName := flattenNestedComputeBackendServiceSignedUrlKeyName(expectedName, d, meta.(*Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -282,9 +322,10 @@ func resourceComputeBackendServiceSignedUrlKeyFindNestedObjectInList(d *schema.R
 			"keyName": itemRaw,
 		}
 
-		itemName := flattenComputeBackendServiceSignedUrlKeyName(item["keyName"], d)
-		if !reflect.DeepEqual(itemName, expectedName) {
-			log.Printf("[DEBUG] Skipping item with keyName= %#v, looking for %#v)", itemName, expectedName)
+		itemName := flattenNestedComputeBackendServiceSignedUrlKeyName(item["keyName"], d, meta.(*Config))
+		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
+			log.Printf("[DEBUG] Skipping item with keyName= %#v, looking for %#v)", itemName, expectedFlattenedName)
 			continue
 		}
 		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), item)

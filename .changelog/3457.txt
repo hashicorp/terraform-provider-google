@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: Fixed the `google_sheets_options` at least one of logic.
+```

@@ -3,9 +3,8 @@ package google
 import (
 	"fmt"
 	"log"
-	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleComposerImageVersions() *schema.Resource {
@@ -45,6 +44,10 @@ func dataSourceGoogleComposerImageVersions() *schema.Resource {
 
 func dataSourceGoogleComposerImageVersionsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -61,17 +64,23 @@ func dataSourceGoogleComposerImageVersionsRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	versions, err := paginatedListRequest(project, url, config, flattenGoogleComposerImageVersions)
+	versions, err := paginatedListRequest(project, url, userAgent, config, flattenGoogleComposerImageVersions)
 	if err != nil {
 		return fmt.Errorf("Error listing Composer image versions: %s", err)
 	}
 
 	log.Printf("[DEBUG] Received Composer Image Versions: %q", versions)
 
-	d.Set("image_versions", versions)
-	d.Set("region", region)
-	d.Set("project", project)
-	d.SetId(time.Now().UTC().String())
+	if err := d.Set("image_versions", versions); err != nil {
+		return fmt.Errorf("Error setting image_versions: %s", err)
+	}
+	if err := d.Set("region", region); err != nil {
+		return fmt.Errorf("Error setting region: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	d.SetId(fmt.Sprintf("projects/%s/regions/%s", project, region))
 
 	return nil
 }

@@ -1,0 +1,3 @@
+```release-note:bug
+all: updated base urls for compute, dns, storage, and bigquery APIs to their recommended endpoints
+```

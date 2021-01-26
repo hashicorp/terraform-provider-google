@@ -18,20 +18,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/storage.objectViewer",
 		"admin_role":    "roles/storage.admin",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -40,7 +39,7 @@ func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer", fmt.Sprintf("my-bucket%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer", fmt.Sprintf("tf-test-my-bucket%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -50,7 +49,7 @@ func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer", fmt.Sprintf("my-bucket%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer", fmt.Sprintf("tf-test-my-bucket%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -62,12 +61,12 @@ func TestAccStorageBucketIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/storage.objectViewer",
 		"admin_role":    "roles/storage.admin",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -77,7 +76,7 @@ func TestAccStorageBucketIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer user:admin@hashicorptest.com", fmt.Sprintf("my-bucket%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("b/%s roles/storage.objectViewer user:admin@hashicorptest.com", fmt.Sprintf("tf-test-my-bucket%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -88,14 +87,16 @@ func TestAccStorageBucketIamMemberGenerated(t *testing.T) {
 func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	// This may skip test, so do it first
+	sa := getTestServiceAccountFromEnv(t)
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/storage.objectViewer",
 		"admin_role":    "roles/storage.admin",
 	}
-	context["service_account"] = getTestServiceAccountFromEnv(t)
+	context["service_account"] = sa
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -104,7 +105,7 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("b/%s", fmt.Sprintf("my-bucket%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("b/%s", fmt.Sprintf("tf-test-my-bucket%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -113,7 +114,7 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("b/%s", fmt.Sprintf("my-bucket%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("b/%s", fmt.Sprintf("tf-test-my-bucket%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -124,12 +125,12 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 func testAccStorageBucketIamMember_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
-  name               = "my-bucket%{random_suffix}"
+  name               = "tf-test-my-bucket%{random_suffix}"
   bucket_policy_only = true
 }
 
 resource "google_storage_bucket_iam_member" "foo" {
-  bucket = "${google_storage_bucket.default.name}"
+  bucket = google_storage_bucket.default.name
   role = "%{role}"
   member = "user:admin@hashicorptest.com"
 }
@@ -139,7 +140,7 @@ resource "google_storage_bucket_iam_member" "foo" {
 func testAccStorageBucketIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
-  name               = "my-bucket%{random_suffix}"
+  name               = "tf-test-my-bucket%{random_suffix}"
   bucket_policy_only = true
 }
 
@@ -155,8 +156,8 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_storage_bucket_iam_policy" "foo" {
-  bucket = "${google_storage_bucket.default.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  bucket = google_storage_bucket.default.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -164,7 +165,7 @@ resource "google_storage_bucket_iam_policy" "foo" {
 func testAccStorageBucketIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
-  name               = "my-bucket%{random_suffix}"
+  name               = "tf-test-my-bucket%{random_suffix}"
   bucket_policy_only = true
 }
 
@@ -172,8 +173,8 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_storage_bucket_iam_policy" "foo" {
-  bucket = "${google_storage_bucket.default.name}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  bucket = google_storage_bucket.default.name
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -181,12 +182,12 @@ resource "google_storage_bucket_iam_policy" "foo" {
 func testAccStorageBucketIamBinding_basicGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
-  name               = "my-bucket%{random_suffix}"
+  name               = "tf-test-my-bucket%{random_suffix}"
   bucket_policy_only = true
 }
 
 resource "google_storage_bucket_iam_binding" "foo" {
-  bucket = "${google_storage_bucket.default.name}"
+  bucket = google_storage_bucket.default.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com"]
 }
@@ -196,12 +197,12 @@ resource "google_storage_bucket_iam_binding" "foo" {
 func testAccStorageBucketIamBinding_updateGenerated(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
-  name               = "my-bucket%{random_suffix}"
+  name               = "tf-test-my-bucket%{random_suffix}"
   bucket_policy_only = true
 }
 
 resource "google_storage_bucket_iam_binding" "foo" {
-  bucket = "${google_storage_bucket.default.name}"
+  bucket = google_storage_bucket.default.name
   role = "%{role}"
   members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
 }

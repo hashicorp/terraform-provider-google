@@ -102,12 +102,14 @@ The following arguments are supported:
 * `role` -
   (Optional)
   The access permission for the entity.
+  Possible values are `OWNER`, `READER`, and `WRITER`.
 
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `{{bucket}}/{{entity}}`
 
 * `domain` -
   The domain associated with the entity.
@@ -127,11 +129,9 @@ This resource provides the following
 
 ## Import
 
+
 BucketAccessControl can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_storage_bucket_access_control.default {{bucket}}/{{entity}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.

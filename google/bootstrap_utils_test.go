@@ -9,7 +9,9 @@ import (
 	"time"
 
 	"google.golang.org/api/cloudkms/v1"
+	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/iam/v1"
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 var SharedKeyRing = "tftest-shared-keyring-1"
@@ -50,10 +52,12 @@ func BootstrapKMSKeyWithPurpose(t *testing.T, purpose string) bootstrappedKMS {
 * a KMS key.
 **/
 func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID string) bootstrappedKMS {
-	if v := os.Getenv("TF_ACC"); v == "" {
-		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+	return BootstrapKMSKeyWithPurposeInLocationAndName(t, purpose, locationID, SharedCryptoKey[purpose])
+}
 
-		// If not running acceptance tests, return an empty object
+func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, locationID, keyShortName string) bootstrappedKMS {
+	config := BootstrapConfig(t)
+	if config == nil {
 		return bootstrappedKMS{
 			&cloudkms.KeyRing{},
 			&cloudkms.CryptoKey{},
@@ -64,23 +68,10 @@ func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID stri
 	keyRingParent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
 	keyRingName := fmt.Sprintf("%s/keyRings/%s", keyRingParent, SharedKeyRing)
 	keyParent := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", projectID, locationID, SharedKeyRing)
-	keyName := fmt.Sprintf("%s/cryptoKeys/%s", keyParent, SharedCryptoKey[purpose])
-
-	config := &Config{
-		Credentials: getTestCredsFromEnv(),
-		Project:     getTestProjectFromEnv(),
-		Region:      getTestRegionFromEnv(),
-		Zone:        getTestZoneFromEnv(),
-	}
-
-	ConfigureBasePaths(config)
-
-	if err := config.LoadAndValidate(context.Background()); err != nil {
-		t.Errorf("Unable to bootstrap KMS key: %s", err)
-	}
+	keyName := fmt.Sprintf("%s/cryptoKeys/%s", keyParent, keyShortName)
 
 	// Get or Create the hard coded shared keyring for testing
-	kmsClient := config.clientKms
+	kmsClient := config.NewKmsClient(config.userAgent)
 	keyRing, err := kmsClient.Projects.Locations.KeyRings.Get(keyRingName).Do()
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {
@@ -117,7 +108,7 @@ func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID stri
 			}
 
 			cryptoKey, err = kmsClient.Projects.Locations.KeyRings.CryptoKeys.Create(keyParent, &newKey).
-				CryptoKeyId(SharedCryptoKey[purpose]).Do()
+				CryptoKeyId(keyShortName).Do()
 			if err != nil {
 				t.Errorf("Unable to bootstrap KMS key. Cannot create new CryptoKey: %s", err)
 			}
@@ -147,7 +138,7 @@ func getOrCreateServiceAccount(config *Config, project string) (*iam.ServiceAcco
 	name := fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", project, serviceAccountEmail, project)
 	log.Printf("[DEBUG] Verifying %s as bootstrapped service account.\n", name)
 
-	sa, err := config.clientIAM.Projects.ServiceAccounts.Get(name).Do()
+	sa, err := config.NewIamClient(config.userAgent).Projects.ServiceAccounts.Get(name).Do()
 	if err != nil && !isGoogleApiErrorWithCode(err, 404) {
 		return nil, err
 	}
@@ -162,7 +153,7 @@ func getOrCreateServiceAccount(config *Config, project string) (*iam.ServiceAcco
 			AccountId:      serviceAccountEmail,
 			ServiceAccount: sa,
 		}
-		sa, err = config.clientIAM.Projects.ServiceAccounts.Create("projects/"+project, r).Do()
+		sa, err = config.NewIamClient(config.userAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
 		if err != nil {
 			return nil, err
 		}
@@ -190,7 +181,7 @@ func impersonationServiceAccountPermissions(config *Config, sa *iam.ServiceAccou
 	// Overwrite the roles each time on this service account. This is because this account is
 	// only created for the test suite and will stop snowflaking of permissions to get tests
 	// to run. Overwriting permissions on 1 service account shouldn't affect others.
-	_, err := config.clientIAM.Projects.ServiceAccounts.SetIamPolicy(sa.Name, &iam.SetIamPolicyRequest{
+	_, err := config.NewIamClient(config.userAgent).Projects.ServiceAccounts.SetIamPolicy(sa.Name, &iam.SetIamPolicyRequest{
 		Policy: &policy,
 	}).Do()
 	if err != nil {
@@ -201,22 +192,9 @@ func impersonationServiceAccountPermissions(config *Config, sa *iam.ServiceAccou
 }
 
 func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
-	if v := os.Getenv("TF_ACC"); v == "" {
-		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+	config := BootstrapConfig(t)
+	if config == nil {
 		return ""
-	}
-
-	config := &Config{
-		Credentials: getTestCredsFromEnv(),
-		Project:     getTestProjectFromEnv(),
-		Region:      getTestRegionFromEnv(),
-		Zone:        getTestZoneFromEnv(),
-	}
-
-	ConfigureBasePaths(config)
-
-	if err := config.LoadAndValidate(context.Background()); err != nil {
-		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
 	}
 
 	sa, err := getOrCreateServiceAccount(config, project)
@@ -234,34 +212,25 @@ func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 
 const SharedTestNetworkPrefix = "tf-bootstrap-net-"
 
-// BootstrapSharedServiceNetworkingConsumerNetwork will return a shared compute network
-// for service networking test to prevent hitting limits on tenancy projects.
+// BootstrapSharedTestNetwork will return a shared compute network
+// for a test or set of tests. Often resources create complementing
+// tenant network resources, which we don't control and which don't get cleaned
+// up after our owned resource is deleted in test. These tenant resources
+// have quotas, so creating a shared test network prevents hitting these limits.
 //
-// This will either return an existing network or create one if it hasn't been created
-// in the project yet. One consumer network/tenant project we don't own is created
-// per producer network (i.e. network created by test), with a hard limit set.
-func BootstrapSharedServiceNetworkingConsumerNetwork(t *testing.T, testId string) string {
-	if v := os.Getenv("TF_ACC"); v == "" {
-		log.Println("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
-		// If not running acceptance tests, return an empty string
+// testId specifies the test/suite for which a shared network is used/initialized.
+// Returns the name of an network, creating it if hasn't been created in the test projcet.
+func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
+	project := getTestProjectFromEnv()
+	networkName := SharedTestNetworkPrefix + testId
+
+	config := BootstrapConfig(t)
+	if config == nil {
 		return ""
 	}
 
-	project := getTestProjectFromEnv()
-	networkName := SharedTestNetworkPrefix + testId
-	config := &Config{
-		Credentials: getTestCredsFromEnv(),
-		Project:     project,
-		Region:      getTestRegionFromEnv(),
-		Zone:        getTestZoneFromEnv(),
-	}
-	ConfigureBasePaths(config)
-	if err := config.LoadAndValidate(context.Background()); err != nil {
-		t.Errorf("Unable to bootstrap network: %s", err)
-	}
-
 	log.Printf("[DEBUG] Getting shared test network %q", networkName)
-	_, err := config.clientCompute.Networks.Get(project, networkName).Do()
+	_, err := config.NewComputeClient(config.userAgent).Networks.Get(project, networkName).Do()
 	if err != nil && isGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Network %q not found, bootstrapping", networkName)
 		url := fmt.Sprintf("%sprojects/%s/global/networks", config.ComputeBasePath, project)
@@ -270,19 +239,19 @@ func BootstrapSharedServiceNetworkingConsumerNetwork(t *testing.T, testId string
 			"autoCreateSubnetworks": false,
 		}
 
-		res, err := sendRequestWithTimeout(config, "POST", project, url, netObj, 4*time.Minute)
+		res, err := sendRequestWithTimeout(config, "POST", project, url, config.userAgent, netObj, 4*time.Minute)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared test network %q: %s", networkName, err)
 		}
 
 		log.Printf("[DEBUG] Waiting for network creation to finish")
-		err = computeOperationWaitTime(config, res, project, "Error bootstrapping shared test network", 4)
+		err = computeOperationWaitTime(config, res, project, "Error bootstrapping shared test network", config.userAgent, 4*time.Minute)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared test network %q: %s", networkName, err)
 		}
 	}
 
-	network, err := config.clientCompute.Networks.Get(project, networkName).Do()
+	network, err := config.NewComputeClient(config.userAgent).Networks.Get(project, networkName).Do()
 	if err != nil {
 		t.Errorf("Error getting shared test network %q: %s", networkName, err)
 	}
@@ -290,4 +259,154 @@ func BootstrapSharedServiceNetworkingConsumerNetwork(t *testing.T, testId string
 		t.Fatalf("Error getting shared test network %q: is nil", networkName)
 	}
 	return network.Name
+}
+
+var SharedServicePerimeterProjectPrefix = "tf-bootstrap-sp-"
+
+func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*cloudresourcemanager.Project {
+	config := BootstrapConfig(t)
+	if config == nil {
+		return nil
+	}
+
+	org := getTestOrgFromEnv(t)
+
+	// The filter endpoint works differently if you provide both the parent id and parent type, and
+	// doesn't seem to allow for prefix matching. Don't change this to include the parent type unless
+	// that API behavior changes.
+	prefixFilter := fmt.Sprintf("id:%s* parent.id:%s", SharedServicePerimeterProjectPrefix, org)
+	res, err := config.NewResourceManagerClient(config.userAgent).Projects.List().Filter(prefixFilter).Do()
+	if err != nil {
+		t.Fatalf("Error getting shared test projects: %s", err)
+	}
+
+	projects := res.Projects
+	for len(projects) < desiredProjects {
+		pid := SharedServicePerimeterProjectPrefix + randString(t, 10)
+		project := &cloudresourcemanager.Project{
+			ProjectId: pid,
+			Name:      "TF Service Perimeter Test",
+			Parent: &cloudresourcemanager.ResourceId{
+				Type: "organization",
+				Id:   org,
+			},
+		}
+		op, err := config.NewResourceManagerClient(config.userAgent).Projects.Create(project).Do()
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared test project: %s", err)
+		}
+
+		opAsMap, err := ConvertToMap(op)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared test project: %s", err)
+		}
+
+		err = resourceManagerOperationWaitTime(config, opAsMap, "creating project", config.userAgent, 4)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared test project: %s", err)
+		}
+
+		p, err := config.NewResourceManagerClient(config.userAgent).Projects.Get(pid).Do()
+		if err != nil {
+			t.Fatalf("Error getting shared test project: %s", err)
+		}
+		projects = append(projects, p)
+	}
+
+	return projects
+}
+
+func BootstrapConfig(t *testing.T) *Config {
+	if v := os.Getenv("TF_ACC"); v == "" {
+		t.Skip("Acceptance tests and bootstrapping skipped unless env 'TF_ACC' set")
+		return nil
+	}
+
+	config := &Config{
+		Credentials: getTestCredsFromEnv(),
+		Project:     getTestProjectFromEnv(),
+		Region:      getTestRegionFromEnv(),
+		Zone:        getTestZoneFromEnv(),
+	}
+
+	ConfigureBasePaths(config)
+
+	if err := config.LoadAndValidate(context.Background()); err != nil {
+		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
+	}
+	return config
+}
+
+// SQL Instance names are not reusable for a week after deletion
+const SharedTestSQLInstanceName = "tf-bootstrap-do-not-delete"
+
+// BootstrapSharedSQLInstanceBackupRun will return a shared SQL db instance that
+// has a backup created for it.
+func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
+	project := getTestProjectFromEnv()
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+
+	log.Printf("[DEBUG] Getting shared test sql instance %s", SharedTestSQLInstanceName)
+
+	instance, err := config.NewSqlAdminClient(config.userAgent).Instances.Get(project, SharedTestSQLInstanceName).Do()
+	if err != nil {
+		if isGoogleApiErrorWithCode(err, 404) {
+			log.Printf("[DEBUG] SQL Instance %q not found, bootstrapping", SharedTestSQLInstanceName)
+			settings := &sqladmin.Settings{
+				Tier: "db-f1-micro",
+			}
+			instance = &sqladmin.DatabaseInstance{
+				Name:            SharedTestSQLInstanceName,
+				Region:          "us-central1",
+				Settings:        settings,
+				DatabaseVersion: "POSTGRES_11",
+			}
+
+			var op *sqladmin.Operation
+			err = retryTimeDuration(func() (operr error) {
+				op, operr = config.NewSqlAdminClient(config.userAgent).Instances.Insert(project, instance).Do()
+				return operr
+			}, time.Duration(20)*time.Minute, isSqlOperationInProgressError)
+			if err != nil {
+				t.Fatalf("Error, failed to create instance %s: %s", instance.Name, err)
+			}
+			err = sqlAdminOperationWaitTime(config, op, project, "Create Instance", config.userAgent, time.Duration(20)*time.Minute)
+			if err != nil {
+				t.Fatalf("Error, failed to create instance %s: %s", instance.Name, err)
+			}
+		} else {
+			t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve instance: %s", err)
+		}
+	}
+
+	res, err := config.NewSqlAdminClient(config.userAgent).BackupRuns.List(project, instance.Name).Do()
+	if err != nil {
+		t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve backup list: %s", err)
+	}
+	backupsList := res.Items
+	if len(backupsList) == 0 {
+		log.Printf("[DEBUG] No backups found for %s, creating backup", SharedTestSQLInstanceName)
+		backupRun := &sqladmin.BackupRun{
+			Instance: instance.Name,
+		}
+
+		var op *sqladmin.Operation
+		err = retryTimeDuration(func() (operr error) {
+			op, operr = config.NewSqlAdminClient(config.userAgent).BackupRuns.Insert(project, instance.Name, backupRun).Do()
+			return operr
+		}, time.Duration(20)*time.Minute, isSqlOperationInProgressError)
+		if err != nil {
+			t.Fatalf("Error, failed to create instance backup: %s", err)
+		}
+		err = sqlAdminOperationWaitTime(config, op, project, "Backup Instance", config.userAgent, time.Duration(20)*time.Minute)
+		if err != nil {
+			t.Fatalf("Error, failed to create instance backup: %s", err)
+		}
+	}
+
+	return instance.Name
 }

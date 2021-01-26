@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed an issue where `google_sql_database_instance` would throw an error when removing `private_network`. Removing `private_network` now recreates the resource.
+```

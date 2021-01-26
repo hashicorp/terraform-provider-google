@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added network field to `compute_target_instance`
+```

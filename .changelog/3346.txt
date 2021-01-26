@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: Added field `log_config` to `google_compute_health_check` and `google_compute_region_health_check` to enable health check logging.
+```

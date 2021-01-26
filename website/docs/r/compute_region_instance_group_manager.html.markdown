@@ -11,10 +11,15 @@ description: |-
 
 The Google Compute Engine Regional Instance Group Manager API creates and manages pools
 of homogeneous Compute Engine virtual machine instances from a common instance
-template. For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups)
-and [API](https://cloud.google.com/compute/docs/reference/latest/regionInstanceGroupManagers)
+template.
 
-~> **Note:** Use [google_compute_instance_group_manager](/docs/providers/google/r/compute_instance_group_manager.html) to create a single-zone instance group manager.
+To get more information about regionInstanceGroupManagers, see:
+
+* [API documentation](https://cloud.google.com/compute/docs/reference/latest/regionInstanceGroupManagers)
+* How-to Guides
+    * [Regional Instance Groups Guide](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups)
+
+~> **Note:** Use [google_compute_instance_group_manager](/docs/providers/google/r/compute_instance_group_manager.html) to create a zonal instance group manager.
 
 ## Example Usage with top level instance template (`google` provider)
 
@@ -40,10 +45,10 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   distribution_policy_zones  = ["us-central1-a", "us-central1-f"]
 
   version {
-    instance_template = google_compute_instance_template.appserver.self_link
+    instance_template = google_compute_instance_template.appserver.id
   }
 
-  target_pools = [google_compute_target_pool.appserver.self_link]
+  target_pools = [google_compute_target_pool.appserver.id]
   target_size  = 2
 
   named_port {
@@ -52,7 +57,7 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   }
 
   auto_healing_policies {
-    health_check      = google_compute_health_check.autohealing.self_link
+    health_check      = google_compute_health_check.autohealing.id
     initial_delay_sec = 300
   }
 }
@@ -69,11 +74,11 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   target_size = 5
 
   version {
-    instance_template = google_compute_instance_template.appserver.self_link
+    instance_template = google_compute_instance_template.appserver.id
   }
 
   version {
-    instance_template = google_compute_instance_template.appserver-canary.self_link
+    instance_template = google_compute_instance_template.appserver-canary.id
     target_size {
       fixed = 1
     }
@@ -101,7 +106,7 @@ The following arguments are supported:
     [RFC1035](https://www.ietf.org/rfc/rfc1035.txt). Supported characters
     include lowercase letters, numbers, and hyphens.
 
-* `region` - (Required) The region where the managed instance group resides.
+* `region` - (Optional) The region where the managed instance group resides. If not provided, the provider region is used.
 
 - - -
 
@@ -137,6 +142,11 @@ group. You can specify only one value. Structure is documented below. For more i
 
 * `distribution_policy_zones` - (Optional) The distribution policy for this managed instance
 group. You can specify one or more values. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups#selectingzones).
+
+* `distribution_policy_target_shape` - (Optional) The shape to which the group converges either proactively or on resize events (depending on the value set in update_policy.0.instance_redistribution_type). For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/regional-mig-distribution-shape).
+
+* `stateful_disk` - (Optional) Disks created on the instances that will be preserved on instance delete, update, etc. Structure is documented below. For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/configuring-stateful-disks-in-migs). Proactive cross zone instance redistribution must be disabled before you can update stateful disks on existing instance group managers. This can be controlled via the `update_policy`.
+
 - - -
 
 The `update_policy` block supports:
@@ -188,7 +198,7 @@ The `version` block supports:
 ```hcl
 version {
   name              = "appserver-canary"
-  instance_template = google_compute_instance_template.appserver-canary.self_link
+  instance_template = google_compute_instance_template.appserver-canary.id
 
   target_size {
     fixed = 1
@@ -199,7 +209,7 @@ version {
 ```hcl
 version {
   name              = "appserver-canary"
-  instance_template = google_compute_instance_template.appserver-canary.self_link
+  instance_template = google_compute_instance_template.appserver-canary.id
 
   target_size {
     percent = 20
@@ -224,10 +234,18 @@ The `target_size` block supports:
 Note that when using `percent`, rounding will be in favor of explicitly set `target_size` values; a managed instance group with 2 instances and 2 `version`s,
 one of which has a `target_size.percent` of `60` will create 2 instances of that `version`.
 
+The `stateful_disk` block supports: (Include a `stateful_disk` block for each stateful disk required).
+
+* `device_name` - (Required), The device name of the disk to be attached.
+
+* `delete_rule` - (Optional), A value that prescribes what should happen to the stateful disk when the VM instance is deleted. The available options are `NEVER` and `ON_PERMANENT_INSTANCE_DELETION`. `NEVER` - detach the disk when the VM is deleted, but do not delete the disk. `ON_PERMANENT_INSTANCE_DELETION` will delete the stateful disk when the VM is permanently deleted from the instance group. The default is `NEVER`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
+
+* `id` - an identifier for the resource with format `{{disk.name}}`
 
 * `fingerprint` - The fingerprint of the instance group manager.
 

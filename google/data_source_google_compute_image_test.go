@@ -4,21 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataSourceComputeImage(t *testing.T) {
 	t.Parallel()
 
-	family := acctest.RandomWithPrefix("tf-test")
-	name := acctest.RandomWithPrefix("tf-test")
+	family := fmt.Sprintf("tf-test-%d", randInt(t))
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeImageDestroy,
+		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourcePublicImageConfig,
@@ -34,6 +33,38 @@ func TestAccDataSourceComputeImage(t *testing.T) {
 					resource.TestCheckResourceAttr("data.google_compute_image.from_name",
 						"family", family),
 					resource.TestCheckResourceAttrSet("data.google_compute_image.from_name",
+						"self_link"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceComputeImageFilter(t *testing.T) {
+	t.Parallel()
+
+	family := fmt.Sprintf("tf-test-%d", randInt(t))
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourcePublicImageConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceCheckPublicImage(),
+				),
+			},
+			{
+				Config: testAccDataSourceCustomImageFilter(family, name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.google_compute_image.from_filter",
+						"name", name),
+					resource.TestCheckResourceAttr("data.google_compute_image.from_filter",
+						"family", family),
+					resource.TestCheckResourceAttrSet("data.google_compute_image.from_filter",
 						"self_link"),
 				),
 			},
@@ -105,4 +136,28 @@ data "google_compute_image" "from_family" {
   family  = google_compute_image.image.family
 }
 `, family, name, name)
+}
+
+func testAccDataSourceCustomImageFilter(family, name string) string {
+	return fmt.Sprintf(`
+resource "google_compute_image" "image" {
+  family      = "%s"
+  name        = "%s"
+  source_disk = google_compute_disk.disk.self_link
+  labels = {
+	test = "%s"
+  }
+}
+
+resource "google_compute_disk" "disk" {
+  name = "%s-disk"
+  zone = "us-central1-b"
+}
+
+data "google_compute_image" "from_filter" {
+  project = google_compute_image.image.project
+  filter  = "labels.test = %s"
+}
+
+`, family, name, name, name, name)
 }

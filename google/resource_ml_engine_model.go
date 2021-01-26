@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceMLEngineModel() *schema.Resource {
@@ -106,11 +106,16 @@ Currently only one region per model is supported`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	nameProp, err := expandMLEngineModelName(d.Get("name"), d, config)
@@ -162,11 +167,20 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Creating new Model: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Model: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Model: %s", err)
 	}
@@ -185,17 +199,30 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return err
 	}
 
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Model: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MLEngineModel %q", d.Id()))
 	}
@@ -204,25 +231,25 @@ func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
 
-	if err := d.Set("name", flattenMLEngineModelName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenMLEngineModelName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("description", flattenMLEngineModelDescription(res["description"], d)); err != nil {
+	if err := d.Set("description", flattenMLEngineModelDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("default_version", flattenMLEngineModelDefaultVersion(res["defaultVersion"], d)); err != nil {
+	if err := d.Set("default_version", flattenMLEngineModelDefaultVersion(res["defaultVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("regions", flattenMLEngineModelRegions(res["regions"], d)); err != nil {
+	if err := d.Set("regions", flattenMLEngineModelRegions(res["regions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("online_prediction_logging", flattenMLEngineModelOnlinePredictionLogging(res["onlinePredictionLogging"], d)); err != nil {
+	if err := d.Set("online_prediction_logging", flattenMLEngineModelOnlinePredictionLogging(res["onlinePredictionLogging"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("online_prediction_console_logging", flattenMLEngineModelOnlinePredictionConsoleLogging(res["onlinePredictionConsoleLogging"], d)); err != nil {
+	if err := d.Set("online_prediction_console_logging", flattenMLEngineModelOnlinePredictionConsoleLogging(res["onlinePredictionConsoleLogging"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
-	if err := d.Set("labels", flattenMLEngineModelLabels(res["labels"], d)); err != nil {
+	if err := d.Set("labels", flattenMLEngineModelLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
 
@@ -231,11 +258,18 @@ func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMLEngineModelDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Model: %s", err)
+	}
+	billingProject = project
 
 	url, err := replaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
 	if err != nil {
@@ -245,14 +279,19 @@ func resourceMLEngineModelDelete(d *schema.ResourceData, meta interface{}) error
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Model %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete))
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Model")
 	}
 
 	err = mLEngineOperationWaitTime(
-		config, res, project, "Deleting Model",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, res, project, "Deleting Model", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
@@ -282,18 +321,18 @@ func resourceMLEngineModelImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMLEngineModelName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenMLEngineModelDescription(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMLEngineModelDefaultVersion(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelDefaultVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -303,26 +342,26 @@ func flattenMLEngineModelDefaultVersion(v interface{}, d *schema.ResourceData) i
 	}
 	transformed := make(map[string]interface{})
 	transformed["name"] =
-		flattenMLEngineModelDefaultVersionName(original["name"], d)
+		flattenMLEngineModelDefaultVersionName(original["name"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMLEngineModelDefaultVersionName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelDefaultVersionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMLEngineModelRegions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelRegions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMLEngineModelOnlinePredictionLogging(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelOnlinePredictionLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMLEngineModelOnlinePredictionConsoleLogging(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelOnlinePredictionConsoleLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMLEngineModelLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMLEngineModelLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 

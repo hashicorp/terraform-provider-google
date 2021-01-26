@@ -22,7 +22,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceKMSSecretCiphertext() *schema.Resource {
@@ -51,17 +51,29 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}/crypt
 				Description: `The plaintext to be encrypted.`,
 				Sensitive:   true,
 			},
+			"additional_authenticated_data": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The additional authenticated data used for integrity checks during encryption and decryption.`,
+				Sensitive:   true,
+			},
 			"ciphertext": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Contains the result of encrypting the provided plaintext, encoded in base64.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	plaintextProp, err := expandKMSSecretCiphertextPlaintext(d.Get("plaintext"), d, config)
@@ -70,6 +82,12 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("plaintext"); !isEmptyValue(reflect.ValueOf(plaintextProp)) && (ok || !reflect.DeepEqual(v, plaintextProp)) {
 		obj["plaintext"] = plaintextProp
 	}
+	additionalAuthenticatedDataProp, err := expandKMSSecretCiphertextAdditionalAuthenticatedData(d.Get("additional_authenticated_data"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("additional_authenticated_data"); !isEmptyValue(reflect.ValueOf(additionalAuthenticatedDataProp)) && (ok || !reflect.DeepEqual(v, additionalAuthenticatedDataProp)) {
+		obj["additionalAuthenticatedData"] = additionalAuthenticatedDataProp
+	}
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}:encrypt")
 	if err != nil {
@@ -77,11 +95,18 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Creating new SecretCiphertext: %#v", obj)
-	var project string
+	billingProject := ""
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate))
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating SecretCiphertext: %s", err)
 	}
@@ -100,7 +125,9 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	if !ok {
 		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 	}
-	d.Set("ciphertext", ciphertext.(string))
+	if err := d.Set("ciphertext", ciphertext.(string)); err != nil {
+		return fmt.Errorf("Error setting ciphertext: %s", err)
+	}
 
 	id, err = replaceVars(d, config, "{{crypto_key}}/{{ciphertext}}")
 	if err != nil {
@@ -113,17 +140,28 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 
 func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	url, err := replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}")
 	if err != nil {
 		return err
 	}
 
-	var project string
+	billingProject := ""
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
-		project = parts[1]
+		billingProject = parts[1]
 	}
-	res, err := sendRequest(config, "GET", project, url, nil)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("KMSSecretCiphertext %q", d.Id()))
 	}
@@ -145,14 +183,22 @@ func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceKMSSecretCiphertextDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[WARNING] KMS SecretCiphertext resources"+
-		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
-		" state, but will still be present on the server.", d.Id())
+		" cannot be deleted from Google Cloud. The resource %s will be removed from Terraform"+
+		" state, but will still be present on Google Cloud.", d.Id())
 	d.SetId("")
 
 	return nil
 }
 
 func expandKMSSecretCiphertextPlaintext(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	return base64.StdEncoding.EncodeToString([]byte(v.(string))), nil
+}
+
+func expandKMSSecretCiphertextAdditionalAuthenticatedData(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}

@@ -18,19 +18,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -61,11 +60,11 @@ func TestAccIapAppEngineVersionIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -87,11 +86,11 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 	}
 
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -200,7 +199,7 @@ resource "google_iap_app_engine_version_iam_policy" "foo" {
   app_id = "${google_app_engine_standard_app_version.version.project}"
   service = "${google_app_engine_standard_app_version.version.service}"
   version_id = "${google_app_engine_standard_app_version.version.version_id}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }
@@ -243,7 +242,7 @@ resource "google_iap_app_engine_version_iam_policy" "foo" {
   app_id = "${google_app_engine_standard_app_version.version.project}"
   service = "${google_app_engine_standard_app_version.version.service}"
   version_id = "${google_app_engine_standard_app_version.version.version_id}"
-  policy_data = "${data.google_iam_policy.foo.policy_data}"
+  policy_data = data.google_iam_policy.foo.policy_data
 }
 `, context)
 }

@@ -1,0 +1,3 @@
+```release-note:bug
+spanner: fixed an issue in `google_spanner_database` where multi-statement updates were not formatted correctly
+```

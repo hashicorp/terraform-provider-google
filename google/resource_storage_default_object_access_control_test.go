@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccStorageDefaultObjectAccessControl_update(t *testing.T) {
 	t.Parallel()
 
-	bucketName := testBucketName()
-	resource.Test(t, resource.TestCase{
+	bucketName := testBucketName(t)
+	vcrTest(t, resource.TestCase{
 		PreCheck: func() {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
@@ -19,7 +19,7 @@ func TestAccStorageDefaultObjectAccessControl_update(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageDefaultObjectAccessControlDestroy,
+		CheckDestroy: testAccCheckStorageDefaultObjectAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageDefaultObjectAccessControlBasic(bucketName, "READER", "allUsers"),

@@ -27,7 +27,7 @@ A Cloud TPU instance.
 
 To get more information about Node, see:
 
-* [API documentation](https://cloud.google.com/tpu/docs/reference/rest/)
+* [API documentation](https://cloud.google.com/tpu/docs/reference/rest/v1/projects.locations.nodes)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/tpu/docs/)
 
@@ -72,11 +72,11 @@ resource "google_tpu_node" "tpu" {
 
   accelerator_type = "v3-8"
 
-  cidr_block         = "10.3.0.0/29"
   tensorflow_version = data.google_tpu_tensorflow_versions.available.versions[0]
 
   description = "Terraform Google Provider test TPU"
-  network = "default"
+  use_service_networking = true
+  network = google_service_networking_connection.private_service_connection.network
 
   labels = {
     foo = "bar"
@@ -85,6 +85,24 @@ resource "google_tpu_node" "tpu" {
   scheduling_config {
     preemptible = true
   }
+}
+
+data "google_compute_network" "network" {
+  name = "default"
+}
+
+resource "google_compute_global_address" "service_range" {
+  name          = "tf-test%{random_suffix}"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = data.google_compute_network.network.id
+}
+
+resource "google_service_networking_connection" "private_service_connection" {
+  network                 = data.google_compute_network.network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
 ```
 
@@ -105,21 +123,6 @@ The following arguments are supported:
   (Required)
   The version of Tensorflow running in the Node.
 
-* `cidr_block` -
-  (Required)
-  The CIDR block that the TPU node will use when selecting an IP
-  address. This CIDR block must be a /29 block; the Compute Engine
-  networks API forbids a smaller block, and using a larger block would
-  be wasteful (a node can only consume one IP address).
-  Errors will occur if the CIDR block has already been used for a
-  currently existing TPU node, the CIDR block conflicts with any
-  subnetworks in the user's provided network, or the provided network
-  is peered with another network that is using that CIDR block.
-
-* `zone` -
-  (Required)
-  The GCP location for the TPU.
-
 
 - - -
 
@@ -135,13 +138,36 @@ The following arguments are supported:
   this API has been activated. If none is provided, "default" will be
   used.
 
+* `cidr_block` -
+  (Optional)
+  The CIDR block that the TPU node will use when selecting an IP
+  address. This CIDR block must be a /29 block; the Compute Engine
+  networks API forbids a smaller block, and using a larger block would
+  be wasteful (a node can only consume one IP address).
+  Errors will occur if the CIDR block has already been used for a
+  currently existing TPU node, the CIDR block conflicts with any
+  subnetworks in the user's provided network, or the provided network
+  is peered with another network that is using that CIDR block.
+
+* `use_service_networking` -
+  (Optional)
+  Whether the VPC peering for the node is set up through Service Networking API.
+  The VPC Peering should be set up before provisioning the node. If this field is set,
+  cidr_block field should not be specified. If the network that you want to peer the
+  TPU Node to is a Shared VPC network, the node must be created with this this field enabled.
+
 * `scheduling_config` -
   (Optional)
-  Sets the scheduling options for this TPU instance.  Structure is documented below.
+  Sets the scheduling options for this TPU instance.
+  Structure is documented below.
 
 * `labels` -
   (Optional)
   Resource labels to represent user provided metadata.
+
+* `zone` -
+  (Optional)
+  The GCP location for the TPU. If it is not provided, the provider zone is used.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -157,6 +183,7 @@ The `scheduling_config` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{zone}}/nodes/{{name}}`
 
 * `service_account` -
   The service account used to run the tensor flow services within the
@@ -167,7 +194,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `network_endpoints` -
   The network endpoints where TPU workers can be accessed and sent work.
   It is recommended that Tensorflow clients of the node first reach out
-  to the first (index 0) entry.  Structure is documented below.
+  to the first (index 0) entry.
+  Structure is documented below.
 
 
 The `network_endpoints` block contains:
@@ -189,6 +217,7 @@ This resource provides the following
 
 ## Import
 
+
 Node can be imported using any of these accepted formats:
 
 ```
@@ -197,9 +226,6 @@ $ terraform import google_tpu_node.default {{project}}/{{zone}}/{{name}}
 $ terraform import google_tpu_node.default {{zone}}/{{name}}
 $ terraform import google_tpu_node.default {{name}}
 ```
-
--> If you're importing a resource with beta features, make sure to include `-provider=google-beta`
-as an argument so that Terraform uses the correct provider to import your resource.
 
 ## User Project Overrides
 

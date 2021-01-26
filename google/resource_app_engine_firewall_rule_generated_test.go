@@ -19,9 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(t *testing.T) {
@@ -29,13 +28,16 @@ func TestAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(t *testing.T
 
 	context := map[string]interface{}{
 		"org_id":        getTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(10),
+		"random_suffix": randString(t, 10),
 	}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAppEngineFirewallRuleDestroy,
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckAppEngineFirewallRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(context),
@@ -53,7 +55,7 @@ func testAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(context map[
 	return Nprintf(`
 resource "google_project" "my_project" {
   name       = "tf-test-project"
-  project_id = "tf-test-project%{random_suffix}"
+  project_id = "tf-test-ae-project%{random_suffix}"
   org_id     = "%{org_id}"
 }
 
@@ -71,27 +73,35 @@ resource "google_app_engine_firewall_rule" "rule" {
 `, context)
 }
 
-func testAccCheckAppEngineFirewallRuleDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_app_engine_firewall_rule" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckAppEngineFirewallRuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_app_engine_firewall_rule" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := googleProviderConfig(t)
+
+			url, err := replaceVarsForTest(config, rs, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
+			if err == nil {
+				return fmt.Errorf("AppEngineFirewallRule still exists at %s", url)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		url, err := replaceVarsForTest(config, rs, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
-		if err != nil {
-			return err
-		}
-
-		_, err = sendRequest(config, "GET", "", url, nil)
-		if err == nil {
-			return fmt.Errorf("AppEngineFirewallRule still exists at %s", url)
-		}
+		return nil
 	}
-
-	return nil
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceGoogleSQLCaCerts() *schema.Resource {
@@ -61,6 +61,10 @@ func dataSourceGoogleSQLCaCerts() *schema.Resource {
 
 func dataSourceGoogleSQLCaCertsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	fv, err := parseProjectFieldValue("instances", d.Get("instance").(string), "project", d, config, false)
 	if err != nil {
@@ -71,16 +75,22 @@ func dataSourceGoogleSQLCaCertsRead(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Fetching CA certs from instance %s", instance)
 
-	response, err := config.clientSqlAdmin.Instances.ListServerCas(project, instance).Do()
+	response, err := config.NewSqlAdminClient(userAgent).Instances.ListServerCas(project, instance).Do()
 	if err != nil {
 		return fmt.Errorf("error retrieving CA certs: %s", err)
 	}
 
 	log.Printf("[DEBUG] Fetched CA certs from instance %s", instance)
 
-	d.Set("project", project)
-	d.Set("certs", flattenServerCaCerts(response.Certs))
-	d.Set("active_version", response.ActiveVersion)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("certs", flattenServerCaCerts(response.Certs)); err != nil {
+		return fmt.Errorf("Error setting certs: %s", err)
+	}
+	if err := d.Set("active_version", response.ActiveVersion); err != nil {
+		return fmt.Errorf("Error setting active_version: %s", err)
+	}
 	d.SetId(fmt.Sprintf("projects/%s/instance/%s", project, instance))
 
 	return nil

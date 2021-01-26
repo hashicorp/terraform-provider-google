@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-version"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	composer "google.golang.org/api/composer/v1beta1"
 )
 
@@ -76,23 +76,27 @@ func resourceComposerEnvironment() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateGCPName,
+				Description:  `Name of the environment.`,
 			},
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The location or Compute Engine region for the environment.`,
 			},
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 			"config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				MaxItems: 1,
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `Configuration parameters for this environment.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"node_count": {
@@ -101,6 +105,7 @@ func resourceComposerEnvironment() *schema.Resource {
 							Optional:     true,
 							AtLeastOneOf: composerConfigKeys,
 							ValidateFunc: validation.IntAtLeast(3),
+							Description:  `The number of nodes in the Kubernetes Engine cluster that will be used to run this environment.`,
 						},
 						"node_config": {
 							Type:         schema.TypeList,
@@ -108,6 +113,7 @@ func resourceComposerEnvironment() *schema.Resource {
 							Optional:     true,
 							AtLeastOneOf: composerConfigKeys,
 							MaxItems:     1,
+							Description:  `The configuration used for the Kubernetes Engine cluster.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"zone": {
@@ -115,6 +121,7 @@ func resourceComposerEnvironment() *schema.Resource {
 										Required:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: compareSelfLinkOrResourceName,
+										Description:      `The Compute Engine zone in which to deploy the VMs running the Apache Airflow software, specified as the zone name or relative resource name (e.g. "projects/{project}/zones/{zone}"). Must belong to the enclosing environment's project and region.`,
 									},
 									"machine_type": {
 										Type:             schema.TypeString,
@@ -122,6 +129,7 @@ func resourceComposerEnvironment() *schema.Resource {
 										Optional:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: compareSelfLinkOrResourceName,
+										Description:      `The Compute Engine machine type used for cluster instances, specified as a name or relative resource name. For example: "projects/{project}/zones/{zone}/machineTypes/{machineType}". Must belong to the enclosing environment's project and region/zone.`,
 									},
 									"network": {
 										Type:             schema.TypeString,
@@ -129,18 +137,21 @@ func resourceComposerEnvironment() *schema.Resource {
 										Optional:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: compareSelfLinkOrResourceName,
+										Description:      `The Compute Engine machine type used for cluster instances, specified as a name or relative resource name. For example: "projects/{project}/zones/{zone}/machineTypes/{machineType}". Must belong to the enclosing environment's project and region/zone. The network must belong to the environment's project. If unspecified, the "default" network ID in the environment's project is used. If a Custom Subnet Network is provided, subnetwork must also be provided.`,
 									},
 									"subnetwork": {
 										Type:             schema.TypeString,
 										Optional:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: compareSelfLinkOrResourceName,
+										Description:      `The Compute Engine subnetwork to be used for machine communications, , specified as a self-link, relative resource name (e.g. "projects/{project}/regions/{region}/subnetworks/{subnetwork}"), or by name. If subnetwork is provided, network must also be provided and the subnetwork must belong to the enclosing environment's project and region.`,
 									},
 									"disk_size_gb": {
-										Type:     schema.TypeInt,
-										Computed: true,
-										Optional: true,
-										ForceNew: true,
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The disk size in GB used for node VMs. Minimum size is 20GB. If unspecified, defaults to 100GB. Cannot be updated.`,
 									},
 									"oauth_scopes": {
 										Type:     schema.TypeSet,
@@ -150,7 +161,8 @@ func resourceComposerEnvironment() *schema.Resource {
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
+										Set:         schema.HashString,
+										Description: `The set of Google API scopes to be made available on all node VMs. Cannot be updated. If empty, defaults to ["https://www.googleapis.com/auth/cloud-platform"].`,
 									},
 									"service_account": {
 										Type:             schema.TypeString,
@@ -159,6 +171,7 @@ func resourceComposerEnvironment() *schema.Resource {
 										ForceNew:         true,
 										ValidateFunc:     validateServiceAccountRelativeNameOrEmail,
 										DiffSuppressFunc: compareServiceAccountEmailToLink,
+										Description:      `The Google Cloud Platform Service Account to be used by the node VMs. If a service account is not specified, the "default" Compute Engine service account is used. Cannot be updated. If given, note that the service account must have roles/composer.worker for any GCP resources created under the Cloud Composer Environment.`,
 									},
 									"tags": {
 										Type:     schema.TypeSet,
@@ -167,38 +180,44 @@ func resourceComposerEnvironment() *schema.Resource {
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										Set: schema.HashString,
+										Set:         schema.HashString,
+										Description: `The list of instance tags applied to all node VMs. Tags are used to identify valid sources or targets for network firewalls. Each tag within the list must comply with RFC1035. Cannot be updated.`,
 									},
 									"ip_allocation_policy": {
-										Type:       schema.TypeList,
-										Optional:   true,
-										Computed:   true,
-										ForceNew:   true,
-										ConfigMode: schema.SchemaConfigModeAttr,
-										MaxItems:   1,
+										Type:        schema.TypeList,
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
+										ConfigMode:  schema.SchemaConfigModeAttr,
+										MaxItems:    1,
+										Description: `Configuration for controlling how IPs are allocated in the GKE cluster. Cannot be updated.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"use_ip_aliases": {
-													Type:     schema.TypeBool,
-													Required: true,
-													ForceNew: true,
+													Type:        schema.TypeBool,
+													Required:    true,
+													ForceNew:    true,
+													Description: `Whether or not to enable Alias IPs in the GKE cluster. If true, a VPC-native cluster is created. Defaults to true if the ip_allocation_policy block is present in config.`,
 												},
 												"cluster_secondary_range_name": {
 													Type:          schema.TypeString,
 													Optional:      true,
 													ForceNew:      true,
+													Description:   `The name of the cluster's secondary range used to allocate IP addresses to pods. Specify either cluster_secondary_range_name or cluster_ipv4_cidr_block but not both. This field is applicable only when use_ip_aliases is true.`,
 													ConflictsWith: []string{"config.0.node_config.0.ip_allocation_policy.0.cluster_ipv4_cidr_block"},
 												},
 												"services_secondary_range_name": {
 													Type:          schema.TypeString,
 													Optional:      true,
 													ForceNew:      true,
+													Description:   `The name of the services' secondary range used to allocate IP addresses to the cluster. Specify either services_secondary_range_name or services_ipv4_cidr_block but not both. This field is applicable only when use_ip_aliases is true.`,
 													ConflictsWith: []string{"config.0.node_config.0.ip_allocation_policy.0.services_ipv4_cidr_block"},
 												},
 												"cluster_ipv4_cidr_block": {
 													Type:             schema.TypeString,
 													Optional:         true,
 													ForceNew:         true,
+													Description:      `The IP address range used to allocate IP addresses to pods in the cluster. Set to blank to have GKE choose a range with the default size. Set to /netmask (e.g. /14) to have GKE choose a range with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use. Specify either cluster_secondary_range_name or cluster_ipv4_cidr_block but not both.`,
 													DiffSuppressFunc: cidrOrSizeDiffSuppress,
 													ConflictsWith:    []string{"config.0.node_config.0.ip_allocation_policy.0.cluster_secondary_range_name"},
 												},
@@ -206,6 +225,7 @@ func resourceComposerEnvironment() *schema.Resource {
 													Type:             schema.TypeString,
 													Optional:         true,
 													ForceNew:         true,
+													Description:      `The IP address range used to allocate IP addresses in this cluster. Set to blank to have GKE choose a range with the default size. Set to /netmask (e.g. /14) to have GKE choose a range with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use. Specify either services_secondary_range_name or services_ipv4_cidr_block but not both.`,
 													DiffSuppressFunc: cidrOrSizeDiffSuppress,
 													ConflictsWith:    []string{"config.0.node_config.0.ip_allocation_policy.0.services_secondary_range_name"},
 												},
@@ -221,6 +241,7 @@ func resourceComposerEnvironment() *schema.Resource {
 							Computed:     true,
 							AtLeastOneOf: composerConfigKeys,
 							MaxItems:     1,
+							Description:  `The configuration settings for software inside the environment.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"airflow_config_overrides": {
@@ -228,6 +249,7 @@ func resourceComposerEnvironment() *schema.Resource {
 										Optional:     true,
 										AtLeastOneOf: composerSoftwareConfigKeys,
 										Elem:         &schema.Schema{Type: schema.TypeString},
+										Description:  `Apache Airflow configuration properties to override. Property keys contain the section and property names, separated by a hyphen, for example "core-dags_are_paused_at_creation". Section names must not contain hyphens ("-"), opening square brackets ("["), or closing square brackets ("]"). The property name must not be empty and cannot contain "=" or ";". Section and property names cannot contain characters: "." Apache Airflow configuration property names must be written in snake_case. Property values can contain any character, and can be written in any lower/upper case format. Certain Apache Airflow configuration property values are blacklisted, and cannot be overridden.`,
 									},
 									"pypi_packages": {
 										Type:         schema.TypeMap,
@@ -235,6 +257,7 @@ func resourceComposerEnvironment() *schema.Resource {
 										AtLeastOneOf: composerSoftwareConfigKeys,
 										Elem:         &schema.Schema{Type: schema.TypeString},
 										ValidateFunc: validateComposerEnvironmentPypiPackages,
+										Description:  `Custom Python Package Index (PyPI) packages to be installed in the environment. Keys refer to the lowercase package name (e.g. "numpy"). Values are the lowercase extras and version specifier (e.g. "==1.12.0", "[devel,gcp_api]", "[devel]>=1.8.2, <1.9.2"). To specify a package without pinning it to a version specifier, use the empty string as the value.`,
 									},
 									"env_variables": {
 										Type:         schema.TypeMap,
@@ -242,6 +265,7 @@ func resourceComposerEnvironment() *schema.Resource {
 										AtLeastOneOf: composerSoftwareConfigKeys,
 										Elem:         &schema.Schema{Type: schema.TypeString},
 										ValidateFunc: validateComposerEnvironmentEnvVariables,
+										Description:  `Additional environment variables to provide to the Apache Airflow scheduler, worker, and webserver processes. Environment variable names must match the regular expression [a-zA-Z_][a-zA-Z0-9_]*. They cannot specify Apache Airflow software configuration overrides (they cannot match the regular expression AIRFLOW__[A-Z0-9_]+__[A-Z0-9_]+), and they cannot match any of the following reserved names: AIRFLOW_HOME C_FORCE_ROOT CONTAINER_NAME DAGS_FOLDER GCP_PROJECT GCS_BUCKET GKE_CLUSTER_NAME SQL_DATABASE SQL_INSTANCE SQL_PASSWORD SQL_PROJECT SQL_REGION SQL_USER.`,
 									},
 									"image_version": {
 										Type:             schema.TypeString,
@@ -250,6 +274,7 @@ func resourceComposerEnvironment() *schema.Resource {
 										AtLeastOneOf:     composerSoftwareConfigKeys,
 										ValidateFunc:     validateRegexp(composerEnvironmentVersionRegexp),
 										DiffSuppressFunc: composerImageVersionDiffSuppress,
+										Description:      `The version of the software running in the environment. This encapsulates both the version of Cloud Composer functionality and the version of Apache Airflow. It must match the regular expression composer-[0-9]+\.[0-9]+(\.[0-9]+)?-airflow-[0-9]+\.[0-9]+(\.[0-9]+.*)?. The Cloud Composer portion of the version is a semantic version. The portion of the image version following 'airflow-' is an official Apache Airflow repository release name. See documentation for allowed release names.`,
 									},
 									"python_version": {
 										Type:         schema.TypeString,
@@ -257,6 +282,7 @@ func resourceComposerEnvironment() *schema.Resource {
 										AtLeastOneOf: composerSoftwareConfigKeys,
 										Computed:     true,
 										ForceNew:     true,
+										Description:  `The major version of Python used to run the Apache Airflow scheduler, worker, and webserver processes. Can be set to '2' or '3'. If not specified, the default is '2'. Cannot be updated.`,
 									},
 								},
 							},
@@ -268,6 +294,7 @@ func resourceComposerEnvironment() *schema.Resource {
 							AtLeastOneOf: composerConfigKeys,
 							MaxItems:     1,
 							ForceNew:     true,
+							Description:  `The configuration used for the Private IP Cloud Composer environment.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enable_private_endpoint": {
@@ -277,8 +304,11 @@ func resourceComposerEnvironment() *schema.Resource {
 										AtLeastOneOf: []string{
 											"config.0.private_environment_config.0.enable_private_endpoint",
 											"config.0.private_environment_config.0.master_ipv4_cidr_block",
+											"config.0.private_environment_config.0.cloud_sql_ipv4_cidr_block",
+											"config.0.private_environment_config.0.web_server_ipv4_cidr_block",
 										},
-										ForceNew: true,
+										ForceNew:    true,
+										Description: `If true, access to the public endpoint of the GKE cluster is denied.`,
 									},
 									"master_ipv4_cidr_block": {
 										Type:     schema.TypeString,
@@ -286,39 +316,77 @@ func resourceComposerEnvironment() *schema.Resource {
 										AtLeastOneOf: []string{
 											"config.0.private_environment_config.0.enable_private_endpoint",
 											"config.0.private_environment_config.0.master_ipv4_cidr_block",
+											"config.0.private_environment_config.0.cloud_sql_ipv4_cidr_block",
+											"config.0.private_environment_config.0.web_server_ipv4_cidr_block",
 										},
-										ForceNew: true,
-										Default:  "172.16.0.0/28",
+										ForceNew:    true,
+										Default:     "172.16.0.0/28",
+										Description: `The IP range in CIDR notation to use for the hosted master network. This range is used for assigning internal IP addresses to the cluster master or set of masters and to the internal load balancer virtual IP. This range must not overlap with any other ranges in use within the cluster's network. If left blank, the default value of '172.16.0.0/28' is used.`,
+									},
+									"web_server_ipv4_cidr_block": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										AtLeastOneOf: []string{
+											"config.0.private_environment_config.0.enable_private_endpoint",
+											"config.0.private_environment_config.0.master_ipv4_cidr_block",
+											"config.0.private_environment_config.0.cloud_sql_ipv4_cidr_block",
+											"config.0.private_environment_config.0.web_server_ipv4_cidr_block",
+										},
+										ForceNew:    true,
+										Description: `The CIDR block from which IP range for web server will be reserved. Needs to be disjoint from master_ipv4_cidr_block and cloud_sql_ipv4_cidr_block.`,
+									},
+									"cloud_sql_ipv4_cidr_block": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										AtLeastOneOf: []string{
+											"config.0.private_environment_config.0.enable_private_endpoint",
+											"config.0.private_environment_config.0.master_ipv4_cidr_block",
+											"config.0.private_environment_config.0.cloud_sql_ipv4_cidr_block",
+											"config.0.private_environment_config.0.web_server_ipv4_cidr_block",
+										},
+										ForceNew:    true,
+										Description: `The CIDR block from which IP range in tenant project will be reserved for Cloud SQL. Needs to be disjoint from web_server_ipv4_cidr_block.`,
 									},
 								},
 							},
 						},
 						"airflow_uri": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The URI of the Apache Airflow Web UI hosted within this environment.`,
 						},
 						"dag_gcs_prefix": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The Cloud Storage prefix of the DAGs for this environment. Although Cloud Storage objects reside in a flat namespace, a hierarchical file tree can be simulated using '/'-delimited object name prefixes. DAG objects for this environment reside in a simulated directory with this prefix.`,
 						},
 						"gke_cluster": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The Kubernetes Engine cluster used to run this environment.`,
 						},
 					},
 				},
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `User-defined labels for this environment. The labels map can contain no more than 64 entries. Entries of the labels map are UTF8 strings that comply with the following restrictions: Label keys must be between 1 and 63 characters long and must conform to the following regular expression: [a-z]([-a-z0-9]*[a-z0-9])?. Label values must be between 0 and 63 characters long and must conform to the regular expression ([a-z]([-a-z0-9]*[a-z0-9])?)?. No more than 64 labels can be associated with a given environment. Both keys and values must be <= 128 bytes in size.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	envName, err := resourceComposerEnvironmentName(d, config)
 	if err != nil {
@@ -340,7 +408,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	updateOnlyEnv := getComposerEnvironmentPostCreateUpdateObj(env)
 
 	log.Printf("[DEBUG] Creating new Environment %q", envName.parentName())
-	op, err := config.clientComposer.Projects.Locations.Environments.Create(envName.parentName(), env).Do()
+	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Create(envName.parentName(), env).Do()
 	if err != nil {
 		return err
 	}
@@ -353,8 +421,8 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	d.SetId(id)
 
 	waitErr := composerOperationWaitTime(
-		config.clientComposer, op, envName.Project, "Creating Environment",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		config, op, envName.Project, "Creating Environment", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 
 	if waitErr != nil {
 		// The resource didn't actually get created, remove from state.
@@ -372,7 +440,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Finished creating Environment %q: %#v", d.Id(), op)
 
-	if err := resourceComposerEnvironmentPostCreateUpdate(updateOnlyEnv, d, config); err != nil {
+	if err := resourceComposerEnvironmentPostCreateUpdate(updateOnlyEnv, d, config, userAgent); err != nil {
 		return err
 	}
 
@@ -381,39 +449,47 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 
 func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	envName, err := resourceComposerEnvironmentName(d, config)
 	if err != nil {
 		return err
 	}
 
-	res, err := config.clientComposer.Projects.Locations.Environments.Get(envName.resourceName()).Do()
+	res, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Get(envName.resourceName()).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComposerEnvironment %q", d.Id()))
 	}
 
 	// Set from getProject(d)
 	if err := d.Set("project", envName.Project); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	// Set from getRegion(d)
 	if err := d.Set("region", envName.Region); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	if err := d.Set("name", GetResourceNameFromSelfLink(res.Name)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	if err := d.Set("config", flattenComposerEnvironmentConfig(res.Config)); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	if err := d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("Error reading Environment: %s", err)
+		return fmt.Errorf("Error setting Environment: %s", err)
 	}
 	return nil
 }
 
 func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	tfConfig := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, tfConfig.userAgent)
+	if err != nil {
+		return err
+	}
 
 	d.Partial(true)
 
@@ -436,11 +512,10 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			if config != nil && config.SoftwareConfig != nil {
 				patchObj.Config.SoftwareConfig.ImageVersion = config.SoftwareConfig.ImageVersion
 			}
-			err = resourceComposerEnvironmentPatchField("config.softwareConfig.imageVersion", patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.softwareConfig.imageVersion", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
-			d.SetPartial("config")
 		}
 
 		if d.HasChange("config.0.software_config.0.airflow_config_overrides") {
@@ -456,11 +531,10 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				patchObj.Config.SoftwareConfig.AirflowConfigOverrides = config.SoftwareConfig.AirflowConfigOverrides
 			}
 
-			err = resourceComposerEnvironmentPatchField("config.softwareConfig.airflowConfigOverrides", patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.softwareConfig.airflowConfigOverrides", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
-			d.SetPartial("config")
 		}
 
 		if d.HasChange("config.0.software_config.0.env_variables") {
@@ -475,11 +549,10 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				patchObj.Config.SoftwareConfig.EnvVariables = config.SoftwareConfig.EnvVariables
 			}
 
-			err = resourceComposerEnvironmentPatchField("config.softwareConfig.envVariables", patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.softwareConfig.envVariables", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
-			d.SetPartial("config")
 		}
 
 		if d.HasChange("config.0.software_config.0.pypi_packages") {
@@ -494,11 +567,10 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				patchObj.Config.SoftwareConfig.PypiPackages = config.SoftwareConfig.PypiPackages
 			}
 
-			err = resourceComposerEnvironmentPatchField("config.softwareConfig.pypiPackages", patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.softwareConfig.pypiPackages", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
-			d.SetPartial("config")
 		}
 
 		if d.HasChange("config.0.node_count") {
@@ -506,28 +578,40 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			if config != nil {
 				patchObj.Config.NodeCount = config.NodeCount
 			}
-			err = resourceComposerEnvironmentPatchField("config.nodeCount", patchObj, d, tfConfig)
+			err = resourceComposerEnvironmentPatchField("config.nodeCount", userAgent, patchObj, d, tfConfig)
 			if err != nil {
 				return err
 			}
-			d.SetPartial("config")
 		}
+
+		// If web_server_network_access_control has more fields added it may require changes here.
+		// This is scoped specifically to allowed_ip_range due to https://github.com/hashicorp/terraform-plugin-sdk/issues/98
+		if d.HasChange("config.0.web_server_network_access_control.0.allowed_ip_range") {
+			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
+			if config != nil {
+				patchObj.Config.WebServerNetworkAccessControl = config.WebServerNetworkAccessControl
+			}
+			err = resourceComposerEnvironmentPatchField("config.webServerNetworkAccessControl", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
+
 	}
 
 	if d.HasChange("labels") {
 		patchEnv := &composer.Environment{Labels: expandLabels(d)}
-		err := resourceComposerEnvironmentPatchField("labels", patchEnv, d, tfConfig)
+		err := resourceComposerEnvironmentPatchField("labels", userAgent, patchEnv, d, tfConfig)
 		if err != nil {
 			return err
 		}
-		d.SetPartial("labels")
 	}
 
 	d.Partial(false)
 	return resourceComposerEnvironmentRead(d, tfConfig)
 }
 
-func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment, d *schema.ResourceData, cfg *Config) error {
+func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment, d *schema.ResourceData, cfg *Config, userAgent string) error {
 	if updateEnv == nil {
 		return nil
 	}
@@ -536,19 +620,18 @@ func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment
 
 	if updateEnv.Config != nil && updateEnv.Config.SoftwareConfig != nil && len(updateEnv.Config.SoftwareConfig.PypiPackages) > 0 {
 		log.Printf("[DEBUG] Running post-create update for Environment %q", d.Id())
-		err := resourceComposerEnvironmentPatchField("config.softwareConfig.pypiPackages", updateEnv, d, cfg)
+		err := resourceComposerEnvironmentPatchField("config.softwareConfig.pypiPackages", userAgent, updateEnv, d, cfg)
 		if err != nil {
 			return err
 		}
 
 		log.Printf("[DEBUG] Finish update to Environment %q post create for update only fields", d.Id())
-		d.SetPartial("config")
 	}
 	d.Partial(false)
 	return resourceComposerEnvironmentRead(d, cfg)
 }
 
-func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Environment, d *schema.ResourceData, config *Config) error {
+func resourceComposerEnvironmentPatchField(updateMask, userAgent string, env *composer.Environment, d *schema.ResourceData, config *Config) error {
 	envJson, _ := env.MarshalJSON()
 	log.Printf("[DEBUG] Updating Environment %q (updateMask = %q): %s", d.Id(), updateMask, string(envJson))
 	envName, err := resourceComposerEnvironmentName(d, config)
@@ -556,7 +639,7 @@ func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Envi
 		return err
 	}
 
-	op, err := config.clientComposer.Projects.Locations.Environments.
+	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.
 		Patch(envName.resourceName(), env).
 		UpdateMask(updateMask).Do()
 	if err != nil {
@@ -564,8 +647,8 @@ func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Envi
 	}
 
 	waitErr := composerOperationWaitTime(
-		config.clientComposer, op, envName.Project, "Updating newly created Environment",
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		config, op, envName.Project, "Updating newly created Environment", userAgent,
+		d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		// The resource didn't actually update.
 		return fmt.Errorf("Error waiting to update Environment: %s", waitErr)
@@ -577,6 +660,10 @@ func resourceComposerEnvironmentPatchField(updateMask string, env *composer.Envi
 
 func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	envName, err := resourceComposerEnvironmentName(d, config)
 	if err != nil {
@@ -584,14 +671,14 @@ func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Deleting Environment %q", d.Id())
-	op, err := config.clientComposer.Projects.Locations.Environments.Delete(envName.resourceName()).Do()
+	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Delete(envName.resourceName()).Do()
 	if err != nil {
 		return err
 	}
 
 	err = composerOperationWaitTime(
-		config.clientComposer, op, envName.Project, "Deleting Environment",
-		int(d.Timeout(schema.TimeoutDelete).Minutes()))
+		config, op, envName.Project, "Deleting Environment", userAgent,
+		d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}
@@ -640,6 +727,8 @@ func flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg *composer.P
 	transformed := make(map[string]interface{})
 	transformed["enable_private_endpoint"] = envCfg.PrivateClusterConfig.EnablePrivateEndpoint
 	transformed["master_ipv4_cidr_block"] = envCfg.PrivateClusterConfig.MasterIpv4CidrBlock
+	transformed["cloud_sql_ipv4_cidr_block"] = envCfg.CloudSqlIpv4CidrBlock
+	transformed["web_server_ipv4_cidr_block"] = envCfg.WebServerIpv4CidrBlock
 
 	return []interface{}{transformed}
 }
@@ -765,6 +854,14 @@ func expandComposerEnvironmentConfigPrivateEnvironmentConfig(v interface{}, d *s
 
 	if v, ok := original["master_ipv4_cidr_block"]; ok {
 		subBlock.MasterIpv4CidrBlock = v.(string)
+	}
+
+	if v, ok := original["cloud_sql_ipv4_cidr_block"]; ok {
+		transformed.CloudSqlIpv4CidrBlock = v.(string)
+	}
+
+	if v, ok := original["web_server_ipv4_cidr_block"]; ok {
+		transformed.WebServerIpv4CidrBlock = v.(string)
 	}
 
 	transformed.PrivateClusterConfig = subBlock
@@ -1024,9 +1121,14 @@ func validateComposerEnvironmentEnvVariables(v interface{}, k string) (ws []stri
 }
 
 func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvironmentName, d *schema.ResourceData, config *Config) error {
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
 	log.Printf("[WARNING] Creation operation for Composer Environment %q failed, check Environment isn't still running", id)
 	// Try to get possible created but invalid environment.
-	env, err := config.clientComposer.Projects.Locations.Environments.Get(envName.resourceName()).Do()
+	env, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Get(envName.resourceName()).Do()
 	if err != nil {
 		// If error is 401, we don't have to clean up environment, return nil.
 		// Otherwise, we encountered another error.
@@ -1041,15 +1143,15 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvi
 	}
 
 	log.Printf("[WARNING] Environment %q from failed creation operation was created, deleting.", id)
-	op, err := config.clientComposer.Projects.Locations.Environments.Delete(envName.resourceName()).Do()
+	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Delete(envName.resourceName()).Do()
 	if err != nil {
 		return fmt.Errorf("Could not delete the invalid created environment with state %q: %s", env.State, err)
 	}
 
 	waitErr := composerOperationWaitTime(
-		config.clientComposer, op, envName.Project,
-		fmt.Sprintf("Deleting invalid created Environment with state %q", env.State),
-		int(d.Timeout(schema.TimeoutCreate).Minutes()))
+		config, op, envName.Project,
+		fmt.Sprintf("Deleting invalid created Environment with state %q", env.State), userAgent,
+		d.Timeout(schema.TimeoutCreate))
 	if waitErr != nil {
 		return fmt.Errorf("Error waiting to delete invalid Environment with state %q: %s", env.State, waitErr)
 	}

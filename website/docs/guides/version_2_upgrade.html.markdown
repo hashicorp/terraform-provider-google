@@ -1,7 +1,7 @@
 ---
 layout: "google"
 page_title: "Terraform Google Provider 2.0.0 Upgrade Guide"
-sidebar_current: "docs-google-provider-version-2-upgrade"
+sidebar_current: "docs-google-provider-guides-version-2-upgrade"
 description: |-
   Terraform Google Provider 2.0.0 Upgrade Guide
 ---
@@ -21,7 +21,7 @@ for details if you're new to using `google-beta`.
 Most of the changes outlined in this guide have been previously marked as
 deprecated in the Terraform `plan`/`apply` output throughout previous provider
 releases, up to and including 1.20.0. These changes, such as deprecation notices,
-can always be found in the [CHANGELOG](https://github.com/terraform-providers/terraform-provider-google/blob/master/CHANGELOG.md).
+can always be found in the [CHANGELOG](https://github.com/hashicorp/terraform-provider-google/blob/master/CHANGELOG.md).
 
 ## Why version 2.0.0?
 
@@ -166,19 +166,17 @@ available. For more information see [the official documentation on GCP launch st
 
 Because the API for beta features can change before their GA launch, there may
 be breaking changes in the `google-beta` provider in minor release versions.
-These changes will be announced in the [`google-beta` CHANGELOG](https://github.com/terraform-providers/terraform-provider-google-beta/blob/master/CHANGELOG.md).
+These changes will be announced in the [`google-beta` CHANGELOG](https://github.com/hashicorp/terraform-provider-google-beta/blob/master/CHANGELOG.md).
 
 To have resources at different API versions, set up provider blocks for each version:
 
 ```hcl
 provider "google" {
-  credentials = "${file("account.json")}"
   project     = "my-project-id"
   region      = "us-central1"
 }
 
 provider "google-beta" {
-  credentials = "${file("account.json")}"
   project     = "my-project-id"
   region      = "us-central1"
 }
@@ -298,21 +296,21 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     branch_name = "master-updated"
     repo_name   = "some-repo-updated"
   }
-  
+
   build {
     images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA"]
-    tags = ["team-a", "service-b", "updated"]
-    
+    tags   = ["team-a", "service-b", "updated"]
+
     step {
       name = "gcr.io/cloud-builders/gsutil"
       args = ["cp", "gs://mybucket/remotefile.zip", "localfile-updated.zip"]
     }
-    
+
     step {
       name = "gcr.io/cloud-builders/go"
       args = ["build", "my_package_updated"]
     }
-    
+
     step {
       name = "gcr.io/cloud-builders/docker"
       args = ["build", "-t", "gcr.io/$PROJECT_ID/$REPO_NAME:$SHORT_SHA", "-f", "Dockerfile", "."]
@@ -393,11 +391,11 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_disk" "foobar" {
-  name = "example-disk"
+  name  = "example-disk"
   image = "${data.google_compute_image.my_image.self_link}"
-  size = 50
-  type = "pd-ssd"
-  zone = "us-central1-a"
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
   disk_encryption_key {
     raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
   }
@@ -488,25 +486,25 @@ Use the `snapshot_encryption_key` block instead:
 
 ```hcl
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 
 resource "google_compute_disk" "my_disk" {
-	name = "my-disk"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 10
-	type = "pd-ssd"
-	zone = "us-central1-a"
+  name  = "my-disk"
+  image = "${data.google_compute_image.my_image.self_link}"
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
 }
 
 resource "google_compute_snapshot" "my_snapshot" {
-	name = "my-snapshot"
-	source_disk = "${google_compute_disk.my_disk.name}"
-	zone = "us-central1-a"
-	snapshot_encryption_key {
-		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-	}
+  name        = "my-snapshot"
+  source_disk = "${google_compute_disk.my_disk.name}"
+  zone        = "us-central1-a"
+  snapshot_encryption_key {
+    raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+  }
 }
 ```
 
@@ -516,26 +514,26 @@ Use the `source_disk_encryption_key` block instead:
 
 ```hcl
 data "google_compute_image" "my_image" {
-	family  = "debian-9"
-	project = "debian-cloud"
+  family  = "debian-9"
+  project = "debian-cloud"
 }
 resource "google_compute_disk" "my_disk" {
-	name = "my-disk"
-	image = "${data.google_compute_image.my_image.self_link}"
-	size = 10
-	type = "pd-ssd"
-	zone = "us-central1-a"
-	disk_encryption_key {
-		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-	}
+  name  = "my-disk"
+  image = "${data.google_compute_image.my_image.self_link}"
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+  disk_encryption_key {
+    raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+  }
 }
 resource "google_compute_snapshot" "my_snapshot" {
-	name = "my-snapshot"
-	source_disk = "${google_compute_disk.my_disk.name}"
-	zone = "us-central1-a"
-	source_disk_encryption_key {
-		raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
-	}
+  name        = "my-snapshot"
+  source_disk = "${google_compute_disk.my_disk.name}"
+  zone        = "us-central1-a"
+  source_disk_encryption_key {
+    raw_key = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+  }
 }
 
 ```
@@ -609,10 +607,10 @@ resource "random_id" "np" {
 }
 
 resource "google_container_node_pool" "example" {
-  name               = "${random_id.np.dec}"
-  zone               = "us-central1-a"
-  cluster            = "${google_container_cluster.example.name}"
-  node_count         = 1
+  name       = "${random_id.np.dec}"
+  zone       = "us-central1-a"
+  cluster    = "${google_container_cluster.example.name}"
+  node_count = 1
 
   node_config {
     machine_type = "${var.machine_type}"
@@ -642,7 +640,7 @@ Then, import that suffix as the value of `random_id`:
 terraform import random_id.np example-np-,ELFZ1rbrAThoeQE
 ```
 
-For more details, see [terraform-provider-google#1054](https://github.com/terraform-providers/terraform-provider-google/issues/1054).
+For more details, see [terraform-provider-google#1054](https://github.com/hashicorp/terraform-provider-google/issues/1054).
 
 ## Resource: `google_endpoints_service`
 

@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: Added support for default URL redirects to `google_compute_url_map`
+```
+```release-note:enhancement
+compute: Added support for default URL redirects to `google_compute_region_url_map`
+```

@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"crypto/md5"
 	"encoding/base64"
@@ -25,46 +25,53 @@ func resourceStorageBucketObject() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"bucket": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the containing bucket.`,
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the object. If you're interpolating the name of this object, see output_name instead.`,
 			},
 
 			"cache_control": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Description: `Cache-Control directive to specify caching behavior of object data. If omitted and object is accessible to all anonymous users, the default will be public, max-age=3600`,
 			},
 
 			"content_disposition": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Description: `Content-Disposition of the object data.`,
 			},
 
 			"content_encoding": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Description: `Content-Encoding of the object data.`,
 			},
 
 			"content_language": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Description: `Content-Language of the object data.`,
 			},
 
 			"content_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `Content-Type of the object data. Defaults to "application/octet-stream" or "text/plain; charset=utf-8".`,
 			},
 
 			"content": {
@@ -73,16 +80,19 @@ func resourceStorageBucketObject() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"source"},
 				Sensitive:     true,
+				Description:   `Data as string to be uploaded. Must be defined if source is not. Note: The content field is marked as sensitive. To view the raw contents of the object, please define an output.`,
 			},
 
 			"crc32c": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Base 64 CRC32 hash of the uploaded data.`,
 			},
 
 			"md5hash": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Base 64 MD5 hash of the uploaded data.`,
 			},
 
 			"source": {
@@ -90,6 +100,7 @@ func resourceStorageBucketObject() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"content"},
+				Description:   `A path to the data you want to upload. Must be defined if content is not.`,
 			},
 
 			// Detect changes to local file or changes made outside of Terraform to the file stored on the server.
@@ -133,23 +144,41 @@ func resourceStorageBucketObject() *schema.Resource {
 			},
 
 			"storage_class": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The StorageClass of the new bucket object. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE. If not provided, this defaults to the bucket's default storage class or to a standard class.`,
+			},
+
+			"metadata": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `User-provided metadata, in key/value pairs.`,
 			},
 
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `A url reference to this object.`,
 			},
 
 			// https://github.com/hashicorp/terraform/issues/19052
 			"output_name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the object. Use this field in interpolations with google_storage_object_acl to recreate google_storage_object_acl resources when your google_storage_bucket_object is recreated.`,
+			},
+
+			"media_link": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `A url reference to download this object.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -159,6 +188,10 @@ func objectGetId(object *storage.Object) string {
 
 func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
@@ -176,7 +209,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error, either \"content\" or \"source\" must be specified")
 	}
 
-	objectsService := storage.NewObjectsService(config.clientStorage)
+	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
 	object := &storage.Object{Bucket: bucket}
 
 	if v, ok := d.GetOk("cache_control"); ok {
@@ -199,6 +232,10 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 		object.ContentType = v.(string)
 	}
 
+	if v, ok := d.GetOk("metadata"); ok {
+		object.Metadata = convertStringMap(v.(map[string]interface{}))
+	}
+
 	if v, ok := d.GetOk("storage_class"); ok {
 		object.StorageClass = v.(string)
 	}
@@ -207,7 +244,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	insertCall.Name(name)
 	insertCall.Media(media)
 
-	_, err := insertCall.Do()
+	_, err = insertCall.Do()
 
 	if err != nil {
 		return fmt.Errorf("Error uploading object %s: %s", name, err)
@@ -218,11 +255,15 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 
 func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
 
-	objectsService := storage.NewObjectsService(config.clientStorage)
+	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
 	getCall := objectsService.Get(bucket, name)
 
 	res, err := getCall.Do()
@@ -231,17 +272,45 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket Object %q", d.Get("name").(string)))
 	}
 
-	d.Set("md5hash", res.Md5Hash)
-	d.Set("detect_md5hash", res.Md5Hash)
-	d.Set("crc32c", res.Crc32c)
-	d.Set("cache_control", res.CacheControl)
-	d.Set("content_disposition", res.ContentDisposition)
-	d.Set("content_encoding", res.ContentEncoding)
-	d.Set("content_language", res.ContentLanguage)
-	d.Set("content_type", res.ContentType)
-	d.Set("storage_class", res.StorageClass)
-	d.Set("self_link", res.SelfLink)
-	d.Set("output_name", res.Name)
+	if err := d.Set("md5hash", res.Md5Hash); err != nil {
+		return fmt.Errorf("Error setting md5hash: %s", err)
+	}
+	if err := d.Set("detect_md5hash", res.Md5Hash); err != nil {
+		return fmt.Errorf("Error setting detect_md5hash: %s", err)
+	}
+	if err := d.Set("crc32c", res.Crc32c); err != nil {
+		return fmt.Errorf("Error setting crc32c: %s", err)
+	}
+	if err := d.Set("cache_control", res.CacheControl); err != nil {
+		return fmt.Errorf("Error setting cache_control: %s", err)
+	}
+	if err := d.Set("content_disposition", res.ContentDisposition); err != nil {
+		return fmt.Errorf("Error setting content_disposition: %s", err)
+	}
+	if err := d.Set("content_encoding", res.ContentEncoding); err != nil {
+		return fmt.Errorf("Error setting content_encoding: %s", err)
+	}
+	if err := d.Set("content_language", res.ContentLanguage); err != nil {
+		return fmt.Errorf("Error setting content_language: %s", err)
+	}
+	if err := d.Set("content_type", res.ContentType); err != nil {
+		return fmt.Errorf("Error setting content_type: %s", err)
+	}
+	if err := d.Set("storage_class", res.StorageClass); err != nil {
+		return fmt.Errorf("Error setting storage_class: %s", err)
+	}
+	if err := d.Set("self_link", res.SelfLink); err != nil {
+		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("output_name", res.Name); err != nil {
+		return fmt.Errorf("Error setting output_name: %s", err)
+	}
+	if err := d.Set("metadata", res.Metadata); err != nil {
+		return fmt.Errorf("Error setting metadata: %s", err)
+	}
+	if err := d.Set("media_link", res.MediaLink); err != nil {
+		return fmt.Errorf("Error setting media_link: %s", err)
+	}
 
 	d.SetId(objectGetId(res))
 
@@ -250,14 +319,18 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
 
-	objectsService := storage.NewObjectsService(config.clientStorage)
+	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
 
 	DeleteCall := objectsService.Delete(bucket, name)
-	err := DeleteCall.Do()
+	err = DeleteCall.Do()
 
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {

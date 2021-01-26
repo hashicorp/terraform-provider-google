@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceMonitoringAlertPolicy() *schema.Resource {
@@ -49,7 +49,7 @@ func resourceMonitoringAlertPolicy() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"AND", "OR", "AND_WITH_MATCHING_RESOURCE"}, false),
 				Description: `How to combine the results of multiple conditions to
-determine if an incident should be opened.`,
+determine if an incident should be opened. Possible values: ["AND", "OR", "AND_WITH_MATCHING_RESOURCE"]`,
 			},
 			"conditions": {
 				Type:     schema.TypeList,
@@ -138,7 +138,7 @@ then perSeriesAligner must be
 specified and not equal ALIGN_NONE
 and alignmentPeriod must be
 specified; otherwise, an error is
-returned.`,
+returned. Possible values: ["REDUCE_NONE", "REDUCE_MEAN", "REDUCE_MIN", "REDUCE_MAX", "REDUCE_SUM", "REDUCE_STDDEV", "REDUCE_COUNT", "REDUCE_COUNT_TRUE", "REDUCE_COUNT_FALSE", "REDUCE_FRACTION_TRUE", "REDUCE_PERCENTILE_99", "REDUCE_PERCENTILE_95", "REDUCE_PERCENTILE_50", "REDUCE_PERCENTILE_05"]`,
 												},
 												"group_by_fields": {
 													Type:     schema.TypeList,
@@ -192,7 +192,7 @@ then perSeriesAligner must be
 specified and not equal ALIGN_NONE
 and alignmentPeriod must be
 specified; otherwise, an error is
-returned.`,
+returned. Possible values: ["ALIGN_NONE", "ALIGN_DELTA", "ALIGN_RATE", "ALIGN_INTERPOLATE", "ALIGN_NEXT_OLDER", "ALIGN_MIN", "ALIGN_MAX", "ALIGN_MEAN", "ALIGN_COUNT", "ALIGN_SUM", "ALIGN_STDDEV", "ALIGN_COUNT_TRUE", "ALIGN_COUNT_FALSE", "ALIGN_FRACTION_TRUE", "ALIGN_PERCENTILE_99", "ALIGN_PERCENTILE_95", "ALIGN_PERCENTILE_50", "ALIGN_PERCENTILE_05", "ALIGN_PERCENT_CHANGE"]`,
 												},
 											},
 										},
@@ -245,6 +245,71 @@ condition to be triggered.`,
 								},
 							},
 						},
+						"condition_monitoring_query_language": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `A Monitoring Query Language query that outputs a boolean stream`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"duration": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The amount of time that a time series must
+violate the threshold to be considered
+failing. Currently, only values that are a
+multiple of a minute--e.g., 0, 60, 120, or
+300 seconds--are supported. If an invalid
+value is given, an error will be returned.
+When choosing a duration, it is useful to
+keep in mind the frequency of the underlying
+time series data (which may also be affected
+by any alignments specified in the
+aggregations field); a good duration is long
+enough so that a single outlier does not
+generate spurious alerts, but short enough
+that unhealthy states are detected and
+alerted on quickly.`,
+									},
+									"query": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Monitoring Query Language query that outputs a boolean stream.`,
+									},
+									"trigger": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `The number/percent of time series for which
+the comparison must hold in order for the
+condition to trigger. If unspecified, then
+the condition will trigger if the comparison
+is true for any of the time series that have
+been identified by filter and aggregations,
+or by the ratio, if denominator_filter and
+denominator_aggregations are specified.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"count": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `The absolute number of time series
+that must fail the predicate for the
+condition to be triggered.`,
+												},
+												"percent": {
+													Type:     schema.TypeFloat,
+													Optional: true,
+													Description: `The percentage of time series that
+must fail the predicate for the
+condition to be triggered.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"condition_threshold": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -264,7 +329,7 @@ threshold_value). The comparison is applied
 on each time series, with the time series on
 the left-hand side and the threshold on the
 right-hand side. Only COMPARISON_LT and
-COMPARISON_GT are supported currently.`,
+COMPARISON_GT are supported currently. Possible values: ["COMPARISON_GT", "COMPARISON_GE", "COMPARISON_LT", "COMPARISON_LE", "COMPARISON_EQ", "COMPARISON_NE"]`,
 									},
 									"duration": {
 										Type:     schema.TypeString,
@@ -341,7 +406,7 @@ then perSeriesAligner must be
 specified and not equal ALIGN_NONE
 and alignmentPeriod must be
 specified; otherwise, an error is
-returned.`,
+returned. Possible values: ["REDUCE_NONE", "REDUCE_MEAN", "REDUCE_MIN", "REDUCE_MAX", "REDUCE_SUM", "REDUCE_STDDEV", "REDUCE_COUNT", "REDUCE_COUNT_TRUE", "REDUCE_COUNT_FALSE", "REDUCE_FRACTION_TRUE", "REDUCE_PERCENTILE_99", "REDUCE_PERCENTILE_95", "REDUCE_PERCENTILE_50", "REDUCE_PERCENTILE_05"]`,
 												},
 												"group_by_fields": {
 													Type:     schema.TypeList,
@@ -395,7 +460,7 @@ then perSeriesAligner must be
 specified and not equal ALIGN_NONE
 and alignmentPeriod must be
 specified; otherwise, an error is
-returned.`,
+returned. Possible values: ["ALIGN_NONE", "ALIGN_DELTA", "ALIGN_RATE", "ALIGN_INTERPOLATE", "ALIGN_NEXT_OLDER", "ALIGN_MIN", "ALIGN_MAX", "ALIGN_MEAN", "ALIGN_COUNT", "ALIGN_SUM", "ALIGN_STDDEV", "ALIGN_COUNT_TRUE", "ALIGN_COUNT_FALSE", "ALIGN_FRACTION_TRUE", "ALIGN_PERCENTILE_99", "ALIGN_PERCENTILE_95", "ALIGN_PERCENTILE_50", "ALIGN_PERCENTILE_05", "ALIGN_PERCENT_CHANGE"]`,
 												},
 											},
 										},
@@ -459,7 +524,7 @@ then perSeriesAligner must be
 specified and not equal ALIGN_NONE
 and alignmentPeriod must be
 specified; otherwise, an error is
-returned.`,
+returned. Possible values: ["REDUCE_NONE", "REDUCE_MEAN", "REDUCE_MIN", "REDUCE_MAX", "REDUCE_SUM", "REDUCE_STDDEV", "REDUCE_COUNT", "REDUCE_COUNT_TRUE", "REDUCE_COUNT_FALSE", "REDUCE_FRACTION_TRUE", "REDUCE_PERCENTILE_99", "REDUCE_PERCENTILE_95", "REDUCE_PERCENTILE_50", "REDUCE_PERCENTILE_05"]`,
 												},
 												"group_by_fields": {
 													Type:     schema.TypeList,
@@ -513,7 +578,7 @@ then perSeriesAligner must be
 specified and not equal ALIGN_NONE
 and alignmentPeriod must be
 specified; otherwise, an error is
-returned.`,
+returned. Possible values: ["ALIGN_NONE", "ALIGN_DELTA", "ALIGN_RATE", "ALIGN_INTERPOLATE", "ALIGN_NEXT_OLDER", "ALIGN_MIN", "ALIGN_MAX", "ALIGN_MEAN", "ALIGN_COUNT", "ALIGN_SUM", "ALIGN_STDDEV", "ALIGN_COUNT_TRUE", "ALIGN_COUNT_FALSE", "ALIGN_FRACTION_TRUE", "ALIGN_PERCENTILE_99", "ALIGN_PERCENTILE_95", "ALIGN_PERCENTILE_50", "ALIGN_PERCENTILE_05", "ALIGN_PERCENT_CHANGE"]`,
 												},
 											},
 										},
@@ -617,10 +682,11 @@ name is limited to 512 Unicode characters.`,
 			"documentation": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `A short name or phrase used to identify the policy in dashboards,
-notifications, and incidents. To avoid confusion, don't use the same
-display name for multiple policies in the same project. The name is
-limited to 512 Unicode characters.`,
+				Description: `Documentation that is included with notifications and incidents related
+to this policy. Best practice is for the documentation to include information
+to help responders understand, mitigate, escalate, and correct the underlying
+problems detected by the alerting policy. Notification channels that have
+limited capacity might not show this documentation.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -680,7 +746,6 @@ must begin with a letter.`,
 				Description: `A read-only record of the creation of the alerting policy.
 If provided in a call to create or update, this field will
 be ignored.`,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"mutate_time": {
@@ -702,15 +767,6 @@ be ignored.`,
 				Description: `The unique resource name for this policy.
 Its syntax is: projects/[PROJECT_ID]/alertPolicies/[ALERT_POLICY_ID]`,
 			},
-			"labels": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Removed:  "labels is removed as it was never used. See user_labels for the correct field",
-				Computed: true,
-			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -718,11 +774,16 @@ Its syntax is: projects/[PROJECT_ID]/alertPolicies/[ALERT_POLICY_ID]`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
 func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandMonitoringAlertPolicyDisplayName(d.Get("display_name"), d, config)
@@ -775,19 +836,31 @@ func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}projects/{{project}}/alertPolicies")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/alertPolicies")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new AlertPolicy: %#v", obj)
+	billingProject := ""
+
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AlertPolicy: %s", err)
 	}
-	res, err := sendRequestWithTimeout(config, "POST", project, url, obj, d.Timeout(schema.TimeoutCreate), isMonitoringRetryableError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating AlertPolicy: %s", err)
+	}
+	if err := d.Set("name", flattenMonitoringAlertPolicyName(res["name"], d, config)); err != nil {
+		return fmt.Errorf(`Error setting computed identity field "name": %s`, err)
 	}
 
 	// Store the ID now
@@ -802,9 +875,19 @@ func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{
 	// `name` is autogenerated from the api so needs to be set post-create
 	name, ok := res["name"]
 	if !ok {
-		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
+		respBody, ok := res["response"]
+		if !ok {
+			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
+		}
+
+		name, ok = respBody.(map[string]interface{})["name"]
+		if !ok {
+			return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
+		}
 	}
-	d.Set("name", name.(string))
+	if err := d.Set("name", name.(string)); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(name.(string))
 
 	return resourceMonitoringAlertPolicyRead(d, meta)
@@ -812,62 +895,63 @@ func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{
 
 func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AlertPolicy: %s", err)
 	}
-	res, err := sendRequest(config, "GET", project, url, nil, isMonitoringRetryableError)
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringAlertPolicy %q", d.Id()))
-	}
-
-	res, err = resourceMonitoringAlertPolicyDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
-
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing MonitoringAlertPolicy because it no longer exists.")
-		d.SetId("")
-		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
 
-	if err := d.Set("name", flattenMonitoringAlertPolicyName(res["name"], d)); err != nil {
+	if err := d.Set("name", flattenMonitoringAlertPolicyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
-	if err := d.Set("display_name", flattenMonitoringAlertPolicyDisplayName(res["displayName"], d)); err != nil {
+	if err := d.Set("display_name", flattenMonitoringAlertPolicyDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
-	if err := d.Set("combiner", flattenMonitoringAlertPolicyCombiner(res["combiner"], d)); err != nil {
+	if err := d.Set("combiner", flattenMonitoringAlertPolicyCombiner(res["combiner"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
-	if err := d.Set("creation_record", flattenMonitoringAlertPolicyCreationRecord(res["creationRecord"], d)); err != nil {
+	if err := d.Set("creation_record", flattenMonitoringAlertPolicyCreationRecord(res["creationRecord"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
-	if err := d.Set("enabled", flattenMonitoringAlertPolicyEnabled(res["enabled"], d)); err != nil {
+	if err := d.Set("enabled", flattenMonitoringAlertPolicyEnabled(res["enabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
-	if err := d.Set("conditions", flattenMonitoringAlertPolicyConditions(res["conditions"], d)); err != nil {
+	if err := d.Set("conditions", flattenMonitoringAlertPolicyConditions(res["conditions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
-	if err := d.Set("notification_channels", flattenMonitoringAlertPolicyNotificationChannels(res["notificationChannels"], d)); err != nil {
+	if err := d.Set("notification_channels", flattenMonitoringAlertPolicyNotificationChannels(res["notificationChannels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
-	if err := d.Set("user_labels", flattenMonitoringAlertPolicyUserLabels(res["userLabels"], d)); err != nil {
+	if err := d.Set("user_labels", flattenMonitoringAlertPolicyUserLabels(res["userLabels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
-	if err := d.Set("documentation", flattenMonitoringAlertPolicyDocumentation(res["documentation"], d)); err != nil {
+	if err := d.Set("documentation", flattenMonitoringAlertPolicyDocumentation(res["documentation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
 
@@ -876,11 +960,18 @@ func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{})
 
 func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for AlertPolicy: %s", err)
+	}
+	billingProject = project
 
 	obj := make(map[string]interface{})
 	displayNameProp, err := expandMonitoringAlertPolicyDisplayName(d.Get("display_name"), d, config)
@@ -933,7 +1024,7 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -974,10 +1065,18 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	_, err = sendRequestWithTimeout(config, "PATCH", project, url, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringRetryableError)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating AlertPolicy %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating AlertPolicy %q: %#v", d.Id(), res)
 	}
 
 	return resourceMonitoringAlertPolicyRead(d, meta)
@@ -985,11 +1084,18 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 
 func resourceMonitoringAlertPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	project, err := getProject(d, config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for AlertPolicy: %s", err)
+	}
+	billingProject = project
 
 	lockName, err := replaceVars(d, config, "alertPolicy/{{project}}")
 	if err != nil {
@@ -998,7 +1104,7 @@ func resourceMonitoringAlertPolicyDelete(d *schema.ResourceData, meta interface{
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1006,7 +1112,12 @@ func resourceMonitoringAlertPolicyDelete(d *schema.ResourceData, meta interface{
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting AlertPolicy %q", d.Id())
 
-	res, err := sendRequestWithTimeout(config, "DELETE", project, url, obj, d.Timeout(schema.TimeoutDelete), isMonitoringRetryableError)
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, "AlertPolicy")
 	}
@@ -1020,26 +1131,26 @@ func resourceMonitoringAlertPolicyImport(d *schema.ResourceData, meta interface{
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := parseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
 		return nil, err
 	}
 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMonitoringAlertPolicyName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyCombiner(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyCombiner(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyCreationRecord(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyCreationRecord(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1049,24 +1160,24 @@ func flattenMonitoringAlertPolicyCreationRecord(v interface{}, d *schema.Resourc
 	}
 	transformed := make(map[string]interface{})
 	transformed["mutate_time"] =
-		flattenMonitoringAlertPolicyCreationRecordMutateTime(original["mutateTime"], d)
+		flattenMonitoringAlertPolicyCreationRecordMutateTime(original["mutateTime"], d, config)
 	transformed["mutated_by"] =
-		flattenMonitoringAlertPolicyCreationRecordMutatedBy(original["mutatedBy"], d)
+		flattenMonitoringAlertPolicyCreationRecordMutatedBy(original["mutatedBy"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringAlertPolicyCreationRecordMutateTime(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyCreationRecordMutateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyCreationRecordMutatedBy(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyCreationRecordMutatedBy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyEnabled(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditions(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1079,15 +1190,16 @@ func flattenMonitoringAlertPolicyConditions(v interface{}, d *schema.ResourceDat
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"condition_absent":    flattenMonitoringAlertPolicyConditionsConditionAbsent(original["conditionAbsent"], d),
-			"name":                flattenMonitoringAlertPolicyConditionsName(original["name"], d),
-			"condition_threshold": flattenMonitoringAlertPolicyConditionsConditionThreshold(original["conditionThreshold"], d),
-			"display_name":        flattenMonitoringAlertPolicyConditionsDisplayName(original["displayName"], d),
+			"condition_absent":                    flattenMonitoringAlertPolicyConditionsConditionAbsent(original["conditionAbsent"], d, config),
+			"name":                                flattenMonitoringAlertPolicyConditionsName(original["name"], d, config),
+			"condition_monitoring_query_language": flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguage(original["conditionMonitoringQueryLanguage"], d, config),
+			"condition_threshold":                 flattenMonitoringAlertPolicyConditionsConditionThreshold(original["conditionThreshold"], d, config),
+			"display_name":                        flattenMonitoringAlertPolicyConditionsDisplayName(original["displayName"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenMonitoringAlertPolicyConditionsConditionAbsent(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionAbsent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1097,16 +1209,16 @@ func flattenMonitoringAlertPolicyConditionsConditionAbsent(v interface{}, d *sch
 	}
 	transformed := make(map[string]interface{})
 	transformed["aggregations"] =
-		flattenMonitoringAlertPolicyConditionsConditionAbsentAggregations(original["aggregations"], d)
+		flattenMonitoringAlertPolicyConditionsConditionAbsentAggregations(original["aggregations"], d, config)
 	transformed["trigger"] =
-		flattenMonitoringAlertPolicyConditionsConditionAbsentTrigger(original["trigger"], d)
+		flattenMonitoringAlertPolicyConditionsConditionAbsentTrigger(original["trigger"], d, config)
 	transformed["duration"] =
-		flattenMonitoringAlertPolicyConditionsConditionAbsentDuration(original["duration"], d)
+		flattenMonitoringAlertPolicyConditionsConditionAbsentDuration(original["duration"], d, config)
 	transformed["filter"] =
-		flattenMonitoringAlertPolicyConditionsConditionAbsentFilter(original["filter"], d)
+		flattenMonitoringAlertPolicyConditionsConditionAbsentFilter(original["filter"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregations(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1119,31 +1231,31 @@ func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregations(v interfa
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"per_series_aligner":   flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsPerSeriesAligner(original["perSeriesAligner"], d),
-			"group_by_fields":      flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsGroupByFields(original["groupByFields"], d),
-			"alignment_period":     flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsAlignmentPeriod(original["alignmentPeriod"], d),
-			"cross_series_reducer": flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsCrossSeriesReducer(original["crossSeriesReducer"], d),
+			"per_series_aligner":   flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsPerSeriesAligner(original["perSeriesAligner"], d, config),
+			"group_by_fields":      flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsGroupByFields(original["groupByFields"], d, config),
+			"alignment_period":     flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsAlignmentPeriod(original["alignmentPeriod"], d, config),
+			"cross_series_reducer": flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsCrossSeriesReducer(original["crossSeriesReducer"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsPerSeriesAligner(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsPerSeriesAligner(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsGroupByFields(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsGroupByFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsAlignmentPeriod(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsAlignmentPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsCrossSeriesReducer(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregationsCrossSeriesReducer(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionAbsentTrigger(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionAbsentTrigger(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1153,38 +1265,106 @@ func flattenMonitoringAlertPolicyConditionsConditionAbsentTrigger(v interface{},
 	}
 	transformed := make(map[string]interface{})
 	transformed["percent"] =
-		flattenMonitoringAlertPolicyConditionsConditionAbsentTriggerPercent(original["percent"], d)
+		flattenMonitoringAlertPolicyConditionsConditionAbsentTriggerPercent(original["percent"], d, config)
 	transformed["count"] =
-		flattenMonitoringAlertPolicyConditionsConditionAbsentTriggerCount(original["count"], d)
+		flattenMonitoringAlertPolicyConditionsConditionAbsentTriggerCount(original["count"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringAlertPolicyConditionsConditionAbsentTriggerPercent(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionAbsentTriggerPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionAbsentTriggerCount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionAbsentTriggerCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionAbsentDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionAbsentDuration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionAbsentFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionAbsentFilter(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["query"] =
+		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageQuery(original["query"], d, config)
+	transformed["duration"] =
+		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageDuration(original["duration"], d, config)
+	transformed["trigger"] =
+		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigger(original["trigger"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageQuery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigger(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["percent"] =
+		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerPercent(original["percent"], d, config)
+	transformed["count"] =
+		flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerCount(original["count"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1194,32 +1374,32 @@ func flattenMonitoringAlertPolicyConditionsConditionThreshold(v interface{}, d *
 	}
 	transformed := make(map[string]interface{})
 	transformed["threshold_value"] =
-		flattenMonitoringAlertPolicyConditionsConditionThresholdThresholdValue(original["thresholdValue"], d)
+		flattenMonitoringAlertPolicyConditionsConditionThresholdThresholdValue(original["thresholdValue"], d, config)
 	transformed["denominator_filter"] =
-		flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorFilter(original["denominatorFilter"], d)
+		flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorFilter(original["denominatorFilter"], d, config)
 	transformed["denominator_aggregations"] =
-		flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregations(original["denominatorAggregations"], d)
+		flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregations(original["denominatorAggregations"], d, config)
 	transformed["duration"] =
-		flattenMonitoringAlertPolicyConditionsConditionThresholdDuration(original["duration"], d)
+		flattenMonitoringAlertPolicyConditionsConditionThresholdDuration(original["duration"], d, config)
 	transformed["comparison"] =
-		flattenMonitoringAlertPolicyConditionsConditionThresholdComparison(original["comparison"], d)
+		flattenMonitoringAlertPolicyConditionsConditionThresholdComparison(original["comparison"], d, config)
 	transformed["trigger"] =
-		flattenMonitoringAlertPolicyConditionsConditionThresholdTrigger(original["trigger"], d)
+		flattenMonitoringAlertPolicyConditionsConditionThresholdTrigger(original["trigger"], d, config)
 	transformed["aggregations"] =
-		flattenMonitoringAlertPolicyConditionsConditionThresholdAggregations(original["aggregations"], d)
+		flattenMonitoringAlertPolicyConditionsConditionThresholdAggregations(original["aggregations"], d, config)
 	transformed["filter"] =
-		flattenMonitoringAlertPolicyConditionsConditionThresholdFilter(original["filter"], d)
+		flattenMonitoringAlertPolicyConditionsConditionThresholdFilter(original["filter"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringAlertPolicyConditionsConditionThresholdThresholdValue(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdThresholdValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorFilter(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregations(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1232,39 +1412,39 @@ func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregat
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"per_series_aligner":   flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsPerSeriesAligner(original["perSeriesAligner"], d),
-			"group_by_fields":      flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsGroupByFields(original["groupByFields"], d),
-			"alignment_period":     flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsAlignmentPeriod(original["alignmentPeriod"], d),
-			"cross_series_reducer": flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsCrossSeriesReducer(original["crossSeriesReducer"], d),
+			"per_series_aligner":   flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsPerSeriesAligner(original["perSeriesAligner"], d, config),
+			"group_by_fields":      flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsGroupByFields(original["groupByFields"], d, config),
+			"alignment_period":     flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsAlignmentPeriod(original["alignmentPeriod"], d, config),
+			"cross_series_reducer": flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsCrossSeriesReducer(original["crossSeriesReducer"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsPerSeriesAligner(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsPerSeriesAligner(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsGroupByFields(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsGroupByFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsAlignmentPeriod(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsAlignmentPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsCrossSeriesReducer(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdDenominatorAggregationsCrossSeriesReducer(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdDuration(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdComparison(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdComparison(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdTrigger(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdTrigger(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1274,26 +1454,33 @@ func flattenMonitoringAlertPolicyConditionsConditionThresholdTrigger(v interface
 	}
 	transformed := make(map[string]interface{})
 	transformed["percent"] =
-		flattenMonitoringAlertPolicyConditionsConditionThresholdTriggerPercent(original["percent"], d)
+		flattenMonitoringAlertPolicyConditionsConditionThresholdTriggerPercent(original["percent"], d, config)
 	transformed["count"] =
-		flattenMonitoringAlertPolicyConditionsConditionThresholdTriggerCount(original["count"], d)
+		flattenMonitoringAlertPolicyConditionsConditionThresholdTriggerCount(original["count"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringAlertPolicyConditionsConditionThresholdTriggerPercent(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdTriggerPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdTriggerCount(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdTriggerCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
 			return intVal
-		} // let terraform core handle it if we can't convert the string to an int.
+		}
 	}
-	return v
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregations(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1306,47 +1493,47 @@ func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregations(v inte
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"per_series_aligner":   flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsPerSeriesAligner(original["perSeriesAligner"], d),
-			"group_by_fields":      flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsGroupByFields(original["groupByFields"], d),
-			"alignment_period":     flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsAlignmentPeriod(original["alignmentPeriod"], d),
-			"cross_series_reducer": flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsCrossSeriesReducer(original["crossSeriesReducer"], d),
+			"per_series_aligner":   flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsPerSeriesAligner(original["perSeriesAligner"], d, config),
+			"group_by_fields":      flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsGroupByFields(original["groupByFields"], d, config),
+			"alignment_period":     flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsAlignmentPeriod(original["alignmentPeriod"], d, config),
+			"cross_series_reducer": flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsCrossSeriesReducer(original["crossSeriesReducer"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsPerSeriesAligner(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsPerSeriesAligner(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsGroupByFields(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsGroupByFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsAlignmentPeriod(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsAlignmentPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsCrossSeriesReducer(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdAggregationsCrossSeriesReducer(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsConditionThresholdFilter(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsConditionThresholdFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyConditionsDisplayName(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyConditionsDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyNotificationChannels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyNotificationChannels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyUserLabels(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyUserLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyDocumentation(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyDocumentation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1356,16 +1543,16 @@ func flattenMonitoringAlertPolicyDocumentation(v interface{}, d *schema.Resource
 	}
 	transformed := make(map[string]interface{})
 	transformed["content"] =
-		flattenMonitoringAlertPolicyDocumentationContent(original["content"], d)
+		flattenMonitoringAlertPolicyDocumentationContent(original["content"], d, config)
 	transformed["mime_type"] =
-		flattenMonitoringAlertPolicyDocumentationMimeType(original["mimeType"], d)
+		flattenMonitoringAlertPolicyDocumentationMimeType(original["mimeType"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringAlertPolicyDocumentationContent(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyDocumentationContent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenMonitoringAlertPolicyDocumentationMimeType(v interface{}, d *schema.ResourceData) interface{} {
+func flattenMonitoringAlertPolicyDocumentationMimeType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1403,6 +1590,13 @@ func expandMonitoringAlertPolicyConditions(v interface{}, d TerraformResourceDat
 			return nil, err
 		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
 			transformed["name"] = transformedName
+		}
+
+		transformedConditionMonitoringQueryLanguage, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguage(original["condition_monitoring_query_language"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedConditionMonitoringQueryLanguage); val.IsValid() && !isEmptyValue(val) {
+			transformed["conditionMonitoringQueryLanguage"] = transformedConditionMonitoringQueryLanguage
 		}
 
 		transformedConditionThreshold, err := expandMonitoringAlertPolicyConditionsConditionThreshold(original["condition_threshold"], d, config)
@@ -1566,6 +1760,81 @@ func expandMonitoringAlertPolicyConditionsConditionAbsentFilter(v interface{}, d
 }
 
 func expandMonitoringAlertPolicyConditionsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedQuery, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageQuery(original["query"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQuery); val.IsValid() && !isEmptyValue(val) {
+		transformed["query"] = transformedQuery
+	}
+
+	transformedDuration, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageDuration(original["duration"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDuration); val.IsValid() && !isEmptyValue(val) {
+		transformed["duration"] = transformedDuration
+	}
+
+	transformedTrigger, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigger(original["trigger"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTrigger); val.IsValid() && !isEmptyValue(val) {
+		transformed["trigger"] = transformedTrigger
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageQuery(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTrigger(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPercent, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerPercent(original["percent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPercent); val.IsValid() && !isEmptyValue(val) {
+		transformed["percent"] = transformedPercent
+	}
+
+	transformedCount, err := expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerCount(original["count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCount); val.IsValid() && !isEmptyValue(val) {
+		transformed["count"] = transformedCount
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerPercent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionMonitoringQueryLanguageTriggerCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1860,11 +2129,4 @@ func expandMonitoringAlertPolicyDocumentationContent(v interface{}, d TerraformR
 
 func expandMonitoringAlertPolicyDocumentationMimeType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
-}
-
-func resourceMonitoringAlertPolicyDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	if err := d.Set("labels", nil); err != nil {
-		return res, fmt.Errorf("Error ignoring Removed fields for AlertPolicy: %s", err)
-	}
-	return res, nil
 }
