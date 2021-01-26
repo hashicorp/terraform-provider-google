@@ -804,6 +804,22 @@ func resourceContainerCluster() *schema.Resource {
 							Computed:    true,
 							Description: `The external IP address of this cluster's master endpoint.`,
 						},
+						"master_global_access_config": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: "Controls cluster master global access settings.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether the cluster master is accessible globally or not.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -902,6 +918,38 @@ func resourceContainerCluster() *schema.Resource {
 						},
 					},
 				},
+			},
+
+			"tpu_ipv4_cidr_block": {
+				Computed:    true,
+				Type:        schema.TypeString,
+				Description: `The IP address range of the Cloud TPUs in this cluster, in CIDR notation (e.g. 1.2.3.4/29).`,
+			},
+
+			"default_snat_status": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: `Whether the cluster disables default in-node sNAT rules. In-node sNAT rules will be disabled when defaultSnatStatus is disabled.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `When disabled is set to false, default IP masquerade rules will be applied to the nodes to prevent sNAT on cluster internal traffic.`,
+						},
+					},
+				},
+			},
+
+			"datapath_provider": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      `The desired datapath provider for this cluster. By default, uses the IPTables-based kube-proxy implementation.`,
+				ValidateFunc:     validation.StringInSlice([]string{"DATAPATH_PROVIDER_UNSPECIFIED", "LEGACY_DATAPATH", "ADVANCED_DATAPATH"}, false),
+				DiffSuppressFunc: emptyOrDefaultStringSuppress("DATAPATH_PROVIDER_UNSPECIFIED"),
 			},
 
 			"enable_intranode_visibility": {
@@ -1061,6 +1109,12 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			ForceSendFields: []string{"Enabled"},
 		},
 		ReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
+		EnableTpu:      d.Get("enable_tpu").(bool),
+		NetworkConfig: &containerBeta.NetworkConfig{
+			EnableIntraNodeVisibility: d.Get("enable_intranode_visibility").(bool),
+			DefaultSnatStatus:         expandDefaultSnatStatus(d.Get("default_snat_status")),
+			DatapathProvider:          d.Get("datapath_provider").(string),
+		},
 		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
 		ResourceLabels: expandStringMap(d, "resource_labels"),
 	}
@@ -1382,6 +1436,21 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("release_channel", flattenReleaseChannel(cluster.ReleaseChannel)); err != nil {
 		return err
 	}
+	if err := d.Set("enable_tpu", cluster.EnableTpu); err != nil {
+		return fmt.Errorf("Error setting enable_tpu: %s", err)
+	}
+	if err := d.Set("tpu_ipv4_cidr_block", cluster.TpuIpv4CidrBlock); err != nil {
+		return fmt.Errorf("Error setting tpu_ipv4_cidr_block: %s", err)
+	}
+	if err := d.Set("datapath_provider", cluster.NetworkConfig.DatapathProvider); err != nil {
+		return fmt.Errorf("Error setting datapath_provider: %s", err)
+	}
+	if err := d.Set("default_snat_status", flattenDefaultSnatStatus(cluster.NetworkConfig.DefaultSnatStatus)); err != nil {
+		return err
+	}
+	if err := d.Set("enable_intranode_visibility", cluster.NetworkConfig.EnableIntraNodeVisibility); err != nil {
+		return fmt.Errorf("Error setting enable_intranode_visibility: %s", err)
+	}
 	if err := d.Set("authenticator_groups_config", flattenAuthenticatorGroupsConfig(cluster.AuthenticatorGroupsConfig)); err != nil {
 		return err
 	}
@@ -1617,6 +1686,74 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s Release Channel has been updated to %#v", d.Id(), req.Update.DesiredReleaseChannel)
+	}
+
+	if d.HasChange("enable_intranode_visibility") {
+		enabled := d.Get("enable_intranode_visibility").(bool)
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredIntraNodeVisibilityConfig: &containerBeta.IntraNodeVisibilityConfig{
+					Enabled:         enabled,
+					ForceSendFields: []string{"Enabled"},
+				},
+			},
+		}
+		updateF := func() error {
+			log.Println("[DEBUG] updating enable_intranode_visibility")
+			name := containerClusterFullName(project, location, clusterName)
+			clusterUpdateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = containerOperationWait(config, op, project, location, "updating GKE Intra Node Visibility", userAgent, d.Timeout(schema.TimeoutUpdate))
+			log.Println("[DEBUG] done updating enable_intranode_visibility")
+			return err
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s Intra Node Visibility has been updated to %v", d.Id(), enabled)
+	}
+
+	if d.HasChange("default_snat_status") {
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredDefaultSnatStatus: expandDefaultSnatStatus(d.Get("default_snat_status")),
+			},
+		}
+		updateF := func() error {
+			log.Println("[DEBUG] updating default_snat_status")
+			name := containerClusterFullName(project, location, clusterName)
+			clusterUpdateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = containerOperationWait(config, op, project, location, "updating GKE Default SNAT status", userAgent, d.Timeout(schema.TimeoutUpdate))
+			log.Println("[DEBUG] done updating default_snat_status")
+			return err
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s Default SNAT status has been updated", d.Id())
 	}
 
 	if d.HasChange("maintenance_policy") {
@@ -2570,10 +2707,23 @@ func expandPrivateClusterConfig(configured interface{}) *containerBeta.PrivateCl
 	}
 	config := l[0].(map[string]interface{})
 	return &containerBeta.PrivateClusterConfig{
-		EnablePrivateEndpoint: config["enable_private_endpoint"].(bool),
-		EnablePrivateNodes:    config["enable_private_nodes"].(bool),
-		MasterIpv4CidrBlock:   config["master_ipv4_cidr_block"].(string),
-		ForceSendFields:       []string{"EnablePrivateEndpoint", "EnablePrivateNodes", "MasterIpv4CidrBlock"},
+		EnablePrivateEndpoint:    config["enable_private_endpoint"].(bool),
+		EnablePrivateNodes:       config["enable_private_nodes"].(bool),
+		MasterIpv4CidrBlock:      config["master_ipv4_cidr_block"].(string),
+		MasterGlobalAccessConfig: expandPrivateClusterConfigMasterGlobalAccessConfig(config["master_global_access_config"]),
+		ForceSendFields:          []string{"EnablePrivateEndpoint", "EnablePrivateNodes", "MasterIpv4CidrBlock", "MasterGlobalAccessConfig"},
+	}
+}
+
+func expandPrivateClusterConfigMasterGlobalAccessConfig(configured interface{}) *containerBeta.PrivateClusterMasterGlobalAccessConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &containerBeta.PrivateClusterMasterGlobalAccessConfig{
+		Enabled:         config["enabled"].(bool),
+		ForceSendFields: []string{"Enabled"},
 	}
 }
 
@@ -2609,6 +2759,19 @@ func expandReleaseChannel(configured interface{}) *containerBeta.ReleaseChannel 
 	return &containerBeta.ReleaseChannel{
 		Channel: config["channel"].(string),
 	}
+}
+
+func expandDefaultSnatStatus(configured interface{}) *containerBeta.DefaultSnatStatus {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &containerBeta.DefaultSnatStatus{
+		Disabled:        config["disabled"].(bool),
+		ForceSendFields: []string{"Disabled"},
+	}
+
 }
 
 func expandWorkloadIdentityConfig(configured interface{}) *containerBeta.WorkloadIdentityConfig {
@@ -2756,12 +2919,24 @@ func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[st
 	}
 	return []map[string]interface{}{
 		{
-			"enable_private_endpoint": c.EnablePrivateEndpoint,
-			"enable_private_nodes":    c.EnablePrivateNodes,
-			"master_ipv4_cidr_block":  c.MasterIpv4CidrBlock,
-			"peering_name":            c.PeeringName,
-			"private_endpoint":        c.PrivateEndpoint,
-			"public_endpoint":         c.PublicEndpoint,
+			"enable_private_endpoint":     c.EnablePrivateEndpoint,
+			"enable_private_nodes":        c.EnablePrivateNodes,
+			"master_ipv4_cidr_block":      c.MasterIpv4CidrBlock,
+			"master_global_access_config": flattenPrivateClusterConfigMasterGlobalAccessConfig(c.MasterGlobalAccessConfig),
+			"peering_name":                c.PeeringName,
+			"private_endpoint":            c.PrivateEndpoint,
+			"public_endpoint":             c.PublicEndpoint,
+		},
+	}
+}
+
+// Like most GKE blocks, this is not returned from the API at all when false. This causes trouble
+// for users who've set enabled = false in config as they will get a permadiff. Always setting the
+// field resolves that. We can assume if it was not returned, it's false.
+func flattenPrivateClusterConfigMasterGlobalAccessConfig(c *containerBeta.PrivateClusterMasterGlobalAccessConfig) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"enabled": c != nil && c.Enabled,
 		},
 	}
 }
@@ -2787,6 +2962,16 @@ func flattenReleaseChannel(c *containerBeta.ReleaseChannel) []map[string]interfa
 		// Explicitly set the release channel to the default.
 		result = append(result, map[string]interface{}{
 			"channel": "UNSPECIFIED",
+		})
+	}
+	return result
+}
+
+func flattenDefaultSnatStatus(c *containerBeta.DefaultSnatStatus) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"disabled": c.Disabled,
 		})
 	}
 	return result
