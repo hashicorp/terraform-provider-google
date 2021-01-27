@@ -2278,7 +2278,7 @@ resource "google_compute_instance_template" "foobar" {
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
-    resource_policies = [google_compute_resource_policy.foo.self_link]
+    resource_policies = [google_compute_resource_policy.foo.id]
   }
 
   network_interface {

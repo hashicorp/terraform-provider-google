@@ -48,7 +48,7 @@ resource "google_compute_instance_template" "default" {
     auto_delete       = true
     boot              = true
     // backup the disk every day
-    resource_policies = [google_compute_resource_policy.daily_backup.name]
+    resource_policies = [google_compute_resource_policy.daily_backup.id]
   }
 
   // Use an existing disk resource
@@ -326,7 +326,7 @@ The `disk` block supports:
 
     Instance templates do not store customer-supplied encryption keys, so you cannot use your own keys to encrypt disks in a managed instance group.
 
-* `resource_policies` (Optional) -- A list of short names or self_links of resource policies to attach to this disk for automatic snapshot creations. Currently a max of 1 resource policy is supported.
+* `resource_policies` (Optional) -- A list (short name or id) of resource policies to attach to this disk for automatic snapshot creations. Currently a max of 1 resource policy is supported.
 
 The `disk_encryption_key` block supports:
 

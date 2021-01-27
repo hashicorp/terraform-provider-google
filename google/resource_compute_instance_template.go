@@ -214,7 +214,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							MaxItems:    1,
-							Description: `A list of short names or self_links of resource policies to attach to this disk. Currently a max of 1 resource policy is supported.`,
+							Description: `A list (short name or id) of resource policies to attach to this disk. Currently a max of 1 resource policy is supported.`,
 							Elem: &schema.Schema{
 								Type:             schema.TypeString,
 								DiffSuppressFunc: compareResourceNames,
