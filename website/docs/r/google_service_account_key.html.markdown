@@ -35,7 +35,7 @@ resource "google_service_account" "myaccount" {
 
 # note this requires the terraform to be run regularly
 resource "time_rotating" "mykey_rotation" {
-  rotate_days = 30
+  rotation_days = 30
 }
 
 resource "google_service_account_key" "mykey" {
