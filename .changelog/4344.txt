@@ -1,0 +1,4 @@
+```release-note:enhancement
+monitoring : added `availability` sli metric support for the resource `google_monitoring_slo`
+
+```
