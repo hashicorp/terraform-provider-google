@@ -220,7 +220,7 @@ this set of labeled resources should be included in the budget.`,
 						"projects": {
 							Type:     schema.TypeList,
 							Optional: true,
-							Description: `A set of projects of the form projects/{project_id},
+							Description: `A set of projects of the form projects/{project_number},
 specifying that usage from only this set of projects should be
 included in the budget. If omitted, the report will include
 all usage for the billing account, regardless of which project
