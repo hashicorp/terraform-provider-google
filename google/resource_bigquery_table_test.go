@@ -438,13 +438,39 @@ func TestAccBigQueryDataTable_jsonEquivalency(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
 			},
 			{
-				Config: testAccBigQueryTable_jsonEqUpdate(datasetID, tableID),
+				Config: testAccBigQueryTable_jsonEqModeRemoved(datasetID, tableID),
 			},
 			{
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+			},
+		},
+	})
+}
+
+func TestAccBigQueryDataTable_canReorderParameters(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// we don't run any checks because the resource will error out if
+				// it attempts to destroy/tear down.
+				Config: testAccBigQueryTable_jsonPreventDestroy(datasetID, tableID),
+			},
+			{
+				Config: testAccBigQueryTable_jsonPreventDestroyOrderChanged(datasetID, tableID),
+			},
+			{
+				Config: testAccBigQueryTable_jsonEq(datasetID, tableID),
 			},
 		},
 	})
@@ -598,77 +624,91 @@ var testUnitBigQueryDataTableIsChangableTestCases = []testUnitBigQueryDataTableJ
 		jsonNew:    "[{\"name\": \"someValue\", \"type\" : \"BOOLEAN\", \"description\" : \"some new value\" }]",
 		changeable: false,
 	},
+	{
+		name:       "orderOfArrayChangesAndDescriptionChanges",
+		jsonOld:    "[{\"name\": \"value1\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }, {\"name\": \"value2\", \"type\" : \"BOOLEAN\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		jsonNew:    "[{\"name\": \"value2\", \"type\" : \"BOOLEAN\", \"mode\" : \"NULLABLE\", \"description\" : \"newVal\" },  {\"name\": \"value1\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		changeable: true,
+	},
+	{
+		name:       "orderOfArrayChangesAndNameChanges",
+		jsonOld:    "[{\"name\": \"value1\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }, {\"name\": \"value2\", \"type\" : \"BOOLEAN\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		jsonNew:    "[{\"name\": \"value3\", \"type\" : \"BOOLEAN\", \"mode\" : \"NULLABLE\", \"description\" : \"newVal\" },  {\"name\": \"value1\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		changeable: false,
+	},
 }
 
 var testUnitBigQueryDataTableJSONEquivalencyTestCases = []testUnitBigQueryDataTableJSONEquivalencyTestCase{
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
 		true,
 	},
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
-		"[{\"someKey\": \"someValue\", \"finalKey\" : {} }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"finalKey\" : {} }]",
+		"[{\"name\": \"someValue\", \"finalKey\" : {} }]",
 		false,
 	},
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"NULLABLE\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"NULLABLE\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
 		true,
 	},
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"NULLABLE\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"somethingRandom\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"NULLABLE\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"mode\": \"somethingRandom\"  }]",
 		false,
 	},
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
 		true,
 	},
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"somethingRandom\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"description\": \"somethingRandom\"  }]",
 		false,
 	},
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INTEGER\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INT64\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INTEGER\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INT64\"  }]",
 		true,
 	},
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INTEGER\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"somethingRandom\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"INTEGER\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"somethingRandom\"  }]",
 		false,
 	},
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT64\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT64\"  }]",
 		true,
 	},
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"FLOAT\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
 		false,
 	},
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOL\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOL\"  }]",
 		true,
 	},
 	{
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\"  }]",
-		"[{\"someKey\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\", \"type\": \"BOOLEAN\"  }]",
+		"[{\"name\": \"someValue\", \"anotherKey\" : \"anotherValue\" }]",
 		false,
 	},
 	{
-		"[1,2,3]",
-		"[1,2,3]",
+		// order changes, name same
+		"[{\"name\": \"value1\", \"1\" : \"1\"},{\"name\": \"value2\", \"2\" : \"2\" }]",
+		"[{\"name\": \"value2\", \"2\" : \"2\" },{\"name\": \"value1\", \"1\" : \"1\" }]",
 		true,
 	},
 	{
-		"[1,2,3]",
-		"[1,2,\"banana\"]",
+		// order changes, value different
+		"[{\"name\": \"value1\", \"1\" : \"1\"},{\"name\": \"value2\", \"2\" : \"2\" }]",
+		"[{\"name\": \"value2\", \"2\" : \"random\" },{\"name\": \"value1\", \"1\" : \"1\" }]",
 		false,
 	},
 }
@@ -1338,7 +1378,7 @@ resource "google_bigquery_table" "test" {
 `, datasetID, tableID)
 }
 
-func testAccBigQueryTable_jsonEqUpdate(datasetID, tableID string) string {
+func testAccBigQueryTable_jsonEqModeRemoved(datasetID, tableID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "%s"
@@ -1364,6 +1404,78 @@ resource "google_bigquery_table" "test" {
         description = "Timestamp of dataset creation"
         name        = "creation_time"
         type        = "TIMESTAMP"
+      },
+    ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_jsonPreventDestroy(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+	lifecycle {
+		prevent_destroy = true
+	}
+
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        mode        = "NULLABLE"
+        type        = "INTEGER"
+      },
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
+      },
+    ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_jsonPreventDestroyOrderChanged(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+	lifecycle {
+		prevent_destroy = true
+	}
+
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
+			},
+			{
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        mode        = "NULLABLE"
+        type        = "INTEGER"
       },
     ])
 }
