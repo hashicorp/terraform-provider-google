@@ -12,8 +12,8 @@ func dataSourceGoogleServiceAccount() *schema.Resource {
 		Read: dataSourceGoogleServiceAccountRead,
 		Schema: map[string]*schema.Schema{
 			"account_id": {
-				Type:         schema.TypeString,
-				Required:     true,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"project": {
 				Type:     schema.TypeString,
