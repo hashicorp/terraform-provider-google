@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -13,6 +14,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/bigquery/v2"
 )
+
+func bigQueryTableSortArrayByName(array []interface{}) {
+	sort.Slice(array, func(i, k int) bool {
+		return array[i].(map[string]interface{})["name"].(string) < array[k].(map[string]interface{})["name"].(string)
+	})
+}
+
+func bigQueryTablecheckNameExists(jsonList []interface{}) error {
+	for _, m := range jsonList {
+		if _, ok := m.(map[string]interface{})["name"]; !ok {
+			return fmt.Errorf("No name in schema %+v", m)
+		}
+	}
+
+	return nil
+}
 
 // Compares two json's while optionally taking in a compareMapKeyVal function.
 // This function will override any comparison of a given map[string]interface{}
@@ -27,6 +44,14 @@ func jsonCompareWithMapKeyOverride(a, b interface{}, compareMapKeyVal func(key s
 		} else if len(arrayA) != len(arrayB) {
 			return false, nil
 		}
+		if err := bigQueryTablecheckNameExists(arrayA); err != nil {
+			return false, err
+		}
+		bigQueryTableSortArrayByName(arrayA)
+		if err := bigQueryTablecheckNameExists(arrayB); err != nil {
+			return false, err
+		}
+		bigQueryTableSortArrayByName(arrayB)
 		for i := range arrayA {
 			eq, err := jsonCompareWithMapKeyOverride(arrayA[i], arrayB[i], compareMapKeyVal)
 			if err != nil {
@@ -169,6 +194,14 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}) (bool, error)
 			// if not growing not changeable
 			return false, nil
 		}
+		if err := bigQueryTablecheckNameExists(arrayOld); err != nil {
+			return false, err
+		}
+		bigQueryTableSortArrayByName(arrayOld)
+		if err := bigQueryTablecheckNameExists(arrayNew); err != nil {
+			return false, err
+		}
+		bigQueryTableSortArrayByName(arrayNew)
 		for i := range arrayOld {
 			if isChangable, err :=
 				resourceBigQueryTableSchemaIsChangeable(arrayOld[i], arrayNew[i]); err != nil || !isChangable {
