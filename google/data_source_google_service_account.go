@@ -14,7 +14,6 @@ func dataSourceGoogleServiceAccount() *schema.Resource {
 			"account_id": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateRFC1035Name(6, 30),
 			},
 			"project": {
 				Type:     schema.TypeString,
