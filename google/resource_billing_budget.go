@@ -224,8 +224,7 @@ this set of labeled resources should be included in the budget.`,
 specifying that usage from only this set of projects should be
 included in the budget. If omitted, the report will include
 all usage for the billing account, regardless of which project
-the usage occurred on. Only zero or one project can be
-specified currently.`,
+the usage occurred on.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
