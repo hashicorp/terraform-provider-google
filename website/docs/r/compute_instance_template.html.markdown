@@ -44,9 +44,11 @@ resource "google_compute_instance_template" "default" {
 
   // Create a new boot disk from an image
   disk {
-    source_image = "debian-cloud/debian-9"
-    auto_delete  = true
-    boot         = true
+    source_image      = "debian-cloud/debian-9"
+    auto_delete       = true
+    boot              = true
+    // backup the disk every day
+    resource_policies = [google_compute_resource_policy.daily_backup.id]
   }
 
   // Use an existing disk resource
@@ -83,6 +85,19 @@ resource "google_compute_disk" "foobar" {
   size  = 10
   type  = "pd-ssd"
   zone  = "us-central1-a"
+}
+
+resource "google_compute_resource_policy" "daily_backup" {
+  name   = "every-day-4am"
+  region = "us-central1"
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time    = "04:00"
+      }
+    }
+  }
 }
 ```
 
@@ -278,9 +293,9 @@ The `disk` block supports:
     `{project}/{image}`, `{family}`, or `{image}`.
 ~> **Note:** Either `source` or `source_image` is **required** in a disk block unless the disk type is `local-ssd`. Check the API [docs](https://cloud.google.com/compute/docs/reference/rest/v1/instanceTemplates/insert) for details.
 
-* `interface` - (Optional) Specifies the disk interface to use for attaching this disk, 
-    which is either SCSI or NVME. The default is SCSI. Persistent disks must always use SCSI 
-    and the request will fail if you attempt to attach a persistent disk in any other format 
+* `interface` - (Optional) Specifies the disk interface to use for attaching this disk,
+    which is either SCSI or NVME. The default is SCSI. Persistent disks must always use SCSI
+    and the request will fail if you attempt to attach a persistent disk in any other format
     than SCSI. Local SSDs can use either NVME or SCSI.
 
 * `mode` - (Optional) The mode in which to attach this disk, either READ_WRITE
@@ -310,6 +325,8 @@ The `disk` block supports:
     If you do not provide an encryption key, then the disk will be encrypted using an automatically generated key and you do not need to provide a key to use the disk later.
 
     Instance templates do not store customer-supplied encryption keys, so you cannot use your own keys to encrypt disks in a managed instance group.
+
+* `resource_policies` (Optional) -- A list (short name or id) of resource policies to attach to this disk for automatic snapshot creations. Currently a max of 1 resource policy is supported.
 
 The `disk_encryption_key` block supports:
 

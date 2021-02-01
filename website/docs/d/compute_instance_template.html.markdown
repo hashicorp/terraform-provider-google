@@ -35,7 +35,7 @@ The following arguments are supported:
 
 - `name` - (Optional) The name of the instance template. One of `name` or `filter` must be provided.
 
-- `filter` - (Optional) A filter to retrieve the instance templates. 
+- `filter` - (Optional) A filter to retrieve the instance templates.
     See [gcloud topic filters](https://cloud.google.com/sdk/gcloud/reference/topic/filters) for reference.
     If multiple instance templates match, either adjust the filter or specify `most_recent`. One of `name` or `filter` must be provided.
 
@@ -137,9 +137,9 @@ The `disk` block supports:
     `{project}/{image}`, `{family}`, or `{image}`.
 ~> **Note:** Either `source` or `source_image` is **required** in a disk block unless the disk type is `local-ssd`. Check the API [docs](https://cloud.google.com/compute/docs/reference/rest/v1/instanceTemplates/insert) for details.
 
-* `interface` - Specifies the disk interface to use for attaching this disk, 
-    which is either SCSI or NVME. The default is SCSI. Persistent disks must always use SCSI 
-    and the request will fail if you attempt to attach a persistent disk in any other format 
+* `interface` - Specifies the disk interface to use for attaching this disk,
+    which is either SCSI or NVME. The default is SCSI. Persistent disks must always use SCSI
+    and the request will fail if you attempt to attach a persistent disk in any other format
     than SCSI. Local SSDs can use either NVME or SCSI.
 
 * `mode` - The mode in which to attach this disk, either READ_WRITE
@@ -169,6 +169,8 @@ The `disk` block supports:
     If you do not provide an encryption key, then the disk will be encrypted using an automatically generated key and you do not need to provide a key to use the disk later.
 
     Instance templates do not store customer-supplied encryption keys, so you cannot use your own keys to encrypt disks in a managed instance group.
+
+* `resource_policies` (Optional) -- A list of short names of resource policies to attach to this disk for automatic snapshot creations. Currently a max of 1 resource policy is supported.
 
 The `disk_encryption_key` block supports:
 
