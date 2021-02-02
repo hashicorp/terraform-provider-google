@@ -240,11 +240,14 @@ func isNotFilestoreQuotaError(err error) (bool, string) {
 }
 
 // Retry if App Engine operation returns a 409 with a specific message for
-// concurrent operations.
+// concurrent operations, or a 404 indicating p4sa has not yet propagated.
 func isAppEngineRetryableError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "operation is already in progress") {
 			return true, "Waiting for other concurrent App Engine changes to finish"
+		}
+		if gerr.Code == 404 && strings.Contains(strings.ToLower(gerr.Body), "unable to retrieve P4SA") {
+			return true, "Waiting for P4SA propagation to GAIA"
 		}
 	}
 	return false, ""
