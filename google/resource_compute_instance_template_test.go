@@ -898,33 +898,6 @@ func TestAccComputeInstanceTemplate_imageResourceTest(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstanceTemplate_resourcePolicies(t *testing.T) {
-	t.Parallel()
-
-	var instanceTemplate computeBeta.InstanceTemplate
-	policyName := "tf-test-policy-" + randString(t, 10)
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeInstanceTemplate_resourcePolicies(randString(t, 10), policyName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
-					testAccCheckComputeInstanceTemplateHasDiskResourcePolicy(&instanceTemplate, policyName),
-				),
-			},
-			{
-				ResourceName:      "google_compute_instance_template.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func testAccCheckComputeInstanceTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -1268,17 +1241,6 @@ func testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(instanceTemplate *
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.ShieldedVmConfig != nil {
 			return fmt.Errorf("Expected no shielded vm config")
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeInstanceTemplateHasDiskResourcePolicy(instanceTemplate *computeBeta.InstanceTemplate, resourcePolicy string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		resourcePolicyActual := instanceTemplate.Properties.Disks[0].InitializeParams.ResourcePolicies[0]
-		if resourcePolicyActual != resourcePolicy {
-			return fmt.Errorf("Wrong disk resource policy: expected %s, got %s", resourcePolicy, resourcePolicyActual)
 		}
 
 		return nil
@@ -2238,7 +2200,7 @@ data "google_compute_image" "my_image" {
 	family  = "debian-9"
 	project = "debian-cloud"
 }
-
+	
 resource "google_compute_disk" "my_disk" {
 	name  = "%s"
 	zone  = "us-central1-a"
@@ -2260,51 +2222,6 @@ resource "google_compute_instance_template" "foobar" {
 		access_config {}
 	}
 }
-
+	  
 `, diskName, imageName, imageDescription)
-}
-
-func testAccComputeInstanceTemplate_resourcePolicies(suffix string, policyName string) string {
-	return fmt.Sprintf(`
-data "google_compute_image" "my_image" {
-  family  = "debian-9"
-  project = "debian-cloud"
-}
-
-resource "google_compute_instance_template" "foobar" {
-  name           = "instance-test-%s"
-  machine_type   = "e2-medium"
-  can_ip_forward = false
-
-  disk {
-    source_image = data.google_compute_image.my_image.self_link
-    resource_policies = [google_compute_resource_policy.foo.id]
-  }
-
-  network_interface {
-    network = "default"
-  }
-
-  service_account {
-    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
-  }
-
-  labels = {
-    my_label = "foobar"
-  }
-}
-
-resource "google_compute_resource_policy" "foo" {
-  name   = "%s"
-  region = "us-central1"
-  snapshot_schedule_policy {
-    schedule {
-      daily_schedule {
-        days_in_cycle = 1
-        start_time    = "04:00"
-      }
-    }
-  }
-}
-`, suffix, policyName)
 }
