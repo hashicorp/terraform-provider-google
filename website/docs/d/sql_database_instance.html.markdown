@@ -130,13 +130,13 @@ The `replica_configuration` block contains:
 
 * `ca_certificate` - PEM representation of the trusted CA's x509 certificate.
 
-* `client_certificate` - PEM representation of the slave's x509 certificate.
+* `client_certificate` - PEM representation of the replica's x509 certificate.
 
-* `client_key` - PEM representation of the slave's private key.
+* `client_key` - PEM representation of the replica's private key.
 
 * `connect_retry_interval` - The number of seconds between connect retries.
 
-* `dump_file_path` - Path to a SQL file in GCS from which slave instances are created. 
+* `dump_file_path` - Path to a SQL file in GCS from which replica instances are created. 
 
 * `failover_target` - Specifies if the replica is the failover target.
 

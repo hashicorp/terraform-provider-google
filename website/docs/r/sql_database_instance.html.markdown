@@ -349,16 +349,16 @@ to work, cannot be updated, and supports:
 * `ca_certificate` - (Optional) PEM representation of the trusted CA's x509
     certificate.
 
-* `client_certificate` - (Optional) PEM representation of the slave's x509
+* `client_certificate` - (Optional) PEM representation of the replica's x509
     certificate.
 
-* `client_key` - (Optional) PEM representation of the slave's private key. The
+* `client_key` - (Optional) PEM representation of the replica's private key. The
     corresponding public key in encoded in the `client_certificate`.
 
 * `connect_retry_interval` - (Optional, Default: 60) The number of seconds
     between connect retries.
 
-* `dump_file_path` - (Optional) Path to a SQL file in GCS from which slave
+* `dump_file_path` - (Optional) Path to a SQL file in GCS from which replica
     instances are created. Format is `gs://bucket/filename`.
 
 * `failover_target` - (Optional) Specifies if the replica is the failover target.
