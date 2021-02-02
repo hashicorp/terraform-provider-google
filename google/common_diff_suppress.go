@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -143,4 +144,20 @@ func absoluteDomainSuppress(k, old, new string, _ *schema.ResourceData) bool {
 		return old == strings.TrimRight(new, ".")
 	}
 	return old == new
+}
+
+func timestampDiffSuppress(format string) schema.SchemaDiffSuppressFunc {
+	return func(_, old, new string, _ *schema.ResourceData) bool {
+		oldT, err := time.Parse(format, old)
+		if err != nil {
+			return false
+		}
+
+		newT, err := time.Parse(format, new)
+		if err != nil {
+			return false
+		}
+
+		return oldT == newT
+	}
 }

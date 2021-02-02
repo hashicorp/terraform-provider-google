@@ -356,8 +356,14 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {
 			log.Printf("[DEBUG] SQL Instance %q not found, bootstrapping", SharedTestSQLInstanceName)
+
+			backupConfig := &sqladmin.BackupConfiguration{
+				Enabled:                    true,
+				PointInTimeRecoveryEnabled: true,
+			}
 			settings := &sqladmin.Settings{
-				Tier: "db-f1-micro",
+				Tier:                "db-f1-micro",
+				BackupConfiguration: backupConfig,
 			}
 			instance = &sqladmin.DatabaseInstance{
 				Name:            SharedTestSQLInstanceName,
