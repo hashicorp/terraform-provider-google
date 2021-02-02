@@ -1,4 +1,54 @@
+## 3.53.0 (Unreleased)
 ## 3.52.0 (January 11, 2021)
+
+BREAKING CHANGES:
+* billing: removed import support for `google_billing_budget` as it never functioned correctly ([#8023](https://github.com/hashicorp/terraform-provider-google/pull/8023))
+
+FEATURES:
+* **New Data Source:** `google_sql_backup_run` ([#8100](https://github.com/hashicorp/terraform-provider-google/pull/8100))
+* **New Data Source:** `google_storage_bucket_object_content` ([#8016](https://github.com/hashicorp/terraform-provider-google/pull/8016))
+* **New Resource:** `google_billing_subaccount` ([#8022](https://github.com/hashicorp/terraform-provider-google/pull/8022))
+* **New Resource:** `google_pubsub_lite_subscription` ([#8011](https://github.com/hashicorp/terraform-provider-google/pull/8011))
+* **New Resource:** `google_pubsub_lite_topic` ([#8011](https://github.com/hashicorp/terraform-provider-google/pull/8011))
+
+IMPROVEMENTS:
+* bigquery: promoted bigquery reservation to GA. ([#8079](https://github.com/hashicorp/terraform-provider-google/pull/8079))
+* bigtable: added support for specifying `duration` for `bigtable_gc_policy` to allow durations shorter than a day ([#7879](https://github.com/hashicorp/terraform-provider-google/pull/7879))
+* bigtable: added support for specifying `duration` for `bigtable_gc_policy` to allow durations shorter than a day ([#8081](https://github.com/hashicorp/terraform-provider-google/pull/8081))
+* billing: promoted `google_billing_budget` to GA ([#8023](https://github.com/hashicorp/terraform-provider-google/pull/8023))
+* compute: Added support for Google Virtual Network Interface (gVNIC) for `google_compute_image` ([#8007](https://github.com/hashicorp/terraform-provider-google/pull/8007))
+* compute: added SHARED_LOADBALANCER_VIP as a valid option for `google_compute_address.purpose` ([#7987](https://github.com/hashicorp/terraform-provider-google/pull/7987))
+* compute: added field `multiwriter` to resource `disk` (beta) ([#8098](https://github.com/hashicorp/terraform-provider-google/pull/8098))
+* compute: added support for `enable_independent_endpoint_mapping` to `google_compute_router_nat` resource ([#8049](https://github.com/hashicorp/terraform-provider-google/pull/8049))
+* compute: added support for `filter.direction` to `google_compute_packet_mirroring` ([#8102](https://github.com/hashicorp/terraform-provider-google/pull/8102))
+* compute: promoted `confidential_instance_config` field in `google_compute_instance` and `google_compute_instance_template` to GA ([#8089](https://github.com/hashicorp/terraform-provider-google/pull/8089))
+* compute: promoted `google_compute_forwarding_rule` `is_mirroring_collector` to GA ([#8102](https://github.com/hashicorp/terraform-provider-google/pull/8102))
+* compute: promoted `google_compute_packet_mirroring` to GA ([#8102](https://github.com/hashicorp/terraform-provider-google/pull/8102))
+* dataflow: Added optional `kms_key_name` field for `google_dataflow_job` ([#8116](https://github.com/hashicorp/terraform-provider-google/pull/8116))
+* dataflow: added documentation about using `parameters` for custom service account and other pipeline options to `google_dataflow_flex_template_job` ([#7999](https://github.com/hashicorp/terraform-provider-google/pull/7999))
+* redis: added `auth_string` output to `google_redis_instance` when `auth_enabled` is `true` ([#8090](https://github.com/hashicorp/terraform-provider-google/pull/8090))
+* redis: promoted `google_redis_instance.auth_enabled` to GA ([#8090](https://github.com/hashicorp/terraform-provider-google/pull/8090))
+* sql: added support for setting the `type` field on `google_sql_user` to support IAM authentication ([#8017](https://github.com/hashicorp/terraform-provider-google/pull/8017))
+* sql: added support for setting the `type` field on `google_sql_user` to support IAM authentication ([#8047](https://github.com/hashicorp/terraform-provider-google/pull/8047))
+
+BUG FIXES:
+* compute: removed requirement for `google_compute_region_url_map` default_service, as it should be a choice of default_service or default_url_redirect ([#2810](https://github.com/hashicorp/terraform-provider-google-beta/pull/2810))
+* cloud_tasks: fixed permadiff on retry_config.max_retry_duration for `google_cloud_tasks_queue` when the 0s is supplied ([#8078](https://github.com/hashicorp/terraform-provider-google/pull/8078))
+* cloudfunctions: fixed a bug where `google_cloudfunctions_function` would sometimes fail to update after being imported from gcloud ([#8010](https://github.com/hashicorp/terraform-provider-google/pull/8010))
+* cloudrun: fixed a permanent diff on `google_cloud_run_domain_mapping` `spec.force_override` field ([#8026](https://github.com/hashicorp/terraform-provider-google/pull/8026))
+* container: added plan time validation to ensure `enable_private_nodes` is true if `master_ipv4_cidr_block` is set on resource `cluster` ([#8066](https://github.com/hashicorp/terraform-provider-google/pull/8066))
+* dataproc: updated jobs to no longer wait for job completion during create ([#8064](https://github.com/hashicorp/terraform-provider-google/pull/8064))
+* filestore: updated retry logic to fail fast on quota error which cannot succeed on retry. ([#8080](https://github.com/hashicorp/terraform-provider-google/pull/8080))
+* logging: fixed updating on disabled in `google_logging_project_sink` ([#8093](https://github.com/hashicorp/terraform-provider-google/pull/8093))
+* scheduler: Fixed syntax error in the Cloud Scheduler HTTP target example. ([#8004](https://github.com/hashicorp/terraform-provider-google/pull/8004))
+* sql: fixed a bug in `google_sql_database_instance` that caused a permadiff on `settings.replication_type` ([#8006](https://github.com/hashicorp/terraform-provider-google/pull/8006))
+* storage: updated IAM resources to refresh etag sooner on an IAM conflict error, which will make applications of multiple IAM resources much faster. ([#8080](https://github.com/hashicorp/terraform-provider-google/pull/8080))
+
+## 3.51.1 (January 07, 2021)
+
+BUG FIXES:
+* all: fixed a bug that would occur in various resources due to comparison of large integers ([#8103](https://github.com/hashicorp/terraform-provider-google/pull/8103))
+
 ## 3.51.0 (December 14, 2020)
 
 FEATURES:
