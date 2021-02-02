@@ -110,9 +110,11 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				Description: `Used to block Terraform from deleting a SQL Instance.`,
 			},
 			"settings": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Type:         schema.TypeList,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"settings", "clone"},
+				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"version": {
@@ -135,6 +137,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						"authorized_gae_applications": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
 							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see https://cloud.google.com/sql/docs/mysql/deprecation-notice for information on how to upgrade to Second Generation instances. A list of Google App Engine project names that are allowed to access this instance.`,
@@ -346,6 +349,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 						"user_labels": {
 							Type:        schema.TypeMap,
 							Optional:    true,
+							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Description: `A set of key/value user label pairs to assign to the instance.`,
 						},
@@ -596,6 +600,29 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 					},
 				},
 			},
+			"clone": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				Computed:     false,
+				AtLeastOneOf: []string{"settings", "clone"},
+				Description:  `Configuration for creating a new instance as a clone of another instance.`,
+				MaxItems:     1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"source_instance_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the instance from which the point in time should be restored.`,
+						},
+						"point_in_time": {
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: timestampDiffSuppress(time.RFC3339Nano),
+							Description:      `The timestamp of the point in time that should be restored.`,
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -615,6 +642,9 @@ func suppressFirstGen(k, old, new string, d *schema.ResourceData) bool {
 // Detects whether a database is 1st Generation by inspecting the tier name
 func isFirstGen(d *schema.ResourceData) bool {
 	settingsList := d.Get("settings").([]interface{})
+	if len(settingsList) == 0 {
+		return false
+	}
 	settings := settingsList[0].(map[string]interface{})
 	tier := settings["tier"].(string)
 
@@ -691,10 +721,17 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	instance := &sqladmin.DatabaseInstance{
 		Name:                 name,
 		Region:               region,
-		Settings:             expandSqlDatabaseInstanceSettings(d.Get("settings").([]interface{}), !isFirstGen(d)),
 		DatabaseVersion:      d.Get("database_version").(string),
 		MasterInstanceName:   d.Get("master_instance_name").(string),
 		ReplicaConfiguration: expandReplicaConfiguration(d.Get("replica_configuration").([]interface{})),
+	}
+
+	cloneContext, cloneSource := expandCloneContext(d.Get("clone").([]interface{}))
+
+	s, ok := d.GetOk("settings")
+	desiredSettings := expandSqlDatabaseInstanceSettings(s.([]interface{}), !isFirstGen(d))
+	if ok {
+		instance.Settings = desiredSettings
 	}
 
 	// MSSQL Server require rootPassword to be set
@@ -712,7 +749,13 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	var op *sqladmin.Operation
 	err = retryTimeDuration(func() (operr error) {
-		op, operr = config.NewSqlAdminClient(userAgent).Instances.Insert(project, instance).Do()
+		if cloneContext != nil {
+			cloneContext.DestinationInstanceName = name
+			clodeReq := sqladmin.InstancesCloneRequest{CloneContext: cloneContext}
+			op, operr = config.NewSqlAdminClient(userAgent).Instances.Clone(project, cloneSource, &clodeReq).Do()
+		} else {
+			op, operr = config.NewSqlAdminClient(userAgent).Instances.Insert(project, instance).Do()
+		}
 		return operr
 	}, d.Timeout(schema.TimeoutCreate), isSqlOperationInProgressError)
 	if err != nil {
@@ -734,6 +777,36 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	err = resourceSqlDatabaseInstanceRead(d, meta)
 	if err != nil {
 		return err
+	}
+
+	// Refresh settings from read as they may have defaulted from the API
+	s = d.Get("settings")
+	// If we've created an instance as a clone, we need to update it to set the correct settings
+	if len(s.([]interface{})) != 0 && cloneContext != nil {
+		instanceUpdate := &sqladmin.DatabaseInstance{
+			Settings: desiredSettings,
+		}
+		_settings := s.([]interface{})[0].(map[string]interface{})
+		instanceUpdate.Settings.SettingsVersion = int64(_settings["version"].(int))
+		var op *sqladmin.Operation
+		err = retryTimeDuration(func() (rerr error) {
+			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Update(project, name, instanceUpdate).Do()
+			return rerr
+		}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
+		if err != nil {
+			return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
+		}
+
+		err = sqlAdminOperationWaitTime(config, op, project, "Update Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+		// Refresh the state of the instance after updating the settings
+		err = resourceSqlDatabaseInstanceRead(d, meta)
+		if err != nil {
+			return err
+		}
 	}
 
 	// If a default root user was created with a wildcard ('%') hostname, delete it.
@@ -835,6 +908,18 @@ func expandReplicaConfiguration(configured []interface{}) *sqladmin.ReplicaConfi
 			VerifyServerCertificate: _replicaConfiguration["verify_server_certificate"].(bool),
 		},
 	}
+}
+
+func expandCloneContext(configured []interface{}) (*sqladmin.CloneContext, string) {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil, ""
+	}
+
+	_cloneConfiguration := configured[0].(map[string]interface{})
+
+	return &sqladmin.CloneContext{
+		PointInTime: _cloneConfiguration["point_in_time"].(string),
+	}, _cloneConfiguration["source_instance_name"].(string)
 }
 
 func expandMaintenanceWindow(configured []interface{}) *sqladmin.MaintenanceWindow {
