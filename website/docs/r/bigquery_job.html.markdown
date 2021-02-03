@@ -920,6 +920,54 @@ In addition to the arguments listed above, the following computed attributes are
 * `job_type` -
   The type of the job.
 
+* `status` -
+  The status of this job. Examine this value when polling an asynchronous job to see if the job is complete.
+  Structure is documented below.
+
+
+The `status` block contains:
+
+* `error_result` -
+  Final error result of the job. If present, indicates that the job has completed and was unsuccessful.
+  Structure is documented below.
+
+* `errors` -
+  The first errors encountered during the running of the job. The final message
+  includes the number of errors that caused the process to stop. Errors here do
+  not necessarily mean that the job has not completed or was unsuccessful.
+  Structure is documented below.
+
+* `state` -
+  Running state of the job. Valid states include 'PENDING', 'RUNNING', and 'DONE'.
+
+
+The `error_result` block contains:
+
+* `reason` -
+  (Optional)
+  A short error code that summarizes the error.
+
+* `location` -
+  (Optional)
+  Specifies where the error occurred, if present.
+
+* `message` -
+  (Optional)
+  A human-readable description of the error.
+
+The `errors` block contains:
+
+* `reason` -
+  (Optional)
+  A short error code that summarizes the error.
+
+* `location` -
+  (Optional)
+  Specifies where the error occurred, if present.
+
+* `message` -
+  (Optional)
+  A human-readable description of the error.
 
 ## Timeouts
 
