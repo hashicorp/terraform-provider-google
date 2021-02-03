@@ -842,6 +842,70 @@ Creation, truncation and append actions occur as one atomic update upon job comp
 				Default:     "US",
 			},
 
+			"status": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The status of this job. Examine this value when polling an asynchronous job to see if the job is complete.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"error_result": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Final error result of the job. If present, indicates that the job has completed and was unsuccessful.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"location": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Specifies where the error occurred, if present.`,
+									},
+									"message": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `A human-readable description of the error.`,
+									},
+									"reason": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `A short error code that summarizes the error.`,
+									},
+								},
+							},
+						},
+						"errors": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Description: `The first errors encountered during the running of the job. The final message
+includes the number of errors that caused the process to stop. Errors here do
+not necessarily mean that the job has not completed or was unsuccessful.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"location": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Specifies where the error occurred, if present.`,
+									},
+									"message": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `A human-readable description of the error.`,
+									},
+									"reason": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `A short error code that summarizes the error.`,
+									},
+								},
+							},
+						},
+						"state": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Running state of the job. Valid states include 'PENDING', 'RUNNING', and 'DONE'.`,
+						},
+					},
+				},
+			},
 			"user_email": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1026,6 +1090,9 @@ func resourceBigQueryJobRead(d *schema.ResourceData, meta interface{}) error {
 				}
 			}
 		}
+	}
+	if err := d.Set("status", flattenBigQueryJobStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
 	}
 
 	return nil
@@ -1741,6 +1808,88 @@ func flattenBigQueryJobJobReferenceJobId(v interface{}, d *schema.ResourceData, 
 }
 
 func flattenBigQueryJobJobReferenceLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryJobStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["error_result"] =
+		flattenBigQueryJobStatusErrorResult(original["errorResult"], d, config)
+	transformed["errors"] =
+		flattenBigQueryJobStatusErrors(original["errors"], d, config)
+	transformed["state"] =
+		flattenBigQueryJobStatusState(original["state"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigQueryJobStatusErrorResult(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["reason"] =
+		flattenBigQueryJobStatusErrorResultReason(original["reason"], d, config)
+	transformed["location"] =
+		flattenBigQueryJobStatusErrorResultLocation(original["location"], d, config)
+	transformed["message"] =
+		flattenBigQueryJobStatusErrorResultMessage(original["message"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigQueryJobStatusErrorResultReason(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryJobStatusErrorResultLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryJobStatusErrorResultMessage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryJobStatusErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"reason":   flattenBigQueryJobStatusErrorsReason(original["reason"], d, config),
+			"location": flattenBigQueryJobStatusErrorsLocation(original["location"], d, config),
+			"message":  flattenBigQueryJobStatusErrorsMessage(original["message"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenBigQueryJobStatusErrorsReason(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryJobStatusErrorsLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryJobStatusErrorsMessage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryJobStatusState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
