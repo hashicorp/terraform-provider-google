@@ -1,4 +1,25 @@
-## 3.55.0 (Unreleased)
+## 3.56.0 (Unreleased)
+
+## 3.55.0 (February 1, 2021)
+
+BREAKING CHANGES:
+* Reverted `* bigquery: made incompatible changes to the `google_bigquery_table.schema` field to cause the resource to be recreated ([#8232](https://github.com/hashicorp/terraform-provider-google/pull/8232))` due to unintended interactions with a bug introduced in an earlier version of the resource.
+
+FEATURES:
+* **New Data Source:** `google_runtimeconfig_config` ([#8268](https://github.com/hashicorp/terraform-provider-google/pull/8268))
+
+IMPROVEMENTS:
+* compute: added `distribution_policy_target_shape` field to `google_compute_region_instance_group_manager` resource ([#8277](https://github.com/hashicorp/terraform-provider-google/pull/8277))
+* container: promoted `master_global_access_config`, `tpu_ipv4_cidr_block`, `default_snat_status` and `datapath_provider` fields of `google_container_cluster` to GA. ([#8303](https://github.com/hashicorp/terraform-provider-google/pull/8303))
+* dataproc: Added field `temp_bucket` to `google_dataproc_cluster` cluster config. ([#8131](https://github.com/hashicorp/terraform-provider-google/pull/8131))
+* notebooks: added `tags`, `service_account_scopes`,`shielded_instance_config` to `google_notebooks_instance` ([#8289](https://github.com/hashicorp/terraform-provider-google/pull/8289))
+* provider: added plan time validations for fields that expect base64 values. ([#8304](https://github.com/hashicorp/terraform-provider-google/pull/8304))
+
+BUG FIXES:
+* bigquery: fixed permadiff on expiration_ms for `google_bigquery_table` ([#8298](https://github.com/hashicorp/terraform-provider-google/pull/8298))
+* billing: fixed perma-diff on currency_code in `google_billing_budget` ([#8266](https://github.com/hashicorp/terraform-provider-google/pull/8266))
+ * compute: changed private_ipv6_google_access in `google_compute_subnetwork` to correctly send a fingerprint ([#8290](https://github.com/hashicorp/terraform-provider-google/pull/8290))
+* healthcare: add retry logic on healthcare dataset not initialized error ([#8256](https://github.com/hashicorp/terraform-provider-google/pull/8256))
 
 ## 3.54.0 (January 25, 2021)
 
