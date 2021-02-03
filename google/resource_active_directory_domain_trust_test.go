@@ -10,6 +10,9 @@ import (
 )
 
 func TestAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(t *testing.T) {
+	// This test continues to fail due to AD setup required
+	// Skipping in VCR to allow for fully successful test runs
+	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
