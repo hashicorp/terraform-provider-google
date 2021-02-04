@@ -1313,6 +1313,11 @@ resource "google_sql_database_instance" "instance" {
     instance_id = data.google_sql_backup_run.backup.instance
   }
 
+  // Ignore changes, since the most recent backup may change during the test
+  lifecycle{
+	ignore_changes = [restore_backup_context[0].backup_run_id]
+  }
+
   deletion_protection = false
 }
 
