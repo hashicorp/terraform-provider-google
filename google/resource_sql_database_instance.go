@@ -781,8 +781,8 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	// Refresh settings from read as they may have defaulted from the API
 	s = d.Get("settings")
-	// If we've created an instance as a clone, we need to update it to set the correct settings
-	if len(s.([]interface{})) != 0 && cloneContext != nil {
+	// If we've created an instance as a clone, we need to update it to set any user defined settings
+	if len(s.([]interface{})) != 0 && cloneContext != nil && desiredSettings != nil {
 		instanceUpdate := &sqladmin.DatabaseInstance{
 			Settings: desiredSettings,
 		}
