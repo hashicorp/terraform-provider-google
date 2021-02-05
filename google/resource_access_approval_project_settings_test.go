@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-// Since access approval settings are heirarchical, and only one can exist per folder/project/org,
+// Since access approval settings are hierarchical, and only one can exist per folder/project/org,
 // and all refer to the same organization, they need to be run serially.
 // See AccessApprovalOrganizationSettings for the test runner.
 func testAccAccessApprovalProjectSettings(t *testing.T) {
