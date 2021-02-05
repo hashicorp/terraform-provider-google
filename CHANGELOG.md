@@ -1,7 +1,5 @@
 ## 3.56.0 (Unreleased)
 
-NOTES:
-* billingBudget: doc updated for `google_billing_budget` ([#8316](https://github.com/hashicorp/terraform-provider-google/pull/8316))
 
 FEATURES:
 * **New Resource:** `google_privateca_certificate` ([#8371](https://github.com/hashicorp/terraform-provider-google/pull/8371))
