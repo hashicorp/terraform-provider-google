@@ -1,4 +1,19 @@
-## 3.56.0 (Unreleased)
+## 3.57.0 (Unreleased)
+
+## 3.56.0 (February 8, 2021)
+
+FEATURES:
+* **New Resource:** `google_privateca_certificate` ([#8371](https://github.com/hashicorp/terraform-provider-google/pull/8371))
+
+IMPROVEMENTS:
+* all: added plan time validations for fields that expect base64 values. ([#8304](https://github.com/hashicorp/terraform-provider-google/pull/8304))
+* sql: added support for point-in-time-recovery to `google_sql_database_instance` ([#8367](https://github.com/hashicorp/terraform-provider-google/pull/8367))
+* monitoring : added `availability` sli metric support for the resource `google_monitoring_slo` ([#8315](https://github.com/hashicorp/terraform-provider-google/pull/8315))
+
+BUG FIXES:
+* bigquery: fixed bug where you could not reorder columns on `schema` for resource `google_bigquery_table` ([#8321](https://github.com/hashicorp/terraform-provider-google/pull/8321))
+* cloudrun: suppressed `run.googleapis.com/ingress-status` annotation in `google_cloud_run_service` ([#8361](https://github.com/hashicorp/terraform-provider-google/pull/8361))
+* serviceaccount: loosened restrictions on `account_id` for datasource `google_service_account` ([#8344](https://github.com/hashicorp/terraform-provider-google/pull/8344))
 
 ## 3.55.0 (February 1, 2021)
 
