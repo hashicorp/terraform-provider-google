@@ -200,8 +200,9 @@ storage, this number is expected to change with snapshot
 creation/deletion.`,
 			},
 			"source_disk_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "Deprecated in favor of source_disk, which contains a compatible value. This field will be removed in the next major release of the provider.",
 			},
 			"project": {
 				Type:     schema.TypeString,

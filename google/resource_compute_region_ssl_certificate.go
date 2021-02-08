@@ -106,6 +106,7 @@ If it is not provided, the provider region is used.`,
 				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"name"},
+				Description:   "Creates a unique name beginning with the specified prefix. Conflicts with name.",
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					// https://cloud.google.com/compute/docs/reference/latest/sslCertificates#resource
 					// uuid is 26 characters, limit the prefix to 37.

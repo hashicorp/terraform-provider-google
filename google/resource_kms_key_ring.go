@@ -53,8 +53,10 @@ A full list of valid locations can be found by running 'gcloud kms locations lis
 				Description: `The resource name for the KeyRing.`,
 			},
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Deprecated:  "Deprecated in favor of id, which contains an identical value. This field will be removed in the next major release of the provider.",
+				Description: "The self link of the created KeyRing in the format projects/{project}/locations/{location}/keyRings/{name}.",
 			},
 			"project": {
 				Type:     schema.TypeString,
