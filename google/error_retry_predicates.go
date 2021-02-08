@@ -246,7 +246,7 @@ func isAppEngineRetryableError(err error) (bool, string) {
 		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "operation is already in progress") {
 			return true, "Waiting for other concurrent App Engine changes to finish"
 		}
-		if gerr.Code == 404 && strings.Contains(strings.ToLower(gerr.Body), "unable to retrieve P4SA") {
+		if gerr.Code == 404 && strings.Contains(strings.ToLower(gerr.Body), "unable to retrieve p4sa") {
 			return true, "Waiting for P4SA propagation to GAIA"
 		}
 	}
