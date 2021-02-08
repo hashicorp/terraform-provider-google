@@ -1,0 +1,9 @@
+```release-note:deprecation
+pubsub: deprecated `path` field in `google_pubsub_subscription` resource as it is identical value to `id` field.
+```
+```release-note:deprecation
+kms: deprecated `self_link` field in `google_kms_keyring` and `google_kms_cryptokey` resource as it is identical value to `id` field.
+```
+```release-note:deprecation
+compute: deprecated `source_disk_url` field in `google_compute_snapshot`.
+```

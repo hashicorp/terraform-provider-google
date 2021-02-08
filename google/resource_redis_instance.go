@@ -198,9 +198,10 @@ checked before each import/export operation.`,
 				Description: `The port number of the exposed Redis endpoint.`,
 			},
 			"auth_string": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: "AUTH String set on the instance. This field will only be populated if auth_enabled is true.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"project": {
 				Type:     schema.TypeString,

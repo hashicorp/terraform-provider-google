@@ -318,8 +318,10 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				},
 			},
 			"path": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Deprecated:  "Deprecated in favor of id, which contains an identical value. This field will be removed in the next major release of the provider.",
+				Description: " Path of the subscription in the format projects/{project}/subscriptions/{name}",
 			},
 			"project": {
 				Type:     schema.TypeString,
