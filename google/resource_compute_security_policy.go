@@ -146,6 +146,7 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 						"preview": {
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Computed:    true,
 							Description: `When set to true, the action specified above is not enforced. Stackdriver logs for requests that trigger a preview action are annotated as such.`,
 						},
 					},
