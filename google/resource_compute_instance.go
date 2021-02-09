@@ -292,7 +292,6 @@ func resourceComputeInstance() *schema.Resource {
 							Computed:    true,
 							Description: `The name of the interface`,
 						},
-
 						"access_config": {
 							Type:        schema.TypeList,
 							Optional:    true,

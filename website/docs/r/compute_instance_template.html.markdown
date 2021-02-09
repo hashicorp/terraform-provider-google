@@ -359,6 +359,9 @@ The `network_interface` block supports:
     array of alias IP ranges for this network interface. Can only be specified for network
     interfaces on subnet-mode networks. Structure documented below.
 
+* `nic_type` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The type of vNIC to be used on this interface.
+    Possible values: GVNIC, VIRTIO_NET.
+
 The `access_config` block supports:
 
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's

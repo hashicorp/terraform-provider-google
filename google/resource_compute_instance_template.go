@@ -325,7 +325,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Computed:    true,
 							Description: `The name of the network_interface.`,
 						},
-
 						"access_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
