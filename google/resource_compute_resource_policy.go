@@ -57,7 +57,7 @@ which cannot be a dash.`,
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `Policy for creating snapshots of persistent disks.`,
+				Description: `Resource policy for instances used for placement configuration.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
