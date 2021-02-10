@@ -126,7 +126,7 @@ The following arguments are supported:
 
 * `group_placement_policy` -
   (Optional)
-  Policy for creating snapshots of persistent disks.
+  Resource policy for instances used for placement configuration.
   Structure is documented below.
 
 * `region` -
