@@ -92,6 +92,7 @@ func TestAccDataprocJob_PySpark(t *testing.T) {
 					resource.TestCheckResourceAttrSet("google_dataproc_job.pyspark", "status.0.state"),
 					resource.TestCheckResourceAttrSet("google_dataproc_job.pyspark", "status.0.state_start_time"),
 					resource.TestCheckResourceAttr("google_dataproc_job.pyspark", "scheduling.0.max_failures_per_hour", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_job.pyspark", "scheduling.0.max_failures_total", "20"),
 					resource.TestCheckResourceAttr("google_dataproc_job.pyspark", "labels.one", "1"),
 
 					// Unique job config
@@ -559,7 +560,8 @@ resource "google_dataproc_job" "pyspark" {
   }
 
   scheduling {
-    max_failures_per_hour = 1
+	max_failures_per_hour = 1
+	max_failures_total=20
   }
 
   labels = {
