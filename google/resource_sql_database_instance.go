@@ -72,6 +72,13 @@ var (
 		"replica_configuration.0.username",
 		"replica_configuration.0.verify_server_certificate",
 	}
+
+	insightsConfigKeys = []string{
+		"settings.0.insights_config.0.query_insights_enabled",
+		"settings.0.insights_config.0.query_string_length",
+		"settings.0.insights_config.0.record_application_tags",
+		"settings.0.insights_config.0.record_client_address",
+	}
 )
 
 func resourceSqlDatabaseInstance() *schema.Resource {
@@ -93,7 +100,9 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("settings.0.disk_size", isDiskShrinkage),
 			privateNetworkCustomizeDiff,
-			pitrPostgresOnlyCustomizeDiff),
+			pitrPostgresOnlyCustomizeDiff,
+			insightsPostgresOnlyCustomizeDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -352,6 +361,42 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Description: `A set of key/value user label pairs to assign to the instance.`,
+						},
+						"insights_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"query_insights_enabled": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: insightsConfigKeys,
+										Description:  `True if Query Insights feature is enabled.`,
+									},
+									"query_string_length": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      1024,
+										ValidateFunc: validation.IntBetween(256, 4500),
+										AtLeastOneOf: insightsConfigKeys,
+										Description:  `Maximum query length stored in bytes. Between 256 and 4500. Default to 1024.`,
+									},
+									"record_application_tags": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: insightsConfigKeys,
+										Description:  `True if Query Insights will record application tags from query when enabled.`,
+									},
+									"record_client_address": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: insightsConfigKeys,
+										Description:  `True if Query Insights will record client address when enabled.`,
+									},
+								},
+							},
+							Description: `Configuration of Query Insights.`,
 						},
 					},
 				},
@@ -680,6 +725,15 @@ func pitrPostgresOnlyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff,
 	return nil
 }
 
+func insightsPostgresOnlyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	insights := diff.Get("settings.0.insights_config.0.query_insights_enabled").(bool)
+	dbVersion := diff.Get("database_version").(string)
+	if insights && !strings.Contains(dbVersion, "POSTGRES") {
+		return fmt.Errorf("query_insights_enabled is only available for Postgres now.")
+	}
+	return nil
+}
+
 func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
@@ -872,6 +926,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool)
 		IpConfiguration:             expandIpConfiguration(_settings["ip_configuration"].([]interface{})),
 		LocationPreference:          expandLocationPreference(_settings["location_preference"].([]interface{})),
 		MaintenanceWindow:           expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
+		InsightsConfig:              expandInsightsConfig(_settings["insights_config"].([]interface{})),
 	}
 
 	// 1st Generation instances don't support the disk_autoresize parameter
@@ -1011,6 +1066,20 @@ func expandBackupConfiguration(configured []interface{}) *sqladmin.BackupConfigu
 		Location:                   _backupConfiguration["location"].(string),
 		PointInTimeRecoveryEnabled: _backupConfiguration["point_in_time_recovery_enabled"].(bool),
 		ForceSendFields:            []string{"BinaryLogEnabled", "Enabled", "PointInTimeRecoveryEnabled"},
+	}
+}
+
+func expandInsightsConfig(configured []interface{}) *sqladmin.InsightsConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	_insightsConfig := configured[0].(map[string]interface{})
+	return &sqladmin.InsightsConfig{
+		QueryInsightsEnabled:  _insightsConfig["query_insights_enabled"].(bool),
+		QueryStringLength:     int64(_insightsConfig["query_string_length"].(int)),
+		RecordApplicationTags: _insightsConfig["record_application_tags"].(bool),
+		RecordClientAddress:   _insightsConfig["record_client_address"].(bool),
 	}
 }
 
@@ -1258,6 +1327,10 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		data["maintenance_window"] = flattenMaintenanceWindow(settings.MaintenanceWindow)
 	}
 
+	if settings.InsightsConfig != nil {
+		data["insights_config"] = flattenInsightsConfig(settings.InsightsConfig)
+	}
+
 	data["disk_autoresize"] = settings.StorageAutoResize
 
 	if settings.UserLabels != nil {
@@ -1405,6 +1478,17 @@ func flattenServerCaCerts(caCerts []*sqladmin.SslCert) []map[string]interface{} 
 	}
 
 	return certs
+}
+
+func flattenInsightsConfig(insightsConfig *sqladmin.InsightsConfig) interface{} {
+	data := map[string]interface{}{
+		"query_insights_enabled":  insightsConfig.QueryInsightsEnabled,
+		"query_string_length":     insightsConfig.QueryStringLength,
+		"record_application_tags": insightsConfig.RecordApplicationTags,
+		"record_client_address":   insightsConfig.RecordClientAddress,
+	}
+
+	return []map[string]interface{}{data}
 }
 
 func instanceMutexKey(project, instance_name string) string {
