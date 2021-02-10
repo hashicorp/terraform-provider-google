@@ -105,7 +105,9 @@ output "pyspark_status" {
 
 * `labels` - (Optional) The list of labels (key/value pairs) to add to the job.
 
-* `scheduling.max_failures_per_hour` - (Required) Maximum number of times per hour a driver may be restarted as a result of driver terminating with non-zero code before job is reported failed.
+* `scheduling.max_failures_per_hour` - (Required) Maximum number of times per hour a driver may be restarted as a result of driver exiting with non-zero code before job is reported failed.
+
+* `scheduling.max_failures_total` - (Required) Maximum number of times in total a driver may be restarted as a result of driver exiting with non-zero code before job is reported failed.
 
 The `pyspark_config` block supports:
 
