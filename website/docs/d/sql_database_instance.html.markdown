@@ -126,6 +126,16 @@ when an Instance can automatically restart to apply updates. The maintenance win
 
 * `update_track` - Receive updates earlier (`canary`) or later (`stable`).
 
+The `settings.insights_config` subblock for instances declares [Query Insights](https://cloud.google.com/sql/docs/postgres/insights-overview) configuration. It contains:
+
+* `query_insights_enabled` - True if Query Insights feature is enabled.
+
+* `query_string_length` - Maximum query length stored in bytes. Between 256 and 4500. Default to 1024.
+
+* `record_application_tags` - True if Query Insights will record application tags from query when enabled.
+
+* `record_client_address` - True if Query Insights will record client address when enabled.
+
 The `replica_configuration` block contains:
 
 * `ca_certificate` - PEM representation of the trusted CA's x509 certificate.
