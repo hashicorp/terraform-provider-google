@@ -1,13 +1,13 @@
 ---
 subcategory: "Runtime Configurator"
 layout: "google"
-page_title: "Google: google_runtimeconfig_config"
-sidebar_current: "docs-google-datasource-runtimeconfig-config"
+page_title: "Google: google_runtimeconfig_variable"
+sidebar_current: "docs-google-datasource-runtimeconfig-variable"
 description: |-
-  Get information about a Google Cloud RuntimeConfig.
+  Get information about a Google Cloud RuntimeConfig varialbe.
 ---
 
-# google\_runtimeconfig\_config
+# google\_runtimeconfig\_variable
 
 To get more information about RuntimeConfigs, see:
 
@@ -18,8 +18,9 @@ To get more information about RuntimeConfigs, see:
 ## Example Usage
 
 ```hcl
-data "google_runtimeconfig_config" "run-service" {
-  name = "my-service"
+data "google_runtimeconfig_variable" "run-service" {
+  parent = "my-service"
+  name   = "prod-variables/hostname"
 }
 ```
 
@@ -28,6 +29,7 @@ data "google_runtimeconfig_config" "run-service" {
 The following arguments are supported:
 
 * `name` - (Required) The name of the Runtime Configurator configuration.
+* `parent` - (Required) The name of the RuntimeConfig resource containing this variable.
 
 - - -
 
@@ -36,4 +38,4 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-See [google_runtimeconfig_config](https://www.terraform.io/docs/providers/google/r/runtimeconfig_config.html#argument-reference) resource for details of the available attributes.
+See [google_runtimeconfig_variable](https://www.terraform.io/docs/providers/google/r/runtimeconfig_variable.html#argument-reference) resource for details of the available attributes.
