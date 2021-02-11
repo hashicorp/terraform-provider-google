@@ -53,7 +53,7 @@ The `settings` block contains:
 * `tier` - The machine type to use.
     
 * `activation_policy` - This specifies when the instance should be
-    active. Can be either `ALWAYS` or `NEVER`.
+    active. Can be either `ALWAYS` or `NEVER`. Additionnally, the option `ON_DEMAND` is available only for first-generation instances.
 
 * `authorized_gae_applications` - (Deprecated) This property is only applicable to First Generation instances.
     First Generation instances are now deprecated, see [here](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
