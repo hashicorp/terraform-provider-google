@@ -100,7 +100,7 @@ func testGoogleSqlClientCert_mysql(instance string) string {
 	resource "google_sql_database_instance" "instance" {
 		name = "%s"
 		region = "us-central1"
-		deletion_protection = false
+	  deletion_protection = false
 		settings {
 			tier = "db-f1-micro"
 		}
@@ -124,7 +124,7 @@ func testGoogleSqlClientCert_postgres(instance string) string {
 		name = "%s"
 		region = "us-central1"
 		database_version = "POSTGRES_9_6"
-		deletion_protection = false
+	  deletion_protection = false
 		settings {
 			tier = "db-f1-micro"
 		}

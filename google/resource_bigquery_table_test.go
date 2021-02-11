@@ -3,6 +3,7 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -24,17 +25,19 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 				Config: testAccBigQueryTableTimePartitioning(datasetID, tableID, "DAY"),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -57,9 +60,10 @@ func TestAccBigQueryTable_Kms(t *testing.T) {
 				Config: testAccBigQueryTableKms(cryptoKeyName, datasetID, tableID),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -80,17 +84,19 @@ func TestAccBigQueryTable_HourlyTimePartitioning(t *testing.T) {
 				Config: testAccBigQueryTableTimePartitioning(datasetID, tableID, "HOUR"),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -111,17 +117,19 @@ func TestAccBigQueryTable_MonthlyTimePartitioning(t *testing.T) {
 				Config: testAccBigQueryTableTimePartitioning(datasetID, tableID, "MONTH"),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -142,17 +150,19 @@ func TestAccBigQueryTable_YearlyTimePartitioning(t *testing.T) {
 				Config: testAccBigQueryTableTimePartitioning(datasetID, tableID, "YEAR"),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableUpdated(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -174,9 +184,10 @@ func TestAccBigQueryTable_HivePartitioning(t *testing.T) {
 				Config: testAccBigQueryTableHivePartitioning(bucketName, datasetID, tableID),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -201,7 +212,7 @@ func TestAccBigQueryTable_HivePartitioningCustomSchema(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"external_data_configuration.0.schema"},
+				ImportStateVerifyIgnore: []string{"external_data_configuration.0.schema", "deletion_protection"},
 			},
 		},
 	})
@@ -222,9 +233,10 @@ func TestAccBigQueryTable_RangePartitioning(t *testing.T) {
 				Config: testAccBigQueryTableRangePartitioning(datasetID, tableID),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -245,9 +257,10 @@ func TestAccBigQueryTable_View(t *testing.T) {
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -268,17 +281,19 @@ func TestAccBigQueryTable_updateView(t *testing.T) {
 				Config: testAccBigQueryTableWithView(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableWithNewSqlView(datasetID, tableID),
 			},
 			{
-				ResourceName:      "google_bigquery_table.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -304,13 +319,13 @@ func TestAccBigQueryTable_MaterializedView_DailyTimePartioning_Basic(t *testing.
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 			{
 				ResourceName:            "google_bigquery_table.mv_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 		},
 	})
@@ -340,13 +355,13 @@ func TestAccBigQueryTable_MaterializedView_DailyTimePartioning_Update(t *testing
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 			{
 				ResourceName:            "google_bigquery_table.mv_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTableWithMatViewDailyTimePartitioning(datasetID, tableID, materialized_viewID, enable_refresh, refresh_interval_ms, query),
@@ -355,13 +370,13 @@ func TestAccBigQueryTable_MaterializedView_DailyTimePartioning_Update(t *testing
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 			{
 				ResourceName:            "google_bigquery_table.mv_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 		},
 	})
@@ -409,9 +424,10 @@ func TestAccBigQueryDataTable_sheet(t *testing.T) {
 				Config: testAccBigQueryTableFromSheet(context),
 			},
 			{
-				ResourceName:      "google_bigquery_table.table",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_table.table",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -435,7 +451,7 @@ func TestAccBigQueryDataTable_jsonEquivalency(t *testing.T) {
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 			{
 				Config: testAccBigQueryTable_jsonEqModeRemoved(datasetID, tableID),
@@ -444,7 +460,7 @@ func TestAccBigQueryDataTable_jsonEquivalency(t *testing.T) {
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
 			},
 		},
 	})
@@ -509,6 +525,38 @@ func TestUnitBigQueryDataTable_schemaIsChangable(t *testing.T) {
 		}
 		testcaseNested.check(t)
 	}
+}
+
+func TestAccBigQueryTable_allowDestroy(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTable_noAllowDestroy(datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config:      testAccBigQueryTable_noAllowDestroy(datasetID, tableID),
+				Destroy:     true,
+				ExpectError: regexp.MustCompile("deletion_protection"),
+			},
+			{
+				Config: testAccBigQueryTable_noAllowDestroyUpdated(datasetID, tableID),
+			},
+		},
+	})
 }
 
 type testUnitBigQueryDataTableJSONEquivalencyTestCase struct {
@@ -766,6 +814,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -832,6 +881,7 @@ resource "google_kms_crypto_key_iam_member" "allow" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = "${google_bigquery_dataset.test.dataset_id}"
 
@@ -894,6 +944,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -931,6 +982,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -969,6 +1021,7 @@ func testAccBigQueryTableRangePartitioning(datasetID, tableID string) string {
   }
 
   resource "google_bigquery_table" "test" {
+	  deletion_protection = false
     table_id   = "%s"
     dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1004,6 +1057,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1026,6 +1080,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1048,6 +1103,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1097,6 +1153,7 @@ EOH
 }
 
 resource "google_bigquery_table" "mv_test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1123,6 +1180,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1172,6 +1230,7 @@ EOH
 }
 
 resource "google_bigquery_table" "mv_test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1200,6 +1259,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1275,6 +1335,7 @@ EOF
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
   external_data_configuration {
@@ -1296,6 +1357,7 @@ resource "google_bigquery_table" "test" {
 func testAccBigQueryTableFromSheet(context map[string]interface{}) string {
 	return Nprintf(`
   resource "google_bigquery_table" "table" {
+	  deletion_protection = false
     dataset_id = google_bigquery_dataset.dataset.dataset_id
     table_id   = "tf_test_sheet_%{random_suffix}"
 
@@ -1352,6 +1414,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1385,6 +1448,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
   dataset_id = google_bigquery_dataset.test.dataset_id
 
@@ -1417,6 +1481,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
 	dataset_id = google_bigquery_dataset.test.dataset_id
 	lifecycle {
@@ -1453,6 +1518,7 @@ resource "google_bigquery_dataset" "test" {
 }
 
 resource "google_bigquery_table" "test" {
+  deletion_protection = false
   table_id   = "%s"
 	dataset_id = google_bigquery_dataset.test.dataset_id
 	lifecycle {
@@ -1476,6 +1542,71 @@ resource "google_bigquery_table" "test" {
         name        = "snapshot_timestamp"
         mode        = "NULLABLE"
         type        = "INTEGER"
+      },
+    ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_noAllowDestroy(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        mode        = "NULLABLE"
+        type        = "INTEGER"
+      },
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
+      },
+    ])
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTable_noAllowDestroyUpdated(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+  friendly_name = "bigquerytest"
+  labels = {
+    "terrafrom_managed" = "true"
+  }
+
+  schema = jsonencode(
+    [
+      {
+        description = "Time snapshot was taken, in Epoch milliseconds. Same across all rows and all tables in the snapshot, and uniquely defines a particular snapshot."
+        name        = "snapshot_timestamp"
+        mode        = "NULLABLE"
+        type        = "INTEGER"
+      },
+      {
+        description = "Timestamp of dataset creation"
+        name        = "creation_time"
+        type        = "TIMESTAMP"
       },
     ])
 }
