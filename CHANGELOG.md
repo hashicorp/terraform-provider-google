@@ -1,5 +1,24 @@
 ## 3.57.0 (Unreleased)
 
+DEPRECATIONS:
+* compute: deprecated `source_disk_url` field in `google_compute_snapshot`. ([#8410](https://github.com/hashicorp/terraform-provider-google/pull/8410))
+* kms: deprecated `self_link` field in `google_kms_keyring` and `google_kms_cryptokey` resource as it is identical value to `id` field. ([#8410](https://github.com/hashicorp/terraform-provider-google/pull/8410))
+* pubsub: deprecated `path` field in `google_pubsub_subscription` resource as it is identical value to `id` field. ([#8410](https://github.com/hashicorp/terraform-provider-google/pull/8410))
+
+FEATURES:
+* **New Resource:** `google_essential_contacts_contact` ([#8426](https://github.com/hashicorp/terraform-provider-google/pull/8426))
+
+IMPROVEMENTS:
+* bigquery: added `status` field to `google_bigquery_job` ([#8377](https://github.com/hashicorp/terraform-provider-google/pull/8377))
+* compute: added `disk.resource_policies` field to resource `google_compute_instance_template` ([#8393](https://github.com/hashicorp/terraform-provider-google/pull/8393))
+* compute: added `nic_type` field to `google_compute_instance_template ` resource to support gVNIC ([#8423](https://github.com/hashicorp/terraform-provider-google/pull/8423))
+* compute: added `nic_type` field to `google_compute_instance` resource to support gVNIC ([#8423](https://github.com/hashicorp/terraform-provider-google/pull/8423))
+* pubsub: marked `kms_key_name` field in `google_pubsub_topic` as updatable ([#8424](https://github.com/hashicorp/terraform-provider-google/pull/8424))
+
+BUG FIXES:
+* appengine: added retry for P4SA propagation delay ([#8409](https://github.com/hashicorp/terraform-provider-google/pull/8409))
+* compute: fixed overly-aggressive detection of changes to google_compute_security_policy rules ([#8417](https://github.com/hashicorp/terraform-provider-google/pull/8417))
+
 ## 3.56.0 (February 8, 2021)
 
 FEATURES:
