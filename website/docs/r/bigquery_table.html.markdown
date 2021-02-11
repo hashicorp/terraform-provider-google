@@ -13,6 +13,10 @@ Creates a table resource in a dataset for Google BigQuery. For more information 
 [the official documentation](https://cloud.google.com/bigquery/docs/) and
 [API](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables).
 
+-> **Note**: On newer versions of the provider, you must explicitly set `deletion_protection=false`
+(and run `terraform apply` to write the field to state) in order to destroy an instance.
+It is recommended to not set this field (or set it to true) until you're ready to destroy.
+
 
 ## Example Usage
 
@@ -135,6 +139,9 @@ The following arguments are supported:
 
 * `materialized_view` - (Optional) If specified, configures this table as a materialized view.
     Structure is documented below.
+
+* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
+in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
 
 The `external_data_configuration` block supports:
 

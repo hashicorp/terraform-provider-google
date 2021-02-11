@@ -42,6 +42,7 @@ To get more information about Job, see:
 
 ```hcl
 resource "google_bigquery_table" "foo" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
   table_id   = "job_query_table"
 }
@@ -88,6 +89,7 @@ resource "google_bigquery_job" "job" {
 
 ```hcl
 resource "google_bigquery_table" "foo" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
   table_id   = "job_query_table"
 }
@@ -136,6 +138,7 @@ resource "google_bigquery_job" "job" {
 
 ```hcl
 resource "google_bigquery_table" "foo" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
   table_id   = "job_load_table"
 }
@@ -183,6 +186,7 @@ resource "google_bigquery_job" "job" {
 
 ```hcl
 resource "google_bigquery_table" "source" {
+  deletion_protection = false
   count = length(google_bigquery_dataset.source)
 
   dataset_id = google_bigquery_dataset.source[count.index].dataset_id
@@ -219,6 +223,7 @@ resource "google_bigquery_dataset" "source" {
 }
 
 resource "google_bigquery_table" "dest" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.dest.dataset_id
   table_id   = "job_copy_dest_table"
 
@@ -315,6 +320,7 @@ resource "google_bigquery_job" "job" {
 
 ```hcl
 resource "google_bigquery_table" "source-one" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.source-one.dataset_id
   table_id   = "job_extract_table"
 

@@ -290,6 +290,7 @@ resource "google_bigquery_dataset" "public" {
 }
 
 resource "google_bigquery_table" "public" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.public.dataset_id
   table_id   = "%s"
 

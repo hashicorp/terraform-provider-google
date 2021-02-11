@@ -50,6 +50,7 @@ func TestAccBigQueryJob_bigqueryJobQueryExample(t *testing.T) {
 func testAccBigQueryJob_bigqueryJobQueryExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_bigquery_table" "foo" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
   table_id   = "tf_test_job_query%{random_suffix}_table"
 }
@@ -118,6 +119,7 @@ func TestAccBigQueryJob_bigqueryJobQueryTableReferenceExample(t *testing.T) {
 func testAccBigQueryJob_bigqueryJobQueryTableReferenceExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_bigquery_table" "foo" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
   table_id   = "tf_test_job_query%{random_suffix}_table"
 }
@@ -188,6 +190,7 @@ func TestAccBigQueryJob_bigqueryJobLoadExample(t *testing.T) {
 func testAccBigQueryJob_bigqueryJobLoadExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_bigquery_table" "foo" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
   table_id   = "tf_test_job_load%{random_suffix}_table"
 }
@@ -257,6 +260,7 @@ func TestAccBigQueryJob_bigqueryJobLoadTableReferenceExample(t *testing.T) {
 func testAccBigQueryJob_bigqueryJobLoadTableReferenceExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_bigquery_table" "foo" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
   table_id   = "tf_test_job_load%{random_suffix}_table"
 }
@@ -325,6 +329,7 @@ func TestAccBigQueryJob_bigqueryJobCopyExample(t *testing.T) {
 func testAccBigQueryJob_bigqueryJobCopyExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_bigquery_table" "source" {
+  deletion_protection = false
   count = length(google_bigquery_dataset.source)
 
   dataset_id = google_bigquery_dataset.source[count.index].dataset_id
@@ -361,6 +366,7 @@ resource "google_bigquery_dataset" "source" {
 }
 
 resource "google_bigquery_table" "dest" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.dest.dataset_id
   table_id   = "tf_test_job_copy%{random_suffix}_dest_table"
 
@@ -480,6 +486,7 @@ func TestAccBigQueryJob_bigqueryJobCopyTableReferenceExample(t *testing.T) {
 func testAccBigQueryJob_bigqueryJobCopyTableReferenceExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_bigquery_table" "source" {
+  deletion_protection = false
   count = length(google_bigquery_dataset.source)
 
   dataset_id = google_bigquery_dataset.source[count.index].dataset_id
@@ -516,6 +523,7 @@ resource "google_bigquery_dataset" "source" {
 }
 
 resource "google_bigquery_table" "dest" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.dest.dataset_id
   table_id   = "tf_test_job_copy%{random_suffix}_dest_table"
 
@@ -628,6 +636,7 @@ func TestAccBigQueryJob_bigqueryJobExtractExample(t *testing.T) {
 func testAccBigQueryJob_bigqueryJobExtractExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_bigquery_table" "source-one" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.source-one.dataset_id
   table_id   = "tf_test_job_extract%{random_suffix}_table"
 
@@ -714,6 +723,7 @@ func TestAccBigQueryJob_bigqueryJobExtractTableReferenceExample(t *testing.T) {
 func testAccBigQueryJob_bigqueryJobExtractTableReferenceExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_bigquery_table" "source-one" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.source-one.dataset_id
   table_id   = "tf_test_job_extract%{random_suffix}_table"
 
