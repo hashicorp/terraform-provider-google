@@ -457,7 +457,7 @@ exported:
 * `tags_fingerprint` - The unique fingerprint of the tags.
 
 [1]: /docs/providers/google/r/compute_instance_group_manager.html
-[2]: /docs/configuration/resources.html#lifecycle
+[2]: /docs/language/meta-arguments/lifecycle.html
 
 ## Timeouts
 
