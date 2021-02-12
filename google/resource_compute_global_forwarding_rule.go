@@ -61,14 +61,17 @@ character, which cannot be a dash.`,
 				Description: `The URL of the target resource to receive the matched traffic.
 The forwarded traffic must be of a type appropriate to the target object.
 For INTERNAL_SELF_MANAGED load balancing, only HTTP and HTTPS targets
-are valid.`,
+are valid.
+
+([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) For global address with a purpose of PRIVATE_SERVICE_CONNECT and
+addressType of INTERNAL, only "all-apis" and "vpc-sc" are valid.`,
 			},
 			"ip_address": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validateIpAddress,
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: internalIpDiffSuppress,
 				Description: `The IP address that this forwarding rule is serving on behalf of.
 
 Addresses are restricted based on the forwarding rule's load balancing
@@ -102,7 +105,9 @@ or unnecessary diffs.`,
 				ValidateFunc:     validation.StringInSlice([]string{"TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", ""}, false),
 				DiffSuppressFunc: caseDiffSuppress,
 				Description: `The IP protocol to which this rule applies. When the load balancing scheme is
-INTERNAL_SELF_MANAGED, only TCP is valid. Possible values: ["TCP", "UDP", "ESP", "AH", "SCTP", "ICMP"]`,
+INTERNAL_SELF_MANAGED, only TCP is valid. This field must not be set if the
+global address is configured as a purpose of PRIVATE_SERVICE_CONNECT
+and addressType of INTERNAL Possible values: ["TCP", "UDP", "ESP", "AH", "SCTP", "ICMP"]`,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -129,8 +134,8 @@ Internal Global HTTP(S) LB. The value of EXTERNAL means that this
 will be used for External Global Load Balancing (HTTP(S) LB,
 External TCP/UDP LB, SSL Proxy)
 
-NOTE: Currently global forwarding rules cannot be used for INTERNAL
-load balancing. Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED"]`,
+([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Note: This field must be set "" if the global address is
+configured as a purpose of PRIVATE_SERVICE_CONNECT and addressType of INTERNAL. Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED"]`,
 				Default: "EXTERNAL",
 			},
 			"metadata_filters": {

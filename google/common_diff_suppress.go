@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"log"
+	"net"
 	"reflect"
 	"strconv"
 	"strings"
@@ -160,4 +161,10 @@ func timestampDiffSuppress(format string) schema.SchemaDiffSuppressFunc {
 
 		return oldT == newT
 	}
+}
+
+// suppress diff when saved is Ipv4 format while new is required a reference
+// this happens for an internal ip for Private Services Connect
+func internalIpDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	return (net.ParseIP(old) != nil) && (net.ParseIP(new) == nil)
 }

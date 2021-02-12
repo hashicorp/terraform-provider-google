@@ -207,6 +207,39 @@ resource "google_compute_health_check" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=global_forwarding_rule_private_services_connect&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Global Forwarding Rule Private Services Connect
+
+
+```hcl
+resource "google_compute_global_address" "default" {
+  provider      = google-beta
+  name          = "global-psconnect-ip"
+  address_type  = "INTERNAL"
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  network       = google_compute_network.network.id
+  address       = "100.100.100.106"
+}
+
+resource "google_compute_global_forwarding_rule" "default" {
+  provider      = google-beta
+  name          = "globalrule"
+  target        = "all-apis"
+  network       = google_compute_network.network.id
+  ip_address    = google_compute_global_address.default.id
+  load_balancing_scheme = ""
+}
+
+resource "google_compute_network" "network" {
+  provider      = google-beta
+  name          = "tf-test%{random_suffix}"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -229,6 +262,8 @@ The following arguments are supported:
   The forwarded traffic must be of a type appropriate to the target object.
   For INTERNAL_SELF_MANAGED load balancing, only HTTP and HTTPS targets
   are valid.
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) For global address with a purpose of PRIVATE_SERVICE_CONNECT and
+  addressType of INTERNAL, only "all-apis" and "vpc-sc" are valid.
 
 
 - - -
@@ -265,7 +300,9 @@ The following arguments are supported:
 * `ip_protocol` -
   (Optional)
   The IP protocol to which this rule applies. When the load balancing scheme is
-  INTERNAL_SELF_MANAGED, only TCP is valid.
+  INTERNAL_SELF_MANAGED, only TCP is valid. This field must not be set if the
+  global address is configured as a purpose of PRIVATE_SERVICE_CONNECT
+  and addressType of INTERNAL
   Possible values are `TCP`, `UDP`, `ESP`, `AH`, `SCTP`, and `ICMP`.
 
 * `ip_version` -
@@ -284,8 +321,8 @@ The following arguments are supported:
   Internal Global HTTP(S) LB. The value of EXTERNAL means that this
   will be used for External Global Load Balancing (HTTP(S) LB,
   External TCP/UDP LB, SSL Proxy)
-  NOTE: Currently global forwarding rules cannot be used for INTERNAL
-  load balancing.
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Note: This field must be set "" if the global address is
+  configured as a purpose of PRIVATE_SERVICE_CONNECT and addressType of INTERNAL.
   Default value is `EXTERNAL`.
   Possible values are `EXTERNAL` and `INTERNAL_SELF_MANAGED`.
 
