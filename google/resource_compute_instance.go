@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -2012,7 +2013,12 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		// Wait for the operation to complete
 		opErr := computeOperationWaitTime(config, op, project, "instance to delete", userAgent, d.Timeout(schema.TimeoutDelete))
 		if opErr != nil {
-			return opErr
+			// Refresh operation to check status
+			op, _ = config.NewComputeClient(userAgent).ZoneOperations.Get(project, zone, strconv.FormatUint(op.Id, 10)).Do()
+			// Do not return an error if the operation actually completed
+			if op == nil || op.Status != "DONE" {
+				return opErr
+			}
 		}
 
 		d.SetId("")
