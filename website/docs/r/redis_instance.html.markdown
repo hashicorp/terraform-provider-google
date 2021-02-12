@@ -220,6 +220,13 @@ The following arguments are supported:
   Default value is `BASIC`.
   Possible values are `BASIC` and `STANDARD_HA`.
 
+* `transit_encryption_mode` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The TLS mode of the Redis instance, If not provided, TLS is disabled for the instance.
+  - SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with server authentcation
+  Default value is `DISABLED`.
+  Possible values are `SERVER_AUTHENTICATION` and `DISABLED`.
+
 * `region` -
   (Optional)
   The name of the Redis region of the instance.
@@ -259,6 +266,27 @@ In addition to the arguments listed above, the following computed attributes are
   The value may change over time for a given instance so should be
   checked before each import/export operation.
 
+* `server_ca_certs` -
+  List of server CA certificates for the instance.
+  Structure is documented below.
+
+
+The `server_ca_certs` block contains:
+
+* `serial_number` -
+  Serial number, as extracted from the certificate.
+
+* `cert` -
+  Serial number, as extracted from the certificate.
+
+* `create_time` -
+  The time when the certificate was created.
+
+* `expire_time` -
+  The time when the certificate expires.
+
+* `sha1_fingerprint` -
+  Sha1 Fingerprint of the certificate.
 
 ## Timeouts
 

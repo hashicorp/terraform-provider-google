@@ -143,6 +143,7 @@ resource "google_redis_instance" "test" {
     maxmemory-policy       = "noeviction"
     notify-keyspace-events = ""
   }
+  transit_encryption_mode = "SERVER_AUTHENTICATION"
 }
 `, name)
 }
