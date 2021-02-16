@@ -11,8 +11,6 @@ FEATURES:
 IMPROVEMENTS:
 * bigquery: added `status` field to `google_bigquery_job` ([#8377](https://github.com/hashicorp/terraform-provider-google/pull/8377))
 * compute: added `disk.resource_policies` field to resource `google_compute_instance_template` ([#8393](https://github.com/hashicorp/terraform-provider-google/pull/8393))
-* compute: added `nic_type` field to `google_compute_instance_template ` resource to support gVNIC ([#8423](https://github.com/hashicorp/terraform-provider-google/pull/8423))
-* compute: added `nic_type` field to `google_compute_instance` resource to support gVNIC ([#8423](https://github.com/hashicorp/terraform-provider-google/pull/8423))
 * pubsub: marked `kms_key_name` field in `google_pubsub_topic` as updatable ([#8424](https://github.com/hashicorp/terraform-provider-google/pull/8424))
 
 BUG FIXES:
