@@ -65,9 +65,8 @@ character, which cannot be a dash.`,
 				Type:     schema.TypeList,
 				Required: true,
 				Description: `A list of SslCertificate resources that are used to authenticate
-connections between users and the load balancer. Currently, exactly
-one SSL certificate must be specified.`,
-				MaxItems: 1,
+connections between users and the load balancer. At least one
+SSL certificate must be specified.`,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
