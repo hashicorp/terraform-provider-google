@@ -148,6 +148,31 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 			}
 			continue
 		}
+
+		// retry in the case that a service account is not found. This can happen when a service account is deleted
+		// out of band.
+		if isServiceAccountNotFoundError, _ := iamServiceAccountNotFound(err); isServiceAccountNotFoundError {
+			// calling a retryable function within a retry loop is not
+			// strictly the _best_ idea, but this error only happens in
+			// high-traffic projects anyways
+			currentPolicy, rerr := iamPolicyReadWithRetry(updater)
+			if rerr != nil {
+				if p.Etag != currentPolicy.Etag {
+					// not matching indicates that there is a new state to attempt to apply
+					log.Printf("current and old etag did not match for %s, retrying", updater.DescribeResource())
+					time.Sleep(backoff)
+					backoff = backoff * 2
+					continue
+				}
+
+				log.Printf("current and old etag matched for %s, not retrying", updater.DescribeResource())
+			} else {
+				// if the error is non-nil, just fall through and return the base error
+				log.Printf("[DEBUG]: error checking etag for policy %s. error: %v", updater.DescribeResource(), rerr)
+			}
+		}
+
+		log.Printf("[DEBUG]: not retrying IAM policy for %s. error: %v", updater.DescribeResource(), err)
 		return errwrap.Wrapf(fmt.Sprintf("Error applying IAM policy for %s: {{err}}", updater.DescribeResource()), err)
 	}
 	log.Printf("[DEBUG]: Set policy for %s", updater.DescribeResource())
