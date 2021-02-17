@@ -366,9 +366,60 @@ as their versioned counterpart but that won't necessarily always be the case.
   operations with slower eventual propagation. If you're not completely sure
   what you are doing, avoid setting custom batching configuration.
 
-**So far, batching is implemented for**:
+**So far, batching is implemented for below resources**:
 
-* enabling project services using `google_project_service`.
+* `google_project_service`
+* `google_api_gateway_api_config_iam_*`
+* `google_api_gateway_api_iam_*`
+* `google_api_gateway_gateway_iam_*`
+* `google_bigquery_dataset_iam_*`
+* `google_bigquery_table_iam_*`
+* `google_notebooks_instance_iam_*`
+* `google_bigtable_instance_iam_*`
+* `google_bigtable_table_iam_*`
+* `google_billing_account_iam_*`
+* `google_endpoints_service_iam_*`
+* `google_healthcare_consent_store_iam_*`
+* `google_healthcare_dataset_iam_*`
+* `google_healthcare_dicom_store_iam_*`
+* `google_healthcare_fhir_store_iam_*`
+* `google_healthcare_hl7_v2_store_iam_*`
+* `google_kms_crypto_key_iam_*`
+* `google_kms_key_ring_iam_*`
+* `google_folder_iam_*`
+* `google_organization_iam_*`
+* `google_project_iam_*`
+* `google_service_account_iam_*`
+* `google_project_service_*`
+* `google_pubsub_subscription_iam_*`
+* `google_pubsub_topic_iam_*`
+* `google_cloud_run_service_iam_*`
+* `google_sourcerepo_repository_iam_*`
+* `google_spanner_database_iam_*`
+* `google_spanner_instance_iam_*`
+* `google_storage_bucket_iam_*`
+* `google_compute_disk_iam_*`
+* `google_compute_image_iam_*`
+* `google_compute_instance_iam_*`
+* `google_compute_machine_image_iam_*`
+* `google_compute_region_disk_iam_*`
+* `google_compute_subnetwork_iam_*`
+* `google_data_catalog_entry_group_iam_*`
+* `google_data_catalog_policy_tag_iam_*`
+* `google_data_catalog_taxonomy_iam_*`
+* `google_dataproc_cluster_iam_*`
+* `google_dataproc_job_iam_*`
+* `google_iap_app_engine_service_iam_*`
+* `google_iap_app_engine_version_iam_*`
+* `google_iap_tunnel_iam_*`
+* `google_iap_tunnel_instance_iam_*`
+* `google_iap_web_backend_service_iam_*`
+* `google_iap_web_iam_*`
+* `google_iap_web_type_app_engine_iam_*`
+* `google_iap_web_type_compute_iam_*`
+* `google_runtimeconfig_config_iam_*`
+* `google_secret_manager_secret_iam_*`
+* `google_service_directory_service_iam_*`
 
 The `batching` block supports the following fields.
 
