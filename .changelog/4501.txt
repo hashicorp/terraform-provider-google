@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: Added graceful termination to `google_container_node_pool` create calls so that partially created node pools will resume the original operation if the Terraform process is killed mid create.
+```

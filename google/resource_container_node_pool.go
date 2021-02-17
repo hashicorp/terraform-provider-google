@@ -63,6 +63,10 @@ func resourceContainerNodePool() *schema.Resource {
 					ForceNew:    true,
 					Description: `The location (region or zone) of the cluster.`,
 				},
+				"operation": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
 			}),
 	}
 }
@@ -315,6 +319,20 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		nodePoolInfo.location, "creating GKE NodePool", userAgent, timeout)
 
 	if waitErr != nil {
+		// Check if the create operation failed because Terraform was prematurely terminated. If it was we can persist the
+		// operation id to state so that a subsequent refresh of this resource will wait until the operation has terminated
+		// before attempting to Read the state of the cluster. This allows a graceful resumption of a Create that was killed
+		// by the upstream Terraform process exiting early such as a sigterm.
+		select {
+		case <-config.context.Done():
+			log.Printf("[DEBUG] Persisting %s so this operation can be resumed \n", operation.Name)
+			if err := d.Set("operation", operation.Name); err != nil {
+				return fmt.Errorf("Error setting operation: %s", err)
+			}
+			return nil
+		default:
+			// leaving default case to ensure this is non blocking
+		}
 		// The resource didn't actually create
 		d.SetId("")
 		return waitErr
@@ -354,6 +372,21 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
 		return err
+	}
+
+	operation := d.Get("operation").(string)
+	if operation != "" {
+		log.Printf("[DEBUG] in progress operation detected at %v, attempting to resume", operation)
+		op := &containerBeta.Operation{
+			Name: operation,
+		}
+		if err := d.Set("operation", ""); err != nil {
+			return fmt.Errorf("Error setting operation: %s", err)
+		}
+		waitErr := containerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "resuming GKE node pool", userAgent, d.Timeout(schema.TimeoutRead))
+		if waitErr != nil {
+			return waitErr
+		}
 	}
 
 	name := getNodePoolName(d.Id())
