@@ -179,6 +179,10 @@ The `config` block supports:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The configuration settings for the Airflow web server App Engine instance.
 
+* `encryption_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The encryption options for the Cloud Composer environment and its dependencies.
+
 The `node_config` block supports:
 
 * `zone` -
@@ -390,6 +394,13 @@ The `web_server_config` block supports:
   Value custom is returned only in response, if Airflow web server parameters were
   manually changed to a non-standard values.
 
+The `encryption_config` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Customer-managed Encryption Key available through Google's Key Management Service. It must
+  be the fully qualified resource name, 
+  i.e. projects/project-id/locations/location/keyRings/keyring/cryptoKeys/key. Cannot be updated.
 
 
 ## Attributes Reference
