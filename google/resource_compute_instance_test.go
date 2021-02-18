@@ -1052,6 +1052,35 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_nictype_update(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_nictype(instanceName, instanceName, "GVNIC"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_nictype(instanceName, instanceName, "VIRTIO_NET"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 	t.Parallel()
 
@@ -4138,6 +4167,61 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
   network       = google_compute_network.inst-test-network.self_link
 }
 `, instance, network, subnetwork)
+}
+
+func testAccComputeInstance_nictype(image, instance, nictype string) string {
+	return fmt.Sprintf(`
+resource "google_compute_image" "example" {
+	name = "%s"
+	raw_disk {
+		source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
+	}
+
+	guest_os_features {
+		type = "SECURE_BOOT"
+	}
+
+	guest_os_features {
+		type = "MULTI_IP_SUBNET"
+	}
+
+	guest_os_features {
+		type = "GVNIC"
+	}
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  zone           = "us-central1-a"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  //deletion_protection = false is implicit in this config due to default value
+
+  boot_disk {
+    initialize_params {
+	  image = google_compute_image.example.id
+    }
+  }
+
+  network_interface {
+	network = "default"
+	nic_type = "%s"
+  }
+
+  metadata = {
+    foo            = "bar"
+    baz            = "qux"
+    startup-script = "echo Hello"
+  }
+
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
+}
+`, image, instance, nictype)
 }
 
 func testAccComputeInstance_guestAccelerator(instance string, count uint8) string {
