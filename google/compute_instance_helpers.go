@@ -182,6 +182,7 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInt
 			"subnetwork_project": subnet.Project,
 			"access_config":      ac,
 			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
+			"nic_type":           iface.NicType,
 		}
 		// Instance template interfaces never have names, so they're absent
 		// in the instance template network_interface schema. We want to use the
@@ -244,10 +245,18 @@ func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*comput
 			Subnetwork:    sf.RelativeLink(),
 			AccessConfigs: expandAccessConfigs(data["access_config"].([]interface{})),
 			AliasIpRanges: expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
+			NicType:       expandNicType(data["nic_type"].(interface{})),
 		}
 
 	}
 	return ifaces, nil
+}
+
+func expandNicType(d interface{}) string {
+	if d == nil {
+		return ""
+	}
+	return d.(string)
 }
 
 func flattenServiceAccounts(serviceAccounts []*computeBeta.ServiceAccount) []map[string]interface{} {
