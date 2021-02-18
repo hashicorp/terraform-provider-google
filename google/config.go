@@ -156,9 +156,12 @@ type Config struct {
 	ServiceNetworkingBasePath      string
 	StorageTransferBasePath        string
 	BigtableAdminBasePath          string
+	EventarcBasePath               string
 
 	requestBatcherServiceUsage *RequestBatcher
 	requestBatcherIam          *RequestBatcher
+
+	// start DCL clients
 }
 
 // Generated product base paths
@@ -273,6 +276,8 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	c.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, c.BatchingConfig)
 	c.requestBatcherIam = NewRequestBatcher("IAM", ctx, c.BatchingConfig)
 	c.PollInterval = 10 * time.Second
+
+	// Start DCL client instantiation
 
 	return nil
 }

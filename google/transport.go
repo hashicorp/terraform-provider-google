@@ -1,3 +1,4 @@
+//
 package google
 
 import (
@@ -132,27 +133,27 @@ func addQueryParams(rawurl string, params map[string]string) (string, error) {
 }
 
 func replaceVars(d TerraformResourceData, config *Config, linkTmpl string) (string, error) {
-	return replaceVarsRecursive(d, config, linkTmpl, 0)
+	return replaceVarsRecursive(d, config, linkTmpl, false, 0)
 }
 
 // replaceVars must be done recursively because there are baseUrls that can contain references to regions
 // (eg cloudrun service) there aren't any cases known for 2+ recursion but we will track a run away
 // substitution as 10+ calls to allow for future use cases.
-func replaceVarsRecursive(d TerraformResourceData, config *Config, linkTmpl string, depth int) (string, error) {
+func replaceVarsRecursive(d TerraformResourceData, config *Config, linkTmpl string, shorten bool, depth int) (string, error) {
 	if depth > 10 {
 		return "", errors.New("Recursive substitution detcted")
 	}
 
 	// https://github.com/google/re2/wiki/Syntax
 	re := regexp.MustCompile("{{([%[:word:]]+)}}")
-	f, err := buildReplacementFunc(re, d, config, linkTmpl)
+	f, err := buildReplacementFunc(re, d, config, linkTmpl, shorten)
 	if err != nil {
 		return "", err
 	}
 	final := re.ReplaceAllStringFunc(linkTmpl, f)
 
 	if re.Match([]byte(final)) {
-		return replaceVarsRecursive(d, config, final, depth+1)
+		return replaceVarsRecursive(d, config, final, shorten, depth+1)
 	}
 
 	return final, nil
@@ -161,7 +162,7 @@ func replaceVarsRecursive(d TerraformResourceData, config *Config, linkTmpl stri
 // This function replaces references to Terraform properties (in the form of {{var}}) with their value in Terraform
 // It also replaces {{project}}, {{project_id_or_project}}, {{region}}, and {{zone}} with their appropriate values
 // This function supports URL-encoding the result by prepending '%' to the field name e.g. {{%var}}
-func buildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *Config, linkTmpl string) (func(string) string, error) {
+func buildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *Config, linkTmpl string, shorten bool) (func(string) string, error) {
 	var project, projectID, region, zone string
 	var err error
 
@@ -225,7 +226,11 @@ func buildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *Co
 		} else {
 			v, ok := d.GetOkExists(m)
 			if ok {
-				return fmt.Sprintf("%v", v)
+				if shorten {
+					return GetResourceNameFromSelfLink(fmt.Sprintf("%v", v))
+				} else {
+					return fmt.Sprintf("%v", v)
+				}
 			}
 		}
 

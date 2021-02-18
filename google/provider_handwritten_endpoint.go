@@ -181,6 +181,17 @@ var BigtableAdminCustomEndpointEntry = &schema.Schema{
 	}, BigtableAdminDefaultBasePath),
 }
 
+var EventarcDefaultBasePath = "https://eventarc.googleapis.com/v1beta1/"
+var EventarcCustomEndpointEntryKey = "eventarc_custom_endpoint"
+var EventarcCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_EVENTARC_CUSTOM_ENDPOINT",
+	}, EventarcDefaultBasePath),
+}
+
 func validateCustomEndpoint(v interface{}, k string) (ws []string, errors []error) {
 	re := `.*/[^/]+/$`
 	return validateRegexp(re)(v, k)
