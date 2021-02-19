@@ -1,4 +1,43 @@
-## 3.57.0 (Unreleased)
+## 3.58.0 (Unreleased)
+
+NOTES:
+* `google_bigquery_table` resources now cannot be destroyed unless `deletion_protection = false` is set in state for the resource. ([#8453](https://github.com/hashicorp/terraform-provider-google/pull/8453))
+
+FEATURES:
+* **New Data Source:** `google_iap_client` ([#8450](https://github.com/hashicorp/terraform-provider-google/pull/8450))
+
+IMPROVEMENTS:
+* bigquery: added `deletion_protection` field to `google_bigquery_table` to make deleting them require an explicit intent. ([#8453](https://github.com/hashicorp/terraform-provider-google/pull/8453))
+* cloudrun: updated retry logic to attempt to retry 409 errors from the Cloud Run API, which may be returned intermittently on create. ([#8440](https://github.com/hashicorp/terraform-provider-google/pull/8440))
+* compute: removed max items limit from `google_compute_target_ssl_proxy`. The API currently allows upto 15 Certificates. ([#8478](https://github.com/hashicorp/terraform-provider-google/pull/8478))
+* compute: added support for Private Services Connect for Google APIs in `google_compute_global_address` and `google_compute_global_forwarding_rule`([#8458](https://github.com/hashicorp/terraform-provider-google/pull/8458))
+* iam: added a retry condition that retries editing `iam_binding` and `iam_member` resources on policies that have frequently deleted service accounts ([#8476](https://github.com/hashicorp/terraform-provider-google/pull/8476))
+* sql: added `insights_config` block to `google_sql_database_instance` resource ([#8434](https://github.com/hashicorp/terraform-provider-google/pull/8434))
+
+BUG FIXES:
+* compute: fixed an issue where the provider could return an error on a successful delete operation ([#8463](https://github.com/hashicorp/terraform-provider-google/pull/8463))
+* dataproc : fixed an issue where `max_failure_per_hour` was not set correctly for `google_dataproc_job` ([#8441](https://github.com/hashicorp/terraform-provider-google/pull/8441))
+* dlp : modified `google_data_loss_prevention_stored_info_type` `regex.group_indexes` field to trigger resource recreation on update ([#8439](https://github.com/hashicorp/terraform-provider-google/pull/8439))
+* sql: fixed diffs based on case for `charset` in `google_sql_database` ([#8462](https://github.com/hashicorp/terraform-provider-google/pull/8462))
+
+## 3.57.0 (February 16, 2021)
+
+DEPRECATIONS:
+* compute: deprecated `source_disk_url` field in `google_compute_snapshot`. ([#8410](https://github.com/hashicorp/terraform-provider-google/pull/8410))
+* kms: deprecated `self_link` field in `google_kms_keyring` and `google_kms_cryptokey` resource as it is identical value to `id` field. ([#8410](https://github.com/hashicorp/terraform-provider-google/pull/8410))
+* pubsub: deprecated `path` field in `google_pubsub_subscription` resource as it is identical value to `id` field. ([#8410](https://github.com/hashicorp/terraform-provider-google/pull/8410))
+
+FEATURES:
+* **New Resource:** `google_essential_contacts_contact` ([#8426](https://github.com/hashicorp/terraform-provider-google/pull/8426))
+
+IMPROVEMENTS:
+* bigquery: added `status` field to `google_bigquery_job` ([#8377](https://github.com/hashicorp/terraform-provider-google/pull/8377))
+* compute: added `disk.resource_policies` field to resource `google_compute_instance_template` ([#8393](https://github.com/hashicorp/terraform-provider-google/pull/8393))
+* pubsub: marked `kms_key_name` field in `google_pubsub_topic` as updatable ([#8424](https://github.com/hashicorp/terraform-provider-google/pull/8424))
+
+BUG FIXES:
+* appengine: added retry for P4SA propagation delay ([#8409](https://github.com/hashicorp/terraform-provider-google/pull/8409))
+* compute: fixed overly-aggressive detection of changes to google_compute_security_policy rules ([#8417](https://github.com/hashicorp/terraform-provider-google/pull/8417))
 
 ## 3.56.0 (February 8, 2021)
 
