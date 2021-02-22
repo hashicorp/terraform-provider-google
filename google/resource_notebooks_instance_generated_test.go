@@ -223,12 +223,10 @@ resource "google_notebooks_instance" "instance" {
 }
 
 data "google_compute_network" "my_network" {
-  provider = google-beta
   name = "default"
 }
 
 data "google_compute_subnetwork" "my_subnetwork" {
-  provider = google-beta
   name   = "default"
   region = "us-central1"
 }
