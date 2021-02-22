@@ -789,12 +789,14 @@ func expandFixedOrPercent(configured []interface{}) *computeBeta.FixedOrPercent 
 	fixedOrPercent := &computeBeta.FixedOrPercent{}
 
 	for _, raw := range configured {
-		data := raw.(map[string]interface{})
-		if percent := data["percent"]; percent.(int) > 0 {
-			fixedOrPercent.Percent = int64(percent.(int))
-		} else {
-			fixedOrPercent.Fixed = int64(data["fixed"].(int))
-			fixedOrPercent.ForceSendFields = []string{"Fixed"}
+		if raw != nil {
+			data := raw.(map[string]interface{})
+			if percent := data["percent"]; percent.(int) > 0 {
+				fixedOrPercent.Percent = int64(percent.(int))
+			} else {
+				fixedOrPercent.Fixed = int64(data["fixed"].(int))
+				fixedOrPercent.ForceSendFields = []string{"Fixed"}
+			}
 		}
 	}
 	return fixedOrPercent
