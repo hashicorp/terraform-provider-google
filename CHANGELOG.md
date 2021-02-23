@@ -1,4 +1,4 @@
-## 3.58.0 (Unreleased)
+## 3.58.0 (February 23, 2021)
 ## 3.57.0 (February 14, 2021)
 
 DEPRECATIONS:
