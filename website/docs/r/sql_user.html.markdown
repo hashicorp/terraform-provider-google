@@ -54,7 +54,7 @@ resource "google_sql_database_instance" "master" {
   settings {
     tier = "db-f1-micro"
 
-    datagbase_flags {
+    database_flags {
       name  = "cloudsql.iam_authentication"
       value = "on"
     }
