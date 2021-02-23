@@ -1,6 +1,6 @@
 ## 3.59.0 (Unreleased)
 
-## 3.58.0 (February 22, 2021)
+## 3.58.0 (February 23, 2021)
 
 NOTES:
 * `google_bigquery_table` resources now cannot be destroyed unless `deletion_protection = false` is set in state for the resource. ([#8453](https://github.com/hashicorp/terraform-provider-google/pull/8453))
