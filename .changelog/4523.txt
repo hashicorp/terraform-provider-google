@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added autoscaling_policy.cpu_utilization.predictive_method field to `google_compute_autoscaler` and `google_compute_region_autoscaler`
+```
