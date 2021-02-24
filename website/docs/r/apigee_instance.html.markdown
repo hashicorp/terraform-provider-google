@@ -14,31 +14,31 @@
 # ----------------------------------------------------------------------------
 subcategory: "Apigee"
 layout: "google"
-page_title: "Google: google_apigee_organization"
-sidebar_current: "docs-google-apigee-organization"
+page_title: "Google: google_apigee_instance"
+sidebar_current: "docs-google-apigee-instance"
 description: |-
-  An `Organization` is the top-level container in Apigee.
+  An `Instance` is the runtime dataplane in Apigee.
 ---
 
-# google\_apigee\_organization
+# google\_apigee\_instance
 
-An `Organization` is the top-level container in Apigee.
+An `Instance` is the runtime dataplane in Apigee.
 
 
-To get more information about Organization, see:
+To get more information about Instance, see:
 
-* [API documentation](https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/v1/organizations)
+* [API documentation](https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/v1/organizations.instances/create)
 * How-to Guides
-    * [Creating an API organization](https://cloud.google.com/apigee/docs/api-platform/get-started/create-org)
+    * [Creating a runtime instance](https://cloud.google.com/apigee/docs/api-platform/get-started/create-instance)
 
-## Example Usage - Apigee Organization Cloud Basic
+## Example Usage - Apigee Instance Basic
 
 
 ```hcl
 data "google_client_config" "current" {}
 
 resource "google_compute_network" "apigee_network" {
-  name       = "apigee-network"
+  name = "apigee-network"
 }
 
 resource "google_compute_global_address" "apigee_range" {
@@ -55,21 +55,27 @@ resource "google_service_networking_connection" "apigee_vpc_connection" {
   reserved_peering_ranges = [google_compute_global_address.apigee_range.name]
 }
 
-resource "google_apigee_organization" "org" {
+resource "google_apigee_organization" "apigee_org" {
   analytics_region   = "us-central1"
   project_id         = data.google_client_config.current.project
   authorized_network = google_compute_network.apigee_network.id
   depends_on         = [google_service_networking_connection.apigee_vpc_connection]
 }
+
+resource "google_apigee_instance" "apigee_instance" {
+  name     = "tf-test%{random_suffix}"
+  location = "us-central1-b"
+  org_id   = google_apigee_organization.apigee_org.id
+}
 ```
-## Example Usage - Apigee Organization Cloud Full
+## Example Usage - Apigee Instance Full
 
 
 ```hcl
 data "google_client_config" "current" {}
 
 resource "google_compute_network" "apigee_network" {
-  name       = "apigee-network"
+  name = "apigee-network"
 }
 
 resource "google_compute_global_address" "apigee_range" {
@@ -115,7 +121,7 @@ resource "google_kms_crypto_key_iam_binding" "apigee_sa_keyuser" {
   ]
 }
 
-resource "google_apigee_organization" "org" {
+resource "google_apigee_organization" "apigee_org" {
   analytics_region                     = "us-central1"
   display_name                         = "apigee-org"
   description                          = "Terraform-provisioned Apigee Org."
@@ -128,6 +134,15 @@ resource "google_apigee_organization" "org" {
     google_kms_crypto_key_iam_binding.apigee_sa_keyuser,
   ]
 }
+
+resource "google_apigee_instance" "apigee_instance" {
+  name                     = "tf-test%{random_suffix}"
+  location                 = "us-central1-b"
+  description	             = "Terraform-managed Apigee Runtime Instance"
+  display_name             = "tf-test%{random_suffix}"
+  org_id                   = google_apigee_organization.apigee_org.id
+  disk_encryption_key_name = google_kms_crypto_key.apigee_key.id
+}
 ```
 
 ## Argument Reference
@@ -135,62 +150,56 @@ resource "google_apigee_organization" "org" {
 The following arguments are supported:
 
 
-* `project_id` -
+* `name` -
   (Required)
-  The project ID associated with the Apigee organization.
+  Resource ID of the instance.
+
+* `location` -
+  (Required)
+  Compute Engine location where the instance resides. For trial organization
+  subscriptions, the location must be a Compute Engine zone. For paid organization
+  subscriptions, it should correspond to a Compute Engine region.
+
+* `org_id` -
+  (Required)
+  The Apigee Organization associated with the Apigee instance,
+  in the format `organizations/{{org_name}}`.
 
 
 - - -
 
 
-* `display_name` -
+* `peering_cidr_range` -
   (Optional)
-  The display name of the Apigee organization.
+  The size of the CIDR block range that will be reserved by the instance.
+  Default value is `SLASH_16`.
+  Possible values are `SLASH_16` and `SLASH_20`.
 
 * `description` -
   (Optional)
-  Description of the Apigee organization.
+  Description of the instance.
 
-* `analytics_region` -
+* `display_name` -
   (Optional)
-  Primary GCP region for analytics data storage. For valid values, see [Create an Apigee organization](https://cloud.google.com/apigee/docs/api-platform/get-started/create-org).
+  Display name of the instance.
 
-* `authorized_network` -
+* `disk_encryption_key_name` -
   (Optional)
-  Compute Engine network used for Service Networking to be peered with Apigee runtime instances.
-  See [Getting started with the Service Networking API](https://cloud.google.com/service-infrastructure/docs/service-networking/getting-started).
-  Valid only when `RuntimeType` is set to CLOUD. The value can be updated only when there are no runtime instances. For example: "default".
-
-* `runtime_type` -
-  (Optional)
-  Runtime type of the Apigee organization based on the Apigee subscription purchased.
-  Default value is `CLOUD`.
-  Possible values are `CLOUD` and `HYBRID`.
-
-* `runtime_database_encryption_key_name` -
-  (Optional)
-  Cloud KMS key name used for encrypting the data that is stored and replicated across runtime instances.
-  Update is not allowed after the organization is created.
-  If not specified, a Google-Managed encryption key will be used.
-  Valid only when `RuntimeType` is CLOUD. For example: `projects/foo/locations/us/keyRings/bar/cryptoKeys/baz`.
+  Customer Managed Encryption Key (CMEK) used for disk and volume encryption. Required for Apigee paid subscriptions only.
+  Use the following format: `projects/([^/]+)/locations/([^/]+)/keyRings/([^/]+)/cryptoKeys/([^/]+)`
 
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `organizations/{{name}}`
+* `id` - an identifier for the resource with format `{{org_id}}/instances/{{name}}`
 
-* `name` -
-  Output only. Name of the Apigee organization.
+* `host` -
+  Output only. Hostname or IP address of the exposed Apigee endpoint used by clients to connect to the service.
 
-* `subscription_type` -
-  Output only. Subscription type of the Apigee organization.
-  Valid values include trial (free, limited, and for evaluation purposes only) or paid (full subscription has been purchased).
-
-* `ca_certificate` -
-  Output only. Base64-encoded public certificate for the root CA of the Apigee organization.
-  Valid only when `RuntimeType` is CLOUD. A base64-encoded string.
+* `port` -
+  Output only. Port number of the exposed Apigee endpoint.
 
 
 ## Timeouts
@@ -198,16 +207,15 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
-- `delete` - Default is 4 minutes.
+- `create` - Default is 30 minutes.
+- `delete` - Default is 30 minutes.
 
 ## Import
 
 
-Organization can be imported using any of these accepted formats:
+Instance can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_apigee_organization.default organizations/{{name}}
-$ terraform import google_apigee_organization.default {{name}}
+$ terraform import google_apigee_instance.default {{org_id}}/instances/{{name}}
+$ terraform import google_apigee_instance.default {{org_id}}/{{name}}
 ```
