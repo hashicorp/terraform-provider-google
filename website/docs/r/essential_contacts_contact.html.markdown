@@ -74,6 +74,10 @@ The following arguments are supported:
   (Required)
   The categories of notifications that the contact will receive communications for.
 
+* `language_tag` -
+  (Required)
+  The preferred language for notifications, as a ISO 639-1 language code. See Supported languages for a list of supported languages.
+
 * `parent` -
   (Required)
   The resource to save this contact for. Format: organizations/{organization_id}, folders/{folder_id} or projects/{project_id}
@@ -81,10 +85,6 @@ The following arguments are supported:
 
 - - -
 
-
-* `language_tag` -
-  (Optional)
-  The preferred language for notifications, as a ISO 639-1 language code. See Supported languages for a list of supported languages.
 
 
 ## Attributes Reference
