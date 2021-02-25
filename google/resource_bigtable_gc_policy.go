@@ -64,6 +64,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 						"days": {
 							Type:         schema.TypeInt,
 							Optional:     true,
+							ForceNew:     true,
 							Deprecated:   "Deprecated in favor of duration",
 							Description:  `Number of days before applying GC policy.`,
 							ExactlyOneOf: []string{"max_age.0.days", "max_age.0.duration"},
@@ -71,6 +72,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 						"duration": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							ForceNew:     true,
 							Description:  `Duration before applying GC policy`,
 							ValidateFunc: validateDuration(),
 							ExactlyOneOf: []string{"max_age.0.days", "max_age.0.duration"},
@@ -89,6 +91,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 						"number": {
 							Type:        schema.TypeInt,
 							Required:    true,
+							ForceNew:    true,
 							Description: `Number of version before applying the GC policy.`,
 						},
 					},
