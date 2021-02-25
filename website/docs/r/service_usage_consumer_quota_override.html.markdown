@@ -61,6 +61,36 @@ resource "google_service_usage_consumer_quota_override" "override" {
   force          = true
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_consumer_quota_override&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Consumer Quota Override
+
+
+```hcl
+resource "google_project" "my_project" {
+  provider   = google-beta
+  name       = "tf-test-project"
+  project_id = "quota"
+  org_id     = "123456789"
+  auto_create_network = false
+}
+
+resource "google_service_usage_consumer_quota_override" "override" {
+  provider       = google-beta
+  dimensions = {
+    region = "us-central1"
+  }
+  project        = google_project.my_project.project_id
+  service        = "compute.googleapis.com"
+  metric         = "compute.googleapis.com%2Fn2_cpus"
+  limit          = "%2Fproject%2Fregion"
+  override_value = "10"
+  force          = true
+}
+```
 
 ## Argument Reference
 
