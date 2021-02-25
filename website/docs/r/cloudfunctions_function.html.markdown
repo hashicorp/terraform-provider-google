@@ -9,10 +9,12 @@ description: |-
 
 # google\_cloudfunctions\_function
 
-Creates a new Cloud Function. For more information see
-[the official documentation](https://cloud.google.com/functions/docs/)
-and
-[API](https://cloud.google.com/functions/docs/apis).
+Creates a new Cloud Function. For more information see:
+
+* [API documentation](https://cloud.google.com/functions/docs/reference/rest/v1/projects.locations.functions)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/functions/docs)
+
 
 ~> **Warning:** As of November 1, 2019, newly created Functions are
 private-by-default and will require [appropriate IAM permissions](https://cloud.google.com/functions/docs/reference/iam/roles)

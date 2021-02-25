@@ -4,14 +4,19 @@ layout: "google"
 page_title: "Google: google_service_account_key"
 sidebar_current: "docs-google-service-account-key"
 description: |-
-  Allows management of a Google Cloud Platform service account Key Pair
+  Allows management of a Google Cloud Platform service account Key
 ---
 
 # google_service_account_key
 
-Creates and manages service account key-pairs, which allow the user to establish identity of a service account outside of GCP. For more information, see [the official documentation](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and [API](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys).
+Creates and manages service account keys, which allow the use of a service account outside of Google Cloud. 
 
-## Example Usage, creating a new Key Pair
+* [API documentation](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/iam/docs/creating-managing-service-account-keys)
+
+
+## Example Usage, creating a new Key
 
 ```hcl
 resource "google_service_account" "myaccount" {
@@ -25,7 +30,7 @@ resource "google_service_account_key" "mykey" {
 }
 ```
 
-## Example Usage, creating and regularly rotating a key pair
+## Example Usage, creating and regularly rotating a key
 
 ```hcl
 resource "google_service_account" "myaccount" {
@@ -76,7 +81,7 @@ resource "kubernetes_secret" "google-application-credentials" {
 
 The following arguments are supported:
 
-* `service_account_id` - (Required) The Service account id of the Key Pair. This can be a string in the format
+* `service_account_id` - (Required) The Service account id of the Key. This can be a string in the format
 `{ACCOUNT}` or `projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT}`, where `{ACCOUNT}` is the email address or
 unique id of the service account. If the `{ACCOUNT}` syntax is used, the project will be inferred from the account.
 

@@ -27,7 +27,7 @@ A Google Cloud Redis instance.
 
 To get more information about Instance, see:
 
-* [API documentation](https://cloud.google.com/memorystore/docs/redis/reference/rest/)
+* [API documentation](https://cloud.google.com/memorystore/docs/redis/reference/rest/v1/projects.locations.instances)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/memorystore/docs/redis/)
 
