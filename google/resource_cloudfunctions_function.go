@@ -670,17 +670,18 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if len(updateMaskArr) > 0 {
 		log.Printf("[DEBUG] Send Patch CloudFunction Configuration request: %#v", function)
 		updateMask := strings.Join(updateMaskArr, ",")
-		op, err := config.NewCloudFunctionsClient(userAgent).Projects.Locations.Functions.Patch(function.Name, function).
-			UpdateMask(updateMask).Do()
+		rerr := retryTimeDuration(func() error {
+			op, err := config.NewCloudFunctionsClient(userAgent).Projects.Locations.Functions.Patch(function.Name, function).
+				UpdateMask(updateMask).Do()
+			if err != nil {
+				return err
+			}
 
-		if err != nil {
+			return cloudFunctionsOperationWait(config, op, "Updating CloudFunctions Function", userAgent,
+				d.Timeout(schema.TimeoutUpdate))
+		}, d.Timeout(schema.TimeoutUpdate))
+		if rerr != nil {
 			return fmt.Errorf("Error while updating cloudfunction configuration: %s", err)
-		}
-
-		err = cloudFunctionsOperationWait(config, op, "Updating CloudFunctions Function", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
 		}
 	}
 	d.Partial(false)
