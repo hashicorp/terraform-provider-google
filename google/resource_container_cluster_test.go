@@ -1384,6 +1384,36 @@ func TestAccContainerCluster_withShieldedNodes(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withAutopilot(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAutopilot(clusterName, true),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_autopilot",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withAutopilot(clusterName, false),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_autopilot",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withWorkloadIdentityConfig(t *testing.T) {
 	t.Parallel()
 
@@ -3469,4 +3499,14 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, name)
+}
+
+func testAccContainerCluster_withAutopilot(clusterName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_autopilot" {
+  name               = "%s"
+  location           = "us-central1-a"
+  enable_autopilot = %v
+}
+`, clusterName, enabled)
 }

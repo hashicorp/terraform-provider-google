@@ -159,6 +159,11 @@ for more information.
 
 * `enable_shielded_nodes` - (Optional) Enable Shielded Nodes features on all nodes in this cluster.  Defaults to `false`.
 
+* `enable_autopilot` - (Optional) Enable Autopilot for this cluster. Defaults to `false`.
+    Note that when this option is enabled, certain features of Standard GKE are not available.
+    See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview#comparison)
+    for available features.
+
 * `initial_node_count` - (Optional) The number of nodes to create in this
 cluster's default node pool. In regional or multi-zonal clusters, this is the
 number of nodes per zone. Must be set if `node_pool` is not set. If you're using

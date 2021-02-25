@@ -370,6 +370,13 @@ func resourceContainerCluster() *schema.Resource {
 				Description: `Enable Shielded Nodes features on all nodes in this cluster. Defaults to false.`,
 			},
 
+			"enable_autopilot": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `Enable Autopilot in this cluster. Defaults to false.`,
+			},
+
 			"authenticator_groups_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -1081,43 +1088,52 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	// Minimum required for GKE Autopilot cluster
 	cluster := &containerBeta.Cluster{
 		Name:                           clusterName,
-		InitialNodeCount:               int64(d.Get("initial_node_count").(int)),
-		MaintenancePolicy:              expandMaintenancePolicy(d, meta),
 		MasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(d.Get("master_authorized_networks_config")),
-		InitialClusterVersion:          d.Get("min_master_version").(string),
+		LoggingService:                 d.Get("logging_service").(string),
+		IpAllocationPolicy:             ipAllocationBlock,
 		ClusterIpv4Cidr:                d.Get("cluster_ipv4_cidr").(string),
 		Description:                    d.Get("description").(string),
-		LegacyAbac: &containerBeta.LegacyAbac{
+		NetworkPolicy:                  expandNetworkPolicy(d.Get("network_policy")),
+	}
+
+	if d.Get("enable_autopilot").(bool) {
+		cluster.Autopilot = &containerBeta.Autopilot{
+			Enabled:         d.Get("enable_autopilot").(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+	} else {
+		cluster.InitialNodeCount = int64(d.Get("initial_node_count").(int))
+		cluster.MaintenancePolicy = expandMaintenancePolicy(d, meta)
+		cluster.InitialClusterVersion = d.Get("min_master_version").(string)
+		cluster.LegacyAbac = &containerBeta.LegacyAbac{
 			Enabled:         d.Get("enable_legacy_abac").(bool),
 			ForceSendFields: []string{"Enabled"},
-		},
-		LoggingService:          d.Get("logging_service").(string),
-		MonitoringService:       d.Get("monitoring_service").(string),
-		NetworkPolicy:           expandNetworkPolicy(d.Get("network_policy")),
-		AddonsConfig:            expandClusterAddonsConfig(d.Get("addons_config")),
-		EnableKubernetesAlpha:   d.Get("enable_kubernetes_alpha").(bool),
-		IpAllocationPolicy:      ipAllocationBlock,
-		PodSecurityPolicyConfig: expandPodSecurityPolicyConfig(d.Get("pod_security_policy_config")),
-		Autoscaling:             expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
-		BinaryAuthorization: &containerBeta.BinaryAuthorization{
+		}
+		cluster.MonitoringService = d.Get("monitoring_service").(string)
+		cluster.AddonsConfig = expandClusterAddonsConfig(d.Get("addons_config"))
+		cluster.EnableKubernetesAlpha = d.Get("enable_kubernetes_alpha").(bool)
+		cluster.PodSecurityPolicyConfig = expandPodSecurityPolicyConfig(d.Get("pod_security_policy_config"))
+		cluster.Autoscaling = expandClusterAutoscaling(d.Get("cluster_autoscaling"), d)
+		cluster.BinaryAuthorization = &containerBeta.BinaryAuthorization{
 			Enabled:         d.Get("enable_binary_authorization").(bool),
 			ForceSendFields: []string{"Enabled"},
-		},
-		ShieldedNodes: &containerBeta.ShieldedNodes{
+		}
+		cluster.ShieldedNodes = &containerBeta.ShieldedNodes{
 			Enabled:         d.Get("enable_shielded_nodes").(bool),
 			ForceSendFields: []string{"Enabled"},
-		},
-		ReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
-		EnableTpu:      d.Get("enable_tpu").(bool),
-		NetworkConfig: &containerBeta.NetworkConfig{
+		}
+		cluster.NetworkConfig = &containerBeta.NetworkConfig{
 			EnableIntraNodeVisibility: d.Get("enable_intranode_visibility").(bool),
 			DefaultSnatStatus:         expandDefaultSnatStatus(d.Get("default_snat_status")),
 			DatapathProvider:          d.Get("datapath_provider").(string),
-		},
-		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
-		ResourceLabels: expandStringMap(d, "resource_labels"),
+		}
+		cluster.ReleaseChannel = expandReleaseChannel(d.Get("release_channel"))
+		cluster.EnableTpu = d.Get("enable_tpu").(bool)
+		cluster.MasterAuth = expandMasterAuth(d.Get("master_auth"))
+		cluster.ResourceLabels = expandStringMap(d, "resource_labels")
 	}
 
 	if v, ok := d.GetOk("default_max_pods_per_node"); ok {
@@ -1428,6 +1444,11 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	if err := d.Set("enable_binary_authorization", cluster.BinaryAuthorization != nil && cluster.BinaryAuthorization.Enabled); err != nil {
 		return fmt.Errorf("Error setting enable_binary_authorization: %s", err)
+	}
+	if cluster.Autopilot != nil {
+		if err := d.Set("enable_autopilot", cluster.Autopilot.Enabled); err != nil {
+			return fmt.Errorf("Error setting enable_autopilot: %s", err)
+		}
 	}
 	if cluster.ShieldedNodes != nil {
 		if err := d.Set("enable_shielded_nodes", cluster.ShieldedNodes.Enabled); err != nil {
