@@ -36,7 +36,7 @@ resource "google_compute_instance" "windows" {
 
   boot_disk {
     initialize_params {
-      image = "gce-uefi-images/windows-2019"
+      image = "windows-cloud/windows-2019"
     }
   }
 

@@ -246,7 +246,7 @@ resource "google_compute_disk" "disk2" {
   name  = "test-disk3-%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-c"
-  image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+  image = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20210217"
   physical_block_size_bytes = 4096
 }
 `, context) + testAccComputeRegionPerInstanceConfig_rigm(context)
