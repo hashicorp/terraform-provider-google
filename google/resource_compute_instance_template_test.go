@@ -1630,7 +1630,7 @@ func testAccComputeInstanceTemplate_withScratchDisk(suffix string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "centos-7"
-	project = "gce-uefi-images"
+	project = "centos-cloud"
 }
 resource "google_compute_instance_template" "foobar" {
   name           = "instancet-test-%s"
@@ -2113,7 +2113,7 @@ func testAccComputeInstanceTemplate_shieldedVmConfig(suffix string, enableSecure
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "centos-7"
-  project = "gce-uefi-images"
+  project = "centos-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -2177,7 +2177,7 @@ func testAccComputeInstanceTemplate_enableDisplay(suffix string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "centos-7"
-  project = "gce-uefi-images"
+  project = "centos-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
@@ -2203,14 +2203,14 @@ func testAccComputeInstanceTemplate_invalidDiskType(suffix string) string {
 # is resolved.
 # data "google_compute_image" "my_image" {
 # 	family  = "centos-7"
-# 	project = "gce-uefi-images"
+# 	project = "centos-cloud"
 # }
 resource "google_compute_instance_template" "foobar" {
   name           = "instancet-test-%s"
   machine_type   = "e2-medium"
   can_ip_forward = false
   disk {
-    source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+    source_image = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20210217"
     auto_delete  = true
     boot         = true
   }
@@ -2221,7 +2221,7 @@ resource "google_compute_instance_template" "foobar" {
     disk_type    = "local-ssd"
   }
   disk {
-    source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+    source_image = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20210217"
     auto_delete  = true
     type         = "SCRATCH"
   }

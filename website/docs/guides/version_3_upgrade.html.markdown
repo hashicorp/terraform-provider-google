@@ -761,7 +761,7 @@ fail:
 
 ```hcl
 disk {
-  source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+  source_image = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20210217"
   auto_delete  = true
   type         = "SCRATCH"
 }
@@ -769,7 +769,7 @@ disk {
 
 ```hcl
 disk {
-  source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+  source_image = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20210217"
   auto_delete  = true
   disk_type    = "local-ssd"
 }
