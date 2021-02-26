@@ -35,6 +35,7 @@ resource "google_compute_interconnect_attachment" "on_prem" {
   name         = "on-prem-attachment"
   interconnect = "my-interconnect-id"
   router       = google_compute_router.foobar.id
+  mtu          = 1500
 }
 
 resource "google_compute_router" "foobar" {
@@ -82,6 +83,11 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of this resource.
+
+* `mtu` -
+  (Optional)
+  Maximum Transmission Unit (MTU), in bytes, of packets passing through
+  this interconnect attachment. Currently, only 1440 and 1500 are allowed. If not specified, the value will default to 1440.
 
 * `bandwidth` -
   (Optional)
