@@ -1345,6 +1345,7 @@ resource "google_container_node_pool" "np" {
       count = 1
       type  = "nvidia-tesla-p100"
     }
+	machine_type = "n1-highmem-4"
   }
 }
 `, cluster, np)
@@ -1390,6 +1391,7 @@ resource "google_container_node_pool" "np" {
       count = 0
       type  = "nvidia-tesla-p100"
     }
+	machine_type = "n1-highmem-4"
   }
 }
 `, cluster, np)
@@ -1419,6 +1421,7 @@ resource "google_container_node_pool" "np" {
       count = %d
       type  = "nvidia-tesla-p100"
     }
+	machine_type = "n1-highmem-4"
   }
 }
 `, cluster, np, count)
@@ -1453,6 +1456,7 @@ resource "google_container_node_pool" "np" {
       count = 1
       type  = "nvidia-tesla-p9000"
     }
+	machine_type = "n1-highmem-4"
   }
 }
 `, cluster, np)
