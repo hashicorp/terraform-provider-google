@@ -36,7 +36,7 @@ func revisionNameCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v i
 	return nil
 }
 
-var cloudRunGoogleProvidedAnnotations = regexp.MustCompile(`serving\\.knative\\.dev/(?:(?:creator)|(?:lastModifier))$|run\\.googleapis\\.com/(?:(?:ingress-status))$`)
+var cloudRunGoogleProvidedAnnotations = regexp.MustCompile(`serving\.knative\.dev/(?:(?:creator)|(?:lastModifier))$|run\.googleapis\.com/(?:(?:ingress-status))$|cloud\.googleapis\.com/(?:(?:location))`)
 
 func cloudrunAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// Suppress diffs for the annotations provided by Google
@@ -46,6 +46,23 @@ func cloudrunAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) 
 
 	// Let diff be determined by annotations (above)
 	if strings.Contains(k, "annotations.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
+var cloudRunGoogleProvidedLabels = regexp.MustCompile(`cloud\.googleapis\.com/(?:(?:location))`)
+
+func cloudrunLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the labels provided by Google
+	if cloudRunGoogleProvidedLabels.MatchString(k) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.Contains(k, "labels.%") {
 		return true
 	}
 
@@ -522,9 +539,10 @@ or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.`
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"labels": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Optional: true,
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							DiffSuppressFunc: cloudrunLabelDiffSuppress,
 							Description: `Map of string keys and values that can be used to organize and categorize
 (scope and select) objects. May match selectors of replication controllers
 and routes.
