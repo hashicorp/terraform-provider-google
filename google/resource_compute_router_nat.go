@@ -20,6 +20,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -102,6 +103,15 @@ func computeRouterNatSubnetworkHash(v interface{}) int {
 	}
 
 	return schema.HashString(NameFromSelfLinkStateFunc(name)) + sourceIpRangesHash + secondaryIpRangeHash
+}
+
+func computeRouterNatIPsHash(v interface{}) int {
+	val := (v.(string))
+	newParts := strings.Split(val, "/")
+	if len(newParts) == 1 {
+		return schema.HashString(newParts[0])
+	}
+	return schema.HashString(GetResourceNameFromSelfLink(val))
 }
 
 func resourceComputeRouterNat() *schema.Resource {
@@ -221,7 +231,7 @@ is set to MANUAL_ONLY.`,
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
 				},
-				// Default schema.HashSchema is used.
+				Set: computeRouterNatIPsHash,
 			},
 			"region": {
 				Type:             schema.TypeString,

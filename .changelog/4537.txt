@@ -1,0 +1,4 @@
+```release-note:bug
+compute : fixed a perma-diff for `nat_ips` that were specified as short forms in `google_compute_router_nat`
+
+```

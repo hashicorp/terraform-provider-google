@@ -86,6 +86,22 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				Config: testAccComputeRouterNatUpdateToNatIPsId(routerName),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterNatUpdateToNatIPsName(routerName),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccComputeRouterNatBasicBeforeUpdate(routerName),
 			},
 			{
@@ -339,6 +355,108 @@ resource "google_compute_router_nat" "foobar" {
 
   nat_ip_allocate_option = "MANUAL_ONLY"
   nat_ips                = [google_compute_address.foobar.self_link]
+
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+
+  subnetwork {
+    name                    = google_compute_subnetwork.foobar.self_link
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+
+  udp_idle_timeout_sec             = 60
+  icmp_idle_timeout_sec            = 60
+  tcp_established_idle_timeout_sec = 1600
+  tcp_transitory_idle_timeout_sec  = 60
+
+  log_config {
+    enable = true
+    filter = "TRANSLATIONS_ONLY"
+  }
+}
+`, routerName, routerName, routerName, routerName, routerName)
+}
+
+func testAccComputeRouterNatUpdateToNatIPsId(routerName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_router" "foobar" {
+name    = "%s"
+region  = google_compute_subnetwork.foobar.region
+network = google_compute_network.foobar.self_link
+}
+
+resource "google_compute_network" "foobar" {
+name = "%s-net"
+}
+resource "google_compute_subnetwork" "foobar" {
+name          = "%s-subnet"
+network       = google_compute_network.foobar.self_link
+ip_cidr_range = "10.0.0.0/16"
+region        = "us-central1"
+}
+
+resource "google_compute_address" "foobar" {
+name   = "%s-addr"
+region = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_router_nat" "foobar" {
+  name   = "%s"
+  router = google_compute_router.foobar.name
+  region = google_compute_router.foobar.region
+
+  nat_ip_allocate_option = "MANUAL_ONLY"
+  nat_ips                = [google_compute_address.foobar.id]
+
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+
+  subnetwork {
+    name                    = google_compute_subnetwork.foobar.self_link
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+
+  udp_idle_timeout_sec             = 60
+  icmp_idle_timeout_sec            = 60
+  tcp_established_idle_timeout_sec = 1600
+  tcp_transitory_idle_timeout_sec  = 60
+
+  log_config {
+    enable = true
+    filter = "TRANSLATIONS_ONLY"
+  }
+}
+`, routerName, routerName, routerName, routerName, routerName)
+}
+
+func testAccComputeRouterNatUpdateToNatIPsName(routerName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_router" "foobar" {
+name    = "%s"
+region  = google_compute_subnetwork.foobar.region
+network = google_compute_network.foobar.self_link
+}
+
+resource "google_compute_network" "foobar" {
+name = "%s-net"
+}
+resource "google_compute_subnetwork" "foobar" {
+name          = "%s-subnet"
+network       = google_compute_network.foobar.self_link
+ip_cidr_range = "10.0.0.0/16"
+region        = "us-central1"
+}
+
+resource "google_compute_address" "foobar" {
+name   = "%s-addr"
+region = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_router_nat" "foobar" {
+  name   = "%s"
+  router = google_compute_router.foobar.name
+  region = google_compute_router.foobar.region
+
+  nat_ip_allocate_option = "MANUAL_ONLY"
+  nat_ips                = [google_compute_address.foobar.name]
 
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 
