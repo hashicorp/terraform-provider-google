@@ -6,7 +6,6 @@ FEATURES:
 * **New Resource:** google_eventarc_trigger ([#8500](https://github.com/hashicorp/terraform-provider-google/pull/8500))
 
 IMPROVEMENTS:
-* composer: added `encryption_config`  to `google_composer_environment` resource (TPGB only) ([#8490](https://github.com/hashicorp/terraform-provider-google/pull/8490))
 * compute: Added graceful termination to `google_container_node_pool` create calls so that partially created node pools will resume the original operation if the Terraform process is killed mid create. ([#8492](https://github.com/hashicorp/terraform-provider-google/pull/8492))
 * compute: Promoted gVNIC support for `google_compute_instance` resource to GA ([#8506](https://github.com/hashicorp/terraform-provider-google/pull/8506))
 * compute: added autoscaling_policy.cpu_utilization.predictive_method field to `google_compute_autoscaler` and `google_compute_region_autoscaler` ([#8547](https://github.com/hashicorp/terraform-provider-google/pull/8547))
