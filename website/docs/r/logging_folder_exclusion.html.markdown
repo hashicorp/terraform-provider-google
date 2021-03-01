@@ -9,12 +9,13 @@ description: |-
 
 # google\_logging\_folder\_exclusion
 
-Manages a folder-level logging exclusion. For more information see
-[the official documentation](https://cloud.google.com/logging/docs/) and
-[Excluding Logs](https://cloud.google.com/logging/docs/exclusions).
+Manages a folder-level logging exclusion. For more information see:
 
-Note that you must have the "Logs Configuration Writer" IAM role (`roles/logging.configWriter`)
-granted to the credentials used with Terraform.
+* [API documentation](https://cloud.google.com/logging/docs/reference/v2/rest/v2/folders.exclusions)
+* How-to Guides
+    * [Excluding Logs](https://cloud.google.com/logging/docs/exclusions)
+
+~> You can specify exclusions for log sinks created by terraform by using the exclusions field of `google_logging_folder_sink`
 
 ## Example Usage
 

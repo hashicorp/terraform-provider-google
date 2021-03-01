@@ -9,11 +9,13 @@ description: |-
 
 # google\_logging\_project\_sink
 
-Manages a project-level logging sink. For more information see
-[the official documentation](https://cloud.google.com/logging/docs/),
-[Exporting Logs in the API](https://cloud.google.com/logging/docs/api/tasks/exporting-logs)
-and
-[API](https://cloud.google.com/logging/docs/reference/v2/rest/).
+Manages a project-level logging sink. For more information see:
+
+* [API documentation](https://cloud.google.com/logging/docs/reference/v2/rest/v2/projects.sinks)
+* How-to Guides
+    * [Exporting Logs](https://cloud.google.com/logging/docs/export)
+
+~> You can specify exclusions for log sinks created by terraform by using the exclusions field of `google_logging_folder_sink`
 
 ~> **Note:** You must have [granted the "Logs Configuration Writer"](https://cloud.google.com/logging/docs/access-control) IAM role (`roles/logging.configWriter`) to the credentials used with terraform.
 
