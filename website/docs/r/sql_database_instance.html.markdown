@@ -303,6 +303,17 @@ The optional `settings.backup_configuration` subblock supports:
 
 * `location` - (Optional) The region where the backup will be stored
 
+* `transaction_log_retention_days` - (Optional) The number of days of transaction logs we retain for point in time restore, from 1-7.
+
+* `backup_retention_settings` - (Optional) Backup retention settings. The configuration is detailed below.
+
+The optional `settings.backup_configuration.backup_retention_settings` subblock supports:
+
+* `retained_backups` - (Optional) Depending on the value of retention_unit, this is used to determine if a backup needs to be deleted. If retention_unit
+  is 'COUNT', we will retain this many backups.
+
+* `retention_unit` - (Optional) The unit that 'retained_backups' represents. Defaults to `COUNT`.
+
 The optional `settings.ip_configuration` subblock supports:
 
 * `ipv4_enabled` - (Optional) Whether this Cloud SQL instance should be assigned

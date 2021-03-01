@@ -44,6 +44,8 @@ var (
 		"settings.0.backup_configuration.0.start_time",
 		"settings.0.backup_configuration.0.location",
 		"settings.0.backup_configuration.0.point_in_time_recovery_enabled",
+		"settings.0.backup_configuration.0.backup_retention_settings",
+		"settings.0.backup_configuration.0.transaction_log_retention_days",
 	}
 
 	ipConfigurationKeys = []string{
@@ -110,7 +112,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `The region the instance will sit in. Note, Cloud SQL is not available in all regions - choose from one of the options listed here. A valid region must be provided to use this resource. If a region is not provided in the resource definition, the provider region will be used instead, but this will be an apply-time error for instances if the provider region is not supported with Cloud SQL. If you choose not to provide the region argument for this resource, make sure you understand this.`,
+				Description: `The region the instance will sit in. Note, Cloud SQL is not available in all regions. A valid region must be provided to use this resource. If a region is not provided in the resource definition, the provider region will be used instead, but this will be an apply-time error for instances if the provider region is not supported with Cloud SQL. If you choose not to provide the region argument for this resource, make sure you understand this.`,
 			},
 			"deletion_protection": {
 				Type:        schema.TypeBool,
@@ -203,6 +205,35 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 										Optional:     true,
 										AtLeastOneOf: backupConfigurationKeys,
 										Description:  `True if Point-in-time recovery is enabled.`,
+									},
+									"transaction_log_retention_days": {
+										Type:         schema.TypeInt,
+										Computed:     true,
+										Optional:     true,
+										AtLeastOneOf: backupConfigurationKeys,
+										Description:  `The number of days of transaction logs we retain for point in time restore, from 1-7.`,
+									},
+									"backup_retention_settings": {
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: backupConfigurationKeys,
+										Computed:     true,
+										MaxItems:     1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"retained_backups": {
+													Type:        schema.TypeInt,
+													Required:    true,
+													Description: `Number of backups to retain.`,
+												},
+												"retention_unit": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Default:     "COUNT",
+													Description: `The unit that 'retainedBackups' represents. Defaults to COUNT`,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1060,12 +1091,26 @@ func expandBackupConfiguration(configured []interface{}) *sqladmin.BackupConfigu
 
 	_backupConfiguration := configured[0].(map[string]interface{})
 	return &sqladmin.BackupConfiguration{
-		BinaryLogEnabled:           _backupConfiguration["binary_log_enabled"].(bool),
-		Enabled:                    _backupConfiguration["enabled"].(bool),
-		StartTime:                  _backupConfiguration["start_time"].(string),
-		Location:                   _backupConfiguration["location"].(string),
-		PointInTimeRecoveryEnabled: _backupConfiguration["point_in_time_recovery_enabled"].(bool),
-		ForceSendFields:            []string{"BinaryLogEnabled", "Enabled", "PointInTimeRecoveryEnabled"},
+		BinaryLogEnabled:            _backupConfiguration["binary_log_enabled"].(bool),
+		BackupRetentionSettings:     expandBackupRetentionSettings(_backupConfiguration["backup_retention_settings"]),
+		Enabled:                     _backupConfiguration["enabled"].(bool),
+		StartTime:                   _backupConfiguration["start_time"].(string),
+		Location:                    _backupConfiguration["location"].(string),
+		TransactionLogRetentionDays: int64(_backupConfiguration["transaction_log_retention_days"].(int)),
+		PointInTimeRecoveryEnabled:  _backupConfiguration["point_in_time_recovery_enabled"].(bool),
+		ForceSendFields:             []string{"BinaryLogEnabled", "Enabled", "PointInTimeRecoveryEnabled"},
+	}
+}
+
+func expandBackupRetentionSettings(configured interface{}) *sqladmin.BackupRetentionSettings {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &sqladmin.BackupRetentionSettings{
+		RetainedBackups: int64(config["retained_backups"].(int)),
+		RetentionUnit:   config["retention_unit"].(string),
 	}
 }
 
@@ -1347,9 +1392,23 @@ func flattenBackupConfiguration(backupConfiguration *sqladmin.BackupConfiguratio
 		"start_time":                     backupConfiguration.StartTime,
 		"location":                       backupConfiguration.Location,
 		"point_in_time_recovery_enabled": backupConfiguration.PointInTimeRecoveryEnabled,
+		"backup_retention_settings":      flattenBackupRetentionSettings(backupConfiguration.BackupRetentionSettings),
+		"transaction_log_retention_days": backupConfiguration.TransactionLogRetentionDays,
 	}
 
 	return []map[string]interface{}{data}
+}
+
+func flattenBackupRetentionSettings(b *sqladmin.BackupRetentionSettings) []map[string]interface{} {
+	if b == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"retained_backups": b.RetainedBackups,
+			"retention_unit":   b.RetentionUnit,
+		},
+	}
 }
 
 func flattenDatabaseFlags(databaseFlags []*sqladmin.DatabaseFlags) []map[string]interface{} {
