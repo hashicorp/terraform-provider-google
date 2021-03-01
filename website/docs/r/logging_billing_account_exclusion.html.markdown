@@ -9,12 +9,13 @@ description: |-
 
 # google\_logging\_billing\_account\_exclusion
 
-Manages a billing account logging exclusion. For more information see
-[the official documentation](https://cloud.google.com/logging/docs/) and
-[Excluding Logs](https://cloud.google.com/logging/docs/exclusions).
+Manages a billing account logging exclusion. For more information see:
 
-Note that you must have the "Logs Configuration Writer" IAM role (`roles/logging.configWriter`)
-granted to the credentials used with Terraform.
+* [API documentation](https://cloud.google.com/logging/docs/reference/v2/rest/v2/billingAccounts.exclusions)
+* How-to Guides
+    * [Excluding Logs](https://cloud.google.com/logging/docs/exclusions)
+
+~> You can specify exclusions for log sinks created by terraform by using the exclusions field of `google_logging_billing_account_sink`
 
 ## Example Usage
 
