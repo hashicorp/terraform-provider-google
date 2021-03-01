@@ -209,12 +209,12 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Connector %q: %#v", d.Id(), res)
-
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
 	time.Sleep(5 * time.Second)
+
+	log.Printf("[DEBUG] Finished creating Connector %q: %#v", d.Id(), res)
 
 	return resourceVPCAccessConnectorRead(d, meta)
 }

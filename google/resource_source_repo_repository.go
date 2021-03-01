@@ -174,13 +174,13 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
-
 	if v, ok := d.GetOkExists("pubsub_configs"); !isEmptyValue(reflect.ValueOf(pubsubConfigsProp)) && (ok || !reflect.DeepEqual(v, pubsubConfigsProp)) {
 		log.Printf("[DEBUG] Calling update after create to patch in pubsub_configs")
 		// pubsub_configs cannot be added on create
 		return resourceSourceRepoRepositoryUpdate(d, meta)
 	}
+
+	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
 
 	return resourceSourceRepoRepositoryRead(d, meta)
 }

@@ -154,8 +154,6 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Lien %q: %#v", d.Id(), res)
-
 	// This resource is unusual - instead of returning an Operation from
 	// Create, it returns the created object itself.  We don't parse
 	// any of the values there, preferring to centralize that logic in
@@ -167,6 +165,8 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	if err := d.Set("name", flattenNestedResourceManagerLienName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
+
+	log.Printf("[DEBUG] Finished creating Lien %q: %#v", d.Id(), res)
 
 	return resourceResourceManagerLienRead(d, meta)
 }

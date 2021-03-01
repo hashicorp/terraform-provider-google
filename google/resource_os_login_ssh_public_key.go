@@ -129,8 +129,6 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating SSHPublicKey %q: %#v", d.Id(), res)
-
 	loginProfile, ok := res["loginProfile"]
 	if !ok {
 		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
@@ -153,6 +151,8 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	log.Printf("[DEBUG] Finished creating SSHPublicKey %q: %#v", d.Id(), res)
 
 	return resourceOSLoginSSHPublicKeyRead(d, meta)
 }

@@ -379,8 +379,6 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating DatasetAccess %q: %#v", d.Id(), res)
-
 	// by default, we are not updating the member
 	if err := d.Set("api_updated_member", false); err != nil {
 		return fmt.Errorf("Error setting api_updated_member: %s", err)
@@ -408,6 +406,8 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 			}
 		}
 	}
+
+	log.Printf("[DEBUG] Finished creating DatasetAccess %q: %#v", d.Id(), res)
 
 	return resourceBigQueryDatasetAccessRead(d, meta)
 }

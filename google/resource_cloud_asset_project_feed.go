@@ -246,10 +246,10 @@ func resourceCloudAssetProjectFeedCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating ProjectFeed %q: %#v", d.Id(), res)
-
 	// Restore the original value of user_project_override.
 	config.UserProjectOverride = origUserProjectOverride
+
+	log.Printf("[DEBUG] Finished creating ProjectFeed %q: %#v", d.Id(), res)
 
 	return resourceCloudAssetProjectFeedRead(d, meta)
 }
