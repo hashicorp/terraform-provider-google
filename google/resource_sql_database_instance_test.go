@@ -825,6 +825,29 @@ func testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(t *testing.T, instance st
 	}
 }
 
+func TestAccSqlDatabaseInstance_BackupRetention(t *testing.T) {
+	t.Parallel()
+
+	masterID := randInt(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_BackupRetention(masterID),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabled(t *testing.T) {
 	t.Parallel()
 
@@ -1317,6 +1340,29 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, masterID, pointInTimeRecoveryEnabled)
+}
+
+func testGoogleSqlDatabaseInstance_BackupRetention(masterID int) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%d"
+  region           = "us-central1"
+  database_version = "MYSQL_8_0"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    backup_configuration {
+      enabled                        = true
+      start_time                     = "00:00"
+      binary_log_enabled             = true
+	  transaction_log_retention_days = 2
+	  backup_retention_settings {
+	    retained_backups = 4
+	  }
+    }
+  }
+}
+`, masterID)
 }
 
 func testAccSqlDatabaseInstance_beforeBackup(context map[string]interface{}) string {
