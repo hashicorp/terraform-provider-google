@@ -370,11 +370,11 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error waiting to create InterconnectAttachment: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating InterconnectAttachment %q: %#v", d.Id(), res)
-
 	if err := waitForAttachmentToBeProvisioned(d, config, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return fmt.Errorf("Error waiting for InterconnectAttachment %q to be provisioned: %q", d.Get("name").(string), err)
 	}
+
+	log.Printf("[DEBUG] Finished creating InterconnectAttachment %q: %#v", d.Id(), res)
 
 	return resourceComputeInterconnectAttachmentRead(d, meta)
 }

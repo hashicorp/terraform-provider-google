@@ -201,8 +201,6 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error waiting to create Network: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating Network %q: %#v", d.Id(), res)
-
 	if d.Get("delete_default_routes_on_create").(bool) {
 		token := ""
 		for paginate := true; paginate; {
@@ -234,6 +232,8 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 			paginate = token != ""
 		}
 	}
+
+	log.Printf("[DEBUG] Finished creating Network %q: %#v", d.Id(), res)
 
 	return resourceComputeNetworkRead(d, meta)
 }

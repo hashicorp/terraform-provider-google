@@ -110,8 +110,6 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Client %q: %#v", d.Id(), res)
-
 	brand := d.Get("brand")
 	clientId := flattenIapClientClientId(res["name"], d, config)
 
@@ -119,6 +117,8 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error setting client_id: %s", err)
 	}
 	d.SetId(fmt.Sprintf("%s/identityAwareProxyClients/%s", brand, clientId))
+
+	log.Printf("[DEBUG] Finished creating Client %q: %#v", d.Id(), res)
 
 	return resourceIapClientRead(d, meta)
 }
