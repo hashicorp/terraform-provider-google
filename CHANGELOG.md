@@ -1,8 +1,4 @@
 ## 3.59.0 (Unreleased)
-UNKNOWN CHANGELOG TYPE:
-* Bump google.golang.org/api from 0.38.0 to 0.40.0 ([#8466](https://github.com/hashicorp/terraform-provider-google/pull/8466))
-* Fixes typo in example ([#8522](https://github.com/hashicorp/terraform-provider-google/pull/8522))
-
 FEATURES:
 * **New Resource:** `google_dataproc_metastore_service` ([#8520](https://github.com/hashicorp/terraform-provider-google/pull/8520))
 * **New Resource:** `google_workflows_workflow` ([#8549](https://github.com/hashicorp/terraform-provider-google/pull/8549))
