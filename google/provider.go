@@ -1142,6 +1142,12 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		userAgent:           p.UserAgent("terraform-provider-google", version.ProviderVersion),
 	}
 
+	// opt in extension for adding to the User-Agent header
+	if ext := os.Getenv("GOOGLE_TERRAFORM_USERAGENT_EXTENSION"); ext != "" {
+		ua := config.userAgent
+		config.userAgent = fmt.Sprintf("%s %s", ua, ext)
+	}
+
 	if v, ok := d.GetOk("request_timeout"); ok {
 		var err error
 		config.RequestTimeout, err = time.ParseDuration(v.(string))
