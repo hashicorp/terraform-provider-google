@@ -159,6 +159,7 @@ update_policy {
   max_surge_percent            = 20
   max_unavailable_fixed        = 2
   min_ready_sec                = 50
+  replacement_method           = "RECREATE"
 }
 ```
 
@@ -177,6 +178,8 @@ update_policy {
 * `max_unavailable_percent` - (Optional), The maximum number of instances(calculated as percentage) that can be unavailable during the update process. Conflicts with `max_unavailable_fixed`. Percent value is only allowed for regional managed instance groups with size at least 10.
 
 * `min_ready_sec` - (Optional), Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600]
+
+* `replacement_method` - (Optional), The instance replacement method for managed instance groups. Valid values are: "RECREATE", "SUBSTITUTE". If SUBSTITUTE (default), the group replaces VM instances with new instances that have randomly generated names. If RECREATE, instance names are preserved.  You must also set max_unavailable_fixed or max_unavailable_percent to be greater than 0.
 - - -
 
 The `named_port` block supports: (Include a `named_port` block for each named-port required).
