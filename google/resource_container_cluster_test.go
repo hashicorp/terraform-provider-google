@@ -1204,7 +1204,7 @@ func TestAccContainerCluster_withMaintenanceExclusionWindow(t *testing.T) {
 				ImportStateVerify:   true,
 			},
 			{
-				Config: testAccContainerCluster_withExclusion_DailyMaintenanceWindow(cluster, "2020-01-01T00:00:00Z", "2020-01-02T00:00:00Z", "2020-05-01T00:00:00Z", "2020-05-02T00:00:00Z"),
+				Config: testAccContainerCluster_withExclusion_DailyMaintenanceWindow(cluster, "2020-01-01T00:00:00Z", "2020-01-02T00:00:00Z"),
 			},
 			{
 				ResourceName:        resourceName,
@@ -2950,7 +2950,7 @@ resource "google_container_cluster" "with_maintenance_exclusion_window" {
 `, clusterName, w1startTime, w1endTime, w1startTime, w1endTime, w2startTime, w2endTime)
 }
 
-func testAccContainerCluster_withExclusion_DailyMaintenanceWindow(clusterName string, w1startTime, w1endTime, w2startTime, w2endTime string) string {
+func testAccContainerCluster_withExclusion_DailyMaintenanceWindow(clusterName string, w1startTime, w1endTime string) string {
 
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_maintenance_exclusion_window" {
@@ -2967,14 +2967,9 @@ resource "google_container_cluster" "with_maintenance_exclusion_window" {
 		start_time = "%s"
 		end_time = "%s"
 	}
-	maintenance_exclusion {
-		exclusion_name = "holiday data load"
-		start_time = "%s"
-		end_time = "%s"
-	}
  }
 }
-`, clusterName, w1startTime, w1endTime, w2startTime, w2endTime)
+`, clusterName, w1startTime, w1endTime)
 }
 
 func testAccContainerCluster_withIPAllocationPolicy_existingSecondaryRanges(containerNetName string, clusterName string) string {
