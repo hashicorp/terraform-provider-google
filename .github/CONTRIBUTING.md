@@ -36,7 +36,7 @@ GOOGLE_REGION
 GOOGLE_ZONE
 ```
 
-To ensure that your tests are performed in a region and zone with wide support for GCP feature, `GOOGLE_REGION` should be set to `us-central1` and `GOOGLE_ZONE` to `us-central1-a`.
+Note that the credentials you provide must be granted wide permissions on the specified project. These tests provision real resources, and require permission in order to do so. Most developers on the team grant their test service account `roles/editor` or `roles/owner` on their project. Additionally, to ensure that your tests are performed in a region and zone with wide support for GCP features, `GOOGLE_REGION` should be set to `us-central1` and `GOOGLE_ZONE` to `us-central1-a`.
 
 For certain tests, primarily those involving project creation, the following variables may also need to be set. Most tests do
 not require their being set:
