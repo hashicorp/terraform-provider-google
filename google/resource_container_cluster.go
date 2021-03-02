@@ -2255,6 +2255,10 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 	clusterName := d.Get("name").(string)
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutDelete)); err != nil {
+		if isGoogleApiErrorWithCode(err, 404) {
+			log.Printf("[INFO] GKE cluster %s doesn't exist to delete", d.Id())
+			return nil
+		}
 		return err
 	}
 
