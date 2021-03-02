@@ -118,7 +118,7 @@ Exactly one of the following must be set:
 										Type:         schema.TypeBool,
 										Optional:     true,
 										ValidateFunc: validateAvailabilitySli,
-										Description:  `Whether an availability SLI is enabled or not. Must be set to 'true. Defaults to 'true'.`,
+										Description:  `Whether an availability SLI is enabled or not. Must be set to true. Defaults to 'true'.`,
 										Default:      true,
 									},
 								},
@@ -363,9 +363,27 @@ high enough. One of 'good_bad_metric_filter',
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"availability": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Availability based SLI, dervied from count of requests made to this service that return successfully.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"enabled": {
+																Type:         schema.TypeBool,
+																Optional:     true,
+																ValidateFunc: validateAvailabilitySli,
+																Description:  `Whether an availability SLI is enabled or not. Must be set to 'true. Defaults to 'true'.`,
+																Default:      true,
+															},
+														},
+													},
+													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.latency", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.availability"},
+												},
 												"latency": {
 													Type:        schema.TypeList,
-													Required:    true,
+													Optional:    true,
 													Description: `Parameters for a latency threshold SLI.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
@@ -379,6 +397,7 @@ this service that return in no more than threshold.`,
 															},
 														},
 													},
+													ExactlyOneOf: []string{"windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.latency", "windows_based_sli.0.good_total_ratio_threshold.0.basic_sli_performance.0.availability"},
 												},
 												"location": {
 													Type:     schema.TypeSet,
@@ -1423,6 +1442,8 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceVersion(original["version"], d, config)
 	transformed["latency"] =
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatency(original["latency"], d, config)
+	transformed["availability"] =
+		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(original["availability"], d, config)
 	return []interface{}{transformed}
 }
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1461,6 +1482,15 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 }
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] = true
+	return []interface{}{transformed}
 }
 
 func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -2113,6 +2143,13 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 		transformed["latency"] = transformedLatency
 	}
 
+	transformedAvailability, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(original["availability"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAvailability); val.IsValid() && !isEmptyValue(val) {
+		transformed["availability"] = transformedAvailability
+	}
+
 	return transformed, nil
 }
 
@@ -2151,6 +2188,29 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 }
 
 func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailabilityEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !isEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailabilityEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2299,5 +2359,19 @@ func resourceMonitoringSloEncoder(d *schema.ResourceData, meta interface{}, obj 
 			basicSli["availability"] = transAvailability
 		}
 	}
+
+	if windowBasedSli, ok := Sli["windowsBased"].(map[string]interface{}); ok {
+		if goodTotalRatioThreshold, ok := windowBasedSli["goodTotalRatioThreshold"].(map[string]interface{}); ok {
+			if basicSli, ok := goodTotalRatioThreshold["basicSliPerformance"].(map[string]interface{}); ok {
+				//Removing the dummy `enabled` attribute
+				if availability, ok := basicSli["availability"]; ok {
+					transAvailability := availability.(map[string]interface{})
+					delete(transAvailability, "enabled")
+					basicSli["availability"] = transAvailability
+				}
+			}
+		}
+	}
+
 	return obj, nil
 }
