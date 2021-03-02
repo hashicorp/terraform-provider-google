@@ -316,6 +316,16 @@ func TestAccMonitoringSlo_windowBasedGoodTotalRatioThresholdSlis(t *testing.T) {
 				// Ignore input-only field for import
 				ImportStateVerifyIgnore: []string{"service"},
 			},
+			{
+				Config: testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_basicSli(),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
 		},
 	})
 }
@@ -717,4 +727,27 @@ windows_based_sli {
 	}
 }
 `
+}
+
+func testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_basicSli() string {
+	return fmt.Sprintf(`
+data "google_monitoring_app_engine_service" "ae" {
+	module_id = "default"
+}
+	  
+resource "google_monitoring_slo" "test_slo" {
+	service = data.google_monitoring_app_engine_service.ae.service_id
+	goal = 0.9
+	rolling_period_days = 30
+	windows_based_sli {
+		window_period = "400s"
+		good_total_ratio_threshold {
+			threshold = 0.1
+			basic_sli_performance {
+				availability {
+				}
+			}
+		}
+    }
+}`)
 }
