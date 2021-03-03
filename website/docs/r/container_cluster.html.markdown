@@ -582,6 +582,14 @@ The `node_config` block supports:
 * `disk_type` - (Optional) Type of the disk attached to each node
     (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
 
+* `ephemeral_storage_config` - (Optional, [Beta]) Parameters for the ephemeral storage filesystem. If unspecified, ephemeral storage is backed by the boot disk. Structure is documented below.
+
+```hcl
+ephemeral_storage_config {
+  local_ssd_count = 2
+}
+```
+
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance.
     Structure documented below.
     To support removal of guest_accelerators in Terraform 0.12 this field is an
@@ -672,6 +680,10 @@ linux_node_config {
   }
 }
 ```
+
+The `ephemeral_storage_config` block supports:
+
+* `local_ssd_count` (Required) - Number of local SSDs to use to back ephemeral storage. Uses NVMe interfaces. Each local SSD is 375 GB in size. If zero, it means to disable using local SSDs as ephemeral storage.
 
 The `guest_accelerator` block supports:
 
