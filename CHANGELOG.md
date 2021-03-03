@@ -16,7 +16,7 @@ BUG FIXES:
 * artifactregistry: fixed issue where updating `google_artifact_registry_repository` always failed ([#8491](https://github.com/hashicorp/terraform-provider-google/pull/8491))
 * compute : fixed a bug where `guest_flush` could not be set to false for the resource `google_compute_resource_policy` ([#8517](https://github.com/hashicorp/terraform-provider-google/pull/8517))
 * compute: fixed a panic on empty `target_size` in `google_compute_region_instance_group_manager` ([#8528](https://github.com/hashicorp/terraform-provider-google/pull/8528))
-* redis: Fixed invalid value error on `auth_string` in `google_redis_instance` ([#8493](https://github.com/hashicorp/terraform-provider-google/pull/8493))
+* redis: fixed invalid value error on `auth_string` in `google_redis_instance` ([#8493](https://github.com/hashicorp/terraform-provider-google/pull/8493))
 
 ## 3.58.0 (February 23, 2021)
 
