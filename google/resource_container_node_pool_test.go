@@ -1005,6 +1005,9 @@ resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
+  release_channel {
+	  channel = "UNSPECIFIED"
+  }
 }
 
 resource "google_container_node_pool" "np_with_management" {

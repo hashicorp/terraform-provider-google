@@ -906,10 +906,9 @@ func resourceContainerCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"channel": {
-							Type:             schema.TypeString,
-							Required:         true,
-							ValidateFunc:     validation.StringInSlice([]string{"UNSPECIFIED", "RAPID", "REGULAR", "STABLE"}, false),
-							DiffSuppressFunc: emptyOrDefaultStringSuppress("UNSPECIFIED"),
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "RAPID", "REGULAR", "STABLE"}, false),
 							Description: `The selected release channel. Accepted values are:
 * UNSPECIFIED: Not set.
 * RAPID: Weekly upgrade cadence; Early testers and developers who requires new features.
@@ -2961,12 +2960,12 @@ func flattenVerticalPodAutoscaling(c *containerBeta.VerticalPodAutoscaling) []ma
 
 func flattenReleaseChannel(c *containerBeta.ReleaseChannel) []map[string]interface{} {
 	result := []map[string]interface{}{}
-	if c != nil {
+	if c != nil && c.Channel != "" {
 		result = append(result, map[string]interface{}{
 			"channel": c.Channel,
 		})
 	} else {
-		// Explicitly set the release channel to the default.
+		// Explicitly set the release channel to the UNSPECIFIED.
 		result = append(result, map[string]interface{}{
 			"channel": "UNSPECIFIED",
 		})
