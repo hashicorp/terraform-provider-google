@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -151,6 +152,15 @@ func resourceStorageBucketObject() *schema.Resource {
 				Description: `The StorageClass of the new bucket object. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE. If not provided, this defaults to the bucket's default storage class or to a standard class.`,
 			},
 
+			"kms_key_name": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				Computed:         true,
+				DiffSuppressFunc: compareCryptoKeyVersions,
+				Description:      `Resource name of the Cloud KMS key that will be used to encrypt the object. Overrides the object metadata's kmsKeyName value, if any.`,
+			},
+
 			"metadata": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -182,8 +192,20 @@ func resourceStorageBucketObject() *schema.Resource {
 	}
 }
 
-func objectGetId(object *storage.Object) string {
+func objectGetID(object *storage.Object) string {
 	return object.Bucket + "-" + object.Name
+}
+
+func compareCryptoKeyVersions(_, old, new string, _ *schema.ResourceData) bool {
+	// The API can return cryptoKeyVersions even though it wasn't specified.
+	// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
+
+	kmsKeyWithoutVersions := strings.Split(old, "/cryptoKeyVersions")[0]
+	if kmsKeyWithoutVersions == new {
+		return true
+	}
+
+	return false
 }
 
 func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{}) error {
@@ -238,6 +260,10 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 
 	if v, ok := d.GetOk("storage_class"); ok {
 		object.StorageClass = v.(string)
+	}
+
+	if v, ok := d.GetOk("kms_key_name"); ok {
+		object.KmsKeyName = v.(string)
 	}
 
 	insertCall := objectsService.Insert(bucket, object)
@@ -299,6 +325,9 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("storage_class", res.StorageClass); err != nil {
 		return fmt.Errorf("Error setting storage_class: %s", err)
 	}
+	if err := d.Set("kms_key_name", res.KmsKeyName); err != nil {
+		return fmt.Errorf("Error setting kms_key_name: %s", err)
+	}
 	if err := d.Set("self_link", res.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
@@ -312,7 +341,7 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error setting media_link: %s", err)
 	}
 
-	d.SetId(objectGetId(res))
+	d.SetId(objectGetID(res))
 
 	return nil
 }
