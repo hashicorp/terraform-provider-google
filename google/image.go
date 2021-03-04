@@ -27,6 +27,7 @@ var (
 
 	windowsSqlImage         = regexp.MustCompile("^sql-(?:server-)?([0-9]{4})-([a-z]+)-windows-(?:server-)?([0-9]{4})(?:-r([0-9]+))?-dc-v[0-9]+$")
 	canonicalUbuntuLtsImage = regexp.MustCompile("^ubuntu-(minimal-)?([0-9]+)-")
+	cosLtsImage             = regexp.MustCompile("^cos-([0-9]+)-")
 )
 
 // built-in projects to look for images/families containing the string
