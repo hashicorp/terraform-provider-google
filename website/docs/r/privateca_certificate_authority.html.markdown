@@ -35,7 +35,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 To get more information about CertificateAuthority, see:
 
-* [API documentation](https://https://cloud.google.com/certificate-authority-service/docs/reference/rest)
+* [API documentation](https://cloud.google.com/certificate-authority-service/docs/reference/rest)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/certificate-authority-service)
 
