@@ -75,7 +75,6 @@ resource "google_project" "my_project" {
   name       = "tf-test-project"
   project_id = "quota"
   org_id     = "123456789"
-  auto_create_network = false
 }
 
 resource "google_service_usage_consumer_quota_override" "override" {
@@ -87,7 +86,7 @@ resource "google_service_usage_consumer_quota_override" "override" {
   service        = "compute.googleapis.com"
   metric         = "compute.googleapis.com%2Fn2_cpus"
   limit          = "%2Fproject%2Fregion"
-  override_value = "10"
+  override_value = "8"
   force          = true
 }
 ```
