@@ -601,23 +601,22 @@ func Provider() *schema.Provider {
 			},
 
 			// Handwritten Products / Versioned / Atypical Entries
-			CloudBillingCustomEndpointEntryKey:           CloudBillingCustomEndpointEntry,
-			ComposerCustomEndpointEntryKey:               ComposerCustomEndpointEntry,
-			ComputeBetaCustomEndpointEntryKey:            ComputeBetaCustomEndpointEntry,
-			ContainerCustomEndpointEntryKey:              ContainerCustomEndpointEntry,
-			ContainerBetaCustomEndpointEntryKey:          ContainerBetaCustomEndpointEntry,
-			DataprocBetaCustomEndpointEntryKey:           DataprocBetaCustomEndpointEntry,
-			DataflowCustomEndpointEntryKey:               DataflowCustomEndpointEntry,
-			DnsBetaCustomEndpointEntryKey:                DnsBetaCustomEndpointEntry,
-			IamCredentialsCustomEndpointEntryKey:         IamCredentialsCustomEndpointEntry,
-			ResourceManagerV2Beta1CustomEndpointEntryKey: ResourceManagerV2Beta1CustomEndpointEntry,
-			RuntimeConfigCustomEndpointEntryKey:          RuntimeConfigCustomEndpointEntry,
-			IAMCustomEndpointEntryKey:                    IAMCustomEndpointEntry,
-			ServiceNetworkingCustomEndpointEntryKey:      ServiceNetworkingCustomEndpointEntry,
-			ServiceUsageCustomEndpointEntryKey:           ServiceUsageCustomEndpointEntry,
-			StorageTransferCustomEndpointEntryKey:        StorageTransferCustomEndpointEntry,
-			BigtableAdminCustomEndpointEntryKey:          BigtableAdminCustomEndpointEntry,
-			EventarcCustomEndpointEntryKey:               EventarcCustomEndpointEntry,
+			CloudBillingCustomEndpointEntryKey:      CloudBillingCustomEndpointEntry,
+			ComposerCustomEndpointEntryKey:          ComposerCustomEndpointEntry,
+			ComputeBetaCustomEndpointEntryKey:       ComputeBetaCustomEndpointEntry,
+			ContainerCustomEndpointEntryKey:         ContainerCustomEndpointEntry,
+			ContainerBetaCustomEndpointEntryKey:     ContainerBetaCustomEndpointEntry,
+			DataprocBetaCustomEndpointEntryKey:      DataprocBetaCustomEndpointEntry,
+			DataflowCustomEndpointEntryKey:          DataflowCustomEndpointEntry,
+			IamCredentialsCustomEndpointEntryKey:    IamCredentialsCustomEndpointEntry,
+			ResourceManagerV2CustomEndpointEntryKey: ResourceManagerV2CustomEndpointEntry,
+			RuntimeConfigCustomEndpointEntryKey:     RuntimeConfigCustomEndpointEntry,
+			IAMCustomEndpointEntryKey:               IAMCustomEndpointEntry,
+			ServiceNetworkingCustomEndpointEntryKey: ServiceNetworkingCustomEndpointEntry,
+			ServiceUsageCustomEndpointEntryKey:      ServiceUsageCustomEndpointEntry,
+			StorageTransferCustomEndpointEntryKey:   StorageTransferCustomEndpointEntry,
+			BigtableAdminCustomEndpointEntryKey:     BigtableAdminCustomEndpointEntry,
+			EventarcCustomEndpointEntryKey:          EventarcCustomEndpointEntry,
 		},
 
 		ProviderMetaSchema: map[string]*schema.Schema{
@@ -1257,9 +1256,8 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.ContainerBetaBasePath = d.Get(ContainerBetaCustomEndpointEntryKey).(string)
 	config.DataprocBetaBasePath = d.Get(DataprocBetaCustomEndpointEntryKey).(string)
 	config.DataflowBasePath = d.Get(DataflowCustomEndpointEntryKey).(string)
-	config.DnsBetaBasePath = d.Get(DnsBetaCustomEndpointEntryKey).(string)
 	config.IamCredentialsBasePath = d.Get(IamCredentialsCustomEndpointEntryKey).(string)
-	config.ResourceManagerV2Beta1BasePath = d.Get(ResourceManagerV2Beta1CustomEndpointEntryKey).(string)
+	config.ResourceManagerV2BasePath = d.Get(ResourceManagerV2CustomEndpointEntryKey).(string)
 	config.RuntimeConfigBasePath = d.Get(RuntimeConfigCustomEndpointEntryKey).(string)
 	config.IAMBasePath = d.Get(IAMCustomEndpointEntryKey).(string)
 	config.ServiceNetworkingBasePath = d.Get(ServiceNetworkingCustomEndpointEntryKey).(string)

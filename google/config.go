@@ -25,7 +25,7 @@ import (
 	"google.golang.org/api/cloudiot/v1"
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
+	resourceManagerV2 "google.golang.org/api/cloudresourcemanager/v2"
 	composer "google.golang.org/api/composer/v1beta1"
 	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
@@ -33,10 +33,7 @@ import (
 	containerBeta "google.golang.org/api/container/v1beta1"
 	dataflow "google.golang.org/api/dataflow/v1b3"
 	"google.golang.org/api/dataproc/v1"
-	dataprocBeta "google.golang.org/api/dataproc/v1beta2"
 	"google.golang.org/api/dns/v1"
-	dnsBeta "google.golang.org/api/dns/v1beta2"
-	file "google.golang.org/api/file/v1beta1"
 	healthcare "google.golang.org/api/healthcare/v1"
 	"google.golang.org/api/iam/v1"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
@@ -142,22 +139,21 @@ type Config struct {
 	VPCAccessBasePath            string
 	WorkflowsBasePath            string
 
-	CloudBillingBasePath           string
-	ComposerBasePath               string
-	ComputeBetaBasePath            string
-	ContainerBasePath              string
-	ContainerBetaBasePath          string
-	DataprocBetaBasePath           string
-	DataflowBasePath               string
-	DnsBetaBasePath                string
-	IamCredentialsBasePath         string
-	ResourceManagerV2Beta1BasePath string
-	IAMBasePath                    string
-	CloudIoTBasePath               string
-	ServiceNetworkingBasePath      string
-	StorageTransferBasePath        string
-	BigtableAdminBasePath          string
-	EventarcBasePath               string
+	CloudBillingBasePath      string
+	ComposerBasePath          string
+	ComputeBetaBasePath       string
+	ContainerBasePath         string
+	ContainerBetaBasePath     string
+	DataprocBetaBasePath      string
+	DataflowBasePath          string
+	IamCredentialsBasePath    string
+	ResourceManagerV2BasePath string
+	IAMBasePath               string
+	CloudIoTBasePath          string
+	ServiceNetworkingBasePath string
+	StorageTransferBasePath   string
+	BigtableAdminBasePath     string
+	EventarcBasePath          string
 
 	requestBatcherServiceUsage *RequestBatcher
 	requestBatcherIam          *RequestBatcher
@@ -406,21 +402,6 @@ func (c *Config) NewDnsClient(userAgent string) *dns.Service {
 	return clientDns
 }
 
-func (c *Config) NewDnsBetaClient(userAgent string) *dnsBeta.Service {
-	dnsBetaClientBasePath := removeBasePathVersion(c.DnsBetaBasePath)
-	dnsBetaClientBasePath = strings.ReplaceAll(dnsBetaClientBasePath, "/dns/", "")
-	log.Printf("[INFO] Instantiating Google Cloud DNS Beta client for path %s", dnsBetaClientBasePath)
-	clientDnsBeta, err := dnsBeta.NewService(c.context, option.WithHTTPClient(c.client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client dns beta: %s", err)
-		return nil
-	}
-	clientDnsBeta.UserAgent = userAgent
-	clientDnsBeta.BasePath = dnsBetaClientBasePath
-
-	return clientDnsBeta
-}
-
 func (c *Config) NewKmsClient(userAgent string) *cloudkms.Service {
 	kmsClientBasePath := removeBasePathVersion(c.KMSBasePath)
 	log.Printf("[INFO] Instantiating Google Cloud KMS client for path %s", kmsClientBasePath)
@@ -520,18 +501,18 @@ func (c *Config) NewResourceManagerClient(userAgent string) *cloudresourcemanage
 	return clientResourceManager
 }
 
-func (c *Config) NewResourceManagerV2Beta1Client(userAgent string) *resourceManagerV2Beta1.Service {
-	resourceManagerV2Beta1BasePath := removeBasePathVersion(c.ResourceManagerV2Beta1BasePath)
-	log.Printf("[INFO] Instantiating Google Cloud ResourceManager V client for path %s", resourceManagerV2Beta1BasePath)
-	clientResourceManagerV2Beta1, err := resourceManagerV2Beta1.NewService(c.context, option.WithHTTPClient(c.client))
+func (c *Config) NewResourceManagerV2Client(userAgent string) *resourceManagerV2.Service {
+	resourceManagerV2BasePath := removeBasePathVersion(c.ResourceManagerV2BasePath)
+	log.Printf("[INFO] Instantiating Google Cloud ResourceManager V client for path %s", resourceManagerV2BasePath)
+	clientResourceManagerV2, err := resourceManagerV2.NewService(c.context, option.WithHTTPClient(c.client))
 	if err != nil {
-		log.Printf("[WARN] Error creating client resource manager v2beta1: %s", err)
+		log.Printf("[WARN] Error creating client resource manager v2: %s", err)
 		return nil
 	}
-	clientResourceManagerV2Beta1.UserAgent = userAgent
-	clientResourceManagerV2Beta1.BasePath = resourceManagerV2Beta1BasePath
+	clientResourceManagerV2.UserAgent = userAgent
+	clientResourceManagerV2.BasePath = resourceManagerV2BasePath
 
-	return clientResourceManagerV2Beta1
+	return clientResourceManagerV2
 }
 
 func (c *Config) NewRuntimeconfigClient(userAgent string) *runtimeconfig.Service {
@@ -539,7 +520,7 @@ func (c *Config) NewRuntimeconfigClient(userAgent string) *runtimeconfig.Service
 	log.Printf("[INFO] Instantiating Google Cloud Runtimeconfig client for path %s", runtimeConfigClientBasePath)
 	clientRuntimeconfig, err := runtimeconfig.NewService(c.context, option.WithHTTPClient(c.client))
 	if err != nil {
-		log.Printf("[WARN] Error creating client resource manager v2beta1: %s", err)
+		log.Printf("[WARN] Error creating client runtime config: %s", err)
 		return nil
 	}
 	clientRuntimeconfig.UserAgent = userAgent
@@ -701,34 +682,6 @@ func (c *Config) NewDataprocClient(userAgent string) *dataproc.Service {
 	clientDataproc.BasePath = dataprocClientBasePath
 
 	return clientDataproc
-}
-
-func (c *Config) NewDataprocBetaClient(userAgent string) *dataprocBeta.Service {
-	dataprocBetaClientBasePath := removeBasePathVersion(c.DataprocBetaBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Dataproc Beta client for path %s", dataprocBetaClientBasePath)
-	clientDataprocBeta, err := dataprocBeta.NewService(c.context, option.WithHTTPClient(c.client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client dataproc beta: %s", err)
-		return nil
-	}
-	clientDataprocBeta.UserAgent = userAgent
-	clientDataprocBeta.BasePath = dataprocBetaClientBasePath
-
-	return clientDataprocBeta
-}
-
-func (c *Config) NewFilestoreClient(userAgent string) *file.Service {
-	filestoreClientBasePath := removeBasePathVersion(c.FilestoreBasePath)
-	log.Printf("[INFO] Instantiating Filestore client for path %s", filestoreClientBasePath)
-	clientFilestore, err := file.NewService(c.context, option.WithHTTPClient(c.client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client filestore: %s", err)
-		return nil
-	}
-	clientFilestore.UserAgent = userAgent
-	clientFilestore.BasePath = filestoreClientBasePath
-
-	return clientFilestore
 }
 
 func (c *Config) NewCloudIoTClient(userAgent string) *cloudiot.Service {
@@ -1027,9 +980,8 @@ func ConfigureBasePaths(c *Config) {
 	c.ContainerBetaBasePath = ContainerBetaDefaultBasePath
 	c.DataprocBasePath = DataprocDefaultBasePath
 	c.DataflowBasePath = DataflowDefaultBasePath
-	c.DnsBetaBasePath = DnsBetaDefaultBasePath
 	c.IamCredentialsBasePath = IamCredentialsDefaultBasePath
-	c.ResourceManagerV2Beta1BasePath = ResourceManagerV2Beta1DefaultBasePath
+	c.ResourceManagerV2BasePath = ResourceManagerV2DefaultBasePath
 	c.IAMBasePath = IAMDefaultBasePath
 	c.ServiceNetworkingBasePath = ServiceNetworkingDefaultBasePath
 	c.BigQueryBasePath = BigQueryDefaultBasePath

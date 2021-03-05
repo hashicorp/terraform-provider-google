@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/cloudresourcemanager/v1"
-	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
+	resourceManagerV2 "google.golang.org/api/cloudresourcemanager/v2"
 )
 
 // Test that an IAM binding can be applied to a folder
@@ -256,10 +256,10 @@ func testAccCheckGoogleFolderIamBindingExists(t *testing.T, expected *cloudresou
 
 func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config *Config) (*cloudresourcemanager.Policy, error) {
 	queryString := fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=%s", parent, displayName)
-	searchRequest := &resourceManagerV2Beta1.SearchFoldersRequest{
+	searchRequest := &resourceManagerV2.SearchFoldersRequest{
 		Query: queryString,
 	}
-	searchResponse, err := config.NewResourceManagerV2Beta1Client(config.userAgent).Folders.Search(searchRequest).Do()
+	searchResponse, err := config.NewResourceManagerV2Client(config.userAgent).Folders.Search(searchRequest).Do()
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {
 			return nil, fmt.Errorf("Folder not found: %s,%s", parent, displayName)
