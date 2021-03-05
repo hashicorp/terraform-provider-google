@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
+	resourceManagerV2 "google.golang.org/api/cloudresourcemanager/v2"
 )
 
 func dataSourceGoogleActiveFolder() *schema.Resource {
@@ -39,10 +39,10 @@ func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) 
 	displayName := d.Get("display_name").(string)
 
 	queryString := fmt.Sprintf("lifecycleState=ACTIVE AND parent=%s AND displayName=\"%s\"", parent, displayName)
-	searchRequest := &resourceManagerV2Beta1.SearchFoldersRequest{
+	searchRequest := &resourceManagerV2.SearchFoldersRequest{
 		Query: queryString,
 	}
-	searchResponse, err := config.NewResourceManagerV2Beta1Client(userAgent).Folders.Search(searchRequest).Do()
+	searchResponse, err := config.NewResourceManagerV2Client(userAgent).Folders.Search(searchRequest).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Folder Not Found : %s", displayName))
 	}

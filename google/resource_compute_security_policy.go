@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	compute "google.golang.org/api/compute/v0.beta"
+	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeSecurityPolicy() *schema.Resource {
@@ -209,7 +209,7 @@ func resourceComputeSecurityPolicyCreate(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] SecurityPolicy insert request: %#v", securityPolicy)
 
-	op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.Insert(project, securityPolicy).Do()
+	op, err := config.NewComputeClient(userAgent).SecurityPolicies.Insert(project, securityPolicy).Do()
 
 	if err != nil {
 		return errwrap.Wrapf("Error creating SecurityPolicy: {{err}}", err)
@@ -242,7 +242,7 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 	}
 
 	sp := d.Get("name").(string)
-	securityPolicy, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.Get(project, sp).Do()
+	securityPolicy, err := config.NewComputeClient(userAgent).SecurityPolicies.Get(project, sp).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SecurityPolicy %q", d.Id()))
 	}
@@ -289,7 +289,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 			Fingerprint:     d.Get("fingerprint").(string),
 			ForceSendFields: []string{"Description"},
 		}
-		op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.Patch(project, sp, securityPolicy).Do()
+		op, err := config.NewComputeClient(userAgent).SecurityPolicies.Patch(project, sp, securityPolicy).Do()
 
 		if err != nil {
 			return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
@@ -317,7 +317,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 			nPriorities[priority] = true
 			if !oPriorities[priority] {
 				// If the rule is in new and its priority does not exist in old, then add it.
-				op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.AddRule(project, sp, expandSecurityPolicyRule(rule)).Do()
+				op, err := config.NewComputeClient(userAgent).SecurityPolicies.AddRule(project, sp, expandSecurityPolicyRule(rule)).Do()
 
 				if err != nil {
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
@@ -329,7 +329,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 				}
 			} else if !oSet.Contains(rule) {
 				// If the rule is in new, and its priority is in old, but its hash is different than the one in old, update it.
-				op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.PatchRule(project, sp, expandSecurityPolicyRule(rule)).Priority(priority).Do()
+				op, err := config.NewComputeClient(userAgent).SecurityPolicies.PatchRule(project, sp, expandSecurityPolicyRule(rule)).Priority(priority).Do()
 
 				if err != nil {
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
@@ -346,7 +346,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 			priority := int64(rule.(map[string]interface{})["priority"].(int))
 			if !nPriorities[priority] {
 				// If the rule's priority is in old but not new, remove it.
-				op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.RemoveRule(project, sp).Priority(priority).Do()
+				op, err := config.NewComputeClient(userAgent).SecurityPolicies.RemoveRule(project, sp).Priority(priority).Do()
 
 				if err != nil {
 					return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
@@ -376,7 +376,7 @@ func resourceComputeSecurityPolicyDelete(d *schema.ResourceData, meta interface{
 	}
 
 	// Delete the SecurityPolicy
-	op, err := config.NewComputeBetaClient(userAgent).SecurityPolicies.Delete(project, d.Get("name").(string)).Do()
+	op, err := config.NewComputeClient(userAgent).SecurityPolicies.Delete(project, d.Get("name").(string)).Do()
 	if err != nil {
 		return errwrap.Wrapf("Error deleting SecurityPolicy: {{err}}", err)
 	}
