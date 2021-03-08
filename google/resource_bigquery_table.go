@@ -650,6 +650,7 @@ func resourceBigQueryTable() *schema.Resource {
 						"query": {
 							Type:        schema.TypeString,
 							Required:    true,
+							ForceNew:    true,
 							Description: `A query whose result is persisted.`,
 						},
 					},
