@@ -1,9 +1,7 @@
 ## 3.59.0 (Unreleased)
 FEATURES:
-* **New Resource:** `google_dataproc_metastore_service` ([#8520](https://github.com/hashicorp/terraform-provider-google/pull/8520))
 * **New Resource:** `google_workflows_workflow` ([#8549](https://github.com/hashicorp/terraform-provider-google/pull/8549))
 * **New Resource:** google_apigee_instance ([#8546](https://github.com/hashicorp/terraform-provider-google/pull/8546))
-* **New Resource:** google_eventarc_trigger ([#8500](https://github.com/hashicorp/terraform-provider-google/pull/8500))
 
 IMPROVEMENTS:
 * compute: Added graceful termination to `google_container_node_pool` create calls so that partially created node pools will resume the original operation if the Terraform process is killed mid create. ([#8492](https://github.com/hashicorp/terraform-provider-google/pull/8492))
