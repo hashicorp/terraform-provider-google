@@ -1,4 +1,20 @@
-## 3.59.0 (Unreleased)
+## 3.59.0 (March 08, 2021)
+FEATURES:
+* **New Resource:** `google_workflows_workflow` ([#8549](https://github.com/hashicorp/terraform-provider-google/pull/8549))
+* **New Resource:** google_apigee_instance ([#8546](https://github.com/hashicorp/terraform-provider-google/pull/8546))
+
+IMPROVEMENTS:
+* compute: Added graceful termination to `google_container_node_pool` create calls so that partially created node pools will resume the original operation if the Terraform process is killed mid create. ([#8492](https://github.com/hashicorp/terraform-provider-google/pull/8492))
+* compute: Promoted gVNIC support for `google_compute_instance` resource to GA ([#8506](https://github.com/hashicorp/terraform-provider-google/pull/8506))
+* compute: added autoscaling_policy.cpu_utilization.predictive_method field to `google_compute_autoscaler` and `google_compute_region_autoscaler` ([#8547](https://github.com/hashicorp/terraform-provider-google/pull/8547))
+* redis : marked `auth_string` on the `resource_redis_instance` resource as sensitive ([#8513](https://github.com/hashicorp/terraform-provider-google/pull/8513))
+
+BUG FIXES:
+* apigee: fixed IDs when importing `google_apigee_organization` resource ([#8488](https://github.com/hashicorp/terraform-provider-google/pull/8488))
+* artifactregistry: fixed issue where updating `google_artifact_registry_repository` always failed ([#8491](https://github.com/hashicorp/terraform-provider-google/pull/8491))
+* compute : fixed a bug where `guest_flush` could not be set to false for the resource `google_compute_resource_policy` ([#8517](https://github.com/hashicorp/terraform-provider-google/pull/8517))
+* compute: fixed a panic on empty `target_size` in `google_compute_region_instance_group_manager` ([#8528](https://github.com/hashicorp/terraform-provider-google/pull/8528))
+* redis: fixed invalid value error on `auth_string` in `google_redis_instance` ([#8493](https://github.com/hashicorp/terraform-provider-google/pull/8493))
 
 ## 3.58.0 (February 23, 2021)
 
