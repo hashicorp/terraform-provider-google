@@ -1,13 +1,13 @@
 ---
 subcategory: "Cloud Spanner"
 layout: "google"
-page_title: "Google: google_compute_global_forwarding_rule"
+page_title: "Google: google_spanner_instance"
 sidebar_current: "docs-google-datasource-spanner-instance"
 description: |-
   Get a spanner instance from Google Cloud
 ---
 
-# google\_compute\_global_\forwarding\_rule
+# google\_spanner\_instance
 
 Get a spanner instance from Google Cloud by its name.
 
