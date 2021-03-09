@@ -24,6 +24,34 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+func compareSignatureAlgorithm(_, old, new string, _ *schema.ResourceData) bool {
+	// See https://cloud.google.com/binary-authorization/docs/reference/rest/v1/projects.attestors#signaturealgorithm
+	normalizedAlgorithms := map[string]string{
+		"ECDSA_P256_SHA256":   "ECDSA_P256_SHA256",
+		"EC_SIGN_P256_SHA256": "ECDSA_P256_SHA256",
+		"ECDSA_P384_SHA384":   "ECDSA_P384_SHA384",
+		"EC_SIGN_P384_SHA384": "ECDSA_P384_SHA384",
+		"ECDSA_P521_SHA512":   "ECDSA_P521_SHA512",
+		"EC_SIGN_P521_SHA512": "ECDSA_P521_SHA512",
+	}
+
+	normalizedOld := old
+	normalizedNew := new
+
+	if normalized, ok := normalizedAlgorithms[old]; ok {
+		normalizedOld = normalized
+	}
+	if normalized, ok := normalizedAlgorithms[new]; ok {
+		normalizedNew = normalized
+	}
+
+	if normalizedNew == normalizedOld {
+		return true
+	}
+
+	return false
+}
+
 func resourceBinaryAuthorizationAttestor() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBinaryAuthorizationAttestorCreate,
