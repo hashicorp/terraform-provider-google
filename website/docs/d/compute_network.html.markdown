@@ -35,6 +35,8 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following attributes are exported:
 
+* `id` - an identifier for the resource with format projects/{{project}}/global/networks/{{name}}
+
 * `description` - Description of this network.
 
 * `gateway_ipv4` - The IP address of the gateway.
