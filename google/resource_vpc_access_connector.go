@@ -41,23 +41,18 @@ func resourceVPCAccessConnector() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"ip_cidr_range": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The range of internal addresses that follows RFC 4632 notation. Example: '10.132.0.0/28'.`,
-			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `The name of the resource (Max 25 characters).`,
 			},
-			"network": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Name of a VPC network.`,
+			"ip_cidr_range": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `The range of internal addresses that follows RFC 4632 notation. Example: '10.132.0.0/28'.`,
+				RequiredWith: []string{"network"},
 			},
 			"max_throughput": {
 				Type:         schema.TypeInt,
@@ -74,6 +69,13 @@ func resourceVPCAccessConnector() *schema.Resource {
 				ValidateFunc: validation.IntBetween(200, 1000),
 				Description:  `Minimum throughput of the connector in Mbps. Default and min is 200.`,
 				Default:      200,
+			},
+			"network": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `Name of the VPC network. Required if 'ip_cidr_range' is set.`,
+				ExactlyOneOf: []string{"network"},
 			},
 			"region": {
 				Type:        schema.TypeString,
