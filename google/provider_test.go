@@ -64,10 +64,15 @@ var orgEnvVars = []string{
 	"GOOGLE_ORG",
 }
 
+// This value is the Customer ID of the GOOGLE_ORG_DOMAIN workspace.
+// See https://admin.google.com/ac/accountsettings when logged into an org admin for the value.
 var custIdEnvVars = []string{
 	"GOOGLE_CUST_ID",
 }
 
+// This value is the username of an identity account within the GOOGLE_ORG_DOMAIN workspace.
+// For example in the org example.com with a user "foo@example.com", this would be set to "foo".
+// See https://admin.google.com/ac/users when logged into an org admin for a list.
 var identityUserEnvVars = []string{
 	"GOOGLE_IDENTITY_USER",
 }
