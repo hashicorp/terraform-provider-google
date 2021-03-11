@@ -1,4 +1,38 @@
 ## 3.60.0 (Unreleased)
+UNKNOWN CHANGELOG TYPE:
+* Add windows based availability sli to slo ([#8588](https://github.com/hashicorp/terraform-provider-google/pull/8588))
+* Stopped marking provider as a /v3 library (1/2) ([#8538](https://github.com/hashicorp/terraform-provider-google/pull/8538))
+* Suppress diff for COS images ([#8602](https://github.com/hashicorp/terraform-provider-google/pull/8602))
+* added 404 response code check on delete call ([#8594](https://github.com/hashicorp/terraform-provider-google/pull/8594))
+* bump sdk to 2.4.4 ([#8571](https://github.com/hashicorp/terraform-provider-google/pull/8571))
+* hashing function added for natIps ([#8576](https://github.com/hashicorp/terraform-provider-google/pull/8576))
+* website/spanner_instance: Fixed the documentation ([#8631](https://github.com/hashicorp/terraform-provider-google/pull/8631))
+BREAKING CHANGES:
+* compute: Fixed service account scope alias to be updated. ([#8604](https://github.com/hashicorp/terraform-provider-google/pull/8604))
+
+FEATURES:
+* **New Resource:** google_apigee_envgroup ([#8641](https://github.com/hashicorp/terraform-provider-google/pull/8641))
+* **New Resource:** google_apigee_environment ([#8596](https://github.com/hashicorp/terraform-provider-google/pull/8596))
+
+IMPROVEMENTS:
+* cloudrun: suppressed metadata.labels["cloud.googleapis.com/location"] value in `google_cloud_run_service` ([#8574](https://github.com/hashicorp/terraform-provider-google/pull/8574))
+* compute: added `mtu` field to `google_compute_interconnect_attachment` ([#8575](https://github.com/hashicorp/terraform-provider-google/pull/8575))
+* compute: added support for `nic_type` to `google_compute_instance` (GA only) ([#8562](https://github.com/hashicorp/terraform-provider-google/pull/8562))
+* container: added field `ephemeral_storage_config` to resource `google_container_node_pool` and `google_container_cluster` (beta) ([#8606](https://github.com/hashicorp/terraform-provider-google/pull/8606))
+* datafusion : new instance type added for the resource `google_data_fusion_instance` ([#8590](https://github.com/hashicorp/terraform-provider-google/pull/8590))
+* sql: added `settings.0.backup_configuration.transaction_log_retention_days` and `settings.0.backup_configuration.transaction_log_retention_days` fields to `google_sql_database_instance` ([#8582](https://github.com/hashicorp/terraform-provider-google/pull/8582))
+* storage: added `kms_key_name` to `google_storage_bucket_object` resource ([#8615](https://github.com/hashicorp/terraform-provider-google/pull/8615))
+
+BUG FIXES:
+* `cloud_identity`: fixed a bug where `google_cloud_identity_group` would periodically fail with a 403 ([#8585](https://github.com/hashicorp/terraform-provider-google/pull/8585))
+* bigquery: fixed materialized view to be recreated when query changes ([#8628](https://github.com/hashicorp/terraform-provider-google/pull/8628))
+* bigtable: fixed bug where gc_policy would attempt to recreate the resource when switching from deprecated attribute but maintaining the same value underlying value ([#8639](https://github.com/hashicorp/terraform-provider-google/pull/8639))
+* bigtable: required resource recreation if any fields change on `resource_bigtable_gc_policy` ([#8552](https://github.com/hashicorp/terraform-provider-google/pull/8552))
+* binaryauthorization: fixed permadiff in `google_binary_authorization_attestor` ([#8636](https://github.com/hashicorp/terraform-provider-google/pull/8636))
+* cloudfunction: added retry logic for `google_cloudfunctions_function` updates ([#8554](https://github.com/hashicorp/terraform-provider-google/pull/8554))
+* container: Fixed failure in deleting `maintenance_exclusion` for `google_container_cluster` ([#8589](https://github.com/hashicorp/terraform-provider-google/pull/8589))
+* container: fixed an issue where release channel UNSPECIFIED could not be set ([#8595](https://github.com/hashicorp/terraform-provider-google/pull/8595))
+* essentialcontacts: set `language_tag` to required for `google_essential_contacts_contact` ([#8557](https://github.com/hashicorp/terraform-provider-google/pull/8557))
 
 ## 3.59.0 (March 08, 2021)
 FEATURES:
