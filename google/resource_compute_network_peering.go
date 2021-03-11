@@ -299,7 +299,7 @@ func expandNetworkPeering(d *schema.ResourceData) *compute.NetworkPeering {
 		ImportCustomRoutes:             d.Get("import_custom_routes").(bool),
 		ExportSubnetRoutesWithPublicIp: d.Get("export_subnet_routes_with_public_ip").(bool),
 		ImportSubnetRoutesWithPublicIp: d.Get("import_subnet_routes_with_public_ip").(bool),
-		ForceSendFields:                []string{"ExportSubnetRoutesWithPublicIp"},
+		ForceSendFields:                []string{"ExportSubnetRoutesWithPublicIp", "ImportCustomRoutes", "ExportCustomRoutes"},
 	}
 }
 
