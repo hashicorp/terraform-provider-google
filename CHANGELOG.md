@@ -1,6 +1,4 @@
 ## 3.60.0 (Unreleased)
-BREAKING CHANGES:
-* compute: Fixed service account scope alias to be updated. ([#8604](https://github.com/hashicorp/terraform-provider-google/pull/8604))
 
 FEATURES:
 * **New Resource:** google_apigee_envgroup ([#8641](https://github.com/hashicorp/terraform-provider-google/pull/8641))
@@ -11,6 +9,7 @@ IMPROVEMENTS:
 * compute: added `mtu` field to `google_compute_interconnect_attachment` ([#8575](https://github.com/hashicorp/terraform-provider-google/pull/8575))
 * compute: added support for `nic_type` to `google_compute_instance` (GA only) ([#8562](https://github.com/hashicorp/terraform-provider-google/pull/8562))
 * compute: fixed perma-diff for cos-family disk images ([#8602](https://github.com/hashicorp/terraform-provider-google/pull/8602))
+* compute: Fixed service account scope alias to be updated. ([#8604](https://github.com/hashicorp/terraform-provider-google/pull/8604))
 * datafusion : new instance type added for the resource `google_data_fusion_instance` ([#8590](https://github.com/hashicorp/terraform-provider-google/pull/8590))
 * monitoring : added windows based availability sli to the resource `google_monitoring_slo` ([#8588](https://github.com/hashicorp/terraform-provider-google/pull/8588))
 * sql: added `settings.0.backup_configuration.transaction_log_retention_days` and `settings.0.backup_configuration.transaction_log_retention_days` fields to `google_sql_database_instance` ([#8582](https://github.com/hashicorp/terraform-provider-google/pull/8582))
