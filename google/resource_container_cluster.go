@@ -209,12 +209,13 @@ func resourceContainerCluster() *schema.Resource {
 							},
 						},
 						"network_policy_config": {
-							Type:         schema.TypeList,
-							Optional:     true,
-							Computed:     true,
-							AtLeastOneOf: addonsConfigKeys,
-							MaxItems:     1,
-							Description:  `Whether we should enable the network policy addon for the master. This must be enabled in order to enable network policy for the nodes. To enable this, you must also define a network_policy block, otherwise nothing will happen. It can only be disabled if the nodes already do not have network policies enabled. Defaults to disabled; set disabled = false to enable.`,
+							Type:          schema.TypeList,
+							Optional:      true,
+							Computed:      true,
+							AtLeastOneOf:  addonsConfigKeys,
+							MaxItems:      1,
+							Description:   `Whether we should enable the network policy addon for the master. This must be enabled in order to enable network policy for the nodes. To enable this, you must also define a network_policy block, otherwise nothing will happen. It can only be disabled if the nodes already do not have network policies enabled. Defaults to disabled; set disabled = false to enable.`,
+							ConflictsWith: []string{"enable_autopilot"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disabled": {
@@ -254,9 +255,10 @@ func resourceContainerCluster() *schema.Resource {
 				MaxItems: 1,
 				// This field is Optional + Computed because we automatically set the
 				// enabled value to false if the block is not returned in API responses.
-				Optional:    true,
-				Computed:    true,
-				Description: `Per-cluster configuration of Node Auto-Provisioning with Cluster Autoscaler to automatically adjust the size of the cluster and create/delete node pools based on the current needs of the cluster's workload. See the guide to using Node Auto-Provisioning for more details.`,
+				Optional:      true,
+				Computed:      true,
+				Description:   `Per-cluster configuration of Node Auto-Provisioning with Cluster Autoscaler to automatically adjust the size of the cluster and create/delete node pools based on the current needs of the cluster's workload. See the guide to using Node Auto-Provisioning for more details.`,
+				ConflictsWith: []string{"enable_autopilot"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -335,10 +337,11 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_binary_authorization": {
-				Default:     false,
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: `Enable Binary Authorization for this cluster. If enabled, all container images will be validated by Google Binary Authorization.`,
+				Default:       false,
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Description:   `Enable Binary Authorization for this cluster. If enabled, all container images will be validated by Google Binary Authorization.`,
+				ConflictsWith: []string{"enable_autopilot"},
 			},
 
 			"enable_kubernetes_alpha": {
@@ -364,17 +367,19 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_shielded_nodes": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: `Enable Shielded Nodes features on all nodes in this cluster. Defaults to false.`,
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Default:       false,
+				Description:   `Enable Shielded Nodes features on all nodes in this cluster. Defaults to false.`,
+				ConflictsWith: []string{"enable_autopilot"},
 			},
 
 			"enable_autopilot": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: `Enable Autopilot in this cluster. Defaults to false.`,
+				ForceNew:    true,
+				Description: `Enable Autopilot for this cluster. Defaults to false.`,
 			},
 
 			"authenticator_groups_config": {
@@ -412,10 +417,11 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"maintenance_policy": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				MaxItems:    1,
-				Description: `The maintenance policy to use for the cluster.`,
+				Type:          schema.TypeList,
+				Optional:      true,
+				MaxItems:      1,
+				Description:   `The maintenance policy to use for the cluster.`,
+				ConflictsWith: []string{"enable_autopilot"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"daily_maintenance_window": {
@@ -600,11 +606,12 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"network_policy": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				MaxItems:    1,
-				Description: `Configuration options for the NetworkPolicy feature.`,
+				Type:          schema.TypeList,
+				Optional:      true,
+				Computed:      true,
+				MaxItems:      1,
+				Description:   `Configuration options for the NetworkPolicy feature.`,
+				ConflictsWith: []string{"enable_autopilot"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -634,7 +641,8 @@ func resourceContainerCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: schemaNodePool,
 				},
-				Description: `List of node pools associated with this cluster. See google_container_node_pool for schema. Warning: node pools defined inside a cluster can't be changed (or added/removed) after cluster creation without deleting and recreating the entire cluster. Unless you absolutely need the ability to say "these are the only node pools associated with this cluster", use the google_container_node_pool resource instead of this property.`,
+				Description:   `List of node pools associated with this cluster. See google_container_node_pool for schema. Warning: node pools defined inside a cluster can't be changed (or added/removed) after cluster creation without deleting and recreating the entire cluster. Unless you absolutely need the ability to say "these are the only node pools associated with this cluster", use the google_container_node_pool resource instead of this property.`,
+				ConflictsWith: []string{"enable_autopilot"},
 			},
 
 			"node_version": {
@@ -761,9 +769,10 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"remove_default_node_pool": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: `If true, deletes the default node pool upon cluster creation. If you're using google_container_node_pool resources with no default node pool, this should be set to true, alongside setting initial_node_count to at least 1.`,
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Description:   `If true, deletes the default node pool upon cluster creation. If you're using google_container_node_pool resources with no default node pool, this should be set to true, alongside setting initial_node_count to at least 1.`,
+				ConflictsWith: []string{"enable_autopilot"},
 			},
 
 			"private_cluster_config": {
@@ -845,11 +854,12 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"default_max_pods_per_node": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
-				Description: `The default maximum number of pods per node in this cluster. This doesn't work on "routes-based" clusters, clusters that don't have IP Aliasing enabled.`,
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ForceNew:      true,
+				Computed:      true,
+				Description:   `The default maximum number of pods per node in this cluster. This doesn't work on "routes-based" clusters, clusters that don't have IP Aliasing enabled.`,
+				ConflictsWith: []string{"enable_autopilot"},
 			},
 
 			"vertical_pod_autoscaling": {
@@ -868,10 +878,11 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 			"workload_identity_config": {
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Optional:    true,
-				Description: `Configuration for the use of Kubernetes Service Accounts in GCP IAM policies.`,
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				Description:   `Configuration for the use of Kubernetes Service Accounts in GCP IAM policies.`,
+				ConflictsWith: []string{"enable_autopilot"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identity_namespace": {
@@ -961,9 +972,10 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"enable_intranode_visibility": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: `Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.`,
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Description:   `Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.`,
+				ConflictsWith: []string{"enable_autopilot"},
 			},
 
 			"resource_usage_export_config": {
@@ -1088,52 +1100,60 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	// Minimum required for GKE Autopilot cluster
 	cluster := &containerBeta.Cluster{
 		Name:                           clusterName,
+		InitialNodeCount:               int64(d.Get("initial_node_count").(int)),
+		MaintenancePolicy:              expandMaintenancePolicy(d, meta),
 		MasterAuthorizedNetworksConfig: expandMasterAuthorizedNetworksConfig(d.Get("master_authorized_networks_config")),
-		LoggingService:                 d.Get("logging_service").(string),
-		IpAllocationPolicy:             ipAllocationBlock,
+		InitialClusterVersion:          d.Get("min_master_version").(string),
 		ClusterIpv4Cidr:                d.Get("cluster_ipv4_cidr").(string),
 		Description:                    d.Get("description").(string),
-		NetworkPolicy:                  expandNetworkPolicy(d.Get("network_policy")),
-	}
-
-	if d.Get("enable_autopilot").(bool) {
-		cluster.Autopilot = &containerBeta.Autopilot{
-			Enabled:         d.Get("enable_autopilot").(bool),
-			ForceSendFields: []string{"Enabled"},
-		}
-	} else {
-		cluster.InitialNodeCount = int64(d.Get("initial_node_count").(int))
-		cluster.MaintenancePolicy = expandMaintenancePolicy(d, meta)
-		cluster.InitialClusterVersion = d.Get("min_master_version").(string)
-		cluster.LegacyAbac = &containerBeta.LegacyAbac{
+		LegacyAbac: &containerBeta.LegacyAbac{
 			Enabled:         d.Get("enable_legacy_abac").(bool),
 			ForceSendFields: []string{"Enabled"},
-		}
-		cluster.MonitoringService = d.Get("monitoring_service").(string)
-		cluster.AddonsConfig = expandClusterAddonsConfig(d.Get("addons_config"))
-		cluster.EnableKubernetesAlpha = d.Get("enable_kubernetes_alpha").(bool)
-		cluster.PodSecurityPolicyConfig = expandPodSecurityPolicyConfig(d.Get("pod_security_policy_config"))
-		cluster.Autoscaling = expandClusterAutoscaling(d.Get("cluster_autoscaling"), d)
-		cluster.BinaryAuthorization = &containerBeta.BinaryAuthorization{
+		},
+		LoggingService:          d.Get("logging_service").(string),
+		MonitoringService:       d.Get("monitoring_service").(string),
+		NetworkPolicy:           expandNetworkPolicy(d.Get("network_policy")),
+		AddonsConfig:            expandClusterAddonsConfig(d.Get("addons_config")),
+		EnableKubernetesAlpha:   d.Get("enable_kubernetes_alpha").(bool),
+		IpAllocationPolicy:      ipAllocationBlock,
+		PodSecurityPolicyConfig: expandPodSecurityPolicyConfig(d.Get("pod_security_policy_config")),
+		Autoscaling:             expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
+		BinaryAuthorization: &containerBeta.BinaryAuthorization{
 			Enabled:         d.Get("enable_binary_authorization").(bool),
 			ForceSendFields: []string{"Enabled"},
-		}
-		cluster.ShieldedNodes = &containerBeta.ShieldedNodes{
-			Enabled:         d.Get("enable_shielded_nodes").(bool),
-			ForceSendFields: []string{"Enabled"},
-		}
-		cluster.NetworkConfig = &containerBeta.NetworkConfig{
+		},
+		ReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
+		EnableTpu:      d.Get("enable_tpu").(bool),
+		NetworkConfig: &containerBeta.NetworkConfig{
 			EnableIntraNodeVisibility: d.Get("enable_intranode_visibility").(bool),
 			DefaultSnatStatus:         expandDefaultSnatStatus(d.Get("default_snat_status")),
 			DatapathProvider:          d.Get("datapath_provider").(string),
+		},
+		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
+		ResourceLabels: expandStringMap(d, "resource_labels"),
+	}
+
+	if v, ok := d.GetOk("enable_autopilot"); ok {
+		cluster.Autopilot = &containerBeta.Autopilot{
+			Enabled:         v.(bool),
+			ForceSendFields: []string{"Enabled"},
 		}
-		cluster.ReleaseChannel = expandReleaseChannel(d.Get("release_channel"))
-		cluster.EnableTpu = d.Get("enable_tpu").(bool)
-		cluster.MasterAuth = expandMasterAuth(d.Get("master_auth"))
-		cluster.ResourceLabels = expandStringMap(d, "resource_labels")
+		if v.(bool) == true {
+			cluster.ShieldedNodes = &containerBeta.ShieldedNodes{
+				Enabled:         true,
+				ForceSendFields: []string{"Enabled"},
+			}
+			cluster.NetworkConfig.EnableIntraNodeVisibility = true
+		}
+	}
+
+	if v, ok := d.GetOk("enable_shielded_nodes"); ok {
+		cluster.ShieldedNodes = &containerBeta.ShieldedNodes{
+			Enabled:         v.(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
 	}
 
 	if v, ok := d.GetOk("default_max_pods_per_node"); ok {
@@ -2596,6 +2616,9 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 func expandClusterAutoscaling(configured interface{}, d *schema.ResourceData) *containerBeta.ClusterAutoscaling {
 	l, ok := configured.([]interface{})
 	if !ok || l == nil || len(l) == 0 || l[0] == nil {
+		if v, ok := d.GetOk("enable_autopilot"); ok && v == true {
+			return nil
+		}
 		return &containerBeta.ClusterAutoscaling{
 			EnableNodeAutoprovisioning: false,
 			ForceSendFields:            []string{"EnableNodeAutoprovisioning"},
