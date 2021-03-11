@@ -198,6 +198,12 @@ func resourceDataflowJob() *schema.Resource {
 				Computed:    true,
 				Description: `The unique ID of this job.`,
 			},
+
+			"enable_streaming_engine": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates if the job should use the streaming engine feature.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -540,6 +546,7 @@ func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *Config) (datafl
 		MachineType:           d.Get("machine_type").(string),
 		KmsKeyName:            d.Get("kms_key_name").(string),
 		IpConfiguration:       d.Get("ip_configuration").(string),
+		EnableStreamingEngine: d.Get("enable_streaming_engine").(bool),
 		AdditionalUserLabels:  labels,
 		Zone:                  zone,
 		AdditionalExperiments: additionalExperiments,

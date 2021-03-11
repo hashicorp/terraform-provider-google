@@ -43,6 +43,7 @@ resource "google_dataflow_job" "pubsub_stream" {
 	name = "tf-test-dataflow-job1"
 	template_gcs_path = "gs://my-bucket/templates/template_file"
 	temp_gcs_location = "gs://my-bucket/tmp_dir"
+	enable_streaming_engine = true
 	parameters = {
 	  inputFilePattern = "${google_storage_bucket.bucket1.url}/*.json"
 	  outputTopic    = google_pubsub_topic.topic.id
@@ -90,6 +91,7 @@ The following arguments are supported:
 * `kms_key_name` - (Optional) The name for the Cloud KMS key for the job. Key format is: `projects/PROJECT_ID/locations/LOCATION/keyRings/KEY_RING/cryptoKeys/KEY`
 * `ip_configuration` - (Optional) The configuration for VM IPs.  Options are `"WORKER_IP_PUBLIC"` or `"WORKER_IP_PRIVATE"`.
 * `additional_experiments` - (Optional) List of experiments that should be used by the job. An example value is `["enable_stackdriver_agent_metrics"]`.
+* `enable_streaming_engine` - (Optional) Enable/disable the use of [Streaming Engine](https://cloud.google.com/dataflow/docs/guides/deploying-a-pipeline#streaming-engine) for the job. Note that Streaming Engine is enabled by default for pipelines developed against the Beam SDK for Python v2.21.0 or later when using Python 3.
 
 ## Attributes Reference
 
