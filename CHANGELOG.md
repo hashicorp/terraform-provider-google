@@ -10,7 +10,7 @@ IMPROVEMENTS:
 * cloudrun: suppressed metadata.labels["cloud.googleapis.com/location"] value in `google_cloud_run_service` ([#8574](https://github.com/hashicorp/terraform-provider-google/pull/8574))
 * compute: added `mtu` field to `google_compute_interconnect_attachment` ([#8575](https://github.com/hashicorp/terraform-provider-google/pull/8575))
 * compute: added support for `nic_type` to `google_compute_instance` (GA only) ([#8562](https://github.com/hashicorp/terraform-provider-google/pull/8562))
-* compute: added suppress diff func for cos-family disk images ([#8602](https://github.com/hashicorp/terraform-provider-google/pull/8602))
+* compute: fixed perma-diff for cos-family disk images ([#8602](https://github.com/hashicorp/terraform-provider-google/pull/8602))
 * container: added field `ephemeral_storage_config` to resource `google_container_node_pool` and `google_container_cluster` (beta) ([#8606](https://github.com/hashicorp/terraform-provider-google/pull/8606))
 * datafusion : new instance type added for the resource `google_data_fusion_instance` ([#8590](https://github.com/hashicorp/terraform-provider-google/pull/8590))
 * monitoring : added windows based availability sli to the resource `google_monitoring_slo` ([#8588](https://github.com/hashicorp/terraform-provider-google/pull/8588))
@@ -18,17 +18,17 @@ IMPROVEMENTS:
 * storage: added `kms_key_name` to `google_storage_bucket_object` resource ([#8615](https://github.com/hashicorp/terraform-provider-google/pull/8615))
 
 BUG FIXES:
-* `cloud_identity`: fixed a bug where `google_cloud_identity_group` would periodically fail with a 403 ([#8585](https://github.com/hashicorp/terraform-provider-google/pull/8585))
 * bigquery: fixed materialized view to be recreated when query changes ([#8628](https://github.com/hashicorp/terraform-provider-google/pull/8628))
-* bigtable: fixed bug where gc_policy would attempt to recreate the resource when switching from deprecated attribute but maintaining the same value underlying value ([#8639](https://github.com/hashicorp/terraform-provider-google/pull/8639))
+* bigtable: fixed bug where gc_policy would attempt to recreate the resource when switching from deprecated attribute but maintaining the same underlying value ([#8639](https://github.com/hashicorp/terraform-provider-google/pull/8639))
 * bigtable: required resource recreation if any fields change on `resource_bigtable_gc_policy` ([#8552](https://github.com/hashicorp/terraform-provider-google/pull/8552))
 * binaryauthorization: fixed permadiff in `google_binary_authorization_attestor` ([#8636](https://github.com/hashicorp/terraform-provider-google/pull/8636))
 * cloudfunction: added retry logic for `google_cloudfunctions_function` updates ([#8554](https://github.com/hashicorp/terraform-provider-google/pull/8554))
+* cloudidentity: fixed a bug where `google_cloud_identity_group` would periodically fail with a 403 ([#8585](https://github.com/hashicorp/terraform-provider-google/pull/8585))
 * compute: fixed a perma-diff for `nat_ips` that were specified as short forms in `google_compute_router_nat` ([#8576](https://github.com/hashicorp/terraform-provider-google/pull/8576))
 * container: fixed container cluster not removed from the state when received 404 error on delete call for the resource `google_container_cluster` ([#8594](https://github.com/hashicorp/terraform-provider-google/pull/8594))
 * container: Fixed failure in deleting `maintenance_exclusion` for `google_container_cluster` ([#8589](https://github.com/hashicorp/terraform-provider-google/pull/8589))
 * container: fixed an issue where release channel UNSPECIFIED could not be set ([#8595](https://github.com/hashicorp/terraform-provider-google/pull/8595))
-* essentialcontacts: set `language_tag` to required for `google_essential_contacts_contact` ([#8557](https://github.com/hashicorp/terraform-provider-google/pull/8557))
+* essentialcontacts: made `language_tag` required for `google_essential_contacts_contact` ([#8557](https://github.com/hashicorp/terraform-provider-google/pull/8557))
 
 ## 3.59.0 (March 08, 2021)
 FEATURES:
