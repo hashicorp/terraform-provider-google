@@ -22,14 +22,12 @@ description: |-
 
 # google\_healthcare\_consent\_store
 
-The Consent Management API is a tool for tracking user consents and the documentation associated with the consents. 
+The Consent Management API is a tool for tracking user consents and the documentation associated with the consents.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about ConsentStore, see:
 
-* [API documentation](https://cloud.google.com/healthcare/docs/reference/rest/v1beta1/projects.locations.datasets.consentStores)
+* [API documentation](https://cloud.google.com/healthcare/docs/reference/rest/v1/projects.locations.datasets.consentStores)
 * How-to Guides
     * [Creating a Consent store](https://cloud.google.com/healthcare/docs/how-tos/consent)
 
@@ -43,15 +41,11 @@ To get more information about ConsentStore, see:
 
 ```hcl
 resource "google_healthcare_dataset" "dataset" {
-  provider = google-beta
-
   location = "us-central1"
   name     = "my-dataset"
 }
 
 resource "google_healthcare_consent_store" "my-consent" {
-  provider = google-beta
-
   dataset = google_healthcare_dataset.dataset.id
   name    = "my-consent-store"
 }
@@ -67,15 +61,11 @@ resource "google_healthcare_consent_store" "my-consent" {
 ```hcl
 
 resource "google_healthcare_dataset" "dataset" {
-  provider = google-beta
-
   location = "us-central1"
   name     = "my-dataset"
 }
 
 resource "google_healthcare_consent_store" "my-consent" {
-  provider = google-beta
-
   dataset = google_healthcare_dataset.dataset.id
   name    = "my-consent-store"
 
@@ -97,29 +87,21 @@ resource "google_healthcare_consent_store" "my-consent" {
 
 ```hcl
 resource "google_healthcare_dataset" "dataset" {
-  provider = google-beta
-
   location = "us-central1"
   name     = "my-dataset"
 }
 
 resource "google_healthcare_consent_store" "my-consent" {
-  provider = google-beta
-
   dataset = google_healthcare_dataset.dataset.id
   name    = "my-consent-store"
 }
 
 resource "google_service_account" "test-account" {
-  provider = google-beta
-
   account_id   = "my-account"
   display_name = "Test Service Account"
 }
 
 resource "google_healthcare_consent_store_iam_member" "test-iam" {
-  provider = google-beta
-
   dataset          = google_healthcare_dataset.dataset.id
   consent_store_id = google_healthcare_consent_store.my-consent.name
   role             = "roles/editor"
@@ -153,7 +135,7 @@ The following arguments are supported:
 
 * `enable_consent_create_on_update` -
   (Optional)
-  If true, [consents.patch] [google.cloud.healthcare.v1beta1.consent.UpdateConsent] creates the consent if it does not already exist.
+  If true, [consents.patch] [google.cloud.healthcare.v1.consent.UpdateConsent] creates the consent if it does not already exist.
 
 * `labels` -
   (Optional)
@@ -190,6 +172,4 @@ ConsentStore can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_healthcare_consent_store.default {{dataset}}/consentStores/{{name}}
-$ terraform import google_healthcare_consent_store.default {{dataset}}/{{name}}
-$ terraform import google_healthcare_consent_store.default {{name}}
 ```

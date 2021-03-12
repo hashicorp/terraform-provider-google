@@ -724,9 +724,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 185
-// Generated IAM resources: 75
-// Total generated resources: 260
+// Generated resources: 186
+// Generated IAM resources: 78
+// Total generated resources: 264
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -901,6 +901,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_healthcare_dicom_store":                                resourceHealthcareDicomStore(),
 			"google_healthcare_fhir_store":                                 resourceHealthcareFhirStore(),
 			"google_healthcare_hl7_v2_store":                               resourceHealthcareHl7V2Store(),
+			"google_healthcare_consent_store":                              resourceHealthcareConsentStore(),
+			"google_healthcare_consent_store_iam_binding":                  ResourceIamBinding(HealthcareConsentStoreIamSchema, HealthcareConsentStoreIamUpdaterProducer, HealthcareConsentStoreIdParseFunc),
+			"google_healthcare_consent_store_iam_member":                   ResourceIamMember(HealthcareConsentStoreIamSchema, HealthcareConsentStoreIamUpdaterProducer, HealthcareConsentStoreIdParseFunc),
+			"google_healthcare_consent_store_iam_policy":                   ResourceIamPolicy(HealthcareConsentStoreIamSchema, HealthcareConsentStoreIamUpdaterProducer, HealthcareConsentStoreIdParseFunc),
 			"google_iap_web_iam_binding":                                   ResourceIamBinding(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
 			"google_iap_web_iam_member":                                    ResourceIamMember(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
 			"google_iap_web_iam_policy":                                    ResourceIamPolicy(IapWebIamSchema, IapWebIamUpdaterProducer, IapWebIdParseFunc),
