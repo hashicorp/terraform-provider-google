@@ -168,13 +168,13 @@ Example value: "revision-0010".`,
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: `A template to parse service and tag fields from a request URL. 
-URL mask allows for routing to multiple Run services without having 
+							Description: `A template to parse service and tag fields from a request URL.
+URL mask allows for routing to multiple Run services without having
 to create multiple network endpoint groups and backend services.
 
-For example, request URLs "foo1.domain.com/bar1" and "foo1.domain.com/bar2" 
-an be backed by the same Serverless Network Endpoint Group (NEG) with 
-URL mask ".domain.com/". The URL mask will parse them to { service="bar1", tag="foo1" } 
+For example, request URLs "foo1.domain.com/bar1" and "foo1.domain.com/bar2"
+an be backed by the same Serverless Network Endpoint Group (NEG) with
+URL mask ".domain.com/". The URL mask will parse them to { service="bar1", tag="foo1" }
 and { service="bar2", tag="foo2" } respectively.`,
 							AtLeastOneOf: []string{"cloud_run.0.service", "cloud_run.0.url_mask"},
 						},

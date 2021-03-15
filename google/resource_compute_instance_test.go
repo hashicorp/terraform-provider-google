@@ -1,4 +1,3 @@
-//
 package google
 
 import (
@@ -4586,6 +4585,7 @@ resource "google_compute_instance" "foobar" {
       values   = [google_compute_node_group.nodes.name]
     }
 
+    min_node_cpus = 4
   }
 }
 
@@ -4599,6 +4599,7 @@ resource "google_compute_node_template" "nodetmpl" {
 
   node_type = "n1-node-96-624"
 
+  cpu_overcommit_type = "ENABLED"
 }
 
 resource "google_compute_node_group" "nodes" {
@@ -4652,6 +4653,7 @@ resource "google_compute_instance" "foobar" {
       values   = [google_compute_node_group.nodes.name]
     }
 
+    min_node_cpus = 6
   }
 }
 
@@ -4665,6 +4667,7 @@ resource "google_compute_node_template" "nodetmpl" {
 
   node_type = "n1-node-96-624"
 
+  cpu_overcommit_type = "ENABLED"
 }
 
 resource "google_compute_node_group" "nodes" {

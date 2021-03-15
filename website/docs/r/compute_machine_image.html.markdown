@@ -121,7 +121,7 @@ The `machine_image_encryption_key` block supports:
 
 * `kms_key_service_account` -
   (Optional)
-  The service account used for the encryption request for the given KMS key. 
+  The service account used for the encryption request for the given KMS key.
   If absent, the Compute Engine Service Agent service account is used.
 
 ## Attributes Reference
