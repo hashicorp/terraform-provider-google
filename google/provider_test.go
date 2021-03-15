@@ -486,8 +486,6 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 }
 
 func TestAccProviderMeta_setModuleName(t *testing.T) {
-	// not expected to succeed yet. see https://github.com/hashicorp/terraform-provider-google/issues/7370
-	skipIfVcr(t)
 	t.Parallel()
 
 	moduleName := "my-module"
