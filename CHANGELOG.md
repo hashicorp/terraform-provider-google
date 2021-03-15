@@ -1,4 +1,4 @@
-## 3.60.0 (Unreleased)
+## 3.60.0 (March 15, 2021)
 
 FEATURES:
 * **New Resource:** google_apigee_envgroup ([#8641](https://github.com/hashicorp/terraform-provider-google/pull/8641))
