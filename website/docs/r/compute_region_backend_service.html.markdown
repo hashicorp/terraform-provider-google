@@ -355,7 +355,7 @@ The following arguments are supported:
   (Optional)
   The set of URLs to HealthCheck resources for health checking
   this RegionBackendService. Currently at most one health
-  check can be specified. 
+  check can be specified.
   A health check must be specified unless the backend service uses an internet
   or serverless NEG as a backend.
 
@@ -681,7 +681,7 @@ The `cdn_policy` block supports:
 
 * `default_ttl` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  Specifies the default TTL for cached content served by this origin for responses 
+  Specifies the default TTL for cached content served by this origin for responses
   that do not have an existing valid TTL (max-age or s-max-age).
 
 * `max_ttl` -

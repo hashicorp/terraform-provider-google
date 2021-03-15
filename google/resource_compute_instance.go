@@ -1,4 +1,3 @@
-//
 package google
 
 import (
@@ -45,6 +44,7 @@ var (
 		"scheduling.0.automatic_restart",
 		"scheduling.0.preemptible",
 		"scheduling.0.node_affinities",
+		"scheduling.0.min_node_cpus",
 	}
 
 	shieldedInstanceConfigKeys = []string{
@@ -547,6 +547,11 @@ func resourceComputeInstance() *schema.Resource {
 							Elem:             instanceSchedulingNodeAffinitiesElemSchema(),
 							DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
 							Description:      `Specifies node affinities or anti-affinities to determine which sole-tenant nodes your instances and managed instance groups will use as host systems.`,
+						},
+						"min_node_cpus": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							AtLeastOneOf: schedulingKeys,
 						},
 					},
 				},

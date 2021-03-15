@@ -120,7 +120,7 @@ The `cdn_policy` block supports:
 
 * `default_ttl` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  Specifies the default TTL for cached content served by this origin for responses 
+  Specifies the default TTL for cached content served by this origin for responses
   that do not have an existing valid TTL (max-age or s-max-age).
 
 * `max_ttl` -

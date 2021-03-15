@@ -334,6 +334,8 @@ The `scheduling` block supports:
    [here](https://cloud.google.com/compute/docs/nodes/create-nodes).
    Structure documented below.
 
+* `minNodeCpus` - (Optional) The minimum number of virtual CPUs this instance will consume when running on a sole-tenant node.
+
 The `guest_accelerator` block supports:
 
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
