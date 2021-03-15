@@ -148,7 +148,7 @@ resource "google_compute_target_https_proxy" "default" {
 }
 
 locals {
-  managed_domains = list("test.example.com")
+  managed_domains = tolist(["test.example.com"])
 }
 
 resource "random_id" "certificate" {
