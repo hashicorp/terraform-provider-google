@@ -1319,6 +1319,7 @@ resource "google_compute_target_http_proxy" "default" {
   name        = "%s"
   description = "a description"
   url_map     = google_compute_url_map.default.self_link
+  proxy_bind  = true
 }
 
 resource "google_compute_backend_service" "backend_service" {

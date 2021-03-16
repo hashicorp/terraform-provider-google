@@ -143,6 +143,11 @@ The following arguments are supported:
   the TargetHttpsProxy resource. If not set, the TargetHttpsProxy
   resource will not have any SSL policy configured.
 
+* `proxy_bind` -
+  (Optional)
+  This field only applies when the forwarding rule that references
+  this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

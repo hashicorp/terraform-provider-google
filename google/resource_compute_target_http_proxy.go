@@ -67,6 +67,14 @@ to the BackendService.`,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"proxy_bind": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `This field only applies when the forwarding rule that references
+this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.`,
+			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -117,6 +125,12 @@ func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("url_map"); !isEmptyValue(reflect.ValueOf(urlMapProp)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
 		obj["urlMap"] = urlMapProp
+	}
+	proxyBindProp, err := expandComputeTargetHttpProxyProxyBind(d.Get("proxy_bind"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("proxy_bind"); !isEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
+		obj["proxyBind"] = proxyBindProp
 	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies")
@@ -212,6 +226,9 @@ func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
 	if err := d.Set("url_map", flattenComputeTargetHttpProxyUrlMap(res["urlMap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
+	}
+	if err := d.Set("proxy_bind", flattenComputeTargetHttpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpProxy: %s", err)
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -379,6 +396,10 @@ func flattenComputeTargetHttpProxyUrlMap(v interface{}, d *schema.ResourceData, 
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeTargetHttpProxyProxyBind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandComputeTargetHttpProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -393,4 +414,8 @@ func expandComputeTargetHttpProxyUrlMap(v interface{}, d TerraformResourceData, 
 		return nil, fmt.Errorf("Invalid value for url_map: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeTargetHttpProxyProxyBind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
