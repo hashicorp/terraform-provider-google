@@ -245,17 +245,10 @@ func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*comput
 			Subnetwork:    sf.RelativeLink(),
 			AccessConfigs: expandAccessConfigs(data["access_config"].([]interface{})),
 			AliasIpRanges: expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
-			NicType:       expandNicType(data["nic_type"].(interface{})),
+			NicType:       data["nic_type"].(string),
 		}
 	}
 	return ifaces, nil
-}
-
-func expandNicType(d interface{}) string {
-	if d == nil {
-		return ""
-	}
-	return d.(string)
 }
 
 func flattenServiceAccounts(serviceAccounts []*computeBeta.ServiceAccount) []map[string]interface{} {
