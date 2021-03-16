@@ -134,6 +134,11 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `proxy_bind` -
+  (Optional)
+  This field only applies when the forwarding rule that references
+  this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
