@@ -369,7 +369,7 @@ func resourceContainerCluster() *schema.Resource {
 			"enable_shielded_nodes": {
 				Type:          schema.TypeBool,
 				Optional:      true,
-				Default:       false,
+				Default:       true,
 				Description:   `Enable Shielded Nodes features on all nodes in this cluster. Defaults to false.`,
 				ConflictsWith: []string{"enable_autopilot"},
 			},

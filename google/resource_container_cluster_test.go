@@ -187,9 +187,10 @@ func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
 				Config: testAccContainerCluster_withMasterAuth(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_master_auth",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_master_auth",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"enable_autopilot"},
 			},
 			{
 				Config: testAccContainerCluster_updateMasterAuth(clusterName),
@@ -199,9 +200,10 @@ func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_master_auth",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_master_auth",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"enable_autopilot"},
 			},
 			{
 				Config: testAccContainerCluster_disableMasterAuth(clusterName),
@@ -211,9 +213,10 @@ func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_master_auth",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_master_auth",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"enable_autopilot"},
 			},
 			{
 				Config: testAccContainerCluster_updateMasterAuth(clusterName),
@@ -223,9 +226,10 @@ func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_master_auth",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_master_auth",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"enable_autopilot"},
 			},
 		},
 	})
@@ -248,9 +252,10 @@ func TestAccContainerCluster_withMasterAuthConfig_NoCert(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_master_auth_no_cert",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_master_auth_no_cert",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"enable_autopilot"},
 			},
 		},
 	})
@@ -365,7 +370,7 @@ func TestAccContainerCluster_withReleaseChannelEnabled(t *testing.T) {
 				ImportStateIdPrefix:     "us-central1-a/",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "enable_autopilot"},
 			},
 			{
 				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "UNSPECIFIED"),
@@ -375,7 +380,7 @@ func TestAccContainerCluster_withReleaseChannelEnabled(t *testing.T) {
 				ImportStateIdPrefix:     "us-central1-a/",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "enable_autopilot"},
 			},
 		},
 	})
@@ -397,7 +402,7 @@ func TestAccContainerCluster_withReleaseChannelEnabledDefaultVersion(t *testing.
 				ImportStateIdPrefix:     "us-central1-a/",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "enable_autopilot"},
 			},
 			{
 				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "REGULAR"),
@@ -407,7 +412,7 @@ func TestAccContainerCluster_withReleaseChannelEnabledDefaultVersion(t *testing.
 				ImportStateIdPrefix:     "us-central1-a/",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "enable_autopilot"},
 			},
 			{
 				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "UNSPECIFIED"),
@@ -417,7 +422,7 @@ func TestAccContainerCluster_withReleaseChannelEnabledDefaultVersion(t *testing.
 				ImportStateIdPrefix:     "us-central1-a/",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "enable_autopilot"},
 			},
 		},
 	})
@@ -3525,22 +3530,22 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 	ip_cidr_range            = "10.0.36.0/24"
 	region                   = "us-central1"
 	private_ip_google_access = true
-  
+
 	secondary_ip_range {
 	  range_name    = "pod"
 	  ip_cidr_range = "10.0.0.0/19"
 	}
-  
+
 	secondary_ip_range {
 	  range_name    = "svc"
 	  ip_cidr_range = "10.0.32.0/22"
 	}
 }
-	
+
 data "google_container_engine_versions" "central1a" {
 	location = "us-central1-a"
 }
-	
+
 resource "google_container_cluster" "with_autopilot" {
 	name               = "%s"
 	location           = "us-central1"

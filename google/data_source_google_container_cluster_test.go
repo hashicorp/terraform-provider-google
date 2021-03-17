@@ -22,6 +22,7 @@ func TestAccContainerClusterDatasource_zonal(t *testing.T) {
 						"google_container_cluster.kubes",
 						// Remove once https://github.com/hashicorp/terraform/issues/21347 is fixed.
 						map[string]struct{}{
+							"enable_autopilot":             {},
 							"enable_tpu":                   {},
 							"enable_binary_authorization":  {},
 							"pod_security_policy_config.#": {},
@@ -48,6 +49,7 @@ func TestAccContainerClusterDatasource_regional(t *testing.T) {
 						"google_container_cluster.kubes",
 						// Remove once https://github.com/hashicorp/terraform/issues/21347 is fixed.
 						map[string]struct{}{
+							"enable_autopilot":             {},
 							"enable_tpu":                   {},
 							"enable_binary_authorization":  {},
 							"pod_security_policy_config.#": {},
