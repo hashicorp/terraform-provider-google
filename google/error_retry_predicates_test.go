@@ -1,6 +1,7 @@
 package google
 
 import (
+	"strconv"
 	"testing"
 
 	"google.golang.org/api/googleapi"
@@ -45,6 +46,34 @@ func TestIsAppEngineRetryableError_serverError(t *testing.T) {
 		Body: "Unable to retrieve P4SA because of a bad thing happening",
 	}
 	isRetryable, _ := isAppEngineRetryableError(&err)
+	if isRetryable {
+		t.Errorf("Error incorrectly detected as retryable")
+	}
+}
+
+func TestIsCommonRetryableErrorCode_retryableErrorCode(t *testing.T) {
+	codes := []int{429, 500, 502, 503}
+	for _, code := range codes {
+		code := code
+		t.Run(strconv.Itoa(code), func(t *testing.T) {
+			err := googleapi.Error{
+				Code: code,
+				Body: "some text describing error",
+			}
+			isRetryable, _ := isCommonRetryableErrorCode(&err)
+			if !isRetryable {
+				t.Errorf("Error not detected as retryable")
+			}
+		})
+	}
+}
+
+func TestIsCommonRetryableErrorCode_otherError(t *testing.T) {
+	err := googleapi.Error{
+		Code: 404,
+		Body: "Some unretryable issue",
+	}
+	isRetryable, _ := isCommonRetryableErrorCode(&err)
 	if isRetryable {
 		t.Errorf("Error incorrectly detected as retryable")
 	}
