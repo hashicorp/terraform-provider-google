@@ -8,8 +8,6 @@ description: |-
 
 # Google Provider Configuration Reference
 
--> Try out Terraform 0.12 with the Google provider! `google` and `google-beta` are 0.12-compatible from `2.5.0` onwards.
-
 The `google` and `google-beta` provider blocks are used to configure the
 credentials you use to authenticate with GCP, as well as a default project and
 location (`zone` and/or `region`) for your resources.
@@ -65,7 +63,7 @@ provider "google-beta" {}
 ### Running Terraform on your workstation.
 
 If you are using terraform on your workstation, you will need to install the Google Cloud SDK and authenticate using [User Application Default
-Credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default).
+Credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default) by running the command `gcloud auth application-default login`.
 
 A quota project must be set which gcloud automatically reads from the `core/project` value. You can override this project by specifying `--project` flag when running `gcloud auth application-default login`. The SDK should return this message if you have set the correct billing project. `Quota project "your-project" was added to ADC which can be used by Google client libraries for billing and quota.`
 
@@ -73,7 +71,7 @@ A quota project must be set which gcloud automatically reads from the `core/proj
 
 If you are running terraform on Google Cloud, you can configure that instance or cluster to use a [Google Service
 Account](https://cloud.google.com/compute/docs/authentication). This will allow Terraform to authenticate to Google Cloud without having to bake in a separate
-credential/authentication file. Make sure that the scope of the VM/Cluster is set to cloud-platform.
+credential/authentication file. Ensure that the scope of the VM/Cluster is set to or includes `https://www.googleapis.com/auth/cloud-platform`.
 
 ### Running Terraform outside of Google Cloud
 
