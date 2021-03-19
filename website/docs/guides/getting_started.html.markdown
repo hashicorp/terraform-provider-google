@@ -24,8 +24,8 @@ First, authenticate with GCP.  The easiest way to do this is to run
 `gcloud auth application-default login`, if you already have gcloud
 installed.  If you don't already have it, gcloud can be installed with
 `apt-get install google-cloud-sdk` on Debian-based machines.  For a
-production use-case, you will want to use service account authentication,
-which you can learn about further down in this doc, but for experimenting,
+production use-case you will want to use service account authentication,
+which you can learn about further down in this doc, but for experimenting
 gcloud authentication will work fine.
 
 Next, create a Terraform config file named `"main.tf"`. Inside, you'll
