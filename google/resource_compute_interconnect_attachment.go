@@ -145,7 +145,7 @@ traffic will traverse through. Required if type is DEDICATED, must not
 be set if type is PARTNER.`,
 			},
 			"mtu": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
 				Description: `Maximum Transmission Unit (MTU), in bytes, of packets passing through
@@ -645,7 +645,20 @@ func flattenComputeInterconnectAttachmentDescription(v interface{}, d *schema.Re
 }
 
 func flattenComputeInterconnectAttachmentMtu(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeInterconnectAttachmentBandwidth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
