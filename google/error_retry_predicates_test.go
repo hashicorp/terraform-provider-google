@@ -78,3 +78,14 @@ func TestIsCommonRetryableErrorCode_otherError(t *testing.T) {
 		t.Errorf("Error incorrectly detected as retryable")
 	}
 }
+
+func TestIsOperationReadQuotaError_quotaExceeded(t *testing.T) {
+	err := googleapi.Error{
+		Code: 403,
+		Body: "Quota exceeded for quota group 'OperationReadGroup' and limit 'Operation read requests per 100 seconds' of service 'compute.googleapis.com' for consumer 'project_number:11111111'.",
+	}
+	isRetryable, _ := isOperationReadQuotaError(&err)
+	if !isRetryable {
+		t.Errorf("Error not detected as retryable")
+	}
+}
