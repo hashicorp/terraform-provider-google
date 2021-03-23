@@ -74,6 +74,15 @@ resource "google_cloud_asset_folder_feed" "folder_feed" {
     }
   }
 
+  condition {
+    expression = <<-EOT
+    !temporal_asset.deleted &&
+    temporal_asset.prior_asset_state == google.cloud.asset.v1.TemporalAsset.PriorAssetState.DOES_NOT_EXIST
+    EOT
+    title = "created"
+    description = "Send notifications on creation events"
+  }
+
   # Wait for the permission to be ready on the destination topic.
   depends_on = [
     google_pubsub_topic_iam_member.cloud_asset_writer,
@@ -126,7 +135,13 @@ func testAccCheckCloudAssetFolderFeedDestroyProducer(t *testing.T) func(s *terra
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("CloudAssetFolderFeed still exists at %s", url)
 			}

@@ -200,8 +200,9 @@ storage, this number is expected to change with snapshot
 creation/deletion.`,
 			},
 			"source_disk_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "Deprecated in favor of source_disk, which contains a compatible value. This field will be removed in the next major release of the provider.",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -214,6 +215,7 @@ creation/deletion.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -290,7 +292,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Snapshot: %s", err)
 	}
 	billingProject = project
 
@@ -342,7 +344,7 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Snapshot: %s", err)
 	}
 	billingProject = project
 
@@ -421,13 +423,12 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Snapshot: %s", err)
 	}
 	billingProject = project
 
@@ -485,13 +486,12 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Snapshot: %s", err)
 	}
 	billingProject = project
 

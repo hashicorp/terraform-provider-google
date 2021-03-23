@@ -191,16 +191,17 @@ The following arguments are supported:
     region is not supported with Cloud SQL. If you choose not to provide the `region` argument for this resource,
     make sure you understand this.
 
-* `settings` - (Required) The settings to use for the database. The
-    configuration is detailed below.
-
 - - -
+
+* `settings` - (Optional) The settings to use for the database. The
+    configuration is detailed below. Required if `clone` is not set.
 
 * `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL, PostgreSQL or
 SQL Server (beta) version to use. Supported values include `MYSQL_5_6`,
-`MYSQL_5_7`, `POSTGRES_9_6`,`POSTGRES_10`, `POSTGRES_11`, `POSTGRES_12`, `SQLSERVER_2017_STANDARD`,
+`MYSQL_5_7`, `MYSQL_8_0`, `POSTGRES_9_6`,`POSTGRES_10`, `POSTGRES_11`, 
+`POSTGRES_12`, `POSTGRES_13`, `SQLSERVER_2017_STANDARD`, 
 `SQLSERVER_2017_ENTERPRISE`, `SQLSERVER_2017_EXPRESS`, `SQLSERVER_2017_WEB`.
-[Database Version Policies](https://cloud.google.com/sql/docs/sqlserver/db-versions)
+[Database Version Policies](https://cloud.google.com/sql/docs/db-versions)
 includes an up-to-date reference of supported versions.
 
 * `name` - (Optional, Computed) The name of the instance. If the name is left
@@ -233,7 +234,16 @@ includes an up-to-date reference of supported versions.
 * `deletion_protection` - (Optional, Default: `true` ) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
 in Terraform state, a `terraform destroy` or `terraform apply` command that deletes the instance will fail.
 
-The required `settings` block supports:
+* `restore_backup_context` - (optional) The context needed to restore the database to a backup run. This field will
+    cause Terraform to trigger the database to restore from the backup run indicated. The configuration is detailed below.
+    **NOTE:** Restoring from a backup is an imperative action and not recommended via Terraform. Adding or modifying this
+    block during resource creation/update will trigger the restore action after the resource is created/updated. 
+
+* `clone` - (Optional) The context needed to create this instance as a clone of another instance. When this field is set during 
+    resource creation, Terraform will attempt to clone another instance as indicated in the context. The
+    configuration is detailed below.
+
+The `settings` block supports:
 
 * `tier` - (Required) The machine type to use. See [tiers](https://cloud.google.com/sql/docs/admin-api/v1beta4/tiers)
     for more details and supported versions. Postgres supports only shared-core machine types such as `db-f1-micro`,
@@ -291,6 +301,19 @@ The optional `settings.backup_configuration` subblock supports:
     configuration starts.
 * `point_in_time_recovery_enabled` - (Optional) True if Point-in-time recovery is enabled. Will restart database if enabled after instance creation. Valid only for PostgreSQL instances.
 
+* `location` - (Optional) The region where the backup will be stored
+
+* `transaction_log_retention_days` - (Optional) The number of days of transaction logs we retain for point in time restore, from 1-7.
+
+* `backup_retention_settings` - (Optional) Backup retention settings. The configuration is detailed below.
+
+The optional `settings.backup_configuration.backup_retention_settings` subblock supports:
+
+* `retained_backups` - (Optional) Depending on the value of retention_unit, this is used to determine if a backup needs to be deleted. If retention_unit
+  is 'COUNT', we will retain this many backups.
+
+* `retention_unit` - (Optional) The unit that 'retained_backups' represents. Defaults to `COUNT`.
+
 The optional `settings.ip_configuration` subblock supports:
 
 * `ipv4_enabled` - (Optional) Whether this Cloud SQL instance should be assigned
@@ -303,8 +326,7 @@ Specifying a network enables private IP.
 Either `ipv4_enabled` must be enabled or a `private_network` must be configured.
 This setting can be updated, but it cannot be removed after it is set.
 
-* `require_ssl` - (Optional) True if mysqld should default to `REQUIRE X509`
-    for users connecting over IP.
+* `require_ssl` - (Optional) Whether SSL connections over IP are enforced or not.
 
 The optional `settings.ip_configuration.authorized_networks[]` sublist supports:
 
@@ -342,16 +364,16 @@ to work, cannot be updated, and supports:
 * `ca_certificate` - (Optional) PEM representation of the trusted CA's x509
     certificate.
 
-* `client_certificate` - (Optional) PEM representation of the slave's x509
+* `client_certificate` - (Optional) PEM representation of the replica's x509
     certificate.
 
-* `client_key` - (Optional) PEM representation of the slave's private key. The
+* `client_key` - (Optional) PEM representation of the replica's private key. The
     corresponding public key in encoded in the `client_certificate`.
 
 * `connect_retry_interval` - (Optional, Default: 60) The number of seconds
     between connect retries.
 
-* `dump_file_path` - (Optional) Path to a SQL file in GCS from which slave
+* `dump_file_path` - (Optional) Path to a SQL file in GCS from which replica
     instances are created. Format is `gs://bucket/filename`.
 
 * `failover_target` - (Optional) Specifies if the replica is the failover target.
@@ -370,6 +392,25 @@ to work, cannot be updated, and supports:
 
 * `verify_server_certificate` - (Optional) True if the master's common name
     value is checked during the SSL handshake.
+
+The optional `clone` block supports:
+
+* `source_instance_name` - (Required) Name of the source instance which will be cloned.
+
+* `point_in_time` -  (Optional) The timestamp of the point in time that should be restored.
+
+    A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+The optional `restore_backup_context` block supports:
+**NOTE:** Restoring from a backup is an imperative action and not recommended via Terraform. Adding or modifying this
+block during resource creation/update will trigger the restore action after the resource is created/updated. 
+
+* `backup_run_id` - (Required) The ID of the backup run to restore from.
+
+* `instance_id` - (Optional) The ID of the instance that the backup was taken from. If left empty,
+    this instance's ID will be used.
+
+* `project` - (Optional) The full project ID of the source instance.`
 
 ## Attributes Reference
 

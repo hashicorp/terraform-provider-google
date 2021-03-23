@@ -2,6 +2,7 @@ package google
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"google.golang.org/api/googleapi"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -42,6 +44,8 @@ var (
 		"settings.0.backup_configuration.0.start_time",
 		"settings.0.backup_configuration.0.location",
 		"settings.0.backup_configuration.0.point_in_time_recovery_enabled",
+		"settings.0.backup_configuration.0.backup_retention_settings",
+		"settings.0.backup_configuration.0.transaction_log_retention_days",
 	}
 
 	ipConfigurationKeys = []string{
@@ -70,6 +74,13 @@ var (
 		"replica_configuration.0.username",
 		"replica_configuration.0.verify_server_certificate",
 	}
+
+	insightsConfigKeys = []string{
+		"settings.0.insights_config.0.query_insights_enabled",
+		"settings.0.insights_config.0.query_string_length",
+		"settings.0.insights_config.0.record_application_tags",
+		"settings.0.insights_config.0.record_client_address",
+	}
 )
 
 func resourceSqlDatabaseInstance() *schema.Resource {
@@ -91,7 +102,9 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("settings.0.disk_size", isDiskShrinkage),
 			privateNetworkCustomizeDiff,
-			pitrPostgresOnlyCustomizeDiff),
+			pitrPostgresOnlyCustomizeDiff,
+			insightsPostgresOnlyCustomizeDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -99,7 +112,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `The region the instance will sit in. Note, Cloud SQL is not available in all regions - choose from one of the options listed here. A valid region must be provided to use this resource. If a region is not provided in the resource definition, the provider region will be used instead, but this will be an apply-time error for instances if the provider region is not supported with Cloud SQL. If you choose not to provide the region argument for this resource, make sure you understand this.`,
+				Description: `The region the instance will sit in. Note, Cloud SQL is not available in all regions. A valid region must be provided to use this resource. If a region is not provided in the resource definition, the provider region will be used instead, but this will be an apply-time error for instances if the provider region is not supported with Cloud SQL. If you choose not to provide the region argument for this resource, make sure you understand this.`,
 			},
 			"deletion_protection": {
 				Type:        schema.TypeBool,
@@ -108,9 +121,11 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 				Description: `Used to block Terraform from deleting a SQL Instance.`,
 			},
 			"settings": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Type:         schema.TypeList,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"settings", "clone"},
+				MaxItems:     1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"version": {
@@ -133,9 +148,10 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						"authorized_gae_applications": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
-							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see https://cloud.google.com/sql/docs/mysql/deprecation-notice for information on how to upgrade to Second Generation instances. A list of Google App Engine (GAE) project names that are allowed to access this instance.`,
+							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see https://cloud.google.com/sql/docs/mysql/deprecation-notice for information on how to upgrade to Second Generation instances. A list of Google App Engine project names that are allowed to access this instance.`,
 						},
 						"availability_type": {
 							Type:             schema.TypeString,
@@ -189,6 +205,35 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 										Optional:     true,
 										AtLeastOneOf: backupConfigurationKeys,
 										Description:  `True if Point-in-time recovery is enabled.`,
+									},
+									"transaction_log_retention_days": {
+										Type:         schema.TypeInt,
+										Computed:     true,
+										Optional:     true,
+										AtLeastOneOf: backupConfigurationKeys,
+										Description:  `The number of days of transaction logs we retain for point in time restore, from 1-7.`,
+									},
+									"backup_retention_settings": {
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: backupConfigurationKeys,
+										Computed:     true,
+										MaxItems:     1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"retained_backups": {
+													Type:        schema.TypeInt,
+													Required:    true,
+													Description: `Number of backups to retain.`,
+												},
+												"retention_unit": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Default:     "COUNT",
+													Description: `The unit that 'retainedBackups' represents. Defaults to COUNT`,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -287,7 +332,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 										Type:         schema.TypeString,
 										Optional:     true,
 										AtLeastOneOf: []string{"settings.0.location_preference.0.follow_gae_application", "settings.0.location_preference.0.zone"},
-										Description:  `A GAE application whose zone to remain in. Must be in the same region as this instance.`,
+										Description:  `A Google App Engine application whose zone to remain in. Must be in the same region as this instance.`,
 									},
 									"zone": {
 										Type:         schema.TypeString,
@@ -338,14 +383,51 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
-							Default:     "SYNCHRONOUS",
+							Computed:    true,
 							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see here for information on how to upgrade to Second Generation instances. Replication type for this instance, can be one of ASYNCHRONOUS or SYNCHRONOUS.`,
 						},
 						"user_labels": {
 							Type:        schema.TypeMap,
 							Optional:    true,
+							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Description: `A set of key/value user label pairs to assign to the instance.`,
+						},
+						"insights_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"query_insights_enabled": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: insightsConfigKeys,
+										Description:  `True if Query Insights feature is enabled.`,
+									},
+									"query_string_length": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      1024,
+										ValidateFunc: validation.IntBetween(256, 4500),
+										AtLeastOneOf: insightsConfigKeys,
+										Description:  `Maximum query length stored in bytes. Between 256 and 4500. Default to 1024.`,
+									},
+									"record_application_tags": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: insightsConfigKeys,
+										Description:  `True if Query Insights will record application tags from query when enabled.`,
+									},
+									"record_client_address": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: insightsConfigKeys,
+										Description:  `True if Query Insights will record client address when enabled.`,
+									},
+								},
+							},
+							Description: `Configuration of Query Insights.`,
 						},
 					},
 				},
@@ -363,7 +445,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 				Optional:    true,
 				Default:     "MYSQL_5_6",
 				ForceNew:    true,
-				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, POSTGRES_9_6,POSTGRES_11, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
+				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, POSTGRES_9_6,POSTGRES_11, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 			},
 
 			"root_password": {
@@ -457,14 +539,14 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
-							Description:  `PEM representation of the slave's x509 certificate.`,
+							Description:  `PEM representation of the replica's x509 certificate.`,
 						},
 						"client_key": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
-							Description:  `PEM representation of the slave's private key. The corresponding public key in encoded in the client_certificate.`,
+							Description:  `PEM representation of the replica's private key. The corresponding public key in encoded in the client_certificate.`,
 						},
 						"connect_retry_interval": {
 							Type:         schema.TypeInt,
@@ -478,7 +560,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Optional:     true,
 							ForceNew:     true,
 							AtLeastOneOf: replicaConfigurationKeys,
-							Description:  `Path to a SQL file in GCS from which slave instances are created. Format is gs://bucket/filename.`,
+							Description:  `Path to a SQL file in Google Cloud Storage from which replica instances are created. Format is gs://bucket/filename.`,
 						},
 						"failover_target": {
 							Type:         schema.TypeBool,
@@ -570,7 +652,55 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 				Computed:    true,
 				Description: `The URI of the created resource.`,
 			},
+			"restore_backup_context": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"backup_run_id": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `The ID of the backup run to restore from.`,
+						},
+						"instance_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The ID of the instance that the backup was taken from.`,
+						},
+						"project": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The full project ID of the source instance.`,
+						},
+					},
+				},
+			},
+			"clone": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				Computed:     false,
+				AtLeastOneOf: []string{"settings", "clone"},
+				Description:  `Configuration for creating a new instance as a clone of another instance.`,
+				MaxItems:     1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"source_instance_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the instance from which the point in time should be restored.`,
+						},
+						"point_in_time": {
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: timestampDiffSuppress(time.RFC3339Nano),
+							Description:      `The timestamp of the point in time that should be restored.`,
+						},
+					},
+				},
+			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -588,6 +718,9 @@ func suppressFirstGen(k, old, new string, d *schema.ResourceData) bool {
 // Detects whether a database is 1st Generation by inspecting the tier name
 func isFirstGen(d *schema.ResourceData) bool {
 	settingsList := d.Get("settings").([]interface{})
+	if len(settingsList) == 0 {
+		return false
+	}
 	settings := settingsList[0].(map[string]interface{})
 	tier := settings["tier"].(string)
 
@@ -623,6 +756,15 @@ func pitrPostgresOnlyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff,
 	return nil
 }
 
+func insightsPostgresOnlyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	insights := diff.Get("settings.0.insights_config.0.query_insights_enabled").(bool)
+	dbVersion := diff.Get("database_version").(string)
+	if insights && !strings.Contains(dbVersion, "POSTGRES") {
+		return fmt.Errorf("query_insights_enabled is only available for Postgres now.")
+	}
+	return nil
+}
+
 func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
@@ -651,33 +793,30 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 
-	// Before we create the instance, check if at least 1 service connection exists for private SQL Instances.
+	// SQL Instances that fail to create are expensive- see https://github.com/hashicorp/terraform-provider-google/issues/7154
+	// We can fail fast to stop instance names from getting reserved.
 	network := d.Get("settings.0.ip_configuration.0.private_network").(string)
 	if network != "" {
-		// Borrow some of the functions from resource_service_networking_connection.go
-		serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
+		err = sqlDatabaseInstanceServiceNetworkPrecheck(d, config, userAgent, network)
 		if err != nil {
 			return err
-		}
-		response, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.List("services/servicenetworking.googleapis.com").
-			Network(serviceNetworkingNetworkName).Do()
-		if err != nil {
-			// It is possible that the identity creating the SQL Instance might not have permissions to call servicenetworking.services.connections.list
-			log.Printf("[WARNING] Failed to list Service Networking of the project. Skipping Service Networking check.")
-		} else {
-			if len(response.Connections) < 1 {
-				return fmt.Errorf("Error, failed to create instance because the network doesn't have at least 1 private services connection. Please see https://cloud.google.com/sql/docs/mysql/private-ip#network_requirements for how to create this connection.")
-			}
 		}
 	}
 
 	instance := &sqladmin.DatabaseInstance{
 		Name:                 name,
 		Region:               region,
-		Settings:             expandSqlDatabaseInstanceSettings(d.Get("settings").([]interface{}), !isFirstGen(d)),
 		DatabaseVersion:      d.Get("database_version").(string),
 		MasterInstanceName:   d.Get("master_instance_name").(string),
 		ReplicaConfiguration: expandReplicaConfiguration(d.Get("replica_configuration").([]interface{})),
+	}
+
+	cloneContext, cloneSource := expandCloneContext(d.Get("clone").([]interface{}))
+
+	s, ok := d.GetOk("settings")
+	desiredSettings := expandSqlDatabaseInstanceSettings(s.([]interface{}), !isFirstGen(d))
+	if ok {
+		instance.Settings = desiredSettings
 	}
 
 	// MSSQL Server require rootPassword to be set
@@ -695,7 +834,13 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	var op *sqladmin.Operation
 	err = retryTimeDuration(func() (operr error) {
-		op, operr = config.NewSqlAdminClient(userAgent).Instances.Insert(project, instance).Do()
+		if cloneContext != nil {
+			cloneContext.DestinationInstanceName = name
+			clodeReq := sqladmin.InstancesCloneRequest{CloneContext: cloneContext}
+			op, operr = config.NewSqlAdminClient(userAgent).Instances.Clone(project, cloneSource, &clodeReq).Do()
+		} else {
+			op, operr = config.NewSqlAdminClient(userAgent).Instances.Insert(project, instance).Do()
+		}
 		return operr
 	}, d.Timeout(schema.TimeoutCreate), isSqlOperationInProgressError)
 	if err != nil {
@@ -717,6 +862,36 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	err = resourceSqlDatabaseInstanceRead(d, meta)
 	if err != nil {
 		return err
+	}
+
+	// Refresh settings from read as they may have defaulted from the API
+	s = d.Get("settings")
+	// If we've created an instance as a clone, we need to update it to set any user defined settings
+	if len(s.([]interface{})) != 0 && cloneContext != nil && desiredSettings != nil {
+		instanceUpdate := &sqladmin.DatabaseInstance{
+			Settings: desiredSettings,
+		}
+		_settings := s.([]interface{})[0].(map[string]interface{})
+		instanceUpdate.Settings.SettingsVersion = int64(_settings["version"].(int))
+		var op *sqladmin.Operation
+		err = retryTimeDuration(func() (rerr error) {
+			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Update(project, name, instanceUpdate).Do()
+			return rerr
+		}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
+		if err != nil {
+			return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
+		}
+
+		err = sqlAdminOperationWaitTime(config, op, project, "Update Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+		// Refresh the state of the instance after updating the settings
+		err = resourceSqlDatabaseInstanceRead(d, meta)
+		if err != nil {
+			return err
+		}
 	}
 
 	// If a default root user was created with a wildcard ('%') hostname, delete it.
@@ -743,6 +918,14 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 					return fmt.Errorf("Error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
 				}
 			}
+		}
+	}
+
+	// Perform a backup restore if the backup context exists
+	if r, ok := d.GetOk("restore_backup_context"); ok {
+		err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, name, r)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -774,6 +957,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool)
 		IpConfiguration:             expandIpConfiguration(_settings["ip_configuration"].([]interface{})),
 		LocationPreference:          expandLocationPreference(_settings["location_preference"].([]interface{})),
 		MaintenanceWindow:           expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
+		InsightsConfig:              expandInsightsConfig(_settings["insights_config"].([]interface{})),
 	}
 
 	// 1st Generation instances don't support the disk_autoresize parameter
@@ -810,6 +994,18 @@ func expandReplicaConfiguration(configured []interface{}) *sqladmin.ReplicaConfi
 			VerifyServerCertificate: _replicaConfiguration["verify_server_certificate"].(bool),
 		},
 	}
+}
+
+func expandCloneContext(configured []interface{}) (*sqladmin.CloneContext, string) {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil, ""
+	}
+
+	_cloneConfiguration := configured[0].(map[string]interface{})
+
+	return &sqladmin.CloneContext{
+		PointInTime: _cloneConfiguration["point_in_time"].(string),
+	}, _cloneConfiguration["source_instance_name"].(string)
 }
 
 func expandMaintenanceWindow(configured []interface{}) *sqladmin.MaintenanceWindow {
@@ -895,12 +1091,40 @@ func expandBackupConfiguration(configured []interface{}) *sqladmin.BackupConfigu
 
 	_backupConfiguration := configured[0].(map[string]interface{})
 	return &sqladmin.BackupConfiguration{
-		BinaryLogEnabled:           _backupConfiguration["binary_log_enabled"].(bool),
-		Enabled:                    _backupConfiguration["enabled"].(bool),
-		StartTime:                  _backupConfiguration["start_time"].(string),
-		Location:                   _backupConfiguration["location"].(string),
-		PointInTimeRecoveryEnabled: _backupConfiguration["point_in_time_recovery_enabled"].(bool),
-		ForceSendFields:            []string{"BinaryLogEnabled", "Enabled", "PointInTimeRecoveryEnabled"},
+		BinaryLogEnabled:            _backupConfiguration["binary_log_enabled"].(bool),
+		BackupRetentionSettings:     expandBackupRetentionSettings(_backupConfiguration["backup_retention_settings"]),
+		Enabled:                     _backupConfiguration["enabled"].(bool),
+		StartTime:                   _backupConfiguration["start_time"].(string),
+		Location:                    _backupConfiguration["location"].(string),
+		TransactionLogRetentionDays: int64(_backupConfiguration["transaction_log_retention_days"].(int)),
+		PointInTimeRecoveryEnabled:  _backupConfiguration["point_in_time_recovery_enabled"].(bool),
+		ForceSendFields:             []string{"BinaryLogEnabled", "Enabled", "PointInTimeRecoveryEnabled"},
+	}
+}
+
+func expandBackupRetentionSettings(configured interface{}) *sqladmin.BackupRetentionSettings {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &sqladmin.BackupRetentionSettings{
+		RetainedBackups: int64(config["retained_backups"].(int)),
+		RetentionUnit:   config["retention_unit"].(string),
+	}
+}
+
+func expandInsightsConfig(configured []interface{}) *sqladmin.InsightsConfig {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	_insightsConfig := configured[0].(map[string]interface{})
+	return &sqladmin.InsightsConfig{
+		QueryInsightsEnabled:  _insightsConfig["query_insights_enabled"].(bool),
+		QueryStringLength:     int64(_insightsConfig["query_string_length"].(int)),
+		RecordApplicationTags: _insightsConfig["record_application_tags"].(bool),
+		RecordClientAddress:   _insightsConfig["record_client_address"].(bool),
 	}
 }
 
@@ -1034,6 +1258,16 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	// Perform a backup restore if the backup context exists and has changed
+	if r, ok := d.GetOk("restore_backup_context"); ok {
+		if d.HasChange("restore_backup_context") {
+			err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, d.Get("name").(string), r)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return resourceSqlDatabaseInstanceRead(d, meta)
 }
 
@@ -1138,6 +1372,10 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		data["maintenance_window"] = flattenMaintenanceWindow(settings.MaintenanceWindow)
 	}
 
+	if settings.InsightsConfig != nil {
+		data["insights_config"] = flattenInsightsConfig(settings.InsightsConfig)
+	}
+
 	data["disk_autoresize"] = settings.StorageAutoResize
 
 	if settings.UserLabels != nil {
@@ -1154,9 +1392,23 @@ func flattenBackupConfiguration(backupConfiguration *sqladmin.BackupConfiguratio
 		"start_time":                     backupConfiguration.StartTime,
 		"location":                       backupConfiguration.Location,
 		"point_in_time_recovery_enabled": backupConfiguration.PointInTimeRecoveryEnabled,
+		"backup_retention_settings":      flattenBackupRetentionSettings(backupConfiguration.BackupRetentionSettings),
+		"transaction_log_retention_days": backupConfiguration.TransactionLogRetentionDays,
 	}
 
 	return []map[string]interface{}{data}
+}
+
+func flattenBackupRetentionSettings(b *sqladmin.BackupRetentionSettings) []map[string]interface{} {
+	if b == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"retained_backups": b.RetainedBackups,
+			"retention_unit":   b.RetentionUnit,
+		},
+	}
 }
 
 func flattenDatabaseFlags(databaseFlags []*sqladmin.DatabaseFlags) []map[string]interface{} {
@@ -1287,6 +1539,17 @@ func flattenServerCaCerts(caCerts []*sqladmin.SslCert) []map[string]interface{} 
 	return certs
 }
 
+func flattenInsightsConfig(insightsConfig *sqladmin.InsightsConfig) interface{} {
+	data := map[string]interface{}{
+		"query_insights_enabled":  insightsConfig.QueryInsightsEnabled,
+		"query_string_length":     insightsConfig.QueryStringLength,
+		"record_application_tags": insightsConfig.RecordApplicationTags,
+		"record_client_address":   insightsConfig.RecordClientAddress,
+	}
+
+	return []map[string]interface{}{data}
+}
+
 func instanceMutexKey(project, instance_name string) string {
 	return fmt.Sprintf("google-sql-database-instance-%s-%s", project, instance_name)
 }
@@ -1296,4 +1559,71 @@ func instanceMutexKey(project, instance_name string) string {
 func sqlDatabaseIsMaster(d *schema.ResourceData) bool {
 	_, ok := d.GetOk("master_instance_name")
 	return !ok
+}
+
+func sqlDatabaseInstanceServiceNetworkPrecheck(d *schema.ResourceData, config *Config, userAgent, network string) error {
+	log.Printf("[DEBUG] checking network %q for at least one service networking connection", network)
+	// This call requires projects.get permissions, which may not have been granted to the Terraform actor,
+	// particularly in shared VPC setups. Most will! But it's not strictly required.
+	serviceNetworkingNetworkName, err := retrieveServiceNetworkingNetworkName(d, config, network, userAgent)
+	if err != nil {
+		var gerr *googleapi.Error
+		if errors.As(err, &gerr) {
+			log.Printf("[DEBUG] retrieved googleapi error while creating sn name for %q. precheck skipped. code %v and message: %s", network, gerr.Code, gerr.Body)
+			return nil
+		}
+
+		return err
+	}
+
+	response, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.List("services/servicenetworking.googleapis.com").Network(serviceNetworkingNetworkName).Do()
+	if err != nil {
+		// It is possible that the actor creating the SQL Instance might not have permissions to call servicenetworking.services.connections.list
+		log.Printf("[WARNING] Failed to list Service Networking of the project. Skipped Service Networking precheck.")
+		return nil
+	}
+
+	if len(response.Connections) < 1 {
+		return fmt.Errorf("Error, failed to create instance because the network doesn't have at least 1 private services connection. Please see https://cloud.google.com/sql/docs/mysql/private-ip#network_requirements for how to create this connection.")
+	}
+
+	return nil
+}
+
+func expandRestoreBackupContext(configured []interface{}) *sqladmin.RestoreBackupContext {
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
+	}
+
+	_rc := configured[0].(map[string]interface{})
+	return &sqladmin.RestoreBackupContext{
+		BackupRunId: int64(_rc["backup_run_id"].(int)),
+		InstanceId:  _rc["instance_id"].(string),
+		Project:     _rc["project"].(string),
+	}
+}
+
+func sqlDatabaseInstanceRestoreFromBackup(d *schema.ResourceData, config *Config, userAgent, project, instanceId string, r interface{}) error {
+	log.Printf("[DEBUG] Initiating SQL database instance backup restore")
+	restoreContext := r.([]interface{})
+
+	backupRequest := &sqladmin.InstancesRestoreBackupRequest{
+		RestoreBackupContext: expandRestoreBackupContext(restoreContext),
+	}
+
+	var op *sqladmin.Operation
+	err := retryTimeDuration(func() (operr error) {
+		op, operr = config.NewSqlAdminClient(userAgent).Instances.RestoreBackup(project, instanceId, backupRequest).Do()
+		return operr
+	}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
+	if err != nil {
+		return fmt.Errorf("Error, failed to restore instance from backup %s: %s", instanceId, err)
+	}
+
+	err = sqlAdminOperationWaitTime(config, op, project, "Restore Backup", userAgent, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

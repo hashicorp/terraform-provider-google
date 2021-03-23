@@ -100,7 +100,7 @@ will eventually redeliver the message.`,
 this subscription. If dead_letter_policy is not set, dead lettering
 is disabled.
 
-The Cloud Pub/Sub service account associated with this subscriptions's
+The Cloud Pub/Sub service account associated with this subscription's
 parent project (i.e.,
 service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
 permission to Acknowledge() messages on this subscription.`,
@@ -144,6 +144,7 @@ If this parameter is 0, a default value of 5 is used.`,
 			"enable_message_ordering": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				ForceNew: true,
 				Description: `If 'true', messages published with the same orderingKey in PubsubMessage will be delivered to
 the subscribers in the order in which they are received by the Pub/Sub system. Otherwise, they
 may be delivered in any order.`,
@@ -221,8 +222,9 @@ For example, a Webhook endpoint might use
 "https://example.com/push".`,
 						},
 						"attributes": {
-							Type:     schema.TypeMap,
-							Optional: true,
+							Type:             schema.TypeMap,
+							Optional:         true,
+							DiffSuppressFunc: ignoreMissingKeyInMap("x-goog-version"),
 							Description: `Endpoint configuration attributes.
 
 Every endpoint has a set of API supported attributes that can
@@ -316,8 +318,10 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				},
 			},
 			"path": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Deprecated:  "Deprecated in favor of id, which contains an identical value. This field will be removed in the next major release of the provider.",
+				Description: " Path of the subscription in the format projects/{project}/subscriptions/{name}",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -326,6 +330,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -425,7 +430,7 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
 
@@ -469,7 +474,7 @@ func resourcePubsubSubscriptionPollRead(d *schema.ResourceData, meta interface{}
 
 		project, err := getProject(d, config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error fetching project for Subscription: %s", err)
 		}
 		billingProject = project
 
@@ -519,7 +524,7 @@ func resourcePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) er
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
 
@@ -595,13 +600,12 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
 
@@ -654,12 +658,6 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("retry_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retryPolicyProp)) {
 		obj["retryPolicy"] = retryPolicyProp
 	}
-	enableMessageOrderingProp, err := expandPubsubSubscriptionEnableMessageOrdering(d.Get("enable_message_ordering"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("enable_message_ordering"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableMessageOrderingProp)) {
-		obj["enableMessageOrdering"] = enableMessageOrderingProp
-	}
 
 	obj, err = resourcePubsubSubscriptionUpdateEncoder(d, meta, obj)
 	if err != nil {
@@ -705,10 +703,6 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("retry_policy") {
 		updateMask = append(updateMask, "retryPolicy")
 	}
-
-	if d.HasChange("enable_message_ordering") {
-		updateMask = append(updateMask, "enableMessageOrdering")
-	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
 	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
@@ -738,13 +732,12 @@ func resourcePubsubSubscriptionDelete(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
 

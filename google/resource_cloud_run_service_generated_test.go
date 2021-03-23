@@ -61,7 +61,7 @@ resource "google_cloud_run_service" "default" {
   template {
     spec {
       containers {
-        image = "gcr.io/cloudrun/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
       }
     }
   }
@@ -78,7 +78,6 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":             getTestProjectFromEnv(),
 		"deletion_protection": false,
 		"random_suffix":       randString(t, 10),
 	}
@@ -113,14 +112,14 @@ resource "google_cloud_run_service" "default" {
   template {
     spec {
       containers {
-        image = "gcr.io/cloudrun/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
       }
     }
 
     metadata {
       annotations = {
         "autoscaling.knative.dev/maxScale"      = "1000"
-        "run.googleapis.com/cloudsql-instances" = "%{project}:us-central1:${google_sql_database_instance.instance.name}"
+        "run.googleapis.com/cloudsql-instances" = google_sql_database_instance.instance.connection_name
         "run.googleapis.com/client-name"        = "terraform"
       }
     }
@@ -178,7 +177,7 @@ resource "google_cloud_run_service" "default" {
   template {
     spec {
       containers {
-        image = "gcr.io/cloudrun/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
       }
     }
   }
@@ -241,7 +240,7 @@ resource "google_cloud_run_service" "default" {
   template {
     spec {
       containers {
-        image = "gcr.io/cloudrun/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
         env {
           name = "SOURCE"
           value = "remote"
@@ -254,11 +253,23 @@ resource "google_cloud_run_service" "default" {
     }
   }
 
+  metadata {
+    annotations = {
+      generated-by = "magic-modules"
+    }
+  }
+
   traffic {
     percent         = 100
     latest_revision = true
   }
   autogenerate_revision_name = true
+
+  lifecycle {
+    ignore_changes = [
+        metadata.0.annotations,
+    ]
+  }
 }
 `, context)
 }
@@ -280,7 +291,13 @@ func testAccCheckCloudRunServiceDestroyProducer(t *testing.T) func(s *terraform.
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil, isCloudRunCreationConflict)
 			if err == nil {
 				return fmt.Errorf("CloudRunService still exists at %s", url)
 			}

@@ -66,6 +66,7 @@ is attached to. The format is
 				Sensitive:   true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -97,7 +98,7 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), iapClient409Operation)
 	if err != nil {
 		return fmt.Errorf("Error creating Client: %s", err)
 	}
@@ -109,8 +110,6 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Client %q: %#v", d.Id(), res)
-
 	brand := d.Get("brand")
 	clientId := flattenIapClientClientId(res["name"], d, config)
 
@@ -118,6 +117,8 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error setting client_id: %s", err)
 	}
 	d.SetId(fmt.Sprintf("%s/identityAwareProxyClients/%s", brand, clientId))
+
+	log.Printf("[DEBUG] Finished creating Client %q: %#v", d.Id(), res)
 
 	return resourceIapClientRead(d, meta)
 }
@@ -141,7 +142,7 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, iapClient409Operation)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IapClient %q", d.Id()))
 	}
@@ -165,7 +166,6 @@ func resourceIapClientDelete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -182,7 +182,7 @@ func resourceIapClientDelete(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), iapClient409Operation)
 	if err != nil {
 		return handleNotFoundError(err, d, "Client")
 	}

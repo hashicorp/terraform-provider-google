@@ -1,0 +1,9 @@
+```release-note:enhancement
+memcache: fixed an issue where `google_memcached_instance` resource was not inferring the region from the provider.
+```
+```release-note:enhancement
+vpcaccess: fixed an issue where `google_vpc_access_connector` resource was not inferring the region from the provider.
+```
+```release-note:enhancement
+tpu: fixed an issue where `google_tpu_node` resource was not inferring the zone from the provider.
+```

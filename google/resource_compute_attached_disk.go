@@ -71,6 +71,7 @@ func resourceComputeAttachedDisk() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"READ_ONLY", "READ_WRITE"}, false),
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

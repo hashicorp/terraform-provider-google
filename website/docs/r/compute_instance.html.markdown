@@ -18,9 +18,14 @@ and
 ## Example Usage
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service_account_id"
+  display_name = "Service Account"
+}
+
 resource "google_compute_instance" "default" {
   name         = "test"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   tags = ["foo", "bar"]
@@ -51,7 +56,9 @@ resource "google_compute_instance" "default" {
   metadata_startup_script = "echo hi > /test.txt"
 
   service_account {
-    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = google_service_account.default.email
+    scopes = ["cloud-platform"]
   }
 }
 ```
@@ -74,7 +81,7 @@ The following arguments are supported:
 * `name` - (Required) A unique name for the resource, required by GCE.
     Changing this forces a new resource to be created.
 
-* `zone` - (Required) The zone that the machine should be created in.
+* `zone` - (Optional) The zone that the machine should be created in. If it is not provided, the provider zone is used.
 
 * `network_interface` - (Required) Networks to attach to the instance. This can
     be specified multiple times. Structure is documented below.
@@ -122,9 +129,7 @@ The following arguments are supported:
    Debian, CentOS, RHEL, SLES, Container-Optimized OS, and Ubuntu images
    support this key.  Windows instances require other keys depending on the format
    of the script and the time you would like it to run - see [this table](https://cloud.google.com/compute/docs/startupscript#providing_a_startup_script_for_windows_instances).
-   For Container-Optimized OS, `metadata.user-data` accepts an Ignition Config,
-   see [this page](https://coreos.com/os/docs/latest/booting-on-google-compute-engine.html)
-   for more information.  For the convenience of the users of `metadata.startup-script`,
+   For the convenience of the users of `metadata.startup-script`,
    we provide a special attribute, `metadata_startup_script`, which is documented below.
 
 * `metadata_startup_script` - (Optional) An alternative to using the
@@ -167,6 +172,7 @@ The following arguments are supported:
 
 * `resource_policies` (Optional) -- A list of short names or self_links of resource policies to attach to the instance. Modifying this list will cause the instance to recreate. Currently a max of 1 resource policy is supported.
 
+* `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
 
 ---
 
@@ -270,6 +276,8 @@ The `network_interface` block supports:
     array of alias IP ranges for this network interface. Can only be specified for network
     interfaces on subnet-mode networks. Structure documented below.
 
+* `nic_type` - (Optional) The type of vNIC to be used on this interface. Possible values: GVNIC, VIRTIO_NET.
+
 The `access_config` block supports:
 
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
@@ -326,6 +334,8 @@ The `scheduling` block supports:
    [here](https://cloud.google.com/compute/docs/nodes/create-nodes).
    Structure documented below.
 
+* `minNodeCpus` - (Optional) The minimum number of virtual CPUs this instance will consume when running on a sole-tenant node.
+
 The `guest_accelerator` block supports:
 
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
@@ -351,6 +361,10 @@ The `shielded_instance_config` block supports:
 
 * `enable_integrity_monitoring` (Optional) -- Compare the most recent boot measurements to the integrity policy baseline and return a pair of pass/fail results depending on whether they match or not. Defaults to true.
   **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
+
+The `confidential_instance_config` block supports:
+
+* `enable_confidential_compute` (Optional) Defines whether the instance should have confidential compute enabled. [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
 
 ## Attributes Reference
 

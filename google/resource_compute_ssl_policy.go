@@ -155,6 +155,7 @@ object. This field is used in optimistic locking.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -207,7 +208,7 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SslPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -259,7 +260,7 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SslPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -314,13 +315,12 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SslPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -386,13 +386,12 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SslPolicy: %s", err)
 	}
 	billingProject = project
 

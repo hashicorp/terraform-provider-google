@@ -126,7 +126,7 @@ The following arguments are supported:
 
 * `group_placement_policy` -
   (Optional)
-  Policy for creating snapshots of persistent disks.
+  Resource policy for instances used for placement configuration.
   Structure is documented below.
 
 * `region` -
@@ -282,6 +282,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 ResourcePolicy can be imported using any of these accepted formats:
 

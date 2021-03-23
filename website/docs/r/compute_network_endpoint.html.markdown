@@ -24,8 +24,8 @@ description: |-
 # google\_compute\_network\_endpoint
 
 A Network endpoint represents a IP address and port combination that is
-part of a specific network endpoint group (NEG). NEGs are zonals
-collection of these endpoints for GCP resources within a
+part of a specific network endpoint group (NEG). NEGs are zonal
+collections of these endpoints for GCP resources within a
 single subnet. **NOTE**: Network endpoints cannot be created outside of a
 network endpoint group.
 
@@ -55,7 +55,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "endpoint-instance" {
   name         = "endpoint-instance"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
@@ -144,6 +144,7 @@ This resource provides the following
 - `delete` - Default is 6 minutes.
 
 ## Import
+
 
 NetworkEndpoint can be imported using any of these accepted formats:
 

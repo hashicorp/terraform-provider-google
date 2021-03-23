@@ -96,7 +96,6 @@ PARTNER type this will Pre-Activate the interconnect attachment`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"BPS_50M", "BPS_100M", "BPS_200M", "BPS_300M", "BPS_400M", "BPS_500M", "BPS_1G", "BPS_2G", "BPS_5G", "BPS_10G", "BPS_20G", "BPS_50G", ""}, false),
 				Description: `Provisioned bandwidth capacity for the interconnect attachment.
 For attachments of type DEDICATED, the user can set the bandwidth.
@@ -144,6 +143,13 @@ domain. If not specified, the value will default to AVAILABILITY_DOMAIN_ANY.`,
 				Description: `URL of the underlying Interconnect object that this attachment's
 traffic will traverse through. Required if type is DEDICATED, must not
 be set if type is PARTNER.`,
+			},
+			"mtu": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				Description: `Maximum Transmission Unit (MTU), in bytes, of packets passing through
+this interconnect attachment. Currently, only 1440 and 1500 are allowed. If not specified, the value will default to 1440.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -238,6 +244,7 @@ Google and the customer, going to and from this network and region.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -266,6 +273,12 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	mtuProp, err := expandComputeInterconnectAttachmentMtu(d.Get("mtu"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mtu"); !isEmptyValue(reflect.ValueOf(mtuProp)) && (ok || !reflect.DeepEqual(v, mtuProp)) {
+		obj["mtu"] = mtuProp
 	}
 	bandwidthProp, err := expandComputeInterconnectAttachmentBandwidth(d.Get("bandwidth"), d, config)
 	if err != nil {
@@ -326,7 +339,7 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for InterconnectAttachment: %s", err)
 	}
 	billingProject = project
 
@@ -357,11 +370,11 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error waiting to create InterconnectAttachment: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating InterconnectAttachment %q: %#v", d.Id(), res)
-
 	if err := waitForAttachmentToBeProvisioned(d, config, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return fmt.Errorf("Error waiting for InterconnectAttachment %q to be provisioned: %q", d.Get("name").(string), err)
 	}
+
+	log.Printf("[DEBUG] Finished creating InterconnectAttachment %q: %#v", d.Id(), res)
 
 	return resourceComputeInterconnectAttachmentRead(d, meta)
 }
@@ -382,7 +395,7 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for InterconnectAttachment: %s", err)
 	}
 	billingProject = project
 
@@ -413,6 +426,9 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("description", flattenComputeInterconnectAttachmentDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("mtu", flattenComputeInterconnectAttachmentMtu(res["mtu"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("bandwidth", flattenComputeInterconnectAttachmentBandwidth(res["bandwidth"], d, config)); err != nil {
@@ -467,13 +483,12 @@ func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for InterconnectAttachment: %s", err)
 	}
 	billingProject = project
 
@@ -489,6 +504,18 @@ func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	mtuProp, err := expandComputeInterconnectAttachmentMtu(d.Get("mtu"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mtu"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mtuProp)) {
+		obj["mtu"] = mtuProp
+	}
+	bandwidthProp, err := expandComputeInterconnectAttachmentBandwidth(d.Get("bandwidth"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bandwidth"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bandwidthProp)) {
+		obj["bandwidth"] = bandwidthProp
 	}
 	regionProp, err := expandComputeInterconnectAttachmentRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -534,13 +561,12 @@ func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for InterconnectAttachment: %s", err)
 	}
 	billingProject = project
 
@@ -616,6 +642,23 @@ func flattenComputeInterconnectAttachmentInterconnect(v interface{}, d *schema.R
 
 func flattenComputeInterconnectAttachmentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenComputeInterconnectAttachmentMtu(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeInterconnectAttachmentBandwidth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -724,6 +767,10 @@ func expandComputeInterconnectAttachmentInterconnect(v interface{}, d TerraformR
 }
 
 func expandComputeInterconnectAttachmentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentMtu(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -64,6 +64,7 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}/crypt
 				Description: `Contains the result of encrypting the provided plaintext, encoded in base64.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -117,8 +118,6 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating SecretCiphertext %q: %#v", d.Id(), res)
-
 	// we don't set anything on read and instead do it all in create
 	ciphertext, ok := res["ciphertext"]
 	if !ok {
@@ -133,6 +132,8 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	log.Printf("[DEBUG] Finished creating SecretCiphertext %q: %#v", d.Id(), res)
 
 	return resourceKMSSecretCiphertextRead(d, meta)
 }
@@ -181,16 +182,9 @@ func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceKMSSecretCiphertextDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-	config.userAgent = userAgent
-
 	log.Printf("[WARNING] KMS SecretCiphertext resources"+
-		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
-		" state, but will still be present on the server.", d.Id())
+		" cannot be deleted from Google Cloud. The resource %s will be removed from Terraform"+
+		" state, but will still be present on Google Cloud.", d.Id())
 	d.SetId("")
 
 	return nil

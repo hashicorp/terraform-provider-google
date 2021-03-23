@@ -39,16 +39,14 @@ To get more information about GlobalNetworkEndpoint, see:
 ```hcl
 resource "google_compute_global_network_endpoint" "default-endpoint" {
   global_network_endpoint_group = google_compute_global_network_endpoint_group.neg.name
-
   fqdn       = "www.example.com"
   port       = 90
-  ip_address = "8.8.8.8"
 }
 
 resource "google_compute_global_network_endpoint_group" "neg" {
   name                  = "my-lb-neg"
   default_port          = "90"
-  network_endpoint_type = "INTERNET_IP_PORT"
+  network_endpoint_type = "INTERNET_FQDN_PORT"
 }
 ```
 
@@ -99,12 +97,13 @@ This resource provides the following
 
 ## Import
 
+
 GlobalNetworkEndpoint can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_compute_global_network_endpoint.default projects/{{project}}/global/networkEndpointGroups/{{global_network_endpoint_group}}/{{fqdn}}/{{ip_address}}/{{port}}
-$ terraform import google_compute_global_network_endpoint.default {{project}}/{{global_network_endpoint_group}}/{{fqdn}}/{{ip_address}}/{{port}}
-$ terraform import google_compute_global_network_endpoint.default {{global_network_endpoint_group}}/{{fqdn}}/{{ip_address}}/{{port}}
+$ terraform import google_compute_global_network_endpoint.default projects/{{project}}/global/networkEndpointGroups/{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}
+$ terraform import google_compute_global_network_endpoint.default {{project}}/{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}
+$ terraform import google_compute_global_network_endpoint.default {{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}
 ```
 
 ## User Project Overrides

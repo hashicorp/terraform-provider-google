@@ -118,6 +118,7 @@ If unspecified, it defaults to the compute engine default service account.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -152,7 +153,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
 
@@ -173,13 +174,13 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
-
 	if v, ok := d.GetOkExists("pubsub_configs"); !isEmptyValue(reflect.ValueOf(pubsubConfigsProp)) && (ok || !reflect.DeepEqual(v, pubsubConfigsProp)) {
 		log.Printf("[DEBUG] Calling update after create to patch in pubsub_configs")
 		// pubsub_configs cannot be added on create
 		return resourceSourceRepoRepositoryUpdate(d, meta)
 	}
+
+	log.Printf("[DEBUG] Finished creating Repository %q: %#v", d.Id(), res)
 
 	return resourceSourceRepoRepositoryRead(d, meta)
 }
@@ -200,7 +201,7 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
 
@@ -240,13 +241,12 @@ func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
 
@@ -303,13 +303,12 @@ func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
 

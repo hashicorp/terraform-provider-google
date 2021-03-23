@@ -204,6 +204,7 @@ reservations that are tied to a commitment.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -256,7 +257,7 @@ func resourceComputeReservationCreate(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Reservation: %s", err)
 	}
 	billingProject = project
 
@@ -308,7 +309,7 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Reservation: %s", err)
 	}
 	billingProject = project
 
@@ -363,13 +364,12 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Reservation: %s", err)
 	}
 	billingProject = project
 
@@ -426,13 +426,12 @@ func resourceComputeReservationDelete(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Reservation: %s", err)
 	}
 	billingProject = project
 

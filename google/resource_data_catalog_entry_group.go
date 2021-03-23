@@ -80,6 +80,7 @@ contain only English letters, numbers and underscores, and be at most 64 charact
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -114,7 +115,7 @@ func resourceDataCatalogEntryGroupCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for EntryGroup: %s", err)
 	}
 	billingProject = project
 
@@ -159,7 +160,7 @@ func resourceDataCatalogEntryGroupRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for EntryGroup: %s", err)
 	}
 	billingProject = project
 
@@ -204,13 +205,12 @@ func resourceDataCatalogEntryGroupUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for EntryGroup: %s", err)
 	}
 	billingProject = project
 
@@ -272,13 +272,12 @@ func resourceDataCatalogEntryGroupDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for EntryGroup: %s", err)
 	}
 	billingProject = project
 

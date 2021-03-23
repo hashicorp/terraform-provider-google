@@ -15,12 +15,9 @@
 package google
 
 import (
-	"log"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(t *testing.T) {
@@ -37,7 +34,6 @@ func TestAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(t *
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 		},
-		CheckDestroy: testAccCheckAppEngineServiceSplitTrafficDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(context),
@@ -115,21 +111,4 @@ resource "google_app_engine_service_split_traffic" "liveapp" {
   }
 }
 `, context)
-}
-
-func testAccCheckAppEngineServiceSplitTrafficDestroyProducer(t *testing.T) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_app_engine_service_split_traffic" {
-				continue
-			}
-			if strings.HasPrefix(name, "data.") {
-				continue
-			}
-
-			log.Printf("[DEBUG] Ignoring destroy during test")
-		}
-
-		return nil
-	}
 }

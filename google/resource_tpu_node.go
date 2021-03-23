@@ -110,12 +110,6 @@ func resourceTPUNode() *schema.Resource {
 				Required:    true,
 				Description: `The version of Tensorflow running in the Node.`,
 			},
-			"zone": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The GCP location for the TPU.`,
-			},
 			"cidr_block": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -186,6 +180,13 @@ TPU Node to is a Shared VPC network, the node must be created with this this fie
 				Default:       false,
 				ConflictsWith: []string{"cidr_block"},
 			},
+			"zone": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The GCP location for the TPU. If it is not provided, the provider zone is used.`,
+			},
 			"network_endpoints": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -222,6 +223,7 @@ permissions to that data.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -298,7 +300,7 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Node: %s", err)
 	}
 	billingProject = project
 
@@ -363,7 +365,7 @@ func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Node: %s", err)
 	}
 	billingProject = project
 
@@ -424,13 +426,12 @@ func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Node: %s", err)
 	}
 	billingProject = project
 
@@ -482,13 +483,12 @@ func resourceTPUNodeDelete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Node: %s", err)
 	}
 	billingProject = project
 

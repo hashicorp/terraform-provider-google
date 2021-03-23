@@ -1,6 +1,7 @@
 package google
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net"
 	"regexp"
@@ -261,6 +262,14 @@ func validateIpAddress(i interface{}, val string) ([]string, []error) {
 	ip := net.ParseIP(i.(string))
 	if ip == nil {
 		return nil, []error{fmt.Errorf("could not parse %q to IP address", val)}
+	}
+	return nil, nil
+}
+
+func validateBase64String(i interface{}, val string) ([]string, []error) {
+	_, err := base64.StdEncoding.DecodeString(i.(string))
+	if err != nil {
+		return nil, []error{fmt.Errorf("could not decode %q as a valid base64 value. Please use the terraform base64 functions such as base64encode() or filebase64() to supply a valid base64 string", val)}
 	}
 	return nil, nil
 }

@@ -24,9 +24,18 @@ description: |-
 
 A Membership defines a relationship between a Group and an entity belonging to that Group, referred to as a "member".
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
+To get more information about GroupMembership, see:
+
+* [API documentation](https://cloud.google.com/identity/docs/reference/rest/v1/groups.memberships)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/identity/docs/how-to/memberships-google-groups)
+
+~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
+you must specify a `billing_project` and set `user_project_override` to true 
+in the provider configuration. Otherwise the Cloud Identity API will return a 403 error. 
+Your account must have the `serviceusage.services.use` permission on the 
+`billing_project` you defined.
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_identity_group_membership&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -38,7 +47,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_cloud_identity_group" "group" {
-  provider = google-beta
   display_name = "my-identity-group"
 
   parent = "customers/A01b123xz"
@@ -53,7 +61,6 @@ resource "google_cloud_identity_group" "group" {
 }
 
 resource "google_cloud_identity_group" "child-group" {
-  provider = google-beta
   display_name = "my-identity-group-child"
 
   parent = "customers/A01b123xz"
@@ -68,10 +75,9 @@ resource "google_cloud_identity_group" "child-group" {
 }
 
 resource "google_cloud_identity_group_membership" "cloud_identity_group_membership_basic" {
-  provider = google-beta
   group    = google_cloud_identity_group.group.id
 
-  member_key {
+  preferred_member_key {
     id = google_cloud_identity_group.child-group.group_key[0].id
   }
 
@@ -90,7 +96,6 @@ resource "google_cloud_identity_group_membership" "cloud_identity_group_membersh
 
 ```hcl
 resource "google_cloud_identity_group" "group" {
-  provider = google-beta
   display_name = "my-identity-group"
 
   parent = "customers/A01b123xz"
@@ -105,10 +110,9 @@ resource "google_cloud_identity_group" "group" {
 }
 
 resource "google_cloud_identity_group_membership" "cloud_identity_group_membership_basic" {
-  provider = google-beta
   group    = google_cloud_identity_group.group.id
 
-  member_key {
+  preferred_member_key {
     id = "cloud_identity_user@example.com"
   }
 
@@ -149,7 +153,7 @@ The `roles` block supports:
 
 
 * `member_key` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   EntityKey of the member.
   Structure is documented below.
 
@@ -228,6 +232,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 GroupMembership can be imported using any of these accepted formats:
 

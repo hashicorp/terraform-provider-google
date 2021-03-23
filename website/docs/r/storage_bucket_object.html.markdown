@@ -63,6 +63,8 @@ One of the following is required:
     Supported values include: `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`. If not provided, this defaults to the bucket's default
     storage class or to a [standard](https://cloud.google.com/storage/docs/storage-classes#standard) class.
 
+* `kms_key_name` - (Optional) The resource name of the Cloud KMS key that will be used to [encrypt](https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys) the object.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -78,3 +80,7 @@ exported:
 `google_storage_object_acl` resources when your `google_storage_bucket_object` is recreated.
 
 * `media_link` - (Computed) A url reference to download this object.
+
+## Import
+
+This resource does not support import.

@@ -108,6 +108,7 @@ Similar to what would be chosen for an Active Directory set up on an internal ne
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -160,7 +161,7 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
 	billingProject = project
 
@@ -225,7 +226,7 @@ func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
 	billingProject = project
 
@@ -274,13 +275,12 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
 	billingProject = project
 
@@ -360,13 +360,12 @@ func resourceActiveDirectoryDomainDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
 	billingProject = project
 

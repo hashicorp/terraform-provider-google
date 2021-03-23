@@ -69,6 +69,7 @@ func resourceComputeNetworkPeeringRoutesConfig() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -121,7 +122,7 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NetworkPeeringRoutesConfig: %s", err)
 	}
 	billingProject = project
 
@@ -173,7 +174,7 @@ func resourceComputeNetworkPeeringRoutesConfigRead(d *schema.ResourceData, meta 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NetworkPeeringRoutesConfig: %s", err)
 	}
 	billingProject = project
 
@@ -222,13 +223,12 @@ func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NetworkPeeringRoutesConfig: %s", err)
 	}
 	billingProject = project
 
@@ -296,16 +296,9 @@ func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, met
 }
 
 func resourceComputeNetworkPeeringRoutesConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-	config.userAgent = userAgent
-
 	log.Printf("[WARNING] Compute NetworkPeeringRoutesConfig resources"+
-		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
-		" state, but will still be present on the server.", d.Id())
+		" cannot be deleted from Google Cloud. The resource %s will be removed from Terraform"+
+		" state, but will still be present on Google Cloud.", d.Id())
 	d.SetId("")
 
 	return nil

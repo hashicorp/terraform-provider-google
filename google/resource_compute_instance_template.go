@@ -138,7 +138,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Computed:    true,
-							Description: `The GCE disk type. Can be either "pd-ssd", "local-ssd", "pd-balanced" or "pd-standard".`,
+							Description: `The Google Compute Engine disk type. Can be either "pd-ssd", "local-ssd", "pd-balanced" or "pd-standard".`,
 						},
 
 						"labels": {
@@ -187,7 +187,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Computed:    true,
-							Description: `The type of GCE disk, can be either "SCRATCH" or "PERSISTENT".`,
+							Description: `The type of Google Compute Engine disk, can be either "SCRATCH" or "PERSISTENT".`,
 						},
 
 						"disk_encryption_key": {
@@ -206,6 +206,18 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 										Description:      `The self link of the encryption key that is stored in Google Cloud KMS.`,
 									},
 								},
+							},
+						},
+
+						"resource_policies": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Description: `A list (short name or id) of resource policies to attach to this disk. Currently a max of 1 resource policy is supported.`,
+							Elem: &schema.Schema{
+								Type:             schema.TypeString,
+								DiffSuppressFunc: compareResourceNames,
 							},
 						},
 					},
@@ -313,7 +325,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Computed:    true,
 							Description: `The name of the network_interface.`,
 						},
-
 						"access_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -518,6 +529,23 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 					},
 				},
 			},
+			"confidential_instance_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The Confidential VM config being used by the instance. on_host_maintenance has to be set to TERMINATE or this will fail to create.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_confidential_compute": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `Defines whether the instance should have confidential compute enabled.`,
+						},
+					},
+				},
+			},
 			"guest_accelerator": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -573,6 +601,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Description: `A set of key/value label pairs to assign to instances created from this template,`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -739,6 +768,11 @@ func buildDisks(d *schema.ResourceData, config *Config) ([]*computeBeta.Attached
 			}
 
 			disk.InitializeParams.Labels = expandStringMap(d, prefix+".labels")
+
+			if _, ok := d.GetOk(prefix + ".resource_policies"); ok {
+				// instance template only supports a resource name here (not uri)
+				disk.InitializeParams.ResourcePolicies = convertAndMapStringArr(d.Get(prefix+".resource_policies").([]interface{}), GetResourceNameFromSelfLink)
+			}
 		}
 
 		if v, ok := d.GetOk(prefix + ".interface"); ok {
@@ -813,7 +847,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	networks, err := expandNetworkInterfaces(d, config)
+	networks, err := expandComputeInstanceTemplateNetworkInterfaces(d, config)
 	if err != nil {
 		return err
 	}
@@ -824,19 +858,20 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	}
 
 	instanceProperties := &computeBeta.InstanceProperties{
-		CanIpForward:           d.Get("can_ip_forward").(bool),
-		Description:            d.Get("instance_description").(string),
-		GuestAccelerators:      expandInstanceTemplateGuestAccelerators(d, config),
-		MachineType:            d.Get("machine_type").(string),
-		MinCpuPlatform:         d.Get("min_cpu_platform").(string),
-		Disks:                  disks,
-		Metadata:               metadata,
-		NetworkInterfaces:      networks,
-		Scheduling:             scheduling,
-		ServiceAccounts:        expandServiceAccounts(d.Get("service_account").([]interface{})),
-		Tags:                   resourceInstanceTags(d),
-		ShieldedInstanceConfig: expandShieldedVmConfigs(d),
-		DisplayDevice:          expandDisplayDevice(d),
+		CanIpForward:               d.Get("can_ip_forward").(bool),
+		Description:                d.Get("instance_description").(string),
+		GuestAccelerators:          expandInstanceTemplateGuestAccelerators(d, config),
+		MachineType:                d.Get("machine_type").(string),
+		MinCpuPlatform:             d.Get("min_cpu_platform").(string),
+		Disks:                      disks,
+		Metadata:                   metadata,
+		NetworkInterfaces:          networks,
+		Scheduling:                 scheduling,
+		ServiceAccounts:            expandServiceAccounts(d.Get("service_account").([]interface{})),
+		Tags:                       resourceInstanceTags(d),
+		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
+		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
+		DisplayDevice:              expandDisplayDevice(d),
 	}
 
 	if _, ok := d.GetOk("labels"); ok {
@@ -932,6 +967,8 @@ func flattenDisk(disk *computeBeta.AttachedDisk, defaultProject string) (map[str
 		} else {
 			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
 		}
+
+		diskMap["resource_policies"] = disk.InitializeParams.ResourcePolicies
 	}
 
 	if disk.DiskEncryptionKey != nil {
@@ -1174,7 +1211,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error setting project: %s", err)
 	}
 	if instanceTemplate.Properties.NetworkInterfaces != nil {
-		networkInterfaces, region, _, _, err := flattenNetworkInterfaces(d, config, instanceTemplate.Properties.NetworkInterfaces)
+		networkInterfaces, region, _, _, err := flattenComputeInstanceTemplateNetworkInterfaces(d, config, instanceTemplate.Properties.NetworkInterfaces)
 		if err != nil {
 			return err
 		}
@@ -1219,6 +1256,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 	}
 
+	if instanceTemplate.Properties.ConfidentialInstanceConfig != nil {
+		if err = d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(instanceTemplate.Properties.ConfidentialInstanceConfig)); err != nil {
+			return fmt.Errorf("Error setting confidential_instance_config: %s", err)
+		}
+	}
 	if instanceTemplate.Properties.DisplayDevice != nil {
 		if err = d.Set("enable_display", flattenEnableDisplay(instanceTemplate.Properties.DisplayDevice)); err != nil {
 			return fmt.Errorf("Error setting enable_display: %s", err)
@@ -1293,4 +1335,76 @@ func resourceComputeInstanceTemplateImportState(d *schema.ResourceData, meta int
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+// this func could be replaced by flattenNetworkInterfaces once NicType is supported
+func flattenComputeInstanceTemplateNetworkInterfaces(d *schema.ResourceData, config *Config, networkInterfaces []*computeBeta.NetworkInterface) ([]map[string]interface{}, string, string, string, error) {
+	flattened := make([]map[string]interface{}, len(networkInterfaces))
+	var region, internalIP, externalIP string
+
+	for i, iface := range networkInterfaces {
+		var ac []map[string]interface{}
+		ac, externalIP = flattenAccessConfigs(iface.AccessConfigs)
+
+		subnet, err := ParseSubnetworkFieldValue(iface.Subnetwork, d, config)
+		if err != nil {
+			return nil, "", "", "", err
+		}
+		region = subnet.Region
+
+		flattened[i] = map[string]interface{}{
+			"network_ip":         iface.NetworkIP,
+			"network":            ConvertSelfLinkToV1(iface.Network),
+			"subnetwork":         ConvertSelfLinkToV1(iface.Subnetwork),
+			"subnetwork_project": subnet.Project,
+			"access_config":      ac,
+			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
+		}
+		// Instance template interfaces never have names, so they're absent
+		// in the instance template network_interface schema. We want to use the
+		// same flattening code for both resource types, so we avoid trying to
+		// set the name field when it's not set at the GCE end.
+		if iface.Name != "" {
+			flattened[i]["name"] = iface.Name
+		}
+		if internalIP == "" {
+			internalIP = iface.NetworkIP
+		}
+	}
+	return flattened, region, internalIP, externalIP, nil
+}
+
+// this func could be replaced by expandNetworkInterfaces once NicType is supported
+func expandComputeInstanceTemplateNetworkInterfaces(d TerraformResourceData, config *Config) ([]*computeBeta.NetworkInterface, error) {
+	configs := d.Get("network_interface").([]interface{})
+	ifaces := make([]*computeBeta.NetworkInterface, len(configs))
+	for i, raw := range configs {
+		data := raw.(map[string]interface{})
+
+		network := data["network"].(string)
+		subnetwork := data["subnetwork"].(string)
+		if network == "" && subnetwork == "" {
+			return nil, fmt.Errorf("exactly one of network or subnetwork must be provided")
+		}
+
+		nf, err := ParseNetworkFieldValue(network, d, config)
+		if err != nil {
+			return nil, fmt.Errorf("cannot determine self_link for network %q: %s", network, err)
+		}
+
+		subnetProjectField := fmt.Sprintf("network_interface.%d.subnetwork_project", i)
+		sf, err := ParseSubnetworkFieldValueWithProjectField(subnetwork, subnetProjectField, d, config)
+		if err != nil {
+			return nil, fmt.Errorf("cannot determine self_link for subnetwork %q: %s", subnetwork, err)
+		}
+
+		ifaces[i] = &computeBeta.NetworkInterface{
+			NetworkIP:     data["network_ip"].(string),
+			Network:       nf.RelativeLink(),
+			Subnetwork:    sf.RelativeLink(),
+			AccessConfigs: expandAccessConfigs(data["access_config"].([]interface{})),
+			AliasIpRanges: expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
+		}
+	}
+	return ifaces, nil
 }

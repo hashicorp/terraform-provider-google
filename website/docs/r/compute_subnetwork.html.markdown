@@ -178,8 +178,7 @@ The following arguments are supported:
   INTERNAL_HTTPS_LOAD_BALANCER is a user-created subnetwork that is
   reserved for Internal HTTP(S) Load Balancing. If unspecified, the
   purpose defaults to PRIVATE.
-  If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set the role.
-  Possible values are `INTERNAL_HTTPS_LOAD_BALANCER` and `PRIVATE`.
+  If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set `role`.
 
 * `role` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -207,6 +206,10 @@ The following arguments are supported:
   (Optional)
   When enabled, VMs in this subnetwork without external IP addresses can
   access Google APIs and services by using Private Google Access.
+
+* `private_ipv6_google_access` -
+  (Optional)
+  The private IPv6 google access type for the VMs in this subnet.
 
 * `region` -
   (Optional)
@@ -275,6 +278,7 @@ The `log_config` block supports:
   (Optional)
   Export filter used to define which VPC flow logs should be logged, as as CEL expression. See
   https://cloud.google.com/vpc/docs/flow-logs#filtering for details on how to format this field.
+  The default value is 'true', which evaluates to include everything.
 
 ## Attributes Reference
 
@@ -301,6 +305,7 @@ This resource provides the following
 - `delete` - Default is 6 minutes.
 
 ## Import
+
 
 Subnetwork can be imported using any of these accepted formats:
 

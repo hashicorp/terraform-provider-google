@@ -394,7 +394,7 @@ resource "google_compute_region_disk" "regiondisk" {
 
 resource "google_compute_instance" "inst" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {

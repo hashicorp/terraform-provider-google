@@ -39,11 +39,11 @@ var PubsubTopicIamSchema = map[string]*schema.Schema{
 type PubsubTopicIamUpdater struct {
 	project string
 	topic   string
-	d       *schema.ResourceData
+	d       TerraformResourceData
 	Config  *Config
 }
 
-func PubsubTopicIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func PubsubTopicIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

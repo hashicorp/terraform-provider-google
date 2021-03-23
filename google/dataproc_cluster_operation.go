@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	dataproc "google.golang.org/api/dataproc/v1beta2"
+	"google.golang.org/api/dataproc/v1"
 )
 
 type DataprocClusterOperationWaiter struct {
@@ -21,7 +21,7 @@ func (w *DataprocClusterOperationWaiter) QueryOp() (interface{}, error) {
 
 func dataprocClusterOperationWait(config *Config, op *dataproc.Operation, activity, userAgent string, timeout time.Duration) error {
 	w := &DataprocClusterOperationWaiter{
-		Service: config.NewDataprocBetaClient(userAgent),
+		Service: config.NewDataprocClient(userAgent),
 	}
 	if err := w.SetOp(op); err != nil {
 		return err

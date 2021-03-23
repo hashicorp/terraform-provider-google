@@ -47,8 +47,8 @@ func resourceSQLSourceRepresentationInstance() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"MYSQL_5_6", "MYSQL_5_7"}, false),
-				Description:  `The MySQL version running on your source database server. Possible values: ["MYSQL_5_6", "MYSQL_5_7"]`,
+				ValidateFunc: validation.StringInSlice([]string{"MYSQL_5_6", "MYSQL_5_7", "MYSQL_8_0"}, false),
+				Description:  `The MySQL version running on your source database server. Possible values: ["MYSQL_5_6", "MYSQL_5_7", "MYSQL_8_0"]`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -88,6 +88,7 @@ If it is not provided, the provider region is used.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -139,7 +140,7 @@ func resourceSQLSourceRepresentationInstanceCreate(d *schema.ResourceData, meta 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SourceRepresentationInstance: %s", err)
 	}
 	billingProject = project
 
@@ -191,7 +192,7 @@ func resourceSQLSourceRepresentationInstanceRead(d *schema.ResourceData, meta in
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SourceRepresentationInstance: %s", err)
 	}
 	billingProject = project
 
@@ -255,13 +256,12 @@ func resourceSQLSourceRepresentationInstanceDelete(d *schema.ResourceData, meta 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SourceRepresentationInstance: %s", err)
 	}
 	billingProject = project
 

@@ -113,6 +113,7 @@ Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCEN
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -164,7 +165,7 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Index: %s", err)
 	}
 	billingProject = project
 
@@ -208,8 +209,6 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Index %q: %#v", d.Id(), res)
-
 	// The operation for this resource contains the generated name that we need
 	// in order to perform a READ.
 	metadata := res["metadata"].(map[string]interface{})
@@ -219,6 +218,8 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 	d.SetId(name)
+
+	log.Printf("[DEBUG] Finished creating Index %q: %#v", d.Id(), res)
 
 	return resourceFirestoreIndexRead(d, meta)
 }
@@ -239,7 +240,7 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Index: %s", err)
 	}
 	billingProject = project
 
@@ -276,13 +277,12 @@ func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Index: %s", err)
 	}
 	billingProject = project
 

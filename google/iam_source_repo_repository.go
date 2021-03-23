@@ -48,11 +48,11 @@ func SourceRepoRepositoryDiffSuppress(_, old, new string, _ *schema.ResourceData
 type SourceRepoRepositoryIamUpdater struct {
 	project    string
 	repository string
-	d          *schema.ResourceData
+	d          TerraformResourceData
 	Config     *Config
 }
 
-func SourceRepoRepositoryIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func SourceRepoRepositoryIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

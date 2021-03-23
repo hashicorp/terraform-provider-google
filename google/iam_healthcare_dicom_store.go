@@ -20,11 +20,11 @@ var IamHealthcareDicomStoreSchema = map[string]*schema.Schema{
 
 type HealthcareDicomStoreIamUpdater struct {
 	resourceId string
-	d          *schema.ResourceData
+	d          TerraformResourceData
 	Config     *Config
 }
 
-func NewHealthcareDicomStoreIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewHealthcareDicomStoreIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	dicomStore := d.Get("dicom_store_id").(string)
 	dicomStoreId, err := parseHealthcareDicomStoreId(dicomStore, config)
 

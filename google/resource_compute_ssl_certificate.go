@@ -97,6 +97,7 @@ These are in the same namespace as the managed SSL certificates.`,
 				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"name"},
+				Description:   "Creates a unique name beginning with the specified prefix. Conflicts with name.",
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					// https://cloud.google.com/compute/docs/reference/latest/sslCertificates#resource
 					// uuid is 26 characters, limit the prefix to 37.
@@ -119,6 +120,7 @@ These are in the same namespace as the managed SSL certificates.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -165,7 +167,7 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SslCertificate: %s", err)
 	}
 	billingProject = project
 
@@ -217,7 +219,7 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SslCertificate: %s", err)
 	}
 	billingProject = project
 
@@ -263,13 +265,12 @@ func resourceComputeSslCertificateDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for SslCertificate: %s", err)
 	}
 	billingProject = project
 

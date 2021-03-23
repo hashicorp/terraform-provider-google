@@ -82,7 +82,7 @@ Masking can start from the beginning or end of the string.`,
 																		"characters_to_ignore": {
 																			Type:        schema.TypeList,
 																			Optional:    true,
-																			Description: `Characters to skip when doing deidentification of a value. These will be left alone and skipped.`,
+																			Description: `Characters to skip when doing de-identification of a value. These will be left alone and skipped.`,
 																			Elem: &schema.Resource{
 																				Schema: map[string]*schema.Schema{
 																					"character_to_skip": {
@@ -282,6 +282,7 @@ all findings that correspond to infoTypes that were requested in InspectConfig.`
 				Description: `The resource name of the template. Set by the server.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -396,7 +397,6 @@ func resourceDataLossPreventionDeidentifyTemplateUpdate(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -473,7 +473,6 @@ func resourceDataLossPreventionDeidentifyTemplateDelete(d *schema.ResourceData, 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

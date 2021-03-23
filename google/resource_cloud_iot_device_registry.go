@@ -379,6 +379,7 @@ If it is not provided, the provider region is used.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -424,7 +425,7 @@ func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DeviceRegistry: %s", err)
 	}
 	billingProject = project
 
@@ -466,7 +467,7 @@ func resourceCloudIotDeviceRegistryRead(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DeviceRegistry: %s", err)
 	}
 	billingProject = project
 
@@ -523,13 +524,12 @@ func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DeviceRegistry: %s", err)
 	}
 	billingProject = project
 
@@ -631,13 +631,12 @@ func resourceCloudIotDeviceRegistryDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DeviceRegistry: %s", err)
 	}
 	billingProject = project
 

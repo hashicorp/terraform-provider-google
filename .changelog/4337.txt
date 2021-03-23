@@ -1,0 +1,3 @@
+```release-note:bug
+cloud_tasks: fixed permadiff on retry_config.max_retry_duration for `google_cloud_tasks_queue` when the 0s is supplied
+```

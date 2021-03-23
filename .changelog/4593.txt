@@ -1,0 +1,5 @@
+```release-note:enhancement
+compute: promoted field `server_binding` and `cpu_overcommit_type` fields on `google_node_template` to ga
+compute: promoted field `scheduling.min_node_cpus` field on `google_compute_instance` to ga
+compute: documented field `scheduling.min_node_cpus` field on `google_compute_instance`
+```

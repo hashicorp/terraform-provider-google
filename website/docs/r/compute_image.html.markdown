@@ -59,7 +59,7 @@ resource "google_compute_image" "example" {
   name = "example-image"
 
   raw_disk {
-    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
   }
 }
 ```
@@ -76,7 +76,7 @@ resource "google_compute_image" "example" {
   name = "example-image"
 
   raw_disk {
-    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
   }
 
   guest_os_features {
@@ -154,20 +154,20 @@ The following arguments are supported:
   (Optional)
   URL of the source image used to create this image. In order to create an image, you must provide the full or partial
   URL of one of the following:
-  The selfLink URL
-  This property
-  The rawDisk.source URL
-  The sourceDisk URL
+  * The selfLink URL
+  * This property
+  * The rawDisk.source URL
+  * The sourceDisk URL
 
 * `source_snapshot` -
   (Optional)
   URL of the source snapshot used to create this image.
   In order to create an image, you must provide the full or partial URL of one of the following:
-  The selfLink URL
-  This property
-  The sourceImage URL
-  The rawDisk.source URL
-  The sourceDisk URL
+  * The selfLink URL
+  * This property
+  * The sourceImage URL
+  * The rawDisk.source URL
+  * The sourceDisk URL
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -178,7 +178,7 @@ The `guest_os_features` block supports:
 * `type` -
   (Required)
   The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
-  Possible values are `MULTI_IP_SUBNET`, `SECURE_BOOT`, `SEV_CAPABLE`, `UEFI_COMPATIBLE`, `VIRTIO_SCSI_MULTIQUEUE`, and `WINDOWS`.
+  Possible values are `MULTI_IP_SUBNET`, `SECURE_BOOT`, `SEV_CAPABLE`, `UEFI_COMPATIBLE`, `VIRTIO_SCSI_MULTIQUEUE`, `WINDOWS`, and `GVNIC`.
 
 The `raw_disk` block supports:
 
@@ -231,6 +231,7 @@ This resource provides the following
 - `delete` - Default is 6 minutes.
 
 ## Import
+
 
 Image can be imported using any of these accepted formats:
 

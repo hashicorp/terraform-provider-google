@@ -123,10 +123,6 @@ The following arguments are supported:
   (Required)
   The version of Tensorflow running in the Node.
 
-* `zone` -
-  (Required)
-  The GCP location for the TPU.
-
 
 - - -
 
@@ -168,6 +164,10 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Resource labels to represent user provided metadata.
+
+* `zone` -
+  (Optional)
+  The GCP location for the TPU. If it is not provided, the provider zone is used.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -216,6 +216,7 @@ This resource provides the following
 - `delete` - Default is 15 minutes.
 
 ## Import
+
 
 Node can be imported using any of these accepted formats:
 

@@ -61,7 +61,7 @@ resource "google_os_config_patch_deployment" "patch" {
   }
 
   one_time_schedule {
-    execute_time = "2020-10-10T10:10:10.045123456Z"
+    execute_time = "2999-10-10T10:10:10.045123456Z"
   }
 }
 `, context)
@@ -104,7 +104,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name           = "tf-test-patch-deploy-inst%{random_suffix}"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]
@@ -313,7 +313,13 @@ func testAccCheckOSConfigPatchDeploymentDestroyProducer(t *testing.T) func(s *te
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("OSConfigPatchDeployment still exists at %s", url)
 			}

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	computeBeta "google.golang.org/api/compute/v0.beta"
+	"google.golang.org/api/compute/v1"
 
 	"log"
 
@@ -41,6 +41,7 @@ func resourceComputeSharedVpcServiceProject() *schema.Resource {
 				Description: `The ID of the project that will serve as a Shared VPC service project.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -54,13 +55,13 @@ func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta i
 	hostProject := d.Get("host_project").(string)
 	serviceProject := d.Get("service_project").(string)
 
-	req := &computeBeta.ProjectsEnableXpnResourceRequest{
-		XpnResource: &computeBeta.XpnResourceId{
+	req := &compute.ProjectsEnableXpnResourceRequest{
+		XpnResource: &compute.XpnResourceId{
 			Id:   serviceProject,
 			Type: "PROJECT",
 		},
 	}
-	op, err := config.NewComputeBetaClient(userAgent).Projects.EnableXpnResource(hostProject, req).Do()
+	op, err := config.NewComputeClient(userAgent).Projects.EnableXpnResource(hostProject, req).Do()
 	if err != nil {
 		return err
 	}
@@ -133,13 +134,13 @@ func disableXpnResource(d *schema.ResourceData, config *Config, hostProject, pro
 		return err
 	}
 
-	req := &computeBeta.ProjectsDisableXpnResourceRequest{
-		XpnResource: &computeBeta.XpnResourceId{
+	req := &compute.ProjectsDisableXpnResourceRequest{
+		XpnResource: &compute.XpnResourceId{
 			Id:   project,
 			Type: "PROJECT",
 		},
 	}
-	op, err := config.NewComputeBetaClient(userAgent).Projects.DisableXpnResource(hostProject, req).Do()
+	op, err := config.NewComputeClient(userAgent).Projects.DisableXpnResource(hostProject, req).Do()
 	if err != nil {
 		return err
 	}

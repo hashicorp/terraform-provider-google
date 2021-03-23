@@ -85,6 +85,7 @@ resource "google_cloud_scheduler_job" "job" {
   http_target {
     http_method = "POST"
     uri         = "https://example.com/ping"
+    body        = base64encode("{\"foo\":\"bar\"}")
   }
 }
 ```
@@ -301,6 +302,7 @@ The `pubsub_target` block supports:
   (Optional)
   The message payload for PubsubMessage.
   Pubsub message must contain either non-empty data, or at least one attribute.
+   A base64-encoded string.
 
 * `attributes` -
   (Optional)
@@ -331,6 +333,7 @@ The `app_engine_http_target` block supports:
   HTTP request body. 
   A request body is allowed only if the HTTP method is POST or PUT. 
   It will result in invalid argument error to set a body on a job with an incompatible HttpMethod.
+  A base64-encoded string.
 
 * `headers` -
   (Optional)
@@ -371,6 +374,7 @@ The `http_target` block supports:
   HTTP request body. 
   A request body is allowed only if the HTTP method is POST, PUT, or PATCH. 
   It is an error to set body on a job with an incompatible HttpMethod.
+  A base64-encoded string.
 
 * `headers` -
   (Optional)
@@ -427,9 +431,11 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Job can be imported using any of these accepted formats:
 

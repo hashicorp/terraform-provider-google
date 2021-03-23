@@ -9,7 +9,13 @@ description: |-
 
 # google\_service\_account
 
-Allows management of a [Google Cloud Platform service account](https://cloud.google.com/compute/docs/access/service-accounts)
+Allows management of a Google Cloud service account.
+
+* [API documentation](https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/compute/docs/access/service-accounts)
+
+-> **Warning:**  If you delete and recreate a service account, you must reapply any IAM roles that it had before.
 
 -> Creation of service accounts is eventually consistent, and that can lead to
 errors when you try to apply ACLs to service accounts immediately after
@@ -22,7 +28,7 @@ This snippet creates a service account in a project.
 
 ```hcl
 resource "google_service_account" "service_account" {
-  account_id   = "service_account_id"
+  account_id   = "service-account-id"
   display_name = "Service Account"
 }
 ```

@@ -19,11 +19,11 @@ var IamKmsCryptoKeySchema = map[string]*schema.Schema{
 
 type KmsCryptoKeyIamUpdater struct {
 	resourceId string
-	d          *schema.ResourceData
+	d          TerraformResourceData
 	Config     *Config
 }
 
-func NewKmsCryptoKeyIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewKmsCryptoKeyIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	cryptoKey := d.Get("crypto_key_id").(string)
 	cryptoKeyId, err := parseKmsCryptoKeyId(cryptoKey, config)
 

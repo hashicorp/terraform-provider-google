@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -62,10 +63,18 @@ func (d *ResourceDataMock) Id() string {
 	return d.id
 }
 
+func (d *ResourceDataMock) GetProviderMeta(dst interface{}) error {
+	return nil
+}
+
+func (d *ResourceDataMock) Timeout(key string) time.Duration {
+	return time.Duration(1)
+}
+
 type ResourceDiffMock struct {
 	Before     map[string]interface{}
 	After      map[string]interface{}
-	Cleared    map[string]struct{}
+	Cleared    map[string]interface{}
 	IsForceNew bool
 }
 
@@ -73,15 +82,25 @@ func (d *ResourceDiffMock) GetChange(key string) (interface{}, interface{}) {
 	return d.Before[key], d.After[key]
 }
 
+func (d *ResourceDiffMock) HasChange(key string) bool {
+	old, new := d.GetChange(key)
+	return old != new
+}
+
 func (d *ResourceDiffMock) Get(key string) interface{} {
 	return d.After[key]
 }
 
+func (d *ResourceDiffMock) GetOk(key string) (interface{}, bool) {
+	v, ok := d.After[key]
+	return v, ok
+}
+
 func (d *ResourceDiffMock) Clear(key string) error {
 	if d.Cleared == nil {
-		d.Cleared = map[string]struct{}{}
+		d.Cleared = map[string]interface{}{}
 	}
-	d.Cleared[key] = struct{}{}
+	d.Cleared[key] = true
 	return nil
 }
 

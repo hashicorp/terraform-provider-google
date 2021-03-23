@@ -227,6 +227,7 @@ an empty list as an intent to stream all the supported resource types in this FH
 				Description: `The fully qualified name of this dataset`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -396,7 +397,6 @@ func resourceHealthcareFhirStoreUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -478,7 +478,6 @@ func resourceHealthcareFhirStoreDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

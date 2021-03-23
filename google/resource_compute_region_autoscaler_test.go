@@ -8,10 +8,10 @@ import (
 )
 
 func TestAccComputeRegionAutoscaler_update(t *testing.T) {
-	var it_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var tp_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var igm_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var autoscaler_name = fmt.Sprintf("region-autoscaler-test-%s", randString(t, 10))
+	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var autoscalerName = fmt.Sprintf("region-autoscaler-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -19,7 +19,7 @@ func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
+				Config: testAccComputeRegionAutoscaler_basic(itName, tpName, igmName, autoscalerName),
 			},
 			{
 				ResourceName:      "google_compute_region_autoscaler.foobar",
@@ -27,7 +27,7 @@ func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeRegionAutoscaler_update(it_name, tp_name, igm_name, autoscaler_name),
+				Config: testAccComputeRegionAutoscaler_update(itName, tpName, igmName, autoscalerName),
 			},
 			{
 				ResourceName:      "google_compute_region_autoscaler.foobar",
@@ -38,7 +38,32 @@ func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 	})
 }
 
-func testAccComputeRegionAutoscaler_scaffolding(it_name, tp_name, igm_name string) string {
+func TestAccComputeRegionAutoscaler_scaleInControl(t *testing.T) {
+	t.Parallel()
+
+	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var autoscalerName = fmt.Sprintf("region-autoscaler-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionAutoscaler_scaleInControl(itName, tpName, igmName, autoscalerName),
+			},
+			{
+				ResourceName:      "google_compute_region_autoscaler.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionAutoscaler_scaffolding(itName, tpName, igmName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -47,7 +72,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -84,11 +109,11 @@ resource "google_compute_region_instance_group_manager" "foobar" {
   region             = "us-central1"
 }
 
-`, it_name, tp_name, igm_name)
+`, itName, tpName, igmName)
 }
 
-func testAccComputeRegionAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name string) string {
-	return testAccComputeRegionAutoscaler_scaffolding(it_name, tp_name, igm_name) + fmt.Sprintf(`
+func testAccComputeRegionAutoscaler_basic(itName, tpName, igmName, autoscalerName string) string {
+	return testAccComputeRegionAutoscaler_scaffolding(itName, tpName, igmName) + fmt.Sprintf(`
 resource "google_compute_region_autoscaler" "foobar" {
   description = "Resource created for Terraform acceptance testing"
   name        = "%s"
@@ -103,11 +128,11 @@ resource "google_compute_region_autoscaler" "foobar" {
     }
   }
 }
-`, autoscaler_name)
+`, autoscalerName)
 }
 
-func testAccComputeRegionAutoscaler_update(it_name, tp_name, igm_name, autoscaler_name string) string {
-	return testAccComputeRegionAutoscaler_scaffolding(it_name, tp_name, igm_name) + fmt.Sprintf(`
+func testAccComputeRegionAutoscaler_update(itName, tpName, igmName, autoscalerName string) string {
+	return testAccComputeRegionAutoscaler_scaffolding(itName, tpName, igmName) + fmt.Sprintf(`
 resource "google_compute_region_autoscaler" "foobar" {
   description = "Resource created for Terraform acceptance testing"
   name        = "%s"
@@ -122,5 +147,30 @@ resource "google_compute_region_autoscaler" "foobar" {
     }
   }
 }
-`, autoscaler_name)
+`, autoscalerName)
+}
+
+func testAccComputeRegionAutoscaler_scaleInControl(itName, tpName, igmName, autoscalerName string) string {
+	return testAccComputeRegionAutoscaler_scaffolding(itName, tpName, igmName) + fmt.Sprintf(`
+resource "google_compute_region_autoscaler" "foobar" {
+  description = "Resource created for Terraform acceptance testing"
+  name        = "%s"
+  region      = "us-central1"
+  target      = google_compute_region_instance_group_manager.foobar.self_link
+  autoscaling_policy {
+    max_replicas    = 10
+    min_replicas    = 1
+    cooldown_period = 60
+    cpu_utilization {
+      target = 0.5
+    }
+    scale_in_control {
+      max_scaled_in_replicas {
+        percent = 80
+      }
+      time_window_sec = 300
+    }
+  }
+}
+`, autoscalerName)
 }

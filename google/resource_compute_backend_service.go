@@ -30,6 +30,21 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// Whether the backend is a global or regional NEG
+func isNegBackend(backend map[string]interface{}) bool {
+	backendGroup, ok := backend["group"]
+	if !ok {
+		return false
+	}
+
+	match, err := regexp.MatchString("(?:global|regions/[^/]+)/networkEndpointGroups", backendGroup.(string))
+	if err != nil {
+		// should not happen as long as the regexp pattern compiled correctly
+		return false
+	}
+	return match
+}
+
 func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 	if v == nil {
 		return 0
@@ -120,6 +135,16 @@ func resourceGoogleComputeBackendServiceBackendHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%v-", v))
 	}
 	if v, ok := m["max_rate_per_endpoint"]; ok {
+		if v == nil {
+			v = 0.0
+		}
+
+		// floats can't be added to the hash with %v as the other values are because
+		// %v and %f are not equivalent strings so this must remain as a float so that
+		// the hash function doesn't return something else.
+		buf.WriteString(fmt.Sprintf("%f-", v.(float64)))
+	}
+	if v, ok := m["max_utilization"]; ok && !isNegBackend(m) {
 		if v == nil {
 			v = 0.0
 		}
@@ -513,29 +538,29 @@ load balancing cannot be used with the other. Default value: "EXTERNAL" Possible
 				Description: `The load balancing algorithm used within the scope of the locality.
 The possible values are -
 
-ROUND_ROBIN - This is a simple policy in which each healthy backend
-              is selected in round robin order.
+* ROUND_ROBIN - This is a simple policy in which each healthy backend
+                is selected in round robin order.
 
-LEAST_REQUEST - An O(1) algorithm which selects two random healthy
-                hosts and picks the host which has fewer active requests.
+* LEAST_REQUEST - An O(1) algorithm which selects two random healthy
+                  hosts and picks the host which has fewer active requests.
 
-RING_HASH - The ring/modulo hash load balancer implements consistent
-            hashing to backends. The algorithm has the property that the
-            addition/removal of a host from a set of N hosts only affects
-            1/N of the requests.
+* RING_HASH - The ring/modulo hash load balancer implements consistent
+              hashing to backends. The algorithm has the property that the
+              addition/removal of a host from a set of N hosts only affects
+              1/N of the requests.
 
-RANDOM - The load balancer selects a random healthy host.
+* RANDOM - The load balancer selects a random healthy host.
 
-ORIGINAL_DESTINATION - Backend host is selected based on the client
-                       connection metadata, i.e., connections are opened
-                       to the same address as the destination address of
-                       the incoming connection before the connection
-                       was redirected to the load balancer.
+* ORIGINAL_DESTINATION - Backend host is selected based on the client
+                         connection metadata, i.e., connections are opened
+                         to the same address as the destination address of
+                         the incoming connection before the connection
+                         was redirected to the load balancer.
 
-MAGLEV - used as a drop in replacement for the ring hash load balancer.
-         Maglev is not as stable as ring hash but has faster table lookup
-         build times and host selection times. For more information about
-         Maglev, refer to https://ai.google/research/pubs/pub44824
+* MAGLEV - used as a drop in replacement for the ring hash load balancer.
+           Maglev is not as stable as ring hash but has faster table lookup
+           build times and host selection times. For more information about
+           Maglev, refer to https://ai.google/research/pubs/pub44824
 
 This field is applicable only when the load_balancing_scheme is set to
 INTERNAL_SELF_MANAGED. Possible values: ["ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV"]`,
@@ -776,6 +801,7 @@ object. This field is used in optimistic locking.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -1059,7 +1085,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendService: %s", err)
 	}
 	billingProject = project
 
@@ -1090,8 +1116,6 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error waiting to create BackendService: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating BackendService %q: %#v", d.Id(), res)
-
 	// security_policy isn't set by Create / Update
 	if o, n := d.GetChange("security_policy"); o.(string) != n.(string) {
 		pol, err := ParseSecurityPolicyFieldValue(n.(string), d, config)
@@ -1112,6 +1136,8 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 		}
 	}
 
+	log.Printf("[DEBUG] Finished creating BackendService %q: %#v", d.Id(), res)
+
 	return resourceComputeBackendServiceRead(d, meta)
 }
 
@@ -1131,7 +1157,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendService: %s", err)
 	}
 	billingProject = project
 
@@ -1255,13 +1281,12 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendService: %s", err)
 	}
 	billingProject = project
 
@@ -1460,13 +1485,12 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for BackendService: %s", err)
 	}
 	billingProject = project
 
@@ -3195,17 +3219,9 @@ func resourceComputeBackendServiceEncoder(d *schema.ResourceData, meta interface
 	backends := backendsRaw.([]interface{})
 	for _, backendRaw := range backends {
 		backend := backendRaw.(map[string]interface{})
-		backendGroup, ok := backend["group"]
-		if !ok {
-			continue
-		}
 
-		match, err := regexp.MatchString("(?:global|regions/[^/]+)/networkEndpointGroups", backendGroup.(string))
-		if err != nil {
-			return nil, err
-		}
-		if match {
-			// Remove `max_utilization` from any backend that belongs to a serverless NEG. This field
+		if isNegBackend(backend) {
+			// Remove `max_utilization` from any backend that belongs to an NEG. This field
 			// has a default value and causes API validation errors
 			backend["maxUtilization"] = nil
 		}

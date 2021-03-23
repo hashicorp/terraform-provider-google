@@ -28,7 +28,7 @@ A `CryptoKey` represents a logical key that can be used for cryptographic operat
 ~> **Note:** CryptoKeys cannot be deleted from Google Cloud Platform.
 Destroying a Terraform-managed CryptoKey will remove it from state
 and delete all CryptoKeyVersions, rendering the key unusable, but *will
-not delete the resource on the server.* When Terraform destroys these keys,
+not delete the resource from the project.* When Terraform destroys these keys,
 any data previously encrypted with these keys will be irrecoverable.
 For this reason, it is strongly recommended that you add lifecycle hooks
 to the resource to prevent accidental destruction.
@@ -125,6 +125,11 @@ The following arguments are supported:
   A template describing settings for new crypto key versions.
   Structure is documented below.
 
+* `skip_initial_version_creation` -
+  (Optional)
+  If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 
+  You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
+
 
 The `version_template` block supports:
 
@@ -146,7 +151,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{key_ring}}/cryptoKeys/{{name}}`
 
 
-* `self_link`: The self link of the created CryptoKey. Its format is `{{key_ring}}/cryptoKeys/{{name}}`.
+* `self_link`: Deprecated in favor of `id`, which contains an identical value. This field will be removed in the next major release of the provider.
 
 ## Timeouts
 
@@ -158,6 +163,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 CryptoKey can be imported using any of these accepted formats:
 

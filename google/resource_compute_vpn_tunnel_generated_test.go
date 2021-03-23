@@ -45,7 +45,7 @@ func TestAccComputeVpnTunnel_vpnTunnelBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_vpn_tunnel.tunnel1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"target_vpn_gateway", "router", "shared_secret", "region"},
+				ImportStateVerifyIgnore: []string{"target_vpn_gateway", "vpn_gateway", "peer_external_gateway", "peer_gcp_gateway", "router", "shared_secret", "region"},
 			},
 		},
 	})
@@ -131,7 +131,13 @@ func testAccCheckComputeVpnTunnelDestroyProducer(t *testing.T) func(s *terraform
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeVpnTunnel still exists at %s", url)
 			}

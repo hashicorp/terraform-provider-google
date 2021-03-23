@@ -67,7 +67,7 @@ resource "google_network_management_connectivity_test" "instance-test" {
 
 resource "google_compute_instance" "source" {
   name = "tf-test-source-vm%{random_suffix}"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
@@ -84,7 +84,7 @@ resource "google_compute_instance" "source" {
 
 resource "google_compute_instance" "destination" {
   name = "tf-test-dest-vm%{random_suffix}"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   boot_disk {
     initialize_params {
@@ -203,7 +203,13 @@ func testAccCheckNetworkManagementConnectivityTestDestroyProducer(t *testing.T) 
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("NetworkManagementConnectivityTest still exists at %s", url)
 			}

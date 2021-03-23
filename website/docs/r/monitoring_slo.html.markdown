@@ -92,16 +92,11 @@ resource "google_monitoring_slo" "request_based_slo" {
 
   request_based_sli {
     distribution_cut {
-      distribution_filter = join(" AND ", [
-        "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
-        "resource.type=\"consumed_api\"",
-        "resource.label.\"project_id\"=\"my-project-name\"",
-      ])
-
-      range {
-        max = 10
-      }
-    }
+          distribution_filter = "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\" resource.type=\"api\"  "
+          range {
+            max = 0.5
+          }
+        }
   }
 }
 ```
@@ -356,8 +351,13 @@ The `basic_sli` block supports:
   field will result in an error.
 
 * `latency` -
-  (Required)
+  (Optional)
   Parameters for a latency threshold SLI.
+  Structure is documented below.
+
+* `availability` -
+  (Optional)
+  Availability based SLI, dervied from count of requests made to this service that return successfully.
   Structure is documented below.
 
 
@@ -368,6 +368,12 @@ The `latency` block supports:
   A duration string, e.g. 10s.
   Good service is defined to be the count of requests made to
   this service that return in no more than threshold.
+
+The `availability` block supports:
+
+* `enabled` -
+  (Optional)
+  Whether an availability SLI is enabled or not. Must be set to true. Defaults to `true`.
 
 The `request_based_sli` block supports:
 
@@ -636,8 +642,13 @@ The `basic_sli_performance` block supports:
   field will result in an error.
 
 * `latency` -
-  (Required)
+  (Optional)
   Parameters for a latency threshold SLI.
+  Structure is documented below.
+
+* `availability` -
+  (Optional)
+  Availability based SLI, dervied from count of requests made to this service that return successfully.
   Structure is documented below.
 
 
@@ -648,6 +659,12 @@ The `latency` block supports:
   A duration string, e.g. 10s.
   Good service is defined to be the count of requests made to
   this service that return in no more than threshold.
+
+The `availability` block supports:
+
+* `enabled` -
+  (Optional)
+  Whether an availability SLI is enabled or not. Must be set to `true. Defaults to `true`.
 
 The `metric_mean_in_range` block supports:
 
@@ -744,6 +761,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Slo can be imported using any of these accepted formats:
 

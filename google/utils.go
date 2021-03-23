@@ -7,6 +7,7 @@ import (
 	"log"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -22,11 +23,15 @@ type TerraformResourceData interface {
 	Set(string, interface{}) error
 	SetId(string)
 	Id() string
+	GetProviderMeta(interface{}) error
+	Timeout(key string) time.Duration
 }
 
 type TerraformResourceDiff interface {
+	HasChange(string) bool
 	GetChange(string) (interface{}, interface{})
 	Get(string) interface{}
+	GetOk(string) (interface{}, bool)
 	Clear(string) error
 	ForceNew(string) error
 }
@@ -137,11 +142,11 @@ func isFailedPreconditionError(err error) bool {
 }
 
 func isConflictError(err error) bool {
-	if e, ok := err.(*googleapi.Error); ok && e.Code == 409 {
+	if e, ok := err.(*googleapi.Error); ok && (e.Code == 409 || e.Code == 412) {
 		return true
 	} else if !ok && errwrap.ContainsType(err, &googleapi.Error{}) {
 		e := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
-		if e.Code == 409 {
+		if e.Code == 409 || e.Code == 412 {
 			return true
 		}
 	}
@@ -156,6 +161,11 @@ func expandLabels(d TerraformResourceData) map[string]string {
 // expandEnvironmentVariables pulls the value of "environment_variables" out of a schema.ResourceData as a map[string]string.
 func expandEnvironmentVariables(d *schema.ResourceData) map[string]string {
 	return expandStringMap(d, "environment_variables")
+}
+
+// expandBuildEnvironmentVariables pulls the value of "build_environment_variables" out of a schema.ResourceData as a map[string]string.
+func expandBuildEnvironmentVariables(d *schema.ResourceData) map[string]string {
+	return expandStringMap(d, "build_environment_variables")
 }
 
 // expandStringMap pulls the value of key out of a TerraformResourceData as a map[string]string.
@@ -448,7 +458,7 @@ func changeFieldSchemaToForceNew(sch *schema.Schema) {
 	}
 }
 
-func generateUserAgentString(d *schema.ResourceData, currentUserAgent string) (string, error) {
+func generateUserAgentString(d TerraformResourceData, currentUserAgent string) (string, error) {
 	var m providerMeta
 
 	err := d.GetProviderMeta(&m)
@@ -456,5 +466,17 @@ func generateUserAgentString(d *schema.ResourceData, currentUserAgent string) (s
 		return currentUserAgent, err
 	}
 
-	return strings.Join([]string{currentUserAgent, m.ModuleName}, " "), nil
+	if m.ModuleName != "" {
+		return strings.Join([]string{currentUserAgent, m.ModuleName}, " "), nil
+	}
+
+	return currentUserAgent, nil
+}
+
+func SnakeToPascalCase(s string) string {
+	split := strings.Split(s, "_")
+	for i := range split {
+		split[i] = strings.Title(split[i])
+	}
+	return strings.Join(split, "")
 }

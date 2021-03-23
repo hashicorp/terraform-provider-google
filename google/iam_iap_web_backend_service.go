@@ -39,11 +39,11 @@ var IapWebBackendServiceIamSchema = map[string]*schema.Schema{
 type IapWebBackendServiceIamUpdater struct {
 	project           string
 	webBackendService string
-	d                 *schema.ResourceData
+	d                 TerraformResourceData
 	Config            *Config
 }
 
-func IapWebBackendServiceIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func IapWebBackendServiceIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

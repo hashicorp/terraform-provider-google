@@ -1,20 +1,27 @@
 package google
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
-	"reflect"
 	"sort"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/bigquery/v2"
 )
 
-func checkNameExists(jsonList []interface{}) error {
+func bigQueryTableSortArrayByName(array []interface{}) {
+	sort.Slice(array, func(i, k int) bool {
+		return array[i].(map[string]interface{})["name"].(string) < array[k].(map[string]interface{})["name"].(string)
+	})
+}
+
+func bigQueryTablecheckNameExists(jsonList []interface{}) error {
 	for _, m := range jsonList {
 		if _, ok := m.(map[string]interface{})["name"]; !ok {
 			return fmt.Errorf("No name in schema %+v", m)
@@ -24,56 +31,269 @@ func checkNameExists(jsonList []interface{}) error {
 	return nil
 }
 
-// JSONBytesEqual compares the JSON in two byte slices.
-// Reference: https://stackoverflow.com/questions/32408890/how-to-compare-two-json-requests
-func JSONBytesEqual(a, b []byte) (bool, error) {
-	var j, j2 interface{}
-	if err := json.Unmarshal(a, &j); err != nil {
-		return false, err
+// Compares two json's while optionally taking in a compareMapKeyVal function.
+// This function will override any comparison of a given map[string]interface{}
+// on a specific key value allowing for a separate equality in specific scenarios
+func jsonCompareWithMapKeyOverride(a, b interface{}, compareMapKeyVal func(key string, val1, val2 map[string]interface{}) bool) (bool, error) {
+	switch a.(type) {
+	case []interface{}:
+		arrayA := a.([]interface{})
+		arrayB, ok := b.([]interface{})
+		if !ok {
+			return false, nil
+		} else if len(arrayA) != len(arrayB) {
+			return false, nil
+		}
+		if err := bigQueryTablecheckNameExists(arrayA); err != nil {
+			return false, err
+		}
+		bigQueryTableSortArrayByName(arrayA)
+		if err := bigQueryTablecheckNameExists(arrayB); err != nil {
+			return false, err
+		}
+		bigQueryTableSortArrayByName(arrayB)
+		for i := range arrayA {
+			eq, err := jsonCompareWithMapKeyOverride(arrayA[i], arrayB[i], compareMapKeyVal)
+			if err != nil {
+				return false, err
+			} else if !eq {
+				return false, nil
+			}
+		}
+		return true, nil
+	case map[string]interface{}:
+		objectA := a.(map[string]interface{})
+		objectB, ok := b.(map[string]interface{})
+		if !ok {
+			return false, nil
+		}
+
+		var unionOfKeys map[string]bool = make(map[string]bool)
+		for key := range objectA {
+			unionOfKeys[key] = true
+		}
+		for key := range objectB {
+			unionOfKeys[key] = true
+		}
+
+		for key := range unionOfKeys {
+			eq := compareMapKeyVal(key, objectA, objectB)
+			if !eq {
+				valA, ok1 := objectA[key]
+				valB, ok2 := objectB[key]
+				if !ok1 || !ok2 {
+					return false, nil
+				}
+				eq, err := jsonCompareWithMapKeyOverride(valA, valB, compareMapKeyVal)
+				if err != nil || !eq {
+					return false, err
+				}
+			}
+		}
+		return true, nil
+	case string, float64, bool, nil:
+		return a == b, nil
+	default:
+		log.Printf("[DEBUG] tried to iterate through json but encountered a non native type to json deserialization... please ensure you are passing a json object from json.Unmarshall")
+		return false, errors.New("unable to compare values")
 	}
-	if j == nil {
-		return false, fmt.Errorf("The old schema value was nil")
+}
+
+// checks if the value is within the array, only works for generics
+// because objects and arrays will take the reference comparison
+func valueIsInArray(value interface{}, array []interface{}) bool {
+	for _, item := range array {
+		if item == value {
+			return true
+		}
 	}
-	jList := j.([]interface{})
-	if err := checkNameExists(jList); err != nil {
-		return false, err
+	return false
+}
+
+func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interface{}) bool {
+	// we rely on the fallback to nil if the object does not have the key
+	valA := objectA[key]
+	valB := objectB[key]
+	switch key {
+	case "mode":
+		eq := bigQueryTableModeEq(valA, valB)
+		return eq
+	case "description":
+		equivalentSet := []interface{}{nil, ""}
+		eq := valueIsInArray(valA, equivalentSet) && valueIsInArray(valB, equivalentSet)
+		return eq
+	case "type":
+		return bigQueryTableTypeEq(valA, valB)
 	}
-	sort.Slice(jList, func(i, k int) bool {
-		return jList[i].(map[string]interface{})["name"].(string) < jList[k].(map[string]interface{})["name"].(string)
-	})
-	if err := json.Unmarshal(b, &j2); err != nil {
-		return false, err
-	}
-	if j2 == nil {
-		return false, fmt.Errorf("The new schema value was nil")
-	}
-	j2List := j2.([]interface{})
-	if err := checkNameExists(j2List); err != nil {
-		return false, err
-	}
-	sort.Slice(j2List, func(i, k int) bool {
-		return j2List[i].(map[string]interface{})["name"].(string) < j2List[k].(map[string]interface{})["name"].(string)
-	})
-	return reflect.DeepEqual(j2List, jList), nil
+
+	// otherwise rely on default behavior
+	return false
 }
 
 // Compare the JSON strings are equal
 func bigQueryTableSchemaDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
-	// The API can return an empty schema which gets encoded to "null"
-	// during read.
+	// The API can return an empty schema which gets encoded to "null" during read.
 	if old == "null" {
 		old = "[]"
 	}
-	oldBytes := []byte(old)
-	newBytes := []byte(new)
+	var a, b interface{}
+	if err := json.Unmarshal([]byte(old), &a); err != nil {
+		log.Printf("[DEBUG] unable to unmarshal json - %v", err)
+	}
+	if err := json.Unmarshal([]byte(new), &b); err != nil {
+		log.Printf("[DEBUG] unable to unmarshal json - %v", err)
+	}
 
-	eq, err := JSONBytesEqual(oldBytes, newBytes)
+	eq, err := jsonCompareWithMapKeyOverride(a, b, bigQueryTableMapKeyOverride)
 	if err != nil {
 		log.Printf("[DEBUG] %v", err)
-		log.Printf("[DEBUG] Error comparing JSON bytes: %v, %v", old, new)
+		log.Printf("[DEBUG] Error comparing JSON: %v, %v", old, new)
 	}
 
 	return eq
+}
+
+func bigQueryTableTypeEq(old, new interface{}) bool {
+	equivalentSet1 := []interface{}{"INTEGER", "INT64"}
+	equivalentSet2 := []interface{}{"FLOAT", "FLOAT64"}
+	equivalentSet3 := []interface{}{"BOOLEAN", "BOOL"}
+	eq0 := old == new
+	eq1 := valueIsInArray(old, equivalentSet1) && valueIsInArray(new, equivalentSet1)
+	eq2 := valueIsInArray(old, equivalentSet2) && valueIsInArray(new, equivalentSet2)
+	eq3 := valueIsInArray(old, equivalentSet3) && valueIsInArray(new, equivalentSet3)
+	eq := eq0 || eq1 || eq2 || eq3
+	return eq
+}
+
+func bigQueryTableModeEq(old, new interface{}) bool {
+	equivalentSet := []interface{}{nil, "NULLABLE"}
+	eq0 := old == new
+	eq1 := valueIsInArray(old, equivalentSet) && valueIsInArray(new, equivalentSet)
+	eq := eq0 || eq1
+	return eq
+}
+
+func bigQueryTableModeIsForceNew(old, new interface{}) bool {
+	eq := bigQueryTableModeEq(old, new)
+	reqToNull := old == "REQUIRED" && new == "NULLABLE"
+	return !eq && !reqToNull
+}
+
+// Compares two existing schema implementations and decides if
+// it is changeable.. pairs with a force new on not changeable
+func resourceBigQueryTableSchemaIsChangeable(old, new interface{}) (bool, error) {
+	switch old.(type) {
+	case []interface{}:
+		arrayOld := old.([]interface{})
+		arrayNew, ok := new.([]interface{})
+		if !ok {
+			// if not both arrays not changeable
+			return false, nil
+		}
+		if len(arrayOld) > len(arrayNew) {
+			// if not growing not changeable
+			return false, nil
+		}
+		if err := bigQueryTablecheckNameExists(arrayOld); err != nil {
+			return false, err
+		}
+		bigQueryTableSortArrayByName(arrayOld)
+		if err := bigQueryTablecheckNameExists(arrayNew); err != nil {
+			return false, err
+		}
+		bigQueryTableSortArrayByName(arrayNew)
+		for i := range arrayOld {
+			if isChangable, err :=
+				resourceBigQueryTableSchemaIsChangeable(arrayOld[i], arrayNew[i]); err != nil || !isChangable {
+				return false, err
+			}
+		}
+		return true, nil
+	case map[string]interface{}:
+		objectOld := old.(map[string]interface{})
+		objectNew, ok := new.(map[string]interface{})
+		if !ok {
+			// if both aren't objects
+			return false, nil
+		}
+
+		var unionOfKeys map[string]bool = make(map[string]bool)
+		for key := range objectOld {
+			unionOfKeys[key] = true
+		}
+		for key := range objectNew {
+			unionOfKeys[key] = true
+		}
+
+		for key := range unionOfKeys {
+			valOld := objectOld[key]
+			valNew := objectNew[key]
+			switch key {
+			case "name":
+				if valOld != valNew {
+					return false, nil
+				}
+			case "type":
+				if !bigQueryTableTypeEq(valOld, valNew) {
+					return false, nil
+				}
+			case "mode":
+				if bigQueryTableModeIsForceNew(valOld, valNew) {
+					return false, nil
+				}
+			case "fields":
+				return resourceBigQueryTableSchemaIsChangeable(valOld, valNew)
+
+				// other parameters: description, policyTags and
+				// policyTags.names[] are changeable
+			}
+		}
+		return true, nil
+	case string, float64, bool, nil:
+		// realistically this shouldn't hit
+		log.Printf("[DEBUG] comparison of generics hit... not expected")
+		return old == new, nil
+	default:
+		log.Printf("[DEBUG] tried to iterate through json but encountered a non native type to json deserialization... please ensure you are passing a json object from json.Unmarshall")
+		return false, errors.New("unable to compare values")
+	}
+}
+
+func resourceBigQueryTableSchemaCustomizeDiffFunc(d TerraformResourceDiff) error {
+	if _, hasSchema := d.GetOk("schema"); hasSchema {
+		oldSchema, newSchema := d.GetChange("schema")
+		oldSchemaText := oldSchema.(string)
+		newSchemaText := newSchema.(string)
+		if oldSchemaText == "null" {
+			// The API can return an empty schema which gets encoded to "null" during read.
+			oldSchemaText = "[]"
+		}
+		var old, new interface{}
+		if err := json.Unmarshal([]byte(oldSchemaText), &old); err != nil {
+			// don't return error, its possible we are going from no schema to schema
+			// this case will be cover on the conparision regardless.
+			log.Printf("[DEBUG] unable to unmarshal json customized diff - %v", err)
+		}
+		if err := json.Unmarshal([]byte(newSchemaText), &new); err != nil {
+			// same as above
+			log.Printf("[DEBUG] unable to unmarshal json customized diff - %v", err)
+		}
+		isChangeable, err := resourceBigQueryTableSchemaIsChangeable(old, new)
+		if err != nil {
+			return err
+		}
+		if !isChangeable {
+			if err := d.ForceNew("schema"); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	return nil
+}
+
+func resourceBigQueryTableSchemaCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	return resourceBigQueryTableSchemaCustomizeDiffFunc(d)
 }
 
 func resourceBigQueryTable() *schema.Resource {
@@ -85,6 +305,9 @@ func resourceBigQueryTable() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceBigQueryTableImport,
 		},
+		CustomizeDiff: customdiff.All(
+			resourceBigQueryTableSchemaCustomizeDiff,
+		),
 		Schema: map[string]*schema.Schema{
 			// TableId: [Required] The ID of the table. The ID must contain only
 			// letters (a-z, A-Z), numbers (0-9), or underscores (_). The maximum
@@ -153,9 +376,9 @@ func resourceBigQueryTable() *schema.Resource {
 						"source_format": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: `The data format. Supported values are: "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "PARQUET", and "DATSTORE_BACKUP". To use "GOOGLE_SHEETS" the scopes must include "googleapis.com/auth/drive.readonly".`,
+							Description: `The data format. Supported values are: "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "PARQUET", "ORC" and "DATASTORE_BACKUP". To use "GOOGLE_SHEETS" the scopes must include "googleapis.com/auth/drive.readonly".`,
 							ValidateFunc: validation.StringInSlice([]string{
-								"CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "DATSTORE_BACKUP", "PARQUET",
+								"CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "DATASTORE_BACKUP", "PARQUET", "ORC",
 							}, false),
 						},
 						// SourceURIs [Required] The fully-qualified URIs that point to your data in Google Cloud.
@@ -366,7 +589,6 @@ func resourceBigQueryTable() *schema.Resource {
 				DiffSuppressFunc: bigQueryTableSchemaDiffSuppress,
 				Description:      `A JSON schema for the table.`,
 			},
-
 			// View: [Optional] If specified, configures this table as a view.
 			"view": {
 				Type:        schema.TypeList,
@@ -428,6 +650,7 @@ func resourceBigQueryTable() *schema.Resource {
 						"query": {
 							Type:        schema.TypeString,
 							Required:    true,
+							ForceNew:    true,
 							Description: `A query whose result is persisted.`,
 						},
 					},
@@ -448,6 +671,7 @@ func resourceBigQueryTable() *schema.Resource {
 						"expiration_ms": {
 							Type:        schema.TypeInt,
 							Optional:    true,
+							Computed:    true,
 							Description: `Number of milliseconds for which to keep the storage for a partition.`,
 						},
 
@@ -634,7 +858,15 @@ func resourceBigQueryTable() *schema.Resource {
 				Computed:    true,
 				Description: `Describes the table type.`,
 			},
+
+			"deletion_protection": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.`,
+			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -704,7 +936,6 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		if err != nil {
 			return nil, err
 		}
-
 		table.Schema = schema
 	}
 
@@ -891,7 +1122,6 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-
 		if err := d.Set("schema", schema); err != nil {
 			return fmt.Errorf("Error setting schema: %s", err)
 		}
@@ -945,6 +1175,9 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("cannot destroy instance without setting deletion_protection=false and running `terraform apply`")
+	}
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
@@ -1351,6 +1584,11 @@ func resourceBigQueryTableImport(d *schema.ResourceData, meta interface{}) ([]*s
 		"(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
+	}
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_protection", true); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
 	}
 
 	// Replace import id for the resource id

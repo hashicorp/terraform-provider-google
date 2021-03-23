@@ -94,8 +94,8 @@ The following arguments are supported:
 * `ssl_certificates` -
   (Required)
   A list of SslCertificate resources that are used to authenticate
-  connections between users and the load balancer. Currently, exactly
-  one SSL certificate must be specified.
+  connections between users and the load balancer. At least one
+  SSL certificate must be specified.
 
 
 - - -
@@ -146,6 +146,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 TargetSslProxy can be imported using any of these accepted formats:
 

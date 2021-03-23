@@ -83,6 +83,7 @@ For example,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -117,7 +118,7 @@ func resourceGameServicesGameServerDeploymentCreate(d *schema.ResourceData, meta
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GameServerDeployment: %s", err)
 	}
 	billingProject = project
 
@@ -182,7 +183,7 @@ func resourceGameServicesGameServerDeploymentRead(d *schema.ResourceData, meta i
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GameServerDeployment: %s", err)
 	}
 	billingProject = project
 
@@ -219,13 +220,12 @@ func resourceGameServicesGameServerDeploymentUpdate(d *schema.ResourceData, meta
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GameServerDeployment: %s", err)
 	}
 	billingProject = project
 
@@ -295,13 +295,12 @@ func resourceGameServicesGameServerDeploymentDelete(d *schema.ResourceData, meta
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GameServerDeployment: %s", err)
 	}
 	billingProject = project
 

@@ -61,6 +61,45 @@ resource "google_compute_health_check" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_backend_service_cache&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Backend Service Cache
+
+
+```hcl
+resource "google_compute_region_backend_service" "default" {
+  provider                        = google-beta
+  name                            = "region-service"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_region_health_check.default.id]
+  enable_cdn  = true
+  cdn_policy {
+    cache_mode = "CACHE_ALL_STATIC"
+    default_ttl = 3600
+    client_ttl  = 7200
+    max_ttl     = 10800
+    negative_caching = true
+    signed_url_cache_max_age_sec = 7200
+  }
+
+  load_balancing_scheme = "EXTERNAL"
+  protocol              = "HTTP"
+
+}
+
+resource "google_compute_region_health_check" "default" {
+  provider           = google-beta
+  name               = "rbs-health-check"
+  region             = "us-central1"
+
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_backend_service_ilb_round_robin&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -81,6 +120,34 @@ resource "google_compute_region_backend_service" "default" {
 resource "google_compute_health_check" "health_check" {
   name               = "rbs-health-check"
   http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_backend_service_external&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Backend Service External
+
+
+```hcl
+resource "google_compute_region_backend_service" "default" {
+  provider              = google-beta
+  region                = "us-central1"
+  name                  = "region-service"
+  health_checks         = [google_compute_region_health_check.health_check.id]
+  protocol              = "TCP"
+  load_balancing_scheme = "EXTERNAL"
+}
+
+resource "google_compute_region_health_check" "health_check" {
+  provider           = google-beta
+  name               = "rbs-health-check"
+  region             = "us-central1"
+
+  tcp_health_check {
     port = 80
   }
 }
@@ -170,7 +237,7 @@ resource "google_compute_region_instance_group_manager" "rigm" {
 
 resource "google_compute_instance_template" "instance_template" {
   name         = "template-region-service"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   network_interface {
     network    = google_compute_network.default.id
@@ -261,6 +328,11 @@ The following arguments are supported:
     * `locality_lb_policy` is set to MAGLEV or RING_HASH
   Structure is documented below.
 
+* `cdn_policy` -
+  (Optional)
+  Cloud CDN configuration for this BackendService.
+  Structure is documented below.
+
 * `connection_draining_timeout_sec` -
   (Optional)
   Time for which instance will be drained (not accept new
@@ -275,11 +347,15 @@ The following arguments are supported:
   Policy for failovers.
   Structure is documented below.
 
+* `enable_cdn` -
+  (Optional)
+  If true, enable Cloud CDN for this RegionBackendService.
+
 * `health_checks` -
   (Optional)
   The set of URLs to HealthCheck resources for health checking
   this RegionBackendService. Currently at most one health
-  check can be specified. 
+  check can be specified.
   A health check must be specified unless the backend service uses an internet
   or serverless NEG as a backend.
 
@@ -289,30 +365,30 @@ The following arguments are supported:
   will be used for. A backend service created for one type of load
   balancing cannot be used with the other(s).
   Default value is `INTERNAL`.
-  Possible values are `INTERNAL` and `INTERNAL_MANAGED`.
+  Possible values are `EXTERNAL`, `INTERNAL`, and `INTERNAL_MANAGED`.
 
 * `locality_lb_policy` -
   (Optional)
   The load balancing algorithm used within the scope of the locality.
   The possible values are -
-  ROUND_ROBIN - This is a simple policy in which each healthy backend
-                is selected in round robin order.
-  LEAST_REQUEST - An O(1) algorithm which selects two random healthy
-                  hosts and picks the host which has fewer active requests.
-  RING_HASH - The ring/modulo hash load balancer implements consistent
-              hashing to backends. The algorithm has the property that the
-              addition/removal of a host from a set of N hosts only affects
-              1/N of the requests.
-  RANDOM - The load balancer selects a random healthy host.
-  ORIGINAL_DESTINATION - Backend host is selected based on the client
-                         connection metadata, i.e., connections are opened
-                         to the same address as the destination address of
-                         the incoming connection before the connection
-                         was redirected to the load balancer.
-  MAGLEV - used as a drop in replacement for the ring hash load balancer.
-           Maglev is not as stable as ring hash but has faster table lookup
-           build times and host selection times. For more information about
-           Maglev, refer to https://ai.google/research/pubs/pub44824
+  * ROUND_ROBIN - This is a simple policy in which each healthy backend
+                  is selected in round robin order.
+  * LEAST_REQUEST - An O(1) algorithm which selects two random healthy
+                    hosts and picks the host which has fewer active requests.
+  * RING_HASH - The ring/modulo hash load balancer implements consistent
+                hashing to backends. The algorithm has the property that the
+                addition/removal of a host from a set of N hosts only affects
+                1/N of the requests.
+  * RANDOM - The load balancer selects a random healthy host.
+  * ORIGINAL_DESTINATION - Backend host is selected based on the client
+                           connection metadata, i.e., connections are opened
+                           to the same address as the destination address of
+                           the incoming connection before the connection
+                           was redirected to the load balancer.
+  * MAGLEV - used as a drop in replacement for the ring hash load balancer.
+             Maglev is not as stable as ring hash but has faster table lookup
+             build times and host selection times. For more information about
+             Maglev, refer to https://ai.google/research/pubs/pub44824
   This field is applicable only when the `load_balancing_scheme` is set to
   INTERNAL_MANAGED and the `protocol` is set to HTTP, HTTPS, or HTTP2.
   Possible values are `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, and `MAGLEV`.
@@ -584,6 +660,106 @@ The `ttl` block supports:
   with a 0 seconds field and a positive nanos field. Must
   be from 0 to 999,999,999 inclusive.
 
+The `cdn_policy` block supports:
+
+* `cache_key_policy` -
+  (Optional)
+  The CacheKeyPolicy for this CdnPolicy.
+  Structure is documented below.
+
+* `signed_url_cache_max_age_sec` -
+  (Optional)
+  Maximum number of seconds the response to a signed URL request
+  will be considered fresh, defaults to 1hr (3600s). After this
+  time period, the response will be revalidated before
+  being served.
+  When serving responses to signed URL requests, Cloud CDN will
+  internally behave as though all responses from this backend had a
+  "Cache-Control: public, max-age=[TTL]" header, regardless of any
+  existing Cache-Control header. The actual headers served in
+  responses will not be altered.
+
+* `default_ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the default TTL for cached content served by this origin for responses
+  that do not have an existing valid TTL (max-age or s-max-age).
+
+* `max_ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the maximum allowed TTL for cached content served by this origin.
+
+* `client_ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the maximum allowed TTL for cached content served by this origin.
+
+* `negative_caching` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Negative caching allows per-status code TTLs to be set, in order to apply fine-grained caching for common errors or redirects.
+
+* `negative_caching_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
+  Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.
+  Structure is documented below.
+
+* `cache_mode` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the cache setting for all responses from this backend.
+  The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
+  Possible values are `USE_ORIGIN_HEADERS`, `FORCE_CACHE_ALL`, and `CACHE_ALL_STATIC`.
+
+* `serve_while_stale` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
+
+
+The `cache_key_policy` block supports:
+
+* `include_host` -
+  (Optional)
+  If true requests to different hosts will be cached separately.
+
+* `include_protocol` -
+  (Optional)
+  If true, http and https requests will be cached separately.
+
+* `include_query_string` -
+  (Optional)
+  If true, include query string parameters in the cache key
+  according to query_string_whitelist and
+  query_string_blacklist. If neither is set, the entire query
+  string will be included.
+  If false, the query string will be excluded from the cache
+  key entirely.
+
+* `query_string_blacklist` -
+  (Optional)
+  Names of query string parameters to exclude in cache keys.
+  All other parameters will be included. Either specify
+  query_string_whitelist or query_string_blacklist, not both.
+  '&' and '=' will be percent encoded and not treated as
+  delimiters.
+
+* `query_string_whitelist` -
+  (Optional)
+  Names of query string parameters to include in cache keys.
+  All other parameters will be excluded. Either specify
+  query_string_whitelist or query_string_blacklist, not both.
+  '&' and '=' will be percent encoded and not treated as
+  delimiters.
+
+The `negative_caching_policy` block supports:
+
+* `code` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The HTTP status code to define a TTL against. Only HTTP status codes 300, 301, 308, 404, 405, 410, 421, 451 and 501
+  can be specified as values, and you cannot specify a status code more than once.
+
+* `ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
+  (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+
 The `failover_policy` block supports:
 
 * `disable_connection_drain_on_failover` -
@@ -754,6 +930,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 RegionBackendService can be imported using any of these accepted formats:
 

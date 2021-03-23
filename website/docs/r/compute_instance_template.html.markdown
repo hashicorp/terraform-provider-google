@@ -18,6 +18,11 @@ and
 ## Example Usage
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service-account-id"
+  display_name = "Service Account"
+}
+
 resource "google_compute_instance_template" "default" {
   name        = "appserver-template"
   description = "This template is used to create app server instances."
@@ -29,7 +34,7 @@ resource "google_compute_instance_template" "default" {
   }
 
   instance_description = "description assigned to instances"
-  machine_type         = "n1-standard-1"
+  machine_type         = "e2-medium"
   can_ip_forward       = false
 
   scheduling {
@@ -39,9 +44,11 @@ resource "google_compute_instance_template" "default" {
 
   // Create a new boot disk from an image
   disk {
-    source_image = "debian-cloud/debian-9"
-    auto_delete  = true
-    boot         = true
+    source_image      = "debian-cloud/debian-9"
+    auto_delete       = true
+    boot              = true
+    // backup the disk every day
+    resource_policies = [google_compute_resource_policy.daily_backup.id]
   }
 
   // Use an existing disk resource
@@ -61,7 +68,9 @@ resource "google_compute_instance_template" "default" {
   }
 
   service_account {
-    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = google_service_account.default.email
+    scopes = ["cloud-platform"]
   }
 }
 
@@ -76,6 +85,19 @@ resource "google_compute_disk" "foobar" {
   size  = 10
   type  = "pd-ssd"
   zone  = "us-central1-a"
+}
+
+resource "google_compute_resource_policy" "daily_backup" {
+  name   = "every-day-4am"
+  region = "us-central1"
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time    = "04:00"
+      }
+    }
+  }
 }
 ```
 
@@ -92,7 +114,7 @@ with `name_prefix`.  Example:
 ```hcl
 resource "google_compute_instance_template" "instance_template" {
   name_prefix  = "instance-template-"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   region       = "us-central1"
 
   // boot disk
@@ -148,7 +170,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "instance_template" {
   name_prefix  = "instance-template-"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   region       = "us-central1"
 
   // boot disk
@@ -165,7 +187,7 @@ the image for the template to the family:
 ```tf
 resource "google_compute_instance_template" "instance_template" {
   name_prefix  = "instance-template-"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   region       = "us-central1"
 
   // boot disk
@@ -247,6 +269,8 @@ The following arguments are supported:
 * `enable_display` - (Optional) Enable [Virtual Displays](https://cloud.google.com/compute/docs/instances/enable-instance-virtual-display#verify_display_driver) on this instance.
 **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
+* `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
+
 The `disk` block supports:
 
 * `auto_delete` - (Optional) Whether or not the disk should be auto-deleted.
@@ -269,9 +293,9 @@ The `disk` block supports:
     `{project}/{image}`, `{family}`, or `{image}`.
 ~> **Note:** Either `source` or `source_image` is **required** in a disk block unless the disk type is `local-ssd`. Check the API [docs](https://cloud.google.com/compute/docs/reference/rest/v1/instanceTemplates/insert) for details.
 
-* `interface` - (Optional) Specifies the disk interface to use for attaching this disk, 
-    which is either SCSI or NVME. The default is SCSI. Persistent disks must always use SCSI 
-    and the request will fail if you attempt to attach a persistent disk in any other format 
+* `interface` - (Optional) Specifies the disk interface to use for attaching this disk,
+    which is either SCSI or NVME. The default is SCSI. Persistent disks must always use SCSI
+    and the request will fail if you attempt to attach a persistent disk in any other format
     than SCSI. Local SSDs can use either NVME or SCSI.
 
 * `mode` - (Optional) The mode in which to attach this disk, either READ_WRITE
@@ -301,6 +325,8 @@ The `disk` block supports:
     If you do not provide an encryption key, then the disk will be encrypted using an automatically generated key and you do not need to provide a key to use the disk later.
 
     Instance templates do not store customer-supplied encryption keys, so you cannot use your own keys to encrypt disks in a managed instance group.
+
+* `resource_policies` (Optional) -- A list (short name or id) of resource policies to attach to this disk for automatic snapshot creations. Currently a max of 1 resource policy is supported.
 
 The `disk_encryption_key` block supports:
 
@@ -410,6 +436,10 @@ The `shielded_instance_config` block supports:
 
 * `enable_integrity_monitoring` (Optional) -- Compare the most recent boot measurements to the integrity policy baseline and return a pair of pass/fail results depending on whether they match or not. Defaults to true.
 
+The `confidential_instance_config` block supports:
+
+* `enable_confidential_compute` (Optional) Defines whether the instance should have confidential compute enabled. [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
@@ -424,7 +454,7 @@ exported:
 * `tags_fingerprint` - The unique fingerprint of the tags.
 
 [1]: /docs/providers/google/r/compute_instance_group_manager.html
-[2]: /docs/configuration/resources.html#lifecycle
+[2]: /docs/language/meta-arguments/lifecycle.html
 
 ## Timeouts
 

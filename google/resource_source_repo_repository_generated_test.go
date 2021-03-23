@@ -87,7 +87,7 @@ func TestAccSourceRepoRepository_sourcerepoRepositoryFullExample(t *testing.T) {
 
 func testAccSourceRepoRepository_sourcerepoRepositoryFullExample(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_service_account" "test-account" {
+resource "google_service_account" "test_account" {
   account_id   = "tf-test-my-account%{random_suffix}"
   display_name = "Test Service Account"
 }
@@ -101,7 +101,7 @@ resource "google_sourcerepo_repository" "my-repo" {
   pubsub_configs {
       topic = google_pubsub_topic.topic.id
       message_format = "JSON"
-      service_account_email = google_service_account.test-account.email
+      service_account_email = google_service_account.test_account.email
   }
 }
 `, context)
@@ -124,7 +124,13 @@ func testAccCheckSourceRepoRepositoryDestroyProducer(t *testing.T) func(s *terra
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("SourceRepoRepository still exists at %s", url)
 			}

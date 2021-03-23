@@ -160,10 +160,10 @@ rawDisk.source property but not both to create an image.`,
 				Description: `URL of the source image used to create this image. In order to create an image, you must provide the full or partial
 URL of one of the following:
 
-The selfLink URL
-This property
-The rawDisk.source URL
-The sourceDisk URL`,
+* The selfLink URL
+* This property
+* The rawDisk.source URL
+* The sourceDisk URL`,
 			},
 			"source_snapshot": {
 				Type:             schema.TypeString,
@@ -174,11 +174,11 @@ The sourceDisk URL`,
 
 In order to create an image, you must provide the full or partial URL of one of the following:
 
-The selfLink URL
-This property
-The sourceImage URL
-The rawDisk.source URL
-The sourceDisk URL`,
+* The selfLink URL
+* This property
+* The sourceImage URL
+* The rawDisk.source URL
+* The sourceDisk URL`,
 			},
 			"archive_size_bytes": {
 				Type:     schema.TypeInt,
@@ -208,6 +208,7 @@ internally during updates.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -218,8 +219,8 @@ func computeImageGuestOsFeaturesSchema() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"MULTI_IP_SUBNET", "SECURE_BOOT", "SEV_CAPABLE", "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS"}, false),
-				Description:  `The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options. Possible values: ["MULTI_IP_SUBNET", "SECURE_BOOT", "SEV_CAPABLE", "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS"]`,
+				ValidateFunc: validation.StringInSlice([]string{"MULTI_IP_SUBNET", "SECURE_BOOT", "SEV_CAPABLE", "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS", "GVNIC"}, false),
+				Description:  `The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options. Possible values: ["MULTI_IP_SUBNET", "SECURE_BOOT", "SEV_CAPABLE", "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS", "GVNIC"]`,
 			},
 		},
 	}
@@ -316,7 +317,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Image: %s", err)
 	}
 	billingProject = project
 
@@ -368,7 +369,7 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Image: %s", err)
 	}
 	billingProject = project
 
@@ -438,13 +439,12 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Image: %s", err)
 	}
 	billingProject = project
 
@@ -502,13 +502,12 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Image: %s", err)
 	}
 	billingProject = project
 

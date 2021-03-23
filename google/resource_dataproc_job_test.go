@@ -92,6 +92,7 @@ func TestAccDataprocJob_PySpark(t *testing.T) {
 					resource.TestCheckResourceAttrSet("google_dataproc_job.pyspark", "status.0.state"),
 					resource.TestCheckResourceAttrSet("google_dataproc_job.pyspark", "status.0.state_start_time"),
 					resource.TestCheckResourceAttr("google_dataproc_job.pyspark", "scheduling.0.max_failures_per_hour", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_job.pyspark", "scheduling.0.max_failures_total", "20"),
 					resource.TestCheckResourceAttr("google_dataproc_job.pyspark", "labels.one", "1"),
 
 					// Unique job config
@@ -352,7 +353,7 @@ func testAccCheckDataprocJobCompletesSuccessfully(t *testing.T, n string, job *d
 				log.Printf("[ERROR] Job failed, driver logs:\n%s", body)
 			}
 			return fmt.Errorf("Job completed in ERROR state, check logs for details")
-		} else if completeJob.Status.State != "DONE" {
+		} else if completeJob.Status.State != "DONE" && completeJob.Status.State != "RUNNING" {
 			return fmt.Errorf("Job did not complete successfully, instead status: %s", completeJob.Status.State)
 		}
 
@@ -502,7 +503,7 @@ resource "google_dataproc_cluster" "basic" {
 
     master_config {
       num_instances = 1
-      machine_type  = "n1-standard-1"
+      machine_type  = "e2-standard-2"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -559,7 +560,8 @@ resource "google_dataproc_job" "pyspark" {
   }
 
   scheduling {
-    max_failures_per_hour = 1
+	max_failures_per_hour = 1
+	max_failures_total=20
   }
 
   labels = {

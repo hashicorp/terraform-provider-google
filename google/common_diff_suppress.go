@@ -5,8 +5,12 @@ package google
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"log"
+	"net"
 	"reflect"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -14,6 +18,28 @@ import (
 func optionalPrefixSuppress(prefix string) schema.SchemaDiffSuppressFunc {
 	return func(k, old, new string, d *schema.ResourceData) bool {
 		return prefix+old == new || prefix+new == old
+	}
+}
+
+func ignoreMissingKeyInMap(key string) schema.SchemaDiffSuppressFunc {
+	return func(k, old, new string, d *schema.ResourceData) bool {
+		log.Printf("suppressing diff %q with old %q, new %q", k, old, new)
+		if strings.HasSuffix(k, ".%") {
+			oldNum, err := strconv.Atoi(old)
+			if err != nil {
+				log.Printf("[ERROR] could not parse %q as number, no longer attempting diff suppress", old)
+				return false
+			}
+			newNum, err := strconv.Atoi(new)
+			if err != nil {
+				log.Printf("[ERROR] could not parse %q as number, no longer attempting diff suppress", new)
+				return false
+			}
+			return oldNum+1 == newNum
+		} else if strings.HasSuffix(k, "."+key) {
+			return old == ""
+		}
+		return false
 	}
 }
 
@@ -111,4 +137,34 @@ func locationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 func locationDiffSuppressHelper(a, b string) bool {
 	return strings.Replace(a, "/locations/", "/regions/", 1) == b ||
 		strings.Replace(a, "/locations/", "/zones/", 1) == b
+}
+
+// For managed SSL certs, if new is an absolute FQDN (trailing '.') but old isn't, treat them as equals.
+func absoluteDomainSuppress(k, old, new string, _ *schema.ResourceData) bool {
+	if strings.HasPrefix(k, "managed.0.domains.") {
+		return old == strings.TrimRight(new, ".")
+	}
+	return old == new
+}
+
+func timestampDiffSuppress(format string) schema.SchemaDiffSuppressFunc {
+	return func(_, old, new string, _ *schema.ResourceData) bool {
+		oldT, err := time.Parse(format, old)
+		if err != nil {
+			return false
+		}
+
+		newT, err := time.Parse(format, new)
+		if err != nil {
+			return false
+		}
+
+		return oldT == newT
+	}
+}
+
+// suppress diff when saved is Ipv4 format while new is required a reference
+// this happens for an internal ip for Private Services Connect
+func internalIpDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	return (net.ParseIP(old) != nil) && (net.ParseIP(new) == nil)
 }

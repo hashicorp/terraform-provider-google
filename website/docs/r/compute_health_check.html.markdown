@@ -34,6 +34,10 @@ continue to poll unhealthy instances. If an instance later responds
 successfully to some number of consecutive probes, it is marked
 healthy again and can receive new connections.
 
+~>**NOTE**: Legacy HTTP(S) health checks must be used for target pool-based network
+load balancers. See the [official guide](https://cloud.google.com/load-balancing/docs/health-check-concepts#selecting_hc)
+for choosing a type of health check.
+
 
 To get more information about HealthCheck, see:
 
@@ -678,8 +682,8 @@ The `grpc_health_check` block supports:
 
 * `port` -
   (Optional)
-  The port number for the health check request. 
-  Must be specified if portName and portSpecification are not set 
+  The port number for the health check request.
+  Must be specified if portName and portSpecification are not set
   or if port_specification is USE_FIXED_PORT. Valid values are 1 through 65535.
 
 * `port_name` -
@@ -703,7 +707,7 @@ The `grpc_health_check` block supports:
 
 * `grpc_service_name` -
   (Optional)
-  The gRPC service name for the health check. 
+  The gRPC service name for the health check.
   The value of grpcServiceName has the following meanings by convention:
     - Empty serviceName means the overall status of all services at the backend.
     - Non-empty serviceName means the health of that gRPC service, as defined by the owner of the service.
@@ -740,6 +744,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 HealthCheck can be imported using any of these accepted formats:
 

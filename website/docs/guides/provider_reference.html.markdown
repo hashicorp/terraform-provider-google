@@ -8,8 +8,6 @@ description: |-
 
 # Google Provider Configuration Reference
 
--> Try out Terraform 0.12 with the Google provider! `google` and `google-beta` are 0.12-compatible from `2.5.0` onwards.
-
 The `google` and `google-beta` provider blocks are used to configure the
 credentials you use to authenticate with GCP, as well as a default project and
 location (`zone` and/or `region`) for your resources.
@@ -18,7 +16,6 @@ location (`zone` and/or `region`) for your resources.
 
 ```hcl
 provider "google" {
-  credentials = file("account.json")
   project     = "my-project-id"
   region      = "us-central1"
   zone        = "us-central1-c"
@@ -27,7 +24,6 @@ provider "google" {
 
 ```hcl
 provider "google-beta" {
-  credentials = file("account.json")
   project     = "my-project-id"
   region      = "us-central1"
   zone        = "us-central1-c"
@@ -62,6 +58,29 @@ resource "google_compute_instance" "beta-instance" {
 provider "google-beta" {}
 ```
 
+## Authentication
+
+### Running Terraform on your workstation.
+
+If you are using terraform on your workstation, you will need to install the Google Cloud SDK and authenticate using [User Application Default
+Credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default) by running the command `gcloud auth application-default login`.
+
+A quota project must be set which gcloud automatically reads from the `core/project` value. You can override this project by specifying `--project` flag when running `gcloud auth application-default login`. The SDK should return this message if you have set the correct billing project. `Quota project "your-project" was added to ADC which can be used by Google client libraries for billing and quota.`
+
+### Running Terraform on Google Cloud
+
+If you are running terraform on Google Cloud, you can configure that instance or cluster to use a [Google Service
+Account](https://cloud.google.com/compute/docs/authentication). This will allow Terraform to authenticate to Google Cloud without having to bake in a separate
+credential/authentication file. Ensure that the scope of the VM/Cluster is set to or includes `https://www.googleapis.com/auth/cloud-platform`.
+
+### Running Terraform outside of Google Cloud
+
+If you are running terraform outside of Google Cloud, generate a service account key and set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to
+the path of the service account key. Terraform will use that key for authentication.
+
+### Impersonating Service Accounts
+
+Terraform can impersonate a Google Service Account as described [here](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials). A valid credential must be provided as mentioned in the earlier section and that identity must have the `roles/iam.serviceAccountTokenCreator` role on the service account you are impersonating.
 
 ## Configuration Reference
 
@@ -71,15 +90,6 @@ if you're interested in more details. Both `google` and `google-beta` share the
 same configuration.
 
 ### Quick Reference
-
-* `credentials` - (Optional) Either the path to or the contents of a
-[service account key file] in JSON format. You can
-[manage key files using the Cloud Console].  If not provided, the
-application default credentials will be used.  You can configure
-Application Default Credentials on your personal machine by
-running `gcloud auth application-default login`. If
-terraform is running on a GCP machine, and this value is unset,
-it will automatically use that machine's configured service account.
 
 * `project` - (Optional) The default project to manage resources in. If another
 project is specified on a resource, it will take precedence.
@@ -91,7 +101,13 @@ region is specified on a regional resource, it will take precedence.
 zone should be within the default region you specified. If another zone is
 specified on a zonal resource, it will take precedence.
 
----
+* `impersonate_service_account` - (Optional) The service account to impersonate for all Google API Calls.
+You must have `roles/iam.serviceAccountTokenCreator` role on that account for the impersonation to succeed.
+
+* `credentials` - (Optional) Either the path to or the contents of a
+[service account key file] in JSON format. You can
+[manage key files using the Cloud Console].  If not provided, the
+application default credentials will be used.
 
 * `scopes` - (Optional) The list of OAuth 2.0 [scopes] requested when generating
 an access token using the service account key specified in `credentials`.
@@ -107,9 +123,9 @@ resource project for preconditions, quota, and billing, instead of the project
 the credentials belong to. Not all resources support this- see the
 documentation for each resource to learn whether it does.
 
-* `billing_project` - (Optional) This fields specifies a project that's used for 
-preconditions, quota, and billing for requests. All resources that support user project 
-overrides will use this project instead of the resource's project (if available). This 
+* `billing_project` - (Optional) This fields specifies a project that's used for
+preconditions, quota, and billing for requests. All resources that support user project
+overrides will use this project instead of the resource's project (if available). This
 field is ignored if `user_project_override` is set to false or unset.
 
 * `{{service}}_custom_endpoint` - (Optional) The endpoint for a service's APIs,
@@ -166,9 +182,16 @@ are automatically available. See
 for more details.
 
 * On your computer, you can make your Google identity available by
-running [`gcloud auth application-default login`][gcloud adc]. This
-approach isn't recommended- some APIs are not compatible with
-credentials obtained through `gcloud`.
+running [`gcloud auth application-default login`][gcloud adc].
+
+---
+* `impersonate_service_account` - (Optional) The service account to impersonate for all Google API Calls.
+You must have `roles/iam.serviceAccountTokenCreator` role on that account for the impersonation to succeed.
+If you are using a delegation chain, you can specify that using the `impersonate_service_account_delegates` field.
+Alternatively, this can be specified using the `GOOGLE_IMPERSONATE_SERVICE_ACCOUNT` environment
+variable.
+
+* `impersonate_service_account_delegates` - (Optional) The delegation chain for an impersonating a service account as described [here](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials#sa-credentials-delegated).
 
 ---
 
@@ -185,7 +208,7 @@ following ordered by precedence.
 ---
 
 * `billing_project` - (Optional) This fields allows Terraform to set X-Goog-User-Project
-for APIs that require a billing project to be specified like Access Context Manager APIs if 
+for APIs that require a billing project to be specified like Access Context Manager APIs if
 User ADCs are being used. This can also be
 specified using the `GOOGLE_BILLING_PROJECT` environment variable.
 
@@ -325,12 +348,12 @@ as their versioned counterpart but that won't necessarily always be the case.
 
 * `batching` - (Optional) Controls batching for specific GCP request types
   where users have encountered quota or speed issues using `count` with
-  resources that affect the same GCP resource (e.g. `google_project_service`). 
+  resources that affect the same GCP resource (e.g. `google_project_service`).
   It is not used for every resource/request type and can only group parallel
   similar calls for nodes at a similar traversal time in the graph during
   `terraform apply` (e.g. resources created using `count` that affect a single
-  `project`). Thus, it is also bounded by the `terraform` 
-  [`-parallelism`](https://www.terraform.io/docs/commands/apply.html#parallelism-n) 
+  `project`). Thus, it is also bounded by the `terraform`
+  [`-parallelism`](https://www.terraform.io/docs/commands/apply.html#parallelism-n)
   flag, as reducing the number of parallel calls will reduce the number of
   simultaneous requests being added to a batcher.
 
@@ -341,9 +364,60 @@ as their versioned counterpart but that won't necessarily always be the case.
   operations with slower eventual propagation. If you're not completely sure
   what you are doing, avoid setting custom batching configuration.
 
-**So far, batching is implemented for**:
+**So far, batching is implemented for below resources**:
 
-* enabling project services using `google_project_service`.
+* `google_project_service`
+* `google_api_gateway_api_config_iam_*`
+* `google_api_gateway_api_iam_*`
+* `google_api_gateway_gateway_iam_*`
+* `google_bigquery_dataset_iam_*`
+* `google_bigquery_table_iam_*`
+* `google_notebooks_instance_iam_*`
+* `google_bigtable_instance_iam_*`
+* `google_bigtable_table_iam_*`
+* `google_billing_account_iam_*`
+* `google_endpoints_service_iam_*`
+* `google_healthcare_consent_store_iam_*`
+* `google_healthcare_dataset_iam_*`
+* `google_healthcare_dicom_store_iam_*`
+* `google_healthcare_fhir_store_iam_*`
+* `google_healthcare_hl7_v2_store_iam_*`
+* `google_kms_crypto_key_iam_*`
+* `google_kms_key_ring_iam_*`
+* `google_folder_iam_*`
+* `google_organization_iam_*`
+* `google_project_iam_*`
+* `google_service_account_iam_*`
+* `google_project_service_*`
+* `google_pubsub_subscription_iam_*`
+* `google_pubsub_topic_iam_*`
+* `google_cloud_run_service_iam_*`
+* `google_sourcerepo_repository_iam_*`
+* `google_spanner_database_iam_*`
+* `google_spanner_instance_iam_*`
+* `google_storage_bucket_iam_*`
+* `google_compute_disk_iam_*`
+* `google_compute_image_iam_*`
+* `google_compute_instance_iam_*`
+* `google_compute_machine_image_iam_*`
+* `google_compute_region_disk_iam_*`
+* `google_compute_subnetwork_iam_*`
+* `google_data_catalog_entry_group_iam_*`
+* `google_data_catalog_policy_tag_iam_*`
+* `google_data_catalog_taxonomy_iam_*`
+* `google_dataproc_cluster_iam_*`
+* `google_dataproc_job_iam_*`
+* `google_iap_app_engine_service_iam_*`
+* `google_iap_app_engine_version_iam_*`
+* `google_iap_tunnel_iam_*`
+* `google_iap_tunnel_instance_iam_*`
+* `google_iap_web_backend_service_iam_*`
+* `google_iap_web_iam_*`
+* `google_iap_web_type_app_engine_iam_*`
+* `google_iap_web_type_compute_iam_*`
+* `google_runtimeconfig_config_iam_*`
+* `google_secret_manager_secret_iam_*`
+* `google_service_directory_service_iam_*`
 
 The `batching` block supports the following fields.
 

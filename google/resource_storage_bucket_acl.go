@@ -51,6 +51,7 @@ func resourceStorageBucketAcl() *schema.Resource {
 				Description:   `List of role/entity pairs in the form ROLE:entity. See GCS Bucket ACL documentation  for more details. Must be set if predefined_acl is not.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

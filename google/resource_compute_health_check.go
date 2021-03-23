@@ -101,7 +101,7 @@ func portDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 			newPort, _ := strconv.Atoi(new)
 
 			portSpec := d.Get(b[0] + ".0.port_specification")
-			if int64(oldPort) == defaultPort && newPort == 0 && portSpec == "USE_FIXED_PORT" {
+			if int64(oldPort) == defaultPort && newPort == 0 && (portSpec == "USE_FIXED_PORT" || portSpec == "") {
 				return true
 			}
 		}
@@ -166,7 +166,7 @@ you create the resource.`,
 						"grpc_service_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The gRPC service name for the health check. 
+							Description: `The gRPC service name for the health check.
 The value of grpcServiceName has the following meanings by convention:
   - Empty serviceName means the overall status of all services at the backend.
   - Non-empty serviceName means the health of that gRPC service, as defined by the owner of the service.
@@ -176,8 +176,8 @@ The grpcServiceName can only be ASCII.`,
 						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Description: `The port number for the health check request. 
-Must be specified if portName and portSpecification are not set 
+							Description: `The port number for the health check request.
+Must be specified if portName and portSpecification are not set
 or if port_specification is USE_FIXED_PORT. Valid values are 1 through 65535.`,
 							AtLeastOneOf: []string{"grpc_health_check.0.port", "grpc_health_check.0.port_name", "grpc_health_check.0.port_specification", "grpc_health_check.0.grpc_service_name"},
 						},
@@ -636,6 +636,7 @@ consecutive failures. The default value is 2.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -735,7 +736,7 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HealthCheck: %s", err)
 	}
 	billingProject = project
 
@@ -787,7 +788,7 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HealthCheck: %s", err)
 	}
 	billingProject = project
 
@@ -860,13 +861,12 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HealthCheck: %s", err)
 	}
 	billingProject = project
 
@@ -986,13 +986,12 @@ func resourceComputeHealthCheckDelete(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for HealthCheck: %s", err)
 	}
 	billingProject = project
 

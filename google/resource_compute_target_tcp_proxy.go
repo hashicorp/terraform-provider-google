@@ -67,6 +67,14 @@ character, which cannot be a dash.`,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"proxy_bind": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `This field only applies when the forwarding rule that references
+this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.`,
+			},
 			"proxy_header": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -96,6 +104,7 @@ the backend. Default value: "NONE" Possible values: ["NONE", "PROXY_V1"]`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -131,6 +140,12 @@ func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(serviceProp)) && (ok || !reflect.DeepEqual(v, serviceProp)) {
 		obj["service"] = serviceProp
 	}
+	proxyBindProp, err := expandComputeTargetTcpProxyProxyBind(d.Get("proxy_bind"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("proxy_bind"); !isEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
+		obj["proxyBind"] = proxyBindProp
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetTcpProxies")
 	if err != nil {
@@ -142,7 +157,7 @@ func resourceComputeTargetTcpProxyCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
 	}
 	billingProject = project
 
@@ -194,7 +209,7 @@ func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
 	}
 	billingProject = project
 
@@ -230,6 +245,9 @@ func resourceComputeTargetTcpProxyRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("backend_service", flattenComputeTargetTcpProxyBackendService(res["service"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
+	if err := d.Set("proxy_bind", flattenComputeTargetTcpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
+	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading TargetTcpProxy: %s", err)
 	}
@@ -243,13 +261,12 @@ func resourceComputeTargetTcpProxyUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
 	}
 	billingProject = project
 
@@ -335,13 +352,12 @@ func resourceComputeTargetTcpProxyDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetTcpProxy: %s", err)
 	}
 	billingProject = project
 
@@ -435,6 +451,10 @@ func flattenComputeTargetTcpProxyBackendService(v interface{}, d *schema.Resourc
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeTargetTcpProxyProxyBind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandComputeTargetTcpProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -453,4 +473,8 @@ func expandComputeTargetTcpProxyBackendService(v interface{}, d TerraformResourc
 		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeTargetTcpProxyProxyBind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }

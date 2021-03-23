@@ -97,6 +97,7 @@ If it is not provided, the provider region is used.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -143,7 +144,7 @@ func resourceComputeRegionTargetHttpProxyCreate(d *schema.ResourceData, meta int
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionTargetHttpProxy: %s", err)
 	}
 	billingProject = project
 
@@ -195,7 +196,7 @@ func resourceComputeRegionTargetHttpProxyRead(d *schema.ResourceData, meta inter
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionTargetHttpProxy: %s", err)
 	}
 	billingProject = project
 
@@ -244,13 +245,12 @@ func resourceComputeRegionTargetHttpProxyUpdate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionTargetHttpProxy: %s", err)
 	}
 	billingProject = project
 
@@ -302,13 +302,12 @@ func resourceComputeRegionTargetHttpProxyDelete(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionTargetHttpProxy: %s", err)
 	}
 	billingProject = project
 

@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: fixed bug where gc_policy would attempt to recreate the resource when switching from deprecated attribute but maintaining the same value underlying value
+```

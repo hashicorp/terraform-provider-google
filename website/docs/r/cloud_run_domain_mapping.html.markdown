@@ -27,7 +27,7 @@ Resource to hold the state and status of a user's domain mapping.
 
 To get more information about DomainMapping, see:
 
-* [API documentation](https://cloud.google.com/run/docs/reference/rest/v1alpha1/projects.locations.domainmappings)
+* [API documentation](https://cloud.google.com/run/docs/reference/rest/v1/projects.locations.domainmappings)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/run/docs/mapping-custom-domains)
 
@@ -52,7 +52,7 @@ resource "google_cloud_run_service" "default" {
   template {
     spec {
       containers {
-        image = "gcr.io/cloudrun/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
       }
     }
   }
@@ -155,6 +155,9 @@ The `metadata` block supports:
   Annotations is a key value map stored with a resource that
   may be set by external tools to store and retrieve arbitrary metadata. More
   info: http://kubernetes.io/docs/user-guide/annotations
+  **Note**: The Cloud Run API may add additional annotations that were not provided in your config.
+  If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
+  or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.
 
 - - -
 
@@ -234,6 +237,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 DomainMapping can be imported using any of these accepted formats:
 

@@ -329,7 +329,9 @@ The `liveness_check` block supports:
     If it is not provided, the provider project is used.
 
 * `noop_on_destroy` - (Optional) If set to `true`, the application version will not be deleted.
+
 * `delete_service_on_destroy` - (Optional) If set to `true`, the service will be deleted if it is the last version.    
+
 
 The `network` block supports:
 
@@ -745,6 +747,7 @@ This resource provides the following
 - `delete` - Default is 10 minutes.
 
 ## Import
+
 
 FlexibleAppVersion can be imported using any of these accepted formats:
 

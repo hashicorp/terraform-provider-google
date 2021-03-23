@@ -24,9 +24,18 @@ description: |-
 
 A Cloud Identity resource representing a Group.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
+To get more information about Group, see:
+
+* [API documentation](https://cloud.google.com/identity/docs/reference/rest/v1beta1/groups)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/identity/docs/how-to/setup)
+
+~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
+you must specify a `billing_project` and set `user_project_override` to true 
+in the provider configuration. Otherwise the Cloud Identity API will return a 403 error. 
+Your account must have the `serviceusage.services.use` permission on the 
+`billing_project` you defined.
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_identity_groups_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -38,7 +47,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_cloud_identity_group" "cloud_identity_group_basic" {
-  provider = google-beta
   display_name = "my-identity-group"
 
   parent = "customers/A01b123xz"
@@ -133,11 +141,12 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
-- `create` - Default is 4 minutes.
+- `create` - Default is 6 minutes.
 - `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Group can be imported using any of these accepted formats:
 

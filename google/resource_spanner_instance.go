@@ -48,6 +48,7 @@ func resourceSpannerInstance() *schema.Resource {
 			"config": {
 				Type:             schema.TypeString,
 				Required:         true,
+				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description: `The name of the instance's configuration (similar but not
 quite the same as a region) which defines defines the geographic placement and
@@ -100,6 +101,7 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -157,7 +159,7 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
@@ -209,12 +211,12 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
-
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
 	time.Sleep(5 * time.Second)
+
+	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
 
 	return resourceSpannerInstanceRead(d, meta)
 }
@@ -235,7 +237,7 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
@@ -293,23 +295,16 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	configProp, err := expandSpannerInstanceConfig(d.Get("config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, configProp)) {
-		obj["config"] = configProp
-	}
 	displayNameProp, err := expandSpannerInstanceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -371,13 +366,12 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 

@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed a case in `google_sql_database_instance` where we inadvertently required the `projects.get` permission for a service networking precheck introduced in `v3.44.0`
+```

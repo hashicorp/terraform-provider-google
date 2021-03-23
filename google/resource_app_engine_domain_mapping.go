@@ -147,6 +147,7 @@ configuration in order to serve the application via this domain mapping.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -188,7 +189,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 
@@ -253,7 +254,7 @@ func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 
@@ -293,13 +294,12 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 
@@ -367,13 +367,12 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 

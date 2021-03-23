@@ -542,7 +542,7 @@ The `host_rule` block supports:
 The `path_matcher` block supports:
 
 * `default_service` -
-  (Required)
+  (Optional)
   A reference to a RegionBackendService resource. This will be used if
   none of the pathRules defined by this PathMatcher is matched by
   the URL's path portion.
@@ -702,7 +702,7 @@ The `match_rules` block supports:
 
 * `full_path_match` -
   (Optional)
-  For satifying the matchRule condition, the path of the request must exactly
+  For satisfying the matchRule condition, the path of the request must exactly
   match the value specified in fullPathMatch after removing any query parameters
   and anchor that may be part of the original URL. FullPathMatch must be between 1
   and 1024 characters. Only one of prefixMatch, fullPathMatch or regexMatch must
@@ -736,7 +736,7 @@ The `match_rules` block supports:
 
 * `prefix_match` -
   (Optional)
-  For satifying the matchRule condition, the request's path must begin with the
+  For satisfying the matchRule condition, the request's path must begin with the
   specified prefixMatch. prefixMatch must begin with a /. The value must be
   between 1 and 1024 characters. Only one of prefixMatch, fullPathMatch or
   regexMatch must be specified.
@@ -749,7 +749,7 @@ The `match_rules` block supports:
 
 * `regex_match` -
   (Optional)
-  For satifying the matchRule condition, the path of the request must satisfy the
+  For satisfying the matchRule condition, the path of the request must satisfy the
   regular expression specified in regexMatch after removing any query parameters
   and anchor supplied with the original URL. For regular expression grammar please
   see en.cppreference.com/w/cpp/regex/ecmascript  Only one of prefixMatch,
@@ -791,15 +791,18 @@ The `header_matches` block supports:
   (Optional)
   The header value must be an integer and its value must be in the range specified
   in rangeMatch. If the header does not contain an integer, number or is empty,
-  the match fails. For example for a range [-5, 0]   - -3 will match.  - 0 will
-  not match.  - 0.25 will not match.  - -3someString will not match.   Only one of
-  exactMatch, prefixMatch, suffixMatch, regexMatch, presentMatch or rangeMatch
-  must be set.
+  the match fails. For example for a range [-5, 0]
+  * -3 will match
+  * 0 will not match
+  * 0.25 will not match
+  * -3someString will not match.
+  Only one of exactMatch, prefixMatch, suffixMatch, regexMatch, presentMatch or
+  rangeMatch must be set.
   Structure is documented below.
 
 * `regex_match` -
   (Optional)
-  The value of the header must match the regualar expression specified in
+  The value of the header must match the regular expression specified in
   regexMatch. For regular expression grammar, please see:
   en.cppreference.com/w/cpp/regex/ecmascript  For matching against a port
   specified in the HTTP request, use a headerMatch with headerName set to PORT and
@@ -837,9 +840,9 @@ The `metadata_filters` block supports:
   (Required)
   Specifies how individual filterLabel matches within the list of filterLabels
   contribute towards the overall metadataFilter match. Supported values are:
-    - MATCH_ANY: At least one of the filterLabels must have a matching label in the
+  * MATCH_ANY: At least one of the filterLabels must have a matching label in the
   provided metadata.
-    - MATCH_ALL: All filterLabels must have matching labels in
+  * MATCH_ALL: All filterLabels must have matching labels in
   the provided metadata.
   Possible values are `MATCH_ALL` and `MATCH_ANY`.
 
@@ -959,7 +962,7 @@ The `cors_policy` block supports:
 
 * `allow_origin_regexes` -
   (Optional)
-  Specifies the regualar expression patterns that match allowed origins. For
+  Specifies the regular expression patterns that match allowed origins. For
   regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
   An origin is allowed if it matches either allow_origins or allow_origin_regex.
 
@@ -1056,26 +1059,26 @@ The `retry_policy` block supports:
 
 * `retry_conditions` -
   (Optional)
-  Specfies one or more conditions when this retry rule applies. Valid values are:
-  - 5xx: Loadbalancer will attempt a retry if the backend service responds with
+  Specifies one or more conditions when this retry rule applies. Valid values are:
+  * 5xx: Loadbalancer will attempt a retry if the backend service responds with
     any 5xx response code, or if the backend service does not respond at all,
     example: disconnects, reset, read timeout, connection failure, and refused
     streams.
-  - gateway-error: Similar to 5xx, but only applies to response codes
+  * gateway-error: Similar to 5xx, but only applies to response codes
     502, 503 or 504.
-  - connect-failure: Loadbalancer will retry on failures
+  * connect-failure: Loadbalancer will retry on failures
     connecting to backend services, for example due to connection timeouts.
-  - retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
+  * retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
     Currently the only retriable error supported is 409.
-  - refused-stream: Loadbalancer will retry if the backend service resets the stream with a
+  * refused-stream: Loadbalancer will retry if the backend service resets the stream with a
     REFUSED_STREAM error code. This reset type indicates that it is safe to retry.
-  - cancelled: Loadbalancer will retry if the gRPC status code in the response
+  * cancelled: Loadbalancer will retry if the gRPC status code in the response
     header is set to cancelled
-  - deadline-exceeded: Loadbalancer will retry if the
+  * deadline-exceeded: Loadbalancer will retry if the
     gRPC status code in the response header is set to deadline-exceeded
-  - resource-exhausted: Loadbalancer will retry if the gRPC status code in the response
+  * resource-exhausted: Loadbalancer will retry if the gRPC status code in the response
     header is set to resource-exhausted
-  - unavailable: Loadbalancer will retry if the gRPC status code in
+  * unavailable: Loadbalancer will retry if the gRPC status code in
     the response header is set to unavailable
 
 
@@ -1364,7 +1367,7 @@ The `cors_policy` block supports:
 
 * `allow_origin_regexes` -
   (Optional)
-  Specifies the regualar expression patterns that match allowed origins. For
+  Specifies the regular expression patterns that match allowed origins. For
   regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
   An origin is allowed if it matches either allow_origins or allow_origin_regex.
 
@@ -1797,6 +1800,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 RegionUrlMap can be imported using any of these accepted formats:
 

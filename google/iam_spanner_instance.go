@@ -29,11 +29,11 @@ var IamSpannerInstanceSchema = map[string]*schema.Schema{
 type SpannerInstanceIamUpdater struct {
 	project  string
 	instance string
-	d        *schema.ResourceData
+	d        TerraformResourceData
 	Config   *Config
 }
 
-func NewSpannerInstanceIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewSpannerInstanceIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err

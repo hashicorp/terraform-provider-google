@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -74,6 +75,14 @@ the user can explicitly connect subnetwork resources.`,
 				Description: `An optional description of this resource. The resource must be
 recreated to modify this field.`,
 			},
+			"mtu": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `Maximum Transmission Unit in bytes. The minimum value for this field is 1460
+and the maximum value is 1500 bytes.`,
+			},
 			"routing_mode": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -108,6 +117,7 @@ is selected by GCP.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -143,6 +153,12 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if !isEmptyValue(reflect.ValueOf(routingConfigProp)) {
 		obj["routingConfig"] = routingConfigProp
 	}
+	mtuProp, err := expandComputeNetworkMtu(d.Get("mtu"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mtu"); !isEmptyValue(reflect.ValueOf(mtuProp)) && (ok || !reflect.DeepEqual(v, mtuProp)) {
+		obj["mtu"] = mtuProp
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks")
 	if err != nil {
@@ -154,7 +170,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Network: %s", err)
 	}
 	billingProject = project
 
@@ -184,8 +200,6 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create Network: %s", err)
 	}
-
-	log.Printf("[DEBUG] Finished creating Network %q: %#v", d.Id(), res)
 
 	if d.Get("delete_default_routes_on_create").(bool) {
 		token := ""
@@ -219,6 +233,8 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
+	log.Printf("[DEBUG] Finished creating Network %q: %#v", d.Id(), res)
+
 	return resourceComputeNetworkRead(d, meta)
 }
 
@@ -238,7 +254,7 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Network: %s", err)
 	}
 	billingProject = project
 
@@ -253,7 +269,7 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOk("delete_default_routes_on_create"); !ok {
+	if _, ok := d.GetOkExists("delete_default_routes_on_create"); !ok {
 		if err := d.Set("delete_default_routes_on_create", false); err != nil {
 			return fmt.Errorf("Error setting delete_default_routes_on_create: %s", err)
 		}
@@ -289,6 +305,9 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 			}
 		}
 	}
+	if err := d.Set("mtu", flattenComputeNetworkMtu(res["mtu"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
@@ -302,13 +321,12 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Network: %s", err)
 	}
 	billingProject = project
 
@@ -360,13 +378,12 @@ func resourceComputeNetworkDelete(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Network: %s", err)
 	}
 	billingProject = project
 
@@ -458,6 +475,23 @@ func flattenComputeNetworkRoutingConfigRoutingMode(v interface{}, d *schema.Reso
 	return v
 }
 
+func flattenComputeNetworkMtu(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func expandComputeNetworkDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -483,5 +517,9 @@ func expandComputeNetworkRoutingConfig(v interface{}, d TerraformResourceData, c
 }
 
 func expandComputeNetworkRoutingConfigRoutingMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNetworkMtu(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

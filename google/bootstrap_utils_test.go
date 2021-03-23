@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
 	"google.golang.org/api/cloudkms/v1"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/iam/v1"
+	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 var SharedKeyRing = "tftest-shared-keyring-1"
@@ -334,4 +336,96 @@ func BootstrapConfig(t *testing.T) *Config {
 		t.Fatalf("Bootstrapping failed. Unable to load test config: %s", err)
 	}
 	return config
+}
+
+// SQL Instance names are not reusable for a week after deletion
+const SharedTestSQLInstanceNamePrefix = "tf-bootstrap-"
+
+// BootstrapSharedSQLInstanceBackupRun will return a shared SQL db instance that
+// has a backup created for it.
+func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
+	project := getTestProjectFromEnv()
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+
+	log.Printf("[DEBUG] Getting list of existing sql instances")
+
+	instances, err := config.NewSqlAdminClient(config.userAgent).Instances.List(project).Do()
+	if err != nil {
+		t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve instance list: %s", err)
+	}
+
+	var bootstrapInstance *sqladmin.DatabaseInstance
+
+	// Look for any existing bootstrap instances
+	for _, i := range instances.Items {
+		if strings.HasPrefix(i.Name, SharedTestSQLInstanceNamePrefix) {
+			bootstrapInstance = i
+			break
+		}
+	}
+
+	if bootstrapInstance == nil {
+		bootstrapInstanceName := SharedTestSQLInstanceNamePrefix + randString(t, 10)
+		log.Printf("[DEBUG] Bootstrap SQL Instance not found, bootstrapping new instance %s", bootstrapInstanceName)
+
+		backupConfig := &sqladmin.BackupConfiguration{
+			Enabled:                    true,
+			PointInTimeRecoveryEnabled: true,
+		}
+		settings := &sqladmin.Settings{
+			Tier:                "db-f1-micro",
+			BackupConfiguration: backupConfig,
+		}
+		bootstrapInstance = &sqladmin.DatabaseInstance{
+			Name:            bootstrapInstanceName,
+			Region:          "us-central1",
+			Settings:        settings,
+			DatabaseVersion: "POSTGRES_11",
+		}
+
+		var op *sqladmin.Operation
+		err = retryTimeDuration(func() (operr error) {
+			op, operr = config.NewSqlAdminClient(config.userAgent).Instances.Insert(project, bootstrapInstance).Do()
+			return operr
+		}, time.Duration(20)*time.Minute, isSqlOperationInProgressError)
+		if err != nil {
+			t.Fatalf("Error, failed to create instance %s: %s", bootstrapInstance.Name, err)
+		}
+		err = sqlAdminOperationWaitTime(config, op, project, "Create Instance", config.userAgent, time.Duration(20)*time.Minute)
+		if err != nil {
+			t.Fatalf("Error, failed to create instance %s: %s", bootstrapInstance.Name, err)
+		}
+	}
+
+	// Look for backups in bootstrap instance
+	res, err := config.NewSqlAdminClient(config.userAgent).BackupRuns.List(project, bootstrapInstance.Name).Do()
+	if err != nil {
+		t.Fatalf("Unable to bootstrap SQL Instance. Cannot retrieve backup list: %s", err)
+	}
+	backupsList := res.Items
+	if len(backupsList) == 0 {
+		log.Printf("[DEBUG] No backups found for %s, creating backup", bootstrapInstance.Name)
+		backupRun := &sqladmin.BackupRun{
+			Instance: bootstrapInstance.Name,
+		}
+
+		var op *sqladmin.Operation
+		err = retryTimeDuration(func() (operr error) {
+			op, operr = config.NewSqlAdminClient(config.userAgent).BackupRuns.Insert(project, bootstrapInstance.Name, backupRun).Do()
+			return operr
+		}, time.Duration(20)*time.Minute, isSqlOperationInProgressError)
+		if err != nil {
+			t.Fatalf("Error, failed to create instance backup: %s", err)
+		}
+		err = sqlAdminOperationWaitTime(config, op, project, "Backup Instance", config.userAgent, time.Duration(20)*time.Minute)
+		if err != nil {
+			t.Fatalf("Error, failed to create instance backup: %s", err)
+		}
+	}
+
+	return bootstrapInstance.Name
 }

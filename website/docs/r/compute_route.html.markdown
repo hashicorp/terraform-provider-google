@@ -213,7 +213,6 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-
 * `next_hop_instance_zone` - (Optional when `next_hop_instance` is
   specified)  The zone of the instance specified in
   `next_hop_instance`.  Omit if `next_hop_instance` is specified as
@@ -239,6 +238,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Route can be imported using any of these accepted formats:
 

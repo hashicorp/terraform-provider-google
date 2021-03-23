@@ -26,6 +26,11 @@ Jobs are actions that BigQuery runs on your behalf to load data, export data, qu
 Once a BigQuery job is created, it cannot be changed or deleted.
 
 
+To get more information about Job, see:
+
+* [API documentation](https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs)
+* How-to Guides
+    * [BigQuery Jobs Intro](https://cloud.google.com/bigquery/docs/jobs-overview)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_job_query&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -37,6 +42,7 @@ Once a BigQuery job is created, it cannot be changed or deleted.
 
 ```hcl
 resource "google_bigquery_table" "foo" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
   table_id   = "job_query_table"
 }
@@ -83,6 +89,7 @@ resource "google_bigquery_job" "job" {
 
 ```hcl
 resource "google_bigquery_table" "foo" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
   table_id   = "job_query_table"
 }
@@ -131,6 +138,7 @@ resource "google_bigquery_job" "job" {
 
 ```hcl
 resource "google_bigquery_table" "foo" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id
   table_id   = "job_load_table"
 }
@@ -178,6 +186,7 @@ resource "google_bigquery_job" "job" {
 
 ```hcl
 resource "google_bigquery_table" "source" {
+  deletion_protection = false
   count = length(google_bigquery_dataset.source)
 
   dataset_id = google_bigquery_dataset.source[count.index].dataset_id
@@ -214,6 +223,7 @@ resource "google_bigquery_dataset" "source" {
 }
 
 resource "google_bigquery_table" "dest" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.dest.dataset_id
   table_id   = "job_copy_dest_table"
 
@@ -310,6 +320,7 @@ resource "google_bigquery_job" "job" {
 
 ```hcl
 resource "google_bigquery_table" "source-one" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.source-one.dataset_id
   table_id   = "job_extract_table"
 
@@ -915,6 +926,54 @@ In addition to the arguments listed above, the following computed attributes are
 * `job_type` -
   The type of the job.
 
+* `status` -
+  The status of this job. Examine this value when polling an asynchronous job to see if the job is complete.
+  Structure is documented below.
+
+
+The `status` block contains:
+
+* `error_result` -
+  Final error result of the job. If present, indicates that the job has completed and was unsuccessful.
+  Structure is documented below.
+
+* `errors` -
+  The first errors encountered during the running of the job. The final message
+  includes the number of errors that caused the process to stop. Errors here do
+  not necessarily mean that the job has not completed or was unsuccessful.
+  Structure is documented below.
+
+* `state` -
+  Running state of the job. Valid states include 'PENDING', 'RUNNING', and 'DONE'.
+
+
+The `error_result` block contains:
+
+* `reason` -
+  (Optional)
+  A short error code that summarizes the error.
+
+* `location` -
+  (Optional)
+  Specifies where the error occurred, if present.
+
+* `message` -
+  (Optional)
+  A human-readable description of the error.
+
+The `errors` block contains:
+
+* `reason` -
+  (Optional)
+  A short error code that summarizes the error.
+
+* `location` -
+  (Optional)
+  Specifies where the error occurred, if present.
+
+* `message` -
+  (Optional)
+  A human-readable description of the error.
 
 ## Timeouts
 
@@ -925,6 +984,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Job can be imported using any of these accepted formats:
 

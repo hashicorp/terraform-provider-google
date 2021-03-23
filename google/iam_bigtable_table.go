@@ -33,11 +33,11 @@ type BigtableTableIamUpdater struct {
 	project  string
 	instance string
 	table    string
-	d        *schema.ResourceData
+	d        TerraformResourceData
 	Config   *Config
 }
 
-func NewBigtableTableUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewBigtableTableUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err

@@ -121,16 +121,11 @@ resource "google_monitoring_slo" "request_based_slo" {
 
   request_based_sli {
     distribution_cut {
-      distribution_filter = join(" AND ", [
-        "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\"",
-        "resource.type=\"consumed_api\"",
-        "resource.label.\"project_id\"=\"%{project}\"",
-      ])
-
-      range {
-        max = 10
-      }
-    }
+          distribution_filter = "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\" resource.type=\"api\"  "
+          range {
+            max = 0.5
+          }
+        }
   }
 }
 `, context)
@@ -390,7 +385,13 @@ func testAccCheckMonitoringSloDestroyProducer(t *testing.T) func(s *terraform.St
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("MonitoringSlo still exists at %s", url)
 			}

@@ -29,7 +29,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 To get more information about Repository, see:
 
-* [API documentation](https://cloud.google.com/artifact-registry/docs/reference/rest/)
+* [API documentation](https://cloud.google.com/artifact-registry/docs/reference/rest/v1beta2/projects.locations.repositories)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/artifact-registry/docs/overview)
 
@@ -117,8 +117,7 @@ The following arguments are supported:
 
 * `format` -
   (Required)
-  The format of packages that are stored in the repoitory.
-  Possible values are `DOCKER`.
+  The format of packages that are stored in the repository.
 
 
 - - -
@@ -178,6 +177,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Repository can be imported using any of these accepted formats:
 

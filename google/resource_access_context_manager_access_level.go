@@ -277,6 +277,7 @@ custom access levels - https://cloud.google.com/access-context-manager/docs/cust
 				Description: `Description of the AccessLevel and its use. Does not affect behavior.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -432,7 +433,6 @@ func resourceAccessContextManagerAccessLevelUpdate(d *schema.ResourceData, meta 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -527,7 +527,6 @@ func resourceAccessContextManagerAccessLevelDelete(d *schema.ResourceData, meta 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

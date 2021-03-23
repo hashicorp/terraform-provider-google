@@ -68,6 +68,7 @@ creation. Do not specify the self link.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -101,7 +102,7 @@ func resourceComputeRegionDiskResourcePolicyAttachmentCreate(d *schema.ResourceD
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionDiskResourcePolicyAttachment: %s", err)
 	}
 	billingProject = project
 
@@ -153,7 +154,7 @@ func resourceComputeRegionDiskResourcePolicyAttachmentRead(d *schema.ResourceDat
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionDiskResourcePolicyAttachment: %s", err)
 	}
 	billingProject = project
 
@@ -208,13 +209,12 @@ func resourceComputeRegionDiskResourcePolicyAttachmentDelete(d *schema.ResourceD
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionDiskResourcePolicyAttachment: %s", err)
 	}
 	billingProject = project
 

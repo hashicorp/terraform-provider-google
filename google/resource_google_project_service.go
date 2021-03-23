@@ -100,6 +100,7 @@ func resourceGoogleProjectService() *schema.Resource {
 				Default:  true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -119,11 +120,6 @@ func resourceGoogleProjectServiceImport(d *schema.ResourceData, m interface{}) (
 
 func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-	config.userAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -276,7 +272,7 @@ func disableServiceUsageProjectService(service, project string, d *schema.Resour
 			return waitErr
 		}
 		return nil
-	}, d.Timeout(schema.TimeoutDelete))
+	}, d.Timeout(schema.TimeoutDelete), serviceUsageServiceBeingActivated)
 	if err != nil {
 		return fmt.Errorf("Error disabling service %q for project %q: %v", service, project, err)
 	}

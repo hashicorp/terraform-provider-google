@@ -29,8 +29,6 @@ A Cloud AI Platform Notebook instance.
 in this resource do not properly detect drift. These fields will also not
 appear in state once imported.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Instance, see:
 
@@ -48,10 +46,9 @@ To get more information about Instance, see:
 
 ```hcl
 resource "google_notebooks_instance" "instance" {
-  provider = google-beta
   name = "notebooks-instance"
   location = "us-west1-a"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   vm_image {
     project      = "deeplearning-platform-release"
     image_family = "tf-latest-cpu"
@@ -68,10 +65,9 @@ resource "google_notebooks_instance" "instance" {
 
 ```hcl
 resource "google_notebooks_instance" "instance" {
-  provider = google-beta
   name = "notebooks-instance"
   location = "us-west1-a"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   metadata = {
     proxy-mode = "service_account"
     terraform  = "true"
@@ -92,10 +88,9 @@ resource "google_notebooks_instance" "instance" {
 
 ```hcl
 resource "google_notebooks_instance" "instance" {
-  provider = google-beta
   name = "notebooks-instance"
   location = "us-west1-a"
-  machine_type = "n1-standard-1"
+  machine_type = "n1-standard-1" // can't be e2 because of accelerator
 
   install_gpu_driver = true
   accelerator_config {
@@ -118,17 +113,16 @@ resource "google_notebooks_instance" "instance" {
 
 ```hcl
 resource "google_notebooks_instance" "instance" {
-  provider = google-beta
   name = "notebooks-instance"
   location = "us-central1-a"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   vm_image {
     project      = "deeplearning-platform-release"
     image_family = "tf-latest-cpu"
   }
 
-  instance_owners = "admin@hashicorptest.com"
+  instance_owners = ["admin@hashicorptest.com"]
   service_account = "emailAddress:my@service-account.com"
 
   install_gpu_driver = true
@@ -151,12 +145,10 @@ resource "google_notebooks_instance" "instance" {
 }
 
 data "google_compute_network" "my_network" {
-  provider = google-beta
   name = "default"
 }
 
 data "google_compute_subnetwork" "my_subnetwork" {
-  provider = google-beta
   name   = "default"
   region = "us-central1"
 }
@@ -185,31 +177,44 @@ The following arguments are supported:
 
 * `post_startup_script` -
   (Optional)
-  Path to a Bash script that automatically runs after a 
-  notebook instance fully boots up. The path must be a URL 
+  Path to a Bash script that automatically runs after a
+  notebook instance fully boots up. The path must be a URL
   or Cloud Storage path (gs://path-to-file/file-name).
 
 * `instance_owners` -
   (Optional)
-  The list of owners of this instance after creation. 
+  The list of owners of this instance after creation.
   Format: alias@example.com.
-  Currently supports one owner only. 
-  If not specified, all of the service account users of 
+  Currently supports one owner only.
+  If not specified, all of the service account users of
   your VM instance's service account can use the instance.
 
 * `service_account` -
   (Optional)
-  The service account on this instance, giving access to other 
-  Google Cloud services. You can use any service account within 
-  the same project, but you must have the service account user 
-  permission to use the instance. If not specified, 
+  The service account on this instance, giving access to other
+  Google Cloud services. You can use any service account within
+  the same project, but you must have the service account user
+  permission to use the instance. If not specified,
   the Compute Engine default service account is used.
+
+* `service_account_scopes` -
+  (Optional)
+  Optional. The URIs of service account scopes to be included in Compute Engine instances.
+  If not specified, the following scopes are defined:
+  - https://www.googleapis.com/auth/cloud-platform
+  - https://www.googleapis.com/auth/userinfo.email
 
 * `accelerator_config` -
   (Optional)
-  The hardware accelerator used on this instance. If you use accelerators, 
-  make sure that your configuration has enough vCPUs and memory to support the 
+  The hardware accelerator used on this instance. If you use accelerators,
+  make sure that your configuration has enough vCPUs and memory to support the
   machineType you have selected.
+  Structure is documented below.
+
+* `shielded_instance_config` -
+  (Optional)
+  A set of Shielded Instance options. Check [Images using supported Shielded VM features]
+  Not all combinations are valid
   Structure is documented below.
 
 * `install_gpu_driver` -
@@ -220,7 +225,7 @@ The following arguments are supported:
 
 * `custom_gpu_driver_path` -
   (Optional)
-  Specify a custom Cloud Storage path where the GPU driver is stored. 
+  Specify a custom Cloud Storage path where the GPU driver is stored.
   If not specified, we'll automatically choose from official GPU drivers.
 
 * `boot_disk_type` -
@@ -230,8 +235,8 @@ The following arguments are supported:
 
 * `boot_disk_size_gb` -
   (Optional)
-  The size of the boot disk in GB attached to this instance, 
-  up to a maximum of 64000 GB (64 TB). The minimum recommended value is 100 GB. 
+  The size of the boot disk in GB attached to this instance,
+  up to a maximum of 64000 GB (64 TB). The minimum recommended value is 100 GB.
   If not specified, this defaults to 100.
 
 * `data_disk_type` -
@@ -241,9 +246,9 @@ The following arguments are supported:
 
 * `data_disk_size_gb` -
   (Optional)
-  The size of the data disk in GB attached to this instance, 
-  up to a maximum of 64000 GB (64 TB). 
-  You can choose the size of the data disk based on how big your notebooks and data are. 
+  The size of the data disk in GB attached to this instance,
+  up to a maximum of 64000 GB (64 TB).
+  You can choose the size of the data disk based on how big your notebooks and data are.
   If not specified, this defaults to 100.
 
 * `no_remove_data_disk` -
@@ -257,31 +262,35 @@ The following arguments are supported:
 
 * `kms_key` -
   (Optional)
-  The KMS key used to encrypt the disks, only applicable if diskEncryption is CMEK. 
+  The KMS key used to encrypt the disks, only applicable if diskEncryption is CMEK.
   Format: projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}
 
 * `no_public_ip` -
   (Optional)
-  no public IP will be assigned to this instance.
+  No public IP will be assigned to this instance.
 
 * `no_proxy_access` -
   (Optional)
-  the notebook instance will not register with the proxy..
+  The notebook instance will not register with the proxy..
 
 * `network` -
   (Optional)
-  The name of the VPC that this instance is in. 
+  The name of the VPC that this instance is in.
   Format: projects/{project_id}/global/networks/{network_id}
 
 * `subnet` -
   (Optional)
-  The name of the subnet that this instance is in. 
+  The name of the subnet that this instance is in.
   Format: projects/{project_id}/regions/{region}/subnetworks/{subnetwork_id}
 
 * `labels` -
   (Optional)
   Labels to apply to this instance. These can be later modified by the setLabels method.
   An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+* `tags` -
+  (Optional)
+  The Compute Engine tags to add to runtime.
 
 * `metadata` -
   (Optional)
@@ -307,17 +316,38 @@ The `accelerator_config` block supports:
 * `type` -
   (Required)
   Type of this accelerator.
-  Possible values are `ACCELERATOR_TYPE_UNSPECIFIED`, `NVIDIA_TESLA_K80`, `NVIDIA_TESLA_P100`, `NVIDIA_TESLA_V100`, `NVIDIA_TESLA_P4`, `NVIDIA_TESLA_T4`, `NVIDIA_TESLA_T4_VWS`, `NVIDIA_TESLA_P100_VWS`, `NVIDIA_TESLA_P4_VWS`, `TPU_V2`, and `TPU_V3`.
+  Possible values are `ACCELERATOR_TYPE_UNSPECIFIED`, `NVIDIA_TESLA_K80`, `NVIDIA_TESLA_P100`, `NVIDIA_TESLA_V100`, `NVIDIA_TESLA_P4`, `NVIDIA_TESLA_T4`, `NVIDIA_TESLA_T4_VWS`, `NVIDIA_TESLA_P100_VWS`, `NVIDIA_TESLA_P4_VWS`, `NVIDIA_TESLA_A100`, `TPU_V2`, and `TPU_V3`.
 
 * `core_count` -
   (Required)
   Count of cores of this accelerator.
 
+The `shielded_instance_config` block supports:
+
+* `enable_integrity_monitoring` -
+  (Optional)
+  Defines whether the instance has integrity monitoring enabled. Enables monitoring and attestation of the
+  boot integrity of the instance. The attestation is performed against the integrity policy baseline.
+  This baseline is initially derived from the implicitly trusted boot image when the instance is created.
+  Enabled by default.
+
+* `enable_secure_boot` -
+  (Optional)
+  Defines whether the instance has Secure Boot enabled. Secure Boot helps ensure that the system only runs
+  authentic software by verifying the digital signature of all boot components, and halting the boot process
+  if signature verification fails.
+  Disabled by default.
+
+* `enable_vtpm` -
+  (Optional)
+  Defines whether the instance has the vTPM enabled.
+  Enabled by default.
+
 The `vm_image` block supports:
 
 * `project` -
   (Required)
-  The name of the Google Cloud project that this VM image belongs to. 
+  The name of the Google Cloud project that this VM image belongs to.
   Format: projects/{project_id}
 
 * `image_family` -
@@ -332,7 +362,7 @@ The `container_image` block supports:
 
 * `repository` -
   (Required)
-  The path to the container image repository. 
+  The path to the container image repository.
   For example: gcr.io/{project_id}/{imageName}
 
 * `tag` -
@@ -368,6 +398,7 @@ This resource provides the following
 - `delete` - Default is 15 minutes.
 
 ## Import
+
 
 Instance can be imported using any of these accepted formats:
 

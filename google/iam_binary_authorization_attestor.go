@@ -39,11 +39,11 @@ var BinaryAuthorizationAttestorIamSchema = map[string]*schema.Schema{
 type BinaryAuthorizationAttestorIamUpdater struct {
 	project  string
 	attestor string
-	d        *schema.ResourceData
+	d        TerraformResourceData
 	Config   *Config
 }
 
-func BinaryAuthorizationAttestorIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func BinaryAuthorizationAttestorIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

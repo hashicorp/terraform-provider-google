@@ -19,6 +19,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -103,7 +104,7 @@ This translates to the Access-Control-Allow-Credentials header.`,
 									"allow_origin_regexes": {
 										Type:     schema.TypeList,
 										Optional: true,
-										Description: `Specifies the regualar expression patterns that match allowed origins. For regular expression grammar
+										Description: `Specifies the regular expression patterns that match allowed origins. For regular expression grammar
 please see en.cppreference.com/w/cpp/regex/ecmascript
 An origin is allowed if it matches either an item in allowOrigins or an item in allowOriginRegexes.`,
 										Elem: &schema.Schema{
@@ -302,20 +303,20 @@ Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.2
 										Optional: true,
 										Description: `Specfies one or more conditions when this retry rule applies. Valid values are:
 
-5xx: Loadbalancer will attempt a retry if the backend service responds with any 5xx response code,
-or if the backend service does not respond at all, example: disconnects, reset, read timeout,
-connection failure, and refused streams.
-gateway-error: Similar to 5xx, but only applies to response codes 502, 503 or 504.
-connect-failure: Loadbalancer will retry on failures connecting to backend services,
-for example due to connection timeouts.
-retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
-Currently the only retriable error supported is 409.
-refused-stream:Loadbalancer will retry if the backend service resets the stream with a REFUSED_STREAM error code.
-This reset type indicates that it is safe to retry.
-cancelled: Loadbalancer will retry if the gRPC status code in the response header is set to cancelled
-deadline-exceeded: Loadbalancer will retry if the gRPC status code in the response header is set to deadline-exceeded
-resource-exhausted: Loadbalancer will retry if the gRPC status code in the response header is set to resource-exhausted
-unavailable: Loadbalancer will retry if the gRPC status code in the response header is set to unavailable`,
+* 5xx: Loadbalancer will attempt a retry if the backend service responds with any 5xx response code,
+  or if the backend service does not respond at all, example: disconnects, reset, read timeout,
+* connection failure, and refused streams.
+* gateway-error: Similar to 5xx, but only applies to response codes 502, 503 or 504.
+* connect-failure: Loadbalancer will retry on failures connecting to backend services,
+  for example due to connection timeouts.
+* retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
+  Currently the only retriable error supported is 409.
+* refused-stream:Loadbalancer will retry if the backend service resets the stream with a REFUSED_STREAM error code.
+  This reset type indicates that it is safe to retry.
+* cancelled: Loadbalancer will retry if the gRPC status code in the response header is set to cancelled
+* deadline-exceeded: Loadbalancer will retry if the gRPC status code in the response header is set to deadline-exceeded
+* resource-exhausted: Loadbalancer will retry if the gRPC status code in the response header is set to resource-exhausted
+* unavailable: Loadbalancer will retry if the gRPC status code in the response header is set to unavailable`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -747,7 +748,7 @@ This translates to the Access-Control-Allow-Credentials header.`,
 												"allow_origin_regexes": {
 													Type:     schema.TypeList,
 													Optional: true,
-													Description: `Specifies the regualar expression patterns that match allowed origins. For regular expression grammar
+													Description: `Specifies the regular expression patterns that match allowed origins. For regular expression grammar
 please see en.cppreference.com/w/cpp/regex/ecmascript
 An origin is allowed if it matches either an item in allowOrigins or an item in allowOriginRegexes.`,
 													Elem: &schema.Schema{
@@ -926,20 +927,20 @@ Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.2
 													Optional: true,
 													Description: `Specfies one or more conditions when this retry rule applies. Valid values are:
 
-5xx: Loadbalancer will attempt a retry if the backend service responds with any 5xx response code,
-or if the backend service does not respond at all, example: disconnects, reset, read timeout,
-connection failure, and refused streams.
-gateway-error: Similar to 5xx, but only applies to response codes 502, 503 or 504.
-connect-failure: Loadbalancer will retry on failures connecting to backend services,
-for example due to connection timeouts.
-retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
-Currently the only retriable error supported is 409.
-refused-stream:Loadbalancer will retry if the backend service resets the stream with a REFUSED_STREAM error code.
-This reset type indicates that it is safe to retry.
-cancelled: Loadbalancer will retry if the gRPC status code in the response header is set to cancelled
-deadline-exceeded: Loadbalancer will retry if the gRPC status code in the response header is set to deadline-exceeded
-resource-exhausted: Loadbalancer will retry if the gRPC status code in the response header is set to resource-exhausted
-unavailable: Loadbalancer will retry if the gRPC status code in the response header is set to unavailable`,
+* 5xx: Loadbalancer will attempt a retry if the backend service responds with any 5xx response code,
+  or if the backend service does not respond at all, example: disconnects, reset, read timeout,
+* connection failure, and refused streams.
+* gateway-error: Similar to 5xx, but only applies to response codes 502, 503 or 504.
+* connect-failure: Loadbalancer will retry on failures connecting to backend services,
+  for example due to connection timeouts.
+* retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
+  Currently the only retriable error supported is 409.
+* refused-stream:Loadbalancer will retry if the backend service resets the stream with a REFUSED_STREAM error code.
+  This reset type indicates that it is safe to retry.
+* cancelled: Loadbalancer will retry if the gRPC status code in the response header is set to cancelled
+* deadline-exceeded: Loadbalancer will retry if the gRPC status code in the response header is set to deadline-exceeded
+* resource-exhausted: Loadbalancer will retry if the gRPC status code in the response header is set to resource-exhausted
+* unavailable: Loadbalancer will retry if the gRPC status code in the response header is set to unavailable`,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -1364,7 +1365,7 @@ Control-Allow-Credentials header. Defaults to false.`,
 															"allow_origin_regexes": {
 																Type:     schema.TypeList,
 																Optional: true,
-																Description: `Specifies the regualar expression patterns that match allowed origins. For
+																Description: `Specifies the regular expression patterns that match allowed origins. For
 regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
 An origin is allowed if it matches either allow_origins or allow_origin_regex.`,
 																Elem: &schema.Schema{
@@ -1536,25 +1537,26 @@ less than one second are represented with a 0 'seconds' field and a positive
 																Type:     schema.TypeList,
 																Optional: true,
 																Description: `Specifies one or more conditions when this retry rule applies. Valid values are:
-- 5xx: Loadbalancer will attempt a retry if the backend service responds with
+
+* 5xx: Loadbalancer will attempt a retry if the backend service responds with
 any 5xx response code, or if the backend service does not respond at all,
 example: disconnects, reset, read timeout, connection failure, and refused
 streams.
-- gateway-error: Similar to 5xx, but only applies to response codes
+* gateway-error: Similar to 5xx, but only applies to response codes
 502, 503 or 504.
-- connect-failure: Loadbalancer will retry on failures
+* connect-failure: Loadbalancer will retry on failures
 connecting to backend services, for example due to connection timeouts.
-- retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
+* retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
 Currently the only retriable error supported is 409.
-- refused-stream: Loadbalancer will retry if the backend service resets the stream with a
+* refused-stream: Loadbalancer will retry if the backend service resets the stream with a
 REFUSED_STREAM error code. This reset type indicates that it is safe to retry.
-- cancelled: Loadbalancer will retry if the gRPC status code in the response
+* cancelled: Loadbalancer will retry if the gRPC status code in the response
 header is set to cancelled
-- deadline-exceeded: Loadbalancer will retry if the
+* deadline-exceeded: Loadbalancer will retry if the
 gRPC status code in the response header is set to deadline-exceeded
-- resource-exhausted: Loadbalancer will retry if the gRPC status code in the response
+* resource-exhausted: Loadbalancer will retry if the gRPC status code in the response
 header is set to resource-exhausted
-- unavailable: Loadbalancer will retry if
+* unavailable: Loadbalancer will retry if
 the gRPC status code in the response header is set to unavailable`,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
@@ -1940,7 +1942,7 @@ prior to sending the response back to the client.`,
 												"full_path_match": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `For satifying the matchRule condition, the path of the request must exactly
+													Description: `For satisfying the matchRule condition, the path of the request must exactly
 match the value specified in fullPathMatch after removing any query parameters
 and anchor that may be part of the original URL. FullPathMatch must be between 1
 and 1024 characters. Only one of prefixMatch, fullPathMatch or regexMatch must
@@ -2016,7 +2018,7 @@ must be set.`,
 															"regex_match": {
 																Type:     schema.TypeString,
 																Optional: true,
-																Description: `The value of the header must match the regualar expression specified in
+																Description: `The value of the header must match the regular expression specified in
 regexMatch. For regular expression grammar, please see:
 en.cppreference.com/w/cpp/regex/ecmascript  For matching against a port
 specified in the HTTP request, use a headerMatch with headerName set to PORT and
@@ -2099,7 +2101,7 @@ the provided metadata. Possible values: ["MATCH_ALL", "MATCH_ANY"]`,
 												"prefix_match": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `For satifying the matchRule condition, the request's path must begin with the
+													Description: `For satisfying the matchRule condition, the request's path must begin with the
 specified prefixMatch. prefixMatch must begin with a /. The value must be
 between 1 and 1024 characters. Only one of prefixMatch, fullPathMatch or
 regexMatch must be specified.`,
@@ -2145,7 +2147,7 @@ exactMatch and regexMatch must be set.`,
 												"regex_match": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `For satifying the matchRule condition, the path of the request must satisfy the
+													Description: `For satisfying the matchRule condition, the path of the request must satisfy the
 regular expression specified in regexMatch after removing any query parameters
 and anchor supplied with the original URL. For regular expression grammar please
 see en.cppreference.com/w/cpp/regex/ecmascript  Only one of prefixMatch,
@@ -2201,7 +2203,7 @@ Control-Allow-Credentials header. Defaults to false.`,
 															"allow_origin_regexes": {
 																Type:     schema.TypeList,
 																Optional: true,
-																Description: `Specifies the regualar expression patterns that match allowed origins. For
+																Description: `Specifies the regular expression patterns that match allowed origins. For
 regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
 An origin is allowed if it matches either allow_origins or allow_origin_regex.`,
 																Elem: &schema.Schema{
@@ -2382,25 +2384,26 @@ less than one second are represented with a 0 'seconds' field and a positive
 																Type:     schema.TypeList,
 																Optional: true,
 																Description: `Specfies one or more conditions when this retry rule applies. Valid values are:
-- 5xx: Loadbalancer will attempt a retry if the backend service responds with
+
+* 5xx: Loadbalancer will attempt a retry if the backend service responds with
   any 5xx response code, or if the backend service does not respond at all,
   example: disconnects, reset, read timeout, connection failure, and refused
   streams.
-- gateway-error: Similar to 5xx, but only applies to response codes
+* gateway-error: Similar to 5xx, but only applies to response codes
   502, 503 or 504.
-- connect-failure: Loadbalancer will retry on failures
+* connect-failure: Loadbalancer will retry on failures
   connecting to backend services, for example due to connection timeouts.
-- retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
+* retriable-4xx: Loadbalancer will retry for retriable 4xx response codes.
   Currently the only retriable error supported is 409.
-- refused-stream: Loadbalancer will retry if the backend service resets the stream with a
+* refused-stream: Loadbalancer will retry if the backend service resets the stream with a
   REFUSED_STREAM error code. This reset type indicates that it is safe to retry.
-- cancelled: Loadbalancer will retry if the gRPC status code in the response
+* cancelled: Loadbalancer will retry if the gRPC status code in the response
   header is set to cancelled
-- deadline-exceeded: Loadbalancer will retry if the
+* deadline-exceeded: Loadbalancer will retry if the
   gRPC status code in the response header is set to deadline-exceeded
-- resource-exhausted: Loadbalancer will retry if the gRPC status code in the response
+* resource-exhausted: Loadbalancer will retry if the gRPC status code in the response
   header is set to resource-exhausted
-- unavailable: Loadbalancer will retry if the gRPC status code in
+* unavailable: Loadbalancer will retry if the gRPC status code in
   the response header is set to unavailable`,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
@@ -2721,6 +2724,7 @@ field is used in optimistic locking.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -2833,7 +2837,7 @@ func resourceComputeUrlMapCreate(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for UrlMap: %s", err)
 	}
 	billingProject = project
 
@@ -2885,7 +2889,7 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for UrlMap: %s", err)
 	}
 	billingProject = project
 
@@ -2952,13 +2956,12 @@ func resourceComputeUrlMapUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for UrlMap: %s", err)
 	}
 	billingProject = project
 
@@ -3061,13 +3064,12 @@ func resourceComputeUrlMapDelete(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for UrlMap: %s", err)
 	}
 	billingProject = project
 
@@ -6013,7 +6015,35 @@ func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortPercentage(v
 }
 
 func expandComputeUrlMapDefaultService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
+	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
+	if err != nil {
+		return "", err
+	}
+
+	return f.RelativeLink(), nil
 }
 
 func expandComputeUrlMapDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -6294,7 +6324,35 @@ func expandComputeUrlMapPathMatcher(v interface{}, d TerraformResourceData, conf
 }
 
 func expandComputeUrlMapPathMatcherDefaultService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
+	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
+	if err != nil {
+		return "", err
+	}
+
+	return f.RelativeLink(), nil
 }
 
 func expandComputeUrlMapPathMatcherDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -6493,7 +6551,35 @@ func expandComputeUrlMapPathMatcherPathRule(v interface{}, d TerraformResourceDa
 }
 
 func expandComputeUrlMapPathMatcherPathRuleService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
+	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
+	if err != nil {
+		return "", err
+	}
+
+	return f.RelativeLink(), nil
 }
 
 func expandComputeUrlMapPathMatcherPathRulePaths(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -6806,10 +6892,34 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(v inte
 }
 
 func expandComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
+		return "", err
 	}
+
 	return f.RelativeLink(), nil
 }
 
@@ -6993,10 +7103,34 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(v 
 }
 
 func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
+		return "", err
 	}
+
 	return f.RelativeLink(), nil
 }
 
@@ -7288,10 +7422,34 @@ func expandComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d Terraform
 }
 
 func expandComputeUrlMapPathMatcherRouteRulesService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for service: %s", err)
+		return "", err
 	}
+
 	return f.RelativeLink(), nil
 }
 
@@ -8086,10 +8244,34 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(v in
 }
 
 func expandComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
+		return "", err
 	}
+
 	return f.RelativeLink(), nil
 }
 
@@ -8273,10 +8455,34 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices(
 }
 
 func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
+		return "", err
 	}
+
 	return f.RelativeLink(), nil
 }
 
@@ -8682,10 +8888,34 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServices(v i
 }
 
 func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
+		return "", err
 	}
+
 	return f.RelativeLink(), nil
 }
 
@@ -9000,10 +9230,34 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicy(v inter
 }
 
 func expandComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
+		return "", err
 	}
+
 	return f.RelativeLink(), nil
 }
 
@@ -9287,7 +9541,35 @@ func expandComputeUrlMapTestPath(v interface{}, d TerraformResourceData, config 
 }
 
 func expandComputeUrlMapTestService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
+	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
+	if err != nil {
+		return "", err
+	}
+
+	return f.RelativeLink(), nil
 }
 
 func expandComputeUrlMapDefaultUrlRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -9466,10 +9748,34 @@ func expandComputeUrlMapDefaultRouteActionWeightedBackendServices(v interface{},
 }
 
 func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
+		return "", err
 	}
+
 	return f.RelativeLink(), nil
 }
 
@@ -9784,10 +10090,34 @@ func expandComputeUrlMapDefaultRouteActionRequestMirrorPolicy(v interface{}, d T
 }
 
 func expandComputeUrlMapDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	// This method returns a full self link from whatever the input is.
+	if v == nil || v.(string) == "" {
+		// It does not try to construct anything from empty.
+		return "", nil
+	} else if strings.HasPrefix(v.(string), "https://") {
+		// Anything that starts with a URL scheme is assumed to be a self link worth using.
+		return v, nil
+	} else if strings.HasPrefix(v.(string), "projects/") {
+		// If the self link references a project, we'll just stuck the compute prefix on it
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	} else if strings.HasPrefix(v.(string), "regions/") || strings.HasPrefix(v.(string), "zones/") {
+		// For regional or zonal resources which include their region or zone, just put the project in front.
+		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/")
+		if err != nil {
+			return nil, err
+		}
+		return url + v.(string), nil
+	}
+	// Anything else is assumed to be a reference to a global backend service.
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
+		return "", err
 	}
+
 	return f.RelativeLink(), nil
 }
 

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -52,10 +53,20 @@ func resourceSqlUser() *schema.Resource {
 			},
 
 			"password": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: `The password for the user. Can be updated. For Postgres instances this is a Required field.`,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
+				Description: `The password for the user. Can be updated. For Postgres instances this is a Required field, unless type is set to
+                either CLOUD_IAM_USER or CLOUD_IAM_SERVICE_ACCOUNT.`,
+			},
+
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The user type. It determines the method to authenticate the user during login.
+                The default is the database's built-in user type. Flags include "BUILT_IN", "CLOUD_IAM_USER", or "CLOUD_IAM_SERVICE_ACCOUNT".`,
+				ValidateFunc: validation.StringInSlice([]string{"BUILT_IN", "CLOUD_IAM_USER", "CLOUD_IAM_SERVICE_ACCOUNT", ""}, false),
 			},
 
 			"project": {
@@ -65,7 +76,17 @@ func resourceSqlUser() *schema.Resource {
 				ForceNew:    true,
 				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
+
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The deletion policy for the user. Setting ABANDON allows the resource
+				to be abandoned rather than deleted. This is useful for Postgres, where users cannot be deleted from the API if they
+				have been granted SQL roles. Possible values are: "ABANDON".`,
+				ValidateFunc: validation.StringInSlice([]string{"ABANDON", ""}, false),
+			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -85,12 +106,14 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 	instance := d.Get("instance").(string)
 	password := d.Get("password").(string)
 	host := d.Get("host").(string)
+	typ := d.Get("type").(string)
 
 	user := &sqladmin.User{
 		Name:     name,
 		Instance: instance,
 		Password: password,
 		Host:     host,
+		Type:     typ,
 	}
 
 	mutexKV.Lock(instanceMutexKey(project, instance))
@@ -176,6 +199,9 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("name", user.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
+	if err := d.Set("type", user.Type); err != nil {
+		return fmt.Errorf("Error setting type: %s", err)
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
@@ -236,6 +262,13 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "ABANDON" {
+		// Allows for user to be abandoned without deletion to avoid deletion failing
+		// for Postgres users in some circumstances due to existing SQL roles
+		return nil
+	}
+
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err

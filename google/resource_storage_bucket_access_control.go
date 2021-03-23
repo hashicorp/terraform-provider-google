@@ -86,6 +86,7 @@ Examples:
 				Description: `The email address associated with the entity.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -202,7 +203,6 @@ func resourceStorageBucketAccessControlUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -262,7 +262,6 @@ func resourceStorageBucketAccessControlDelete(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

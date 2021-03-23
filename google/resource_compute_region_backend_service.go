@@ -27,10 +27,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-// Fields in "backends" that are not allowed for INTERNAL backend services
+// Fields in "backends" that are not allowed for non-managed backend services
 // (loadBalancingScheme) - the API returns an error if they are set at all
 // in the request.
-var backendServiceOnlyNonInternalFieldNames = []string{
+var backendServiceOnlyManagedFieldNames = []string{
 	"capacity_scaler",
 	"max_connections",
 	"max_connections_per_instance",
@@ -41,7 +41,7 @@ var backendServiceOnlyNonInternalFieldNames = []string{
 	"max_utilization",
 }
 
-// validateNonInternalBackendServiceBackends ensures capacity_scaler is set for each backend in an non-INTERNAL
+// validateManagedBackendServiceBackends ensures capacity_scaler is set for each backend in a managed
 // backend service. To prevent a permadiff, we decided to override the API behavior and require the
 //// capacity_scaler value in this case.
 //
@@ -50,10 +50,10 @@ var backendServiceOnlyNonInternalFieldNames = []string{
 // - defaults to 1 if capacity_scaler is omitted from the request
 //
 // However, the schema.Set Hash function defaults to 0 if not given, which we chose because it's the default
-// float and because INTERNAL backends can't have the value set, so there will be a permadiff for a
+// float and because non-managed backends can't have the value set, so there will be a permadiff for a
 // situational non-zero default returned from the API. We can't diff suppress or customdiff a
 // field inside a set object in ResourceDiff, since the value also determines the hash for that set object.
-func validateNonInternalBackendServiceBackends(backends []interface{}, d *schema.ResourceDiff) error {
+func validateManagedBackendServiceBackends(backends []interface{}, d *schema.ResourceDiff) error {
 	sum := 0.0
 
 	for _, b := range backends {
@@ -64,28 +64,28 @@ func validateNonInternalBackendServiceBackends(backends []interface{}, d *schema
 		if v, ok := backend["capacity_scaler"]; ok && v != nil {
 			sum += v.(float64)
 		} else {
-			return fmt.Errorf("capacity_scaler is required for each backend in non-INTERNAL backend service")
+			return fmt.Errorf("capacity_scaler is required for each backend in managed backend service")
 		}
 	}
 	if sum == 0.0 {
-		return fmt.Errorf("non-INTERNAL backend service must have at least one non-zero capacity_scaler for backends")
+		return fmt.Errorf("managed backend service must have at least one non-zero capacity_scaler for backends")
 	}
 	return nil
 }
 
-// If INTERNAL, make sure the user did not provide values for any of the fields that cannot be sent.
+// If INTERNAL or EXTERNAL, make sure the user did not provide values for any of the fields that cannot be sent.
 // We ignore these values regardless when sent to the API, but this adds plan-time validation if a
 // user sets the value to non-zero. We can't validate for empty but set because
 // of how the SDK handles set objects (on any read, nil fields will get set to empty values)
-func validateInternalBackendServiceBackends(backends []interface{}, d *schema.ResourceDiff) error {
+func validateNonManagedBackendServiceBackends(backends []interface{}, d *schema.ResourceDiff) error {
 	for _, b := range backends {
 		if b == nil {
 			continue
 		}
 		backend := b.(map[string]interface{})
-		for _, fn := range backendServiceOnlyNonInternalFieldNames {
+		for _, fn := range backendServiceOnlyManagedFieldNames {
 			if v, ok := backend[fn]; ok && !isEmptyValue(reflect.ValueOf(v)) {
-				return fmt.Errorf("%q cannot be set for INTERNAL backend service, found value %v", fn, v)
+				return fmt.Errorf("%q cannot be set for non-managed backend service, found value %v", fn, v)
 			}
 		}
 	}
@@ -107,10 +107,10 @@ func customDiffRegionBackendService(_ context.Context, d *schema.ResourceDiff, m
 	}
 
 	switch d.Get("load_balancing_scheme").(string) {
-	case "INTERNAL":
-		return validateInternalBackendServiceBackends(backends, d)
+	case "INTERNAL", "EXTERNAL":
+		return validateNonManagedBackendServiceBackends(backends, d)
 	default:
-		return validateNonInternalBackendServiceBackends(backends, d)
+		return validateManagedBackendServiceBackends(backends, d)
 	}
 }
 
@@ -164,6 +164,98 @@ When the load balancing scheme is INTERNAL, this field is not used.`,
 				Description: `The set of backends that serve this RegionBackendService.`,
 				Elem:        computeRegionBackendServiceBackendSchema(),
 				Set:         resourceGoogleComputeBackendServiceBackendHash,
+			},
+			"cdn_policy": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Cloud CDN configuration for this BackendService.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cache_key_policy": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The CacheKeyPolicy for this CdnPolicy.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"include_host": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										Description:  `If true requests to different hosts will be cached separately.`,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+									},
+									"include_protocol": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										Description:  `If true, http and https requests will be cached separately.`,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+									},
+									"include_query_string": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `If true, include query string parameters in the cache key
+according to query_string_whitelist and
+query_string_blacklist. If neither is set, the entire query
+string will be included.
+
+If false, the query string will be excluded from the cache
+key entirely.`,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+									},
+									"query_string_blacklist": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Description: `Names of query string parameters to exclude in cache keys.
+
+All other parameters will be included. Either specify
+query_string_whitelist or query_string_blacklist, not both.
+'&' and '=' will be percent encoded and not treated as
+delimiters.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set:          schema.HashString,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+									},
+									"query_string_whitelist": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Description: `Names of query string parameters to include in cache keys.
+
+All other parameters will be excluded. Either specify
+query_string_whitelist or query_string_blacklist, not both.
+'&' and '=' will be percent encoded and not treated as
+delimiters.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Set:          schema.HashString,
+										AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy.0.include_host", "cdn_policy.0.cache_key_policy.0.include_protocol", "cdn_policy.0.cache_key_policy.0.include_query_string", "cdn_policy.0.cache_key_policy.0.query_string_blacklist", "cdn_policy.0.cache_key_policy.0.query_string_whitelist"},
+									},
+								},
+							},
+							AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
+						},
+						"signed_url_cache_max_age_sec": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `Maximum number of seconds the response to a signed URL request
+will be considered fresh, defaults to 1hr (3600s). After this
+time period, the response will be revalidated before
+being served.
+
+When serving responses to signed URL requests, Cloud CDN will
+internally behave as though all responses from this backend had a
+"Cache-Control: public, max-age=[TTL]" header, regardless of any
+existing Cache-Control header. The actual headers served in
+responses will not be altered.`,
+							Default:      3600,
+							AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
+						},
+					},
+				},
 			},
 			"circuit_breakers": {
 				Type:     schema.TypeList,
@@ -320,6 +412,11 @@ Defaults to 1024.`,
 				Optional:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"enable_cdn": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If true, enable Cloud CDN for this RegionBackendService.`,
+			},
 			"failover_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -370,7 +467,7 @@ This field is only used with l4 load balancing.`,
 				Optional: true,
 				Description: `The set of URLs to HealthCheck resources for health checking
 this RegionBackendService. Currently at most one health
-check can be specified. 
+check can be specified.
 
 A health check must be specified unless the backend service uses an internet
 or serverless NEG as a backend.`,
@@ -385,10 +482,10 @@ or serverless NEG as a backend.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"INTERNAL", "INTERNAL_MANAGED", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL", "INTERNAL_MANAGED", ""}, false),
 				Description: `Indicates what kind of load balancing this regional backend service
 will be used for. A backend service created for one type of load
-balancing cannot be used with the other(s). Default value: "INTERNAL" Possible values: ["INTERNAL", "INTERNAL_MANAGED"]`,
+balancing cannot be used with the other(s). Default value: "INTERNAL" Possible values: ["EXTERNAL", "INTERNAL", "INTERNAL_MANAGED"]`,
 				Default: "INTERNAL",
 			},
 			"locality_lb_policy": {
@@ -398,29 +495,29 @@ balancing cannot be used with the other(s). Default value: "INTERNAL" Possible v
 				Description: `The load balancing algorithm used within the scope of the locality.
 The possible values are -
 
-ROUND_ROBIN - This is a simple policy in which each healthy backend
-              is selected in round robin order.
+* ROUND_ROBIN - This is a simple policy in which each healthy backend
+                is selected in round robin order.
 
-LEAST_REQUEST - An O(1) algorithm which selects two random healthy
-                hosts and picks the host which has fewer active requests.
+* LEAST_REQUEST - An O(1) algorithm which selects two random healthy
+                  hosts and picks the host which has fewer active requests.
 
-RING_HASH - The ring/modulo hash load balancer implements consistent
-            hashing to backends. The algorithm has the property that the
-            addition/removal of a host from a set of N hosts only affects
-            1/N of the requests.
+* RING_HASH - The ring/modulo hash load balancer implements consistent
+              hashing to backends. The algorithm has the property that the
+              addition/removal of a host from a set of N hosts only affects
+              1/N of the requests.
 
-RANDOM - The load balancer selects a random healthy host.
+* RANDOM - The load balancer selects a random healthy host.
 
-ORIGINAL_DESTINATION - Backend host is selected based on the client
-                       connection metadata, i.e., connections are opened
-                       to the same address as the destination address of
-                       the incoming connection before the connection
-                       was redirected to the load balancer.
+* ORIGINAL_DESTINATION - Backend host is selected based on the client
+                         connection metadata, i.e., connections are opened
+                         to the same address as the destination address of
+                         the incoming connection before the connection
+                         was redirected to the load balancer.
 
-MAGLEV - used as a drop in replacement for the ring hash load balancer.
-         Maglev is not as stable as ring hash but has faster table lookup
-         build times and host selection times. For more information about
-         Maglev, refer to https://ai.google/research/pubs/pub44824
+* MAGLEV - used as a drop in replacement for the ring hash load balancer.
+           Maglev is not as stable as ring hash but has faster table lookup
+           build times and host selection times. For more information about
+           Maglev, refer to https://ai.google/research/pubs/pub44824
 
 This field is applicable only when the 'load_balancing_scheme' is set to
 INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2. Possible values: ["ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM", "ORIGINAL_DESTINATION", "MAGLEV"]`,
@@ -673,6 +770,7 @@ object. This field is used in optimistic locking.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -845,6 +943,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("consistent_hash"); !isEmptyValue(reflect.ValueOf(consistentHashProp)) && (ok || !reflect.DeepEqual(v, consistentHashProp)) {
 		obj["consistentHash"] = consistentHashProp
 	}
+	cdnPolicyProp, err := expandComputeRegionBackendServiceCdnPolicy(d.Get("cdn_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(cdnPolicyProp)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
+		obj["cdnPolicy"] = cdnPolicyProp
+	}
 	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
 	if err != nil {
 		return err
@@ -862,6 +966,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("failover_policy"); !isEmptyValue(reflect.ValueOf(failoverPolicyProp)) && (ok || !reflect.DeepEqual(v, failoverPolicyProp)) {
 		obj["failoverPolicy"] = failoverPolicyProp
+	}
+	enableCDNProp, err := expandComputeRegionBackendServiceEnableCDN(d.Get("enable_cdn"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(enableCDNProp)) && (ok || !reflect.DeepEqual(v, enableCDNProp)) {
+		obj["enableCDN"] = enableCDNProp
 	}
 	fingerprintProp, err := expandComputeRegionBackendServiceFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -957,7 +1067,7 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
 	}
 	billingProject = project
 
@@ -1009,7 +1119,7 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
 	}
 	billingProject = project
 
@@ -1051,6 +1161,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("consistent_hash", flattenComputeRegionBackendServiceConsistentHash(res["consistentHash"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("cdn_policy", flattenComputeRegionBackendServiceCdnPolicy(res["cdnPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	// Terraform must set the top level schema field, but since this object contains collapsed properties
 	// it's difficult to know what the top level should be. Instead we just loop over the map returned from flatten.
 	if flattenedProp := flattenComputeRegionBackendServiceConnectionDraining(res["connectionDraining"], d, config); flattenedProp != nil {
@@ -1073,6 +1186,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	if err := d.Set("failover_policy", flattenComputeRegionBackendServiceFailoverPolicy(res["failoverPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err := d.Set("enable_cdn", flattenComputeRegionBackendServiceEnableCDN(res["enableCDN"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	if err := d.Set("fingerprint", flattenComputeRegionBackendServiceFingerprint(res["fingerprint"], d, config)); err != nil {
@@ -1127,13 +1243,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
 	}
 	billingProject = project
 
@@ -1162,6 +1277,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("consistent_hash"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, consistentHashProp)) {
 		obj["consistentHash"] = consistentHashProp
 	}
+	cdnPolicyProp, err := expandComputeRegionBackendServiceCdnPolicy(d.Get("cdn_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cdn_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cdnPolicyProp)) {
+		obj["cdnPolicy"] = cdnPolicyProp
+	}
 	connectionDrainingProp, err := expandComputeRegionBackendServiceConnectionDraining(nil, d, config)
 	if err != nil {
 		return err
@@ -1179,6 +1300,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("failover_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, failoverPolicyProp)) {
 		obj["failoverPolicy"] = failoverPolicyProp
+	}
+	enableCDNProp, err := expandComputeRegionBackendServiceEnableCDN(d.Get("enable_cdn"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_cdn"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableCDNProp)) {
+		obj["enableCDN"] = enableCDNProp
 	}
 	fingerprintProp, err := expandComputeRegionBackendServiceFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -1301,13 +1428,12 @@ func resourceComputeRegionBackendServiceDelete(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionBackendService: %s", err)
 	}
 	billingProject = project
 
@@ -1729,6 +1855,85 @@ func flattenComputeRegionBackendServiceConsistentHashMinimumRingSize(v interface
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeRegionBackendServiceCdnPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["cache_key_policy"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(original["cacheKeyPolicy"], d, config)
+	transformed["signed_url_cache_max_age_sec"] =
+		flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["include_host"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(original["includeHost"], d, config)
+	transformed["include_protocol"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(original["includeProtocol"], d, config)
+	transformed["include_query_string"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(original["includeQueryString"], d, config)
+	transformed["query_string_blacklist"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["queryStringBlacklist"], d, config)
+	transformed["query_string_whitelist"] =
+		flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["queryStringWhitelist"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeRegionBackendServiceConnectionDraining(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -1793,6 +1998,10 @@ func flattenComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(v in
 }
 
 func flattenComputeRegionBackendServiceFailoverPolicyFailoverRatio(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceEnableCDN(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2504,6 +2713,105 @@ func expandComputeRegionBackendServiceConsistentHashMinimumRingSize(v interface{
 	return v, nil
 }
 
+func expandComputeRegionBackendServiceCdnPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCacheKeyPolicy, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(original["cache_key_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCacheKeyPolicy); val.IsValid() && !isEmptyValue(val) {
+		transformed["cacheKeyPolicy"] = transformedCacheKeyPolicy
+	}
+
+	transformedSignedUrlCacheMaxAgeSec, err := expandComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signed_url_cache_max_age_sec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSignedUrlCacheMaxAgeSec); val.IsValid() && !isEmptyValue(val) {
+		transformed["signedUrlCacheMaxAgeSec"] = transformedSignedUrlCacheMaxAgeSec
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIncludeHost, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(original["include_host"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["includeHost"] = transformedIncludeHost
+	}
+
+	transformedIncludeProtocol, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(original["include_protocol"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["includeProtocol"] = transformedIncludeProtocol
+	}
+
+	transformedIncludeQueryString, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(original["include_query_string"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["includeQueryString"] = transformedIncludeQueryString
+	}
+
+	transformedQueryStringBlacklist, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(original["query_string_blacklist"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["queryStringBlacklist"] = transformedQueryStringBlacklist
+	}
+
+	transformedQueryStringWhitelist, err := expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(original["query_string_whitelist"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["queryStringWhitelist"] = transformedQueryStringWhitelist
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyIncludeQueryString(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringBlacklist(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicyCacheKeyPolicyQueryStringWhitelist(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeRegionBackendServiceConnectionDraining(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
 	transformedConnectionDrainingTimeoutSec, err := expandComputeRegionBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(d.Get("connection_draining_timeout_sec"), d, config)
@@ -2566,6 +2874,10 @@ func expandComputeRegionBackendServiceFailoverPolicyDropTrafficIfUnhealthy(v int
 }
 
 func expandComputeRegionBackendServiceFailoverPolicyFailoverRatio(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceEnableCDN(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2850,11 +3162,11 @@ func expandComputeRegionBackendServiceRegion(v interface{}, d TerraformResourceD
 }
 
 func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	if d.Get("load_balancing_scheme").(string) != "INTERNAL" {
+	if d.Get("load_balancing_scheme").(string) == "INTERNAL_MANAGED" {
 		return obj, nil
 	}
 
-	backendServiceOnlyNonInternalApiFieldNames := []string{
+	backendServiceOnlyManagedApiFieldNames := []string{
 		"capacityScaler",
 		"maxConnections",
 		"maxConnectionsPerInstance",
@@ -2874,10 +3186,10 @@ func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta int
 			continue
 		}
 		backend := v.(map[string]interface{})
-		// Remove fields from backends that cannot be sent for INTERNAL
+		// Remove fields from backends that cannot be sent for non-managed
 		// backend services
-		for _, k := range backendServiceOnlyNonInternalApiFieldNames {
-			log.Printf("[DEBUG] Removing field %q for request for INTERNAL backend service %s", k, d.Get("name"))
+		for _, k := range backendServiceOnlyManagedApiFieldNames {
+			log.Printf("[DEBUG] Removing field %q for request for non-managed backend service %s", k, d.Get("name"))
 			delete(backend, k)
 		}
 		backends[idx] = backend

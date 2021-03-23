@@ -204,7 +204,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "test" {
   name         = "tf-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -247,7 +247,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "test" {
   name         = "tf-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -300,7 +300,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link

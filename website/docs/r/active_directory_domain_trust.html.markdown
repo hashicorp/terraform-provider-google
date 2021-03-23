@@ -111,6 +111,7 @@ This resource provides the following
 
 ## Import
 
+
 DomainTrust can be imported using any of these accepted formats:
 
 ```

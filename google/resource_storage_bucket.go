@@ -87,7 +87,7 @@ func resourceStorageBucket() *schema.Resource {
 				StateFunc: func(s interface{}) string {
 					return strings.ToUpper(s.(string))
 				},
-				Description: `The GCS location`,
+				Description: `The Google Cloud Storage location`,
 			},
 
 			"project": {
@@ -159,6 +159,27 @@ func resourceStorageBucket() *schema.Resource {
 										Description: `Minimum age of an object in days to satisfy this condition.`,
 									},
 									"created_before": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
+									},
+									"custom_time_before": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
+									},
+									"days_since_custom_time": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Number of days elapsed since the user-specified timestamp set on an object.`,
+									},
+									"days_since_noncurrent_time": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Number of days elapsed since the noncurrent timestamp of an object. This
+										condition is relevant only for versioned objects.`,
+									},
+									"noncurrent_time_before": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
@@ -312,7 +333,7 @@ func resourceStorageBucket() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
-							Description: `The object prefix for log objects. If it's not provided, by default GCS sets this to this bucket's name.`,
+							Description: `The object prefix for log objects. If it's not provided, by default Google Cloud Storage sets this to this bucket's name.`,
 						},
 					},
 				},
@@ -334,6 +355,7 @@ func resourceStorageBucket() *schema.Resource {
 				ConflictsWith: []string{"bucket_policy_only"},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -476,7 +498,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 	sb := &storage.Bucket{}
 
-	if d.HasChange("lifecycle_rule") {
+	if detectLifecycleChange(d) {
 		lifecycle, err := expandStorageBucketLifecycle(d.Get("lifecycle_rule"))
 		if err != nil {
 			return err
@@ -510,8 +532,12 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if v, ok := d.GetOk("cors"); ok {
-		sb.Cors = expandCors(v.([]interface{}))
+	if d.HasChange("cors") {
+		if v, ok := d.GetOk("cors"); ok {
+			sb.Cors = expandCors(v.([]interface{}))
+		} else {
+			sb.NullFields = append(sb.NullFields, "Cors")
+		}
 	}
 
 	if d.HasChange("default_event_based_hold") {
@@ -843,6 +869,9 @@ func resourceStorageBucketStateImporter(d *schema.ResourceData, meta interface{}
 }
 
 func expandCors(configured []interface{}) []*storage.BucketCors {
+	if len(configured) == 0 {
+		return nil
+	}
 	corsRules := make([]*storage.BucketCors, 0, len(configured))
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
@@ -1022,10 +1051,14 @@ func flattenBucketLifecycleRuleAction(action *storage.BucketLifecycleRuleAction)
 
 func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
 	ruleCondition := map[string]interface{}{
-		"age":                   int(condition.Age),
-		"created_before":        condition.CreatedBefore,
-		"matches_storage_class": convertStringArrToInterface(condition.MatchesStorageClass),
-		"num_newer_versions":    int(condition.NumNewerVersions),
+		"age":                        int(condition.Age),
+		"created_before":             condition.CreatedBefore,
+		"matches_storage_class":      convertStringArrToInterface(condition.MatchesStorageClass),
+		"num_newer_versions":         int(condition.NumNewerVersions),
+		"custom_time_before":         condition.CustomTimeBefore,
+		"days_since_custom_time":     int(condition.DaysSinceCustomTime),
+		"days_since_noncurrent_time": int(condition.DaysSinceNoncurrentTime),
+		"noncurrent_time_before":     condition.NoncurrentTimeBefore,
 	}
 	if condition.IsLive == nil {
 		ruleCondition["with_state"] = "ANY"
@@ -1239,6 +1272,22 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 		transformed.NumNewerVersions = int64(v.(int))
 	}
 
+	if v, ok := condition["custom_time_before"]; ok {
+		transformed.CustomTimeBefore = v.(string)
+	}
+
+	if v, ok := condition["days_since_custom_time"]; ok {
+		transformed.DaysSinceCustomTime = int64(v.(int))
+	}
+
+	if v, ok := condition["days_since_noncurrent_time"]; ok {
+		transformed.DaysSinceNoncurrentTime = int64(v.(int))
+	}
+
+	if v, ok := condition["noncurrent_time_before"]; ok {
+		transformed.NoncurrentTimeBefore = v.(string)
+	}
+
 	return transformed, nil
 }
 
@@ -1306,4 +1355,23 @@ func lockRetentionPolicy(bucketsService *storage.BucketsService, bucketName stri
 	}
 
 	return nil
+}
+
+// d.HasChange("lifecycle_rule") always returns true, giving false positives. This function detects changes
+// to the list size or the actions/conditions of rules directly.
+func detectLifecycleChange(d *schema.ResourceData) bool {
+	if d.HasChange("lifecycle_rule.#") {
+		return true
+	}
+
+	if l, ok := d.GetOk("lifecycle_rule"); ok {
+		lifecycleRules := l.([]interface{})
+		for i := range lifecycleRules {
+			if d.HasChange(fmt.Sprintf("lifecycle_rule.%d.action", i)) || d.HasChange(fmt.Sprintf("lifecycle_rule.%d.condition", i)) {
+				return true
+			}
+		}
+	}
+
+	return false
 }

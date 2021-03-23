@@ -105,6 +105,7 @@ eg: 'projects/my-project/locations/global/gameServerDeployments/my-deployment/ro
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -144,7 +145,7 @@ func resourceGameServicesGameServerDeploymentRolloutRead(d *schema.ResourceData,
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GameServerDeploymentRollout: %s", err)
 	}
 	billingProject = project
 
@@ -181,13 +182,12 @@ func resourceGameServicesGameServerDeploymentRolloutUpdate(d *schema.ResourceDat
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GameServerDeploymentRollout: %s", err)
 	}
 	billingProject = project
 
@@ -257,13 +257,12 @@ func resourceGameServicesGameServerDeploymentRolloutDelete(d *schema.ResourceDat
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GameServerDeploymentRollout: %s", err)
 	}
 	billingProject = project
 

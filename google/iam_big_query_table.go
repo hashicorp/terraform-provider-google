@@ -45,11 +45,11 @@ type BigQueryTableIamUpdater struct {
 	project   string
 	datasetId string
 	tableId   string
-	d         *schema.ResourceData
+	d         TerraformResourceData
 	Config    *Config
 }
 
-func BigQueryTableIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func BigQueryTableIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

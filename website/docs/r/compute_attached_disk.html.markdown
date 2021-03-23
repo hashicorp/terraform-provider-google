@@ -34,7 +34,7 @@ resource "google_compute_attached_disk" "default" {
 
 resource "google_compute_instance" "default" {
   name         = "attached-disk-instance"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-west1-a"
 
   boot_disk {

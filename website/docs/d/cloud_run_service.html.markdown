@@ -9,7 +9,7 @@ description: |-
 
 # google\_cloud\_run\_service
 
-Get information about a Google Cloud Run. For more information see
+Get information about a Google Cloud Run Service. For more information see
 the [official documentation](https://cloud.google.com/run/docs/)
 and [API](https://cloud.google.com/run/docs/apis).
 

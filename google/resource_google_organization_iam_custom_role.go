@@ -68,6 +68,7 @@ func resourceGoogleOrganizationIamCustomRole() *schema.Resource {
 				Description: `The name of the role in the format organizations/{{org_id}}/roles/{{role_id}}. Like id, this field can be used as a reference in other resources such as IAM role bindings.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -84,7 +85,7 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 
 	// Look for role with given ID.
 	// If it exists in deleted state, update to match "created" role state
-	// If it exists and and is enabled, return error - we should not try to recreate.
+	// If it exists and is enabled, return error - we should not try to recreate.
 	r, err := config.NewIamClient(userAgent).Organizations.Roles.Get(roleId).Do()
 	if err == nil {
 		if r.Deleted {

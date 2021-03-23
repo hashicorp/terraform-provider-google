@@ -110,6 +110,7 @@ It is unsafe to send these requests to the same table/row/column in multiple clu
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -145,7 +146,7 @@ func resourceBigtableAppProfileCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/appProfiles?appProfileId={{app_profile_id}}")
+	url, err := replaceVars(d, config, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/appProfiles?appProfileId={{app_profile_id}}&ignoreWarnings={{ignore_warnings}}")
 	if err != nil {
 		return err
 	}
@@ -155,7 +156,7 @@ func resourceBigtableAppProfileCreate(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AppProfile: %s", err)
 	}
 	billingProject = project
 
@@ -200,7 +201,7 @@ func resourceBigtableAppProfileRead(d *schema.ResourceData, meta interface{}) er
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AppProfile: %s", err)
 	}
 	billingProject = project
 
@@ -240,13 +241,12 @@ func resourceBigtableAppProfileUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AppProfile: %s", err)
 	}
 	billingProject = project
 
@@ -313,13 +313,12 @@ func resourceBigtableAppProfileDelete(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AppProfile: %s", err)
 	}
 	billingProject = project
 

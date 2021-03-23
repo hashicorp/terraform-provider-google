@@ -30,7 +30,7 @@ func TestAccLoggingBucketConfigFolder_basic(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"folder"},
 			},
 			{
-				Config: testAccLoggingBucketConfigFolder_basic(context, 40),
+				Config: testAccLoggingBucketConfigFolder_basic(context, 20),
 			},
 			{
 				ResourceName:            "google_logging_folder_bucket_config.basic",
@@ -57,6 +57,15 @@ func TestAccLoggingBucketConfigProject_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBucketConfigProject_basic(context, 30),
+			},
+			{
+				ResourceName:            "google_logging_project_bucket_config.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project"},
+			},
+			{
+				Config: testAccLoggingBucketConfigProject_basic(context, 20),
 			},
 			{
 				ResourceName:            "google_logging_project_bucket_config.basic",
@@ -100,7 +109,7 @@ func TestAccLoggingBucketConfigBillingAccount_basic(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"billing_account"},
 			},
 			{
-				Config: testAccLoggingBucketConfigBillingAccount_basic(context, 40),
+				Config: testAccLoggingBucketConfigBillingAccount_basic(context, 20),
 			},
 			{
 				ResourceName:            "google_logging_billing_account_bucket_config.basic",
@@ -134,7 +143,7 @@ func TestAccLoggingBucketConfigOrganization_basic(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"organization"},
 			},
 			{
-				Config: testAccLoggingBucketConfigOrganization_basic(context, 40),
+				Config: testAccLoggingBucketConfigOrganization_basic(context, 20),
 			},
 			{
 				ResourceName:            "google_logging_organization_bucket_config.basic",
@@ -186,7 +195,7 @@ func TestAccLoggingBucketConfig_CreateBuckets_withCustomId(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix":        randString(t, 10),
-		"billing_account_name": "billingAccounts/" + getTestBillingAccountFromEnv(t),
+		"billing_account_name": getTestBillingAccountFromEnv(t),
 		"org_id":               getTestOrgFromEnv(t),
 		"project_name":         "tf-test-" + randString(t, 10),
 		"bucket_id":            "tf-test-bucket-" + randString(t, 10),
@@ -253,6 +262,7 @@ func getLoggingBucketConfigs(context map[string]interface{}) map[string]string {
 				project_id = "%{project_name}"
 				name       = "%{project_name}"
 				org_id     = "%{org_id}"
+				billing_account = "%{billing_account_name}"
 			}
 			
 			resource "google_logging_project_bucket_config" "basic" {

@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `insights_config` block to `google_sql_database_instance` resource
+```

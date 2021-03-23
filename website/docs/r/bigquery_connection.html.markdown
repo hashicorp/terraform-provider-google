@@ -53,6 +53,8 @@ resource "google_sql_database_instance" "instance" {
     settings {
 		tier = "db-f1-micro"
 	}
+
+    deletion_protection  = "true"
 }
 
 resource "google_sql_database" "db" {
@@ -105,6 +107,8 @@ resource "google_sql_database_instance" "instance" {
     settings {
 		tier = "db-f1-micro"
 	}
+
+    deletion_protection  = "true"
 }
 
 resource "google_sql_database" "db" {
@@ -216,7 +220,7 @@ The `credential` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/connections/{{connection_id}}`
 
 * `name` -
   The resource name of the connection in the form of: 
@@ -237,10 +241,13 @@ This resource provides the following
 
 ## Import
 
+
 Connection can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_bigquery_connection.default {{name}}
+$ terraform import google_bigquery_connection.default projects/{{project}}/locations/{{location}}/connections/{{connection_id}}
+$ terraform import google_bigquery_connection.default {{project}}/{{location}}/{{connection_id}}
+$ terraform import google_bigquery_connection.default {{location}}/{{connection_id}}
 ```
 
 ## User Project Overrides

@@ -20,11 +20,11 @@ var IamHealthcareFhirStoreSchema = map[string]*schema.Schema{
 
 type HealthcareFhirStoreIamUpdater struct {
 	resourceId string
-	d          *schema.ResourceData
+	d          TerraformResourceData
 	Config     *Config
 }
 
-func NewHealthcareFhirStoreIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewHealthcareFhirStoreIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	fhirStore := d.Get("fhir_store_id").(string)
 	fhirStoreId, err := parseHealthcareFhirStoreId(fhirStore, config)
 

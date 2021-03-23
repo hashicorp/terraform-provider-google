@@ -48,13 +48,6 @@ func resourceComputeRegionPerInstanceConfig() *schema.Resource {
 				ForceNew:    true,
 				Description: `The name for this per-instance config and its corresponding instance.`,
 			},
-			"region": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `Region where the containing instance group manager is located`,
-			},
 			"region_instance_group_manager": {
 				Type:             schema.TypeString,
 				Required:         true,
@@ -85,6 +78,14 @@ func resourceComputeRegionPerInstanceConfig() *schema.Resource {
 					},
 				},
 			},
+			"region": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      `Region where the containing instance group manager is located`,
+			},
 			"minimal_action": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -107,6 +108,7 @@ func resourceComputeRegionPerInstanceConfig() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -130,7 +132,7 @@ func computeRegionPerInstanceConfigPreservedStateDiskSchema() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"NEVER", "ON_PERMANENT_INSTANCE_DELETION", ""}, false),
 				Description: `A value that prescribes what should happen to the stateful disk when the VM instance is deleted.
 The available options are 'NEVER' and 'ON_PERMANENT_INSTANCE_DELETION'.
-'NEVER' detatch the disk when the VM is deleted, but not delete the disk.
+'NEVER' - detach the disk when the VM is deleted, but do not delete the disk.
 'ON_PERMANENT_INSTANCE_DELETION' will delete the stateful disk when the VM is permanently
 deleted from the instance group. Default value: "NEVER" Possible values: ["NEVER", "ON_PERMANENT_INSTANCE_DELETION"]`,
 				Default: "NEVER",
@@ -189,7 +191,7 @@ func resourceComputeRegionPerInstanceConfigCreate(d *schema.ResourceData, meta i
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionPerInstanceConfig: %s", err)
 	}
 	billingProject = project
 
@@ -241,7 +243,7 @@ func resourceComputeRegionPerInstanceConfigRead(d *schema.ResourceData, meta int
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionPerInstanceConfig: %s", err)
 	}
 	billingProject = project
 
@@ -268,22 +270,30 @@ func resourceComputeRegionPerInstanceConfigRead(d *schema.ResourceData, meta int
 	}
 
 	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOk("minimal_action"); !ok {
+	if _, ok := d.GetOkExists("minimal_action"); !ok {
 		if err := d.Set("minimal_action", "NONE"); err != nil {
 			return fmt.Errorf("Error setting minimal_action: %s", err)
 		}
 	}
-	if _, ok := d.GetOk("most_disruptive_allowed_action"); !ok {
+	if _, ok := d.GetOkExists("most_disruptive_allowed_action"); !ok {
 		if err := d.Set("most_disruptive_allowed_action", "REPLACE"); err != nil {
 			return fmt.Errorf("Error setting most_disruptive_allowed_action: %s", err)
 		}
 	}
-	if _, ok := d.GetOk("remove_instance_state_on_destroy"); !ok {
+	if _, ok := d.GetOkExists("remove_instance_state_on_destroy"); !ok {
 		if err := d.Set("remove_instance_state_on_destroy", false); err != nil {
 			return fmt.Errorf("Error setting remove_instance_state_on_destroy: %s", err)
 		}
 	}
 	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
+	}
+
+	region, err := getRegion(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("region", region); err != nil {
 		return fmt.Errorf("Error reading RegionPerInstanceConfig: %s", err)
 	}
 
@@ -303,13 +313,12 @@ func resourceComputeRegionPerInstanceConfigUpdate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionPerInstanceConfig: %s", err)
 	}
 	billingProject = project
 
@@ -416,7 +425,6 @@ func resourceComputeRegionPerInstanceConfigDelete(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {

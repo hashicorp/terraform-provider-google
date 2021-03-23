@@ -7,6 +7,50 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+func TestSignatureAlgorithmDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"ECDSA_P256 equivalent": {
+			Old:                "ECDSA_P256_SHA256",
+			New:                "EC_SIGN_P256_SHA256",
+			ExpectDiffSuppress: true,
+		},
+		"ECDSA_P384 equivalent": {
+			Old:                "ECDSA_P384_SHA384",
+			New:                "EC_SIGN_P384_SHA384",
+			ExpectDiffSuppress: true,
+		},
+		"ECDSA_P521 equivalent": {
+			Old:                "ECDSA_P521_SHA512",
+			New:                "EC_SIGN_P521_SHA512",
+			ExpectDiffSuppress: true,
+		},
+		"not equivalent 1": {
+			Old:                "ECDSA_P256",
+			New:                "EC_SIGN_P384_SHA384",
+			ExpectDiffSuppress: false,
+		},
+		"not equivalent 2": {
+			Old:                "ECDSA_P384_SHA384",
+			New:                "EC_SIGN_P521_SHA512",
+			ExpectDiffSuppress: false,
+		},
+		"not equivalent 3": {
+			Old:                "ECDSA_P521_SHA512",
+			New:                "EC_SIGN_P256_SHA256",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if compareSignatureAlgorithm("signature_algorithm", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Errorf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
 func TestAccBinaryAuthorizationAttestor_basic(t *testing.T) {
 	t.Parallel()
 

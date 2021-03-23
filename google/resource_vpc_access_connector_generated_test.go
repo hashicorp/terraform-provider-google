@@ -54,8 +54,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorExample(t *testing.T) {
 func testAccVPCAccessConnector_vpcAccessConnectorExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_vpc_access_connector" "connector" {
-  name          = "vpcconn%{random_suffix}"
-  region        = "us-central1"
+  name          = "tf-test-vpc-con%{random_suffix}"
   ip_cidr_range = "10.8.0.0/28"
   network       = "default"
 }
@@ -79,7 +78,13 @@ func testAccCheckVPCAccessConnectorDestroyProducer(t *testing.T) func(s *terrafo
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("VPCAccessConnector still exists at %s", url)
 			}

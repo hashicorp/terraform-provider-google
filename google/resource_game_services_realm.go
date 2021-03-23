@@ -91,6 +91,7 @@ example, 'projects/my-project/locations/{location}/realms/my-realm'.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -131,7 +132,7 @@ func resourceGameServicesRealmCreate(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Realm: %s", err)
 	}
 	billingProject = project
 
@@ -196,7 +197,7 @@ func resourceGameServicesRealmRead(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Realm: %s", err)
 	}
 	billingProject = project
 
@@ -239,13 +240,12 @@ func resourceGameServicesRealmUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Realm: %s", err)
 	}
 	billingProject = project
 
@@ -325,13 +325,12 @@ func resourceGameServicesRealmDelete(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Realm: %s", err)
 	}
 	billingProject = project
 

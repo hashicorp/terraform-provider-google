@@ -44,7 +44,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "my-template"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -92,6 +92,10 @@ resource "google_compute_region_per_instance_config" "with_disk" {
   preserved_state {
     metadata = {
       foo = "bar"
+      // Adding a reference to the instance template used causes the stateful instance to update
+      // if the instance template changes. Otherwise there is no explicit dependency and template
+      // changes may not occur on the stateful instance
+      instance_template = google_compute_instance_template.igm-basic.self_link
     }
 
     disk {
@@ -112,10 +116,6 @@ The following arguments are supported:
   (Required)
   The name for this per-instance config and its corresponding instance.
 
-* `region` -
-  (Required)
-  Region where the containing instance group manager is located
-
 * `region_instance_group_manager` -
   (Required)
   The region instance group manager this instance config is part of.
@@ -129,6 +129,10 @@ The following arguments are supported:
   The preserved state for this instance.
   Structure is documented below.
 
+* `region` -
+  (Optional)
+  Region where the containing instance group manager is located
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -138,15 +142,18 @@ Default is `NONE`. Possible values are:
 * RESTART
 * REFRESH
 * NONE
+
 * `most_disruptive_allowed_action` - (Optional) The most disruptive action to perform on the instance during an update.
 Default is `REPLACE`. Possible values are:
 * REPLACE
 * RESTART
 * REFRESH
 * NONE
+
 * `remove_instance_state_on_destroy` - (Optional) When true, deleting this config will immediately remove any specified state from the underlying instance.
 When false, deleting this config will *not* immediately remove any state from the underlying instance.
 State will be removed on the next instance recreation or update.
+
 
 The `preserved_state` block supports:
 
@@ -181,7 +188,7 @@ The `disk` block supports:
   (Optional)
   A value that prescribes what should happen to the stateful disk when the VM instance is deleted.
   The available options are `NEVER` and `ON_PERMANENT_INSTANCE_DELETION`.
-  `NEVER` detatch the disk when the VM is deleted, but not delete the disk.
+  `NEVER` - detach the disk when the VM is deleted, but do not delete the disk.
   `ON_PERMANENT_INSTANCE_DELETION` will delete the stateful disk when the VM is permanently
   deleted from the instance group.
   Default value is `NEVER`.
@@ -204,6 +211,7 @@ This resource provides the following
 - `delete` - Default is 15 minutes.
 
 ## Import
+
 
 RegionPerInstanceConfig can be imported using any of these accepted formats:
 

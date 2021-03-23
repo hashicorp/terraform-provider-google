@@ -275,6 +275,7 @@ is 1,024 characters.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -357,7 +358,7 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DatasetAccess: %s", err)
 	}
 	billingProject = project
 
@@ -377,8 +378,6 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-
-	log.Printf("[DEBUG] Finished creating DatasetAccess %q: %#v", d.Id(), res)
 
 	// by default, we are not updating the member
 	if err := d.Set("api_updated_member", false); err != nil {
@@ -408,6 +407,8 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 		}
 	}
 
+	log.Printf("[DEBUG] Finished creating DatasetAccess %q: %#v", d.Id(), res)
+
 	return resourceBigQueryDatasetAccessRead(d, meta)
 }
 
@@ -427,7 +428,7 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DatasetAccess: %s", err)
 	}
 	billingProject = project
 
@@ -488,13 +489,12 @@ func resourceBigQueryDatasetAccessDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DatasetAccess: %s", err)
 	}
 	billingProject = project
 

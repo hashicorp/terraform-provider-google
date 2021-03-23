@@ -24,8 +24,10 @@ description: |-
 
 A regional NEG that can support Serverless Products.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
+Recreating a region network endpoint group that's in use by another resource will give a
+`resourceInUseByAnotherResource` error. Use `lifecycle.create_before_destroy`
+to avoid this type of error.
+
 
 To get more information about RegionNetworkEndpointGroup, see:
 
@@ -44,7 +46,6 @@ To get more information about RegionNetworkEndpointGroup, see:
 ```hcl
 // Cloud Functions Example
 resource "google_compute_region_network_endpoint_group" "function_neg" {
-  provider              = google-beta
   name                  = "function-neg"
   network_endpoint_type = "SERVERLESS"
   region                = "us-central1"
@@ -54,7 +55,6 @@ resource "google_compute_region_network_endpoint_group" "function_neg" {
 }
 
 resource "google_cloudfunctions_function" "function_neg" {
-  provider    = google-beta
   name        = "function-neg"
   description = "My function"
   runtime     = "nodejs10"
@@ -68,12 +68,10 @@ resource "google_cloudfunctions_function" "function_neg" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  provider   = google-beta
   name       = "cloudfunctions-function-example-bucket"
 }
 
 resource "google_storage_bucket_object" "archive" { 
-  provider   = google-beta
   name       = "index.zip"
   bucket     = google_storage_bucket.bucket.name
   source     = "path/to/index.zip"
@@ -90,7 +88,6 @@ resource "google_storage_bucket_object" "archive" {
 ```hcl
 // Cloud Run Example
 resource "google_compute_region_network_endpoint_group" "cloudrun_neg" {
-  provider              = google-beta
   name                  = "cloudrun-neg"
   network_endpoint_type = "SERVERLESS"
   region                = "us-central1"
@@ -100,14 +97,13 @@ resource "google_compute_region_network_endpoint_group" "cloudrun_neg" {
 }
 
 resource "google_cloud_run_service" "cloudrun_neg" {
-  provider = google-beta
   name     = "cloudrun-neg"
   location = "us-central1"
 
   template {
     spec {
       containers {
-        image = "gcr.io/cloudrun/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
       }
     }
   }
@@ -129,7 +125,6 @@ resource "google_cloud_run_service" "cloudrun_neg" {
 ```hcl
 // App Engine Example
 resource "google_compute_region_network_endpoint_group" "appengine_neg" {
-  provider              = google-beta
   name                  = "appengine-neg"
   network_endpoint_type = "SERVERLESS"
   region                = "us-central1"
@@ -140,7 +135,6 @@ resource "google_compute_region_network_endpoint_group" "appengine_neg" {
 }
 
 resource "google_app_engine_flexible_app_version" "appengine_neg" {
-  provider   = google-beta
   version_id = "v1"
   service    = "default"
   runtime    = "nodejs"
@@ -190,12 +184,10 @@ resource "google_app_engine_flexible_app_version" "appengine_neg" {
 }
 
 resource "google_storage_bucket" "appengine_neg" {
-  provider   = google-beta
   name       = "appengine-neg"
 }
 
 resource "google_storage_bucket_object" "appengine_neg" {
-  provider  = google-beta
   name      = "hello-world.zip"
   bucket    = google_storage_bucket.appengine_neg.name
   source    = "./test-fixtures/appengine/hello-world.zip"
@@ -275,12 +267,12 @@ The `cloud_run` block supports:
 
 * `url_mask` -
   (Optional)
-  A template to parse service and tag fields from a request URL. 
-  URL mask allows for routing to multiple Run services without having 
+  A template to parse service and tag fields from a request URL.
+  URL mask allows for routing to multiple Run services without having
   to create multiple network endpoint groups and backend services.
-  For example, request URLs "foo1.domain.com/bar1" and "foo1.domain.com/bar2" 
-  an be backed by the same Serverless Network Endpoint Group (NEG) with 
-  URL mask ".domain.com/". The URL mask will parse them to { service="bar1", tag="foo1" } 
+  For example, request URLs "foo1.domain.com/bar1" and "foo1.domain.com/bar2"
+  an be backed by the same Serverless Network Endpoint Group (NEG) with
+  URL mask ".domain.com/". The URL mask will parse them to { service="bar1", tag="foo1" }
   and { service="bar2", tag="foo2" } respectively.
 
 The `app_engine` block supports:
@@ -341,6 +333,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 RegionNetworkEndpointGroup can be imported using any of these accepted formats:
 

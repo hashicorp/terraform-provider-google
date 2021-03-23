@@ -150,6 +150,10 @@ func diskImageFamilyEquals(imageName, familyName string) bool {
 		return true
 	}
 
+	if suppressCosFamilyDiff(imageName, familyName) {
+		return true
+	}
+
 	if suppressWindowsSqlFamilyDiff(imageName, familyName) {
 		return true
 	}
@@ -166,6 +170,19 @@ func suppressCanonicalFamilyDiff(imageName, familyName string) bool {
 	parts := canonicalUbuntuLtsImage.FindStringSubmatch(imageName)
 	if len(parts) == 3 {
 		f := fmt.Sprintf("ubuntu-%s%s-lts", parts[1], parts[2])
+		if f == familyName {
+			return true
+		}
+	}
+
+	return false
+}
+
+// e.g. image: cos-NN-*, family: cos-NN-lts
+func suppressCosFamilyDiff(imageName, familyName string) bool {
+	parts := cosLtsImage.FindStringSubmatch(imageName)
+	if len(parts) == 2 {
+		f := fmt.Sprintf("cos-%s-lts", parts[1])
 		if f == familyName {
 			return true
 		}
@@ -356,7 +373,12 @@ persistent disk.
 
 If you specify this field along with 'image' or 'snapshot',
 the value must not be less than the size of the image
-or the size of the snapshot.`,
+or the size of the snapshot.
+
+~>**NOTE** If you change the size, Terraform updates the disk size
+if upsizing is detected but recreates the disk if downsizing is requested.
+You can add 'lifecycle.prevent_destroy' in the config to prevent destroying
+and recreating.`,
 			},
 			"snapshot": {
 				Type:             schema.TypeString,
@@ -441,7 +463,7 @@ See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encr
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: `The service account used for the encryption request for the given KMS key. 
+							Description: `The service account used for the encryption request for the given KMS key.
 If absent, the Compute Engine Service Agent service account is used.`,
 						},
 						"raw_key": {
@@ -538,6 +560,7 @@ project/zones/zone/instances/instance`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -643,7 +666,7 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Disk: %s", err)
 	}
 	billingProject = project
 
@@ -695,7 +718,7 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Disk: %s", err)
 	}
 	billingProject = project
 
@@ -795,13 +818,12 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Disk: %s", err)
 	}
 	billingProject = project
 
@@ -893,13 +915,12 @@ func resourceComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Disk: %s", err)
 	}
 	billingProject = project
 

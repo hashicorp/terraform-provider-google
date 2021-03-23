@@ -82,13 +82,18 @@ func resourceCloudRunDomainMapping() *schema.Resource {
 project ID or project number.`,
 						},
 						"annotations": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Optional: true,
-							ForceNew: true,
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: cloudrunAnnotationDiffSuppress,
 							Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
-info: http://kubernetes.io/docs/user-guide/annotations`,
+info: http://kubernetes.io/docs/user-guide/annotations
+
+**Note**: The Cloud Run API may add additional annotations that were not provided in your config.
+If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
+or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"labels": {
@@ -264,6 +269,7 @@ was last processed by the controller.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -303,7 +309,7 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 
@@ -312,7 +318,7 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isCloudRunCreationConflict)
 	if err != nil {
 		return fmt.Errorf("Error creating DomainMapping: %s", err)
 	}
@@ -347,7 +353,7 @@ func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interfac
 
 		project, err := getProject(d, config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 		}
 		billingProject = project
 
@@ -361,7 +367,7 @@ func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interfac
 			return nil, err
 		}
 
-		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, isCloudRunCreationConflict)
 		if err != nil {
 			return res, err
 		}
@@ -397,7 +403,7 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 
@@ -406,7 +412,7 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, isCloudRunCreationConflict)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudRunDomainMapping %q", d.Id()))
 	}
@@ -446,13 +452,12 @@ func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 
@@ -469,7 +474,7 @@ func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isCloudRunCreationConflict)
 	if err != nil {
 		return handleNotFoundError(err, d, "DomainMapping")
 	}
@@ -625,7 +630,8 @@ func flattenCloudRunDomainMappingSpec(v interface{}, d *schema.ResourceData, con
 	return []interface{}{transformed}
 }
 func flattenCloudRunDomainMappingSpecForceOverride(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	// We want to ignore read on this field, but cannot because it is nested
+	return d.Get("spec.0.force_override")
 }
 
 func flattenCloudRunDomainMappingSpecRouteName(v interface{}, d *schema.ResourceData, config *Config) interface{} {

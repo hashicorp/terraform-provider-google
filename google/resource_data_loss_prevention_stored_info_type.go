@@ -224,6 +224,7 @@ Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the go
 						"group_indexes": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeInt,
@@ -239,6 +240,7 @@ Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the go
 				Description: `The resource name of the info type. Set by the server.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -429,7 +431,6 @@ func resourceDataLossPreventionStoredInfoTypeUpdate(d *schema.ResourceData, meta
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -496,7 +497,6 @@ func resourceDataLossPreventionStoredInfoTypeDelete(d *schema.ResourceData, meta
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

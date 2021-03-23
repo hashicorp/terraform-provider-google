@@ -93,10 +93,11 @@ func rfc5545RecurrenceDiffSuppress(k, o, n string, d *schema.ResourceData) bool 
 
 func resourceContainerCluster() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceContainerClusterCreate,
-		Read:   resourceContainerClusterRead,
-		Update: resourceContainerClusterUpdate,
-		Delete: resourceContainerClusterDelete,
+		UseJSONNumber: true,
+		Create:        resourceContainerClusterCreate,
+		Read:          resourceContainerClusterRead,
+		Update:        resourceContainerClusterUpdate,
+		Delete:        resourceContainerClusterDelete,
 
 		CustomizeDiff: customdiff.All(
 			resourceNodeConfigEmptyGuestAccelerator,
@@ -463,6 +464,30 @@ func resourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"maintenance_exclusion": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							MaxItems:    3,
+							Description: `Exceptions to maintenance window. Non-emergency maintenance should not occur in these windows.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"exclusion_name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"start_time": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validateRFC3339Date,
+									},
+									"end_time": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validateRFC3339Date,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -779,6 +804,22 @@ func resourceContainerCluster() *schema.Resource {
 							Computed:    true,
 							Description: `The external IP address of this cluster's master endpoint.`,
 						},
+						"master_global_access_config": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Description: "Controls cluster master global access settings.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether the cluster master is accessible globally or not.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -820,14 +861,16 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 			"workload_identity_config": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Description: `Configuration for the use of Kubernetes Service Accounts in GCP IAM policies.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identity_namespace": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Enables workload identity.`,
 						},
 					},
 				},
@@ -861,18 +904,53 @@ func resourceContainerCluster() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				MaxItems:    1,
-				Description: `Configuration options for the Release channel feature, which provide more control over automatic upgrades of your GKE clusters.`,
+				Description: `Configuration options for the Release channel feature, which provide more control over automatic upgrades of your GKE clusters. Note that removing this field from your config will not unenroll it. Instead, use the "UNSPECIFIED" channel.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"channel": {
-							Type:             schema.TypeString,
-							Required:         true,
-							ValidateFunc:     validation.StringInSlice([]string{"UNSPECIFIED", "RAPID", "REGULAR", "STABLE"}, false),
-							DiffSuppressFunc: emptyOrDefaultStringSuppress("UNSPECIFIED"),
-							Description:      `The selected release channel.`,
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "RAPID", "REGULAR", "STABLE"}, false),
+							Description: `The selected release channel. Accepted values are:
+* UNSPECIFIED: Not set.
+* RAPID: Weekly upgrade cadence; Early testers and developers who requires new features.
+* REGULAR: Multiple per month upgrade cadence; Production users who need features not yet offered in the Stable channel.
+* STABLE: Every few months upgrade cadence; Production users who need stability above all else, and for whom frequent upgrades are too risky.`,
 						},
 					},
 				},
+			},
+
+			"tpu_ipv4_cidr_block": {
+				Computed:    true,
+				Type:        schema.TypeString,
+				Description: `The IP address range of the Cloud TPUs in this cluster, in CIDR notation (e.g. 1.2.3.4/29).`,
+			},
+
+			"default_snat_status": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: `Whether the cluster disables default in-node sNAT rules. In-node sNAT rules will be disabled when defaultSnatStatus is disabled.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `When disabled is set to false, default IP masquerade rules will be applied to the nodes to prevent sNAT on cluster internal traffic.`,
+						},
+					},
+				},
+			},
+
+			"datapath_provider": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      `The desired datapath provider for this cluster. By default, uses the IPTables-based kube-proxy implementation.`,
+				ValidateFunc:     validation.StringInSlice([]string{"DATAPATH_PROVIDER_UNSPECIFIED", "LEGACY_DATAPATH", "ADVANCED_DATAPATH"}, false),
+				DiffSuppressFunc: emptyOrDefaultStringSuppress("DATAPATH_PROVIDER_UNSPECIFIED"),
 			},
 
 			"enable_intranode_visibility": {
@@ -1032,6 +1110,12 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			ForceSendFields: []string{"Enabled"},
 		},
 		ReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
+		EnableTpu:      d.Get("enable_tpu").(bool),
+		NetworkConfig: &containerBeta.NetworkConfig{
+			EnableIntraNodeVisibility: d.Get("enable_intranode_visibility").(bool),
+			DefaultSnatStatus:         expandDefaultSnatStatus(d.Get("default_snat_status")),
+			DatapathProvider:          d.Get("datapath_provider").(string),
+		},
 		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
 		ResourceLabels: expandStringMap(d, "resource_labels"),
 	}
@@ -1353,6 +1437,21 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("release_channel", flattenReleaseChannel(cluster.ReleaseChannel)); err != nil {
 		return err
 	}
+	if err := d.Set("enable_tpu", cluster.EnableTpu); err != nil {
+		return fmt.Errorf("Error setting enable_tpu: %s", err)
+	}
+	if err := d.Set("tpu_ipv4_cidr_block", cluster.TpuIpv4CidrBlock); err != nil {
+		return fmt.Errorf("Error setting tpu_ipv4_cidr_block: %s", err)
+	}
+	if err := d.Set("datapath_provider", cluster.NetworkConfig.DatapathProvider); err != nil {
+		return fmt.Errorf("Error setting datapath_provider: %s", err)
+	}
+	if err := d.Set("default_snat_status", flattenDefaultSnatStatus(cluster.NetworkConfig.DefaultSnatStatus)); err != nil {
+		return err
+	}
+	if err := d.Set("enable_intranode_visibility", cluster.NetworkConfig.EnableIntraNodeVisibility); err != nil {
+		return fmt.Errorf("Error setting enable_intranode_visibility: %s", err)
+	}
 	if err := d.Set("authenticator_groups_config", flattenAuthenticatorGroupsConfig(cluster.AuthenticatorGroupsConfig)); err != nil {
 		return err
 	}
@@ -1588,6 +1687,74 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s Release Channel has been updated to %#v", d.Id(), req.Update.DesiredReleaseChannel)
+	}
+
+	if d.HasChange("enable_intranode_visibility") {
+		enabled := d.Get("enable_intranode_visibility").(bool)
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredIntraNodeVisibilityConfig: &containerBeta.IntraNodeVisibilityConfig{
+					Enabled:         enabled,
+					ForceSendFields: []string{"Enabled"},
+				},
+			},
+		}
+		updateF := func() error {
+			log.Println("[DEBUG] updating enable_intranode_visibility")
+			name := containerClusterFullName(project, location, clusterName)
+			clusterUpdateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = containerOperationWait(config, op, project, location, "updating GKE Intra Node Visibility", userAgent, d.Timeout(schema.TimeoutUpdate))
+			log.Println("[DEBUG] done updating enable_intranode_visibility")
+			return err
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s Intra Node Visibility has been updated to %v", d.Id(), enabled)
+	}
+
+	if d.HasChange("default_snat_status") {
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredDefaultSnatStatus: expandDefaultSnatStatus(d.Get("default_snat_status")),
+			},
+		}
+		updateF := func() error {
+			log.Println("[DEBUG] updating default_snat_status")
+			name := containerClusterFullName(project, location, clusterName)
+			clusterUpdateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = containerOperationWait(config, op, project, location, "updating GKE Default SNAT status", userAgent, d.Timeout(schema.TimeoutUpdate))
+			log.Println("[DEBUG] done updating default_snat_status")
+			return err
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s Default SNAT status has been updated", d.Id())
 	}
 
 	if d.HasChange("maintenance_policy") {
@@ -2089,6 +2256,10 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 	clusterName := d.Get("name").(string)
 
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutDelete)); err != nil {
+		if isGoogleApiErrorWithCode(err, 404) {
+			log.Printf("[INFO] GKE cluster %s doesn't exist to delete", d.Id())
+			return nil
+		}
 		return err
 	}
 
@@ -2329,16 +2500,19 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 	}
 	cluster, _ := clusterGetCall.Do()
 	resourceVersion := ""
-	// If the cluster doesn't exist or if there is a read error of any kind, we will pass in an empty
-	// resourceVersion.  If there happens to be a change to maintenance policy, we will fail at that
-	// point.  This is a compromise between code cleanliness and a slightly worse user experience in
-	// an unlikely error case - we choose code cleanliness.
-	if cluster != nil && cluster.MaintenancePolicy != nil {
-		resourceVersion = cluster.MaintenancePolicy.ResourceVersion
-	}
 	exclusions := make(map[string]containerBeta.TimeWindow)
-	if cluster != nil && cluster.MaintenancePolicy != nil && cluster.MaintenancePolicy.Window != nil {
-		exclusions = cluster.MaintenancePolicy.Window.MaintenanceExclusions
+	if cluster != nil && cluster.MaintenancePolicy != nil {
+		// If the cluster doesn't exist or if there is a read error of any kind, we will pass in an empty
+		// resourceVersion.  If there happens to be a change to maintenance policy, we will fail at that
+		// point.  This is a compromise between code cleanliness and a slightly worse user experience in
+		// an unlikely error case - we choose code cleanliness.
+		resourceVersion = cluster.MaintenancePolicy.ResourceVersion
+
+		// Having a MaintenancePolicy doesn't mean that you need MaintenanceExclusions, but if they were set,
+		// they need to be assigned to exclusions.
+		if cluster.MaintenancePolicy.Window != nil && cluster.MaintenancePolicy.Window.MaintenanceExclusions != nil {
+			exclusions = cluster.MaintenancePolicy.Window.MaintenanceExclusions
+		}
 	}
 
 	configured := d.Get("maintenance_policy")
@@ -2352,6 +2526,19 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 		}
 	}
 	maintenancePolicy := l[0].(map[string]interface{})
+
+	if maintenanceExclusions, ok := maintenancePolicy["maintenance_exclusion"]; ok && len(maintenanceExclusions.(*schema.Set).List()) > 0 {
+		for k := range exclusions {
+			delete(exclusions, k)
+		}
+		for _, me := range maintenanceExclusions.(*schema.Set).List() {
+			exclusion := me.(map[string]interface{})
+			exclusions[exclusion["exclusion_name"].(string)] = containerBeta.TimeWindow{
+				StartTime: exclusion["start_time"].(string),
+				EndTime:   exclusion["end_time"].(string),
+			}
+		}
+	}
 
 	if dailyMaintenanceWindow, ok := maintenancePolicy["daily_maintenance_window"]; ok && len(dailyMaintenanceWindow.([]interface{})) > 0 {
 		dmw := dailyMaintenanceWindow.([]interface{})[0].(map[string]interface{})
@@ -2528,10 +2715,23 @@ func expandPrivateClusterConfig(configured interface{}) *containerBeta.PrivateCl
 	}
 	config := l[0].(map[string]interface{})
 	return &containerBeta.PrivateClusterConfig{
-		EnablePrivateEndpoint: config["enable_private_endpoint"].(bool),
-		EnablePrivateNodes:    config["enable_private_nodes"].(bool),
-		MasterIpv4CidrBlock:   config["master_ipv4_cidr_block"].(string),
-		ForceSendFields:       []string{"EnablePrivateEndpoint", "EnablePrivateNodes", "MasterIpv4CidrBlock"},
+		EnablePrivateEndpoint:    config["enable_private_endpoint"].(bool),
+		EnablePrivateNodes:       config["enable_private_nodes"].(bool),
+		MasterIpv4CidrBlock:      config["master_ipv4_cidr_block"].(string),
+		MasterGlobalAccessConfig: expandPrivateClusterConfigMasterGlobalAccessConfig(config["master_global_access_config"]),
+		ForceSendFields:          []string{"EnablePrivateEndpoint", "EnablePrivateNodes", "MasterIpv4CidrBlock", "MasterGlobalAccessConfig"},
+	}
+}
+
+func expandPrivateClusterConfigMasterGlobalAccessConfig(configured interface{}) *containerBeta.PrivateClusterMasterGlobalAccessConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &containerBeta.PrivateClusterMasterGlobalAccessConfig{
+		Enabled:         config["enabled"].(bool),
+		ForceSendFields: []string{"Enabled"},
 	}
 }
 
@@ -2567,6 +2767,19 @@ func expandReleaseChannel(configured interface{}) *containerBeta.ReleaseChannel 
 	return &containerBeta.ReleaseChannel{
 		Channel: config["channel"].(string),
 	}
+}
+
+func expandDefaultSnatStatus(configured interface{}) *containerBeta.DefaultSnatStatus {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &containerBeta.DefaultSnatStatus{
+		Disabled:        config["disabled"].(bool),
+		ForceSendFields: []string{"Disabled"},
+	}
+
 }
 
 func expandWorkloadIdentityConfig(configured interface{}) *containerBeta.WorkloadIdentityConfig {
@@ -2714,12 +2927,24 @@ func flattenPrivateClusterConfig(c *containerBeta.PrivateClusterConfig) []map[st
 	}
 	return []map[string]interface{}{
 		{
-			"enable_private_endpoint": c.EnablePrivateEndpoint,
-			"enable_private_nodes":    c.EnablePrivateNodes,
-			"master_ipv4_cidr_block":  c.MasterIpv4CidrBlock,
-			"peering_name":            c.PeeringName,
-			"private_endpoint":        c.PrivateEndpoint,
-			"public_endpoint":         c.PublicEndpoint,
+			"enable_private_endpoint":     c.EnablePrivateEndpoint,
+			"enable_private_nodes":        c.EnablePrivateNodes,
+			"master_ipv4_cidr_block":      c.MasterIpv4CidrBlock,
+			"master_global_access_config": flattenPrivateClusterConfigMasterGlobalAccessConfig(c.MasterGlobalAccessConfig),
+			"peering_name":                c.PeeringName,
+			"private_endpoint":            c.PrivateEndpoint,
+			"public_endpoint":             c.PublicEndpoint,
+		},
+	}
+}
+
+// Like most GKE blocks, this is not returned from the API at all when false. This causes trouble
+// for users who've set enabled = false in config as they will get a permadiff. Always setting the
+// field resolves that. We can assume if it was not returned, it's false.
+func flattenPrivateClusterConfigMasterGlobalAccessConfig(c *containerBeta.PrivateClusterMasterGlobalAccessConfig) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"enabled": c != nil && c.Enabled,
 		},
 	}
 }
@@ -2737,14 +2962,24 @@ func flattenVerticalPodAutoscaling(c *containerBeta.VerticalPodAutoscaling) []ma
 
 func flattenReleaseChannel(c *containerBeta.ReleaseChannel) []map[string]interface{} {
 	result := []map[string]interface{}{}
-	if c != nil {
+	if c != nil && c.Channel != "" {
 		result = append(result, map[string]interface{}{
 			"channel": c.Channel,
 		})
 	} else {
-		// Explicitly set the release channel to the default.
+		// Explicitly set the release channel to the UNSPECIFIED.
 		result = append(result, map[string]interface{}{
 			"channel": "UNSPECIFIED",
+		})
+	}
+	return result
+}
+
+func flattenDefaultSnatStatus(c *containerBeta.DefaultSnatStatus) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"disabled": c.Disabled,
 		})
 	}
 	return result
@@ -2782,6 +3017,18 @@ func flattenMaintenancePolicy(mp *containerBeta.MaintenancePolicy) []map[string]
 	if mp == nil || mp.Window == nil {
 		return nil
 	}
+
+	exclusions := []map[string]interface{}{}
+	if mp.Window.MaintenanceExclusions != nil {
+		for wName, window := range mp.Window.MaintenanceExclusions {
+			exclusions = append(exclusions, map[string]interface{}{
+				"start_time":     window.StartTime,
+				"end_time":       window.EndTime,
+				"exclusion_name": wName,
+			})
+		}
+	}
+
 	if mp.Window.DailyMaintenanceWindow != nil {
 		return []map[string]interface{}{
 			{
@@ -2791,6 +3038,7 @@ func flattenMaintenancePolicy(mp *containerBeta.MaintenancePolicy) []map[string]
 						"duration":   mp.Window.DailyMaintenanceWindow.Duration,
 					},
 				},
+				"maintenance_exclusion": exclusions,
 			},
 		}
 	}
@@ -2804,6 +3052,7 @@ func flattenMaintenancePolicy(mp *containerBeta.MaintenancePolicy) []map[string]
 						"recurrence": mp.Window.RecurringWindow.Recurrence,
 					},
 				},
+				"maintenance_exclusion": exclusions,
 			},
 		}
 	}
@@ -3064,7 +3313,12 @@ func containerClusterPrivateClusterConfigCustomDiff(_ context.Context, d *schema
 		blockValueKnown := d.NewValueKnown("private_cluster_config.0.master_ipv4_cidr_block")
 
 		if blockValueKnown && (block == nil || block == "") {
-			return fmt.Errorf("master_ipv4_cidr_block must be set if enable_private_nodes == true")
+			return fmt.Errorf("master_ipv4_cidr_block must be set if enable_private_nodes is true")
+		}
+	} else {
+		block := config["master_ipv4_cidr_block"]
+		if block != nil && block != "" {
+			return fmt.Errorf("master_ipv4_cidr_block can only be set if enable_private_nodes is true")
 		}
 	}
 	return nil

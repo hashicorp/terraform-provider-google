@@ -1,0 +1,6 @@
+```release-note:bug
+filestore: fail fast on quota error which cannot succeed on retry.
+```
+```release-note:bug
+storage: refresh etag sooner on an IAM conflict error, which will make applications of multiple IAM resources much faster.
+```

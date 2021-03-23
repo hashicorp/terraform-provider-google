@@ -21,6 +21,7 @@ var functionAllowedMemory = map[int]bool{
 	512:  true,
 	1024: true,
 	2048: true,
+	4096: true,
 }
 
 var allowedIngressSettings = []string{
@@ -249,6 +250,12 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Description: `A set of key/value environment variable pairs to assign to the function.`,
 			},
 
+			"build_environment_variables": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: ` A set of key/value environment variable pairs available during build time.`,
+			},
+
 			"trigger_http": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -328,6 +335,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Description: `Region of function. Currently can be only "us-central1". If it is not provided, the provider region is used.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -409,6 +417,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 
 	if _, ok := d.GetOk("environment_variables"); ok {
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
+	}
+
+	if _, ok := d.GetOk("build_environment_variables"); ok {
+		function.BuildEnvironmentVariables = expandBuildEnvironmentVariables(d)
 	}
 
 	if v, ok := d.GetOk("vpc_connector"); ok {
@@ -569,11 +581,17 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	d.Partial(true)
-
-	function := cloudfunctions.CloudFunction{
-		Name: cloudFuncId.cloudFunctionId(),
+	// The full function needs to supplied in the PATCH call to evaluate some Organization Policies. https://github.com/hashicorp/terraform-provider-google/issues/6603
+	function, err := config.NewCloudFunctionsClient(userAgent).Projects.Locations.Functions.Get(cloudFuncId.cloudFunctionId()).Do()
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Target CloudFunctions Function %q", cloudFuncId.Name))
 	}
+
+	// The full function may contain a reference to manually uploaded code if the function was imported from gcloud
+	// This does not work with Terraform, so zero it out from the function if it exists. See https://github.com/hashicorp/terraform-provider-google/issues/7921
+	function.SourceUploadUrl = ""
+
+	d.Partial(true)
 
 	var updateMaskArr []string
 	if d.HasChange("available_memory_mb") {
@@ -624,6 +642,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMaskArr = append(updateMaskArr, "environmentVariables")
 	}
 
+	if d.HasChange("build_environment_variables") {
+		function.EnvironmentVariables = expandEnvironmentVariables(d)
+		updateMaskArr = append(updateMaskArr, "buildEnvironmentVariables")
+	}
+
 	if d.HasChange("vpc_connector") {
 		function.VpcConnector = d.Get("vpc_connector").(string)
 		updateMaskArr = append(updateMaskArr, "vpcConnector")
@@ -647,17 +670,18 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if len(updateMaskArr) > 0 {
 		log.Printf("[DEBUG] Send Patch CloudFunction Configuration request: %#v", function)
 		updateMask := strings.Join(updateMaskArr, ",")
-		op, err := config.NewCloudFunctionsClient(userAgent).Projects.Locations.Functions.Patch(function.Name, &function).
-			UpdateMask(updateMask).Do()
+		rerr := retryTimeDuration(func() error {
+			op, err := config.NewCloudFunctionsClient(userAgent).Projects.Locations.Functions.Patch(function.Name, function).
+				UpdateMask(updateMask).Do()
+			if err != nil {
+				return err
+			}
 
-		if err != nil {
+			return cloudFunctionsOperationWait(config, op, "Updating CloudFunctions Function", userAgent,
+				d.Timeout(schema.TimeoutUpdate))
+		}, d.Timeout(schema.TimeoutUpdate))
+		if rerr != nil {
 			return fmt.Errorf("Error while updating cloudfunction configuration: %s", err)
-		}
-
-		err = cloudFunctionsOperationWait(config, op, "Updating CloudFunctions Function", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
 		}
 	}
 	d.Partial(false)

@@ -66,6 +66,14 @@ against zonal failures by provisioning it across two zones.
 If provided, it must be a different zone from the one provided in
 [locationId].`,
 			},
+			"auth_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Optional. Indicates whether OSS Redis AUTH is enabled for the
+instance. If set to "true" AUTH is enabled on the instance.
+Default value is "false" meaning AUTH is disabled.`,
+				Default: false,
+			},
 			"authorized_network": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -189,6 +197,12 @@ checked before each import/export operation.`,
 				Computed:    true,
 				Description: `The port number of the exposed Redis endpoint.`,
 			},
+			"auth_string": {
+				Type:        schema.TypeString,
+				Description: "AUTH String set on the instance. This field will only be populated if auth_enabled is true.",
+				Computed:    true,
+				Sensitive:   true,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -196,6 +210,7 @@ checked before each import/export operation.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -212,6 +227,12 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("alternative_location_id"); !isEmptyValue(reflect.ValueOf(alternativeLocationIdProp)) && (ok || !reflect.DeepEqual(v, alternativeLocationIdProp)) {
 		obj["alternativeLocationId"] = alternativeLocationIdProp
+	}
+	authEnabledProp, err := expandRedisInstanceAuthEnabled(d.Get("auth_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("auth_enabled"); !isEmptyValue(reflect.ValueOf(authEnabledProp)) && (ok || !reflect.DeepEqual(v, authEnabledProp)) {
+		obj["authEnabled"] = authEnabledProp
 	}
 	authorizedNetworkProp, err := expandRedisInstanceAuthorizedNetwork(d.Get("authorized_network"), d, config)
 	if err != nil {
@@ -295,7 +316,7 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
@@ -326,6 +347,14 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create Instance: %s", err)
+	}
+
+	opRes, err = resourceRedisInstanceDecoder(d, meta, opRes)
+	if err != nil {
+		return fmt.Errorf("Error decoding response from operation: %s", err)
+	}
+	if opRes == nil {
+		return fmt.Errorf("Error decoding response from operation, could not find object")
 	}
 
 	if err := d.Set("name", flattenRedisInstanceName(opRes["name"], d, config)); err != nil {
@@ -360,7 +389,7 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
@@ -372,6 +401,18 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("RedisInstance %q", d.Id()))
+	}
+
+	res, err = resourceRedisInstanceDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing RedisInstance because it no longer exists.")
+		d.SetId("")
+		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -387,6 +428,9 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := d.Set("alternative_location_id", flattenRedisInstanceAlternativeLocationId(res["alternativeLocationId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("auth_enabled", flattenRedisInstanceAuthEnabled(res["authEnabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("authorized_network", flattenRedisInstanceAuthorizedNetwork(res["authorizedNetwork"], d, config)); err != nil {
@@ -447,17 +491,22 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	authEnabledProp, err := expandRedisInstanceAuthEnabled(d.Get("auth_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("auth_enabled"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authEnabledProp)) {
+		obj["authEnabled"] = authEnabledProp
+	}
 	displayNameProp, err := expandRedisInstanceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -495,6 +544,10 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
 	updateMask := []string{}
+
+	if d.HasChange("auth_enabled") {
+		updateMask = append(updateMask, "authEnabled")
+	}
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
@@ -548,13 +601,12 @@ func resourceRedisInstanceDelete(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
@@ -610,6 +662,10 @@ func resourceRedisInstanceImport(d *schema.ResourceData, meta interface{}) ([]*s
 }
 
 func flattenRedisInstanceAlternativeLocationId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenRedisInstanceAuthEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -710,6 +766,10 @@ func expandRedisInstanceAlternativeLocationId(v interface{}, d TerraformResource
 	return v, nil
 }
 
+func expandRedisInstanceAuthEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandRedisInstanceAuthorizedNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	fv, err := ParseNetworkFieldValue(v.(string), d, config)
 	if err != nil {
@@ -782,4 +842,51 @@ func resourceRedisInstanceEncoder(d *schema.ResourceData, meta interface{}, obj 
 		return nil, fmt.Errorf("Error setting region: %s", err)
 	}
 	return obj, nil
+}
+
+func resourceRedisInstanceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	config := meta.(*Config)
+
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	if v, ok := res["authEnabled"].(bool); ok {
+		if v {
+			url, err := replaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}/authString")
+			if err != nil {
+				return nil, err
+			}
+
+			billingProject := ""
+
+			project, err := getProject(d, config)
+			if err != nil {
+				return nil, fmt.Errorf("Error fetching project for Instance: %s", err)
+			}
+
+			billingProject = project
+
+			// err == nil indicates that the billing_project value was found
+			if bp, err := getBillingProject(d, config); err == nil {
+				billingProject = bp
+			}
+
+			res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+			if err != nil {
+				return nil, fmt.Errorf("Error reading AuthString: %s", err)
+			}
+
+			if err := d.Set("auth_string", res["authString"]); err != nil {
+				return nil, fmt.Errorf("Error reading Instance: %s", err)
+			}
+		}
+	} else {
+		if err := d.Set("auth_string", ""); err != nil {
+			return nil, fmt.Errorf("Error reading Instance: %s", err)
+		}
+	}
+
+	return res, nil
 }

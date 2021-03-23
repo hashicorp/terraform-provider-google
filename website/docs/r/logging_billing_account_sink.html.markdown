@@ -9,9 +9,9 @@ description: |-
 
 # google\_logging\_billing\_account\_sink
 
-Manages a billing account logging sink. For more information see
-[the official documentation](https://cloud.google.com/logging/docs/) and
-[Exporting Logs in the API](https://cloud.google.com/logging/docs/api/tasks/exporting-logs).
+* [API documentation](https://cloud.google.com/logging/docs/reference/v2/rest/v2/billingAccounts.sinks)
+* How-to Guides
+    * [Exporting Logs](https://cloud.google.com/logging/docs/export)
 
 ~> **Note** You must have the "Logs Configuration Writer" IAM role (`roles/logging.configWriter`)
 [granted on the billing account](https://cloud.google.com/billing/reference/rest/v1/billingAccounts/getIamPolicy) to
@@ -23,6 +23,7 @@ typical IAM roles granted on a project.
 ```hcl
 resource "google_logging_billing_account_sink" "my-sink" {
   name            = "my-sink"
+  description = "some explaination on what this is"
   billing_account = "ABCDEF-012345-GHIJKL"
 
   # Can export to pubsub, cloud storage, or bigquery
@@ -51,11 +52,12 @@ The following arguments are supported:
 * `billing_account` - (Required) The billing account exported to the sink.
 
 * `destination` - (Required) The destination of the sink (or, in other words, where logs are written to). Can be a
-    Cloud Storage bucket, a PubSub topic, or a BigQuery dataset. Examples:
+    Cloud Storage bucket, a PubSub topic, a BigQuery dataset or a Cloud Logging bucket. Examples:
 ```
 "storage.googleapis.com/[GCS_BUCKET]"
 "bigquery.googleapis.com/projects/[PROJECT_ID]/datasets/[DATASET]"
 "pubsub.googleapis.com/projects/[PROJECT_ID]/topics/[TOPIC_ID]"
+"logging.googleapis.com/projects/[PROJECT_ID]]/locations/global/buckets/[BUCKET_ID]"
 ```
     The writer associated with the sink must have access to write to the above resource.
 
@@ -63,7 +65,13 @@ The following arguments are supported:
     See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced_filters) for information on how to
     write a filter.
 
+* `description` - (Optional) A description of this sink. The maximum length of the description is 8000 characters.
+
+* `disabled` - (Optional) If set to True, then this sink is disabled and it does not export any log entries.
+
 * `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure documented below.
+
+* `exclusions` - (Optional) Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both filter and one of exclusion_filters it will not be exported.  Can be repeated multiple times for multiple exclusions. Structure is documented below.
 
 The `bigquery_options` block supports:
 
@@ -71,6 +79,14 @@ The `bigquery_options` block supports:
     By default, Logging creates dated tables based on the log entries' timestamps, e.g. syslog_20170523. With partitioned
     tables the date suffix is no longer present and [special query syntax](https://cloud.google.com/bigquery/docs/querying-partitioned-tables)
     has to be used instead. In both cases, tables are sharded based on UTC timezone.
+
+The `exclusions` block support:
+
+* `name` - (Required) A client-assigned identifier, such as `load-balancer-exclusion`. Identifiers are limited to 100 characters and can include only letters, digits, underscores, hyphens, and periods. First character has to be alphanumeric.
+* `description` - (Optional) A description of this exclusion.
+* `filter` - (Required) An advanced logs filter that matches the log entries to be excluded. By using the sample function, you can exclude less than 100% of the matching log entries. See [Advanced Log Filters](https://cloud.google.com/logging/docs/view/advanced_filters) for information on how to
+    write a filter.
+* `disabled` - (Optional) If set to True, then this exclusion is disabled and it does not exclude any log entries.
 
 ## Attributes Reference
 

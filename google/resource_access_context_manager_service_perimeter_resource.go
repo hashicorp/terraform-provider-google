@@ -56,6 +56,7 @@ Currently only projects are allowed.
 Format: projects/{project_number}`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -202,7 +203,6 @@ func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.Resour
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

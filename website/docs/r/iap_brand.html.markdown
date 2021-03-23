@@ -23,7 +23,7 @@ description: |-
 # google\_iap\_brand
 
 OAuth brand data. Only "Organization Internal" brands can be created
-programatically via API. To convert it into an external brands
+programmatically via API. To convert it into an external brands
 please use the GCP Console.
 
 
@@ -111,6 +111,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Brand can be imported using any of these accepted formats:
 

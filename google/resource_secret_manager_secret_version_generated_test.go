@@ -91,7 +91,13 @@ func testAccCheckSecretManagerSecretVersionDestroyProducer(t *testing.T) func(s 
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("SecretManagerSecretVersion still exists at %s", url)
 			}

@@ -158,9 +158,10 @@ Default value is 1000. Valid range is 0 through 65535.`,
 				Description: `URL to a Network that should handle matching packets.`,
 			},
 			"next_hop_instance_zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The zone of the instance specified in next_hop_instance. Omit if next_hop_instance is specified as a URL.",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -173,6 +174,7 @@ Default value is 1000. Valid range is 0 through 65535.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -268,7 +270,7 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Route: %s", err)
 	}
 	billingProject = project
 
@@ -320,7 +322,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Route: %s", err)
 	}
 	billingProject = project
 
@@ -399,13 +401,12 @@ func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Route: %s", err)
 	}
 	billingProject = project
 
@@ -587,7 +588,7 @@ func expandComputeRouteNextHopInstance(v interface{}, d TerraformResourceData, c
 		return nil, err
 	}
 
-	userAgent, err := generateUserAgentString(d.(*schema.ResourceData), config.userAgent)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added support for MYSQL_8_0 on resource `source_representation_instance`
+```

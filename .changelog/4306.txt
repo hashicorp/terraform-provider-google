@@ -1,0 +1,3 @@
+```release-note:enhancement
+Added support for Google Virtual Network Interface (gVNIC) for image part
+```

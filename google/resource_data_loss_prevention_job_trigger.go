@@ -436,6 +436,7 @@ be based on the time of the execution of the last run of the JobTrigger.`,
 				Description: `The resource name of the job trigger. Set by the server.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -571,7 +572,6 @@ func resourceDataLossPreventionJobTriggerUpdate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -668,7 +668,6 @@ func resourceDataLossPreventionJobTriggerDelete(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

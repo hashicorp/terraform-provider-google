@@ -84,6 +84,7 @@ resources of that resource. A maximum of 50 email addresses are allowed.`,
 				Description: `The resource name of the settings. Format is "organizations/{organization_id}/accessApprovalSettings"`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -231,7 +232,6 @@ func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, me
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -293,7 +293,6 @@ func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, me
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	obj := make(map[string]interface{})
 	obj["notificationEmails"] = []string{}

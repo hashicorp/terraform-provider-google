@@ -33,6 +33,14 @@ To get more information about Subscription, see:
 * How-to Guides
     * [Managing Subscriptions](https://cloud.google.com/pubsub/docs/admin#managing_subscriptions)
 
+~> **Note:** You can retrieve the email of the Google Managed Pub/Sub Service Account used for forwarding 
+by using the `google_project_service_identity` resource.
+
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_subscription_push&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Pubsub Subscription Push
 
 
@@ -227,7 +235,7 @@ The following arguments are supported:
   A policy that specifies the conditions for dead lettering messages in
   this subscription. If dead_letter_policy is not set, dead lettering
   is disabled.
-  The Cloud Pub/Sub service account associated with this subscriptions's
+  The Cloud Pub/Sub service account associated with this subscription's
   parent project (i.e.,
   service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
   permission to Acknowledge() messages on this subscription.
@@ -358,7 +366,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/subscriptions/{{name}}`
 
 
-* `path`: Path of the subscription in the format `projects/{project}/subscriptions/{name}`
+* `path`: Deprecated in favor of `id`, which contains an identical value. This field will be removed in the next major release of the provider.
 
 ## Timeouts
 
@@ -370,6 +378,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Subscription can be imported using any of these accepted formats:
 

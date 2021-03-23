@@ -24,8 +24,6 @@ description: |-
 
 Represents a Location resource.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Argument Reference
@@ -63,6 +61,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Location can be imported using any of these accepted formats:
 

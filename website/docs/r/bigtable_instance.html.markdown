@@ -9,9 +9,12 @@ description: |-
 
 # google_bigtable_instance
 
-Creates a Google Bigtable instance. For more information see
-[the official documentation](https://cloud.google.com/bigtable/) and
-[API](https://cloud.google.com/bigtable/docs/go/reference).
+Creates a Google Bigtable instance. For more information see:
+
+* [API documentation](https://cloud.google.com/bigtable/docs/reference/admin/rest/v2/projects.instances.clusters)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/bigtable/docs)
+
 
 -> **Note**: It is strongly recommended to set `lifecycle { prevent_destroy = true }`
 on instances in order to prevent accidental data loss. See
@@ -31,13 +34,8 @@ resource "google_bigtable_instance" "production-instance" {
 
   cluster {
     cluster_id   = "tf-instance-cluster"
-    zone         = "us-central1-b"
     num_nodes    = 1
     storage_type = "HDD"
-  }
-
-  lifecycle {
-    prevent_destroy = true
   }
 
   labels = {
@@ -46,24 +44,6 @@ resource "google_bigtable_instance" "production-instance" {
 }
 ```
 
-## Example Usage - Development Instance
-
-```hcl
-resource "google_bigtable_instance" "development-instance" {
-  name          = "tf-instance"
-  instance_type = "DEVELOPMENT"
-
-  cluster {
-    cluster_id   = "tf-instance-cluster"
-    zone         = "us-central1-b"
-    storage_type = "HDD"
-  }
-
-  labels = {
-    my-label = "dev-label"
-  }
-}
-```
 
 ## Argument Reference
 
@@ -99,8 +79,8 @@ The `cluster` block supports the following arguments:
 
 * `cluster_id` - (Required) The ID of the Cloud Bigtable cluster.
 
-* `zone` - (Required) The zone to create the Cloud Bigtable cluster in. Each
-cluster must have a different zone in the same region. Zones that support
+* `zone` - (Optional) The zone to create the Cloud Bigtable cluster in. If it not
+specified, the provider zone is used. Each cluster must have a different zone in the same region. Zones that support
 Bigtable instances are noted on the [Cloud Bigtable locations page](https://cloud.google.com/bigtable/docs/locations).
 
 * `num_nodes` - (Optional) The number of nodes in your Cloud Bigtable cluster.

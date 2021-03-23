@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	resourceManagerV2Beta1 "google.golang.org/api/cloudresourcemanager/v2beta1"
+	resourceManagerV2 "google.golang.org/api/cloudresourcemanager/v2"
 )
 
 func resourceGoogleFolder() *schema.Resource {
@@ -64,6 +64,7 @@ func resourceGoogleFolder() *schema.Resource {
 				Description: `Timestamp when the Folder was created. Assigned by the server. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -77,10 +78,10 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 	displayName := d.Get("display_name").(string)
 	parent := d.Get("parent").(string)
 
-	var op *resourceManagerV2Beta1.Operation
+	var op *resourceManagerV2.Operation
 	err = retryTimeDuration(func() error {
 		var reqErr error
-		op, reqErr = config.NewResourceManagerV2Beta1Client(userAgent).Folders.Create(&resourceManagerV2Beta1.Folder{
+		op, reqErr = config.NewResourceManagerV2Client(userAgent).Folders.Create(&resourceManagerV2.Folder{
 			DisplayName: displayName,
 		}).Parent(parent).Do()
 		return reqErr
@@ -164,7 +165,7 @@ func resourceGoogleFolderUpdate(d *schema.ResourceData, meta interface{}) error 
 	d.Partial(true)
 	if d.HasChange("display_name") {
 		err := retry(func() error {
-			_, reqErr := config.NewResourceManagerV2Beta1Client(userAgent).Folders.Patch(d.Id(), &resourceManagerV2Beta1.Folder{
+			_, reqErr := config.NewResourceManagerV2Client(userAgent).Folders.Patch(d.Id(), &resourceManagerV2.Folder{
 				DisplayName: displayName,
 			}).Do()
 			return reqErr
@@ -177,10 +178,10 @@ func resourceGoogleFolderUpdate(d *schema.ResourceData, meta interface{}) error 
 	if d.HasChange("parent") {
 		newParent := d.Get("parent").(string)
 
-		var op *resourceManagerV2Beta1.Operation
+		var op *resourceManagerV2.Operation
 		err := retry(func() error {
 			var reqErr error
-			op, reqErr = config.NewResourceManagerV2Beta1Client(userAgent).Folders.Move(d.Id(), &resourceManagerV2Beta1.MoveFolderRequest{
+			op, reqErr = config.NewResourceManagerV2Client(userAgent).Folders.Move(d.Id(), &resourceManagerV2.MoveFolderRequest{
 				DestinationParent: newParent,
 			}).Do()
 			return reqErr
@@ -214,7 +215,7 @@ func resourceGoogleFolderDelete(d *schema.ResourceData, meta interface{}) error 
 	displayName := d.Get("display_name").(string)
 
 	err = retryTimeDuration(func() error {
-		_, reqErr := config.NewResourceManagerV2Beta1Client(userAgent).Folders.Delete(d.Id()).Do()
+		_, reqErr := config.NewResourceManagerV2Client(userAgent).Folders.Delete(d.Id()).Do()
 		return reqErr
 	}, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
@@ -237,11 +238,11 @@ func resourceGoogleFolderImportState(d *schema.ResourceData, m interface{}) ([]*
 
 // Util to get a Folder resource from API. Note that folder described by name is not necessarily the
 // ResourceData resource.
-func getGoogleFolder(folderName, userAgent string, d *schema.ResourceData, config *Config) (*resourceManagerV2Beta1.Folder, error) {
-	var folder *resourceManagerV2Beta1.Folder
+func getGoogleFolder(folderName, userAgent string, d *schema.ResourceData, config *Config) (*resourceManagerV2.Folder, error) {
+	var folder *resourceManagerV2.Folder
 	err := retryTimeDuration(func() error {
 		var reqErr error
-		folder, reqErr = config.NewResourceManagerV2Beta1Client(userAgent).Folders.Get(folderName).Do()
+		folder, reqErr = config.NewResourceManagerV2Client(userAgent).Folders.Get(folderName).Do()
 		return reqErr
 	}, d.Timeout(schema.TimeoutRead))
 	if err != nil {

@@ -15,13 +15,13 @@ Environments run Apache Airflow software on Google infrastructure.
 
 To get more information about Environments, see:
 
-* [API documentation](https://cloud.google.com/composer/docs/reference/rest/)
+* [API documentation](https://cloud.google.com/composer/docs/reference/rest/v1/projects.locations.environments)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/composer/docs)
     * [Configuring Shared VPC for Composer Environments](https://cloud.google.com/composer/docs/how-to/managing/configuring-shared-vpc)
 * [Apache Airflow Documentation](http://airflow.apache.org/)
 
-~> **Warning:** We **STRONGLY** recommend  you read the [GCP guides](https://cloud.google.com/composer/docs/how-to)
+~> **Warning:** We **STRONGLY** recommend you read the [GCP guides](https://cloud.google.com/composer/docs/how-to)
   as the Environment resource requires a long deployment process and involves several layers of GCP infrastructure, 
   including a Kubernetes Engine cluster, Cloud Storage, and Compute networking resources. Due to limitations of the API,
   Terraform will not be able to automatically find or manage many of these underlying resources. In particular:
@@ -31,6 +31,7 @@ To get more information about Environments, see:
     against GCP Cloud Composer before filing bugs against the Terraform provider. 
   * **Environments create Google Cloud Storage buckets that do not get cleaned up automatically** on environment 
     deletion. [More about Composer's use of Cloud Storage](https://cloud.google.com/composer/docs/concepts/cloud-storage).
+  * Please review the [known issues](https://cloud.google.com/composer/docs/known-issues) for Composer if you are having problems.
 
 ## Example Usage
 
@@ -44,9 +45,8 @@ resource "google_composer_environment" "test" {
 
 ### With GKE and Compute Resource Dependencies
 
-**NOTE** To use service accounts, you need to give `role/composer.worker` to the service account on any resources that may be created for the environment
-(i.e. at a project level). This will probably require an explicit dependency
-on the IAM policy binding (see `google_project_iam_member` below).
+**NOTE** To use custom service accounts, you need to give at least `role/composer.worker` to the service account being used by the GKE Nodes on the Composer project.
+You may need to assign additional roles depending on what the Airflow DAGs will be running.
 
 ```hcl
 resource "google_composer_environment" "test" {
@@ -57,7 +57,7 @@ resource "google_composer_environment" "test" {
 
     node_config {
       zone         = "us-central1-a"
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
 
       network    = google_compute_network.test.id
       subnetwork = google_compute_subnetwork.test.id
@@ -65,8 +65,6 @@ resource "google_composer_environment" "test" {
       service_account = google_service_account.test.name
     }
   }
-
-  depends_on = [google_project_iam_member.composer-worker]
 }
 
 resource "google_compute_network" "test" {
@@ -180,6 +178,10 @@ The `config` block supports:
 * `web_server_config` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The configuration settings for the Airflow web server App Engine instance.
+
+* `encryption_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The encryption options for the Cloud Composer environment and its dependencies.
 
 The `node_config` block supports:
 
@@ -344,7 +346,7 @@ The `ip_allocation_policy` block supports:
 * `use_ip_aliases` -
   (Required)
   Whether or not to enable Alias IPs in the GKE cluster. If true, a VPC-native cluster is created.
-  Defaults to true if the `ip_allocation_block` is present in config.
+  Defaults to true if the `ip_allocation_policy` block is present in config.
 
 * `cluster_secondary_range_name` -
   (Optional)
@@ -392,6 +394,13 @@ The `web_server_config` block supports:
   Value custom is returned only in response, if Airflow web server parameters were
   manually changed to a non-standard values.
 
+The `encryption_config` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Customer-managed Encryption Key available through Google's Key Management Service. It must
+  be the fully qualified resource name, 
+  i.e. projects/project-id/locations/location/keyRings/keyring/cryptoKeys/key. Cannot be updated.
 
 
 ## Attributes Reference

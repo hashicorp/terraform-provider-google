@@ -50,10 +50,9 @@ The following arguments are supported:
   this service provider. Note that invoking this method with a different range when connection
   is already established will not reallocate already provisioned service producer subnetworks.
 
-## Import
+## Import 
+ServiceNetworkingConnection can be imported using any of these accepted formats
 
-Service networking connections can be imported using the following accepted format:
+* terraform import google_service_networking_connection.peering_connection {{peering-network}}:{{service}}
 
-```
-$ terraform import google_service_networking_connection.foobar {{network}}:{{service}}
-```
+* terraform import google_service_networking_connection.peering_connection /projects/{{project}}/global/networks/{{peering-network}}:{{service}}

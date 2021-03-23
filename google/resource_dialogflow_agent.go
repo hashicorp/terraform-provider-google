@@ -142,6 +142,7 @@ the [avatarUri] field can be used.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -230,7 +231,7 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Agent: %s", err)
 	}
 	billingProject = project
 
@@ -272,7 +273,7 @@ func resourceDialogflowAgentRead(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Agent: %s", err)
 	}
 	billingProject = project
 
@@ -330,13 +331,12 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Agent: %s", err)
 	}
 	billingProject = project
 
@@ -437,13 +437,12 @@ func resourceDialogflowAgentDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Agent: %s", err)
 	}
 	billingProject = project
 

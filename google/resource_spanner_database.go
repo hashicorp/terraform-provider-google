@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -108,6 +107,11 @@ error in any statement, the database is not created.`,
 				Computed:    true,
 				Description: `An explanation of the status of the database.`,
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -115,6 +119,7 @@ error in any statement, the database is not created.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -160,7 +165,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
 	billingProject = project
 
@@ -233,7 +238,7 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
 	billingProject = project
 
@@ -259,6 +264,12 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_protection"); !ok {
+		if err := d.Set("deletion_protection", true); err != nil {
+			return fmt.Errorf("Error setting deletion_protection: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
@@ -282,13 +293,12 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
 	billingProject = project
 
@@ -345,13 +355,12 @@ func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
 	billingProject = project
 
@@ -361,6 +370,9 @@ func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	var obj map[string]interface{}
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("cannot destroy instance without setting deletion_protection=false and running `terraform apply`")
+	}
 	log.Printf("[DEBUG] Deleting Database %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -402,6 +414,11 @@ func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_protection", true); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -458,7 +475,7 @@ func resourceSpannerDatabaseUpdateEncoder(d *schema.ResourceData, meta interface
 		updateDdls = append(updateDdls, newDdls[i].(string))
 	}
 
-	obj["statements"] = strings.Join(updateDdls, ",")
+	obj["statements"] = updateDdls
 	delete(obj, "name")
 	delete(obj, "instance")
 	delete(obj, "extraStatements")

@@ -64,6 +64,7 @@ func resourceGoogleServiceAccount() *schema.Resource {
 				Description: `The ID of the project that the service account will be created in. Defaults to the provider project configuration.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

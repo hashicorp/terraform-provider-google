@@ -32,7 +32,7 @@ To get more information about Source, see:
 
 * [API documentation](https://cloud.google.com/security-command-center/docs/reference/rest/v1beta1/organizations.sources)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/binary-authorization/)
+    * [Official Documentation](https://cloud.google.com/security-command-center/docs)
 
 ## Example Usage - Scc Source Basic
 
@@ -93,6 +93,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Source can be imported using any of these accepted formats:
 

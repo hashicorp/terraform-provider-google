@@ -90,7 +90,8 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 
 			"region": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Computed:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `The region where the managed instance group resides.`,
 			},
@@ -212,6 +213,14 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				},
 			},
 
+			"distribution_policy_target_shape": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				Description: `The shape to which the group converges either proactively or on resize events (depending on the value set in updatePolicy.instanceRedistributionType).`,
+			},
+
 			"update_policy": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -279,6 +288,13 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 							DiffSuppressFunc: emptyOrDefaultStringSuppress("PROACTIVE"),
 							Description:      `The instance redistribution policy for regional managed instance groups. Valid values are: "PROACTIVE", "NONE". If PROACTIVE (default), the group attempts to maintain an even distribution of VM instances across zones in the region. If NONE, proactive redistribution is disabled.`,
 						},
+						"replacement_method": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ValidateFunc:     validation.StringInSlice([]string{"RECREATE", "SUBSTITUTE", ""}, false),
+							DiffSuppressFunc: emptyOrDefaultStringSuppress("SUBSTITUTE"),
+							Description:      `The instance replacement method for regional managed instance groups. Valid values are: "RECREATE", "SUBSTITUTE". If SUBSTITUTE (default), the group replaces VM instances with new instances that have randomly generated names. If RECREATE, instance names are preserved.  You must also set max_unavailable_fixed or max_unavailable_percent to be greater than 0.`,
+						},
 					},
 				},
 			},
@@ -299,13 +315,14 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 							Type:         schema.TypeString,
 							Default:      "NEVER",
 							Optional:     true,
-							Description:  `A value that prescribes what should happen to the stateful disk when the VM instance is deleted. The available options are NEVER and ON_PERMANENT_INSTANCE_DELETION. NEVER detatch the disk when the VM is deleted, but not delete the disk. ON_PERMANENT_INSTANCE_DELETION will delete the stateful disk when the VM is permanently deleted from the instance group. The default is NEVER.`,
+							Description:  `A value that prescribes what should happen to the stateful disk when the VM instance is deleted. The available options are NEVER and ON_PERMANENT_INSTANCE_DELETION. NEVER - detach the disk when the VM is deleted, but do not delete the disk. ON_PERMANENT_INSTANCE_DELETION will delete the stateful disk when the VM is permanently deleted from the instance group. The default is NEVER.`,
 							ValidateFunc: validation.StringInSlice([]string{"NEVER", "ON_PERMANENT_INSTANCE_DELETION"}, true),
 						},
 					},
 				},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -336,7 +353,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		AutoHealingPolicies: expandAutoHealingPolicies(d.Get("auto_healing_policies").([]interface{})),
 		Versions:            expandVersions(d.Get("version").([]interface{})),
 		UpdatePolicy:        expandRegionUpdatePolicy(d.Get("update_policy").([]interface{})),
-		DistributionPolicy:  expandDistributionPolicy(d.Get("distribution_policy_zones").(*schema.Set)),
+		DistributionPolicy:  expandDistributionPolicy(d),
 		StatefulPolicy:      expandStatefulPolicy(d.Get("stateful_disk").(*schema.Set).List()),
 		// Force send TargetSize to allow size of 0.
 		ForceSendFields: []string{"TargetSize"},
@@ -455,6 +472,9 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error setting instance_group: %s", err)
 	}
 	if err := d.Set("distribution_policy_zones", flattenDistributionPolicy(manager.DistributionPolicy)); err != nil {
+		return err
+	}
+	if err := d.Set("distribution_policy_target_shape", manager.DistributionPolicy.TargetShape); err != nil {
 		return err
 	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink)); err != nil {
@@ -639,6 +659,7 @@ func expandRegionUpdatePolicy(configured []interface{}) *computeBeta.InstanceGro
 		updatePolicy.MinimalAction = data["minimal_action"].(string)
 		updatePolicy.Type = data["type"].(string)
 		updatePolicy.InstanceRedistributionType = data["instance_redistribution_type"].(string)
+		updatePolicy.ReplacementMethod = data["replacement_method"].(string)
 
 		// percent and fixed values are conflicting
 		// when the percent values are set, the fixed values will be ignored
@@ -699,19 +720,22 @@ func flattenRegionUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpd
 		up["minimal_action"] = updatePolicy.MinimalAction
 		up["type"] = updatePolicy.Type
 		up["instance_redistribution_type"] = updatePolicy.InstanceRedistributionType
+		up["replacement_method"] = updatePolicy.ReplacementMethod
 
 		results = append(results, up)
 	}
 	return results
 }
 
-func expandDistributionPolicy(configured *schema.Set) *computeBeta.DistributionPolicy {
-	if configured.Len() == 0 {
+func expandDistributionPolicy(d *schema.ResourceData) *computeBeta.DistributionPolicy {
+	dpz := d.Get("distribution_policy_zones").(*schema.Set)
+	dpts := d.Get("distribution_policy_target_shape").(string)
+	if dpz.Len() == 0 && dpts == "" {
 		return nil
 	}
 
-	distributionPolicyZoneConfigs := make([]*computeBeta.DistributionPolicyZoneConfiguration, 0, configured.Len())
-	for _, raw := range configured.List() {
+	distributionPolicyZoneConfigs := make([]*computeBeta.DistributionPolicyZoneConfiguration, 0, dpz.Len())
+	for _, raw := range dpz.List() {
 		data := raw.(string)
 		distributionPolicyZoneConfig := computeBeta.DistributionPolicyZoneConfiguration{
 			Zone: "zones/" + data,
@@ -719,7 +743,8 @@ func expandDistributionPolicy(configured *schema.Set) *computeBeta.DistributionP
 
 		distributionPolicyZoneConfigs = append(distributionPolicyZoneConfigs, &distributionPolicyZoneConfig)
 	}
-	return &computeBeta.DistributionPolicy{Zones: distributionPolicyZoneConfigs}
+
+	return &computeBeta.DistributionPolicy{Zones: distributionPolicyZoneConfigs, TargetShape: dpts}
 }
 
 func flattenDistributionPolicy(distributionPolicy *computeBeta.DistributionPolicy) []string {

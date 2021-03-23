@@ -107,6 +107,10 @@ The following arguments are supported:
   If you specify this field along with `image` or `snapshot`,
   the value must not be less than the size of the image
   or the size of the snapshot.
+  ~>**NOTE** If you change the size, Terraform updates the disk size
+  if upsizing is detected but recreates the disk if downsizing is requested.
+  You can add `lifecycle.prevent_destroy` in the config to prevent destroying
+  and recreating.
 
 * `physical_block_size_bytes` -
   (Optional)
@@ -115,6 +119,12 @@ The following arguments are supported:
   are 4096 and 16384, other sizes may be added in the future.
   If an unsupported value is requested, the error message will list
   the supported values for the caller's project.
+
+* `interface` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the disk interface to use for attaching this disk, which is either SCSI or NVME. The default is SCSI.
+  Default value is `SCSI`.
+  Possible values are `SCSI` and `NVME`.
 
 * `type` -
   (Optional)
@@ -141,6 +151,10 @@ The following arguments are supported:
   one at a time. Use
   [`google_compute_disk_resource_policy_attachment`](https://www.terraform.io/docs/providers/google/r/compute_disk_resource_policy_attachment.html)
   to allow for updating the resource policy attached to the disk.
+
+* `multi_writer` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Indicates whether or not the disk can be read/write attached to more than one instance.
 
 * `zone` -
   (Optional)
@@ -257,7 +271,7 @@ The `source_snapshot_encryption_key` block supports:
 
 * `kms_key_service_account` -
   (Optional)
-  The service account used for the encryption request for the given KMS key. 
+  The service account used for the encryption request for the given KMS key.
   If absent, the Compute Engine Service Agent service account is used.
 
 ## Attributes Reference
@@ -310,6 +324,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Disk can be imported using any of these accepted formats:
 

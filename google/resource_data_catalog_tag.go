@@ -133,6 +133,7 @@ where tag_id is a system-generated identifier. Note that this Tag may not actual
 				Description: `The display name of the tag template.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -262,7 +263,6 @@ func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -329,7 +329,6 @@ func resourceDataCatalogTagDelete(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

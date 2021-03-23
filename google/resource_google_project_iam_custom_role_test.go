@@ -11,6 +11,7 @@ import (
 func TestAccProjectIamCustomRole_basic(t *testing.T) {
 	t.Parallel()
 
+	project := getTestProjectFromEnv()
 	roleId := "tfIamCustomRole" + randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
@@ -24,6 +25,18 @@ func TestAccProjectIamCustomRole_basic(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_project_iam_custom_role.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_project_iam_custom_role.foo",
+				ImportStateId:     fmt.Sprintf("%s/%s", project, roleId),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_project_iam_custom_role.foo",
+				ImportStateId:     roleId,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

@@ -43,15 +43,17 @@ func resourceRuntimeconfigVariable() *schema.Resource {
 			},
 
 			"value": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"text"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				ExactlyOneOf: []string{"text", "value"},
 			},
 
 			"text": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"value"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				ExactlyOneOf: []string{"text", "value"},
 			},
 
 			"update_time": {
@@ -60,6 +62,7 @@ func resourceRuntimeconfigVariable() *schema.Resource {
 				Description: `The timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds, representing when the variable was last updated. Example: "2016-10-09T12:33:37.578138407Z".`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -188,13 +191,9 @@ func resourceRuntimeconfigVariableParseFullName(fullName string) (project, confi
 // newRuntimeconfigVariableFromResourceData builds a new runtimeconfig.Variable struct from the data stored in a
 // schema.ResourceData. Also returns the full name of the parent. Returns nil, "", err upon error.
 func newRuntimeconfigVariableFromResourceData(d *schema.ResourceData, project string) (variable *runtimeconfig.Variable, parent string, err error) {
-	// Validate that both text and value are not set
-	text, textSet := d.GetOk("text")
-	value, valueSet := d.GetOk("value")
 
-	if !textSet && !valueSet {
-		return nil, "", fmt.Errorf("You must specify one of value or text.")
-	}
+	text := d.Get("text")
+	value := d.Get("value")
 
 	// TODO(selmanj) here we assume it's a simple name, not a full name. Should probably support full name as well
 	parent = d.Get("parent").(string)
@@ -206,7 +205,7 @@ func newRuntimeconfigVariableFromResourceData(d *schema.ResourceData, project st
 		Name: fullName,
 	}
 
-	if textSet {
+	if text != "" {
 		variable.Text = text.(string)
 	} else {
 		variable.Value = value.(string)

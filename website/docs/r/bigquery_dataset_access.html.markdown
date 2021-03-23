@@ -37,6 +37,10 @@ To get more information about DatasetAccess, see:
 * How-to Guides
     * [Controlling access to datasets](https://cloud.google.com/bigquery/docs/dataset-access-controls)
 
+~> **Warning:** You must specify the role field using the legacy format `OWNER` instead of `roles/bigquery.dataOwner`. 
+The API does accept both formats but it will always return the legacy format which results in Terraform
+showing permanent diff on each plan and apply operation.
+
 ## Example Usage - Bigquery Dataset Access Basic User
 
 
@@ -77,6 +81,7 @@ resource "google_bigquery_dataset" "public" {
 }
 
 resource "google_bigquery_table" "public" {
+  deletion_protection = false
   dataset_id = google_bigquery_dataset.public.dataset_id
   table_id   = "example_table"
 
@@ -185,6 +190,10 @@ This resource provides the following
 
 - `create` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
+
+## Import
+
+This resource does not support import.
 
 ## User Project Overrides
 

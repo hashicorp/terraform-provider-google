@@ -197,10 +197,10 @@ func isSqlOperationInProgressError(err error) (bool, string) {
 func serviceUsageServiceBeingActivated(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 400 {
 		if strings.Contains(gerr.Body, "Another activation or deactivation is in progress") {
-			return false, ""
+			return true, "Waiting for same service activation/deactivation to finish"
 		}
 
-		return true, "Waiting for same service activation/deactivation to finish"
+		return false, ""
 	}
 	return false, ""
 }
@@ -216,23 +216,49 @@ func isBigqueryIAMQuotaError(err error) (bool, string) {
 	return false, ""
 }
 
-// Retry if Monitoring operation returns a 429 with a specific message for
+// Retry if operation returns a 403 with the message for
+// exceeding the quota limit for 'OperationReadGroup'
+func isOperationReadQuotaError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 403 && strings.Contains(gerr.Body, "Quota exceeded for quota group 'OperationReadGroup'") {
+			return true, "Waiting for quota to refresh"
+		}
+	}
+	return false, ""
+}
+
+// Retry if Monitoring operation returns a 409 with a specific message for
 // concurrent operations.
 func isMonitoringConcurrentEditError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
-		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "too many concurrent edits") {
+		if gerr.Code == 409 && (strings.Contains(strings.ToLower(gerr.Body), "too many concurrent edits") ||
+			strings.Contains(strings.ToLower(gerr.Body), "could not fulfill the request")) {
 			return true, "Waiting for other Monitoring changes to finish"
 		}
 	}
 	return false, ""
 }
 
-// Retry if App Engine operation returns a 429 with a specific message for
+// Retry if filestore operation returns a 429 with a specific message for
 // concurrent operations.
+func isNotFilestoreQuotaError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 429 {
+			return false, ""
+		}
+	}
+	return isCommonRetryableErrorCode(err)
+}
+
+// Retry if App Engine operation returns a 409 with a specific message for
+// concurrent operations, or a 404 indicating p4sa has not yet propagated.
 func isAppEngineRetryableError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "operation is already in progress") {
 			return true, "Waiting for other concurrent App Engine changes to finish"
+		}
+		if gerr.Code == 404 && strings.Contains(strings.ToLower(gerr.Body), "unable to retrieve p4sa") {
+			return true, "Waiting for P4SA propagation to GAIA"
 		}
 	}
 	return false, ""
@@ -257,13 +283,6 @@ func isNotFoundRetryableError(opType string) RetryErrorPredicateFunc {
 		}
 		return false, ""
 	}
-}
-
-func isStoragePreconditionError(err error) (bool, string) {
-	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 412 {
-		return true, fmt.Sprintf("Retry on storage precondition not met")
-	}
-	return false, ""
 }
 
 func isDataflowJobUpdateRetryableError(err error) (bool, string) {
@@ -299,5 +318,55 @@ func datastoreIndex409Contention(err error) (bool, string) {
 			return true, "too much contention - waiting for less activity"
 		}
 	}
+	return false, ""
+}
+
+func iapClient409Operation(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "operation was aborted") {
+			return true, "operation was aborted possibly due to concurrency issue - retrying"
+		}
+	}
+	return false, ""
+}
+
+func healthcareDatasetNotInitialized(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 404 && strings.Contains(strings.ToLower(gerr.Body), "dataset not initialized") {
+			return true, "dataset not initialized - retrying"
+		}
+	}
+	return false, ""
+}
+
+// Cloud Run APIs may return a 409 on create to indicate that a resource has been deleted in the foreground
+// (eg GET and LIST) but not the backing apiserver. When we encounter a 409, we can retry it.
+// Note that due to limitations in MMv1's error_retry_predicates this is currently applied to all requests.
+// We only expect to receive it on create, though.
+func isCloudRunCreationConflict(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 {
+			return true, "saw a 409 - waiting until background deletion completes"
+		}
+	}
+
+	return false, ""
+}
+
+// If a service account is deleted in the middle of updating an IAM policy
+// it can cause the API to return an error. In fine-grained IAM resources we
+// read the policy, modify it, then send it back to the API. Retrying is
+// useful particularly in high-traffic projects.
+// We don't want to retry _every_ time we see this error because the
+// user-provided SA could trigger this too. At the callsite, we should check
+// if the current etag matches the old etag and short-circuit if they do as
+// that indicates the new config is the likely problem.
+func iamServiceAccountNotFound(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(gerr.Body, "Service account") && strings.Contains(gerr.Body, "does not exist") {
+			return true, "service account not found in IAM"
+		}
+	}
+
 	return false, ""
 }

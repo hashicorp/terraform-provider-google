@@ -24,7 +24,7 @@ func TestAccComputeRegionPerInstanceConfig_statefulBasic(t *testing.T) {
 		"config_name4":  fmt.Sprintf("instance-%s", randString(t, 10)),
 	}
 	rigmId := fmt.Sprintf("projects/%s/regions/%s/instanceGroupManagers/%s",
-		getTestProjectFromEnv(), "us-central1", rigmName)
+		getTestProjectFromEnv(), getTestRegionFromEnv(), rigmName)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -38,7 +38,7 @@ func TestAccComputeRegionPerInstanceConfig_statefulBasic(t *testing.T) {
 				ResourceName:            "google_compute_region_per_instance_config.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "region"},
 			},
 			{
 				// Force-recreate old config
@@ -51,7 +51,7 @@ func TestAccComputeRegionPerInstanceConfig_statefulBasic(t *testing.T) {
 				ResourceName:            "google_compute_region_per_instance_config.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "region"},
 			},
 			{
 				// Add two new endpoints
@@ -61,7 +61,7 @@ func TestAccComputeRegionPerInstanceConfig_statefulBasic(t *testing.T) {
 				ResourceName:            "google_compute_region_per_instance_config.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "region"},
 			},
 			{
 				ResourceName:            "google_compute_region_per_instance_config.with_disks",
@@ -73,7 +73,7 @@ func TestAccComputeRegionPerInstanceConfig_statefulBasic(t *testing.T) {
 				ResourceName:            "google_compute_region_per_instance_config.add2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "region"},
 			},
 			{
 				// delete all configs
@@ -109,7 +109,7 @@ func TestAccComputeRegionPerInstanceConfig_update(t *testing.T) {
 				ResourceName:            "google_compute_region_per_instance_config.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "region"},
 			},
 			{
 				// Update an existing config
@@ -119,7 +119,7 @@ func TestAccComputeRegionPerInstanceConfig_update(t *testing.T) {
 				ResourceName:            "google_compute_region_per_instance_config.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy"},
+				ImportStateVerifyIgnore: []string{"remove_instance_state_on_destroy", "region"},
 			},
 		},
 	})
@@ -128,7 +128,6 @@ func TestAccComputeRegionPerInstanceConfig_update(t *testing.T) {
 func testAccComputeRegionPerInstanceConfig_statefulBasic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_per_instance_config" "default" {
-	region = google_compute_region_instance_group_manager.rigm.region
 	region_instance_group_manager = google_compute_region_instance_group_manager.rigm.name
 	name = "%{config_name}"
 	remove_instance_state_on_destroy = true
@@ -144,7 +143,6 @@ resource "google_compute_region_per_instance_config" "default" {
 func testAccComputeRegionPerInstanceConfig_update(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_region_per_instance_config" "default" {
-	region = google_compute_region_instance_group_manager.rigm.region
 	region_instance_group_manager = google_compute_region_instance_group_manager.rigm.name
 	name = "%{config_name}"
 	remove_instance_state_on_destroy = true
@@ -248,7 +246,7 @@ resource "google_compute_disk" "disk2" {
   name  = "test-disk3-%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-c"
-  image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+  image = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20210217"
   physical_block_size_bytes = 4096
 }
 `, context) + testAccComputeRegionPerInstanceConfig_rigm(context)
@@ -263,7 +261,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "rigm-basic" {
   name           = "rigm-temp-%{random_suffix}"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -293,7 +291,6 @@ resource "google_compute_region_instance_group_manager" "rigm" {
   }
 
   base_instance_name = "rigm-no-tp"
-  region             = "us-central1"
 
   update_policy {
     instance_redistribution_type = "NONE"

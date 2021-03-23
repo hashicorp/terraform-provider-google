@@ -66,13 +66,13 @@ func resourceDataflowJob() *schema.Resource {
 			"template_gcs_path": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The GCS path to the Dataflow job template.`,
+				Description: `The Google Cloud Storage path to the Dataflow job template.`,
 			},
 
 			"temp_gcs_location": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `A writeable location on GCS for the Dataflow job to dump its temporary data.`,
+				Description: `A writeable location on Google Cloud Storage for the Dataflow job to dump its temporary data.`,
 			},
 
 			"zone": {
@@ -171,6 +171,12 @@ func resourceDataflowJob() *schema.Resource {
 				Description: `The machine type to use for the job.`,
 			},
 
+			"kms_key_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The name for the Cloud KMS key for the job. Key format is: projects/PROJECT_ID/locations/LOCATION/keyRings/KEY_RING/cryptoKeys/KEY`,
+			},
+
 			"ip_configuration": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -192,7 +198,14 @@ func resourceDataflowJob() *schema.Resource {
 				Computed:    true,
 				Description: `The unique ID of this job.`,
 			},
+
+			"enable_streaming_engine": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates if the job should use the streaming engine feature.`,
+			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -301,6 +314,9 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	if err := d.Set("labels", job.Labels); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := d.Set("kms_key_name", job.Environment.ServiceKmsKeyName); err != nil {
+		return fmt.Errorf("Error setting kms_key_name: %s", err)
 	}
 
 	sdkPipelineOptions, err := ConvertToMap(job.Environment.SdkPipelineOptions)
@@ -515,10 +531,7 @@ func resourceDataflowJobLaunchTemplate(config *Config, project, region, userAgen
 }
 
 func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *Config) (dataflow.RuntimeEnvironment, error) {
-	zone, err := getZone(d, config)
-	if err != nil {
-		return dataflow.RuntimeEnvironment{}, err
-	}
+	zone, _ := getZone(d, config)
 
 	labels := expandStringMap(d, "labels")
 
@@ -531,7 +544,9 @@ func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *Config) (datafl
 		Subnetwork:            d.Get("subnetwork").(string),
 		TempLocation:          d.Get("temp_gcs_location").(string),
 		MachineType:           d.Get("machine_type").(string),
+		KmsKeyName:            d.Get("kms_key_name").(string),
 		IpConfiguration:       d.Get("ip_configuration").(string),
+		EnableStreamingEngine: d.Get("enable_streaming_engine").(bool),
 		AdditionalUserLabels:  labels,
 		Zone:                  zone,
 		AdditionalExperiments: additionalExperiments,

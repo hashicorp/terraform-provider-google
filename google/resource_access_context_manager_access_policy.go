@@ -70,6 +70,7 @@ Format: organizations/{organization_id}`,
 				Description: `Time the AccessPolicy was updated in UTC.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -142,8 +143,6 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating AccessPolicy %q: %#v", d.Id(), res)
-
 	// The operation for this resource contains the generated name that we need
 	// in order to perform a READ. We need to access the object inside of it as
 	// a map[string]interface, so let's do that.
@@ -155,6 +154,8 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 	d.SetId(name)
+
+	log.Printf("[DEBUG] Finished creating AccessPolicy %q: %#v", d.Id(), res)
 
 	return resourceAccessContextManagerAccessPolicyRead(d, meta)
 }
@@ -208,7 +209,6 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -268,7 +268,6 @@ func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

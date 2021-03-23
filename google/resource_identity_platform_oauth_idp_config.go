@@ -80,6 +80,7 @@ func resourceIdentityPlatformOauthIdpConfig() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -138,7 +139,7 @@ func resourceIdentityPlatformOauthIdpConfigCreate(d *schema.ResourceData, meta i
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for OauthIdpConfig: %s", err)
 	}
 	billingProject = project
 
@@ -180,7 +181,7 @@ func resourceIdentityPlatformOauthIdpConfigRead(d *schema.ResourceData, meta int
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for OauthIdpConfig: %s", err)
 	}
 	billingProject = project
 
@@ -226,13 +227,12 @@ func resourceIdentityPlatformOauthIdpConfigUpdate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for OauthIdpConfig: %s", err)
 	}
 	billingProject = project
 
@@ -324,13 +324,12 @@ func resourceIdentityPlatformOauthIdpConfigDelete(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for OauthIdpConfig: %s", err)
 	}
 	billingProject = project
 

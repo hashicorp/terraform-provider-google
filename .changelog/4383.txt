@@ -1,0 +1,3 @@
+```release-note:bug
+project: fixed a bug in `google_project_access_approval_settings` where the default `project` was used rather than `project_id`
+```

@@ -104,6 +104,40 @@ func TestAccMonitoringSlo_basic(t *testing.T) {
 	})
 }
 
+func TestAccMonitoringSlo_availabilitySli(t *testing.T) {
+	t.Parallel()
+
+	var generatedId string
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringSlo_availabilitySli(),
+				Check:  setTestCheckMonitoringSloId("google_monitoring_slo.primary", &generatedId),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+			{
+				Config: testAccMonitoringSlo_basicUpdate(),
+				Check:  testCheckMonitoringSloIdAfterUpdate("google_monitoring_slo.primary", &generatedId),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
+		},
+	})
+}
 func TestAccMonitoringSlo_requestBased(t *testing.T) {
 	t.Parallel()
 
@@ -282,6 +316,16 @@ func TestAccMonitoringSlo_windowBasedGoodTotalRatioThresholdSlis(t *testing.T) {
 				// Ignore input-only field for import
 				ImportStateVerifyIgnore: []string{"service"},
 			},
+			{
+				Config: testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_basicSli(),
+			},
+			{
+				ResourceName:      "google_monitoring_slo.test_slo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Ignore input-only field for import
+				ImportStateVerifyIgnore: []string{"service"},
+			},
 		},
 	})
 }
@@ -404,6 +448,26 @@ resource "google_monitoring_slo" "primary" {
     latency {
       threshold = "2s"
     }
+  }
+}
+`
+}
+
+func testAccMonitoringSlo_availabilitySli() string {
+	return `
+data "google_monitoring_app_engine_service" "ae" {
+  module_id = "default"
+}
+
+resource "google_monitoring_slo" "primary" {
+  service = data.google_monitoring_app_engine_service.ae.service_id
+
+  goal = 0.9
+  rolling_period_days = 1
+
+  basic_sli {
+	availability {
+	}
   }
 }
 `
@@ -663,4 +727,27 @@ windows_based_sli {
 	}
 }
 `
+}
+
+func testAccMonitoringSloSli_windowBasedSliGoodTotalRatioThreshold_basicSli() string {
+	return fmt.Sprintf(`
+data "google_monitoring_app_engine_service" "ae" {
+	module_id = "default"
+}
+	  
+resource "google_monitoring_slo" "test_slo" {
+	service = data.google_monitoring_app_engine_service.ae.service_id
+	goal = 0.9
+	rolling_period_days = 30
+	windows_based_sli {
+		window_period = "400s"
+		good_total_ratio_threshold {
+			threshold = 0.1
+			basic_sli_performance {
+				availability {
+				}
+			}
+		}
+    }
+}`)
 }

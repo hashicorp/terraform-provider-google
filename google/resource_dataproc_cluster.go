@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	dataproc "google.golang.org/api/dataproc/v1beta2"
+	"google.golang.org/api/dataproc/v1"
 )
 
 var (
@@ -43,6 +43,7 @@ var (
 
 	clusterConfigKeys = []string{
 		"cluster_config.0.staging_bucket",
+		"cluster_config.0.temp_bucket",
 		"cluster_config.0.gce_cluster_config",
 		"cluster_config.0.master_config",
 		"cluster_config.0.worker_config",
@@ -156,6 +157,15 @@ func resourceDataprocCluster() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: ` The name of the cloud storage bucket ultimately used to house the staging data for the cluster. If staging_bucket is specified, it will contain this value, otherwise it will be the auto generated name.`,
+						},
+
+						"temp_bucket": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							ForceNew:     true,
+							Description:  `The Cloud Storage temp bucket used to store ephemeral cluster and jobs data, such as Spark and MapReduce history files. Note: If you don't explicitly specify a temp_bucket then GCP will auto create / assign one for you.`,
 						},
 
 						"gce_cluster_config": {
@@ -482,8 +492,8 @@ by Dataproc`,
 										Description:  `The set of optional components to activate on the cluster.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
-											ValidateFunc: validation.StringInSlice([]string{"COMPONENT_UNSPECIFIED", "ANACONDA", "DRUID", "HBASE", "HIVE_WEBHCAT",
-												"JUPYTER", "KERBEROS", "PRESTO", "RANGER", "SOLR", "ZEPPELIN", "ZOOKEEPER"}, false),
+											ValidateFunc: validation.StringInSlice([]string{"COMPONENT_UNSPECIFIED", "ANACONDA", "DOCKER", "DRUID", "HBASE", "FLINK",
+												"HIVE_WEBHCAT", "JUPYTER", "KERBEROS", "PRESTO", "RANGER", "SOLR", "ZEPPELIN", "ZOOKEEPER"}, false),
 										},
 									},
 								},
@@ -553,6 +563,7 @@ by Dataproc`,
 				},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -738,7 +749,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Create the cluster
-	op, err := config.NewDataprocBetaClient(userAgent).Projects.Regions.Clusters.Create(
+	op, err := config.NewDataprocClient(userAgent).Projects.Regions.Clusters.Create(
 		project, region, cluster).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating Dataproc cluster: %s", err)
@@ -776,6 +787,10 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 
 	if v, ok := d.GetOk("cluster_config.0.staging_bucket"); ok {
 		conf.ConfigBucket = v.(string)
+	}
+
+	if v, ok := d.GetOk("cluster_config.0.temp_bucket"); ok {
+		conf.TempBucket = v.(string)
 	}
 
 	c, err := expandGceClusterConfig(d, config)
@@ -1134,7 +1149,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 	if len(updMask) > 0 {
 		gracefulDecommissionTimeout := d.Get("graceful_decommission_timeout").(string)
 
-		patch := config.NewDataprocBetaClient(userAgent).Projects.Regions.Clusters.Patch(
+		patch := config.NewDataprocClient(userAgent).Projects.Regions.Clusters.Patch(
 			project, region, clusterName, cluster)
 		patch.GracefulDecommissionTimeout(gracefulDecommissionTimeout)
 		patch.UpdateMask(strings.Join(updMask, ","))
@@ -1170,7 +1185,7 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	region := d.Get("region").(string)
 	clusterName := d.Get("name").(string)
 
-	cluster, err := config.NewDataprocBetaClient(userAgent).Projects.Regions.Clusters.Get(
+	cluster, err := config.NewDataprocClient(userAgent).Projects.Regions.Clusters.Get(
 		project, region, clusterName).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Dataproc Cluster %q", clusterName))
@@ -1207,6 +1222,7 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		"staging_bucket": d.Get("cluster_config.0.staging_bucket").(string),
 
 		"bucket":                    cfg.ConfigBucket,
+		"temp_bucket":               cfg.TempBucket,
 		"gce_cluster_config":        flattenGceClusterConfig(d, cfg.GceClusterConfig),
 		"security_config":           flattenSecurityConfig(d, cfg.SecurityConfig),
 		"software_config":           flattenSoftwareConfig(d, cfg.SoftwareConfig),
@@ -1434,7 +1450,7 @@ func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) err
 	clusterName := d.Get("name").(string)
 
 	log.Printf("[DEBUG] Deleting Dataproc cluster %s", clusterName)
-	op, err := config.NewDataprocBetaClient(userAgent).Projects.Regions.Clusters.Delete(
+	op, err := config.NewDataprocClient(userAgent).Projects.Regions.Clusters.Delete(
 		project, region, clusterName).Do()
 	if err != nil {
 		return err

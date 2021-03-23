@@ -37,6 +37,7 @@ func resourceGoogleProjectOrganizationPolicy() *schema.Resource {
 				},
 			},
 		),
+		UseJSONNumber: true,
 	}
 }
 

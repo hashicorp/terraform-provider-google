@@ -55,7 +55,7 @@ func testAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasic
 resource "google_sql_source_representation_instance" "instance" {
   name             = "tf-test-my-instance%{random_suffix}"
   region           = "us-central1"
-  database_version = "MYSQL_5_7"
+  database_version = "MYSQL_8_0"
   host             = "10.20.30.40"
   port             = 3306
 }
@@ -79,7 +79,13 @@ func testAccCheckSQLSourceRepresentationInstanceDestroyProducer(t *testing.T) fu
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("SQLSourceRepresentationInstance still exists at %s", url)
 			}

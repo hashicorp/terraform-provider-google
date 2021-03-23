@@ -106,18 +106,20 @@ This should only be set when using an Internal address.`,
 				Description: `The prefix length of the IP range. If not present, it means the
 address field is a single IP address.
 
-This field is not applicable to addresses with addressType=EXTERNAL.`,
+This field is not applicable to addresses with addressType=EXTERNAL,
+or addressType=INTERNAL when purpose=PRIVATE_SERVICE_CONNECT`,
 			},
 			"purpose": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"VPC_PEERING", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"VPC_PEERING", "PRIVATE_SERVICE_CONNECT", ""}, false),
 				Description: `The purpose of the resource. For global internal addresses it can be
 
 * VPC_PEERING - for peer networks
+* PRIVATE_SERVICE_CONNECT - for ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Private Service Connect networks
 
-This should only be set when using an Internal address. Possible values: ["VPC_PEERING"]`,
+This should only be set when using an Internal address. Possible values: ["VPC_PEERING", "PRIVATE_SERVICE_CONNECT"]`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
@@ -135,6 +137,7 @@ This should only be set when using an Internal address. Possible values: ["VPC_P
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -205,7 +208,7 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GlobalAddress: %s", err)
 	}
 	billingProject = project
 
@@ -257,7 +260,7 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GlobalAddress: %s", err)
 	}
 	billingProject = project
 
@@ -315,13 +318,12 @@ func resourceComputeGlobalAddressDelete(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GlobalAddress: %s", err)
 	}
 	billingProject = project
 

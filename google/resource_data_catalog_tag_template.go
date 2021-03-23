@@ -157,6 +157,7 @@ Multiple fields can have the same order, and field orders within a tag do not ha
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -203,7 +204,7 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TagTemplate: %s", err)
 	}
 	billingProject = project
 
@@ -248,7 +249,7 @@ func resourceDataCatalogTagTemplateRead(d *schema.ResourceData, meta interface{}
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TagTemplate: %s", err)
 	}
 	billingProject = project
 
@@ -293,13 +294,12 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TagTemplate: %s", err)
 	}
 	billingProject = project
 
@@ -351,13 +351,12 @@ func resourceDataCatalogTagTemplateDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TagTemplate: %s", err)
 	}
 	billingProject = project
 

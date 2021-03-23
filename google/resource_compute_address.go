@@ -90,12 +90,16 @@ specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"GCE_ENDPOINT", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"GCE_ENDPOINT", "VPC_PEERING", "SHARED_LOADBALANCER_VIP", ""}, false),
 				Description: `The purpose of this resource, which can be one of the following values:
 
-- GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
+* GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
 
-This should only be set when using an Internal address. Possible values: ["GCE_ENDPOINT"]`,
+* SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal load balancers.
+
+* VPC_PEERING for addresses that are reserved for VPC peer networks.
+
+This should only be set when using an Internal address. Possible values: ["GCE_ENDPOINT", "VPC_PEERING", "SHARED_LOADBALANCER_VIP"]`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -141,6 +145,7 @@ GCE_ENDPOINT/DNS_RESOLVER purposes.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -211,7 +216,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Address: %s", err)
 	}
 	billingProject = project
 
@@ -263,7 +268,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Address: %s", err)
 	}
 	billingProject = project
 
@@ -324,13 +329,12 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Address: %s", err)
 	}
 	billingProject = project
 

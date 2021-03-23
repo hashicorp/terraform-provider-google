@@ -135,7 +135,7 @@ Bounds: [2m, 1d]. Default: 2m.`,
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `The  location where the autoscaling poicy should reside.
+				Description: `The  location where the autoscaling policy should reside.
 The default value is 'global'.`,
 				Default: "global",
 			},
@@ -237,6 +237,7 @@ only on primary workers, the cluster will use primary workers only and no second
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -283,7 +284,7 @@ func resourceDataprocAutoscalingPolicyCreate(d *schema.ResourceData, meta interf
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AutoscalingPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -328,7 +329,7 @@ func resourceDataprocAutoscalingPolicyRead(d *schema.ResourceData, meta interfac
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AutoscalingPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -371,13 +372,12 @@ func resourceDataprocAutoscalingPolicyUpdate(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AutoscalingPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -436,13 +436,12 @@ func resourceDataprocAutoscalingPolicyDelete(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for AutoscalingPolicy: %s", err)
 	}
 	billingProject = project
 

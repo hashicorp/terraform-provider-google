@@ -1,0 +1,4 @@
+```release-note:bug
+dataproc : fixed `max_failure_per_hour` not sent in API request for the resource `google_dataproc_job`
+
+```

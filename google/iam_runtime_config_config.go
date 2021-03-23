@@ -39,11 +39,11 @@ var RuntimeConfigConfigIamSchema = map[string]*schema.Schema{
 type RuntimeConfigConfigIamUpdater struct {
 	project string
 	config  string
-	d       *schema.ResourceData
+	d       TerraformResourceData
 	Config  *Config
 }
 
-func RuntimeConfigConfigIamUpdaterProducer(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func RuntimeConfigConfigIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed an issue in `bigquery_dataset_iam_member` where deleted members were not handled correctly
+```

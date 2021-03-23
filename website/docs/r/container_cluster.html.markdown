@@ -26,6 +26,11 @@ plaintext. [Read more about sensitive data in state](/docs/state/sensitive-data.
 ## Example Usage - with a separately managed node pool (recommended)
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service-account-id"
+  display_name = "Service Account"
+}
+
 resource "google_container_cluster" "primary" {
   name     = "my-gke-cluster"
   location = "us-central1"
@@ -35,15 +40,6 @@ resource "google_container_cluster" "primary" {
   # node pool and immediately delete it.
   remove_default_node_pool = true
   initial_node_count       = 1
-
-  master_auth {
-    username = ""
-    password = ""
-
-    client_certificate_config {
-      issue_client_certificate = false
-    }
-  }
 }
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
@@ -56,13 +52,10 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
     preemptible  = true
     machine_type = "e2-medium"
 
-    metadata = {
-      disable-legacy-endpoints = "true"
-    }
-
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
+    oauth_scopes    = [
+      "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
 }
@@ -71,37 +64,26 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 ## Example Usage - with the default node pool
 
 ```hcl
+resource "google_service_account" "default" {
+  account_id   = "service-account-id"
+  display_name = "Service Account"
+}
+
 resource "google_container_cluster" "primary" {
   name               = "marcellus-wallace"
   location           = "us-central1-a"
   initial_node_count = 3
-
-  master_auth {
-    username = ""
-    password = ""
-
-    client_certificate_config {
-      issue_client_certificate = false
-    }
-  }
-
   node_config {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
     oauth_scopes = [
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/cloud-platform"
     ]
-
-    metadata = {
-      disable-legacy-endpoints = "true"
-    }
-
     labels = {
       foo = "bar"
     }
-
     tags = ["foo", "bar"]
   }
-
   timeouts {
     create = "30m"
     update = "40m"
@@ -167,7 +149,7 @@ for more information.
     this cluster. Note that when this option is enabled, the cluster cannot be upgraded
     and will be automatically deleted after 30 days.
 
-* `enable_tpu` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Whether to enable Cloud TPU resources in this cluster.
+* `enable_tpu` - (Optional) Whether to enable Cloud TPU resources in this cluster.
     See the [official documentation](https://cloud.google.com/tpu/docs/kubernetes-engine-setup).
 
 * `enable_legacy_abac` - (Optional) Whether the ABAC authorizer is enabled for this cluster.
@@ -205,7 +187,7 @@ Kubernetes master. Some values in this block are only returned by the API if
 your service account has permission to get credentials for your GKE cluster. If
 you see an unexpected diff removing a username/password or unsetting your client
 cert, ensure you have the `container.clusters.getCredentials` permission.
-Structure is documented below.
+Structure is documented below. This has been deprecated as of GKE 1.19.
 
 * `master_authorized_networks_config` - (Optional) The desired configuration options
     for master authorized networks. Omit the nested `cidr_blocks` attribute to disallow
@@ -316,10 +298,13 @@ subnetwork in which the cluster's instances are launched.
     [Google IAM Service Account](https://cloud.google.com/iam/docs/service-accounts#user-managed_service_accounts).
     Structure is documented below.
 
-* `enable_intranode_visibility` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `enable_intranode_visibility` - (Optional)
     Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.
 
-* `default_snat_status` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `datapath_provider` - (Optional)
+    The desired datapath provider for this cluster. By default, uses the IPTables-based kube-proxy implementation.
+
+* `default_snat_status` - (Optional)
   [GKE SNAT](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-masquerade-agent#how_ipmasq_works) DefaultSnatStatus contains the desired state of whether default sNAT should be disabled on the cluster, [API doc](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#networkconfig).
 
 The `default_snat_status` block supports
@@ -327,7 +312,7 @@ The `default_snat_status` block supports
 *  `disabled` - (Required) Whether the cluster disables default in-node sNAT rules. In-node sNAT rules will be disabled when defaultSnatStatus is disabled.When disabled is set to false, default IP masquerade rules will be applied to the nodes to prevent sNAT on cluster internal traffic
 
 The `cluster_telemetry` block supports
-* `type` - Telemetry integration for the cluster. Supported values (`ENABLE, DISABLE, SYSTEM_ONLY`);
+* `type` - Telemetry integration for the cluster. Supported values (`ENABLED, DISABLED, SYSTEM_ONLY`);
    `SYSTEM_ONLY` (Only system components are monitored and logged) is only available in GKE versions 1.15 and later.
 
 The `addons_config` block supports:
@@ -365,7 +350,7 @@ The `addons_config` block supports:
 * `gce_persistent_disk_csi_driver_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
     Whether this cluster should enable the Google Compute Engine Persistent Disk Container Storage Interface (CSI) Driver. Defaults to disabled; set `enabled = true` to enable.
 
-* `kalm_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/ provider_versions.html)).
+* `kalm_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
     Configuration for the KALM addon, which manages the lifecycle of k8s. It is disabled by default; Set `enabled = true` to enable.
 
 *  `config_connector_config` -  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
@@ -440,7 +425,7 @@ Minimum CPU platform to be used for NAP created node pools. The instance may be 
 specified or newer CPU platform. Applicable values are the friendly names of CPU platforms, such
 as "Intel Haswell" or "Intel Sandy Bridge".
 
-* `oauth_scopes` - (Optional) Scopes that are used by NAP when creating node pools.
+* `oauth_scopes` - (Optional) Scopes that are used by NAP when creating node pools. Use the "https://www.googleapis.com/auth/cloud-platform" scope to grant access to all APIs. It is recommended that you set `service_account` to a non-default service account and grant IAM roles to that service account for only the resources that it needs. 
 
 -> `monitoring.write` is always enabled regardless of user input.  `monitoring` and `logging.write` may also be enabled depending on the values for `monitoring_service` and `logging_service`.
 
@@ -451,11 +436,17 @@ The `authenticator_groups_config` block supports:
 * `security_group` - (Required) The name of the RBAC security group for use with Google security groups in Kubernetes RBAC. Group name must be in format `gke-security-groups@yourdomain.com`.
 
 The `maintenance_policy` block supports:
+* `daily_maintenance_window` - (Optional) structure documented below.
+* `recurring_window` - (Optional) structure documented below
+* `maintenance_exclusion` - (Optional) structure documented below
 
-* `daily_maintenance_window` - (Required in GA, Optional in Beta) Time window specified for daily maintenance operations.
+In beta, one or the other of `recurring_window` and `daily_maintenance_window` is required if a `maintenance_policy` block is supplied.
+
+* `daily_maintenance_window` - Time window specified for daily maintenance operations.
     Specify `start_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "HH:MM”,
     where HH : \[00-23\] and MM : \[00-59\] GMT. For example:
 
+Examples:
 ```hcl
 maintenance_policy {
   daily_maintenance_window {
@@ -464,8 +455,7 @@ maintenance_policy {
 }
 ```
 
-* `recurring_window` - (Optional) Time window for
-recurring maintenance operations.
+* `recurring_window` - Time window for recurring maintenance operations.
 
 Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) "Zulu" date format.  The start time's date is
 the initial date that the window starts, and the end time is used for calculating duration.  Specify `recurrence` in
@@ -493,7 +483,34 @@ maintenance_policy {
 }
 ```
 
-In beta, one or the other of `recurring_window` and `daily_maintenance_window` is required if a `maintenance_policy` block is supplied.
+* `maintenance_exclusion` - Exceptions to maintenance window. Non-emergency maintenance should not occur in these windows. A cluster can have up to three maintenance exclusions at a time [Maintenance Window and Exclusions](https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions)
+
+Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) "Zulu" date format.  The start time's date is
+the initial date that the window starts, and the end time is used for calculating duration.Specify `recurrence` in
+[RFC5545](https://tools.ietf.org/html/rfc5545#section-3.8.5.3) RRULE format, to specify when this recurs.
+Note that GKE may accept other formats, but will return values in UTC, causing a permanent diff. 
+
+Examples:
+
+```
+maintenance_policy {
+  recurring_window {
+    start_time = "2019-01-01T00:00:00Z"
+    end_time = "2019-01-02T00:00:00Z"
+    recurrence = "FREQ=DAILY"
+  }
+  maintenance_exclusion{
+    exclusion_name = "batch job"
+    start_time = "2019-01-01T00:00:00Z"
+    end_time = "2019-01-02T00:00:00Z"
+  }
+  maintenance_exclusion{
+    exclusion_name = "holiday data load"
+    start_time = "2019-05-01T00:00:00Z"
+    end_time = "2019-05-02T00:00:00Z"
+  }
+}
+```
 
 The `ip_allocation_policy` block supports:
 
@@ -521,10 +538,10 @@ pick a specific range to use.
 The `master_auth` block supports:
 
 * `password` - (Optional) The password to use for HTTP basic authentication when accessing
-    the Kubernetes master endpoint.
+    the Kubernetes master endpoint. This has been deprecated as of GKE 1.19.
 
 * `username` - (Optional) The username to use for HTTP basic authentication when accessing
-    the Kubernetes master endpoint. If not present basic auth will be disabled.
+    the Kubernetes master endpoint. If not present basic auth will be disabled. This has been deprecated as of GKE 1.19.
 
 * `client_certificate_config` - (Optional) Whether client certificate authorization is enabled for this cluster.  For example:
 
@@ -565,6 +582,14 @@ The `node_config` block supports:
 * `disk_type` - (Optional) Type of the disk attached to each node
     (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
 
+* `ephemeral_storage_config` - (Optional, [Beta]) Parameters for the ephemeral storage filesystem. If unspecified, ephemeral storage is backed by the boot disk. Structure is documented below.
+
+```hcl
+ephemeral_storage_config {
+  local_ssd_count = 2
+}
+```
+
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance.
     Structure documented below.
     To support removal of guest_accelerators in Terraform 0.12 this field is an
@@ -596,18 +621,10 @@ The `node_config` block supports:
     for more information.
 
 * `oauth_scopes` - (Optional) The set of Google API scopes to be made available
-    on all of the node VMs under the "default" service account. These can be
-    either FQDNs, or scope aliases. The following scopes are necessary to ensure
-    the correct functioning of the cluster:
+    on all of the node VMs under the "default" service account. 
+    Use the "https://www.googleapis.com/auth/cloud-platform" scope to grant access to all APIs. It is recommended that you set `service_account` to a non-default service account and grant IAM roles to that service account for only the resources that it needs.
 
-  * `storage-ro` (`https://www.googleapis.com/auth/devstorage.read_only`),
-    if the cluster must read private images from GCR.
-    Note this will grant read access to ALL GCS content unless you also
-    specify a custom role. See https://cloud.google.com/kubernetes-engine/docs/how-to/access-scopes
-  * `logging-write` (`https://www.googleapis.com/auth/logging.write`),
-    if `logging_service` is not `none`.
-  * `monitoring` (`https://www.googleapis.com/auth/monitoring`),
-    if `monitoring_service` is not `none`.
+    See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/access-scopes) for information on migrating off of legacy access scopes.
 
 * `preemptible` - (Optional) A boolean that represents whether or not the underlying node VMs
     are preemptible. See the [official documentation](https://cloud.google.com/container-engine/docs/preemptible-vm)
@@ -620,11 +637,6 @@ The `node_config` block supports:
 
 * `service_account` - (Optional) The service account to be used by the Node VMs.
     If not specified, the "default" service account is used.
-    In order to use the configured `oauth_scopes` for logging and monitoring, the service account being used needs the
-    [roles/logging.logWriter](https://cloud.google.com/iam/docs/understanding-roles#stackdriver_logging_roles) and
-    [roles/monitoring.metricWriter](https://cloud.google.com/iam/docs/understanding-roles#stackdriver_monitoring_roles) roles.
-
-     -> Projects that enable the [Cloud Compute Engine API](https://cloud.google.com/compute/) with Terraform may need these roles added manually to the service account. Projects that enable the API in the Cloud Console should have them added automatically.
 
 * `shielded_instance_config` - (Optional) Shielded Instance options. Structure is documented below.
 
@@ -669,6 +681,10 @@ linux_node_config {
 }
 ```
 
+The `ephemeral_storage_config` block supports:
+
+* `local_ssd_count` (Required) - Number of local SSDs to use to back ephemeral storage. Uses NVMe interfaces. Each local SSD is 375 GB in size. If zero, it means to disable using local SSDs as ephemeral storage.
+
 The `guest_accelerator` block supports:
 
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
@@ -710,7 +726,7 @@ subnet. See [Private Cluster Limitations](https://cloud.google.com/kubernetes-en
 for more details. This field only applies to private clusters, when
 `enable_private_nodes` is `true`.
 
-* `master_global_access_config` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - Controls cluster master global
+* `master_global_access_config` (Optional) - Controls cluster master global
 access settings. If unset, Terraform will no longer manage this field and will
 not modify the previously-set value. Structure is documented below.
 
@@ -862,7 +878,7 @@ exported:
     be different than the `min_master_version` set in the config if the master
     has been updated by GKE.
 
-* `tpu_ipv4_cidr_block` - ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The IP address range of the Cloud TPUs in this cluster, in
+* `tpu_ipv4_cidr_block` - The IP address range of the Cloud TPUs in this cluster, in
     [CIDR](http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
     notation (e.g. `1.2.3.4/29`).
 

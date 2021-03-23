@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-docs=$(ls website/docs/**/*.markdown website/docs/**/*.md)
+docs=$(ls website/docs/**/*.markdown)
 error=false
 
 for doc in $docs; do

@@ -27,9 +27,11 @@ Configuration for an automated build in response to source repository changes.
 
 To get more information about Trigger, see:
 
-* [API documentation](https://cloud.google.com/cloud-build/docs/api/reference/rest/)
+* [API documentation](https://cloud.google.com/cloud-build/docs/api/reference/rest/v1/projects.triggers)
 * How-to Guides
     * [Automating builds using build triggers](https://cloud.google.com/cloud-build/docs/running-builds/automate-builds)
+
+~> **Note:** You can retrieve the email of the Cloud Build Service Account used in jobs by using the `google_project_service_identity` resource.
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_filename&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -188,7 +190,7 @@ The following arguments are supported:
   Structure is documented below.
 
 * `github` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
   One of `trigger_template` or `github` must be provided.
   Structure is documented below.
@@ -446,7 +448,8 @@ The `step` block supports:
   run directly. If not, the host will attempt to pull the image first, using
   the builder service account's credentials if necessary.
   The Docker daemon's cache will already have the latest versions of all of
-  the officially supported build steps (https://github.com/GoogleCloudPlatform/cloud-builders).
+  the officially supported build steps (see https://github.com/GoogleCloudPlatform/cloud-builders 
+  for images and examples).
   The Docker daemon will also have cached many of the layers for some popular
   images, like "ubuntu", "debian", but they will be refreshed at the time
   you attempt to use them.
@@ -707,6 +710,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 Trigger can be imported using any of these accepted formats:
 

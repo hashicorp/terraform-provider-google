@@ -37,6 +37,7 @@ func resourceGoogleFolderOrganizationPolicy() *schema.Resource {
 				},
 			},
 		),
+		UseJSONNumber: true,
 	}
 }
 

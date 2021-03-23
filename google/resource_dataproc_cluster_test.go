@@ -12,8 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	dataproc "google.golang.org/api/dataproc/v1beta2"
 	"google.golang.org/api/googleapi"
+
+	"google.golang.org/api/dataproc/v1"
 )
 
 func TestDataprocExtractInitTimeout(t *testing.T) {
@@ -419,6 +420,37 @@ func TestAccDataprocCluster_withStagingBucket(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withTempBucket(t *testing.T) {
+	t.Parallel()
+
+	rnd := randString(t, 10)
+	var cluster dataproc.Cluster
+	clusterName := fmt.Sprintf("tf-test-dproc-%s", rnd)
+	bucketName := fmt.Sprintf("%s-temp-bucket", clusterName)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withTempBucketAndCluster(clusterName, bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_bucket", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_bucket", "cluster_config.0.temp_bucket", bucketName)),
+			},
+			{
+				// Simulate destroy of cluster by removing it from definition,
+				// but leaving the temp bucket (should not be auto deleted)
+				Config: testAccDataprocCluster_withTempBucketOnly(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocTempBucketExists(t, bucketName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withInitAction(t *testing.T) {
 	t.Parallel()
 
@@ -689,7 +721,7 @@ func testAccCheckDataprocClusterDestroy(t *testing.T) resource.TestCheckFunc {
 
 			parts := strings.Split(rs.Primary.ID, "/")
 			clusterId := parts[len(parts)-1]
-			_, err = config.NewDataprocBetaClient(config.userAgent).Projects.Regions.Clusters.Get(
+			_, err = config.NewDataprocClient(config.userAgent).Projects.Regions.Clusters.Get(
 				project, attributes["region"], clusterId).Do()
 
 			if err != nil {
@@ -755,6 +787,22 @@ func testAccCheckDataprocStagingBucketExists(t *testing.T, bucketName string) re
 		}
 		if !exists {
 			return fmt.Errorf("Staging Bucket %s does not exist", bucketName)
+		}
+		return nil
+	}
+}
+
+func testAccCheckDataprocTempBucketExists(t *testing.T, bucketName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		config := googleProviderConfig(t)
+
+		exists, err := validateBucketExists(bucketName, config)
+		if err != nil {
+			return err
+		}
+		if !exists {
+			return fmt.Errorf("Temp Bucket %s does not exist", bucketName)
 		}
 		return nil
 	}
@@ -861,7 +909,7 @@ func testAccCheckDataprocClusterExists(t *testing.T, n string, cluster *dataproc
 
 		parts := strings.Split(rs.Primary.ID, "/")
 		clusterId := parts[len(parts)-1]
-		found, err := config.NewDataprocBetaClient(config.userAgent).Projects.Regions.Clusters.Get(
+		found, err := config.NewDataprocClient(config.userAgent).Projects.Regions.Clusters.Get(
 			project, rs.Primary.Attributes["region"], clusterId).Do()
 		if err != nil {
 			return err
@@ -1052,7 +1100,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
   cluster_config {
     master_config {
       num_instances = 3
-      machine_type  = "n1-standard-1"
+      machine_type  = "n1-standard-1"  // can't be e2 because of min_cpu_platform
       disk_config {
         boot_disk_type    = "pd-ssd"
         boot_disk_size_gb = 15
@@ -1062,7 +1110,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
 
     worker_config {
       num_instances = 3
-      machine_type  = "n1-standard-1"
+      machine_type  = "n1-standard-1"  // can't be e2 because of min_cpu_platform
       disk_config {
         boot_disk_type    = "pd-standard"
         boot_disk_size_gb = 16
@@ -1116,7 +1164,7 @@ resource "google_dataproc_cluster" "with_init_action" {
     }
 
     master_config {
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1144,7 +1192,7 @@ resource "google_dataproc_cluster" "updatable" {
   cluster_config {
     master_config {
       num_instances = "1"
-      machine_type  = "n1-standard-1"
+      machine_type  = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1152,7 +1200,7 @@ resource "google_dataproc_cluster" "updatable" {
 
     worker_config {
       num_instances = "%d"
-      machine_type  = "n1-standard-1"
+      machine_type  = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1170,6 +1218,15 @@ resource "google_dataproc_cluster" "updatable" {
 }
 
 func testAccDataprocCluster_withStagingBucketOnly(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  force_destroy = "true"
+}
+`, bucketName)
+}
+
+func testAccDataprocCluster_withTempBucketOnly(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name          = "%s"
@@ -1197,7 +1254,7 @@ resource "google_dataproc_cluster" "with_bucket" {
     }
 
     master_config {
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1205,6 +1262,35 @@ resource "google_dataproc_cluster" "with_bucket" {
   }
 }
 `, testAccDataprocCluster_withStagingBucketOnly(bucketName), clusterName)
+}
+
+func testAccDataprocCluster_withTempBucketAndCluster(clusterName, bucketName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_dataproc_cluster" "with_bucket" {
+  name   = "%s"
+  region = "us-central1"
+
+  cluster_config {
+    temp_bucket = google_storage_bucket.bucket.name
+
+    # Keep the costs down with smallest config we can get away with
+    software_config {
+      override_properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+      }
+    }
+
+    master_config {
+      machine_type = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 15
+      }
+    }
+  }
+}
+`, testAccDataprocCluster_withTempBucketOnly(bucketName), clusterName)
 }
 
 func testAccDataprocCluster_withLabels(rnd string) string {
@@ -1280,7 +1366,7 @@ resource "google_dataproc_cluster" "with_service_account" {
     }
 
     master_config {
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1357,7 +1443,7 @@ resource "google_dataproc_cluster" "with_net_ref_by_name" {
     }
 
     master_config {
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }
@@ -1383,7 +1469,7 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
     }
 
     master_config {
-      machine_type = "n1-standard-1"
+      machine_type = "e2-medium"
       disk_config {
         boot_disk_size_gb = 15
       }

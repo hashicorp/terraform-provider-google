@@ -169,6 +169,7 @@ func resourceGoogleOrganizationPolicy() *schema.Resource {
 					ForceNew: true,
 				},
 			}),
+		UseJSONNumber: true,
 	}
 }
 

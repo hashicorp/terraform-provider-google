@@ -66,7 +66,7 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
-func TestAccComputeBackendService_backendServiceNetworkEndpointExample(t *testing.T) {
+func TestAccComputeBackendService_backendServiceCacheSimpleExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -82,7 +82,7 @@ func TestAccComputeBackendService_backendServiceNetworkEndpointExample(t *testin
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendService_backendServiceNetworkEndpointExample(context),
+				Config: testAccComputeBackendService_backendServiceCacheSimpleExample(context),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.default",
@@ -93,31 +93,22 @@ func TestAccComputeBackendService_backendServiceNetworkEndpointExample(t *testin
 	})
 }
 
-func testAccComputeBackendService_backendServiceNetworkEndpointExample(context map[string]interface{}) string {
+func testAccComputeBackendService_backendServiceCacheSimpleExample(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_compute_global_network_endpoint_group" "external_proxy" {
-  name                  = "tf-test-network-endpoint%{random_suffix}"
-  network_endpoint_type = "INTERNET_FQDN_PORT"
-  default_port          = "443"
-}
-
-resource "google_compute_global_network_endpoint" "proxy" {
-  global_network_endpoint_group = google_compute_global_network_endpoint_group.external_proxy.id
-  fqdn                          = "test.example.com"
-  port                          = google_compute_global_network_endpoint_group.external_proxy.default_port
-}
-
 resource "google_compute_backend_service" "default" {
-  name                            = "tf-test-backend-service%{random_suffix}"
-  enable_cdn                      = true
-  timeout_sec                     = 10
-  connection_draining_timeout_sec = 10
- 
-  custom_request_headers          = ["host: ${google_compute_global_network_endpoint.proxy.fqdn}"]
-
-  backend {
-    group = google_compute_global_network_endpoint_group.external_proxy.id
+  name          = "tf-test-backend-service%{random_suffix}"
+  health_checks = [google_compute_http_health_check.default.id]
+  enable_cdn  = true
+  cdn_policy {
+    signed_url_cache_max_age_sec = 7200
   }
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "tf-test-health-check%{random_suffix}"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
 }
 `, context)
 }
@@ -139,7 +130,13 @@ func testAccCheckComputeBackendServiceDestroyProducer(t *testing.T) func(s *terr
 				return err
 			}
 
-			_, err = sendRequest(config, "GET", "", url, config.userAgent, nil)
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
 				return fmt.Errorf("ComputeBackendService still exists at %s", url)
 			}

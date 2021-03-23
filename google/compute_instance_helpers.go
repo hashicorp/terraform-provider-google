@@ -182,6 +182,7 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInt
 			"subnetwork_project": subnet.Project,
 			"access_config":      ac,
 			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
+			"nic_type":           iface.NicType,
 		}
 		// Instance template interfaces never have names, so they're absent
 		// in the instance template network_interface schema. We want to use the
@@ -244,8 +245,8 @@ func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*comput
 			Subnetwork:    sf.RelativeLink(),
 			AccessConfigs: expandAccessConfigs(data["access_config"].([]interface{})),
 			AliasIpRanges: expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
+			NicType:       data["nic_type"].(string),
 		}
-
 	}
 	return ifaces, nil
 }
@@ -318,6 +319,28 @@ func expandShieldedVmConfigs(d TerraformResourceData) *computeBeta.ShieldedInsta
 		EnableIntegrityMonitoring: d.Get(prefix + ".enable_integrity_monitoring").(bool),
 		ForceSendFields:           []string{"EnableSecureBoot", "EnableVtpm", "EnableIntegrityMonitoring"},
 	}
+}
+
+func expandConfidentialInstanceConfig(d TerraformResourceData) *computeBeta.ConfidentialInstanceConfig {
+	if _, ok := d.GetOk("confidential_instance_config"); !ok {
+		return nil
+	}
+
+	prefix := "confidential_instance_config.0"
+	return &computeBeta.ConfidentialInstanceConfig{
+		EnableConfidentialCompute: d.Get(prefix + ".enable_confidential_compute").(bool),
+		ForceSendFields:           []string{"EnableSecureBoot"},
+	}
+}
+
+func flattenConfidentialInstanceConfig(ConfidentialInstanceConfig *computeBeta.ConfidentialInstanceConfig) []map[string]bool {
+	if ConfidentialInstanceConfig == nil {
+		return nil
+	}
+
+	return []map[string]bool{{
+		"enable_confidential_compute": ConfidentialInstanceConfig.EnableConfidentialCompute,
+	}}
 }
 
 func flattenShieldedVmConfig(shieldedVmConfig *computeBeta.ShieldedInstanceConfig) []map[string]bool {

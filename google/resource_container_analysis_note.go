@@ -142,6 +142,7 @@ example "qa".`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -235,7 +236,7 @@ func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Note: %s", err)
 	}
 	billingProject = project
 
@@ -277,7 +278,7 @@ func resourceContainerAnalysisNoteRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Note: %s", err)
 	}
 	billingProject = project
 
@@ -347,13 +348,12 @@ func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Note: %s", err)
 	}
 	billingProject = project
 
@@ -467,13 +467,12 @@ func resourceContainerAnalysisNoteDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Note: %s", err)
 	}
 	billingProject = project
 

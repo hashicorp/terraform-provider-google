@@ -118,6 +118,7 @@ func resourceComputeTargetPool() *schema.Resource {
 				Description: `How to distribute load. Options are "NONE" (no affinity). "CLIENT_IP" (hash of the source/dest addresses / ports), and "CLIENT_IP_PROTO" also includes the protocol (default "NONE").`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 

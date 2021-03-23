@@ -29,7 +29,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 To get more information about Instance, see:
 
-* [API documentation](https://cloud.google.com/memorystore/docs/memcached/reference/rest)
+* [API documentation](https://cloud.google.com/memorystore/docs/memcached/reference/rest/v1beta2/projects.locations.instances)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/memcache/docs/creating-instances)
 
@@ -42,23 +42,30 @@ To get more information about Instance, see:
 
 
 ```hcl
-resource "google_compute_network" "network" {
-  provider = google-beta
-  name = "tf-test%{random_suffix}"
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Redis instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "memcache_network" {
+  name = "test-network"
 }
 
 resource "google_compute_global_address" "service_range" {
   provider = google-beta
-  name          = "tf-test%{random_suffix}"
+  name          = "address"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = google_compute_network.network.id
+  network       = data.google_compute_network.memcache_network.id
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
   provider = google-beta
-  network                 = google_compute_network.network.id
+  network                 = data.google_compute_network.memcache_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
@@ -66,7 +73,6 @@ resource "google_service_networking_connection" "private_service_connection" {
 resource "google_memcache_instance" "instance" {
   provider = google-beta
   name = "test-instance"
-  region = "us-central1"
   authorized_network = google_service_networking_connection.private_service_connection.network
 
   node_config {
@@ -95,10 +101,6 @@ The following arguments are supported:
   (Required)
   Configuration for memcache nodes.
   Structure is documented below.
-
-* `region` -
-  (Required)
-  The name of the Memcache region of the instance.
 
 
 The `node_config` block supports:
@@ -144,6 +146,10 @@ The `node_config` block supports:
   (Optional)
   User-specified parameters for this memcache instance.
   Structure is documented below.
+
+* `region` -
+  (Optional)
+  The region of the Memcache instance. If it is not provided, the provider region is used.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -205,6 +211,7 @@ This resource provides the following
 - `delete` - Default is 20 minutes.
 
 ## Import
+
 
 Instance can be imported using any of these accepted formats:
 

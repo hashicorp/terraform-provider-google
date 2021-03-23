@@ -89,7 +89,7 @@ func testAccDataSourceComputeInstanceConfig(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_instance" "foo" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "n1-standard-1"   // can't be e2 because of local-ssd
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]

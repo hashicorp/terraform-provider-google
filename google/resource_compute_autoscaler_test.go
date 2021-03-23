@@ -10,10 +10,10 @@ import (
 func TestAccComputeAutoscaler_update(t *testing.T) {
 	t.Parallel()
 
-	var it_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var tp_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var igm_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var autoscaler_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -21,7 +21,7 @@ func TestAccComputeAutoscaler_update(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name),
+				Config: testAccComputeAutoscaler_basic(itName, tpName, igmName, autoscalerName),
 			},
 			{
 				ResourceName:      "google_compute_autoscaler.foobar",
@@ -29,7 +29,7 @@ func TestAccComputeAutoscaler_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeAutoscaler_update(it_name, tp_name, igm_name, autoscaler_name),
+				Config: testAccComputeAutoscaler_update(itName, tpName, igmName, autoscalerName),
 			},
 			{
 				ResourceName:      "google_compute_autoscaler.foobar",
@@ -43,10 +43,10 @@ func TestAccComputeAutoscaler_update(t *testing.T) {
 func TestAccComputeAutoscaler_multicondition(t *testing.T) {
 	t.Parallel()
 
-	var it_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var tp_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var igm_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var autoscaler_name = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -54,7 +54,7 @@ func TestAccComputeAutoscaler_multicondition(t *testing.T) {
 		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeAutoscaler_multicondition(it_name, tp_name, igm_name, autoscaler_name),
+				Config: testAccComputeAutoscaler_multicondition(itName, tpName, igmName, autoscalerName),
 			},
 			{
 				ResourceName:      "google_compute_autoscaler.foobar",
@@ -65,7 +65,57 @@ func TestAccComputeAutoscaler_multicondition(t *testing.T) {
 	})
 }
 
-func testAccComputeAutoscaler_scaffolding(it_name, tp_name, igm_name string) string {
+func TestAccComputeAutoscaler_scaleInControl(t *testing.T) {
+	t.Parallel()
+
+	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeAutoscaler_scaleInControl(itName, tpName, igmName, autoscalerName),
+			},
+			{
+				ResourceName:      "google_compute_autoscaler.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeAutoscaler_scaleInControlFixed(t *testing.T) {
+	t.Parallel()
+
+	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAutoscalerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeAutoscaler_scaleInControlFixed(itName, tpName, igmName, autoscalerName),
+			},
+			{
+				ResourceName:      "google_compute_autoscaler.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeAutoscaler_scaffolding(itName, tpName, igmName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -74,7 +124,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -110,12 +160,12 @@ resource "google_compute_instance_group_manager" "foobar" {
   base_instance_name = "foobar"
   zone               = "us-central1-a"
 }
-`, it_name, tp_name, igm_name)
+`, itName, tpName, igmName)
 
 }
 
-func testAccComputeAutoscaler_basic(it_name, tp_name, igm_name, autoscaler_name string) string {
-	return testAccComputeAutoscaler_scaffolding(it_name, tp_name, igm_name) + fmt.Sprintf(`
+func testAccComputeAutoscaler_basic(itName, tpName, igmName, autoscalerName string) string {
+	return testAccComputeAutoscaler_scaffolding(itName, tpName, igmName) + fmt.Sprintf(`
 resource "google_compute_autoscaler" "foobar" {
   description = "Resource created for Terraform acceptance testing"
   name        = "%s"
@@ -130,11 +180,11 @@ resource "google_compute_autoscaler" "foobar" {
     }
   }
 }
-`, autoscaler_name)
+`, autoscalerName)
 }
 
-func testAccComputeAutoscaler_update(it_name, tp_name, igm_name, autoscaler_name string) string {
-	return testAccComputeAutoscaler_scaffolding(it_name, tp_name, igm_name) + fmt.Sprintf(`
+func testAccComputeAutoscaler_update(itName, tpName, igmName, autoscalerName string) string {
+	return testAccComputeAutoscaler_scaffolding(itName, tpName, igmName) + fmt.Sprintf(`
 resource "google_compute_autoscaler" "foobar" {
   description = "Resource created for Terraform acceptance testing"
   name        = "%s"
@@ -149,11 +199,11 @@ resource "google_compute_autoscaler" "foobar" {
     }
   }
 }
-`, autoscaler_name)
+`, autoscalerName)
 }
 
-func testAccComputeAutoscaler_multicondition(it_name, tp_name, igm_name, autoscaler_name string) string {
-	return testAccComputeAutoscaler_scaffolding(it_name, tp_name, igm_name) + fmt.Sprintf(`
+func testAccComputeAutoscaler_multicondition(itName, tpName, igmName, autoscalerName string) string {
+	return testAccComputeAutoscaler_scaffolding(itName, tpName, igmName) + fmt.Sprintf(`
 resource "google_compute_autoscaler" "foobar" {
   description = "Resource created for Terraform acceptance testing"
   name        = "%s"
@@ -181,5 +231,55 @@ resource "google_compute_autoscaler" "foobar" {
     }
   }
 }
-`, autoscaler_name)
+`, autoscalerName)
+}
+
+func testAccComputeAutoscaler_scaleInControl(itName, tpName, igmName, autoscalerName string) string {
+	return testAccComputeAutoscaler_scaffolding(itName, tpName, igmName) + fmt.Sprintf(`
+resource "google_compute_autoscaler" "foobar" {
+  description = "Resource created for Terraform acceptance testing"
+  name        = "%s"
+  zone        = "us-central1-a"
+  target      = google_compute_instance_group_manager.foobar.self_link
+  autoscaling_policy {
+    max_replicas    = 10
+    min_replicas    = 1
+    cooldown_period = 60
+    cpu_utilization {
+      target = 0.5
+    }
+    scale_in_control {
+      max_scaled_in_replicas {
+        percent = 80
+      }
+      time_window_sec = 300
+    }
+  }
+}
+`, autoscalerName)
+}
+
+func testAccComputeAutoscaler_scaleInControlFixed(itName, tpName, igmName, autoscalerName string) string {
+	return testAccComputeAutoscaler_scaffolding(itName, tpName, igmName) + fmt.Sprintf(`
+resource "google_compute_autoscaler" "foobar" {
+  description = "Resource created for Terraform acceptance testing"
+  name        = "%s"
+  zone        = "us-central1-a"
+  target      = google_compute_instance_group_manager.foobar.self_link
+  autoscaling_policy {
+    max_replicas    = 10
+    min_replicas    = 1
+    cooldown_period = 60
+    cpu_utilization {
+      target = 0.5
+    }
+    scale_in_control {
+      max_scaled_in_replicas {
+        fixed = 8
+      }
+      time_window_sec = 300
+    }
+  }
+}
+`, autoscalerName)
 }

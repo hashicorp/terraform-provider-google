@@ -257,6 +257,7 @@ This is a more compact way to identify devices, and it is globally unique.`,
 				},
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -417,7 +418,6 @@ func resourceCloudIotDeviceUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
@@ -509,7 +509,6 @@ func resourceCloudIotDeviceDelete(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 

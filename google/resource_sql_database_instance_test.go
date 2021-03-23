@@ -665,6 +665,127 @@ func TestAccSqlDatabaseInstance_basic_with_user_labels(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_createFromBackup(t *testing.T) {
+	// Sqladmin client
+	skipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":    randString(t, 10),
+		"original_db_name": BootstrapSharedSQLInstanceBackupRun(t),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_restoreFromBackup(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "restore_backup_context"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_backupUpdate(t *testing.T) {
+	// Sqladmin client
+	skipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":    randString(t, 10),
+		"original_db_name": BootstrapSharedSQLInstanceBackupRun(t),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_beforeBackup(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccSqlDatabaseInstance_restoreFromBackup(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "restore_backup_context"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_basicClone(t *testing.T) {
+	// Sqladmin client
+	skipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":    randString(t, 10),
+		"original_db_name": BootstrapSharedSQLInstanceBackupRun(t),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_basicClone(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "clone"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_cloneWithSettings(t *testing.T) {
+	// Sqladmin client
+	skipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":    randString(t, 10),
+		"original_db_name": BootstrapSharedSQLInstanceBackupRun(t),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_cloneWithSettings(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "clone"},
+			},
+		},
+	})
+}
+
 func testAccSqlDatabaseInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
@@ -704,6 +825,29 @@ func testAccCheckGoogleSqlDatabaseRootUserDoesNotExist(t *testing.T, instance st
 	}
 }
 
+func TestAccSqlDatabaseInstance_BackupRetention(t *testing.T) {
+	t.Parallel()
+
+	masterID := randInt(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_BackupRetention(masterID),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabled(t *testing.T) {
 	t.Parallel()
 
@@ -725,6 +869,30 @@ func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabled(t *testing.T) {
 			},
 			{
 				Config: testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID, false),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_insights(t *testing.T) {
+	t.Parallel()
+
+	masterID := randInt(t)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_insights, masterID),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -1135,6 +1303,26 @@ resource "google_sql_database_instance" "instance" {
 }
 `
 
+var testGoogleSqlDatabaseInstance_insights = `
+resource "google_sql_database_instance" "instance" {
+  name   = "tf-test-%d"
+  region = "us-central1"
+  database_version = "POSTGRES_9_6"
+  deletion_protection = false
+
+  settings {
+    tier = "db-f1-micro"
+
+    insights_config {
+      query_insights_enabled  = true
+      query_string_length     = 256
+      record_application_tags = true
+      record_client_address   = true
+    }
+  }
+}
+`
+
 func testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID int, pointInTimeRecoveryEnabled bool) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
@@ -1152,4 +1340,141 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, masterID, pointInTimeRecoveryEnabled)
+}
+
+func testGoogleSqlDatabaseInstance_BackupRetention(masterID int) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%d"
+  region           = "us-central1"
+  database_version = "MYSQL_8_0"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    backup_configuration {
+      enabled                        = true
+      start_time                     = "00:00"
+      binary_log_enabled             = true
+	  transaction_log_retention_days = 2
+	  backup_retention_settings {
+	    retained_backups = 4
+	  }
+    }
+  }
+}
+`, masterID)
+}
+
+func testAccSqlDatabaseInstance_beforeBackup(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%{random_suffix}"
+  database_version = "POSTGRES_11"
+  region           = "us-central1"
+
+  settings {
+	tier = "db-f1-micro"
+	backup_configuration {
+		enabled            = "false"
+	}
+  }
+
+  deletion_protection = false
+}
+`, context)
+}
+
+func testAccSqlDatabaseInstance_restoreFromBackup(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%{random_suffix}"
+  database_version = "POSTGRES_11"
+  region           = "us-central1"
+
+  settings {
+	tier = "db-f1-micro"
+	backup_configuration {
+		enabled            = "false"
+	}
+  }
+
+  restore_backup_context {
+    backup_run_id = data.google_sql_backup_run.backup.backup_id
+    instance_id = data.google_sql_backup_run.backup.instance
+  }
+
+  // Ignore changes, since the most recent backup may change during the test
+  lifecycle{
+	ignore_changes = [restore_backup_context[0].backup_run_id]
+  }
+
+  deletion_protection = false
+}
+
+data "google_sql_backup_run" "backup" {
+	instance = "%{original_db_name}"
+	most_recent = true
+}
+`, context)
+}
+
+func testAccSqlDatabaseInstance_basicClone(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%{random_suffix}"
+  database_version = "POSTGRES_11"
+  region           = "us-central1"
+
+  clone {
+    source_instance_name = data.google_sql_backup_run.backup.instance
+    point_in_time = data.google_sql_backup_run.backup.start_time
+  }
+
+  deletion_protection = false
+
+  // Ignore changes, since the most recent backup may change during the test
+  lifecycle{
+	ignore_changes = [clone[0].point_in_time]
+  }
+}
+
+data "google_sql_backup_run" "backup" {
+	instance = "%{original_db_name}"
+	most_recent = true
+}
+`, context)
+}
+
+func testAccSqlDatabaseInstance_cloneWithSettings(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%{random_suffix}"
+  database_version = "POSTGRES_11"
+  region           = "us-central1"
+
+  settings {
+	tier = "db-f1-micro"
+	backup_configuration {
+		enabled            = false
+	}
+  }
+
+  clone {
+    source_instance_name = data.google_sql_backup_run.backup.instance
+    point_in_time = data.google_sql_backup_run.backup.start_time
+  }
+
+  deletion_protection = false
+
+  // Ignore changes, since the most recent backup may change during the test
+  lifecycle{
+	ignore_changes = [clone[0].point_in_time]
+  }
+}
+
+data "google_sql_backup_run" "backup" {
+	instance = "%{original_db_name}"
+	most_recent = true
+}
+`, context)
 }

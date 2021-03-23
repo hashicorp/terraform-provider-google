@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceComputeNodeTemplate() *schema.Resource {
@@ -39,6 +40,14 @@ func resourceComputeNodeTemplate() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"cpu_overcommit_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"ENABLED", "NONE", ""}, false),
+				Description:  `CPU overcommit. Default value: "NONE" Possible values: ["ENABLED", "NONE"]`,
+				Default:      "NONE",
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -110,6 +119,37 @@ be specified.`,
 				Description: `Region where nodes using the node template will be created.
 If it is not provided, the provider region is used.`,
 			},
+			"server_binding": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The server binding policy for nodes using this template. Determines
+where the nodes should restart following a maintenance event.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"RESTART_NODE_ON_ANY_SERVER", "RESTART_NODE_ON_MINIMAL_SERVERS"}, false),
+							Description: `Type of server binding policy. If 'RESTART_NODE_ON_ANY_SERVER',
+nodes using this template will restart on any physical server
+following a maintenance event.
+
+If 'RESTART_NODE_ON_MINIMAL_SERVER', nodes using this template
+will restart on the same physical server following a maintenance
+event, instead of being live migrated to or restarted on a new
+physical server. This option may be useful if you are using
+software licenses tied to the underlying server characteristics
+such as physical sockets or cores, to avoid the need for
+additional licenses when maintenance occurs. However, VMs on such
+nodes will experience outages while maintenance is applied. Possible values: ["RESTART_NODE_ON_ANY_SERVER", "RESTART_NODE_ON_MINIMAL_SERVERS"]`,
+						},
+					},
+				},
+			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -126,6 +166,7 @@ If it is not provided, the provider region is used.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -167,6 +208,18 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("node_type_flexibility"); !isEmptyValue(reflect.ValueOf(nodeTypeFlexibilityProp)) && (ok || !reflect.DeepEqual(v, nodeTypeFlexibilityProp)) {
 		obj["nodeTypeFlexibility"] = nodeTypeFlexibilityProp
 	}
+	serverBindingProp, err := expandComputeNodeTemplateServerBinding(d.Get("server_binding"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("server_binding"); !isEmptyValue(reflect.ValueOf(serverBindingProp)) && (ok || !reflect.DeepEqual(v, serverBindingProp)) {
+		obj["serverBinding"] = serverBindingProp
+	}
+	cpuOvercommitTypeProp, err := expandComputeNodeTemplateCpuOvercommitType(d.Get("cpu_overcommit_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cpu_overcommit_type"); !isEmptyValue(reflect.ValueOf(cpuOvercommitTypeProp)) && (ok || !reflect.DeepEqual(v, cpuOvercommitTypeProp)) {
+		obj["cpuOvercommitType"] = cpuOvercommitTypeProp
+	}
 	regionProp, err := expandComputeNodeTemplateRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -184,7 +237,7 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NodeTemplate: %s", err)
 	}
 	billingProject = project
 
@@ -236,7 +289,7 @@ func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NodeTemplate: %s", err)
 	}
 	billingProject = project
 
@@ -272,6 +325,12 @@ func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("node_type_flexibility", flattenComputeNodeTemplateNodeTypeFlexibility(res["nodeTypeFlexibility"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
+	if err := d.Set("server_binding", flattenComputeNodeTemplateServerBinding(res["serverBinding"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err := d.Set("cpu_overcommit_type", flattenComputeNodeTemplateCpuOvercommitType(res["cpuOvercommitType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
 	if err := d.Set("region", flattenComputeNodeTemplateRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
@@ -288,13 +347,12 @@ func resourceComputeNodeTemplateDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for NodeTemplate: %s", err)
 	}
 	billingProject = project
 
@@ -398,6 +456,27 @@ func flattenComputeNodeTemplateNodeTypeFlexibilityLocalSsd(v interface{}, d *sch
 	return v
 }
 
+func flattenComputeNodeTemplateServerBinding(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["type"] =
+		flattenComputeNodeTemplateServerBindingType(original["type"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeNodeTemplateServerBindingType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeNodeTemplateCpuOvercommitType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeNodeTemplateRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -470,6 +549,33 @@ func expandComputeNodeTemplateNodeTypeFlexibilityMemory(v interface{}, d Terrafo
 }
 
 func expandComputeNodeTemplateNodeTypeFlexibilityLocalSsd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeTemplateServerBinding(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedType, err := expandComputeNodeTemplateServerBindingType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !isEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
+	return transformed, nil
+}
+
+func expandComputeNodeTemplateServerBindingType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeTemplateCpuOvercommitType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

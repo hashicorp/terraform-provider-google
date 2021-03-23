@@ -26,11 +26,11 @@ var IamPubsubSubscriptionSchema = map[string]*schema.Schema{
 
 type PubsubSubscriptionIamUpdater struct {
 	subscription string
-	d            *schema.ResourceData
+	d            TerraformResourceData
 	Config       *Config
 }
 
-func NewPubsubSubscriptionIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewPubsubSubscriptionIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -106,7 +106,7 @@ func (u *PubsubSubscriptionIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("pubsub subscription %q", u.subscription)
 }
 
-// v1 and v2beta policy are identical
+// v1 and v2 policy are identical
 func resourceManagerToPubsubPolicy(in *cloudresourcemanager.Policy) (*pubsub.Policy, error) {
 	out := &pubsub.Policy{}
 	err := Convert(in, out)

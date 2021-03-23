@@ -125,6 +125,11 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			New:                "ubuntu-minimal-1804-lts",
 			ExpectDiffSuppress: true,
 		},
+		"matching unconventional image family - cos": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-85-13310-1209-17",
+			New:                "cos-85-lts",
+			ExpectDiffSuppress: true,
+		},
 		"different image family": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
 			New:                "family/debian-7",
@@ -547,7 +552,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_disk" "foobar" {
-  name    = "d1-%s"
+  name    = "%s-d1"
   image   = data.google_compute_image.my_image.self_link
   size    = 50
   type    = "pd-ssd"
@@ -563,7 +568,7 @@ resource "google_compute_snapshot" "snapdisk" {
 }
 
 resource "google_compute_disk" "seconddisk" {
-  name     = "d2-%s"
+  name     = "%s-d2"
   snapshot = google_compute_snapshot.snapdisk.%s
   type     = "pd-ssd"
   zone     = "us-central1-a"
@@ -642,7 +647,7 @@ resource "google_compute_disk" "foo" {
 
 resource "google_compute_instance" "bar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {

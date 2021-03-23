@@ -786,6 +786,27 @@ func TestAccComputeInstanceTemplate_shieldedVmConfig2(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_ConfidentialInstanceConfigMain(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate computeBeta.InstanceTemplate
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplateConfidentialInstanceConfig(randString(t, 10), true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(&instanceTemplate, true),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_enableDisplay(t *testing.T) {
 	t.Parallel()
 
@@ -872,6 +893,33 @@ func TestAccComputeInstanceTemplate_imageResourceTest(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name_prefix"},
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_resourcePolicies(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate computeBeta.InstanceTemplate
+	policyName := "tf-test-policy-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_resourcePolicies(randString(t, 10), policyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateHasDiskResourcePolicy(&instanceTemplate, policyName),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -1205,10 +1253,32 @@ func testAccCheckComputeInstanceTemplateHasShieldedVmConfig(instanceTemplate *co
 	}
 }
 
+func testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(instanceTemplate *computeBeta.InstanceTemplate, EnableConfidentialCompute bool) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+		if instanceTemplate.Properties.ConfidentialInstanceConfig.EnableConfidentialCompute != EnableConfidentialCompute {
+			return fmt.Errorf("Wrong ConfidentialInstanceConfig EnableConfidentialCompute: expected %t, got, %t", EnableConfidentialCompute, instanceTemplate.Properties.ConfidentialInstanceConfig.EnableConfidentialCompute)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(instanceTemplate *computeBeta.InstanceTemplate) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.ShieldedVmConfig != nil {
 			return fmt.Errorf("Expected no shielded vm config")
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateHasDiskResourcePolicy(instanceTemplate *computeBeta.InstanceTemplate, resourcePolicy string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		resourcePolicyActual := instanceTemplate.Properties.Disks[0].InitializeParams.ResourcePolicies[0]
+		if resourcePolicyActual != resourcePolicy {
+			return fmt.Errorf("Wrong disk resource policy: expected %s, got %s", resourcePolicy, resourcePolicyActual)
 		}
 
 		return nil
@@ -1224,7 +1294,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name           = "instancet-test-%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -1265,7 +1335,7 @@ resource "google_compute_image" "foobar" {
   description = "description-test"
   family      = "family-test"
   raw_disk {
-    source = "https://storage.googleapis.com/bosh-cpi-artifacts/bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent-raw.tar.gz"
+    source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
   }
   labels = {
     my-label    = "my-label-value"
@@ -1278,7 +1348,7 @@ resource "google_compute_image" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name           = "instancet-test-%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -1321,7 +1391,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name           = "instancet-test-%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -1364,7 +1434,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instancet-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   tags         = ["foo", "bar"]
 
   disk {
@@ -1394,7 +1464,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instancet-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -1419,7 +1489,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instancet-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   tags         = ["foo", "bar"]
 
   disk {
@@ -1447,7 +1517,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instancet-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   tags         = ["foo", "bar"]
 
   disk {
@@ -1483,7 +1553,7 @@ resource "google_compute_disk" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instancet-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -1529,7 +1599,7 @@ resource "google_compute_disk" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instancet-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -1560,11 +1630,11 @@ func testAccComputeInstanceTemplate_withScratchDisk(suffix string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "centos-7"
-	project = "gce-uefi-images"
+	project = "centos-cloud"
 }
 resource "google_compute_instance_template" "foobar" {
   name           = "instancet-test-%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   disk {
     source_image = data.google_compute_image.my_image.name
@@ -1601,7 +1671,7 @@ resource "google_compute_region_disk" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instancet-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -1641,7 +1711,7 @@ resource "google_compute_network" "auto-network" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instance-tpl-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -1682,7 +1752,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instance-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   region       = "us-central1"
 
   disk {
@@ -1759,7 +1829,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instance-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   region       = "us-central1"
 
   disk {
@@ -1791,7 +1861,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instance-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -1822,7 +1892,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instance-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -1869,7 +1939,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instance-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -1908,7 +1978,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instance-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -1943,7 +2013,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instance-test-%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -1975,7 +2045,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name           = "instancet-test-%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
 
   disk {
@@ -2009,7 +2079,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name         = "instancet-test-%s"
-  machine_type = "n1-standard-4"
+  machine_type = "e2-standard-4"
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -2043,12 +2113,12 @@ func testAccComputeInstanceTemplate_shieldedVmConfig(suffix string, enableSecure
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "centos-7"
-  project = "gce-uefi-images"
+  project = "centos-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
   name           = "instancet-test-%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
 
   disk {
@@ -2070,16 +2140,49 @@ resource "google_compute_instance_template" "foobar" {
 `, suffix, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
 }
 
+func testAccComputeInstanceTemplateConfidentialInstanceConfig(suffix string, enableConfidentialCompute bool) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "ubuntu-2004-lts"
+  project = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "cvm-%s"
+  machine_type = "n2d-standard-2"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+	auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  confidential_instance_config {
+    enable_confidential_compute       = %t
+  }
+
+  scheduling {
+	  on_host_maintenance = "TERMINATE"
+  }
+
+}
+`, suffix, enableConfidentialCompute)
+}
+
 func testAccComputeInstanceTemplate_enableDisplay(suffix string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "centos-7"
-  project = "gce-uefi-images"
+  project = "centos-cloud"
 }
 
 resource "google_compute_instance_template" "foobar" {
   name           = "instancet-test-%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   disk {
     source_image = data.google_compute_image.my_image.self_link
@@ -2100,14 +2203,14 @@ func testAccComputeInstanceTemplate_invalidDiskType(suffix string) string {
 # is resolved.
 # data "google_compute_image" "my_image" {
 # 	family  = "centos-7"
-# 	project = "gce-uefi-images"
+# 	project = "centos-cloud"
 # }
 resource "google_compute_instance_template" "foobar" {
   name           = "instancet-test-%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   disk {
-    source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+    source_image = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20210217"
     auto_delete  = true
     boot         = true
   }
@@ -2118,7 +2221,7 @@ resource "google_compute_instance_template" "foobar" {
     disk_type    = "local-ssd"
   }
   disk {
-    source_image = "https://www.googleapis.com/compute/v1/projects/gce-uefi-images/global/images/centos-7-v20190729"
+    source_image = "https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20210217"
     auto_delete  = true
     type         = "SCRATCH"
   }
@@ -2135,7 +2238,7 @@ data "google_compute_image" "my_image" {
 	family  = "debian-9"
 	project = "debian-cloud"
 }
-	
+
 resource "google_compute_disk" "my_disk" {
 	name  = "%s"
 	zone  = "us-central1-a"
@@ -2148,7 +2251,7 @@ resource "google_compute_image" "diskimage" {
 }
 resource "google_compute_instance_template" "foobar" {
 	name_prefix = "tf-test-instance-"
-	machine_type         = "n1-standard-1"
+	machine_type         = "e2-medium"
 	disk {
 		source_image = google_compute_image.diskimage.self_link
 	}
@@ -2157,6 +2260,44 @@ resource "google_compute_instance_template" "foobar" {
 		access_config {}
 	}
 }
-	  
 `, diskName, imageName, imageDescription)
+}
+
+func testAccComputeInstanceTemplate_resourcePolicies(suffix string, policyName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+resource "google_compute_instance_template" "foobar" {
+  name           = "instance-test-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    resource_policies = [google_compute_resource_policy.foo.id]
+  }
+  network_interface {
+    network = "default"
+  }
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+  labels = {
+    my_label = "foobar"
+  }
+}
+resource "google_compute_resource_policy" "foo" {
+  name   = "%s"
+  region = "us-central1"
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time    = "04:00"
+      }
+    }
+  }
+}
+`, suffix, policyName)
 }

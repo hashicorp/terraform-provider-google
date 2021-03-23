@@ -82,6 +82,7 @@ func resourceAppEngineServiceSplitTraffic() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -123,7 +124,7 @@ func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta int
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ServiceSplitTraffic: %s", err)
 	}
 	billingProject = project
 
@@ -175,7 +176,7 @@ func resourceAppEngineServiceSplitTrafficRead(d *schema.ResourceData, meta inter
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ServiceSplitTraffic: %s", err)
 	}
 	billingProject = project
 
@@ -206,13 +207,12 @@ func resourceAppEngineServiceSplitTrafficUpdate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ServiceSplitTraffic: %s", err)
 	}
 	billingProject = project
 
@@ -284,16 +284,9 @@ func resourceAppEngineServiceSplitTrafficUpdate(d *schema.ResourceData, meta int
 }
 
 func resourceAppEngineServiceSplitTrafficDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-	config.userAgent = userAgent
-
 	log.Printf("[WARNING] AppEngine ServiceSplitTraffic resources"+
-		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
-		" state, but will still be present on the server.", d.Id())
+		" cannot be deleted from Google Cloud. The resource %s will be removed from Terraform"+
+		" state, but will still be present on Google Cloud.", d.Id())
 	d.SetId("")
 
 	return nil

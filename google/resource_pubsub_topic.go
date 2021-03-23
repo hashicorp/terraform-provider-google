@@ -52,7 +52,6 @@ func resourcePubsubTopic() *schema.Resource {
 			"kms_key_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Description: `The resource name of the Cloud KMS CryptoKey to be used to protect access
 to messages published on this topic. Your project's PubSub service account
 ('service-{{PROJECT_NUMBER}}@gcp-sa-pubsub.iam.gserviceaccount.com') must have
@@ -98,6 +97,7 @@ and is not a valid configuration.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -149,7 +149,7 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Topic: %s", err)
 	}
 	billingProject = project
 
@@ -193,7 +193,7 @@ func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) PollR
 
 		project, err := getProject(d, config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error fetching project for Topic: %s", err)
 		}
 		billingProject = project
 
@@ -231,7 +231,7 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Topic: %s", err)
 	}
 	billingProject = project
 
@@ -271,17 +271,22 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Topic: %s", err)
 	}
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	kmsKeyNameProp, err := expandPubsubTopicKmsKeyName(d.Get("kms_key_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
+		obj["kmsKeyName"] = kmsKeyNameProp
+	}
 	labelsProp, err := expandPubsubTopicLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
@@ -307,6 +312,10 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Updating Topic %q: %#v", d.Id(), obj)
 	updateMask := []string{}
+
+	if d.HasChange("kms_key_name") {
+		updateMask = append(updateMask, "kmsKeyName")
+	}
 
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
@@ -344,13 +353,12 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Topic: %s", err)
 	}
 	billingProject = project
 

@@ -109,7 +109,7 @@ func TestAccDataSourceGoogleActiveFolder_no_parent(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGoogleActiveFolderConfig(parent, displayName),
+				Config: testAccDataSourceGoogleActiveFolderConfig_no_parent(parent, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleActiveFolderCheck("data.google_active_folder.my_folder", "google_folder.foobar"),
 				),

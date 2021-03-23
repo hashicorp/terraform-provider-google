@@ -19,7 +19,7 @@ var CloudBillingCustomEndpointEntry = &schema.Schema{
 	}, CloudBillingDefaultBasePath),
 }
 
-var ComposerDefaultBasePath = "https://composer.googleapis.com/v1beta1/"
+var ComposerDefaultBasePath = "https://composer.googleapis.com/v1/"
 var ComposerCustomEndpointEntryKey = "composer_custom_endpoint"
 var ComposerCustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,
@@ -84,16 +84,6 @@ var DataflowCustomEndpointEntry = &schema.Schema{
 		"GOOGLE_DATAFLOW_CUSTOM_ENDPOINT",
 	}, DataflowDefaultBasePath),
 }
-var DnsBetaDefaultBasePath = "https://www.googleapis.com/dns/v1beta2/"
-var DnsBetaCustomEndpointEntryKey = "dns_beta_custom_endpoint"
-var DnsBetaCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_DNS_BETA_CUSTOM_ENDPOINT",
-	}, DnsBetaDefaultBasePath),
-}
 
 var IAMDefaultBasePath = "https://iam.googleapis.com/v1/"
 var IAMCustomEndpointEntryKey = "iam_custom_endpoint"
@@ -117,15 +107,15 @@ var IamCredentialsCustomEndpointEntry = &schema.Schema{
 	}, IamCredentialsDefaultBasePath),
 }
 
-var ResourceManagerV2Beta1DefaultBasePath = "https://cloudresourcemanager.googleapis.com/v2beta1/"
-var ResourceManagerV2Beta1CustomEndpointEntryKey = "resource_manager_v2beta1_custom_endpoint"
-var ResourceManagerV2Beta1CustomEndpointEntry = &schema.Schema{
+var ResourceManagerV2DefaultBasePath = "https://cloudresourcemanager.googleapis.com/v2/"
+var ResourceManagerV2CustomEndpointEntryKey = "resource_manager_v2_custom_endpoint"
+var ResourceManagerV2CustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,
 	Optional:     true,
 	ValidateFunc: validateCustomEndpoint,
 	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_RESOURCE_MANAGER_V2BETA1_CUSTOM_ENDPOINT",
-	}, ResourceManagerV2Beta1DefaultBasePath),
+		"GOOGLE_RESOURCE_MANAGER_V2_CUSTOM_ENDPOINT",
+	}, ResourceManagerV2DefaultBasePath),
 }
 
 var RuntimeConfigCustomEndpointEntryKey = "runtimeconfig_custom_endpoint"
@@ -179,6 +169,17 @@ var BigtableAdminCustomEndpointEntry = &schema.Schema{
 	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 		"GOOGLE_BIGTABLE_CUSTOM_ENDPOINT",
 	}, BigtableAdminDefaultBasePath),
+}
+
+var EventarcDefaultBasePath = "https://eventarc.googleapis.com/v1beta1/"
+var EventarcCustomEndpointEntryKey = "eventarc_custom_endpoint"
+var EventarcCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_EVENTARC_CUSTOM_ENDPOINT",
+	}, EventarcDefaultBasePath),
 }
 
 func validateCustomEndpoint(v interface{}, k string) (ws []string, errors []error) {

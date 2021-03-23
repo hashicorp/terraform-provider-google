@@ -53,8 +53,10 @@ A full list of valid locations can be found by running 'gcloud kms locations lis
 				Description: `The resource name for the KeyRing.`,
 			},
 			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Deprecated:  "Deprecated in favor of id, which contains an identical value. This field will be removed in the next major release of the provider.",
+				Description: "The self link of the created KeyRing in the format projects/{project}/locations/{location}/keyRings/{name}.",
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -63,6 +65,7 @@ A full list of valid locations can be found by running 'gcloud kms locations lis
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -102,7 +105,7 @@ func resourceKMSKeyRingCreate(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for KeyRing: %s", err)
 	}
 	billingProject = project
 
@@ -144,7 +147,7 @@ func resourceKMSKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for KeyRing: %s", err)
 	}
 	billingProject = project
 
@@ -182,16 +185,9 @@ func resourceKMSKeyRingRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceKMSKeyRingDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-	config.userAgent = userAgent
-
 	log.Printf("[WARNING] KMS KeyRing resources"+
-		" cannot be deleted from GCP. The resource %s will be removed from Terraform"+
-		" state, but will still be present on the server.", d.Id())
+		" cannot be deleted from Google Cloud. The resource %s will be removed from Terraform"+
+		" state, but will still be present on Google Cloud.", d.Id())
 	d.SetId("")
 
 	return nil

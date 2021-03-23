@@ -24,7 +24,7 @@ This resource is specifically to create a compute instance from a given
 ```hcl
 resource "google_compute_instance_template" "tpl" {
   name         = "template"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
 
   disk {
     source_image = "debian-cloud/debian-9"
@@ -92,6 +92,10 @@ are marked [Attributes as Blocks](/docs/configuration/attr-as-blocks.html):
 All exported attributes from `google_compute_instance` are exported here.
 See https://www.terraform.io/docs/providers/google/r/compute_instance.html#attributes-reference
 for details.
+
+## Import
+
+This resource does not support import.
 
 ## Timeouts
 

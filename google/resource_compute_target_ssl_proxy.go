@@ -65,9 +65,8 @@ character, which cannot be a dash.`,
 				Type:     schema.TypeList,
 				Required: true,
 				Description: `A list of SslCertificate resources that are used to authenticate
-connections between users and the load balancer. Currently, exactly
-one SSL certificate must be specified.`,
-				MaxItems: 1,
+connections between users and the load balancer. At least one
+SSL certificate must be specified.`,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
@@ -116,6 +115,7 @@ resource will not have any SSL policy configured.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -174,7 +174,7 @@ func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetSslProxy: %s", err)
 	}
 	billingProject = project
 
@@ -226,7 +226,7 @@ func resourceComputeTargetSslProxyRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetSslProxy: %s", err)
 	}
 	billingProject = project
 
@@ -281,13 +281,12 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetSslProxy: %s", err)
 	}
 	billingProject = project
 
@@ -441,13 +440,12 @@ func resourceComputeTargetSslProxyDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for TargetSslProxy: %s", err)
 	}
 	billingProject = project
 

@@ -15,7 +15,7 @@ provider:
 
 * `google-beta`
 
-This documentation (https://www.terraform.io/docs/providers/google/) is shared
+This documentation (https://www.terraform.io/docs/providers/google) is shared
 between both providers, and all generally available (GA) products and features
 are available in both versions of the provider.
 

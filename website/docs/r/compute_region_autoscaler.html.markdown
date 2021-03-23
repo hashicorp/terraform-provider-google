@@ -62,7 +62,7 @@ resource "google_compute_region_autoscaler" "foobar" {
 
 resource "google_compute_instance_template" "foobar" {
   name           = "my-instance-template"
-  machine_type   = "n1-standard-1"
+    machine_type   = "e2-medium"
   can_ip_forward = false
 
   tags = ["foo", "bar"]
@@ -174,6 +174,12 @@ The `autoscaling_policy` block supports:
   and outages due to abrupt scale-in events
   Structure is documented below.
 
+* `scale_in_control` -
+  (Optional)
+  Defines scale in controls to reduce the risk of response latency
+  and outages due to abrupt scale-in events
+  Structure is documented below.
+
 * `cpu_utilization` -
   (Optional)
   Defines the CPU utilization policy that allows the autoscaler to
@@ -189,6 +195,11 @@ The `autoscaling_policy` block supports:
 * `load_balancing_utilization` -
   (Optional)
   Configuration parameters of autoscaling based on a load balancer.
+  Structure is documented below.
+
+* `scaling_schedules` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Scaling schedules defined for an autoscaler. Multiple schedules can be set on an autoscaler and they can overlap.
   Structure is documented below.
 
 
@@ -217,6 +228,31 @@ The `max_scaled_down_replicas` block supports:
   Specifies a percentage of instances between 0 to 100%, inclusive.
   For example, specify 80 for 80%.
 
+The `scale_in_control` block supports:
+
+* `max_scaled_in_replicas` -
+  (Optional)
+  A nested object resource
+  Structure is documented below.
+
+* `time_window_sec` -
+  (Optional)
+  How long back autoscaling should look when computing recommendations
+  to include directives regarding slower scale down, as described above.
+
+
+The `max_scaled_in_replicas` block supports:
+
+* `fixed` -
+  (Optional)
+  Specifies a fixed number of VM instances. This must be a positive
+  integer.
+
+* `percent` -
+  (Optional)
+  Specifies a percentage of instances between 0 to 100%, inclusive.
+  For example, specify 80 for 80%.
+
 The `cpu_utilization` block supports:
 
 * `target` -
@@ -232,6 +268,12 @@ The `cpu_utilization` block supports:
   scales up until it reaches the maximum number of instances you
   specified or until the average utilization reaches the target
   utilization.
+
+* `predictive_method` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Indicates whether predictive autoscaling based on CPU metric is enabled. Valid values are:
+  - NONE (default). No predictive method is used. The autoscaler scales the group to meet current demand based on real-time metrics.
+  - OPTIMIZE_AVAILABILITY. Predictive autoscaling improves availability by monitoring daily and weekly load patterns and scaling out ahead of anticipated demand.
 
 The `metric` block supports:
 
@@ -313,6 +355,34 @@ The `load_balancing_utilization` block supports:
   balancing configuration) that autoscaler should maintain. Must
   be a positive float value. If not defined, the default is 0.8.
 
+The `scaling_schedules` block supports:
+
+* `name` - (Required) The identifier for this object. Format specified above.
+
+* `min_required_replicas` -
+  (Required)
+  Minimum number of VM instances that autoscaler will recommend in time intervals starting according to schedule.
+
+* `schedule` -
+  (Required)
+  The start timestamps of time intervals when this scaling schedule should provide a scaling signal. This field uses the extended cron format (with an optional year field).
+
+* `time_zone` -
+  (Optional)
+  The time zone to be used when interpreting the schedule. The value of this field must be a time zone name from the tz database: http://en.wikipedia.org/wiki/Tz_database.
+
+* `duration_sec` -
+  (Required)
+  The duration of time intervals (in seconds) for which this scaling schedule will be running. The minimum allowed value is 300.
+
+* `disabled` -
+  (Optional)
+  A boolean value that specifies if a scaling schedule can influence autoscaler recommendations. If set to true, then a scaling schedule has no effect.
+
+* `description` -
+  (Optional)
+  A description of a scaling schedule.
+
 - - -
 
 
@@ -349,6 +419,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 RegionAutoscaler can be imported using any of these accepted formats:
 

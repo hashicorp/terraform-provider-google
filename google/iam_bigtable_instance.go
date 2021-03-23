@@ -26,11 +26,11 @@ var IamBigtableInstanceSchema = map[string]*schema.Schema{
 type BigtableInstanceIamUpdater struct {
 	project  string
 	instance string
-	d        *schema.ResourceData
+	d        TerraformResourceData
 	Config   *Config
 }
 
-func NewBigtableInstanceUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewBigtableInstanceUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err

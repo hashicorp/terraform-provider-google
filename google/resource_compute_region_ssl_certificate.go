@@ -106,6 +106,7 @@ If it is not provided, the provider region is used.`,
 				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"name"},
+				Description:   "Creates a unique name beginning with the specified prefix. Conflicts with name.",
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					// https://cloud.google.com/compute/docs/reference/latest/sslCertificates#resource
 					// uuid is 26 characters, limit the prefix to 37.
@@ -128,6 +129,7 @@ If it is not provided, the provider region is used.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -180,7 +182,7 @@ func resourceComputeRegionSslCertificateCreate(d *schema.ResourceData, meta inte
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionSslCertificate: %s", err)
 	}
 	billingProject = project
 
@@ -232,7 +234,7 @@ func resourceComputeRegionSslCertificateRead(d *schema.ResourceData, meta interf
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionSslCertificate: %s", err)
 	}
 	billingProject = project
 
@@ -281,13 +283,12 @@ func resourceComputeRegionSslCertificateDelete(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RegionSslCertificate: %s", err)
 	}
 	billingProject = project
 

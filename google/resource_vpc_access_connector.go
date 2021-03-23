@@ -41,29 +41,18 @@ func resourceVPCAccessConnector() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"ip_cidr_range": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The range of internal addresses that follows RFC 4632 notation. Example: '10.132.0.0/28'.`,
-			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `The name of the resource (Max 25 characters).`,
 			},
-			"network": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Name of a VPC network.`,
-			},
-			"region": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Region where the VPC Access connector resides`,
+			"ip_cidr_range": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `The range of internal addresses that follows RFC 4632 notation. Example: '10.132.0.0/28'.`,
+				RequiredWith: []string{"network"},
 			},
 			"max_throughput": {
 				Type:         schema.TypeInt,
@@ -80,6 +69,20 @@ func resourceVPCAccessConnector() *schema.Resource {
 				ValidateFunc: validation.IntBetween(200, 1000),
 				Description:  `Minimum throughput of the connector in Mbps. Default and min is 200.`,
 				Default:      200,
+			},
+			"network": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `Name of the VPC network. Required if 'ip_cidr_range' is set.`,
+				ExactlyOneOf: []string{"network"},
+			},
+			"region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Region where the VPC Access connector resides. If it is not provided, the provider region is used.`,
 			},
 			"self_link": {
 				Type:        schema.TypeString,
@@ -98,6 +101,7 @@ func resourceVPCAccessConnector() *schema.Resource {
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -155,7 +159,7 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Connector: %s", err)
 	}
 	billingProject = project
 
@@ -207,12 +211,12 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Connector %q: %#v", d.Id(), res)
-
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
 	time.Sleep(5 * time.Second)
+
+	log.Printf("[DEBUG] Finished creating Connector %q: %#v", d.Id(), res)
 
 	return resourceVPCAccessConnectorRead(d, meta)
 }
@@ -233,7 +237,7 @@ func resourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) er
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Connector: %s", err)
 	}
 	billingProject = project
 
@@ -291,13 +295,12 @@ func resourceVPCAccessConnectorDelete(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Connector: %s", err)
 	}
 	billingProject = project
 

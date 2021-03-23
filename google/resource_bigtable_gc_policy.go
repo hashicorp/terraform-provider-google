@@ -16,11 +16,50 @@ const (
 	GCPolicyModeUnion        = "UNION"
 )
 
+func resourceBigtableGCPolicyCustomizeDiffFunc(diff TerraformResourceDiff) error {
+	count := diff.Get("max_age.#").(int)
+	if count < 1 {
+		return nil
+	}
+
+	oldDays, newDays := diff.GetChange("max_age.0.days")
+	oldDuration, newDuration := diff.GetChange("max_age.0.duration")
+	log.Printf("days: %v %v", oldDays, newDays)
+	log.Printf("duration: %v %v", oldDuration, newDuration)
+
+	if oldDuration == "" && newDuration != "" {
+		// flatten the old days and the new duration to duration... if they are
+		// equal then do nothing.
+		do, err := time.ParseDuration(newDuration.(string))
+		if err != nil {
+			return err
+		}
+		dn := time.Hour * 24 * time.Duration(oldDays.(int))
+		if do == dn {
+			err := diff.Clear("max_age.0.days")
+			if err != nil {
+				return err
+			}
+			err = diff.Clear("max_age.0.duration")
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func resourceBigtableGCPolicyCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	return resourceBigtableGCPolicyCustomizeDiffFunc(d)
+}
+
 func resourceBigtableGCPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceBigtableGCPolicyCreate,
-		Read:   resourceBigtableGCPolicyRead,
-		Delete: resourceBigtableGCPolicyDestroy,
+		Create:        resourceBigtableGCPolicyCreate,
+		Read:          resourceBigtableGCPolicyRead,
+		Delete:        resourceBigtableGCPolicyDestroy,
+		CustomizeDiff: resourceBigtableGCPolicyCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"instance_name": {
@@ -58,12 +97,26 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: `GC policy that applies to all cells older than the given age.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"days": {
-							Type:        schema.TypeInt,
-							Required:    true,
-							Description: `Number of days before applying GC policy.`,
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Computed:     true,
+							ForceNew:     true,
+							Deprecated:   "Deprecated in favor of duration",
+							Description:  `Number of days before applying GC policy.`,
+							ExactlyOneOf: []string{"max_age.0.days", "max_age.0.duration"},
+						},
+						"duration": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ForceNew:     true,
+							Description:  `Duration before applying GC policy`,
+							ValidateFunc: validateDuration(),
+							ExactlyOneOf: []string{"max_age.0.days", "max_age.0.duration"},
 						},
 					},
 				},
@@ -79,6 +132,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 						"number": {
 							Type:        schema.TypeInt,
 							Required:    true,
+							ForceNew:    true,
 							Description: `Number of version before applying the GC policy.`,
 						},
 					},
@@ -93,6 +147,7 @@ func resourceBigtableGCPolicy() *schema.Resource {
 				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -236,9 +291,12 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 
 	if aok {
 		l, _ := ma.([]interface{})
-		d, _ := l[0].(map[string]interface{})["days"].(int)
+		d, err := getMaxAgeDuration(l[0].(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
 
-		policies = append(policies, bigtable.MaxAgePolicy(time.Duration(d)*time.Hour*24))
+		policies = append(policies, bigtable.MaxAgePolicy(d))
 	}
 
 	if vok {
@@ -256,4 +314,15 @@ func generateBigtableGCPolicy(d *schema.ResourceData) (bigtable.GCPolicy, error)
 	}
 
 	return policies[0], nil
+}
+
+func getMaxAgeDuration(values map[string]interface{}) (time.Duration, error) {
+	d := values["duration"].(string)
+	if d != "" {
+		return time.ParseDuration(d)
+	}
+
+	days := values["days"].(int)
+
+	return time.Hour * 24 * time.Duration(days), nil
 }

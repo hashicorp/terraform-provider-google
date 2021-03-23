@@ -172,13 +172,11 @@ To have resources at different API versions, set up provider blocks for each ver
 
 ```hcl
 provider "google" {
-  credentials = "${file("account.json")}"
   project     = "my-project-id"
   region      = "us-central1"
 }
 
 provider "google-beta" {
-  credentials = "${file("account.json")}"
   project     = "my-project-id"
   region      = "us-central1"
 }

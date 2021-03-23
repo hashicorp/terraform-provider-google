@@ -57,7 +57,7 @@ which cannot be a dash.`,
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `Policy for creating snapshots of persistent disks.`,
+				Description: `Resource policy for instances used for placement configuration.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -274,6 +274,7 @@ the source disk is deleted. Default value: "KEEP_AUTO_SNAPSHOTS" Possible values
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -341,7 +342,7 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ResourcePolicy: %s", err)
 	}
 	billingProject = project
 
@@ -393,7 +394,7 @@ func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ResourcePolicy: %s", err)
 	}
 	billingProject = project
 
@@ -436,13 +437,12 @@ func resourceComputeResourcePolicyDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ResourcePolicy: %s", err)
 	}
 	billingProject = project
 
@@ -1032,7 +1032,7 @@ func expandComputeResourcePolicySnapshotSchedulePolicySnapshotProperties(v inter
 	transformedGuestFlush, err := expandComputeResourcePolicySnapshotSchedulePolicySnapshotPropertiesGuestFlush(original["guest_flush"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedGuestFlush); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["guestFlush"] = transformedGuestFlush
 	}
 

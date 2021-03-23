@@ -1,4 +1,470 @@
-## 3.43.0 (Unreleased)
+## 3.61.0 (Unreleased)
+## 3.60.0 (March 15, 2021)
+
+FEATURES:
+* **New Resource:** google_apigee_envgroup ([#8641](https://github.com/hashicorp/terraform-provider-google/pull/8641))
+* **New Resource:** google_apigee_environment ([#8596](https://github.com/hashicorp/terraform-provider-google/pull/8596))
+
+IMPROVEMENTS:
+* cloudrun: suppressed metadata.labels["cloud.googleapis.com/location"] value in `google_cloud_run_service` ([#8574](https://github.com/hashicorp/terraform-provider-google/pull/8574))
+* compute: added `mtu` field to `google_compute_interconnect_attachment` ([#8575](https://github.com/hashicorp/terraform-provider-google/pull/8575))
+* compute: added support for `nic_type` to `google_compute_instance` (GA only) ([#8562](https://github.com/hashicorp/terraform-provider-google/pull/8562))
+* datafusion: added support for the `DEVELOPER` instance type to `google_data_fusion_instance`  ([#8590](https://github.com/hashicorp/terraform-provider-google/pull/8590))
+* monitoring: added windows based availability sli to the resource `google_monitoring_slo` ([#8588](https://github.com/hashicorp/terraform-provider-google/pull/8588))
+* sql: added `settings.0.backup_configuration.transaction_log_retention_days` and `settings.0.backup_configuration.transaction_log_retention_days` fields to `google_sql_database_instance` ([#8582](https://github.com/hashicorp/terraform-provider-google/pull/8582))
+* storage: added `kms_key_name` to `google_storage_bucket_object` resource ([#8615](https://github.com/hashicorp/terraform-provider-google/pull/8615))
+
+BUG FIXES:
+* bigquery: fixed materialized view to be recreated when query changes ([#8628](https://github.com/hashicorp/terraform-provider-google/pull/8628))
+* bigtable: fixed bug where gc_policy would attempt to recreate the resource when switching from deprecated attribute but maintaining the same underlying value ([#8639](https://github.com/hashicorp/terraform-provider-google/pull/8639))
+* bigtable: required resource recreation if any fields change on `resource_bigtable_gc_policy` ([#8552](https://github.com/hashicorp/terraform-provider-google/pull/8552))
+* binaryauthorization: fixed permadiff in `google_binary_authorization_attestor` ([#8636](https://github.com/hashicorp/terraform-provider-google/pull/8636))
+* cloudfunction: added retry logic for `google_cloudfunctions_function` updates ([#8554](https://github.com/hashicorp/terraform-provider-google/pull/8554))
+* cloudidentity: fixed a bug where `google_cloud_identity_group` would periodically fail with a 403 ([#8585](https://github.com/hashicorp/terraform-provider-google/pull/8585))
+* compute: fixed a perma-diff for `nat_ips` that were specified as short forms in `google_compute_router_nat` ([#8576](https://github.com/hashicorp/terraform-provider-google/pull/8576))
+* compute: fixed perma-diff for cos-family disk images ([#8602](https://github.com/hashicorp/terraform-provider-google/pull/8602))
+* compute: Fixed service account scope alias to be updated. ([#8604](https://github.com/hashicorp/terraform-provider-google/pull/8604))
+* container: fixed container cluster not removed from the state when received 404 error on delete call for the resource `google_container_cluster` ([#8594](https://github.com/hashicorp/terraform-provider-google/pull/8594))
+* container: Fixed failure in deleting `maintenance_exclusion` for `google_container_cluster` ([#8589](https://github.com/hashicorp/terraform-provider-google/pull/8589))
+* container: fixed an issue where release channel UNSPECIFIED could not be set ([#8595](https://github.com/hashicorp/terraform-provider-google/pull/8595))
+* essentialcontacts: made `language_tag` required for `google_essential_contacts_contact` ([#8557](https://github.com/hashicorp/terraform-provider-google/pull/8557))
+
+## 3.59.0 (March 08, 2021)
+FEATURES:
+* **New Resource:** `google_workflows_workflow` ([#8549](https://github.com/hashicorp/terraform-provider-google/pull/8549))
+* **New Resource:** google_apigee_instance ([#8546](https://github.com/hashicorp/terraform-provider-google/pull/8546))
+
+IMPROVEMENTS:
+* compute: Added graceful termination to `google_container_node_pool` create calls so that partially created node pools will resume the original operation if the Terraform process is killed mid create. ([#8492](https://github.com/hashicorp/terraform-provider-google/pull/8492))
+* compute: Promoted gVNIC support for `google_compute_instance` resource to GA ([#8506](https://github.com/hashicorp/terraform-provider-google/pull/8506))
+* compute: added autoscaling_policy.cpu_utilization.predictive_method field to `google_compute_autoscaler` and `google_compute_region_autoscaler` ([#8547](https://github.com/hashicorp/terraform-provider-google/pull/8547))
+* redis : marked `auth_string` on the `resource_redis_instance` resource as sensitive ([#8513](https://github.com/hashicorp/terraform-provider-google/pull/8513))
+
+BUG FIXES:
+* apigee: fixed IDs when importing `google_apigee_organization` resource ([#8488](https://github.com/hashicorp/terraform-provider-google/pull/8488))
+* artifactregistry: fixed issue where updating `google_artifact_registry_repository` always failed ([#8491](https://github.com/hashicorp/terraform-provider-google/pull/8491))
+* compute : fixed a bug where `guest_flush` could not be set to false for the resource `google_compute_resource_policy` ([#8517](https://github.com/hashicorp/terraform-provider-google/pull/8517))
+* compute: fixed a panic on empty `target_size` in `google_compute_region_instance_group_manager` ([#8528](https://github.com/hashicorp/terraform-provider-google/pull/8528))
+* redis: fixed invalid value error on `auth_string` in `google_redis_instance` ([#8493](https://github.com/hashicorp/terraform-provider-google/pull/8493))
+
+## 3.58.0 (February 23, 2021)
+
+NOTES:
+* `google_bigquery_table` resources now cannot be destroyed unless `deletion_protection = false` is set in state for the resource. ([#8453](https://github.com/hashicorp/terraform-provider-google/pull/8453))
+
+FEATURES:
+* **New Data Source:** `google_iap_client` ([#8450](https://github.com/hashicorp/terraform-provider-google/pull/8450))
+
+IMPROVEMENTS:
+* bigquery: added `deletion_protection` field to `google_bigquery_table` to make deleting them require an explicit intent. ([#8453](https://github.com/hashicorp/terraform-provider-google/pull/8453))
+* cloudrun: updated retry logic to attempt to retry 409 errors from the Cloud Run API, which may be returned intermittently on create. ([#8440](https://github.com/hashicorp/terraform-provider-google/pull/8440))
+* compute: removed max items limit from `google_compute_target_ssl_proxy`. The API currently allows upto 15 Certificates. ([#8478](https://github.com/hashicorp/terraform-provider-google/pull/8478))
+* compute: added support for Private Services Connect for Google APIs in `google_compute_global_address` and `google_compute_global_forwarding_rule`([#8458](https://github.com/hashicorp/terraform-provider-google/pull/8458))
+* iam: added a retry condition that retries editing `iam_binding` and `iam_member` resources on policies that have frequently deleted service accounts ([#8476](https://github.com/hashicorp/terraform-provider-google/pull/8476))
+* sql: added `insights_config` block to `google_sql_database_instance` resource ([#8434](https://github.com/hashicorp/terraform-provider-google/pull/8434))
+
+BUG FIXES:
+* compute: fixed an issue where the provider could return an error on a successful delete operation ([#8463](https://github.com/hashicorp/terraform-provider-google/pull/8463))
+* dataproc : fixed an issue where `max_failure_per_hour` was not set correctly for `google_dataproc_job` ([#8441](https://github.com/hashicorp/terraform-provider-google/pull/8441))
+* dlp : modified `google_data_loss_prevention_stored_info_type` `regex.group_indexes` field to trigger resource recreation on update ([#8439](https://github.com/hashicorp/terraform-provider-google/pull/8439))
+* sql: fixed diffs based on case for `charset` in `google_sql_database` ([#8462](https://github.com/hashicorp/terraform-provider-google/pull/8462))
+
+## 3.57.0 (February 16, 2021)
+
+DEPRECATIONS:
+* compute: deprecated `source_disk_url` field in `google_compute_snapshot`. ([#8410](https://github.com/hashicorp/terraform-provider-google/pull/8410))
+* kms: deprecated `self_link` field in `google_kms_keyring` and `google_kms_cryptokey` resource as it is identical value to `id` field. ([#8410](https://github.com/hashicorp/terraform-provider-google/pull/8410))
+* pubsub: deprecated `path` field in `google_pubsub_subscription` resource as it is identical value to `id` field. ([#8410](https://github.com/hashicorp/terraform-provider-google/pull/8410))
+
+FEATURES:
+* **New Resource:** `google_essential_contacts_contact` ([#8426](https://github.com/hashicorp/terraform-provider-google/pull/8426))
+
+IMPROVEMENTS:
+* bigquery: added `status` field to `google_bigquery_job` ([#8377](https://github.com/hashicorp/terraform-provider-google/pull/8377))
+* compute: added `disk.resource_policies` field to resource `google_compute_instance_template` ([#8393](https://github.com/hashicorp/terraform-provider-google/pull/8393))
+* pubsub: marked `kms_key_name` field in `google_pubsub_topic` as updatable ([#8424](https://github.com/hashicorp/terraform-provider-google/pull/8424))
+
+BUG FIXES:
+* appengine: added retry for P4SA propagation delay ([#8409](https://github.com/hashicorp/terraform-provider-google/pull/8409))
+* compute: fixed overly-aggressive detection of changes to google_compute_security_policy rules ([#8417](https://github.com/hashicorp/terraform-provider-google/pull/8417))
+
+## 3.56.0 (February 8, 2021)
+
+FEATURES:
+* **New Resource:** `google_privateca_certificate` ([#8371](https://github.com/hashicorp/terraform-provider-google/pull/8371))
+
+IMPROVEMENTS:
+* all: added plan time validations for fields that expect base64 values. ([#8304](https://github.com/hashicorp/terraform-provider-google/pull/8304))
+* sql: added support for point-in-time-recovery to `google_sql_database_instance` ([#8367](https://github.com/hashicorp/terraform-provider-google/pull/8367))
+* monitoring : added `availability` sli metric support for the resource `google_monitoring_slo` ([#8315](https://github.com/hashicorp/terraform-provider-google/pull/8315))
+
+BUG FIXES:
+* bigquery: fixed bug where you could not reorder columns on `schema` for resource `google_bigquery_table` ([#8321](https://github.com/hashicorp/terraform-provider-google/pull/8321))
+* cloudrun: suppressed `run.googleapis.com/ingress-status` annotation in `google_cloud_run_service` ([#8361](https://github.com/hashicorp/terraform-provider-google/pull/8361))
+* serviceaccount: loosened restrictions on `account_id` for datasource `google_service_account` ([#8344](https://github.com/hashicorp/terraform-provider-google/pull/8344))
+
+## 3.55.0 (February 1, 2021)
+
+BREAKING CHANGES:
+* Reverted `* bigquery: made incompatible changes to the `google_bigquery_table.schema` field to cause the resource to be recreated ([#8232](https://github.com/hashicorp/terraform-provider-google/pull/8232))` due to unintended interactions with a bug introduced in an earlier version of the resource.
+
+FEATURES:
+* **New Data Source:** `google_runtimeconfig_config` ([#8268](https://github.com/hashicorp/terraform-provider-google/pull/8268))
+
+IMPROVEMENTS:
+* compute: added `distribution_policy_target_shape` field to `google_compute_region_instance_group_manager` resource ([#8277](https://github.com/hashicorp/terraform-provider-google/pull/8277))
+* container: promoted `master_global_access_config`, `tpu_ipv4_cidr_block`, `default_snat_status` and `datapath_provider` fields of `google_container_cluster` to GA. ([#8303](https://github.com/hashicorp/terraform-provider-google/pull/8303))
+* dataproc: Added field `temp_bucket` to `google_dataproc_cluster` cluster config. ([#8131](https://github.com/hashicorp/terraform-provider-google/pull/8131))
+* notebooks: added `tags`, `service_account_scopes`,`shielded_instance_config` to `google_notebooks_instance` ([#8289](https://github.com/hashicorp/terraform-provider-google/pull/8289))
+* provider: added plan time validations for fields that expect base64 values. ([#8304](https://github.com/hashicorp/terraform-provider-google/pull/8304))
+
+BUG FIXES:
+* bigquery: fixed permadiff on expiration_ms for `google_bigquery_table` ([#8298](https://github.com/hashicorp/terraform-provider-google/pull/8298))
+* billing: fixed perma-diff on currency_code in `google_billing_budget` ([#8266](https://github.com/hashicorp/terraform-provider-google/pull/8266))
+ * compute: changed private_ipv6_google_access in `google_compute_subnetwork` to correctly send a fingerprint ([#8290](https://github.com/hashicorp/terraform-provider-google/pull/8290))
+* healthcare: add retry logic on healthcare dataset not initialized error ([#8256](https://github.com/hashicorp/terraform-provider-google/pull/8256))
+
+## 3.54.0 (January 25, 2021)
+
+KNOWN ISSUES: New `google_bigquery_table` behaviour introduced in this version had unintended consequences, and may incorrectly flag tables for recreation. We expect to revert this for `3.55.0`.
+
+FEATURES:
+* **New Data Source:** `google_cloud_run_locations` ([#8192](https://github.com/hashicorp/terraform-provider-google/pull/8192))
+* **New Resource:** `google_privateca_certificate_authority` ([#8233](https://github.com/hashicorp/terraform-provider-google/pull/8233))
+* **New Resource:** `google_privateca_certificate_authority_iam_binding` ([#8249](https://github.com/hashicorp/terraform-provider-google/pull/8249))
+* **New Resource:** `google_privateca_certificate_authority_iam_member` ([#8249](https://github.com/hashicorp/terraform-provider-google/pull/8249))
+* **New Resource:** `google_privateca_certificate_authority_iam_policy` ([#8249](https://github.com/hashicorp/terraform-provider-google/pull/8249))
+
+IMPROVEMENTS:
+* bigquery: made incompatible changes to the `google_bigquery_table.schema` field to cause the resource to be recreated ([#8232](https://github.com/hashicorp/terraform-provider-google/pull/8232))
+* bigtable: fixed an issue where the `google_bigtable_instance` resource was not inferring the zone from the provider. ([#8222](https://github.com/hashicorp/terraform-provider-google/pull/8222))
+* cloudscheduler: fixed unnecessary recreate for `google_cloud_scheduler_job` ([#8248](https://github.com/hashicorp/terraform-provider-google/pull/8248))
+* compute: added `scaling_schedules` fields to `google_compute_autoscaler` and `google_compute_region_autoscaler` (beta) ([#8245](https://github.com/hashicorp/terraform-provider-google/pull/8245))
+* compute: fixed an issue where `google_compute_region_per_instance_config`, `google_compute_per_instance_config`, `google_compute_region_instance_group_manager` resources were not inferring the region/zone from the provider. ([#8224](https://github.com/hashicorp/terraform-provider-google/pull/8224))
+* memcache: fixed an issue where `google_memcached_instance` resource was not inferring the region from the provider. ([#8188](https://github.com/hashicorp/terraform-provider-google/pull/8188))
+* tpu: fixed an issue where `google_tpu_node` resource was not inferring the zone from the provider. ([#8188](https://github.com/hashicorp/terraform-provider-google/pull/8188))
+* vpcaccess: fixed an issue where `google_vpc_access_connector` resource was not inferring the region from the provider. ([#8188](https://github.com/hashicorp/terraform-provider-google/pull/8188))
+
+BUG FIXES:
+* bigquery: fixed an issue in `bigquery_dataset_iam_member` where deleted members were not handled correctly ([#8231](https://github.com/hashicorp/terraform-provider-google/pull/8231))
+* compute: fixed a perma-diff on `google_compute_health_check` when `log_config.enable` is set to false ([#8209](https://github.com/hashicorp/terraform-provider-google/pull/8209))
+* notebooks: fixed permadiff on noRemoveDataDisk for `google_notebooks_instance` ([#8246](https://github.com/hashicorp/terraform-provider-google/pull/8246))
+* resourcemanager: fixed an inconsistent result when IAM conditions are specified with `google_folder_iam_*` ([#8235](https://github.com/hashicorp/terraform-provider-google/pull/8235))
+* healthcare: added retry logic on healthcare dataset not initialized error ([#8256](https://github.com/hashicorp/terraform-provider-google/pull/8256))
+
+## 3.53.0 (January 19, 2021)
+
+FEATURES:
+* **New Data Source:** `google_compute_instance_template` ([#8137](https://github.com/hashicorp/terraform-provider-google/pull/8137))
+* **New Resource:** `google_apigee_organization` ([#8178](https://github.com/hashicorp/terraform-provider-google/pull/8178))
+
+IMPROVEMENTS:
+* accesscontextmanager: added support for `google_access_context_manager_gcp_user_access_binding` ([#8168](https://github.com/hashicorp/terraform-provider-google/pull/8168))
+* cloudbuild: promoted `github` fields in `google_cloud_build_trigger` to GA ([#8167](https://github.com/hashicorp/terraform-provider-google/pull/8167))
+* memcached: fixed an issue where `google_memcached_instance` resource was not inferring the region from the provider. ([More info](https://github.com/hashicorp/terraform-provider-google/issues/8027))
+* serviceaccount: added a `keepers` field to `google_service_account_key` that recreates the field when it is modified ([#8097](https://github.com/hashicorp/terraform-provider-google/pull/8097))
+* sql: added restore from backup support to `google_sql_database_instance` ([#8138](https://github.com/hashicorp/terraform-provider-google/pull/8138))
+* sql: added support for MYSQL_8_0 on resource `google_sql_source_representation_instance` ([#8135](https://github.com/hashicorp/terraform-provider-google/pull/8135))
+* tpu: fixed an issue where `google_tpu_node` resource was not inferring the zone from the provider. ([More info](https://github.com/hashicorp/terraform-provider-google/issues/8027))
+* vpcaccess: fixed an issue where `google_vpc_access_connector` resource was not inferring the region from the provider. ([More info](https://github.com/hashicorp/terraform-provider-google/issues/8027))
+
+BUG FIXES:
+* bigquery: enhanced diff suppress to ignore certain api divergences on resource `table` ([#8134](https://github.com/hashicorp/terraform-provider-google/pull/8134))
+* container: fixed crash due to nil exclusions object when updating an existent cluster with maintenance_policy but without exclusions ([#8126](https://github.com/hashicorp/terraform-provider-google/pull/8126))
+* project: fixed a bug in `google_project_access_approval_settings` where the default `project` was used rather than `project_id` ([#8169](https://github.com/hashicorp/terraform-provider-google/pull/8169))
+
+## 3.52.0 (January 11, 2021)
+
+BREAKING CHANGES:
+* billing: removed import support for `google_billing_budget` as it never functioned correctly ([#8023](https://github.com/hashicorp/terraform-provider-google/pull/8023))
+
+FEATURES:
+* **New Data Source:** `google_sql_backup_run` ([#8100](https://github.com/hashicorp/terraform-provider-google/pull/8100))
+* **New Data Source:** `google_storage_bucket_object_content` ([#8016](https://github.com/hashicorp/terraform-provider-google/pull/8016))
+* **New Resource:** `google_billing_subaccount` ([#8022](https://github.com/hashicorp/terraform-provider-google/pull/8022))
+* **New Resource:** `google_pubsub_lite_subscription` ([#8011](https://github.com/hashicorp/terraform-provider-google/pull/8011))
+* **New Resource:** `google_pubsub_lite_topic` ([#8011](https://github.com/hashicorp/terraform-provider-google/pull/8011))
+
+IMPROVEMENTS:
+* bigquery: promoted bigquery reservation to GA. ([#8079](https://github.com/hashicorp/terraform-provider-google/pull/8079))
+* bigtable: added support for specifying `duration` for `bigtable_gc_policy` to allow durations shorter than a day ([#7879](https://github.com/hashicorp/terraform-provider-google/pull/7879))
+* bigtable: added support for specifying `duration` for `bigtable_gc_policy` to allow durations shorter than a day ([#8081](https://github.com/hashicorp/terraform-provider-google/pull/8081))
+* billing: promoted `google_billing_budget` to GA ([#8023](https://github.com/hashicorp/terraform-provider-google/pull/8023))
+* compute: Added support for Google Virtual Network Interface (gVNIC) for `google_compute_image` ([#8007](https://github.com/hashicorp/terraform-provider-google/pull/8007))
+* compute: added SHARED_LOADBALANCER_VIP as a valid option for `google_compute_address.purpose` ([#7987](https://github.com/hashicorp/terraform-provider-google/pull/7987))
+* compute: added field `multiwriter` to resource `disk` (beta) ([#8098](https://github.com/hashicorp/terraform-provider-google/pull/8098))
+* compute: added support for `enable_independent_endpoint_mapping` to `google_compute_router_nat` resource ([#8049](https://github.com/hashicorp/terraform-provider-google/pull/8049))
+* compute: added support for `filter.direction` to `google_compute_packet_mirroring` ([#8102](https://github.com/hashicorp/terraform-provider-google/pull/8102))
+* compute: promoted `confidential_instance_config` field in `google_compute_instance` and `google_compute_instance_template` to GA ([#8089](https://github.com/hashicorp/terraform-provider-google/pull/8089))
+* compute: promoted `google_compute_forwarding_rule` `is_mirroring_collector` to GA ([#8102](https://github.com/hashicorp/terraform-provider-google/pull/8102))
+* compute: promoted `google_compute_packet_mirroring` to GA ([#8102](https://github.com/hashicorp/terraform-provider-google/pull/8102))
+* dataflow: Added optional `kms_key_name` field for `google_dataflow_job` ([#8116](https://github.com/hashicorp/terraform-provider-google/pull/8116))
+* dataflow: added documentation about using `parameters` for custom service account and other pipeline options to `google_dataflow_flex_template_job` ([#7999](https://github.com/hashicorp/terraform-provider-google/pull/7999))
+* redis: added `auth_string` output to `google_redis_instance` when `auth_enabled` is `true` ([#8090](https://github.com/hashicorp/terraform-provider-google/pull/8090))
+* redis: promoted `google_redis_instance.auth_enabled` to GA ([#8090](https://github.com/hashicorp/terraform-provider-google/pull/8090))
+* sql: added support for setting the `type` field on `google_sql_user` to support IAM authentication ([#8017](https://github.com/hashicorp/terraform-provider-google/pull/8017))
+* sql: added support for setting the `type` field on `google_sql_user` to support IAM authentication ([#8047](https://github.com/hashicorp/terraform-provider-google/pull/8047))
+
+BUG FIXES:
+* compute: removed requirement for `google_compute_region_url_map` default_service, as it should be a choice of default_service or default_url_redirect ([#2810](https://github.com/hashicorp/terraform-provider-google-beta/pull/2810))
+* cloud_tasks: fixed permadiff on retry_config.max_retry_duration for `google_cloud_tasks_queue` when the 0s is supplied ([#8078](https://github.com/hashicorp/terraform-provider-google/pull/8078))
+* cloudfunctions: fixed a bug where `google_cloudfunctions_function` would sometimes fail to update after being imported from gcloud ([#8010](https://github.com/hashicorp/terraform-provider-google/pull/8010))
+* cloudrun: fixed a permanent diff on `google_cloud_run_domain_mapping` `spec.force_override` field ([#8026](https://github.com/hashicorp/terraform-provider-google/pull/8026))
+* container: added plan time validation to ensure `enable_private_nodes` is true if `master_ipv4_cidr_block` is set on resource `cluster` ([#8066](https://github.com/hashicorp/terraform-provider-google/pull/8066))
+* dataproc: updated jobs to no longer wait for job completion during create ([#8064](https://github.com/hashicorp/terraform-provider-google/pull/8064))
+* filestore: updated retry logic to fail fast on quota error which cannot succeed on retry. ([#8080](https://github.com/hashicorp/terraform-provider-google/pull/8080))
+* logging: fixed updating on disabled in `google_logging_project_sink` ([#8093](https://github.com/hashicorp/terraform-provider-google/pull/8093))
+* scheduler: Fixed syntax error in the Cloud Scheduler HTTP target example. ([#8004](https://github.com/hashicorp/terraform-provider-google/pull/8004))
+* sql: fixed a bug in `google_sql_database_instance` that caused a permadiff on `settings.replication_type` ([#8006](https://github.com/hashicorp/terraform-provider-google/pull/8006))
+* storage: updated IAM resources to refresh etag sooner on an IAM conflict error, which will make applications of multiple IAM resources much faster. ([#8080](https://github.com/hashicorp/terraform-provider-google/pull/8080))
+
+## 3.51.1 (January 07, 2021)
+
+BUG FIXES:
+* all: fixed a bug that would occur in various resources due to comparison of large integers ([#8103](https://github.com/hashicorp/terraform-provider-google/pull/8103))
+
+## 3.51.0 (December 14, 2020)
+
+FEATURES:
+* **New Resource:** `google_firestore_document` ([#7932](https://github.com/hashicorp/terraform-provider-google/pull/7932))
+* **New Resource:** `google_notebooks_instance` ([#7933](https://github.com/hashicorp/terraform-provider-google/pull/7933))
+* **New Resource:** `google_notebooks_environment` ([#7933](https://github.com/hashicorp/terraform-provider-google/pull/7933))
+
+IMPROVEMENTS:
+* compute: added CDN features to `google_compute_region_backend_service`. ([#7941](https://github.com/hashicorp/terraform-provider-google/pull/7941))
+* compute: added Flexible Cache Control features to `google_compute_backend_service`. ([#7941](https://github.com/hashicorp/terraform-provider-google/pull/7941))
+* compute: added `replacement_method` field to `update_policy` block of `google_compute_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
+* compute: added `replacement_method` field to `update_policy` block of `google_compute_region_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
+* logging: added plan time validation for `unique_writer_identity` on `google_logging_project_sink` ([#7974](https://github.com/hashicorp/terraform-provider-google/pull/7974))
+* storage: added more lifecycle conditions to `google_storage_bucket` resource ([#7937](https://github.com/hashicorp/terraform-provider-google/pull/7937))
+
+BUG FIXES:
+* all: bump default request timeout to avoid conflicts if creating a resource takes longer than expected ([#7976](https://github.com/hashicorp/terraform-provider-google/pull/7976))
+* compute: removed `custom_response_headers` from GA `google_compute_backend_service` since it only works in the Beta version ([#7943](https://github.com/hashicorp/terraform-provider-google/pull/7943))
+* project: fixed a bug where `google_project_default_service_accounts` would delete all IAM bindings on a project when run with `action = "DEPRIVILEGE"` ([#7984](https://github.com/hashicorp/terraform-provider-google/pull/7984))
+* spanner: fixed an issue in `google_spanner_database` where multi-statement updates were not formatted correctly ([#7970](https://github.com/hashicorp/terraform-provider-google/pull/7970))
+* sql: fixed a bug in `google_sql_database_instance` that caused a permadiff on `settings.replication_type` ([#8006](https://github.com/hashicorp/terraform-provider-google/pull/8006))
+
+## 3.50.0 (December 7, 2020)
+
+FEATURES:
+* **New Data Source:** `google_composer_environment` ([#7902](https://github.com/hashicorp/terraform-provider-google/pull/7902))
+* **New Data Source:** `google_monitoring_cluster_istio_service` ([#7847](https://github.com/hashicorp/terraform-provider-google/pull/7847))
+* **New Data Source:** `google_monitoring_mesh_istio_service` ([#7847](https://github.com/hashicorp/terraform-provider-google/pull/7847))
+
+IMPROVEMENTS:
+* compute: added `replacement_method` field to `update_policy` block of `google_compute_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
+* compute: added `replacement_method` field to `update_policy` block of `google_compute_region_instance_group_manager` ([#7918](https://github.com/hashicorp/terraform-provider-google/pull/7918))
+* compute: added more fields to cdn_policy block of `google_compute_backend_bucket` ([#7888](https://github.com/hashicorp/terraform-provider-google/pull/7888))
+* compute: promoted `google_compute_managed_ssl_certificate` to GA ([#7914](https://github.com/hashicorp/terraform-provider-google/pull/7914))
+* compute: promoted `google_compute_resource_policy` to GA ([#7917](https://github.com/hashicorp/terraform-provider-google/pull/7917))
+* compute: updated `google_compute_url_map`'s fields referring to backend services to be able to refer to backend buckets. ([#7916](https://github.com/hashicorp/terraform-provider-google/pull/7916))
+* container: added cluster state check before proceeding on the node pool activities ([#7887](https://github.com/hashicorp/terraform-provider-google/pull/7887))
+* google: added support for more import formats to google_project_iam_custom_role ([#7862](https://github.com/hashicorp/terraform-provider-google/pull/7862))
+* project: added new restore_policy `REVERT_AND_IGNORE_FAILURE` to `google_project_default_service_accounts` ([#7906](https://github.com/hashicorp/terraform-provider-google/pull/7906))
+
+BUG FIXES:
+* bigqueryconnection: fixed failure to import a resource if it has a non-default project or location. ([#7903](https://github.com/hashicorp/terraform-provider-google/pull/7903))
+* iam: fixed iam conflict handling so that optimistic-locking retries will succeed more often. ([#7915](https://github.com/hashicorp/terraform-provider-google/pull/7915))
+* storage: fixed an issue in `google_storage_bucket` where `cors` could not be removed ([#7858](https://github.com/hashicorp/terraform-provider-google/pull/7858))
+
+## 3.49.0 (November 23, 2020)
+
+FEATURES:
+* **New Resource:** google_healthcare_consent_store ([#7803](https://github.com/hashicorp/terraform-provider-google/pull/7803))
+* **New Resource:** google_healthcare_consent_store_iam_binding ([#7803](https://github.com/hashicorp/terraform-provider-google/pull/7803))
+* **New Resource:** google_healthcare_consent_store_iam_member ([#7803](https://github.com/hashicorp/terraform-provider-google/pull/7803))
+* **New Resource:** google_healthcare_consent_store_iam_policy ([#7803](https://github.com/hashicorp/terraform-provider-google/pull/7803))
+
+IMPROVEMENTS:
+* bigquery: added `ORC` as a valid option to `source_format` field of  `google_bigquery_table` resource ([#7804](https://github.com/hashicorp/terraform-provider-google/pull/7804))
+* cloud_identity: promoted `google_cloud_identity_group_membership` to GA ([#7786](https://github.com/hashicorp/terraform-provider-google/pull/7786))
+* cloud_identity: promoted `google_cloud_identity_group` to GA ([#7786](https://github.com/hashicorp/terraform-provider-google/pull/7786))
+* cloud_identity: promoted data source `google_cloud_identity_group_memberships` to GA ([#7786](https://github.com/hashicorp/terraform-provider-google/pull/7786))
+* cloud_identity: promoted data source `google_cloud_identity_groups` to GA ([#7786](https://github.com/hashicorp/terraform-provider-google/pull/7786))
+* compute: added `custom_response_headers` field to `google_compute_backend_service` resource ([#7824](https://github.com/hashicorp/terraform-provider-google/pull/7824))
+* container: added maintenance_exclusions_window to `google_container_cluster` ([#7830](https://github.com/hashicorp/terraform-provider-google/pull/7830))
+* logging: added description and disabled to logging sinks ([#7809](https://github.com/hashicorp/terraform-provider-google/pull/7809))
+* runtimeconfig: marked value and text fields in `google_runtimeconfig_variable` resource as sensitive ([#7808](https://github.com/hashicorp/terraform-provider-google/pull/7808))
+* sql: added `deletion_policy` field to `google_sql_user` to enable abandoning users rather than deleting them ([#7820](https://github.com/hashicorp/terraform-provider-google/pull/7820))
+
+BUG FIXES:
+* bigtable: added ignore_warnings flag to create call for `google_bigtable_app_profile` ([#7806](https://github.com/hashicorp/terraform-provider-google/pull/7806))
+
+## 3.48.0 (November 16, 2020)
+
+FEATURES:
+* **New Data Source:** `google_iam_workload_identity_pool_provider` ([#7733](https://github.com/hashicorp/terraform-provider-google/pull/7733))
+
+IMPROVEMENTS:
+* apigateway: added api_config_id_prefix field to `google_api_gateway_api_config` resoure ([#7753](https://github.com/hashicorp/terraform-provider-google/pull/7753))
+* cloudfunctions: fixed a bug with `google_cloudfunction_function` that blocked updates when Organization Policies are enabled. ([#7723](https://github.com/hashicorp/terraform-provider-google/pull/7723))
+* compute: added `autoscaling_policy.0.scale_in_control` fields to `google_compute_autoscaler` ([#7773](https://github.com/hashicorp/terraform-provider-google/pull/7773))
+* compute: added `autoscaling_policy.0.scale_in_control` fields to `google_compute_region_autoscaler` ([#7773](https://github.com/hashicorp/terraform-provider-google/pull/7773))
+* compute: added update support for `google_compute_interconnect_attachment` `bandwidth` field ([#7762](https://github.com/hashicorp/terraform-provider-google/pull/7762))
+* dataproc: added "FLINK", "DOCKER", "HBASE" as valid options for field `cluster_config.0.software_config.0.optional_components` of `google_dataproc_cluster` resource ([#7726](https://github.com/hashicorp/terraform-provider-google/pull/7726))
+
+BUG FIXES:
+* cloudrun: added diff suppress function for `google_cloud_run_domain_mapping` `metadata.annotations` to ignore API-set fields ([#7764](https://github.com/hashicorp/terraform-provider-google/pull/7764))
+* spanner: marked `google_spanner_instance.config` as ForceNew as is not updatable ([#7763](https://github.com/hashicorp/terraform-provider-google/pull/7763))
+
+## 3.47.0 (November 09, 2020)
+
+FEATURES:
+* **New Data Source:** `google_iam_workload_identity_pool` ([#7704](https://github.com/hashicorp/terraform-provider-google/pull/7704))
+* **New Resource:** `google_iam_workload_identity_pool_provider` ([#7712](https://github.com/hashicorp/terraform-provider-google/pull/7712))
+* **New Resource:** `google_project_default_service_accounts` ([#7709](https://github.com/hashicorp/terraform-provider-google/pull/7709))
+
+IMPROVEMENTS:
+* cloudfunctions: fixed a bug with `google_cloudfunction_function` that blocked updates when Organization Policies are enabled. ([#7723](https://github.com/hashicorp/terraform-provider-google/pull/7723))
+* functions: added 4096 as a valid value for available_memory_mb field of `google_cloudfunction_function` ([#7707](https://github.com/hashicorp/terraform-provider-google/pull/7707))
+* cloudrun: patched `google_cloud_run_service` to suppress Google generated annotations ([#7721](https://github.com/hashicorp/terraform-provider-google/pull/7721))
+
+BUG FIXES:
+* dataflow: removed required validation for zone for `google_data_flow_job` when region is given in the config ([#7703](https://github.com/hashicorp/terraform-provider-google/pull/7703))
+* monitoring: Fixed type of `google_monitoring_slo`'s `range` values - some `range` values are doubles, others are integers. ([#7676](https://github.com/hashicorp/terraform-provider-google/pull/7676))
+* pubsub: Fixed permadiff on push_config.attributes. ([#7714](https://github.com/hashicorp/terraform-provider-google/pull/7714))
+* storage: fixed an issue in `google_storage_bucket` where `lifecycle_rules` were always included in update requests ([#7727](https://github.com/hashicorp/terraform-provider-google/pull/7727))
+
+## 3.46.0 (November 02, 2020)
+NOTES:
+* compute: updated `google_compute_machine_image` resource to complete once the Image is ready. ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+
+FEATURES:
+* **New Resource:** `google_api_gateway_api_config_iam_binding` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_config_iam_member` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_config_iam_policy` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_config` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_iam_binding` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_iam_member` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api_iam_policy` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_api` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_gateway_iam_binding` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_gateway_iam_member` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_gateway_iam_policy` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_api_gateway_gateway` ([#7626](https://github.com/hashicorp/terraform-provider-google/pull/7626))
+* **New Resource:** `google_compute_instance_from_machine_image` ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+* **New Resource:** `google_compute_machine_image_iam_binding` ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+* **New Resource:** `google_compute_machine_image_iam_member` ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+* **New Resource:** `google_compute_machine_image_iam_policy` ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+* **New Resource:** `google_iap_tunnel_iam_binding` ([#7635](https://github.com/hashicorp/terraform-provider-google/pull/7635))
+* **New Resource:** `google_iap_tunnel_iam_member` ([#7635](https://github.com/hashicorp/terraform-provider-google/pull/7635))
+* **New Resource:** `google_iap_tunnel_iam_policy` ([#7635](https://github.com/hashicorp/terraform-provider-google/pull/7635))
+* **New Resource:** compute: promoted `google_compute_region_network_endpoint_group` to GA ([#7618](https://github.com/hashicorp/terraform-provider-google/pull/7618))
+
+IMPROVEMENTS:
+* asset: added conditions to Cloud Asset Feeds ([#7632](https://github.com/hashicorp/terraform-provider-google/pull/7632))
+* bigquery: added `email_preferences ` field to `google_bigquery_data_transfer_config` resource ([#7665](https://github.com/hashicorp/terraform-provider-google/pull/7665))
+* bigquery: added `schedule_options` field to `google_bigquery_data_transfer_config` resource ([#7633](https://github.com/hashicorp/terraform-provider-google/pull/7633))
+* compute: added `private_ipv6_google_access` field to `google_compute_subnetwork` ([#7651](https://github.com/hashicorp/terraform-provider-google/pull/7651))
+* compute: added storage_locations & cmek fields to `google_compute_machine_image` resource ([#7629](https://github.com/hashicorp/terraform-provider-google/pull/7629))
+* compute: added support for non-destructive updates to `export_custom_routes` and `import_custom_routes` for `google_compute_network_peering` ([#7619](https://github.com/hashicorp/terraform-provider-google/pull/7619))
+* compute: relax `load_balancing_scheme` validation of `google_compute_region_backend_service` to support external network load-balancers ([#7592](https://github.com/hashicorp/terraform-provider-google/pull/7592))
+* datacatalog: Add taxonomy and policy_tag to `google_data_catalog` ([#7588](https://github.com/hashicorp/terraform-provider-google/pull/7588))
+* dlp: added `custom_info_types` to `google_dlp_inspect_template` ([#7650](https://github.com/hashicorp/terraform-provider-google/pull/7650))
+* functions: added `build_environment_variables` field to `google_cloudfunction_function` ([#7596](https://github.com/hashicorp/terraform-provider-google/pull/7596))
+* kms: added `skip_initial_version_creation` to `google_kms_crypto_key` ([#7647](https://github.com/hashicorp/terraform-provider-google/pull/7647))
+* monitoring: Added Monitoring Query Language based alerting for `google_monitoring_alert_policy` ([#7664](https://github.com/hashicorp/terraform-provider-google/pull/7664))
+
+BUG FIXES:
+* compute: fixed an issue where `google_compute_health_check` `port` values caused a diff when `port_specification` was unset or set to `""` ([#7623](https://github.com/hashicorp/terraform-provider-google/pull/7623))
+* monitoring: added more retries for potential failed monitoring operations ([#7631](https://github.com/hashicorp/terraform-provider-google/pull/7631))
+* osconfig: fixed an issue where the `rollout.disruption_budget.percentage` field in `google_os_config_patch_deployment` did not correspond to a field in the API ([#7641](https://github.com/hashicorp/terraform-provider-google/pull/7641))
+* sql: fixed a case in `google_sql_database_instance` where we inadvertently required the `projects.get` permission for a service networking precheck introduced in `v3.44.0` ([#7622](https://github.com/hashicorp/terraform-provider-google/pull/7622))
+
+## 3.45.0 (October 28, 2020)
+
+BREAKING CHANGES:
+* pubsub: changing the value of `google_pubsub_subscription.enable_message_ordering` will now recreate the resource. Previously, an error was returned. ([#7584](https://github.com/hashicorp/terraform-provider-google/pull/7584))
+* spanner: `google_spanner_database` resources now cannot be destroyed unless `deletion_protection = false` is set in state for the resource. ([#7557](https://github.com/hashicorp/terraform-provider-google/pull/7557))
+
+NOTES:
+* compute: added a warning to `google_compute_vpn_gateway` ([#7547](https://github.com/hashicorp/terraform-provider-google/pull/7547))
+
+FEATURES:
+* **New Data Source:** `google_spanner_instance` ([#7537](https://github.com/hashicorp/terraform-provider-google/pull/7537))
+* **New Resource:** `access_context_manager_access_level_condition` ([#7524](https://github.com/hashicorp/terraform-provider-google/pull/7524))
+* **New Resource:** `google_bigquery_routine` ([#7579](https://github.com/hashicorp/terraform-provider-google/pull/7579))
+
+IMPROVEMENTS:
+* billing_budget: added `disable_default_iam_recipients ` field to `google_billing_budget` to allow disable sending email notifications to default recipients. ([#7544](https://github.com/hashicorp/terraform-provider-google/pull/7544))
+* compute: added `interface` attribute to `google_compute_disk` ([#7554](https://github.com/hashicorp/terraform-provider-google/pull/7554))
+* compute: added support for updating `network_interface.[d].network_ip` on `google_compute_instance` when changing network or subnetwork ([#7515](https://github.com/hashicorp/terraform-provider-google/pull/7515))
+* compute: added `mtu` field to `google_compute_network` resource ([#7567](https://github.com/hashicorp/terraform-provider-google/pull/7567))
+* compute: promoted HA VPN fields in `google_compute_vpn_tunnel` to GA ([#7547](https://github.com/hashicorp/terraform-provider-google/pull/7547))
+* compute: promoted `google_compute_external_vpn_gateway` to GA ([#7547](https://github.com/hashicorp/terraform-provider-google/pull/7547))
+* compute: promoted `google_compute_ha_vpn_gateway` to GA ([#7547](https://github.com/hashicorp/terraform-provider-google/pull/7547))
+* provider: added support for service account impersonation. ([#7542](https://github.com/hashicorp/terraform-provider-google/pull/7542))
+* spanner: added `deletion_protection` field to `google_spanner_database` to make deleting them require an explicit intent. ([#7557](https://github.com/hashicorp/terraform-provider-google/pull/7557))
+
+BUG FIXES:
+* all: fixed misleading "empty non-retryable error" message that was appearing in debug logs ([#7569](https://github.com/hashicorp/terraform-provider-google/pull/7569))
+* compute: fixed incorrect import format for `google_compute_global_network_endpoint` ([#7523](https://github.com/hashicorp/terraform-provider-google/pull/7523))
+* compute: fixed issue where `google_compute_[region_]backend_service.backend.max_utilization` could not be updated ([#7575](https://github.com/hashicorp/terraform-provider-google/pull/7575))
+* iap: fixed an eventual consistency bug causing creates for `google_iap_brand` to fail ([#7520](https://github.com/hashicorp/terraform-provider-google/pull/7520))
+* provider: fixed an issue where the request headers would grow proportionally to the number of resources in a given `terraform apply` ([#7576](https://github.com/hashicorp/terraform-provider-google/pull/7576))
+* serviceusage: fixed bug where concurrent activations/deactivations of project services would fail, now they retry ([#7519](https://github.com/hashicorp/terraform-provider-google/pull/7519))
+
+## 3.44.0 (October 19, 2020)
+
+BREAKING CHANGE:
+* Added `deletion_protection` to `google_sql_database_instance`, which defaults to true. SQL instances can no longer be destroyed without setting `deletion_protection = false`. ([#7499](https://github.com/hashicorp/terraform-provider-google/pull/7499))
+
+FEATURES:
+* **New Data Source:** `google_app_engine_default_service_account` ([#7472](https://github.com/hashicorp/terraform-provider-google/pull/7472))
+* **New Data Source:** `google_pubsub_topic` ([#7448](https://github.com/hashicorp/terraform-provider-google/pull/7448))
+
+IMPROVEMENTS:
+* bigquery: added ability for `google_bigquery_dataset_access` to retry quota errors since quota refreshes quickly. ([#7507](https://github.com/hashicorp/terraform-provider-google/pull/7507))
+* bigquery: added `MONTH` and `YEAR` as allowed values in `google_bigquery_table.time_partitioning.type` ([#7461](https://github.com/hashicorp/terraform-provider-google/pull/7461))
+* cloud_tasks: added `stackdriver_logging_config` field to `cloud_tasks_queue` resource ([#7487](https://github.com/hashicorp/terraform-provider-google/pull/7487))
+* compute: added support for updating `network_interface.[d].network_ip` on `google_compute_instance` when changing network or subnetwork ([#7515](https://github.com/hashicorp/terraform-provider-google/pull/7515))
+* compute: added `maintenance_policy` field to `google_compute_node_group` ([#7510](https://github.com/hashicorp/terraform-provider-google/pull/7510))
+* compute: added filter field to google_compute_image datasource ([#7488](https://github.com/hashicorp/terraform-provider-google/pull/7488))
+* compute: promoted `autoscaling_policy` field in `google_compute_node_group` to GA ([#7510](https://github.com/hashicorp/terraform-provider-google/pull/7510))
+* dataproc: Added `graceful_decomissioning_timeout` field to `dataproc_cluster` resource ([#7485](https://github.com/hashicorp/terraform-provider-google/pull/7485))
+* iam: fixed `google_service_account_id_token` datasource to work with User ADCs and Impersonated Credentials ([#7457](https://github.com/hashicorp/terraform-provider-google/pull/7457))
+* logging: added bucket creation based on custom-id given for the resource `google_logging_project_bucket_config` ([#7492](https://github.com/hashicorp/terraform-provider-google/pull/7492))
+* logging: Added support for exclusions options for `google_logging_project_sink` ([#7335](https://github.com/hashicorp/terraform-provider-google/pull/7335))
+* oslogin: added ability to set a `project` on `google_os_login_ssh_public_key` ([#7505](https://github.com/hashicorp/terraform-provider-google/pull/7505))
+* resourcemanager: added a precheck that the serviceusage API is enabled to `google_project` when `auto_create_network` is false, as configuring the GCE API is required in that circumstance ([#7447](https://github.com/hashicorp/terraform-provider-google/pull/7447))
+* sql: added a check to `google_sql_database_instance` to catch failures early by seeing if Service Networking Connections already exists for the private network of the instance. ([#7499](https://github.com/hashicorp/terraform-provider-google/pull/7499))
+
+BUG FIXES:
+* accessapproval: fixed issue where, due to a recent API change, `google_*_access_approval.enrolled_services.cloud_product` entries specified as a URL would result in a permadiff ([#7468](https://github.com/hashicorp/terraform-provider-google/pull/7468))
+* compute: fixed ability to clear `description` field on `google_compute_health_check` and `google_compute_region_health_check` ([#7500](https://github.com/hashicorp/terraform-provider-google/pull/7500))
+* monitoring: fixed bug where deleting a `google_monitoring_dashboard` would give an "unsupported protocol scheme" error ([#7453](https://github.com/hashicorp/terraform-provider-google/pull/7453))
+
+## 3.43.0 (October 12, 2020)
+
+FEATURES:
+* **New Data Source:** `google_pubsub_topic` ([#7426](https://github.com/hashicorp/terraform-provider-google/pull/7426))
+* **New Data Source:** `google_compute_global_forwarding_rule` ([#7434](https://github.com/hashicorp/terraform-provider-google/pull/7434))
+* **New Data Source:** `google_cloud_run_service` ([#7388](https://github.com/hashicorp/terraform-provider-google/pull/7388))
+* **New Resource:** `google_bigtable_table_iam_member` ([#7410](https://github.com/hashicorp/terraform-provider-google/pull/7410))
+* **New Resource:** `google_bigtable_table_iam_binding` ([#7410](https://github.com/hashicorp/terraform-provider-google/pull/7410))
+* **New Resource:** `google_bigtable_table_iam_policy` ([#7410](https://github.com/hashicorp/terraform-provider-google/pull/7410))
+
+IMPROVEMENTS:
+* appengine: added ability to manage pre-firestore appengine applications. ([#7408](https://github.com/hashicorp/terraform-provider-google/pull/7408))
+* bigquery: added support for `google_bigquery_table` `materialized_view` field ([#7080](https://github.com/hashicorp/terraform-provider-google/pull/7080))
+* compute: Marked `google_compute_per_instance_config` as GA ([#7429](https://github.com/hashicorp/terraform-provider-google/pull/7429))
+* compute: Marked `google_compute_region_per_instance_config` as GA ([#7429](https://github.com/hashicorp/terraform-provider-google/pull/7429))
+* compute: Marked `stateful_disk` as GA in `google_compute_instance_group_manager` ([#7429](https://github.com/hashicorp/terraform-provider-google/pull/7429))
+* compute: Marked `stateful_disk` as GA in `google_compute_region_instance_group_manager` ([#7429](https://github.com/hashicorp/terraform-provider-google/pull/7429))
+* compute: added additional fields to the `google_compute_forwarding_rule` datasource. ([#7437](https://github.com/hashicorp/terraform-provider-google/pull/7437))
+* dns: added `forwarding_path` field to `google_dns_policy` resource ([#7416](https://github.com/hashicorp/terraform-provider-google/pull/7416))
+* netblock: changed `google_netblock_ip_ranges` to read from cloud.json file rather than DNS record ([#7157](https://github.com/hashicorp/terraform-provider-google/pull/7157))
+
+BUG FIXES:
+* accessapproval: fixed issue where, due to a recent API change, `google_*_access_approval.enrolled_services.cloud_product` entries specified as a URL would result in a permadiff
+* bigquery: fixed an issue in `google_bigquery_job` where non-US locations could not be read ([#7418](https://github.com/hashicorp/terraform-provider-google/pull/7418))
+* cloudrun: fixed an issue in `google_cloud_run_domain_mapping` where labels provided by Google would cause a diff ([#7407](https://github.com/hashicorp/terraform-provider-google/pull/7407))
+* compute: Fixed an issue where `google_compute_region_backend_service` required `healthChecks` for a serverless network endpoint group. ([#7433](https://github.com/hashicorp/terraform-provider-google/pull/7433))
+* container: fixed `node_config.image_type` perma-diff when specified in lower case. ([#7412](https://github.com/hashicorp/terraform-provider-google/pull/7412))
+* datacatalog: fixed an error in `google_data_catalog_tag` when trying to set boolean field to `false` ([#7409](https://github.com/hashicorp/terraform-provider-google/pull/7409))
+* monitoring: fixed bug where deleting a `google_monitoring_dashboard` would give an "unsupported protocol scheme" error
+
 ## 3.42.0 (October 05, 2020)
 
 FEATURES:

@@ -58,7 +58,7 @@ data "google_compute_image" "vmimage" {
 
 resource "google_compute_instance" "target-vm" {
   name         = "target-vm"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -101,8 +101,8 @@ data "google_compute_image" "vmimage" {
 
 resource "google_compute_instance" "target-vm" {
   provider = google-beta
-  name         = "cusom-network-target-vm"
-  machine_type = "n1-standard-1"
+  name         = "custom-network-target-vm"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -188,6 +188,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 TargetInstance can be imported using any of these accepted formats:
 

@@ -11,10 +11,15 @@ description: |-
 
 The Google Compute Engine Regional Instance Group Manager API creates and manages pools
 of homogeneous Compute Engine virtual machine instances from a common instance
-template. For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups)
-and [API](https://cloud.google.com/compute/docs/reference/latest/regionInstanceGroupManagers)
+template.
 
-~> **Note:** Use [google_compute_instance_group_manager](/docs/providers/google/r/compute_instance_group_manager.html) to create a single-zone instance group manager.
+To get more information about regionInstanceGroupManagers, see:
+
+* [API documentation](https://cloud.google.com/compute/docs/reference/latest/regionInstanceGroupManagers)
+* How-to Guides
+    * [Regional Instance Groups Guide](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups)
+
+~> **Note:** Use [google_compute_instance_group_manager](/docs/providers/google/r/compute_instance_group_manager.html) to create a zonal instance group manager.
 
 ## Example Usage with top level instance template (`google` provider)
 
@@ -101,7 +106,7 @@ The following arguments are supported:
     [RFC1035](https://www.ietf.org/rfc/rfc1035.txt). Supported characters
     include lowercase letters, numbers, and hyphens.
 
-* `region` - (Required) The region where the managed instance group resides.
+* `region` - (Optional) The region where the managed instance group resides. If not provided, the provider region is used.
 
 - - -
 
@@ -138,6 +143,8 @@ group. You can specify only one value. Structure is documented below. For more i
 * `distribution_policy_zones` - (Optional) The distribution policy for this managed instance
 group. You can specify one or more values. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups#selectingzones).
 
+* `distribution_policy_target_shape` - (Optional) The shape to which the group converges either proactively or on resize events (depending on the value set in update_policy.0.instance_redistribution_type). For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/regional-mig-distribution-shape).
+
 * `stateful_disk` - (Optional) Disks created on the instances that will be preserved on instance delete, update, etc. Structure is documented below. For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/configuring-stateful-disks-in-migs). Proactive cross zone instance redistribution must be disabled before you can update stateful disks on existing instance group managers. This can be controlled via the `update_policy`.
 
 - - -
@@ -152,6 +159,7 @@ update_policy {
   max_surge_percent            = 20
   max_unavailable_fixed        = 2
   min_ready_sec                = 50
+  replacement_method           = "RECREATE"
 }
 ```
 
@@ -170,6 +178,8 @@ update_policy {
 * `max_unavailable_percent` - (Optional), The maximum number of instances(calculated as percentage) that can be unavailable during the update process. Conflicts with `max_unavailable_fixed`. Percent value is only allowed for regional managed instance groups with size at least 10.
 
 * `min_ready_sec` - (Optional), Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600]
+
+* `replacement_method` - (Optional), The instance replacement method for managed instance groups. Valid values are: "RECREATE", "SUBSTITUTE". If SUBSTITUTE (default), the group replaces VM instances with new instances that have randomly generated names. If RECREATE, instance names are preserved.  You must also set max_unavailable_fixed or max_unavailable_percent to be greater than 0.
 - - -
 
 The `named_port` block supports: (Include a `named_port` block for each named-port required).
@@ -231,7 +241,7 @@ The `stateful_disk` block supports: (Include a `stateful_disk` block for each st
 
 * `device_name` - (Required), The device name of the disk to be attached.
 
-* `delete_rule` - (Optional), A value that prescribes what should happen to the stateful disk when the VM instance is deleted. The available options are `NEVER` and `ON_PERMANENT_INSTANCE_DELETION`. `NEVER` detatch the disk when the VM is deleted, but not delete the disk. `ON_PERMANENT_INSTANCE_DELETION` will delete the stateful disk when the VM is permanently deleted from the instance group. The default is `NEVER`.
+* `delete_rule` - (Optional), A value that prescribes what should happen to the stateful disk when the VM instance is deleted. The available options are `NEVER` and `ON_PERMANENT_INSTANCE_DELETION`. `NEVER` - detach the disk when the VM is deleted, but do not delete the disk. `ON_PERMANENT_INSTANCE_DELETION` will delete the stateful disk when the VM is permanently deleted from the instance group. The default is `NEVER`.
 
 ## Attributes Reference
 

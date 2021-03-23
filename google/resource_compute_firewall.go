@@ -313,6 +313,7 @@ instances on the specified network.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -485,7 +486,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Firewall: %s", err)
 	}
 	billingProject = project
 
@@ -537,7 +538,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Firewall: %s", err)
 	}
 	billingProject = project
 
@@ -616,13 +617,12 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Firewall: %s", err)
 	}
 	billingProject = project
 
@@ -743,13 +743,12 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Firewall: %s", err)
 	}
 	billingProject = project
 

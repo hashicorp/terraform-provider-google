@@ -14,28 +14,20 @@ Allows creation and management of a Google Cloud Platform project.
 Projects created with this resource must be associated with an Organization.
 See the [Organization documentation](https://cloud.google.com/resource-manager/docs/quickstarts) for more details.
 
-The service account used to run Terraform when creating a `google_project`
-resource must have `roles/resourcemanager.projectCreator`. See the
+The user or service account that is running Terraform when creating a `google_project`
+resource must have `roles/resourcemanager.projectCreator` on the specified organization. See the
 [Access Control for Organizations Using IAM](https://cloud.google.com/resource-manager/docs/access-control-org)
 doc for more information.
 
-Note that prior to 0.8.5, `google_project` functioned like a data source,
-meaning any project referenced by it had to be created and managed outside
-Terraform. As of 0.8.5, `google_project` functions like any other Terraform
-resource, with Terraform creating and managing the project. To replicate the old
-behavior, either:
+~> This resource reads the specified billing account on every terraform apply and plan operation so you must have permissions on the specified billing account.
 
-* Use the project ID directly in whatever is referencing the project, using the
-  [google_project_iam_policy](/docs/providers/google/r/google_project_iam.html)
-  to replace the old `policy_data` property.
-* Use the [import](/docs/import/usage.html) functionality
-  to import your pre-existing project into Terraform, where it can be referenced and
-  used just like always, keeping in mind that Terraform will attempt to undo any changes
-  made outside Terraform.
+~> It is recommended to use the `constraints/compute.skipDefaultNetworkCreation` [constraint](/docs/providers/google/r/google_organization_policy.html) to remove the default network instead of setting `auto_create_network` to false.
 
-~> It's important to note that any project resources that were added to your Terraform config
-prior to 0.8.5 will continue to function as they always have, and will not be managed by
-Terraform. Only newly added projects are affected.
+To get more information about projects, see:
+
+* [API documentation](https://cloud.google.com/resource-manager/reference/rest/v1/projects)
+* How-to Guides
+    * [Creating and managing projects](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
 
 ## Example Usage
 
@@ -85,8 +77,8 @@ The following arguments are supported:
 
 * `billing_account` - (Optional) The alphanumeric ID of the billing account this project
     belongs to. The user or service account performing this operation with Terraform
-    must have Billing Account Administrator privileges (`roles/billing.admin`) in
-    the organization. See [Google Cloud Billing API Access Control](https://cloud.google.com/billing/v1/how-tos/access-control)
+    must have at mininum Billing Account User privileges (`roles/billing.user`) on the billing account.
+    See [Google Cloud Billing API Access Control](https://cloud.google.com/billing/docs/how-to/billing-access)
     for more details.
 
 * `skip_delete` - (Optional) If true, the Terraform resource can be deleted

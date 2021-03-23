@@ -39,7 +39,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_instance_template" "foo" {
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   disk {
     source_image = data.google_compute_image.debian.self_link
   }

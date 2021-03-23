@@ -1,0 +1,3 @@
+```release-note:none
+Add missing func `GetProviderMeta` from `terraform-plugin-sdk/v2/helper/schema` `schema.ResourceData` in `ResourceDataMock` and `TerraformResourceData`
+```

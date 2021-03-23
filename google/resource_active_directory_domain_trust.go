@@ -97,6 +97,7 @@ https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locatio
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -160,7 +161,7 @@ func resourceActiveDirectoryDomainTrustCreate(d *schema.ResourceData, meta inter
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainTrust: %s", err)
 	}
 	billingProject = project
 
@@ -243,7 +244,7 @@ func resourceActiveDirectoryDomainTrustRead(d *schema.ResourceData, meta interfa
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainTrust: %s", err)
 	}
 	billingProject = project
 
@@ -310,13 +311,12 @@ func resourceActiveDirectoryDomainTrustUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for DomainTrust: %s", err)
 	}
 	billingProject = project
 
@@ -400,7 +400,6 @@ func resourceActiveDirectoryDomainTrustDelete(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	project, err := getProject(d, config)
 	if err != nil {

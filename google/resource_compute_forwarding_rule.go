@@ -129,6 +129,17 @@ for INTERNAL load balancing.`,
 				Description: `An optional description of this resource. Provide this property when
 you create the resource.`,
 			},
+			"is_mirroring_collector": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `Indicates whether or not this load balancer can be used
+as a collector for packet mirroring. To prevent mirroring loops,
+instances behind this load balancer will not have their traffic
+mirrored even if a PacketMirroring rule applies to them. This
+can only be set to true for load balancers that have their
+loadBalancingScheme set to INTERNAL.`,
+			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -278,6 +289,7 @@ This field is only used for INTERNAL load balancing.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -289,6 +301,12 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	}
 
 	obj := make(map[string]interface{})
+	isMirroringCollectorProp, err := expandComputeForwardingRuleIsMirroringCollector(d.Get("is_mirroring_collector"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("is_mirroring_collector"); !isEmptyValue(reflect.ValueOf(isMirroringCollectorProp)) && (ok || !reflect.DeepEqual(v, isMirroringCollectorProp)) {
+		obj["isMirroringCollector"] = isMirroringCollectorProp
+	}
 	descriptionProp, err := expandComputeForwardingRuleDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -396,7 +414,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ForwardingRule: %s", err)
 	}
 	billingProject = project
 
@@ -448,7 +466,7 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ForwardingRule: %s", err)
 	}
 	billingProject = project
 
@@ -467,6 +485,9 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	}
 
 	if err := d.Set("creation_timestamp", flattenComputeForwardingRuleCreationTimestamp(res["creationTimestamp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err := d.Set("is_mirroring_collector", flattenComputeForwardingRuleIsMirroringCollector(res["isMirroringCollector"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("description", flattenComputeForwardingRuleDescription(res["description"], d, config)); err != nil {
@@ -533,13 +554,12 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ForwardingRule: %s", err)
 	}
 	billingProject = project
 
@@ -625,13 +645,12 @@ func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ForwardingRule: %s", err)
 	}
 	billingProject = project
 
@@ -687,6 +706,10 @@ func resourceComputeForwardingRuleImport(d *schema.ResourceData, meta interface{
 }
 
 func flattenComputeForwardingRuleCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeForwardingRuleIsMirroringCollector(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -771,6 +794,10 @@ func flattenComputeForwardingRuleRegion(v interface{}, d *schema.ResourceData, c
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
+}
+
+func expandComputeForwardingRuleIsMirroringCollector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeForwardingRuleDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

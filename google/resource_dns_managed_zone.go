@@ -268,6 +268,7 @@ defined by the server`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -379,7 +380,7 @@ func resourceDNSManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
 	}
 	billingProject = project
 
@@ -421,7 +422,7 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
 	}
 	billingProject = project
 
@@ -436,7 +437,7 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOk("force_destroy"); !ok {
+	if _, ok := d.GetOkExists("force_destroy"); !ok {
 		if err := d.Set("force_destroy", false); err != nil {
 			return fmt.Errorf("Error setting force_destroy: %s", err)
 		}
@@ -485,13 +486,12 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
 	}
 	billingProject = project
 
@@ -562,13 +562,12 @@ func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for ManagedZone: %s", err)
 	}
 	billingProject = project
 

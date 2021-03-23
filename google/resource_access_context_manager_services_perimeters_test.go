@@ -9,7 +9,7 @@ import (
 )
 
 // Since each test here is acting on the same organization and only one AccessPolicy
-// can exist, they need to be ran serially. See AccessPolicy for the test runner.
+// can exist, they need to be run serially. See AccessPolicy for the test runner.
 func testAccAccessContextManagerServicePerimeters_basicTest(t *testing.T) {
 	org := getTestOrgFromEnv(t)
 

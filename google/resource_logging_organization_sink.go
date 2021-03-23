@@ -17,6 +17,7 @@ func resourceLoggingOrganizationSink() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceLoggingSinkImportState("org_id"),
 		},
+		UseJSONNumber: true,
 	}
 	schm.Schema["org_id"] = &schema.Schema{
 		Type:        schema.TypeString,

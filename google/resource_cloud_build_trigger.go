@@ -107,7 +107,8 @@ run directly. If not, the host will attempt to pull the image first, using
 the builder service account's credentials if necessary.
 
 The Docker daemon's cache will already have the latest versions of all of
-the officially supported build steps (https://github.com/GoogleCloudPlatform/cloud-builders).
+the officially supported build steps (see https://github.com/GoogleCloudPlatform/cloud-builders 
+for images and examples).
 The Docker daemon will also have cached many of the layers for some popular
 images, like "ubuntu", "debian", but they will be refreshed at the time
 you attempt to use them.
@@ -642,6 +643,86 @@ Default time is ten minutes (600s).`,
 				Description:  `Path, from the source root, to a file whose contents is used for the template. Either a filename or build template must be provided.`,
 				ExactlyOneOf: []string{"filename", "build"},
 			},
+			"github": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
+
+One of 'trigger_template' or 'github' must be provided.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Name of the repository. For example: The name for
+https://github.com/googlecloudplatform/cloud-builders is "cloud-builders".`,
+						},
+						"owner": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Owner of the repository. For example: The owner for
+https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".`,
+						},
+						"pull_request": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `filter to match changes in pull requests.  Specify only one of pullRequest or push.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"branch": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Regex of branches to match.`,
+									},
+									"comment_control": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"COMMENTS_DISABLED", "COMMENTS_ENABLED", "COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY", ""}, false),
+										Description:  `Whether to block builds on a "/gcbrun" comment from a repository owner or collaborator. Possible values: ["COMMENTS_DISABLED", "COMMENTS_ENABLED", "COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY"]`,
+									},
+									"invert_regex": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `If true, branches that do NOT match the git_ref will trigger a build.`,
+									},
+								},
+							},
+							ExactlyOneOf: []string{"github.0.pull_request", "github.0.push"},
+						},
+						"push": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `filter to match changes in refs, like branches or tags.  Specify only one of pullRequest or push.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"branch": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `Regex of branches to match.  Specify only one of branch or tag.`,
+										ExactlyOneOf: []string{"github.0.push.0.branch", "github.0.push.0.tag"},
+									},
+									"invert_regex": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `When true, only trigger a build if the revision regex does NOT match the git_ref regex.`,
+									},
+									"tag": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `Regex of tags to match.  Specify only one of branch or tag.`,
+										ExactlyOneOf: []string{"github.0.push.0.branch", "github.0.push.0.tag"},
+									},
+								},
+							},
+							ExactlyOneOf: []string{"github.0.pull_request", "github.0.push"},
+						},
+					},
+				},
+				ExactlyOneOf: []string{"trigger_template", "github"},
+			},
 			"ignored_files": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -776,6 +857,7 @@ This field is a regular expression.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -841,6 +923,12 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("trigger_template"); !isEmptyValue(reflect.ValueOf(triggerTemplateProp)) && (ok || !reflect.DeepEqual(v, triggerTemplateProp)) {
 		obj["triggerTemplate"] = triggerTemplateProp
 	}
+	githubProp, err := expandCloudBuildTriggerGithub(d.Get("github"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("github"); !isEmptyValue(reflect.ValueOf(githubProp)) && (ok || !reflect.DeepEqual(v, githubProp)) {
+		obj["github"] = githubProp
+	}
 	buildProp, err := expandCloudBuildTriggerBuild(d.Get("build"), d, config)
 	if err != nil {
 		return err
@@ -858,7 +946,7 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Trigger: %s", err)
 	}
 	billingProject = project
 
@@ -879,8 +967,6 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating Trigger %q: %#v", d.Id(), res)
-
 	// `name` is autogenerated from the api so needs to be set post-create
 	triggerId, ok := res["id"]
 	if !ok {
@@ -897,6 +983,8 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	log.Printf("[DEBUG] Finished creating Trigger %q: %#v", d.Id(), res)
 
 	return resourceCloudBuildTriggerRead(d, meta)
 }
@@ -917,7 +1005,7 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Trigger: %s", err)
 	}
 	billingProject = project
 
@@ -968,6 +1056,9 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("trigger_template", flattenCloudBuildTriggerTriggerTemplate(res["triggerTemplate"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
+	if err := d.Set("github", flattenCloudBuildTriggerGithub(res["github"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Trigger: %s", err)
+	}
 	if err := d.Set("build", flattenCloudBuildTriggerBuild(res["build"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
@@ -981,13 +1072,12 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Trigger: %s", err)
 	}
 	billingProject = project
 
@@ -1046,6 +1136,12 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("trigger_template"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, triggerTemplateProp)) {
 		obj["triggerTemplate"] = triggerTemplateProp
 	}
+	githubProp, err := expandCloudBuildTriggerGithub(d.Get("github"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("github"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, githubProp)) {
+		obj["github"] = githubProp
+	}
 	buildProp, err := expandCloudBuildTriggerBuild(d.Get("build"), d, config)
 	if err != nil {
 		return err
@@ -1083,13 +1179,12 @@ func resourceCloudBuildTriggerDelete(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Trigger: %s", err)
 	}
 	billingProject = project
 
@@ -1225,6 +1320,91 @@ func flattenCloudBuildTriggerTriggerTemplateTagName(v interface{}, d *schema.Res
 }
 
 func flattenCloudBuildTriggerTriggerTemplateCommitSha(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerGithub(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["owner"] =
+		flattenCloudBuildTriggerGithubOwner(original["owner"], d, config)
+	transformed["name"] =
+		flattenCloudBuildTriggerGithubName(original["name"], d, config)
+	transformed["pull_request"] =
+		flattenCloudBuildTriggerGithubPullRequest(original["pullRequest"], d, config)
+	transformed["push"] =
+		flattenCloudBuildTriggerGithubPush(original["push"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudBuildTriggerGithubOwner(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerGithubName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerGithubPullRequest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["branch"] =
+		flattenCloudBuildTriggerGithubPullRequestBranch(original["branch"], d, config)
+	transformed["comment_control"] =
+		flattenCloudBuildTriggerGithubPullRequestCommentControl(original["commentControl"], d, config)
+	transformed["invert_regex"] =
+		flattenCloudBuildTriggerGithubPullRequestInvertRegex(original["invertRegex"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudBuildTriggerGithubPullRequestBranch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerGithubPullRequestCommentControl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerGithubPullRequestInvertRegex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerGithubPush(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["invert_regex"] =
+		flattenCloudBuildTriggerGithubPushInvertRegex(original["invertRegex"], d, config)
+	transformed["branch"] =
+		flattenCloudBuildTriggerGithubPushBranch(original["branch"], d, config)
+	transformed["tag"] =
+		flattenCloudBuildTriggerGithubPushTag(original["tag"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudBuildTriggerGithubPushInvertRegex(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerGithubPushBranch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerGithubPushTag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1821,6 +2001,144 @@ func expandCloudBuildTriggerTriggerTemplateTagName(v interface{}, d TerraformRes
 }
 
 func expandCloudBuildTriggerTriggerTemplateCommitSha(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerGithub(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedOwner, err := expandCloudBuildTriggerGithubOwner(original["owner"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOwner); val.IsValid() && !isEmptyValue(val) {
+		transformed["owner"] = transformedOwner
+	}
+
+	transformedName, err := expandCloudBuildTriggerGithubName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedPullRequest, err := expandCloudBuildTriggerGithubPullRequest(original["pull_request"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPullRequest); val.IsValid() && !isEmptyValue(val) {
+		transformed["pullRequest"] = transformedPullRequest
+	}
+
+	transformedPush, err := expandCloudBuildTriggerGithubPush(original["push"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPush); val.IsValid() && !isEmptyValue(val) {
+		transformed["push"] = transformedPush
+	}
+
+	return transformed, nil
+}
+
+func expandCloudBuildTriggerGithubOwner(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerGithubName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerGithubPullRequest(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBranch, err := expandCloudBuildTriggerGithubPullRequestBranch(original["branch"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBranch); val.IsValid() && !isEmptyValue(val) {
+		transformed["branch"] = transformedBranch
+	}
+
+	transformedCommentControl, err := expandCloudBuildTriggerGithubPullRequestCommentControl(original["comment_control"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCommentControl); val.IsValid() && !isEmptyValue(val) {
+		transformed["commentControl"] = transformedCommentControl
+	}
+
+	transformedInvertRegex, err := expandCloudBuildTriggerGithubPullRequestInvertRegex(original["invert_regex"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInvertRegex); val.IsValid() && !isEmptyValue(val) {
+		transformed["invertRegex"] = transformedInvertRegex
+	}
+
+	return transformed, nil
+}
+
+func expandCloudBuildTriggerGithubPullRequestBranch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerGithubPullRequestCommentControl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerGithubPullRequestInvertRegex(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerGithubPush(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInvertRegex, err := expandCloudBuildTriggerGithubPushInvertRegex(original["invert_regex"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInvertRegex); val.IsValid() && !isEmptyValue(val) {
+		transformed["invertRegex"] = transformedInvertRegex
+	}
+
+	transformedBranch, err := expandCloudBuildTriggerGithubPushBranch(original["branch"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBranch); val.IsValid() && !isEmptyValue(val) {
+		transformed["branch"] = transformedBranch
+	}
+
+	transformedTag, err := expandCloudBuildTriggerGithubPushTag(original["tag"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTag); val.IsValid() && !isEmptyValue(val) {
+		transformed["tag"] = transformedTag
+	}
+
+	return transformed, nil
+}
+
+func expandCloudBuildTriggerGithubPushInvertRegex(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerGithubPushBranch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerGithubPushTag(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

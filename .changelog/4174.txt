@@ -1,0 +1,3 @@
+```release-note:none
+update terraform resources for api version v0.34.0
+```

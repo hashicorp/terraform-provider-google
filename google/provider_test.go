@@ -64,6 +64,19 @@ var orgEnvVars = []string{
 	"GOOGLE_ORG",
 }
 
+// This value is the Customer ID of the GOOGLE_ORG_DOMAIN workspace.
+// See https://admin.google.com/ac/accountsettings when logged into an org admin for the value.
+var custIdEnvVars = []string{
+	"GOOGLE_CUST_ID",
+}
+
+// This value is the username of an identity account within the GOOGLE_ORG_DOMAIN workspace.
+// For example in the org example.com with a user "foo@example.com", this would be set to "foo".
+// See https://admin.google.com/ac/users when logged into an org admin for a list.
+var identityUserEnvVars = []string{
+	"GOOGLE_IDENTITY_USER",
+}
+
 var orgEnvDomainVars = []string{
 	"GOOGLE_ORG_DOMAIN",
 }
@@ -89,6 +102,10 @@ type VcrSource struct {
 }
 
 var sources map[string]VcrSource
+
+var masterBillingAccountEnvVars = []string{
+	"GOOGLE_MASTER_BILLING_ACCOUNT",
+}
 
 func init() {
 	configs = make(map[string]*Config)
@@ -278,7 +295,7 @@ func vcrSource(t *testing.T, path, mode string) (*VcrSource, error) {
 	case "REPLAYING":
 		seed, err := readSeedFromFile(vcrSeedFile(path, t.Name()))
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("no cassette found on disk for %s, please replay this testcase in recording mode - %w", t.Name(), err)
 		}
 		s := rand.NewSource(seed)
 		vcrSource := VcrSource{seed: seed, source: s}
@@ -391,12 +408,12 @@ func testAccPreCheck(t *testing.T) {
 		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(projectEnvVars, ", "))
 	}
 
-	if v := multiEnvSearch(regionEnvVars); v != "us-central1" {
-		t.Fatalf("One of %s must be set to us-central1 for acceptance tests", strings.Join(regionEnvVars, ", "))
+	if v := multiEnvSearch(regionEnvVars); v == "" {
+		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(regionEnvVars, ", "))
 	}
 
-	if v := multiEnvSearch(zoneEnvVars); v != "us-central1-a" {
-		t.Fatalf("One of %s must be set to us-central1-a for acceptance tests", strings.Join(zoneEnvVars, ", "))
+	if v := multiEnvSearch(zoneEnvVars); v == "" {
+		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(zoneEnvVars, ", "))
 	}
 }
 
@@ -479,7 +496,6 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProviderMeta_setModuleName(moduleName, randString(t, 10)),
-				Check:  testAccCheckConfigAgentModified(t, moduleName),
 			},
 			{
 				ResourceName:      "google_compute_address.default",
@@ -488,16 +504,6 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckConfigAgentModified(t *testing.T, moduleName string) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
-		if !strings.Contains(config.userAgent, moduleName) {
-			return fmt.Errorf("expected userAgent to contain provider_meta set module_name")
-		}
-		return nil
-	}
 }
 
 func TestAccProviderUserProjectOverride(t *testing.T) {
@@ -518,12 +524,9 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProviderUserProjectOverride(pid, pname, org, billing, sa),
-				Check: func(s *terraform.State) error {
-					// The token creator IAM API call returns success long before the policy is
-					// actually usable. Wait a solid 2 minutes to ensure we can use it.
-					time.Sleep(2 * time.Minute)
-					return nil
-				},
+				// The token creator IAM API call returns success long before the policy is
+				// actually usable. Wait a solid 2 minutes to ensure we can use it.
+				Check: sleepInSecondsForTest(2 * 60),
 			},
 			{
 				Config:      testAccProviderUserProjectOverride_step2(pid, pname, org, billing, sa, false, topicName),
@@ -871,6 +874,16 @@ func getTestZoneFromEnv() string {
 	return multiEnvSearch(zoneEnvVars)
 }
 
+func getTestCustIdFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, custIdEnvVars...)
+	return multiEnvSearch(custIdEnvVars)
+}
+
+func getTestIdentityUserFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, identityUserEnvVars...)
+	return multiEnvSearch(identityUserEnvVars)
+}
+
 // Firestore can't be enabled at the same time as Datastore, so we need a new
 // project to manage it until we can enable Firestore programmatically.
 func getTestFirestoreProjectFromEnv(t *testing.T) string {
@@ -898,6 +911,11 @@ func getTestBillingAccountFromEnv(t *testing.T) string {
 	return multiEnvSearch(billingAccountEnvVars)
 }
 
+func getTestMasterBillingAccountFromEnv(t *testing.T) string {
+	skipIfEnvNotSet(t, masterBillingAccountEnvVars...)
+	return multiEnvSearch(masterBillingAccountEnvVars)
+}
+
 func getTestServiceAccountFromEnv(t *testing.T) string {
 	skipIfEnvNotSet(t, serviceAccountEnvVars...)
 	return multiEnvSearch(serviceAccountEnvVars)
@@ -918,5 +936,12 @@ func multiEnvSearch(ks []string) string {
 func skipIfVcr(t *testing.T) {
 	if isVcrEnabled() {
 		t.Skipf("VCR enabled, skipping test: %s", t.Name())
+	}
+}
+
+func sleepInSecondsForTest(t int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		time.Sleep(time.Duration(t) * time.Second)
+		return nil
 	}
 }

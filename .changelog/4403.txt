@@ -1,0 +1,3 @@
+```release-note:bug
+notebooks: fixed permadiff on noRemoveDataDisk for `google_notebooks_instance`
+```

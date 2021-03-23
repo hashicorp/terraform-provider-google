@@ -86,6 +86,7 @@ you create the resource.`,
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -132,7 +133,7 @@ func resourceComputeGlobalNetworkEndpointGroupCreate(d *schema.ResourceData, met
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GlobalNetworkEndpointGroup: %s", err)
 	}
 	billingProject = project
 
@@ -184,7 +185,7 @@ func resourceComputeGlobalNetworkEndpointGroupRead(d *schema.ResourceData, meta 
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GlobalNetworkEndpointGroup: %s", err)
 	}
 	billingProject = project
 
@@ -227,13 +228,12 @@ func resourceComputeGlobalNetworkEndpointGroupDelete(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for GlobalNetworkEndpointGroup: %s", err)
 	}
 	billingProject = project
 

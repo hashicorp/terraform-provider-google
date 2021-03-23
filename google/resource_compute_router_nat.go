@@ -20,6 +20,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -104,6 +105,15 @@ func computeRouterNatSubnetworkHash(v interface{}) int {
 	return schema.HashString(NameFromSelfLinkStateFunc(name)) + sourceIpRangesHash + secondaryIpRangeHash
 }
 
+func computeRouterNatIPsHash(v interface{}) int {
+	val := (v.(string))
+	newParts := strings.Split(val, "/")
+	if len(newParts) == 1 {
+		return schema.HashString(newParts[0])
+	}
+	return schema.HashString(GetResourceNameFromSelfLink(val))
+}
+
 func resourceComputeRouterNat() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeRouterNatCreate,
@@ -173,6 +183,13 @@ valid static external IPs that have been assigned to the NAT.`,
 				},
 				// Default schema.HashSchema is used.
 			},
+			"enable_endpoint_independent_mapping": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Specifies if endpoint independent mapping is enabled. This is enabled by default. For more information
+see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).`,
+				Default: true,
+			},
 			"icmp_idle_timeout_sec": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -214,7 +231,7 @@ is set to MANUAL_ONLY.`,
 					Type:             schema.TypeString,
 					DiffSuppressFunc: compareSelfLinkOrResourceName,
 				},
-				// Default schema.HashSchema is used.
+				Set: computeRouterNatIPsHash,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -259,6 +276,7 @@ Defaults to 30s if not set.`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -380,6 +398,12 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(logConfigProp)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
 		obj["logConfig"] = logConfigProp
 	}
+	enableEndpointIndependentMappingProp, err := expandNestedComputeRouterNatEnableEndpointIndependentMapping(d.Get("enable_endpoint_independent_mapping"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_endpoint_independent_mapping"); ok || !reflect.DeepEqual(v, enableEndpointIndependentMappingProp) {
+		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
+	}
 
 	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
@@ -403,7 +427,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
 	}
 	billingProject = project
 
@@ -455,7 +479,7 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
 	}
 	billingProject = project
 
@@ -521,6 +545,9 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("log_config", flattenNestedComputeRouterNatLogConfig(res["logConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
+	if err := d.Set("enable_endpoint_independent_mapping", flattenNestedComputeRouterNatEnableEndpointIndependentMapping(res["enableEndpointIndependentMapping"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNat: %s", err)
+	}
 
 	return nil
 }
@@ -531,13 +558,12 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
 	}
 	billingProject = project
 
@@ -608,6 +634,12 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
 		obj["logConfig"] = logConfigProp
 	}
+	enableEndpointIndependentMappingProp, err := expandNestedComputeRouterNatEnableEndpointIndependentMapping(d.Get("enable_endpoint_independent_mapping"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_endpoint_independent_mapping"); ok || !reflect.DeepEqual(v, enableEndpointIndependentMappingProp) {
+		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
+	}
 
 	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
@@ -658,13 +690,12 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
 	}
 	billingProject = project
 
@@ -894,6 +925,10 @@ func flattenNestedComputeRouterNatLogConfigFilter(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandNestedComputeRouterNatName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1046,6 +1081,10 @@ func expandNestedComputeRouterNatLogConfigEnable(v interface{}, d TerraformResou
 }
 
 func expandNestedComputeRouterNatLogConfigFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

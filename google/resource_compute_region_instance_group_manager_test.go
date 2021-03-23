@@ -228,6 +228,14 @@ func TestAccRegionInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccRegionInstanceGroupManager_rollingUpdatePolicy3(igm),
+			},
+			{
+				ResourceName:      "google_compute_region_instance_group_manager.igm-rolling-update-policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -401,7 +409,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -437,7 +445,6 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
 
   target_pools       = [google_compute_target_pool.igm-basic.self_link]
   base_instance_name = "igm-basic"
-  region             = "us-central1"
   target_size        = 2
 }
 
@@ -466,7 +473,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -509,7 +516,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-update" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -565,7 +572,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-update" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -598,7 +605,7 @@ resource "google_compute_target_pool" "igm-update2" {
 
 resource "google_compute_instance_template" "igm-update2" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -655,7 +662,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-update" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -688,7 +695,7 @@ resource "google_compute_target_pool" "igm-update2" {
 
 resource "google_compute_instance_template" "igm-update2" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -739,7 +746,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "igm-update" {
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["%s"]
 
@@ -790,7 +797,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "igm-basic" {
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
 
@@ -848,7 +855,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -906,7 +913,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -960,7 +967,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-primary" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -979,7 +986,7 @@ resource "google_compute_instance_template" "igm-primary" {
 
 resource "google_compute_instance_template" "igm-canary" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -1028,7 +1035,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -1050,10 +1057,11 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
     name              = "primary"
   }
 
-  base_instance_name        = "igm-basic"
-  region                    = "us-central1"
-  target_size               = 2
-  distribution_policy_zones = ["%s"]
+  base_instance_name               = "igm-basic"
+  region                           = "us-central1"
+  target_size                      = 2
+  distribution_policy_zones        = ["%s"]
+  distribution_policy_target_shape = "ANY"
 }
 `, template, igm, strings.Join(zones, "\",\""))
 }
@@ -1066,7 +1074,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["terraform-testing"]
 
@@ -1125,7 +1133,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["terraform-testing"]
 
@@ -1185,7 +1193,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "igm-rolling-update-policy" {
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["terraform-testing"]
 
@@ -1231,6 +1239,61 @@ resource "google_compute_region_instance_group_manager" "igm-rolling-update-poli
 `, igm)
 }
 
+func testAccRegionInstanceGroupManager_rollingUpdatePolicy3(igm string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-rolling-update-policy" {
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["terraform-testing"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "igm-rolling-update-policy" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    name              = "primary"
+    instance_template = google_compute_instance_template.igm-rolling-update-policy.self_link
+  }
+  base_instance_name        = "igm-rolling-update-policy"
+  region                    = "us-central1"
+  distribution_policy_zones = ["us-central1-a", "us-central1-f"]
+  target_size               = 3
+  update_policy {
+    type                         = "PROACTIVE"
+    instance_redistribution_type = "NONE"
+    minimal_action               = "REPLACE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 2
+    min_ready_sec                = 10
+    replacement_method           = "RECREATE"
+  }
+  named_port {
+    name = "customhttp"
+    port = 8080
+  }
+}
+`, igm)
+}
+
 func testAccRegionInstanceGroupManager_stateful(template, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -1240,7 +1303,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {
@@ -1296,7 +1359,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "igm-basic" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
   disk {

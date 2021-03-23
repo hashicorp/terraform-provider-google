@@ -26,12 +26,10 @@ Represents a VPN gateway running in GCP. This virtual device is managed
 by Google, but used only by you. This type of VPN Gateway allows for the creation
 of VPN solutions with higher availability than classic Target VPN Gateways.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about HaVpnGateway, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/vpnGateways)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/vpnGateways)
 * How-to Guides
     * [Choosing a VPN](https://cloud.google.com/vpn/docs/how-to/choosing-a-vpn)
     * [Cloud VPN Overview](https://cloud.google.com/vpn/docs/concepts/overview)
@@ -46,14 +44,12 @@ To get more information about HaVpnGateway, see:
 
 ```hcl
 resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
-  provider = google-beta
   region   = "us-central1"
   name     = "ha-vpn-1"
   network  = google_compute_network.network1.id
 }
 
 resource "google_compute_network" "network1" {
-  provider                = google-beta
   name                    = "network1"
   auto_create_subnetworks = false
 }
@@ -68,35 +64,30 @@ resource "google_compute_network" "network1" {
 
 ```hcl
 resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
-  provider = google-beta
   region   = "us-central1"
   name     = "ha-vpn-1"
   network  = google_compute_network.network1.id
 }
 
 resource "google_compute_ha_vpn_gateway" "ha_gateway2" {
-  provider = google-beta
   region   = "us-central1"
   name     = "ha-vpn-2"
   network  = google_compute_network.network2.id
 }
 
 resource "google_compute_network" "network1" {
-  provider                = google-beta
   name                    = "network1"
   routing_mode            = "GLOBAL"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network2" {
-  provider                = google-beta
   name                    = "network2"
   routing_mode            = "GLOBAL"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "network1_subnet1" {
-  provider      = google-beta
   name          = "ha-vpn-subnet-1"
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
@@ -104,7 +95,6 @@ resource "google_compute_subnetwork" "network1_subnet1" {
 }
 
 resource "google_compute_subnetwork" "network1_subnet2" {
-  provider      = google-beta
   name          = "ha-vpn-subnet-2"
   ip_cidr_range = "10.0.2.0/24"
   region        = "us-west1"
@@ -112,7 +102,6 @@ resource "google_compute_subnetwork" "network1_subnet2" {
 }
 
 resource "google_compute_subnetwork" "network2_subnet1" {
-  provider      = google-beta
   name          = "ha-vpn-subnet-3"
   ip_cidr_range = "192.168.1.0/24"
   region        = "us-central1"
@@ -120,7 +109,6 @@ resource "google_compute_subnetwork" "network2_subnet1" {
 }
 
 resource "google_compute_subnetwork" "network2_subnet2" {
-  provider      = google-beta
   name          = "ha-vpn-subnet-4"
   ip_cidr_range = "192.168.2.0/24"
   region        = "us-east1"
@@ -128,7 +116,6 @@ resource "google_compute_subnetwork" "network2_subnet2" {
 }
 
 resource "google_compute_router" "router1" {
-  provider = google-beta
   name     = "ha-vpn-router1"
   network  = google_compute_network.network1.name
   bgp {
@@ -137,7 +124,6 @@ resource "google_compute_router" "router1" {
 }
 
 resource "google_compute_router" "router2" {
-  provider = google-beta
   name     = "ha-vpn-router2"
   network  = google_compute_network.network2.name
   bgp {
@@ -146,7 +132,6 @@ resource "google_compute_router" "router2" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel1" {
-  provider              = google-beta
   name                  = "ha-vpn-tunnel1"
   region                = "us-central1"
   vpn_gateway           = google_compute_ha_vpn_gateway.ha_gateway1.id
@@ -157,7 +142,6 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel2" {
-  provider              = google-beta
   name                  = "ha-vpn-tunnel2"
   region                = "us-central1"
   vpn_gateway           = google_compute_ha_vpn_gateway.ha_gateway1.id
@@ -168,7 +152,6 @@ resource "google_compute_vpn_tunnel" "tunnel2" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel3" {
-  provider              = google-beta
   name                  = "ha-vpn-tunnel3"
   region                = "us-central1"
   vpn_gateway           = google_compute_ha_vpn_gateway.ha_gateway2.id
@@ -179,7 +162,6 @@ resource "google_compute_vpn_tunnel" "tunnel3" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel4" {
-  provider              = google-beta
   name                  = "ha-vpn-tunnel4"
   region                = "us-central1"
   vpn_gateway           = google_compute_ha_vpn_gateway.ha_gateway2.id
@@ -190,7 +172,6 @@ resource "google_compute_vpn_tunnel" "tunnel4" {
 }
 
 resource "google_compute_router_interface" "router1_interface1" {
-  provider   = google-beta
   name       = "router1-interface1"
   router     = google_compute_router.router1.name
   region     = "us-central1"
@@ -199,7 +180,6 @@ resource "google_compute_router_interface" "router1_interface1" {
 }
 
 resource "google_compute_router_peer" "router1_peer1" {
-  provider                  = google-beta
   name                      = "router1-peer1"
   router                    = google_compute_router.router1.name
   region                    = "us-central1"
@@ -210,7 +190,6 @@ resource "google_compute_router_peer" "router1_peer1" {
 }
 
 resource "google_compute_router_interface" "router1_interface2" {
-  provider   = google-beta
   name       = "router1-interface2"
   router     = google_compute_router.router1.name
   region     = "us-central1"
@@ -219,7 +198,6 @@ resource "google_compute_router_interface" "router1_interface2" {
 }
 
 resource "google_compute_router_peer" "router1_peer2" {
-  provider                  = google-beta
   name                      = "router1-peer2"
   router                    = google_compute_router.router1.name
   region                    = "us-central1"
@@ -230,7 +208,6 @@ resource "google_compute_router_peer" "router1_peer2" {
 }
 
 resource "google_compute_router_interface" "router2_interface1" {
-  provider   = google-beta
   name       = "router2-interface1"
   router     = google_compute_router.router2.name
   region     = "us-central1"
@@ -239,7 +216,6 @@ resource "google_compute_router_interface" "router2_interface1" {
 }
 
 resource "google_compute_router_peer" "router2_peer1" {
-  provider                  = google-beta
   name                      = "router2-peer1"
   router                    = google_compute_router.router2.name
   region                    = "us-central1"
@@ -250,7 +226,6 @@ resource "google_compute_router_peer" "router2_peer1" {
 }
 
 resource "google_compute_router_interface" "router2_interface2" {
-  provider   = google-beta
   name       = "router2-interface2"
   router     = google_compute_router.router2.name
   region     = "us-central1"
@@ -259,7 +234,6 @@ resource "google_compute_router_interface" "router2_interface2" {
 }
 
 resource "google_compute_router_peer" "router2_peer2" {
-  provider                  = google-beta
   name                      = "router2-peer2"
   router                    = google_compute_router.router2.name
   region                    = "us-central1"
@@ -336,6 +310,7 @@ This resource provides the following
 - `delete` - Default is 4 minutes.
 
 ## Import
+
 
 HaVpnGateway can be imported using any of these accepted formats:
 

@@ -252,6 +252,13 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 							ValidateFunc: validation.IntBetween(0, 3600),
 							Description:  `Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600].`,
 						},
+						"replacement_method": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ValidateFunc:     validation.StringInSlice([]string{"RECREATE", "SUBSTITUTE", ""}, false),
+							DiffSuppressFunc: emptyOrDefaultStringSuppress("SUBSTITUTE"),
+							Description:      `The instance replacement method for managed instance groups. Valid values are: "RECREATE", "SUBSTITUTE". If SUBSTITUTE (default), the group replaces VM instances with new instances that have randomly generated names. If RECREATE, instance names are preserved.  You must also set max_unavailable_fixed or max_unavailable_percent to be greater than 0.`,
+						},
 					},
 				},
 			},
@@ -279,7 +286,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 							Default:      "NEVER",
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"NEVER", "ON_PERMANENT_INSTANCE_DELETION"}, true),
-							Description:  `A value that prescribes what should happen to the stateful disk when the VM instance is deleted. The available options are NEVER and ON_PERMANENT_INSTANCE_DELETION. NEVER detatch the disk when the VM is deleted, but not delete the disk. ON_PERMANENT_INSTANCE_DELETION will delete the stateful disk when the VM is permanently deleted from the instance group. The default is NEVER.`,
+							Description:  `A value that prescribes what should happen to the stateful disk when the VM instance is deleted. The available options are NEVER and ON_PERMANENT_INSTANCE_DELETION. NEVER - detach the disk when the VM is deleted, but do not delete the disk. ON_PERMANENT_INSTANCE_DELETION will delete the stateful disk when the VM is permanently deleted from the instance group. The default is NEVER.`,
 						},
 					},
 				},
@@ -289,6 +296,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 				Computed: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -781,12 +789,14 @@ func expandFixedOrPercent(configured []interface{}) *computeBeta.FixedOrPercent 
 	fixedOrPercent := &computeBeta.FixedOrPercent{}
 
 	for _, raw := range configured {
-		data := raw.(map[string]interface{})
-		if percent := data["percent"]; percent.(int) > 0 {
-			fixedOrPercent.Percent = int64(percent.(int))
-		} else {
-			fixedOrPercent.Fixed = int64(data["fixed"].(int))
-			fixedOrPercent.ForceSendFields = []string{"Fixed"}
+		if raw != nil {
+			data := raw.(map[string]interface{})
+			if percent := data["percent"]; percent.(int) > 0 {
+				fixedOrPercent.Percent = int64(percent.(int))
+			} else {
+				fixedOrPercent.Fixed = int64(data["fixed"].(int))
+				fixedOrPercent.ForceSendFields = []string{"Fixed"}
+			}
 		}
 	}
 	return fixedOrPercent
@@ -800,6 +810,7 @@ func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupMana
 
 		updatePolicy.MinimalAction = data["minimal_action"].(string)
 		updatePolicy.Type = data["type"].(string)
+		updatePolicy.ReplacementMethod = data["replacement_method"].(string)
 
 		// percent and fixed values are conflicting
 		// when the percent values are set, the fixed values will be ignored
@@ -888,6 +899,7 @@ func flattenUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpdatePol
 		up["min_ready_sec"] = updatePolicy.MinReadySec
 		up["minimal_action"] = updatePolicy.MinimalAction
 		up["type"] = updatePolicy.Type
+		up["replacement_method"] = updatePolicy.ReplacementMethod
 		results = append(results, up)
 	}
 	return results

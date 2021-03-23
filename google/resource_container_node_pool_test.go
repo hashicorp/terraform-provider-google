@@ -1005,6 +1005,9 @@ resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
+  release_channel {
+	  channel = "UNSPECIFIED"
+  }
 }
 
 resource "google_container_node_pool" "np_with_management" {
@@ -1231,7 +1234,7 @@ resource "google_container_node_pool" "np_with_gpu" {
   initial_node_count = 1
 
   node_config {
-    machine_type = "n1-standard-1"
+    machine_type = "n1-standard-1"  // can't be e2 because of accelerator
     disk_size_gb = 32
 
     oauth_scopes = [
@@ -1345,6 +1348,7 @@ resource "google_container_node_pool" "np" {
       count = 1
       type  = "nvidia-tesla-p100"
     }
+	machine_type = "n1-highmem-4"
   }
 }
 `, cluster, np)
@@ -1390,6 +1394,7 @@ resource "google_container_node_pool" "np" {
       count = 0
       type  = "nvidia-tesla-p100"
     }
+	machine_type = "n1-highmem-4"
   }
 }
 `, cluster, np)
@@ -1419,6 +1424,7 @@ resource "google_container_node_pool" "np" {
       count = %d
       type  = "nvidia-tesla-p100"
     }
+	machine_type = "n1-highmem-4"
   }
 }
 `, cluster, np, count)
@@ -1453,6 +1459,7 @@ resource "google_container_node_pool" "np" {
       count = 1
       type  = "nvidia-tesla-p9000"
     }
+	machine_type = "n1-highmem-4"
   }
 }
 `, cluster, np)

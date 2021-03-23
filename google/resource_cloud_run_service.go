@@ -19,7 +19,9 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -32,6 +34,40 @@ func revisionNameCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v i
 		return fmt.Errorf("google_cloud_run_service: `template.metadata.name` cannot be set while `autogenerate_revision_name` is true. Please remove the field or set `autogenerate_revision_name` to false.")
 	}
 	return nil
+}
+
+var cloudRunGoogleProvidedAnnotations = regexp.MustCompile(`serving\.knative\.dev/(?:(?:creator)|(?:lastModifier))$|run\.googleapis\.com/(?:(?:ingress-status))$|cloud\.googleapis\.com/(?:(?:location))`)
+
+func cloudrunAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the annotations provided by Google
+	if cloudRunGoogleProvidedAnnotations.MatchString(k) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by annotations (above)
+	if strings.Contains(k, "annotations.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
+var cloudRunGoogleProvidedLabels = regexp.MustCompile(`cloud\.googleapis\.com/(?:(?:location))`)
+
+func cloudrunLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the labels provided by Google
+	if cloudRunGoogleProvidedLabels.MatchString(k) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.Contains(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
 }
 
 func resourceCloudRunService() *schema.Resource {
@@ -381,7 +417,11 @@ annotation key.`,
 										Optional: true,
 										Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
-info: http://kubernetes.io/docs/user-guide/annotations`,
+info: http://kubernetes.io/docs/user-guide/annotations
+
+**Note**: The Cloud Run API may add additional annotations that were not provided in your config.
+If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
+or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.`,
 										Elem: &schema.Schema{Type: schema.TypeString},
 									},
 									"labels": {
@@ -485,18 +525,24 @@ and annotations.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"annotations": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Optional: true,
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							DiffSuppressFunc: cloudrunAnnotationDiffSuppress,
 							Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
-info: http://kubernetes.io/docs/user-guide/annotations`,
+info: http://kubernetes.io/docs/user-guide/annotations
+
+**Note**: The Cloud Run API may add additional annotations that were not provided in your config.
+If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
+or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"labels": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Optional: true,
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							DiffSuppressFunc: cloudrunLabelDiffSuppress,
 							Description: `Map of string keys and values that can be used to organize and categorize
 (scope and select) objects. May match selectors of replication controllers
 and routes.
@@ -623,6 +669,7 @@ https://{route-hash}-{project-hash}-{cluster-level-suffix}.a.run.app`,
 				ForceNew: true,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
@@ -662,7 +709,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 
@@ -671,7 +718,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isCloudRunCreationConflict)
 	if err != nil {
 		return fmt.Errorf("Error creating Service: %s", err)
 	}
@@ -706,7 +753,7 @@ func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) P
 
 		project, err := getProject(d, config)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error fetching project for Service: %s", err)
 		}
 		billingProject = project
 
@@ -720,7 +767,7 @@ func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) P
 			return nil, err
 		}
 
-		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, isCloudRunCreationConflict)
 		if err != nil {
 			return res, err
 		}
@@ -756,7 +803,7 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 
@@ -765,7 +812,7 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 
-	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil, isCloudRunCreationConflict)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudRunService %q", d.Id()))
 	}
@@ -783,7 +830,7 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Explicitly set virtual fields to default values if unset
-	if _, ok := d.GetOk("autogenerate_revision_name"); !ok {
+	if _, ok := d.GetOkExists("autogenerate_revision_name"); !ok {
 		if err := d.Set("autogenerate_revision_name", false); err != nil {
 			return fmt.Errorf("Error setting autogenerate_revision_name: %s", err)
 		}
@@ -823,13 +870,12 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 
@@ -864,7 +910,7 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isCloudRunCreationConflict)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Service %q: %s", d.Id(), err)
@@ -886,13 +932,12 @@ func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	config.userAgent = userAgent
 
 	billingProject := ""
 
 	project, err := getProject(d, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error fetching project for Service: %s", err)
 	}
 	billingProject = project
 
@@ -909,7 +954,7 @@ func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isCloudRunCreationConflict)
 	if err != nil {
 		return handleNotFoundError(err, d, "Service")
 	}

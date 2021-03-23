@@ -1,4 +1,3 @@
-//
 package google
 
 import (
@@ -1052,6 +1051,35 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_nictype_update(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_nictype(instanceName, instanceName, "GVNIC"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_nictype(instanceName, instanceName, "VIRTIO_NET"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 	t.Parallel()
 
@@ -1288,6 +1316,28 @@ func TestAccComputeInstance_shieldedVmConfig(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
+	t.Parallel()
+
+	var instance computeBeta.Instance
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceConfidentialInstanceConfig(instanceName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance, true),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_enableDisplay(t *testing.T) {
 	t.Parallel()
 
@@ -1322,11 +1372,11 @@ func TestAccComputeInstance_desiredStatusOnCreation(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "TERMINATED", false),
+				Config:      testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "TERMINATED", false),
 				ExpectError: regexp.MustCompile("When creating an instance, desired_status can only accept RUNNING value"),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "RUNNING", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "RUNNING", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -1356,7 +1406,7 @@ func TestAccComputeInstance_desiredStatusUpdateBasic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "RUNNING", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "RUNNING", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -1364,7 +1414,7 @@ func TestAccComputeInstance_desiredStatusUpdateBasic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "TERMINATED", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "TERMINATED", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -1380,7 +1430,7 @@ func TestAccComputeInstance_desiredStatusUpdateBasic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "RUNNING", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "RUNNING", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -1410,7 +1460,7 @@ func TestAccComputeInstance_desiredStatusTerminatedUpdateFields(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "TERMINATED", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "TERMINATED", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -1453,11 +1503,11 @@ func TestAccComputeInstance_updateRunning_desiredStatusRunning_allowStoppingForU
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "RUNNING", true),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-standard-2", "RUNNING", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasMachineType(&instance, "n1-standard-2"),
+					testAccCheckComputeInstanceHasMachineType(&instance, "e2-standard-2"),
 					testAccCheckComputeInstanceHasStatus(&instance, "RUNNING"),
 				),
 			},
@@ -1487,7 +1537,7 @@ func TestAccComputeInstance_updateRunning_desiredStatusNotSet_notAllowStoppingFo
 				),
 			},
 			{
-				Config:      testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "", false),
+				Config:      testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-standard-2", "", false),
 				ExpectError: regexp.MustCompile(errorAllowStoppingMsg),
 			},
 		},
@@ -1514,7 +1564,7 @@ func TestAccComputeInstance_updateRunning_desiredStatusRunning_notAllowStoppingF
 				),
 			},
 			{
-				Config:      testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "RUNNING", false),
+				Config:      testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-standard-2", "RUNNING", false),
 				ExpectError: regexp.MustCompile(errorAllowStoppingMsg),
 			},
 		},
@@ -1541,11 +1591,11 @@ func TestAccComputeInstance_updateRunning_desiredStatusTerminated_allowStoppingF
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "TERMINATED", true),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-standard-2", "TERMINATED", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasMachineType(&instance, "n1-standard-2"),
+					testAccCheckComputeInstanceHasMachineType(&instance, "e2-standard-2"),
 					testAccCheckComputeInstanceHasStatus(&instance, "TERMINATED"),
 				),
 			},
@@ -1573,11 +1623,11 @@ func TestAccComputeInstance_updateRunning_desiredStatusTerminated_notAllowStoppi
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "TERMINATED", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-standard-2", "TERMINATED", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasMachineType(&instance, "n1-standard-2"),
+					testAccCheckComputeInstanceHasMachineType(&instance, "e2-standard-2"),
 					testAccCheckComputeInstanceHasStatus(&instance, "TERMINATED"),
 				),
 			},
@@ -1605,7 +1655,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusNotSet_allowStoppingFo
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "TERMINATED", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "TERMINATED", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -1613,11 +1663,11 @@ func TestAccComputeInstance_updateTerminated_desiredStatusNotSet_allowStoppingFo
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "", true),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-standard-2", "", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasMachineType(&instance, "n1-standard-2"),
+					testAccCheckComputeInstanceHasMachineType(&instance, "e2-standard-2"),
 					testAccCheckComputeInstanceHasStatus(&instance, "TERMINATED"),
 				),
 			},
@@ -1645,7 +1695,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusTerminated_allowStoppi
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "TERMINATED", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "TERMINATED", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -1653,11 +1703,11 @@ func TestAccComputeInstance_updateTerminated_desiredStatusTerminated_allowStoppi
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "TERMINATED", true),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-standard-2", "TERMINATED", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasMachineType(&instance, "n1-standard-2"),
+					testAccCheckComputeInstanceHasMachineType(&instance, "e2-standard-2"),
 					testAccCheckComputeInstanceHasStatus(&instance, "TERMINATED"),
 				),
 			},
@@ -1685,7 +1735,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusNotSet_notAllowStoppin
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "TERMINATED", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "TERMINATED", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -1693,11 +1743,11 @@ func TestAccComputeInstance_updateTerminated_desiredStatusNotSet_notAllowStoppin
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-standard-2", "", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasMachineType(&instance, "n1-standard-2"),
+					testAccCheckComputeInstanceHasMachineType(&instance, "e2-standard-2"),
 					testAccCheckComputeInstanceHasStatus(&instance, "TERMINATED"),
 				),
 			},
@@ -1725,7 +1775,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusTerminated_notAllowSto
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "TERMINATED", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "TERMINATED", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -1733,11 +1783,11 @@ func TestAccComputeInstance_updateTerminated_desiredStatusTerminated_notAllowSto
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "TERMINATED", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-standard-2", "TERMINATED", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasMachineType(&instance, "n1-standard-2"),
+					testAccCheckComputeInstanceHasMachineType(&instance, "e2-standard-2"),
 					testAccCheckComputeInstanceHasStatus(&instance, "TERMINATED"),
 				),
 			},
@@ -1765,7 +1815,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusRunning_allowStoppingF
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "TERMINATED", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "TERMINATED", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -1773,11 +1823,11 @@ func TestAccComputeInstance_updateTerminated_desiredStatusRunning_allowStoppingF
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "RUNNING", true),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-standard-2", "RUNNING", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasMachineType(&instance, "n1-standard-2"),
+					testAccCheckComputeInstanceHasMachineType(&instance, "e2-standard-2"),
 					testAccCheckComputeInstanceHasStatus(&instance, "RUNNING"),
 				),
 			},
@@ -1805,7 +1855,7 @@ func TestAccComputeInstance_updateTerminated_desiredStatusRunning_notAllowStoppi
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-1", "TERMINATED", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-medium", "TERMINATED", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
@@ -1813,11 +1863,11 @@ func TestAccComputeInstance_updateTerminated_desiredStatusRunning_notAllowStoppi
 				),
 			},
 			{
-				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "n1-standard-2", "RUNNING", false),
+				Config: testAccComputeInstance_machineType_desiredStatus_allowStoppingForUpdate(instanceName, "e2-standard-2", "RUNNING", false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasMachineType(&instance, "n1-standard-2"),
+					testAccCheckComputeInstanceHasMachineType(&instance, "e2-standard-2"),
 					testAccCheckComputeInstanceHasStatus(&instance, "RUNNING"),
 				),
 			},
@@ -1861,8 +1911,140 @@ func TestAccComputeInstance_subnetworkUpdate(t *testing.T) {
 				Config: testAccComputeInstance_subnetworkUpdateTwo(suffix, instanceName),
 			},
 			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_subnetworkUpdate(suffix, instanceName),
+			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
 		},
 	})
+}
+
+func TestComputeInstance_networkIPCustomizedDiff(t *testing.T) {
+	t.Parallel()
+
+	d := &ResourceDiffMock{
+		Before: map[string]interface{}{
+			"network_interface.#": 0,
+		},
+		After: map[string]interface{}{
+			"network_interface.#": 1,
+		},
+	}
+
+	err := forceNewIfNetworkIPNotUpdatableFunc(d)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if d.IsForceNew {
+		t.Errorf("Expected not force new if network_interface array size changes")
+	}
+
+	type NetworkInterface struct {
+		Network           string
+		Subnetwork        string
+		SubnetworkProject string
+		NetworkIP         string
+	}
+	NIBefore := NetworkInterface{
+		Network:           "a",
+		Subnetwork:        "a",
+		SubnetworkProject: "a",
+		NetworkIP:         "a",
+	}
+
+	cases := map[string]struct {
+		ExpectedForceNew bool
+		Before           NetworkInterface
+		After            NetworkInterface
+	}{
+		"NetworkIP only change": {
+			ExpectedForceNew: true,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "a",
+				Subnetwork:        "a",
+				SubnetworkProject: "a",
+				NetworkIP:         "b",
+			},
+		},
+		"NetworkIP and Network change": {
+			ExpectedForceNew: false,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "b",
+				Subnetwork:        "a",
+				SubnetworkProject: "a",
+				NetworkIP:         "b",
+			},
+		},
+		"NetworkIP and Subnetwork change": {
+			ExpectedForceNew: false,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "a",
+				Subnetwork:        "b",
+				SubnetworkProject: "a",
+				NetworkIP:         "b",
+			},
+		},
+		"NetworkIP and SubnetworkProject change": {
+			ExpectedForceNew: false,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "a",
+				Subnetwork:        "a",
+				SubnetworkProject: "b",
+				NetworkIP:         "b",
+			},
+		},
+		"All change": {
+			ExpectedForceNew: false,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "b",
+				Subnetwork:        "b",
+				SubnetworkProject: "b",
+				NetworkIP:         "b",
+			},
+		},
+		"No change": {
+			ExpectedForceNew: false,
+			Before:           NIBefore,
+			After: NetworkInterface{
+				Network:           "a",
+				Subnetwork:        "a",
+				SubnetworkProject: "a",
+				NetworkIP:         "a",
+			},
+		},
+	}
+
+	for tn, tc := range cases {
+		d := &ResourceDiffMock{
+			Before: map[string]interface{}{
+				"network_interface.#":                    1,
+				"network_interface.0.network":            tc.Before.Network,
+				"network_interface.0.subnetwork":         tc.Before.Subnetwork,
+				"network_interface.0.subnetwork_project": tc.Before.SubnetworkProject,
+				"network_interface.0.network_ip":         tc.Before.NetworkIP,
+			},
+			After: map[string]interface{}{
+				"network_interface.#":                    1,
+				"network_interface.0.network":            tc.After.Network,
+				"network_interface.0.subnetwork":         tc.After.Subnetwork,
+				"network_interface.0.subnetwork_project": tc.After.SubnetworkProject,
+				"network_interface.0.network_ip":         tc.After.NetworkIP,
+			},
+		}
+		err := forceNewIfNetworkIPNotUpdatableFunc(d)
+		if err != nil {
+			t.Error(err)
+		}
+		if tc.ExpectedForceNew != d.IsForceNew {
+			t.Errorf("%v: expected d.IsForceNew to be %v, but was %v", tn, tc.ExpectedForceNew, d.IsForceNew)
+		}
+	}
 }
 
 func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resource.TestCheckFunc {
@@ -2454,6 +2636,17 @@ func testAccCheckComputeInstanceHasShieldedVmConfig(instance *computeBeta.Instan
 	}
 }
 
+func testAccCheckComputeInstanceHasConfidentialInstanceConfig(instance *computeBeta.Instance, EnableConfidentialCompute bool) resource.TestCheckFunc {
+
+	return func(s *terraform.State) error {
+		if instance.ConfidentialInstanceConfig.EnableConfidentialCompute != EnableConfidentialCompute {
+			return fmt.Errorf("Wrong ConfidentialInstanceConfig EnableConfidentialCompute: expected %t, got, %t", EnableConfidentialCompute, instance.ConfidentialInstanceConfig.EnableConfidentialCompute)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceLacksShieldedVmConfig(instance *computeBeta.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.ShieldedVmConfig != nil {
@@ -2482,7 +2675,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]
@@ -2522,7 +2715,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]
@@ -2553,7 +2746,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]
@@ -2584,7 +2777,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]
@@ -2615,7 +2808,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]
@@ -2646,7 +2839,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name                = "%s"
-  machine_type        = "n1-standard-1"
+  machine_type        = "e2-medium"
   zone                = "us-central1-a"
   can_ip_forward      = false
   tags                = ["foo", "bar"]
@@ -2674,7 +2867,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name                = "%s"
-  machine_type        = "n1-standard-1"
+  machine_type        = "e2-medium"
   zone                = "us-central1-a"
   can_ip_forward      = false
   tags                = ["foo", "bar"]
@@ -2704,7 +2897,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-b"
   tags         = ["baz"]
 
@@ -2737,7 +2930,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["baz"]
@@ -2779,7 +2972,7 @@ resource "google_compute_address" "foo" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
   tags         = ["foo", "bar"]
 
@@ -2812,7 +3005,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
   tags         = ["foo", "bar"]
 
@@ -2845,7 +3038,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -2918,7 +3111,7 @@ resource "google_compute_disk" "foobar4" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -2989,7 +3182,7 @@ resource "google_compute_disk" "foobar" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3043,7 +3236,7 @@ resource "google_compute_disk" "foobar" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-2"
+  machine_type = "e2-standard-2"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3145,7 +3338,7 @@ resource "google_compute_instance" "foobar" {
   depends_on = [google_project_iam_member.kms-project-binding]
 
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3205,7 +3398,7 @@ resource "google_compute_disk" "foobar" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3241,7 +3434,7 @@ resource "google_compute_disk" "foobar" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3277,7 +3470,7 @@ resource "google_compute_disk" "foobar" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3321,7 +3514,7 @@ resource "google_compute_disk" "foobar2" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3368,7 +3561,7 @@ resource "google_compute_disk" "foobar2" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3407,7 +3600,7 @@ resource "google_compute_disk" "foobar" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3443,7 +3636,7 @@ resource "google_compute_disk" "foobar" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3472,7 +3665,7 @@ resource "google_compute_disk" "foobar" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3495,7 +3688,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3521,7 +3714,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3549,7 +3742,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "n1-standard-1"   // can't be e2 because of local-ssd
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3582,7 +3775,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3615,7 +3808,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3644,7 +3837,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3680,7 +3873,7 @@ resource "google_compute_network" "inst-test-network" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3720,7 +3913,7 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3795,7 +3988,7 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
   project      = google_compute_shared_vpc_service_project.service_project.service_project
 
@@ -3835,7 +4028,7 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3873,7 +4066,7 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3913,7 +4106,7 @@ resource "google_compute_image" "foobar" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3942,7 +4135,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -3975,6 +4168,61 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 `, instance, network, subnetwork)
 }
 
+func testAccComputeInstance_nictype(image, instance, nictype string) string {
+	return fmt.Sprintf(`
+resource "google_compute_image" "example" {
+	name = "%s"
+	raw_disk {
+		source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
+	}
+
+	guest_os_features {
+		type = "SECURE_BOOT"
+	}
+
+	guest_os_features {
+		type = "MULTI_IP_SUBNET"
+	}
+
+	guest_os_features {
+		type = "GVNIC"
+	}
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  zone           = "us-central1-a"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  //deletion_protection = false is implicit in this config due to default value
+
+  boot_disk {
+    initialize_params {
+	  image = google_compute_image.example.id
+    }
+  }
+
+  network_interface {
+	network = "default"
+	nic_type = "%s"
+  }
+
+  metadata = {
+    foo            = "bar"
+    baz            = "qux"
+    startup-script = "echo Hello"
+  }
+
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
+}
+`, image, instance, nictype)
+}
+
 func testAccComputeInstance_guestAccelerator(instance string, count uint8) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -3984,7 +4232,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "n1-standard-1"   // can't be e2 because of guest_accelerator
   zone         = "us-east1-d"
 
   boot_disk {
@@ -4019,7 +4267,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "n1-standard-1"   // can't be e2 because of min_cpu_platform
   zone         = "us-east1-d"
 
   boot_disk {
@@ -4046,7 +4294,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-east1-d"
 
   boot_disk {
@@ -4094,7 +4342,7 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-east1-d"
 
   boot_disk {
@@ -4148,7 +4396,7 @@ resource "google_compute_subnetwork" "inst-test-subnetwork" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-east1-d"
 
   boot_disk {
@@ -4176,7 +4424,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name           = "%s"
-  machine_type   = "n1-standard-1"
+  machine_type   = "e2-medium"
   zone           = "us-central1-a"
   can_ip_forward = false
 
@@ -4205,7 +4453,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "n1-standard-1"   // can't be e2 because of min_cpu_platform
   zone         = "us-central1-a"
 
   boot_disk {
@@ -4242,7 +4490,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-2"
+  machine_type = "n1-standard-2"   // can't be e2 because of min_cpu_platform
   zone         = "us-central1-a"
 
   boot_disk {
@@ -4278,7 +4526,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-2"
+  machine_type = "n1-standard-2"   // can't be e2 because of min_cpu_platform
   zone         = "us-central1-a"
 
   boot_disk {
@@ -4305,7 +4553,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-8"
+  machine_type = "n1-standard-8"   // can't be e2 because of sole tenancy
   zone         = "us-central1-a"
 
   boot_disk {
@@ -4337,6 +4585,7 @@ resource "google_compute_instance" "foobar" {
       values   = [google_compute_node_group.nodes.name]
     }
 
+    min_node_cpus = 4
   }
 }
 
@@ -4350,6 +4599,7 @@ resource "google_compute_node_template" "nodetmpl" {
 
   node_type = "n1-node-96-624"
 
+  cpu_overcommit_type = "ENABLED"
 }
 
 resource "google_compute_node_group" "nodes" {
@@ -4371,7 +4621,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-8"
+  machine_type = "n1-standard-8"   // can't be e2 because of sole tenancy
   zone         = "us-central1-a"
 
   boot_disk {
@@ -4403,6 +4653,7 @@ resource "google_compute_instance" "foobar" {
       values   = [google_compute_node_group.nodes.name]
     }
 
+    min_node_cpus = 6
   }
 }
 
@@ -4416,6 +4667,7 @@ resource "google_compute_node_template" "nodetmpl" {
 
   node_type = "n1-node-96-624"
 
+  cpu_overcommit_type = "ENABLED"
 }
 
 resource "google_compute_node_group" "nodes" {
@@ -4432,12 +4684,12 @@ func testAccComputeInstance_shieldedVmConfig(instance string, enableSecureBoot b
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "centos-7"
-  project = "gce-uefi-images"
+  project = "centos-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -4461,16 +4713,50 @@ resource "google_compute_instance" "foobar" {
 `, instance, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
 }
 
-func testAccComputeInstance_enableDisplay(instance string) string {
+func testAccComputeInstanceConfidentialInstanceConfig(instance string, enableConfidentialCompute bool) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "centos-7"
-  project = "gce-uefi-images"
+  family    = "ubuntu-2004-lts"
+  project   = "ubuntu-os-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "n2d-standard-2"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  confidential_instance_config {
+    enable_confidential_compute       = %t
+  }
+
+  scheduling {
+	  on_host_maintenance = "TERMINATE"
+  }
+
+}
+`, instance, enableConfidentialCompute)
+}
+
+func testAccComputeInstance_enableDisplay(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "centos-7"
+  project = "centos-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -4494,12 +4780,12 @@ func testAccComputeInstance_enableDisplayUpdated(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "centos-7"
-  project = "gce-uefi-images"
+  project = "centos-cloud"
 }
 
 resource "google_compute_instance" "foobar" {
   name         = "%s"
-  machine_type = "n1-standard-1"
+  machine_type = "e2-medium"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -4574,7 +4860,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "foobar" {
 	name           = "%s"
-	machine_type   = "n1-standard-1"
+	machine_type   = "e2-medium"
 	zone           = "us-central1-a"
 	can_ip_forward = false
 	tags           = ["baz"]
@@ -4726,7 +5012,7 @@ func testAccComputeInstance_subnetworkUpdate(suffix, instance string) string {
 
 	resource "google_compute_instance" "foobar" {
 		name         = "%s"
-		machine_type = "n1-standard-1"
+		machine_type = "e2-medium"
 		zone         = "us-east1-d"
 		allow_stopping_for_update = true
 
@@ -4804,7 +5090,7 @@ func testAccComputeInstance_subnetworkUpdateTwo(suffix, instance string) string 
 
 	resource "google_compute_instance" "foobar" {
 		name         = "%s"
-		machine_type = "n1-standard-1"
+		machine_type = "e2-medium"
 		zone         = "us-east1-d"
 		allow_stopping_for_update = true
 
@@ -4816,7 +5102,10 @@ func testAccComputeInstance_subnetworkUpdateTwo(suffix, instance string) string 
 
 		network_interface {
 			subnetwork = google_compute_subnetwork.inst-test-subnetwork2.id
-
+			network_ip = "10.3.0.3"
+			access_config {
+				network_tier = "STANDARD"
+			}
 			alias_ip_range {
 				subnetwork_range_name = google_compute_subnetwork.inst-test-subnetwork2.secondary_ip_range[0].range_name
 				ip_cidr_range         = "173.16.0.0/24"

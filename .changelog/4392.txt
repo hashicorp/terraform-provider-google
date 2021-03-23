@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigtable: fixed an issue where the `google_bigtable_instance` resource was not inferring the zone from the provider.
+```

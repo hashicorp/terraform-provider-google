@@ -197,7 +197,7 @@ func resourceComposerEnvironment() *schema.Resource {
 													Type:        schema.TypeBool,
 													Required:    true,
 													ForceNew:    true,
-													Description: `Whether or not to enable Alias IPs in the GKE cluster. If true, a VPC-native cluster is created. Defaults to true if the ip_allocation_block is present in config.`,
+													Description: `Whether or not to enable Alias IPs in the GKE cluster. If true, a VPC-native cluster is created. Defaults to true if the ip_allocation_policy block is present in config.`,
 												},
 												"cluster_secondary_range_name": {
 													Type:          schema.TypeString,
@@ -377,6 +377,7 @@ func resourceComposerEnvironment() *schema.Resource {
 				Description: `User-defined labels for this environment. The labels map can contain no more than 64 entries. Entries of the labels map are UTF8 strings that comply with the following restrictions: Label keys must be between 1 and 63 characters long and must conform to the following regular expression: [a-z]([-a-z0-9]*[a-z0-9])?. Label values must be between 0 and 63 characters long and must conform to the regular expression ([a-z]([-a-z0-9]*[a-z0-9])?)?. No more than 64 labels can be associated with a given environment. Both keys and values must be <= 128 bytes in size.`,
 			},
 		},
+		UseJSONNumber: true,
 	}
 }
 
