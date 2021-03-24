@@ -74,7 +74,12 @@ resource "google_data_fusion_instance" "extended_instance" {
     network = "default"
     ip_allocation = "10.89.48.0/22"
   }
-  version = "6.1.1"
+  version = "6.3.0"
+  dataproc_service_account = data.google_app_engine_default_service_account.default.email
+}
+
+data "google_app_engine_default_service_account" "default" {
+  provider = google-beta
 }
 ```
 
@@ -135,6 +140,10 @@ The following arguments are supported:
   Specifies whether the Data Fusion instance should be private. If set to
   true, all Data Fusion nodes will have private IP addresses and will not be
   able to access the public internet.
+
+* `dataproc_service_account` -
+  (Optional)
+  User-managed service account to set on Dataproc when Cloud Data Fusion creates Dataproc to run data processing pipelines.
 
 * `network_config` -
   (Optional)
