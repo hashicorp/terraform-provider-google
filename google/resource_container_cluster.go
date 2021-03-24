@@ -1141,10 +1141,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			ForceSendFields: []string{"Enabled"},
 		}
 		if v.(bool) == true {
-			cluster.ShieldedNodes = &containerBeta.ShieldedNodes{
-				Enabled:         true,
-				ForceSendFields: []string{"Enabled"},
-			}
 			cluster.NetworkConfig.EnableIntraNodeVisibility = true
 		}
 	}
