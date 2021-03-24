@@ -46,7 +46,24 @@ func dataSourceGoogleCloudIdentityGroupsRead(d *schema.ResourceData, meta interf
 	}
 
 	result := []map[string]interface{}{}
-	err = config.NewCloudIdentityClient(userAgent).Groups.List().Parent(d.Get("parent").(string)).View("FULL").Pages(config.context, func(resp *cloudidentity.ListGroupsResponse) error {
+	groupsCall := config.NewCloudIdentityClient(userAgent).Groups.List().Parent(d.Get("parent").(string)).View("FULL")
+	if config.UserProjectOverride {
+		billingProject := ""
+		// err may be nil - project isn't required for this resource
+		if project, err := getProject(d, config); err == nil {
+			billingProject = project
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		if billingProject != "" {
+			groupsCall.Header().Set("X-Goog-User-Project", billingProject)
+		}
+	}
+	err = groupsCall.Pages(config.context, func(resp *cloudidentity.ListGroupsResponse) error {
 		for _, group := range resp.Groups {
 			result = append(result, map[string]interface{}{
 				"name":         group.Name,
