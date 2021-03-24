@@ -1,0 +1,3 @@
+```release-note:bug
+cloudidentity: `google_cloud_identity_groups` and `google_cloud_identity_group_memberships ` will respect the `user_project_override` and `billing_project` configurations and send the appropriate headers to establish a quota project
+```
