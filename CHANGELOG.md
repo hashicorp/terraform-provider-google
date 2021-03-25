@@ -1,4 +1,17 @@
-## 3.61.0 (Unreleased)
+## 3.62.0 (Unreleased)
+
+## 3.61.0 (March 23, 2021)
+
+IMPROVEMENTS:
+* compute: added `proxy_bind` to `google_compute_target_tcp_proxy`, `google_compute_target_http_proxy` and `google_compute_target_https_proxy` ([#8706](https://github.com/hashicorp/terraform-provider-google/pull/8706))
+* compute: changed `google_compute_subnetwork` to accept more values in the `purpose` field ([#8647](https://github.com/hashicorp/terraform-provider-google/pull/8647))
+* compute: promoted field compute_instance.scheduling.min_node_cpus and related fields to ga ([#8697](https://github.com/hashicorp/terraform-provider-google/pull/8697))
+* dataflow: added `enable_streaming_engine` argument to `google_dataflow_job` ([#8670](https://github.com/hashicorp/terraform-provider-google/pull/8670))
+* healthcare: promoted `google_healthcare_consent_store*` to GA support ([#8681](https://github.com/hashicorp/terraform-provider-google/pull/8681))
+
+BUG FIXES:
+* container: Fixed updates on `export_custom_routes` and `import_custom_routes` in `google_compute_network_peering` ([#8650](https://github.com/hashicorp/terraform-provider-google/pull/8650))
+
 ## 3.60.0 (March 15, 2021)
 
 FEATURES:
