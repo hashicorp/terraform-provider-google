@@ -1,4 +1,33 @@
-## 3.61.0 (Unreleased)
+## 3.62.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_compute_health_check` ([#8725](https://github.com/hashicorp/terraform-provider-google/pull/8725))
+* **New Data Source:** `google_kms_secret_asymmetric` ([#8745](https://github.com/hashicorp/terraform-provider-google/pull/8745))
+* **New Resource:** `google_gke_hub_membership` ([#8755](https://github.com/hashicorp/terraform-provider-google/pull/8755))
+* **New Resource:** `google_tags_tag_key` ([#8708](https://github.com/hashicorp/terraform-provider-google/pull/8708))
+* **New Resource:** datacatalog: Added `google_data_catalog_tag_template_iam_*` ([#8730](https://github.com/hashicorp/terraform-provider-google/pull/8730))
+
+IMPROVEMENTS:
+* accesscontextmanager: added support for ingress and egress policies to `google_access_context_manager_service_perimeter` ([#8723](https://github.com/hashicorp/terraform-provider-google/pull/8723))
+* artifactregistry: relaxed field validations for format field of `google_artifact_registry_repository` ([#8727](https://github.com/hashicorp/terraform-provider-google/pull/8727))
+* compute: added `proxy_bind` to `google_compute_target_tcp_proxy`, `google_compute_target_http_proxy` and `google_compute_target_https_proxy` ([#8706](https://github.com/hashicorp/terraform-provider-google/pull/8706))
+
+BUG FIXES:
+* compute: fixed an issue where exceeding the operation rate limit would fail without retrying ([#8746](https://github.com/hashicorp/terraform-provider-google/pull/8746))
+* compute: fixed datatype for `mtu` in `google_compute_interconnect_attachment` ([#8744](https://github.com/hashicorp/terraform-provider-google/pull/8744))
+
+## 3.61.0 (March 23, 2021)
+
+IMPROVEMENTS:
+* compute: added `proxy_bind` to `google_compute_target_tcp_proxy`, `google_compute_target_http_proxy` and `google_compute_target_https_proxy` ([#8706](https://github.com/hashicorp/terraform-provider-google/pull/8706))
+* compute: changed `google_compute_subnetwork` to accept more values in the `purpose` field ([#8647](https://github.com/hashicorp/terraform-provider-google/pull/8647))
+* compute: promoted field compute_instance.scheduling.min_node_cpus and related fields to ga ([#8697](https://github.com/hashicorp/terraform-provider-google/pull/8697))
+* dataflow: added `enable_streaming_engine` argument to `google_dataflow_job` ([#8670](https://github.com/hashicorp/terraform-provider-google/pull/8670))
+* healthcare: promoted `google_healthcare_consent_store*` to GA support ([#8681](https://github.com/hashicorp/terraform-provider-google/pull/8681))
+
+BUG FIXES:
+* container: Fixed updates on `export_custom_routes` and `import_custom_routes` in `google_compute_network_peering` ([#8650](https://github.com/hashicorp/terraform-provider-google/pull/8650))
+
 ## 3.60.0 (March 15, 2021)
 
 FEATURES:
