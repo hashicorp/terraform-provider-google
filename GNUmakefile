@@ -24,12 +24,12 @@ fmtcheck:
 
 lint:
 	@echo "==> Checking source code against linters..."
-	@golangci-lint run ./$(PKG_NAME)
+	@golangci-lint run ./$(PKG_NAME) --timeout 1000s
 
 tools:
 	@echo "==> installing required tooling..."
-	go install github.com/client9/misspell/cmd/misspell
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint
+	cd tools && go install github.com/client9/misspell/cmd/misspell
+	cd tools && go install github.com/golangci/golangci-lint/cmd/golangci-lint
 
 
 generate:
