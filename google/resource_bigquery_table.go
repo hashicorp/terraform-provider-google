@@ -1426,7 +1426,7 @@ func flattenHivePartitioningOptions(opts *bigquery.HivePartitioningOptions) []ma
 	}
 
 	if opts.RequirePartitionFilter {
-		result["require_partition_filter"] = tp.RequirePartitionFilter
+		result["require_partition_filter"] = opts.RequirePartitionFilter
 	}
 
 	if opts.SourceUriPrefix != "" {
