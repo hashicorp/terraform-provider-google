@@ -240,6 +240,10 @@ The `hive_partitioning_options` block supports:
       partitioning on an unsupported format will lead to an error.
       Currently supported formats are: JSON, CSV, ORC, Avro and Parquet.
     * CUSTOM: when set to `CUSTOM`, you must encode the partition key schema within the `source_uri_prefix` by setting `source_uri_prefix` to `gs://bucket/path_to_table/{key1:TYPE1}/{key2:TYPE2}/{key3:TYPE3}`.
+    
+* `require_partition_filter` - (Optional) If set to true, queries over this table
+    require a partition filter that can be used for partition elimination to be
+    specified.
 
 * `source_uri_prefix` (Optional) - When hive partition detection is requested,
     a common for all source uris must be required. The prefix must end immediately
