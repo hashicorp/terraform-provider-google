@@ -33,6 +33,7 @@ func revisionNameCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v i
 	if autogen && diff.HasChange("template.0.metadata.0.name") {
 		return fmt.Errorf("google_cloud_run_service: `template.metadata.name` cannot be set while `autogenerate_revision_name` is true. Please remove the field or set `autogenerate_revision_name` to false.")
 	}
+
 	return nil
 }
 
@@ -46,6 +47,19 @@ func cloudrunAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) 
 
 	// Let diff be determined by annotations (above)
 	if strings.Contains(k, "annotations.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
+var cloudRunGoogleProvidedTemplateAnnotations = regexp.MustCompile(`template\.0\.metadata\.0\.annotations\.run\.googleapis\.com/sandbox`)
+
+func cloudrunTemplateAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the annotations provided by API
+	if cloudRunGoogleProvidedTemplateAnnotations.MatchString(k) &&
+		old == "gvisor" && new == "" {
 		return true
 	}
 
@@ -412,9 +426,10 @@ annotation key.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"annotations": {
-										Type:     schema.TypeMap,
-										Computed: true,
-										Optional: true,
+										Type:             schema.TypeMap,
+										Computed:         true,
+										Optional:         true,
+										DiffSuppressFunc: cloudrunTemplateAnnotationDiffSuppress,
 										Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
 info: http://kubernetes.io/docs/user-guide/annotations
