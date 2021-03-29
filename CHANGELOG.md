@@ -1,4 +1,4 @@
-## 3.62.0 (Unreleased)
+## 3.62.0 (March 29, 2021)
 
 FEATURES:
 * **New Data Source:** `google_compute_health_check` ([#8725](https://github.com/hashicorp/terraform-provider-google/pull/8725))
