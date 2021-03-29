@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`google_monitoring_istio_canonical_service`
+```
