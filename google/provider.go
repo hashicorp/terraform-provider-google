@@ -688,6 +688,7 @@ func Provider() *schema.Provider {
 			"google_folder_organization_policy":                   dataSourceGoogleFolderOrganizationPolicy(),
 			"google_monitoring_notification_channel":              dataSourceMonitoringNotificationChannel(),
 			"google_monitoring_cluster_istio_service":             dataSourceMonitoringServiceClusterIstio(),
+			"google_monitoring_istio_canonical_service":           dataSourceMonitoringIstioCanonicalService(),
 			"google_monitoring_mesh_istio_service":                dataSourceMonitoringServiceMeshIstio(),
 			"google_monitoring_app_engine_service":                dataSourceMonitoringServiceAppEngine(),
 			"google_monitoring_uptime_check_ips":                  dataSourceGoogleMonitoringUptimeCheckIps(),
