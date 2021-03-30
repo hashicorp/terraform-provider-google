@@ -172,7 +172,6 @@ The following arguments are supported:
 * `peering_cidr_range` -
   (Optional)
   The size of the CIDR block range that will be reserved by the instance.
-  Default value is `SLASH_16`.
   Possible values are `SLASH_16` and `SLASH_20`.
 
 * `description` -
