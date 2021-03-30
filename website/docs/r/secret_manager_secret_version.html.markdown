@@ -63,6 +63,11 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
 The following arguments are supported:
 
 
+* `secret_data` -
+  (Required)
+  The secret data. Must be no larger than 64KiB.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
 * `secret` -
   (Required)
   Secret Manager secret resource
@@ -74,11 +79,6 @@ The following arguments are supported:
 * `enabled` -
   (Optional)
   The current state of the SecretVersion.
-
-* `secret_data` -
-  (Optional)
-  The secret data. Must be no larger than 64KiB.
-  **Note**: This property is sensitive and will not be displayed in the plan.
 
 
 ## Attributes Reference

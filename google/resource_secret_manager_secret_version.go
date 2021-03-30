@@ -58,7 +58,7 @@ func resourceSecretManagerSecretVersion() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"secret_data": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				ForceNew:    true,
 				Description: `The secret data. Must be no larger than 64KiB.`,
 				Sensitive:   true,
