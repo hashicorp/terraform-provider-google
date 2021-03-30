@@ -43,7 +43,7 @@ func testAccMonitoringAlertPolicy_basic(t *testing.T) {
 		CheckDestroy: testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, "ALIGN_RATE", filter),
+				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, "ALIGN_RATE", filter, false),
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
@@ -69,7 +69,7 @@ func testAccMonitoringAlertPolicy_update(t *testing.T) {
 		CheckDestroy: testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner1, filter1),
+				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner1, filter1, false),
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
@@ -77,7 +77,15 @@ func testAccMonitoringAlertPolicy_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner2, filter2),
+				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner2, filter2, false),
+			},
+			{
+				ResourceName:      "google_monitoring_alert_policy.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner2, filter2, true),
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
@@ -156,12 +164,25 @@ func testAccCheckAlertPolicyDestroyProducer(t *testing.T) func(s *terraform.Stat
 	}
 }
 
-func testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner, filter string) string {
+func testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner, filter string, trigger bool) string {
+
+	triggerBlock := ""
+	if trigger {
+		triggerBlock = `
+triggers = {
+	redeployment = sha1(join(",", list(
+		jsonencode(google_monitoring_alert_policy.basic),
+	)))
+}`
+	}
+
 	return fmt.Sprintf(`
 resource "google_monitoring_alert_policy" "basic" {
   display_name = "%s"
   enabled      = true
   combiner     = "OR"
+
+  %s
 
   conditions {
     display_name = "%s"
@@ -179,7 +200,7 @@ resource "google_monitoring_alert_policy" "basic" {
     }
   }
 }
-`, alertName, conditionName, aligner, filter)
+`, alertName, triggerBlock, conditionName, aligner, filter)
 }
 
 func testAccMonitoringAlertPolicy_fullCfg(alertName, conditionName1, conditionName2 string) string {

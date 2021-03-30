@@ -87,6 +87,7 @@ The following arguments are supported:
   one to six conditions.
   Structure is documented below.
 
+* `triggers` - (Optional) A map of arbitrary keys and values that, when changed, will trigger a redeployment. To force a redeployment without changing these keys/values, use the [`terraform taint` command](/docs/commands/taint.html). This is particularly useful when you are updating notification channels - forcing recreation of the alert.
 
 The `conditions` block supports:
 
