@@ -958,6 +958,12 @@ func resourceContainerCluster() *schema.Resource {
 				Optional:    true,
 				Description: `Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.`,
 			},
+			"private_ipv6_google_access": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The desired state of IPv6 connectivity to Google Services. By default, no private IPv6 access to or from Google Services (all access will be via IPv4).`,
+				Computed:    true,
+			},
 
 			"resource_usage_export_config": {
 				Type:        schema.TypeList,
@@ -1115,6 +1121,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			EnableIntraNodeVisibility: d.Get("enable_intranode_visibility").(bool),
 			DefaultSnatStatus:         expandDefaultSnatStatus(d.Get("default_snat_status")),
 			DatapathProvider:          d.Get("datapath_provider").(string),
+			PrivateIpv6GoogleAccess:   d.Get("private_ipv6_google_access").(string),
 		},
 		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
 		ResourceLabels: expandStringMap(d, "resource_labels"),
@@ -1452,6 +1459,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("enable_intranode_visibility", cluster.NetworkConfig.EnableIntraNodeVisibility); err != nil {
 		return fmt.Errorf("Error setting enable_intranode_visibility: %s", err)
 	}
+	if err := d.Set("private_ipv6_google_access", cluster.NetworkConfig.PrivateIpv6GoogleAccess); err != nil {
+		return fmt.Errorf("Error setting private_ipv6_google_access: %s", err)
+	}
 	if err := d.Set("authenticator_groups_config", flattenAuthenticatorGroupsConfig(cluster.AuthenticatorGroupsConfig)); err != nil {
 		return err
 	}
@@ -1723,6 +1733,38 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s Intra Node Visibility has been updated to %v", d.Id(), enabled)
+	}
+
+	if d.HasChange("private_ipv6_google_access") {
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredPrivateIpv6GoogleAccess: d.Get("private_ipv6_google_access").(string),
+			},
+		}
+		updateF := func() error {
+			log.Println("[DEBUG] updating private_ipv6_google_access")
+			name := containerClusterFullName(project, location, clusterName)
+			clusterUpdateCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+			if config.UserProjectOverride {
+				clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := clusterUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+
+			// Wait until it's updated
+			err = containerOperationWait(config, op, project, location, "updating GKE Private IPv6 Google Access", userAgent, d.Timeout(schema.TimeoutUpdate))
+			log.Println("[DEBUG] done updating private_ipv6_google_access")
+			return err
+		}
+
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s Private IPv6 Google Access has been updated", d.Id())
 	}
 
 	if d.HasChange("default_snat_status") {
