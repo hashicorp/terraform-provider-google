@@ -1,0 +1,4 @@
+```release-note:enhancement
+container: add support for GKE Autopilot in `google_container_cluster`
+container: promoted `networking_mode` to GA in `google_container_cluster`
+```

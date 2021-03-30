@@ -102,6 +102,7 @@ func resourceContainerCluster() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			resourceNodeConfigEmptyGuestAccelerator,
 			containerClusterPrivateClusterConfigCustomDiff,
+			containerClusterAutopilotCustomizeDiff,
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -369,26 +370,27 @@ func resourceContainerCluster() *schema.Resource {
 			"enable_shielded_nodes": {
 				Type:          schema.TypeBool,
 				Optional:      true,
-				Default:       true,
-				Description:   `Enable Shielded Nodes features on all nodes in this cluster. Defaults to false.`,
+				Computed:      true,
+				Description:   `Enable Shielded Nodes features on all nodes in this cluster.`,
 				ConflictsWith: []string{"enable_autopilot"},
 			},
 
 			"enable_autopilot": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
 				ForceNew:    true,
-				Description: `Enable Autopilot for this cluster. Defaults to false.`,
+				Description: `Enable Autopilot for this cluster.`,
+				// ConflictsWith: many fields, see https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview#comparison. The conflict is only set one-way, on other fields w/ this field.
 			},
 
 			"authenticator_groups_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				MaxItems:    1,
-				Description: `Configuration for the Google Groups for GKE feature.`,
+				Type:          schema.TypeList,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				MaxItems:      1,
+				Description:   `Configuration for the Google Groups for GKE feature.`,
+				ConflictsWith: []string{"enable_autopilot"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"security_group": {
@@ -417,11 +419,10 @@ func resourceContainerCluster() *schema.Resource {
 			},
 
 			"maintenance_policy": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				MaxItems:      1,
-				Description:   `The maintenance policy to use for the cluster.`,
-				ConflictsWith: []string{"enable_autopilot"},
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `The maintenance policy to use for the cluster.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"daily_maintenance_window": {
@@ -720,6 +721,7 @@ func resourceContainerCluster() *schema.Resource {
 				Type:          schema.TypeList,
 				MaxItems:      1,
 				ForceNew:      true,
+				Computed:      true,
 				Optional:      true,
 				ConflictsWith: []string{"cluster_ipv4_cidr"},
 				Description:   `Configuration of cluster IP allocation for VPC-native clusters. Adding this block enables IP aliasing, making the cluster VPC-native instead of routes-based.`,
@@ -766,6 +768,15 @@ func resourceContainerCluster() *schema.Resource {
 						},
 					},
 				},
+			},
+
+			"networking_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"VPC_NATIVE", "ROUTES"}, false),
+				Description:  `Determines whether alias IPs or routes will be used for pod IPs in the cluster.`,
 			},
 
 			"remove_default_node_pool": {
@@ -881,6 +892,7 @@ func resourceContainerCluster() *schema.Resource {
 				Type:          schema.TypeList,
 				MaxItems:      1,
 				Optional:      true,
+				Computed:      true,
 				Description:   `Configuration for the use of Kubernetes Service Accounts in GCP IAM policies.`,
 				ConflictsWith: []string{"enable_autopilot"},
 				Elem: &schema.Resource{
@@ -974,6 +986,7 @@ func resourceContainerCluster() *schema.Resource {
 			"enable_intranode_visibility": {
 				Type:          schema.TypeBool,
 				Optional:      true,
+				Computed:      true,
 				Description:   `Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.`,
 				ConflictsWith: []string{"enable_autopilot"},
 			},
@@ -1101,7 +1114,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	clusterName := d.Get("name").(string)
 
-	ipAllocationBlock, err := expandIPAllocationPolicy(d.Get("ip_allocation_policy"))
+	ipAllocationBlock, err := expandIPAllocationPolicy(d.Get("ip_allocation_policy"), d.Get("networking_mode").(string))
 	if err != nil {
 		return err
 	}
@@ -1130,6 +1143,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         d.Get("enable_binary_authorization").(bool),
 			ForceSendFields: []string{"Enabled"},
 		},
+		Autopilot: &containerBeta.Autopilot{
+			Enabled:         d.Get("enable_autopilot").(bool),
+			ForceSendFields: []string{"Enabled"},
+		},
 		ReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
 		EnableTpu:      d.Get("enable_tpu").(bool),
 		NetworkConfig: &containerBeta.NetworkConfig{
@@ -1140,16 +1157,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		},
 		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
 		ResourceLabels: expandStringMap(d, "resource_labels"),
-	}
-
-	if v, ok := d.GetOk("enable_autopilot"); ok {
-		cluster.Autopilot = &containerBeta.Autopilot{
-			Enabled:         v.(bool),
-			ForceSendFields: []string{"Enabled"},
-		}
-		if v.(bool) == true {
-			cluster.NetworkConfig.EnableIntraNodeVisibility = true
-		}
 	}
 
 	if v, ok := d.GetOk("enable_shielded_nodes"); ok {
@@ -2539,9 +2546,12 @@ func expandClusterAddonsConfig(configured interface{}) *containerBeta.AddonsConf
 	return ac
 }
 
-func expandIPAllocationPolicy(configured interface{}) (*containerBeta.IPAllocationPolicy, error) {
+func expandIPAllocationPolicy(configured interface{}, networkingMode string) (*containerBeta.IPAllocationPolicy, error) {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
+		if networkingMode == "VPC_NATIVE" {
+			return nil, fmt.Errorf("`ip_allocation_policy` block is required for VPC_NATIVE clusters.")
+		}
 		return &containerBeta.IPAllocationPolicy{
 			UseIpAliases:    false,
 			ForceSendFields: []string{"UseIpAliases"},
@@ -2550,13 +2560,14 @@ func expandIPAllocationPolicy(configured interface{}) (*containerBeta.IPAllocati
 
 	config := l[0].(map[string]interface{})
 	return &containerBeta.IPAllocationPolicy{
-		UseIpAliases:          true,
+		UseIpAliases:          networkingMode == "VPC_NATIVE" || networkingMode == "",
 		ClusterIpv4CidrBlock:  config["cluster_ipv4_cidr_block"].(string),
 		ServicesIpv4CidrBlock: config["services_ipv4_cidr_block"].(string),
 
 		ClusterSecondaryRangeName:  config["cluster_secondary_range_name"].(string),
 		ServicesSecondaryRangeName: config["services_secondary_range_name"].(string),
 		ForceSendFields:            []string{"UseIpAliases"},
+		UseRoutes:                  networkingMode == "ROUTES",
 	}, nil
 }
 
@@ -3081,7 +3092,13 @@ func flattenWorkloadIdentityConfig(c *containerBeta.WorkloadIdentityConfig) []ma
 func flattenIPAllocationPolicy(c *containerBeta.Cluster, d *schema.ResourceData, config *Config) ([]map[string]interface{}, error) {
 	// If IP aliasing isn't enabled, none of the values in this block can be set.
 	if c == nil || c.IpAllocationPolicy == nil || !c.IpAllocationPolicy.UseIpAliases {
+		if err := d.Set("networking_mode", "ROUTES"); err != nil {
+			return nil, fmt.Errorf("Error setting networking_mode: %s", err)
+		}
 		return nil, nil
+	}
+	if err := d.Set("networking_mode", "VPC_NATIVE"); err != nil {
+		return nil, fmt.Errorf("Error setting networking_mode: %s", err)
 	}
 
 	p := c.IpAllocationPolicy
@@ -3401,6 +3418,20 @@ func containerClusterPrivateClusterConfigCustomDiff(_ context.Context, d *schema
 		block := config["master_ipv4_cidr_block"]
 		if block != nil && block != "" {
 			return fmt.Errorf("master_ipv4_cidr_block can only be set if enable_private_nodes is true")
+		}
+	}
+	return nil
+}
+
+// Autopilot clusters have preconfigured defaults: https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview#comparison.
+// This function modifies the diff so users can see what these will be during plan time.
+func containerClusterAutopilotCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	if d.HasChange("enable_autopilot") && d.Get("enable_autopilot").(bool) {
+		if err := d.SetNew("enable_intranode_visibility", true); err != nil {
+			return err
+		}
+		if err := d.SetNew("enable_shielded_nodes", true); err != nil {
+			return err
 		}
 	}
 	return nil
