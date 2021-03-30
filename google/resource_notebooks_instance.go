@@ -19,11 +19,29 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+const notebooksInstanceGoogleProvidedLabel = "goog-caip-notebook"
+
+func NotebooksInstanceLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the label provided by Google
+	if strings.Contains(k, notebooksInstanceGoogleProvidedLabel) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.Contains(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
 
 func resourceNotebooksInstance() *schema.Resource {
 	return &schema.Resource{
@@ -190,8 +208,10 @@ your VM instance's service account can use the instance.`,
 Format: projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}`,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:             schema.TypeMap,
+				Computed:         true,
+				Optional:         true,
+				DiffSuppressFunc: NotebooksInstanceLabelDiffSuppress,
 				Description: `Labels to apply to this instance. These can be later modified by the setLabels method.
 An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
