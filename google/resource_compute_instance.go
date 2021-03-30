@@ -591,6 +591,7 @@ func resourceComputeInstance() *schema.Resource {
 						"scopes": {
 							Type:        schema.TypeSet,
 							Required:    true,
+							MinItems:    1,
 							Description: `A list of service scopes.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
