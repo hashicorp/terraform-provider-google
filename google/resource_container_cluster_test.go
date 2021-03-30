@@ -2272,7 +2272,7 @@ resource "google_container_cluster" "with_intranode_visibility" {
   name                        = "%s"
   location                    = "us-central1-a"
   initial_node_count          = 1
-  enable_intranode_visibility = true
+  enable_intranode_visibility = true 
 }
 `, clusterName)
 }
@@ -2284,6 +2284,7 @@ resource "google_container_cluster" "with_intranode_visibility" {
   location                    = "us-central1-a"
   initial_node_count          = 1
   enable_intranode_visibility = false
+  private_ipv6_google_access  = "PRIVATE_IPV6_GOOGLE_ACCESS_BIDIRECTIONAL"
 }
 `, clusterName)
 }
