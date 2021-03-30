@@ -1,0 +1,3 @@
+```release-note:bug
+secretmanager:  Set required on `secrest_data` in `google_secret_manager_secret_version`
+```
