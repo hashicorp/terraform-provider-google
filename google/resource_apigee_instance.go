@@ -86,8 +86,7 @@ Use the following format: 'projects/([^/]+)/locations/([^/]+)/keyRings/([^/]+)/c
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"SLASH_16", "SLASH_20", ""}, false),
-				Description:  `The size of the CIDR block range that will be reserved by the instance. Default value: "SLASH_16" Possible values: ["SLASH_16", "SLASH_20"]`,
-				Default:      "SLASH_16",
+				Description:  `The size of the CIDR block range that will be reserved by the instance. Possible values: ["SLASH_16", "SLASH_20"]`,
 			},
 			"host": {
 				Type:        schema.TypeString,
