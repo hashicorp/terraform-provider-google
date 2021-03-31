@@ -138,7 +138,7 @@ resource "google_compute_network_endpoint" "add2" {
 func testAccComputeNetworkEndpoint_noNetworkEndpoints(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
-  name         = "neg-%{random_suffix}"
+  name         = "tf-test-neg-%{random_suffix}"
   zone         = "us-central1-a"
   network      = google_compute_network.default.self_link
   subnetwork   = google_compute_subnetwork.default.self_link
@@ -146,12 +146,12 @@ resource "google_compute_network_endpoint_group" "neg" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "neg-network-%{random_suffix}"
+  name                    = "tf-test-neg-network-%{random_suffix}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "neg-subnetwork-%{random_suffix}"
+  name          = "tf-test-neg-subnetwork-%{random_suffix}"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.default.self_link
