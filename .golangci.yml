@@ -2,6 +2,28 @@ run:
   deadline: 2m30s
 
 issues:
+  exclude-rules:
+    # Exclude issues from staticcheck. staticcheck.conf doesn't seem to work.
+    - linters:
+        - staticcheck
+      text: "S1021:"
+
+    - linters:
+        - staticcheck
+      text: "SA1019:"
+
+    - linters:
+        - staticcheck
+      text: "SA4006:"
+
+    - linters:
+        - staticcheck
+      text: "SA4023"
+
+    - linters:
+        - staticcheck
+      text: "SA6005:"
+
   max-per-linter: 0
   max-same-issues: 0
 
