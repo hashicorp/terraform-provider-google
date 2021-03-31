@@ -1006,6 +1006,7 @@ resource "google_bigquery_table" "test" {
     hive_partitioning_options {
       mode = "AUTO"
       source_uri_prefix = "gs://${google_storage_bucket.test.name}/"
+	  require_partition_filter = true
     }
 
   }
@@ -1044,6 +1045,7 @@ resource "google_bigquery_table" "test" {
     hive_partitioning_options {
       mode = "CUSTOM"
       source_uri_prefix = "gs://${google_storage_bucket.test.name}/{key1:STRING}"
+	  require_partition_filter = true
     }
 
     schema = <<EOH

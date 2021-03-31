@@ -533,6 +533,14 @@ func resourceBigQueryTable() *schema.Resource {
 										Optional:    true,
 										Description: `When set, what mode of hive partitioning to use when reading data.`,
 									},
+									// RequirePartitionFilter: [Optional] If set to true, queries over this table
+									// require a partition filter that can be used for partition elimination to be
+									// specified.
+									"require_partition_filter": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `If set to true, queries over this table require a partition filter that can be used for partition elimination to be specified.`,
+									},
 									// SourceUriPrefix: [Optional] [Experimental] When hive partition detection is requested, a common for all source uris must be required.
 									// The prefix must end immediately before the partition key encoding begins.
 									"source_uri_prefix": {
@@ -1410,6 +1418,10 @@ func expandHivePartitioningOptions(configured interface{}) *bigquery.HivePartiti
 		opts.Mode = v.(string)
 	}
 
+	if v, ok := raw["require_partition_filter"]; ok {
+		opts.RequirePartitionFilter = v.(bool)
+	}
+
 	if v, ok := raw["source_uri_prefix"]; ok {
 		opts.SourceUriPrefix = v.(string)
 	}
@@ -1422,6 +1434,10 @@ func flattenHivePartitioningOptions(opts *bigquery.HivePartitioningOptions) []ma
 
 	if opts.Mode != "" {
 		result["mode"] = opts.Mode
+	}
+
+	if opts.RequirePartitionFilter {
+		result["require_partition_filter"] = opts.RequirePartitionFilter
 	}
 
 	if opts.SourceUriPrefix != "" {
