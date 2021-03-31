@@ -61,7 +61,7 @@ The following arguments are supported:
 * `database_version` -
   (Required)
   The MySQL version running on your source database server.
-  Possible values are `MYSQL_5_6`, `MYSQL_5_7`, and `MYSQL_8_0`.
+  Possible values are `MYSQL_5_5`, `MYSQL_5_6`, `MYSQL_5_7`, and `MYSQL_8_0`.
 
 * `host` -
   (Required)
