@@ -53,7 +53,7 @@ resource "google_dataproc_cluster" "mycluster" {
       machine_type  = "e2-medium"
       disk_config {
         boot_disk_type    = "pd-ssd"
-        boot_disk_size_gb = 15
+        boot_disk_size_gb = 30
       }
     }
 
@@ -62,7 +62,7 @@ resource "google_dataproc_cluster" "mycluster" {
       machine_type     = "e2-medium"
       min_cpu_platform = "Intel Skylake"
       disk_config {
-        boot_disk_size_gb = 15
+        boot_disk_size_gb = 30
         num_local_ssds    = 1
       }
     }
@@ -278,7 +278,7 @@ cluster_config {
 
     disk_config {
       boot_disk_type    = "pd-ssd"
-      boot_disk_size_gb = 15
+      boot_disk_size_gb = 30
       num_local_ssds    = 1
     }
   }
@@ -337,7 +337,7 @@ cluster_config {
 
     disk_config {
       boot_disk_type    = "pd-standard"
-      boot_disk_size_gb = 15
+      boot_disk_size_gb = 30
       num_local_ssds    = 1
     }
   }
@@ -398,7 +398,7 @@ cluster_config {
 
     disk_config {
       boot_disk_type    = "pd-standard"
-      boot_disk_size_gb = 15
+      boot_disk_size_gb = 30
       num_local_ssds    = 1
     }
   }
