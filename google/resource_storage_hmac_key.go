@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/api/googleapi"
 )
 
 func resourceStorageHmacKey() *schema.Resource {
@@ -167,9 +168,61 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 
 	d.SetId(id)
 
+	err = PollingWaitTime(resourceStorageHmacKeyPollRead(d, meta), PollCheckForExistence, "Creating HmacKey", d.Timeout(schema.TimeoutCreate), 1)
+	if err != nil {
+		return fmt.Errorf("Error waiting to create HmacKey: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating HmacKey %q: %#v", d.Id(), res)
 
 	return resourceStorageHmacKeyRead(d, meta)
+}
+
+func resourceStorageHmacKeyPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+
+		url, err := replaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
+		if err != nil {
+			return nil, err
+		}
+
+		billingProject := ""
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, fmt.Errorf("Error fetching project for HmacKey: %s", err)
+		}
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+		if err != nil {
+			return res, err
+		}
+		res, err = resourceStorageHmacKeyDecoder(d, meta, res)
+		if err != nil {
+			return nil, err
+		}
+		if res == nil {
+			// Decoded object not found, spoof a 404 error for poll
+			return nil, &googleapi.Error{
+				Code:    404,
+				Message: "could not find object StorageHmacKey",
+			}
+		}
+
+		return res, nil
+	}
 }
 
 func resourceStorageHmacKeyRead(d *schema.ResourceData, meta interface{}) error {
