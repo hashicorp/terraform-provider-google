@@ -89,7 +89,7 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
 It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
 was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
-project. cloud-healthcare@system.gserviceaccount.com must have publisher permissions on the given
+project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
 Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.`,
 						},
 					},
