@@ -392,8 +392,8 @@ The elements are of the form "KEY=VALUE" for the environment variable "KEY" bein
 									"machine_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32", ""}, false),
-										Description:  `Compute Engine machine type on which to run the build. Possible values: ["UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32"]`,
+										ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32", "E2_HIGHCPU_8", "E2_HIGHCPU_32", ""}, false),
+										Description:  `Compute Engine machine type on which to run the build. Possible values: ["UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32", "E2_HIGHCPU_8", "E2_HIGHCPU_32"]`,
 									},
 									"requested_verify_option": {
 										Type:         schema.TypeString,
