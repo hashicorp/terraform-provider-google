@@ -1,7 +1,6 @@
 module github.com/hashicorp/terraform-provider-google
 
 require (
-	cloud.google.com/go v0.78.0
 	cloud.google.com/go/bigtable v1.5.0
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/aws/aws-sdk-go v1.31.9 // indirect
@@ -30,8 +29,7 @@ require (
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
 	golang.org/x/oauth2 v0.0.0-20210220000619-9bb904979d93
 	google.golang.org/api v0.41.0
-	google.golang.org/genproto v0.0.0-20210303154014-9728d6b83eeb
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.26.0 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
 
