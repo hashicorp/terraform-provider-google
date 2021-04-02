@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -14,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"google.golang.org/api/option"
 
-	kms "cloud.google.com/go/kms/apiv1"
 	"golang.org/x/oauth2"
 	googleoauth "golang.org/x/oauth2/google"
 	appengine "google.golang.org/api/appengine/v1"
@@ -415,26 +413,6 @@ func (c *Config) NewKmsClient(userAgent string) *cloudkms.Service {
 	clientKms.UserAgent = userAgent
 	clientKms.BasePath = kmsClientBasePath
 
-	return clientKms
-}
-
-func (c *Config) NewKeyManagementClient(ctx context.Context, userAgent string) *kms.KeyManagementClient {
-	u, err := url.Parse(c.KMSBasePath)
-	if err != nil {
-		log.Printf("[WARN] Error creating client kms invalid base path url %s, %s", c.KMSBasePath, err)
-		return nil
-	}
-	endpoint := u.Host
-	if u.Port() == "" {
-		endpoint = fmt.Sprintf("%s:443", u.Host)
-	}
-
-	log.Printf("[INFO] Instantiating Google Cloud KMS client for path on endpoint %s", endpoint)
-	clientKms, err := kms.NewKeyManagementClient(ctx, option.WithUserAgent(userAgent), option.WithEndpoint(endpoint))
-	if err != nil {
-		log.Printf("[WARN] Error creating client kms: %s", err)
-		return nil
-	}
 	return clientKms
 }
 
