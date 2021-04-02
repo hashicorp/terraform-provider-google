@@ -18,7 +18,7 @@ BUG FIXES:
 * cloudidentity: modified `google_cloud_identity_groups` and `google_cloud_identity_group_memberships ` to respect the `user_project_override` and `billing_project` configurations and send the appropriate headers to establish a quota project ([#8762](https://github.com/hashicorp/terraform-provider-google/pull/8762))
 * compute: added minimum for `scopes` field to `google_compute_instance` resource ([#8801](https://github.com/hashicorp/terraform-provider-google/pull/8801))
 * notebooks: fixed permadiff on labels for `google_notebook_instance` ([#8799](https://github.com/hashicorp/terraform-provider-google/pull/8799))
-* secretmanager:  set required on `secrest_data` in `google_secret_manager_secret_version` ([#8797](https://github.com/hashicorp/terraform-provider-google/pull/8797))
+* secretmanager: set required on `secrest_data` in `google_secret_manager_secret_version` ([#8797](https://github.com/hashicorp/terraform-provider-google/pull/8797))
 
 
 ## 3.62.0 (March 29, 2021)
