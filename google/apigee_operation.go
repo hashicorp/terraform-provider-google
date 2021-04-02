@@ -36,13 +36,6 @@ func (w *ApigeeOperationWaiter) QueryOp() (interface{}, error) {
 }
 
 func createApigeeWaiter(config *Config, op map[string]interface{}, activity, userAgent string) (*ApigeeOperationWaiter, error) {
-	if val, ok := op["name"]; !ok || val == "" {
-		// An operation could also be indicated with a "metadata" field.
-		if _, ok := op["metadata"]; !ok {
-			// This was a synchronous call - there is no operation to wait for.
-			return nil, nil
-		}
-	}
 	w := &ApigeeOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -56,8 +49,7 @@ func createApigeeWaiter(config *Config, op map[string]interface{}, activity, use
 // nolint: deadcode,unused
 func apigeeOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	w, err := createApigeeWaiter(config, op, activity, userAgent)
-	if err != nil || w == nil {
-		// If w is nil, the op was synchronous.
+	if err != nil {
 		return err
 	}
 	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
@@ -67,8 +59,12 @@ func apigeeOperationWaitTimeWithResponse(config *Config, op map[string]interface
 }
 
 func apigeeOperationWaitTime(config *Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+	if val, ok := op["name"]; !ok || val == "" {
+		// This was a synchronous call - there is no operation to wait for.
+		return nil
+	}
 	w, err := createApigeeWaiter(config, op, activity, userAgent)
-	if err != nil || w == nil {
+	if err != nil {
 		// If w is nil, the op was synchronous.
 		return err
 	}
