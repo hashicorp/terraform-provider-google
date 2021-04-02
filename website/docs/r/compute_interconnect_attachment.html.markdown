@@ -27,20 +27,34 @@ information, see Creating VLAN Attachments.
 
 
 
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=interconnect_attachment_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Interconnect Attachment Basic
 
 
 ```hcl
 resource "google_compute_interconnect_attachment" "on_prem" {
-  name         = "on-prem-attachment"
-  interconnect = "my-interconnect-id"
-  router       = google_compute_router.foobar.id
-  mtu          = 1500
+  name                     = "on-prem-attachment"
+  edge_availability_domain = "AVAILABILITY_DOMAIN_1"
+  type                     = "PARTNER"
+  router                   = google_compute_router.foobar.id
+  mtu                      = 1500
 }
 
 resource "google_compute_router" "foobar" {
   name    = "router"
   network = google_compute_network.foobar.name
+  bgp {
+    asn = 16550
+  }
+}
+
+resource "google_compute_network" "foobar" {
+  name                    = "network"
+  auto_create_subnetworks = false
 }
 ```
 

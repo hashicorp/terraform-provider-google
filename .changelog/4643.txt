@@ -1,0 +1,3 @@
+```release-note:bug
+compute: reverted datatype change for `mtu` in `google_compute_interconnect_attachment` as it was incompatible with existing state representation
+```
