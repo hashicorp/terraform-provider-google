@@ -612,7 +612,7 @@ The `options` block supports:
 * `machine_type` -
   (Optional)
   Compute Engine machine type on which to run the build.
-  Possible values are `UNSPECIFIED`, `N1_HIGHCPU_8`, and `N1_HIGHCPU_32`.
+  Possible values are `UNSPECIFIED`, `N1_HIGHCPU_8`, `N1_HIGHCPU_32`, `E2_HIGHCPU_8`, and `E2_HIGHCPU_32`.
 
 * `disk_size_gb` -
   (Optional)
