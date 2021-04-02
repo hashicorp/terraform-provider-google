@@ -683,7 +683,6 @@ func Provider() *schema.Provider {
 			"google_kms_key_ring":                                 dataSourceGoogleKmsKeyRing(),
 			"google_kms_secret":                                   dataSourceGoogleKmsSecret(),
 			"google_kms_secret_ciphertext":                        dataSourceGoogleKmsSecretCiphertext(),
-			"google_kms_secret_asymmetric":                        dataSourceGoogleKmsSecretAsymmetric(),
 			"google_folder":                                       dataSourceGoogleFolder(),
 			"google_folder_organization_policy":                   dataSourceGoogleFolderOrganizationPolicy(),
 			"google_monitoring_notification_channel":              dataSourceMonitoringNotificationChannel(),
