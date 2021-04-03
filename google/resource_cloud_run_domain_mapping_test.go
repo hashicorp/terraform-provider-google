@@ -1,7 +1,6 @@
 package google
 
 import (
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -35,14 +34,13 @@ func TestAccCloudRunDomainMapping_foregroundDeletion(t *testing.T) {
 			},
 			{
 				Config:      testAccCloudRunDomainMapping_cloudRunDomainMappingUpdated2(context),
-				ExpectError: regexp.MustCompile("Domain mapping already exists"), // when this error is no longer returned, remove ExpectError and add the ISV below.
 			},
-			/*{
+			{
 				ResourceName:            "google_cloud_run_domain_mapping.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "location", "status", "metadata.0.resource_version"},
-			},*/
+			},
 		},
 	})
 }
@@ -52,11 +50,11 @@ func testAccCloudRunDomainMapping_cloudRunDomainMappingUpdated1(context map[stri
 resource "google_cloud_run_service" "default" {
     name     = "tf-test-cloudrun-srv%{random_suffix}"
     location = "us-central1"
-  
+
     metadata {
       namespace = "%{namespace}"
     }
-  
+
     template {
       spec {
         containers {
@@ -83,15 +81,12 @@ resource "google_cloud_run_domain_mapping" "default" {
 
 func testAccCloudRunDomainMapping_cloudRunDomainMappingUpdated2(context map[string]interface{}) string {
 	return Nprintf(`
-
 resource "google_cloud_run_service" "default" {
   name     = "tf-test-cloudrun-srv%{random_suffix}"
   location = "us-central1"
-
   metadata {
     namespace = "%{namespace}"
   }
-
   template {
     spec {
       containers {
@@ -100,18 +95,15 @@ resource "google_cloud_run_service" "default" {
     }
   }
 }
-
 resource "google_cloud_run_domain_mapping" "default" {
   location = "us-central1"
   name     = "tf-test-domain%{random_suffix}.gcp.tfacc.hashicorptest.com"
-
   metadata {
     namespace = "%{namespace}"
     labels = {
       "my-label" = "my-value"
     }
   }
-
   spec {
     route_name = google_cloud_run_service.default.name
   }
