@@ -110,6 +110,23 @@ than or equal to max-nodes. The default value is 0.`,
 				Description: `Specifies how to handle instances when a node in the group undergoes maintenance. Set to one of: DEFAULT, RESTART_IN_PLACE, or MIGRATE_WITHIN_NODE_GROUP. The default value is DEFAULT.`,
 				Default:     "DEFAULT",
 			},
+			"maintenance_window": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `contains properties for the timeframe of maintenance`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"start_time": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `instances.start time of the window. This must be in UTC format that resolves to one of 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example, both 13:00-5 and 08:00 are valid.`,
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -181,6 +198,12 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("maintenance_policy"); !isEmptyValue(reflect.ValueOf(maintenancePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
 		obj["maintenancePolicy"] = maintenancePolicyProp
+	}
+	maintenanceWindowProp, err := expandComputeNodeGroupMaintenanceWindow(d.Get("maintenance_window"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_window"); !isEmptyValue(reflect.ValueOf(maintenanceWindowProp)) && (ok || !reflect.DeepEqual(v, maintenanceWindowProp)) {
+		obj["maintenanceWindow"] = maintenanceWindowProp
 	}
 	autoscalingPolicyProp, err := expandComputeNodeGroupAutoscalingPolicy(d.Get("autoscaling_policy"), d, config)
 	if err != nil {
@@ -291,6 +314,9 @@ func resourceComputeNodeGroupRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 	if err := d.Set("maintenance_policy", flattenComputeNodeGroupMaintenancePolicy(res["maintenancePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeGroup: %s", err)
+	}
+	if err := d.Set("maintenance_window", flattenComputeNodeGroupMaintenanceWindow(res["maintenanceWindow"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeGroup: %s", err)
 	}
 	if err := d.Set("autoscaling_policy", flattenComputeNodeGroupAutoscalingPolicy(res["autoscalingPolicy"], d, config)); err != nil {
@@ -469,6 +495,23 @@ func flattenComputeNodeGroupMaintenancePolicy(v interface{}, d *schema.ResourceD
 	return v
 }
 
+func flattenComputeNodeGroupMaintenanceWindow(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["start_time"] =
+		flattenComputeNodeGroupMaintenanceWindowStartTime(original["startTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeNodeGroupMaintenanceWindowStartTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeNodeGroupAutoscalingPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -552,6 +595,29 @@ func expandComputeNodeGroupSize(v interface{}, d TerraformResourceData, config *
 }
 
 func expandComputeNodeGroupMaintenancePolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeGroupMaintenanceWindow(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStartTime, err := expandComputeNodeGroupMaintenanceWindowStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !isEmptyValue(val) {
+		transformed["startTime"] = transformedStartTime
+	}
+
+	return transformed, nil
+}
+
+func expandComputeNodeGroupMaintenanceWindowStartTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

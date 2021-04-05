@@ -53,7 +53,7 @@ resource "google_compute_node_template" "soletenant-tmpl" {
 
 resource "google_compute_node_group" "nodes" {
   name        = "soletenant-group"
-  zone        = "us-central1-a"
+  zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
 
   size          = 1
@@ -77,9 +77,12 @@ resource "google_compute_node_template" "soletenant-tmpl" {
 
 resource "google_compute_node_group" "nodes" {
   name        = "soletenant-group"
-  zone        = "us-central1-a"
+  zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
   maintenance_policy = "RESTART_IN_PLACE"
+  maintenance_window {
+    start_time = "08:00"
+  }
   size          = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
   autoscaling_policy {
@@ -119,6 +122,11 @@ The following arguments are supported:
   (Optional)
   Specifies how to handle instances when a node in the group undergoes maintenance. Set to one of: DEFAULT, RESTART_IN_PLACE, or MIGRATE_WITHIN_NODE_GROUP. The default value is DEFAULT.
 
+* `maintenance_window` -
+  (Optional)
+  contains properties for the timeframe of maintenance
+  Structure is documented below.
+
 * `autoscaling_policy` -
   (Optional)
   If you use sole-tenant nodes for your workloads, you can use the node
@@ -132,6 +140,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `maintenance_window` block supports:
+
+* `start_time` -
+  (Required)
+  instances.start time of the window. This must be in UTC format that resolves to one of 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example, both 13:00-5 and 08:00 are valid.
 
 The `autoscaling_policy` block supports:
 
