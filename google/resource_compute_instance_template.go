@@ -325,6 +325,13 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 							Computed:    true,
 							Description: `The name of the network_interface.`,
 						},
+						"nic_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"GVNIC", "VIRTIO_NET"}, false),
+							Description:  `The type of vNIC to be used on this interface. Possible values:GVNIC, VIRTIO_NET`,
+						},
 						"access_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -847,7 +854,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	networks, err := expandComputeInstanceTemplateNetworkInterfaces(d, config)
+	networks, err := expandNetworkInterfaces(d, config)
 	if err != nil {
 		return err
 	}
@@ -1211,7 +1218,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error setting project: %s", err)
 	}
 	if instanceTemplate.Properties.NetworkInterfaces != nil {
-		networkInterfaces, region, _, _, err := flattenComputeInstanceTemplateNetworkInterfaces(d, config, instanceTemplate.Properties.NetworkInterfaces)
+		networkInterfaces, region, _, _, err := flattenNetworkInterfaces(d, config, instanceTemplate.Properties.NetworkInterfaces)
 		if err != nil {
 			return err
 		}
@@ -1335,76 +1342,4 @@ func resourceComputeInstanceTemplateImportState(d *schema.ResourceData, meta int
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
-}
-
-// this func could be replaced by flattenNetworkInterfaces once NicType is supported
-func flattenComputeInstanceTemplateNetworkInterfaces(d *schema.ResourceData, config *Config, networkInterfaces []*computeBeta.NetworkInterface) ([]map[string]interface{}, string, string, string, error) {
-	flattened := make([]map[string]interface{}, len(networkInterfaces))
-	var region, internalIP, externalIP string
-
-	for i, iface := range networkInterfaces {
-		var ac []map[string]interface{}
-		ac, externalIP = flattenAccessConfigs(iface.AccessConfigs)
-
-		subnet, err := ParseSubnetworkFieldValue(iface.Subnetwork, d, config)
-		if err != nil {
-			return nil, "", "", "", err
-		}
-		region = subnet.Region
-
-		flattened[i] = map[string]interface{}{
-			"network_ip":         iface.NetworkIP,
-			"network":            ConvertSelfLinkToV1(iface.Network),
-			"subnetwork":         ConvertSelfLinkToV1(iface.Subnetwork),
-			"subnetwork_project": subnet.Project,
-			"access_config":      ac,
-			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
-		}
-		// Instance template interfaces never have names, so they're absent
-		// in the instance template network_interface schema. We want to use the
-		// same flattening code for both resource types, so we avoid trying to
-		// set the name field when it's not set at the GCE end.
-		if iface.Name != "" {
-			flattened[i]["name"] = iface.Name
-		}
-		if internalIP == "" {
-			internalIP = iface.NetworkIP
-		}
-	}
-	return flattened, region, internalIP, externalIP, nil
-}
-
-// this func could be replaced by expandNetworkInterfaces once NicType is supported
-func expandComputeInstanceTemplateNetworkInterfaces(d TerraformResourceData, config *Config) ([]*computeBeta.NetworkInterface, error) {
-	configs := d.Get("network_interface").([]interface{})
-	ifaces := make([]*computeBeta.NetworkInterface, len(configs))
-	for i, raw := range configs {
-		data := raw.(map[string]interface{})
-
-		network := data["network"].(string)
-		subnetwork := data["subnetwork"].(string)
-		if network == "" && subnetwork == "" {
-			return nil, fmt.Errorf("exactly one of network or subnetwork must be provided")
-		}
-
-		nf, err := ParseNetworkFieldValue(network, d, config)
-		if err != nil {
-			return nil, fmt.Errorf("cannot determine self_link for network %q: %s", network, err)
-		}
-
-		subnetProjectField := fmt.Sprintf("network_interface.%d.subnetwork_project", i)
-		sf, err := ParseSubnetworkFieldValueWithProjectField(subnetwork, subnetProjectField, d, config)
-		if err != nil {
-			return nil, fmt.Errorf("cannot determine self_link for subnetwork %q: %s", subnetwork, err)
-		}
-
-		ifaces[i] = &computeBeta.NetworkInterface{
-			NetworkIP:     data["network_ip"].(string),
-			Network:       nf.RelativeLink(),
-			Subnetwork:    sf.RelativeLink(),
-			AccessConfigs: expandAccessConfigs(data["access_config"].([]interface{})),
-			AliasIpRanges: expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
-		}
-	}
-	return ifaces, nil
 }
