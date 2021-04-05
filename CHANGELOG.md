@@ -1,5 +1,25 @@
 ## 3.63.0 (April 05, 2021)
 
+FEATURES:
+* **New Data Source:** `google_monitoring_istio_canonical_service` ([#8789](https://github.com/hashicorp/terraform-provider-google/pull/8789))
+* **New Resource:** `google_apigee_instance_attachment` ([#8795](https://github.com/hashicorp/terraform-provider-google/pull/8795))
+
+IMPROVEMENTS:
+* added support for Apple silicon chip (updated to go 1.16) ([#8693](https://github.com/hashicorp/terraform-provider-google/pull/8693))
+* container: 
+  * added support for GKE Autopilot in `google_container_cluster`([#8805](https://github.com/hashicorp/terraform-provider-google/pull/8805))
+  * promoted `networking_mode` to GA in `google_container_cluster` ([#8805](https://github.com/hashicorp/terraform-provider-google/pull/8805))
+  * added `private_ipv6_google_access` field to `google_container_cluster` ([#8798](https://github.com/hashicorp/terraform-provider-google/pull/8798))
+* sql: changed the default timeout of `google_sql_database_instance` to 30m from 20m ([#8802](https://github.com/hashicorp/terraform-provider-google/pull/8802))
+
+BUG FIXES:
+* bigquery: fixed issue where you couldn't extend an existing `schema` with additional columns in `google_bigquery_table` ([#8803](https://github.com/hashicorp/terraform-provider-google/pull/8803))
+* cloudidentity: modified `google_cloud_identity_groups` and `google_cloud_identity_group_memberships ` to respect the `user_project_override` and `billing_project` configurations and send the appropriate headers to establish a quota project ([#8762](https://github.com/hashicorp/terraform-provider-google/pull/8762))
+* compute: added minimum for `scopes` field to `google_compute_instance` resource ([#8801](https://github.com/hashicorp/terraform-provider-google/pull/8801))
+* notebooks: fixed permadiff on labels for `google_notebook_instance` ([#8799](https://github.com/hashicorp/terraform-provider-google/pull/8799))
+* secretmanager: set required on `secrest_data` in `google_secret_manager_secret_version` ([#8797](https://github.com/hashicorp/terraform-provider-google/pull/8797))
+
+
 ## 3.62.0 (March 29, 2021)
 
 FEATURES:
