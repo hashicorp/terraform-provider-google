@@ -41,8 +41,8 @@ resource "google_tags_tag_key" "key" {
   provider = google-beta
 
   parent = "organizations/123456789"
-  short_name = "foo"
-  description = "For foo resources."
+  short_name = "keyname"
+  description = "For keyname resources."
 }
 ```
 
