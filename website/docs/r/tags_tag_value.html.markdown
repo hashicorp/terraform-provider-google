@@ -42,15 +42,15 @@ resource "google_tags_tag_key" "key" {
 
 	parent = "organizations/123456789"
 	short_name = "keyname"
-	description = "For a certain set of resources."
+	description = "For keyname resources."
 }
 
 resource "google_tags_tag_value" "value" {
 	provider = google-beta
 
 	parent = "tagKeys/${google_tags_tag_key.key.name}"
-	short_name = "foo"
-	description = "For foo resources.""
+	short_name = "valuename"
+	description = "For valuename resources."
 }
 ```
 
