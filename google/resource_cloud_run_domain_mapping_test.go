@@ -33,7 +33,7 @@ func TestAccCloudRunDomainMapping_foregroundDeletion(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"name", "location", "status", "metadata.0.resource_version"},
 			},
 			{
-				Config:      testAccCloudRunDomainMapping_cloudRunDomainMappingUpdated2(context),
+				Config: testAccCloudRunDomainMapping_cloudRunDomainMappingUpdated2(context),
 			},
 			{
 				ResourceName:            "google_cloud_run_domain_mapping.default",
