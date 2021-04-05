@@ -3,14 +3,13 @@
 FEATURES:
 * **New Data Source:** `google_monitoring_istio_canonical_service` ([#8789](https://github.com/hashicorp/terraform-provider-google/pull/8789))
 * **New Resource:** `google_apigee_instance_attachment` ([#8795](https://github.com/hashicorp/terraform-provider-google/pull/8795))
-* **New Resource:** `google_gke_hub_membership` ([#8755](https://github.com/hashicorp/terraform-provider-google/pull/8755))
-* **New Resource:** `google_tags_tag_value` ([#8800](https://github.com/hashicorp/terraform-provider-google/pull/8800))
 
 IMPROVEMENTS:
-* added support for Apple silicon chip (updated to go 1.16) ([#3057](https://github.com/hashicorp/terraform-provider-google-beta/pull/3057))
+* added support for Apple silicon chip (updated to go 1.16) ([#8693](https://github.com/hashicorp/terraform-provider-google/pull/8693))
 * container: 
-  * added support for GKE Autopilot in `google_container_cluster`([#3101](https://github.com/hashicorp/terraform-provider-google-beta/pull/3101))
-  * added `enable_l4_ilb_subsetting` (beta) and `private_ipv6_google_access` fields to `google_container_cluster` ([#3095](https://github.com/hashicorp/terraform-provider-google-beta/pull/3095))
+  * added support for GKE Autopilot in `google_container_cluster`([#8805](https://github.com/hashicorp/terraform-provider-google/pull/8805))
+  * promoted `networking_mode` to GA in `google_container_cluster` ([#8805](https://github.com/hashicorp/terraform-provider-google/pull/8805))
+  * added `private_ipv6_google_access` fields to `google_container_cluster` ([#8798](https://github.com/hashicorp/terraform-provider-google/pull/8798))
 * sql: changed the default timeout of `google_sql_database_instance` to 30m from 20m ([#8802](https://github.com/hashicorp/terraform-provider-google/pull/8802))
 
 BUG FIXES:
