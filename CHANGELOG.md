@@ -9,7 +9,7 @@ IMPROVEMENTS:
 * container: 
   * added support for GKE Autopilot in `google_container_cluster`([#8805](https://github.com/hashicorp/terraform-provider-google/pull/8805))
   * promoted `networking_mode` to GA in `google_container_cluster` ([#8805](https://github.com/hashicorp/terraform-provider-google/pull/8805))
-  * added `private_ipv6_google_access` fields to `google_container_cluster` ([#8798](https://github.com/hashicorp/terraform-provider-google/pull/8798))
+  * added `private_ipv6_google_access` field to `google_container_cluster` ([#8798](https://github.com/hashicorp/terraform-provider-google/pull/8798))
 * sql: changed the default timeout of `google_sql_database_instance` to 30m from 20m ([#8802](https://github.com/hashicorp/terraform-provider-google/pull/8802))
 
 BUG FIXES:
