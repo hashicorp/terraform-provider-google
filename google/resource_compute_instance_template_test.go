@@ -925,6 +925,35 @@ func TestAccComputeInstanceTemplate_resourcePolicies(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_nictype_update(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate computeBeta.InstanceTemplate
+	var instanceTemplateName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_nictype(instanceTemplateName, instanceTemplateName, "GVNIC"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+				),
+			},
+			{
+				Config: testAccComputeInstanceTemplate_nictype(instanceTemplateName, instanceTemplateName, "VIRTIO_NET"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -2300,4 +2329,61 @@ resource "google_compute_resource_policy" "foo" {
   }
 }
 `, suffix, policyName)
+}
+
+func testAccComputeInstanceTemplate_nictype(image, instance, nictype string) string {
+	return fmt.Sprintf(`
+resource "google_compute_image" "example" {
+	name = "%s"
+	raw_disk {
+		source = "https://storage.googleapis.com/bosh-gce-raw-stemcells/bosh-stemcell-97.98-google-kvm-ubuntu-xenial-go_agent-raw-1557960142.tar.gz"
+	}
+
+	guest_os_features {
+		type = "SECURE_BOOT"
+	}
+
+	guest_os_features {
+		type = "MULTI_IP_SUBNET"
+	}
+
+	guest_os_features {
+		type = "GVNIC"
+	}
+}
+resource "google_compute_instance_template" "foobar" {
+	name           = "instancet-test-%s"
+	machine_type   = "e2-medium"
+	can_ip_forward = false
+	tags           = ["foo", "bar"]
+
+	disk {
+		source_image = google_compute_image.example.name
+		auto_delete  = true
+		boot         = true
+	}
+
+	network_interface {
+		network = "default"
+		nic_type = "%s"
+	}
+
+	scheduling {
+		preemptible       = false
+		automatic_restart = true
+	}
+
+	metadata = {
+		foo = "bar"
+	}
+
+	service_account {
+		scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+	}
+
+	labels = {
+		my_label = "foobar"
+	}
+}
+`, image, instance, nictype)
 }
