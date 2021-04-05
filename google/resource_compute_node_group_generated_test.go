@@ -61,7 +61,7 @@ resource "google_compute_node_template" "soletenant-tmpl" {
 
 resource "google_compute_node_group" "nodes" {
   name        = "tf-test-soletenant-group%{random_suffix}"
-  zone        = "us-central1-a"
+  zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
 
   size          = 1
@@ -108,9 +108,12 @@ resource "google_compute_node_template" "soletenant-tmpl" {
 
 resource "google_compute_node_group" "nodes" {
   name        = "tf-test-soletenant-group%{random_suffix}"
-  zone        = "us-central1-a"
+  zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
   maintenance_policy = "RESTART_IN_PLACE"
+  maintenance_window {
+    start_time = "08:00"
+  }
   size          = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
   autoscaling_policy {
