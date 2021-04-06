@@ -96,6 +96,11 @@ Can have up to 500 allowed values.`,
 								},
 							},
 						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A description for this field.`,
+						},
 						"display_name": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -117,11 +122,6 @@ Multiple fields can have the same order, and field orders within a tag do not ha
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The resource name of the tag template field in URL format. Example: projects/{project_id}/locations/{location}/tagTemplates/{tagTemplateId}/fields/{field}`,
-						},
-						"description": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `A description for this field.`,
 						},
 					},
 				},
@@ -434,10 +434,10 @@ func flattenDataCatalogTagTemplateFields(v interface{}, d *schema.ResourceData, 
 			"field_id":     k,
 			"name":         flattenDataCatalogTagTemplateFieldsName(original["name"], d, config),
 			"display_name": flattenDataCatalogTagTemplateFieldsDisplayName(original["displayName"], d, config),
+			"description":  flattenDataCatalogTagTemplateFieldsDescription(original["description"], d, config),
 			"type":         flattenDataCatalogTagTemplateFieldsType(original["type"], d, config),
 			"is_required":  flattenDataCatalogTagTemplateFieldsIsRequired(original["isRequired"], d, config),
 			"order":        flattenDataCatalogTagTemplateFieldsOrder(original["order"], d, config),
-			"description":  flattenDataCatalogTagTemplateFieldsDescription(original["description"], d, config),
 		})
 	}
 	return transformed

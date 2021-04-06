@@ -111,6 +111,10 @@ The `fields` block supports:
   (Optional)
   The display name for this field.
 
+* `description` -
+  (Optional)
+  A description for this field.
+
 * `type` -
   (Required)
   The type of value this tag field can contain.
