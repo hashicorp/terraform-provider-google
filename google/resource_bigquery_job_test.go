@@ -21,9 +21,6 @@ func TestAccBigQueryJob_withLocation(t *testing.T) {
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_withLocation(context),
