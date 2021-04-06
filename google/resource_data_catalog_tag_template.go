@@ -118,6 +118,11 @@ Multiple fields can have the same order, and field orders within a tag do not ha
 							Computed:    true,
 							Description: `The resource name of the tag template field in URL format. Example: projects/{project_id}/locations/{location}/tagTemplates/{tagTemplateId}/fields/{field}`,
 						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A description for this field.`,
+						},
 					},
 				},
 			},
@@ -432,6 +437,7 @@ func flattenDataCatalogTagTemplateFields(v interface{}, d *schema.ResourceData, 
 			"type":         flattenDataCatalogTagTemplateFieldsType(original["type"], d, config),
 			"is_required":  flattenDataCatalogTagTemplateFieldsIsRequired(original["isRequired"], d, config),
 			"order":        flattenDataCatalogTagTemplateFieldsOrder(original["order"], d, config),
+			"description":  flattenDataCatalogTagTemplateFieldsDescription(original["description"], d, config),
 		})
 	}
 	return transformed
@@ -441,6 +447,10 @@ func flattenDataCatalogTagTemplateFieldsName(v interface{}, d *schema.ResourceDa
 }
 
 func flattenDataCatalogTagTemplateFieldsDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataCatalogTagTemplateFieldsDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -546,6 +556,13 @@ func expandDataCatalogTagTemplateFields(v interface{}, d TerraformResourceData, 
 			transformed["displayName"] = transformedDisplayName
 		}
 
+		transformedDescription, err := expandDataCatalogTagTemplateFieldsDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
 		transformedType, err := expandDataCatalogTagTemplateFieldsType(original["type"], d, config)
 		if err != nil {
 			return nil, err
@@ -581,6 +598,10 @@ func expandDataCatalogTagTemplateFieldsName(v interface{}, d TerraformResourceDa
 }
 
 func expandDataCatalogTagTemplateFieldsDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataCatalogTagTemplateFieldsDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
