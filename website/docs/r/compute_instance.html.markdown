@@ -187,8 +187,7 @@ The `boot_disk` block supports:
 * `mode` - (Optional) The mode in which to attach this disk, either `READ_WRITE`
   or `READ_ONLY`. If not specified, the default is to attach the disk in `READ_WRITE` mode.
 
-* `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
-    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
+* `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key](https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
     encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     to encrypt this disk. Only one of `kms_key_self_link` and `disk_encryption_key_raw`
     may be set.
@@ -238,8 +237,7 @@ The `attached_disk` block supports:
     between multiple instances, detach it from any read-write instances and
     attach it to one or more instances in read-only mode.
 
-* `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key]
-    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
+* `disk_encryption_key_raw` - (Optional) A 256-bit [customer-supplied encryption key](https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
     encoded in [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     to encrypt this disk. Only one of `kms_key_self_link` and `disk_encryption_key_raw` may be set.
 
@@ -390,12 +388,12 @@ exported:
 * `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
 
 * `attached_disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
-    encoded SHA-256 hash of the [customer-supplied encryption key]
-    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) that protects this resource.
+    encoded SHA-256 hash of the [customer-supplied encryption key](https://cloud.google.com/compute/docs/disks/customer-supplied-encryption)
+    that protects this resource.
 
 * `boot_disk.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
-    encoded SHA-256 hash of the [customer-supplied encryption key]
-    (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) that protects this resource.
+    encoded SHA-256 hash of the [customer-supplied encryption key](https://cloud.google.com/compute/docs/disks/customer-supplied-encryption)
+    that protects this resource.
 
 * `disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]
