@@ -73,7 +73,6 @@ resource "google_data_catalog_tag_template" "tag_template" {
       primitive_type = "STRING"
     }
     is_required = true
-    description = "The source of the data asset"
   }
 
   fields {
