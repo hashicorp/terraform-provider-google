@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -93,14 +94,15 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 	t.Parallel()
 
 	account := fmt.Sprintf("tf-test-%d", randInt(t))
-	identity := fmt.Sprintf("serviceAccount:%s", serviceAccountCanonicalEmail(account))
+	email := serviceAccountCanonicalEmail(account)
+	identity := fmt.Sprintf("serviceAccount:%s", email)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccServiceAccountIamMember_basic(account),
+				Config: testAccServiceAccountIamMember_basic(account, email),
 				Check:  testAccCheckGoogleServiceAccountIam(t, account, 1),
 			},
 			{
@@ -108,6 +110,14 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 				ImportStateId:     fmt.Sprintf("%s %s %s", serviceAccountCanonicalId(account), "roles/iam.serviceAccountUser", identity),
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				Config:   testAccServiceAccountIamMember_basic(account, strings.ToUpper(email)),
+				PlanOnly: true,
+			},
+			{
+				Config:   testAccServiceAccountIamMember_basic(account, strings.Title(email)),
+				PlanOnly: true,
 			},
 		},
 	})
@@ -215,6 +225,89 @@ func TestAccServiceAccountIamPolicy_withCondition(t *testing.T) {
 	})
 }
 
+func TestAccServiceAccountIamMember_federatedIdentity(t *testing.T) {
+	t.Parallel()
+
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
+	pool := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccServiceAccountIamMember_federatedIdentity(account, pool),
+			},
+			{
+				ResourceName:      "google_service_account_iam_member.impersonate",
+				ImportStateIdFunc: testAccServiceAccountIamMember_generateFederatedIdentityStateId,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccServiceAccountIamBinding_federatedIdentity(t *testing.T) {
+	t.Parallel()
+
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
+	pool := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccServiceAccountIamBinding_federatedIdentity(account, pool),
+				Check:  testAccCheckGoogleServiceAccountIam(t, account, 1),
+			},
+			{
+				ResourceName:      "google_service_account_iam_binding.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateId:     fmt.Sprintf("%s %s", serviceAccountCanonicalId(account), "roles/iam.serviceAccountUser"),
+			},
+		},
+	})
+}
+
+func TestAccServiceAccountIamPolicy_federatedIdentity(t *testing.T) {
+	t.Parallel()
+
+	account := fmt.Sprintf("tf-test-%d", randInt(t))
+	pool := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccServiceAccountIamPolicy_federatedIdentity(account, pool),
+			},
+			{
+				ResourceName:      "google_service_account_iam_policy.foo",
+				ImportStateId:     serviceAccountCanonicalId(account),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccServiceAccountIamMember_generateFederatedIdentityStateId(state *terraform.State) (string, error) {
+	resourceName := "google_service_account_iam_member.impersonate"
+	var rawState map[string]string
+	for _, m := range state.Modules {
+		if len(m.Resources) > 0 {
+			if v, ok := m.Resources[resourceName]; ok {
+				rawState = v.Primary.Attributes
+			}
+		}
+	}
+	return fmt.Sprintf("%s %s %s", rawState["service_account_id"], rawState["role"], rawState["member"]), nil
+}
+
 // Ensure that our tests only create the expected number of bindings.
 // The content of the binding is tested in the import tests.
 func testAccCheckGoogleServiceAccountIam(t *testing.T, account string, numBindings int) resource.TestCheckFunc {
@@ -302,7 +395,7 @@ resource "google_service_account_iam_binding" "foo2" {
 `, account, member, member, conditionTitle, conditionExpr)
 }
 
-func testAccServiceAccountIamMember_basic(account string) string {
+func testAccServiceAccountIamMember_basic(account, email string) string {
 	return fmt.Sprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "%s"
@@ -312,9 +405,10 @@ resource "google_service_account" "test_account" {
 resource "google_service_account_iam_member" "foo" {
   service_account_id = google_service_account.test_account.name
   role               = "roles/iam.serviceAccountUser"
-  member             = "serviceAccount:${google_service_account.test_account.email}"
+  member             = "serviceAccount:%s"
+	depends_on = [google_service_account.test_account]
 }
-`, account)
+`, account, email)
 }
 
 func testAccServiceAccountIamMember_withCondition(account, conditionTitle string) string {
@@ -410,4 +504,68 @@ resource "google_service_account_iam_policy" "foo" {
   policy_data        = data.google_iam_policy.foo.policy_data
 }
 `, account)
+}
+
+func testAccServiceAccountIamMember_federatedIdentity(account, poolId string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "test_account" {
+	account_id   = "%s"
+	display_name = "Service Account Iam Testing Account"
+}
+
+resource "google_service_account_iam_member" "impersonate" {
+	service_account_id = google_service_account.test_account.name
+	role               = "roles/iam.workloadIdentityUser"
+	member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.my_pool.name}/attribute.aws_role/arn:aws:sts::999999999999:assumed-role/stack-eu-central-1-lambdaRole"
+}
+
+resource "google_iam_workload_identity_pool" "my_pool" {
+	workload_identity_pool_id = "%s"
+}
+`, account, poolId)
+}
+
+func testAccServiceAccountIamBinding_federatedIdentity(account, poolId string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "test_account" {
+  account_id   = "%s"
+  display_name = "Service Account Iam Testing Account"
+}
+
+resource "google_service_account_iam_binding" "foo" {
+  service_account_id = google_service_account.test_account.name
+  role               = "roles/iam.serviceAccountUser"
+  members            = ["principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.my_pool.name}/attribute.aws_role/arn:aws:sts::999999999999:assumed-role/stack-eu-central-1-lambdaRole"]
+}
+
+resource "google_iam_workload_identity_pool" "my_pool" {
+	workload_identity_pool_id = "%s"
+}
+`, account, poolId)
+}
+
+func testAccServiceAccountIamPolicy_federatedIdentity(account, poolId string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "test_account" {
+  account_id   = "%s"
+  display_name = "Service Account Iam Testing Account"
+}
+
+data "google_iam_policy" "foo" {
+  binding {
+    role = "roles/iam.serviceAccountUser"
+
+    members = ["principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.my_pool.name}/attribute.aws_role/arn:aws:sts::999999999999:assumed-role/stack-eu-central-1-lambdaRole"]
+  }
+}
+
+resource "google_service_account_iam_policy" "foo" {
+  service_account_id = google_service_account.test_account.name
+  policy_data        = data.google_iam_policy.foo.policy_data
+}
+
+resource "google_iam_workload_identity_pool" "my_pool" {
+	workload_identity_pool_id = "%s"
+}
+`, account, poolId)
 }

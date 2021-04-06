@@ -242,6 +242,39 @@ func subtractFromBindings(bindings []*cloudresourcemanager.Binding, toRemove ...
 	return listFromIamBindingMap(currMap)
 }
 
+func iamMemberIsCaseSensitive(member string) bool {
+	return strings.HasPrefix(member, "principalSet:") || strings.HasPrefix(member, "principal:") || strings.HasPrefix(member, "principalHierarchy:")
+}
+
+// normalizeIamMemberCasing returns the case adjusted value of an iamMember
+// this is important as iam will ignore casing unless it is one of the following
+// member types: principalSet, principal, principalHierarchy
+// members are in <type>:<value> format
+// <type> is case sensitive
+// <value> isn't in most cases
+// so lowercase the value unless iamMemberIsCaseSensitive and leave the type alone
+// since Dec '19 members can be prefixed with "deleted:" to indicate the principal
+// has been deleted
+func normalizeIamMemberCasing(member string) string {
+	var pieces []string
+	if strings.HasPrefix(member, "deleted:") {
+		pieces = strings.SplitN(member, ":", 3)
+		if len(pieces) > 2 && !iamMemberIsCaseSensitive(strings.TrimPrefix(member, "deleted:")) {
+			pieces[2] = strings.ToLower(pieces[2])
+		}
+	} else if !iamMemberIsCaseSensitive(member) {
+		pieces = strings.SplitN(member, ":", 2)
+		if len(pieces) > 1 {
+			pieces[1] = strings.ToLower(pieces[1])
+		}
+	}
+
+	if len(pieces) > 0 {
+		member = strings.Join(pieces, ":")
+	}
+	return member
+}
+
 // Construct map of role to set of members from list of bindings.
 func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindingKey]map[string]struct{} {
 	bm := make(map[iamBindingKey]map[string]struct{})
@@ -255,27 +288,7 @@ func createIamBindingsMap(bindings []*cloudresourcemanager.Binding) map[iamBindi
 		}
 		// Get each member (user/principal) for the binding
 		for _, m := range b.Members {
-			// members are in <type>:<value> format
-			// <type> is case sensitive
-			// <value> isn't
-			// so let's lowercase the value and leave the type alone
-			// since Dec '19 members can be prefixed with "deleted:" to indicate the principal
-			// has been deleted
-			var pieces []string
-			if strings.HasPrefix(m, "deleted:") {
-				pieces = strings.SplitN(m, ":", 3)
-				if len(pieces) > 2 {
-					pieces[2] = strings.ToLower(pieces[2])
-				}
-			} else {
-				pieces = strings.SplitN(m, ":", 2)
-				if len(pieces) > 1 {
-					pieces[1] = strings.ToLower(pieces[1])
-				}
-			}
-
-			m = strings.Join(pieces, ":")
-
+			m = normalizeIamMemberCasing(m)
 			// Add the member
 			members[m] = struct{}{}
 		}
