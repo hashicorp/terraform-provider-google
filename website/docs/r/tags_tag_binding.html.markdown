@@ -24,8 +24,6 @@ description: |-
 
 A TagBinding represents a connection between a TagValue and a cloud resource (currently project, folder, or organization). Once a TagBinding is created, the TagValue is applied to all the descendants of the cloud resource.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about TagBinding, see:
 
@@ -38,31 +36,24 @@ To get more information about TagBinding, see:
 
 ```hcl
 resource "google_project" "project" {
-	provider = google-beta
 	project_id = "project_id"
 	name       = "project_id"
 	org_id     = "123456789"
 }
 
 resource "google_tags_tag_key" "key" {
-	provider = google-beta
-
 	parent = "organizations/123456789"
 	short_name = "keyname"
 	description = "For keyname resources."
 }
 
 resource "google_tags_tag_value" "value" {
-	provider = google-beta
-
 	parent = "tagKeys/${google_tags_tag_key.key.name}"
 	short_name = "valuename"
 	description = "For valuename resources."
 }
 
 resource "google_tags_tag_binding" "binding" {
-	provider = google-beta
-
 	parent = "//cloudresourcemanager.googleapis.com/projects/${google_project.project.number}"
 	tag_value = "tagValues/${google_tags_tag_value.value.name}"
 }

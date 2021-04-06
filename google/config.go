@@ -135,6 +135,7 @@ type Config struct {
 	SpannerBasePath              string
 	SQLBasePath                  string
 	StorageBasePath              string
+	TagsBasePath                 string
 	TPUBasePath                  string
 	VPCAccessBasePath            string
 	WorkflowsBasePath            string
@@ -217,6 +218,7 @@ var SourceRepoDefaultBasePath = "https://sourcerepo.googleapis.com/v1/"
 var SpannerDefaultBasePath = "https://spanner.googleapis.com/v1/"
 var SQLDefaultBasePath = "https://sqladmin.googleapis.com/sql/v1beta4/"
 var StorageDefaultBasePath = "https://storage.googleapis.com/storage/v1/"
+var TagsDefaultBasePath = "https://cloudresourcemanager.googleapis.com/v3/"
 var TPUDefaultBasePath = "https://tpu.googleapis.com/v1/"
 var VPCAccessDefaultBasePath = "https://vpcaccess.googleapis.com/v1/"
 var WorkflowsDefaultBasePath = "https://workflows.googleapis.com/v1/"
@@ -968,6 +970,7 @@ func ConfigureBasePaths(c *Config) {
 	c.SpannerBasePath = SpannerDefaultBasePath
 	c.SQLBasePath = SQLDefaultBasePath
 	c.StorageBasePath = StorageDefaultBasePath
+	c.TagsBasePath = TagsDefaultBasePath
 	c.TPUBasePath = TPUDefaultBasePath
 	c.VPCAccessBasePath = VPCAccessDefaultBasePath
 	c.WorkflowsBasePath = WorkflowsDefaultBasePath

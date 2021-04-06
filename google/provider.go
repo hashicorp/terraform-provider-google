@@ -575,6 +575,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_STORAGE_CUSTOM_ENDPOINT",
 				}, StorageDefaultBasePath),
 			},
+			"tags_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_TAGS_CUSTOM_ENDPOINT",
+				}, TagsDefaultBasePath),
+			},
 			"tpu_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -726,9 +734,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 189
-// Generated IAM resources: 81
-// Total generated resources: 270
+// Generated resources: 192
+// Generated IAM resources: 87
+// Total generated resources: 279
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1004,6 +1012,15 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_storage_object_access_control":                         resourceStorageObjectAccessControl(),
 			"google_storage_default_object_access_control":                 resourceStorageDefaultObjectAccessControl(),
 			"google_storage_hmac_key":                                      resourceStorageHmacKey(),
+			"google_tags_tag_key":                                          resourceTagsTagKey(),
+			"google_tags_tag_key_iam_binding":                              ResourceIamBinding(TagsTagKeyIamSchema, TagsTagKeyIamUpdaterProducer, TagsTagKeyIdParseFunc),
+			"google_tags_tag_key_iam_member":                               ResourceIamMember(TagsTagKeyIamSchema, TagsTagKeyIamUpdaterProducer, TagsTagKeyIdParseFunc),
+			"google_tags_tag_key_iam_policy":                               ResourceIamPolicy(TagsTagKeyIamSchema, TagsTagKeyIamUpdaterProducer, TagsTagKeyIdParseFunc),
+			"google_tags_tag_value":                                        resourceTagsTagValue(),
+			"google_tags_tag_value_iam_binding":                            ResourceIamBinding(TagsTagValueIamSchema, TagsTagValueIamUpdaterProducer, TagsTagValueIdParseFunc),
+			"google_tags_tag_value_iam_member":                             ResourceIamMember(TagsTagValueIamSchema, TagsTagValueIamUpdaterProducer, TagsTagValueIdParseFunc),
+			"google_tags_tag_value_iam_policy":                             ResourceIamPolicy(TagsTagValueIamSchema, TagsTagValueIamUpdaterProducer, TagsTagValueIdParseFunc),
+			"google_tags_tag_binding":                                      resourceTagsTagBinding(),
 			"google_tpu_node":                                              resourceTPUNode(),
 			"google_vpc_access_connector":                                  resourceVPCAccessConnector(),
 			"google_workflows_workflow":                                    resourceWorkflowsWorkflow(),
@@ -1255,6 +1272,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.SpannerBasePath = d.Get("spanner_custom_endpoint").(string)
 	config.SQLBasePath = d.Get("sql_custom_endpoint").(string)
 	config.StorageBasePath = d.Get("storage_custom_endpoint").(string)
+	config.TagsBasePath = d.Get("tags_custom_endpoint").(string)
 	config.TPUBasePath = d.Get("tpu_custom_endpoint").(string)
 	config.VPCAccessBasePath = d.Get("vpc_access_custom_endpoint").(string)
 	config.WorkflowsBasePath = d.Get("workflows_custom_endpoint").(string)
