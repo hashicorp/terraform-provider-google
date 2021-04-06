@@ -24,8 +24,6 @@ description: |-
 
 A TagValue is a child of a particular TagKey. TagValues are used to group cloud resources for the purpose of controlling them using policies.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about TagValue, see:
 
@@ -38,16 +36,12 @@ To get more information about TagValue, see:
 
 ```hcl
 resource "google_tags_tag_key" "key" {
-	provider = google-beta
-
 	parent = "organizations/123456789"
 	short_name = "keyname"
 	description = "For keyname resources."
 }
 
 resource "google_tags_tag_value" "value" {
-	provider = google-beta
-
 	parent = "tagKeys/${google_tags_tag_key.key.name}"
 	short_name = "valuename"
 	description = "For valuename resources."
