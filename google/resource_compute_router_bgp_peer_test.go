@@ -55,6 +55,16 @@ func TestAccComputeRouterPeer_advertiseMode(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccComputeRouterPeerAdvertiseModeUpdate(routerName),
+				Check: testAccCheckComputeRouterPeerExists(
+					t, "google_compute_router_peer.foobar"),
+			},
+			{
+				ResourceName:      "google_compute_router_peer.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -429,6 +439,94 @@ resource "google_compute_router_peer" "foobar" {
   region                    = google_compute_router.foobar.region
   peer_ip_address           = "169.254.3.2"
   peer_asn                  = 65515
+  advertise_mode            = "DEFAULT"
+  interface = google_compute_router_interface.foobar.name
+}
+`, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName)
+}
+
+func testAccComputeRouterPeerAdvertiseModeUpdate(routerName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name = "%s-net"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "%s-subnet"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_address" "foobar" {
+  name   = "%s-addr"
+  region = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_vpn_gateway" "foobar" {
+  name    = "%s-gateway"
+  network = google_compute_network.foobar.self_link
+  region  = google_compute_subnetwork.foobar.region
+}
+
+resource "google_compute_forwarding_rule" "foobar_esp" {
+  name        = "%s-fr1"
+  region      = google_compute_vpn_gateway.foobar.region
+  ip_protocol = "ESP"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_forwarding_rule" "foobar_udp500" {
+  name        = "%s-fr2"
+  region      = google_compute_forwarding_rule.foobar_esp.region
+  ip_protocol = "UDP"
+  port_range  = "500-500"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_forwarding_rule" "foobar_udp4500" {
+  name        = "%s-fr3"
+  region      = google_compute_forwarding_rule.foobar_udp500.region
+  ip_protocol = "UDP"
+  port_range  = "4500-4500"
+  ip_address  = google_compute_address.foobar.address
+  target      = google_compute_vpn_gateway.foobar.self_link
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "%s"
+  region  = google_compute_forwarding_rule.foobar_udp500.region
+  network = google_compute_network.foobar.self_link
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_vpn_tunnel" "foobar" {
+  name               = "%s"
+  region             = google_compute_forwarding_rule.foobar_udp4500.region
+  target_vpn_gateway = google_compute_vpn_gateway.foobar.self_link
+  shared_secret      = "unguessable"
+  peer_ip            = "8.8.8.8"
+  router             = google_compute_router.foobar.name
+}
+
+resource "google_compute_router_interface" "foobar" {
+  name       = "%s"
+  router     = google_compute_router.foobar.name
+  region     = google_compute_router.foobar.region
+  ip_range   = "169.254.3.1/30"
+  vpn_tunnel = google_compute_vpn_tunnel.foobar.name
+}
+
+resource "google_compute_router_peer" "foobar" {
+  name                      = "%s"
+  router                    = google_compute_router.foobar.name
+  region                    = google_compute_router.foobar.region
+  peer_ip_address           = "169.254.3.3"
+  peer_asn                  = 65516
   advertised_route_priority = 100
   advertise_mode            = "CUSTOM"
   advertised_groups         = ["ALL_SUBNETS"]

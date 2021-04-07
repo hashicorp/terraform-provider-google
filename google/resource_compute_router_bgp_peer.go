@@ -65,14 +65,12 @@ except the last character, which cannot be a dash.`,
 			"peer_asn": {
 				Type:     schema.TypeInt,
 				Required: true,
-				ForceNew: true,
 				Description: `Peer BGP Autonomous System Number (ASN).
 Each BGP interface may use a different value.`,
 			},
 			"peer_ip_address": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				Description: `IP address of the BGP interface outside Google Cloud Platform.
 Only IPv4 is supported.`,
 			},
@@ -86,7 +84,6 @@ Only IPv4 is supported.`,
 			"advertise_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "CUSTOM", ""}, false),
 				Description: `User-specified flag to indicate which mode to use for advertisement.
 Valid values of this enum field are: 'DEFAULT', 'CUSTOM' Default value: "DEFAULT" Possible values: ["DEFAULT", "CUSTOM"]`,
@@ -95,7 +92,6 @@ Valid values of this enum field are: 'DEFAULT', 'CUSTOM' Default value: "DEFAULT
 			"advertised_groups": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `User-specified list of prefix groups to advertise in custom
 mode, which can take one of the following options:
 
@@ -394,11 +390,35 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	peerIpAddressProp, err := expandNestedComputeRouterBgpPeerPeerIpAddress(d.Get("peer_ip_address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("peer_ip_address"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, peerIpAddressProp)) {
+		obj["peerIpAddress"] = peerIpAddressProp
+	}
+	peerAsnProp, err := expandNestedComputeRouterBgpPeerPeerAsn(d.Get("peer_asn"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("peer_asn"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, peerAsnProp)) {
+		obj["peerAsn"] = peerAsnProp
+	}
 	advertisedRoutePriorityProp, err := expandNestedComputeRouterBgpPeerAdvertisedRoutePriority(d.Get("advertised_route_priority"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("advertised_route_priority"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, advertisedRoutePriorityProp)) {
 		obj["advertisedRoutePriority"] = advertisedRoutePriorityProp
+	}
+	advertiseModeProp, err := expandNestedComputeRouterBgpPeerAdvertiseMode(d.Get("advertise_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("advertise_mode"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, advertiseModeProp)) {
+		obj["advertiseMode"] = advertiseModeProp
+	}
+	advertisedGroupsProp, err := expandNestedComputeRouterBgpPeerAdvertisedGroups(d.Get("advertised_groups"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("advertised_groups"); ok || !reflect.DeepEqual(v, advertisedGroupsProp) {
+		obj["advertisedGroups"] = advertisedGroupsProp
 	}
 	advertisedIpRangesProp, err := expandNestedComputeRouterBgpPeerAdvertisedIpRanges(d.Get("advertised_ip_ranges"), d, config)
 	if err != nil {
