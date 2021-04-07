@@ -1,7 +1,6 @@
 ## 3.64.0 (Unreleased)
 
 FEATURES:
-* **New Resource:** `google_tags_tag_binding` (beta) ([#8840](https://github.com/hashicorp/terraform-provider-google/pull/8840))
 * **New Resource:** `google_tags_tag_key_iam_binding` ([#8844](https://github.com/hashicorp/terraform-provider-google/pull/8844))
 * **New Resource:** `google_tags_tag_key_iam_member` ([#8844](https://github.com/hashicorp/terraform-provider-google/pull/8844))
 * **New Resource:** `google_tags_tag_key_iam_policy` ([#8844](https://github.com/hashicorp/terraform-provider-google/pull/8844))
