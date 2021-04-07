@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -38,6 +39,15 @@ func resourceWorkflowsWorkflow() *schema.Resource {
 			Delete: schema.DefaultTimeout(6 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceWorkflowsWorkflowResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceWorkflowsWorkflowUpgradeV0,
+				Version: 0,
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"description": {
 				Type:        schema.TypeString,
@@ -52,12 +62,11 @@ func resourceWorkflowsWorkflow() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"name": {
-				Type:             schema.TypeString,
-				Computed:         true,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `Name of the Workflow.`,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Name of the Workflow.`,
 			},
 			"region": {
 				Type:        schema.TypeString,
@@ -189,7 +198,7 @@ func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/workflows/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -212,7 +221,7 @@ func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{name}}")
+	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{region}}/workflows/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -230,7 +239,7 @@ func resourceWorkflowsWorkflowRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{WorkflowsBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -322,7 +331,7 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{WorkflowsBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -383,7 +392,7 @@ func resourceWorkflowsWorkflowDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{WorkflowsBasePath}}{{name}}")
+	url, err := replaceVars(d, config, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -414,7 +423,10 @@ func resourceWorkflowsWorkflowDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func flattenWorkflowsWorkflowName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return NameFromSelfLinkStateFunc(v)
 }
 
 func flattenWorkflowsWorkflowDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -491,4 +503,95 @@ func resourceWorkflowsWorkflowEncoder(d *schema.ResourceData, meta interface{}, 
 	}
 
 	return obj, nil
+}
+
+func resourceWorkflowsWorkflowResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"description": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: `Description of the workflow provided by the user. Must be at most 1000 unicode characters long.`,
+			},
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `A set of key/value label pairs to assign to this Workflow.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Name of the Workflow.`,
+			},
+			"region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The region of the workflow.`,
+			},
+			"service_account": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `Name of the service account associated with the latest workflow version. This service
+account represents the identity of the workflow and determines what permissions the workflow has.
+
+Format: projects/{project}/serviceAccounts/{account}.`,
+			},
+			"source_contents": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Workflow code to be executed. The size limit is 32KB.`,
+			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The timestamp of when the workflow was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
+			},
+			"revision_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The revision of the workflow. A new one is generated if the service account or source contents is changed.`,
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `State of the workflow deployment.`,
+			},
+			"update_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The timestamp of when the workflow was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
+			},
+			"name_prefix": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"name"},
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+	}
+}
+
+func resourceWorkflowsWorkflowUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+
+	rawState["name"] = GetResourceNameFromSelfLink(rawState["name"].(string))
+
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
 }
