@@ -1,4 +1,32 @@
 ## 3.64.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_tags_tag_binding` (beta) ([#8840](https://github.com/hashicorp/terraform-provider-google/pull/8840))
+* **New Resource:** `google_tags_tag_key_iam_binding` ([#8844](https://github.com/hashicorp/terraform-provider-google/pull/8844))
+* **New Resource:** `google_tags_tag_key_iam_member` ([#8844](https://github.com/hashicorp/terraform-provider-google/pull/8844))
+* **New Resource:** `google_tags_tag_key_iam_policy` ([#8844](https://github.com/hashicorp/terraform-provider-google/pull/8844))
+* **New Resource:** `google_tags_tag_value_iam_binding` ([#8844](https://github.com/hashicorp/terraform-provider-google/pull/8844))
+* **New Resource:** `google_tags_tag_value_iam_member` ([#8844](https://github.com/hashicorp/terraform-provider-google/pull/8844))
+* **New Resource:** `google_tags_tag_value_iam_policy` ([#8844](https://github.com/hashicorp/terraform-provider-google/pull/8844))
+* **New Resource:** `google_apigee_envgroup_attachment` ([#8853](https://github.com/hashicorp/terraform-provider-google/pull/8853))
+
+IMPROVEMENTS:
+* bigquery: added `require_partition_filter` field to `google_bigquery_table` when provisioning `hive_partitioning_options` ([#8775](https://github.com/hashicorp/terraform-provider-google/pull/8775))
+* compute: added field `maintenance_window.start_time` to `google_compute_node_group` ([#8847](https://github.com/hashicorp/terraform-provider-google/pull/8847))
+* compute: added gVNIC support for `google_compute_instance_template` ([#8842](https://github.com/hashicorp/terraform-provider-google/pull/8842))
+* datacatalog: added `description` field to `google_data_catalog_tag_template ` resource ([#8851](https://github.com/hashicorp/terraform-provider-google/pull/8851))
+* tags: promoted `google_tags_tag_binding` to GA ([#8854](https://github.com/hashicorp/terraform-provider-google/pull/8854))
+* tags: promoted `google_tags_tag_key_iam_*` to GA ([#8854](https://github.com/hashicorp/terraform-provider-google/pull/8854))
+* tags: promoted `google_tags_tag_key` to GA ([#8854](https://github.com/hashicorp/terraform-provider-google/pull/8854))
+* tags: promoted `google_tags_tag_value_iam_*` to GA ([#8854](https://github.com/hashicorp/terraform-provider-google/pull/8854))
+* tags: promoted `google_tags_tag_value` to GA ([#8854](https://github.com/hashicorp/terraform-provider-google/pull/8854))
+
+BUG FIXES:
+* compute: reverted datatype change for `mtu` in `google_compute_interconnect_attachment` as it was incompatible with existing state representation ([#8829](https://github.com/hashicorp/terraform-provider-google/pull/8829))
+* iam: fixed issue with principle and principleSet members not retaining their casing ([#8860](https://github.com/hashicorp/terraform-provider-google/pull/8860))
+* storage: fixed intermittent error in `google_storage_hmac_key` ([#8817](https://github.com/hashicorp/terraform-provider-google/pull/8817))
+
+
 ## 3.63.0 (April 5, 2021)
 
 FEATURES:
