@@ -31,11 +31,8 @@ func TestAccGameServicesGameServerDeploymentRollout_gameServiceDeploymentRollout
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckGameServicesGameServerDeploymentRolloutDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -32,11 +32,8 @@ func TestAccCloudRunService_cloudRunServiceBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -83,11 +80,8 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -148,11 +142,8 @@ func TestAccCloudRunService_cloudRunServiceNoauthExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -211,11 +202,8 @@ func TestAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(t
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

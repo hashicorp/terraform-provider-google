@@ -31,11 +31,8 @@ func TestAccContainerAnalysisNote_containerAnalysisNoteBasicExample(t *testing.T
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerAnalysisNoteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -71,11 +68,8 @@ func TestAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(t 
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckContainerAnalysisNoteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -31,11 +31,8 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestI
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -118,11 +115,8 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestA
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkManagementConnectivityTestDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -31,9 +31,6 @@ func TestAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(t *
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(context),

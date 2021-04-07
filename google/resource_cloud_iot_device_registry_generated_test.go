@@ -33,11 +33,8 @@ func TestAccCloudIotDeviceRegistry_cloudiotDeviceRegistryBasicExample(t *testing
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudIotDeviceRegistryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -71,11 +68,8 @@ func TestAccCloudIotDeviceRegistry_cloudiotDeviceRegistrySingleEventNotification
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudIotDeviceRegistryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -119,11 +113,8 @@ func TestAccCloudIotDeviceRegistry_cloudiotDeviceRegistryFullExample(t *testing.
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudIotDeviceRegistryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

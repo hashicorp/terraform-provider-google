@@ -30,9 +30,6 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExa
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExample(context),
@@ -94,9 +91,6 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExamp
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkeExample(context),

@@ -31,11 +31,8 @@ func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(t *te
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionTargetHttpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -108,11 +105,8 @@ func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpsRedirectExamp
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionTargetHttpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

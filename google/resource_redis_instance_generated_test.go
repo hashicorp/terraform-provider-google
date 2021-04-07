@@ -31,11 +31,8 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -69,11 +66,8 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -135,11 +129,8 @@ func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -33,11 +33,8 @@ func TestAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipExample(t *
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -108,11 +105,8 @@ func TestAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExample
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -32,11 +32,8 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateBasicExample(t *test
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -77,8 +74,11 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateRandomProviderExampl
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
 		CheckDestroy: testAccCheckComputeRegionSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -133,11 +133,8 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesEx
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeRegionSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

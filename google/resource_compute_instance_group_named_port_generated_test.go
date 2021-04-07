@@ -32,11 +32,8 @@ func TestAccComputeInstanceGroupNamedPort_instanceGroupNamedPortGkeExample(t *te
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceGroupNamedPortDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

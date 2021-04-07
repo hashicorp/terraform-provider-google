@@ -31,11 +31,8 @@ func TestAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExa
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckStorageBucketAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

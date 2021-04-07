@@ -31,11 +31,8 @@ func TestAccComputeDiskResourcePolicyAttachment_diskResourcePolicyAttachmentBasi
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskResourcePolicyAttachmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
