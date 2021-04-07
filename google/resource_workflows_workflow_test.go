@@ -1,6 +1,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -104,4 +105,49 @@ resource "google_workflows_workflow" "example" {
 EOF
 }
 `, name, name)
+}
+
+func TestWorkflowsWorkflowStateUpgradeV0(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		Attributes map[string]interface{}
+		Expected   map[string]string
+		Meta       interface{}
+	}{
+		"shorten long name": {
+			Attributes: map[string]interface{}{
+				"name": "projects/my-project/locations/us-central1/workflows/my-workflow",
+			},
+			Expected: map[string]string{
+				"name": "my-workflow",
+			},
+			Meta: &Config{},
+		},
+		"short name stays": {
+			Attributes: map[string]interface{}{
+				"name": "my-workflow",
+			},
+			Expected: map[string]string{
+				"name": "my-workflow",
+			},
+			Meta: &Config{},
+		},
+	}
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			actual, err := resourceWorkflowsWorkflowUpgradeV0(context.Background(), tc.Attributes, tc.Meta)
+
+			if err != nil {
+				t.Error(err)
+			}
+
+			for _, expectedName := range tc.Expected {
+				if actual["name"] != expectedName {
+					t.Errorf("expected: name -> %#v\n got: name -> %#v\n in: %#v",
+						expectedName, actual["name"], actual)
+				}
+			}
+		})
+	}
 }
