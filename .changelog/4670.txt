@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: enabled fields `advertiseMode`, `advertisedGroups`, `peerAsn`, and `peerIpAddress` to be updatable on resource `google_compute_router_peer`
+```
