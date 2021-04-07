@@ -31,11 +31,8 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreBasicExample(t *testing
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -73,11 +70,8 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreFullExample(t *testing.
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -123,11 +117,8 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreIamExample(t *testing.T
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

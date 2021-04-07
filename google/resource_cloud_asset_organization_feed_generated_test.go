@@ -33,11 +33,8 @@ func TestAccCloudAssetOrganizationFeed_cloudAssetOrganizationFeedExample(t *test
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCloudAssetOrganizationFeedDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

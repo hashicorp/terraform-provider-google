@@ -32,11 +32,8 @@ func TestAccGameServicesGameServerCluster_gameServiceClusterBasicExample(t *test
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckGameServicesGameServerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

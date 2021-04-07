@@ -31,11 +31,8 @@ func TestAccDatastoreIndex_datastoreIndexExample(t *testing.T) {
 	}
 
 	vcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-		},
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDatastoreIndexDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
