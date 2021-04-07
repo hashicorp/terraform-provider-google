@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -50,20 +51,12 @@ func resourceCloudIdentityGroupMembership() *schema.Resource {
 				Description:      `The name of the Group to create this membership in.`,
 			},
 			"roles": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Description: `The MembershipRoles that apply to the Membership.
 Must not contain duplicate MembershipRoles with the same name.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"OWNER", "MANAGER", "MEMBER"}, false),
-							Description:  `The name of the MembershipRole. Must be one of OWNER, MANAGER, MEMBER. Possible values: ["OWNER", "MANAGER", "MEMBER"]`,
-						},
-					},
-				},
+				Elem: cloudidentityGroupMembershipRolesSchema(),
+				// Default schema.HashSchema is used.
 			},
 			"preferred_member_key": {
 				Type:        schema.TypeList,
@@ -127,6 +120,19 @@ and must be in the form of 'identitysources/{identity_source_id}'.`,
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func cloudidentityGroupMembershipRolesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringInSlice([]string{"OWNER", "MANAGER", "MEMBER"}, false),
+				Description:  `The name of the MembershipRole. Must be one of OWNER, MANAGER, MEMBER. Possible values: ["OWNER", "MANAGER", "MEMBER"]`,
+			},
+		},
 	}
 }
 
@@ -257,39 +263,43 @@ func resourceCloudIdentityGroupMembershipUpdate(d *schema.ResourceData, meta int
 
 	billingProject := ""
 
-	obj := make(map[string]interface{})
-	preferredMemberKeyProp, err := expandCloudIdentityGroupMembershipPreferredMemberKey(d.Get("preferred_member_key"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("preferred_member_key"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, preferredMemberKeyProp)) {
-		obj["preferredMemberKey"] = preferredMemberKeyProp
-	}
-	rolesProp, err := expandCloudIdentityGroupMembershipRoles(d.Get("roles"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("roles"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rolesProp)) {
-		obj["roles"] = rolesProp
+	d.Partial(true)
+
+	if d.HasChange("roles") {
+		obj := make(map[string]interface{})
+
+		rolesProp, err := expandCloudIdentityGroupMembershipRoles(d.Get("roles"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("roles"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rolesProp)) {
+			obj["roles"] = rolesProp
+		}
+
+		obj, err = resourceCloudIdentityGroupMembershipUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}:modifyMembershipRoles")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error updating GroupMembership %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating GroupMembership %q: %#v", d.Id(), res)
+		}
+
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
-	if err != nil {
-		return err
-	}
-
-	log.Printf("[DEBUG] Updating GroupMembership %q: %#v", d.Id(), obj)
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
-	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-
-	if err != nil {
-		return fmt.Errorf("Error updating GroupMembership %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating GroupMembership %q: %#v", d.Id(), res)
-	}
+	d.Partial(false)
 
 	return resourceCloudIdentityGroupMembershipRead(d, meta)
 }
@@ -327,18 +337,25 @@ func resourceCloudIdentityGroupMembershipDelete(d *schema.ResourceData, meta int
 
 func resourceCloudIdentityGroupMembershipImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-
-	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := parseImportId([]string{
+		"(?P<name>.+)",
+	}, d, config); err != nil {
 		return nil, err
 	}
 
-	name := d.Get("name").(string)
-
-	if err := d.Set("name", name); err != nil {
-		return nil, fmt.Errorf("Error setting name: %s", err)
+	// Replace import id for the resource id
+	id, err := replaceVars(d, config, "{{name}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
-	d.SetId(name)
+	d.SetId(id)
+
+	// Configure "group" property, which does not appear in the response body.
+	group := regexp.MustCompile(`groups/[^/]+`).FindString(id)
+	if err := d.Set("group", group); err != nil {
+		return nil, fmt.Errorf("Error setting group property: %s", err)
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -382,14 +399,14 @@ func flattenCloudIdentityGroupMembershipRoles(v interface{}, d *schema.ResourceD
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(cloudidentityGroupMembershipRolesSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"name": flattenCloudIdentityGroupMembershipRolesName(original["name"], d, config),
 		})
 	}
@@ -438,6 +455,7 @@ func expandCloudIdentityGroupMembershipPreferredMemberKeyNamespace(v interface{}
 }
 
 func expandCloudIdentityGroupMembershipRoles(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -461,4 +479,19 @@ func expandCloudIdentityGroupMembershipRoles(v interface{}, d TerraformResourceD
 
 func expandCloudIdentityGroupMembershipRolesName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceCloudIdentityGroupMembershipUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Return object for modifyMembershipRoles (we build request object from scratch, without using `obj`)
+	b, a := d.GetChange("roles")
+	before := b.(*schema.Set)
+	after := a.(*schema.Set)
+	// ref: https://cloud.google.com/identity/docs/reference/rest/v1/groups.memberships/modifyMembershipRoles#request-body
+	addRoles := after.Difference(before).List()
+	var removeRoles []string
+	for _, r := range before.Difference(after).List() {
+		removeRoles = append(removeRoles, r.(map[string]interface{})["name"].(string))
+	}
+	req := map[string]interface{}{"addRoles": addRoles, "removeRoles": removeRoles}
+	return req, nil
 }
