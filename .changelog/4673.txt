@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added the ability to specify `google_compute_forwarding_rule.ip_address` by a reference in addition to raw IP address
+```
