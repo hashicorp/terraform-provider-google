@@ -110,16 +110,14 @@ This field is not applicable to addresses with addressType=EXTERNAL,
 or addressType=INTERNAL when purpose=PRIVATE_SERVICE_CONNECT`,
 			},
 			"purpose": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"VPC_PEERING", "PRIVATE_SERVICE_CONNECT", ""}, false),
-				Description: `The purpose of the resource. For global internal addresses it can be
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The purpose of the resource. Possible values include:
 
 * VPC_PEERING - for peer networks
-* PRIVATE_SERVICE_CONNECT - for ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Private Service Connect networks
 
-This should only be set when using an Internal address. Possible values: ["VPC_PEERING", "PRIVATE_SERVICE_CONNECT"]`,
+* PRIVATE_SERVICE_CONNECT - for ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Private Service Connect networks`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
