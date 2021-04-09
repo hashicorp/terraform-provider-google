@@ -23,14 +23,22 @@ func Provider() *schema.Provider {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"credentials": {
-				Type:         schema.TypeString,
-				Optional:     true,
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CREDENTIALS",
+					"GOOGLE_CLOUD_KEYFILE_JSON",
+					"GCLOUD_KEYFILE_JSON",
+				}, nil),
 				ValidateFunc: validateCredentials,
 			},
 
 			"access_token": {
-				Type:          schema.TypeString,
-				Optional:      true,
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_OAUTH_ACCESS_TOKEN",
+				}, nil),
 				ConflictsWith: []string{"credentials"},
 			},
 			"impersonate_service_account": {
@@ -1176,18 +1184,6 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 			return nil, diag.FromErr(err)
 		}
 	}
-
-	// Search for default credentials
-	config.Credentials = multiEnvSearch([]string{
-		"GOOGLE_CREDENTIALS",
-		"GOOGLE_CLOUD_KEYFILE_JSON",
-		"GCLOUD_KEYFILE_JSON",
-	})
-
-	config.AccessToken = multiEnvSearch([]string{
-		"GOOGLE_OAUTH_ACCESS_TOKEN",
-	})
-
 	// Add credential source
 	if v, ok := d.GetOk("access_token"); ok {
 		config.AccessToken = v.(string)
