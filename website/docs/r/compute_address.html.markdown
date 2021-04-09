@@ -175,12 +175,10 @@ The following arguments are supported:
 
 * `purpose` -
   (Optional)
-  The purpose of this resource, which can be one of the following values:
+  The purpose of this resource. Possible values include:
   * GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
   * SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal load balancers.
   * VPC_PEERING for addresses that are reserved for VPC peer networks.
-  This should only be set when using an Internal address.
-  Possible values are `GCE_ENDPOINT`, `VPC_PEERING`, and `SHARED_LOADBALANCER_VIP`.
 
 * `network_tier` -
   (Optional)

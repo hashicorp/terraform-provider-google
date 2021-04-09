@@ -86,20 +86,17 @@ if any.`,
 specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]`,
 			},
 			"purpose": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"GCE_ENDPOINT", "VPC_PEERING", "SHARED_LOADBALANCER_VIP", ""}, false),
-				Description: `The purpose of this resource, which can be one of the following values:
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The purpose of this resource. Possible values include:
 
 * GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
 
 * SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal load balancers.
 
-* VPC_PEERING for addresses that are reserved for VPC peer networks.
-
-This should only be set when using an Internal address. Possible values: ["GCE_ENDPOINT", "VPC_PEERING", "SHARED_LOADBALANCER_VIP"]`,
+* VPC_PEERING for addresses that are reserved for VPC peer networks.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
