@@ -921,15 +921,6 @@ func getTestServiceAccountFromEnv(t *testing.T) string {
 	return multiEnvSearch(serviceAccountEnvVars)
 }
 
-func multiEnvSearch(ks []string) string {
-	for _, k := range ks {
-		if v := os.Getenv(k); v != "" {
-			return v
-		}
-	}
-	return ""
-}
-
 // Some tests fail during VCR. One common case is race conditions when creating resources.
 // If a test config adds two fine-grained resources with the same parent it is undefined
 // which will be created first, causing VCR to fail ~50% of the time
