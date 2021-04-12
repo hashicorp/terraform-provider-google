@@ -12,7 +12,8 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: ""
+---
+subcategory: "Eventarc"
 layout: "google"
 page_title: "Google: google_eventarc_trigger"
 sidebar_current: "docs-google-eventarc-trigger"
@@ -92,7 +93,7 @@ The following arguments are supported:
   
 * `name` -
   (Required)
-  Required. The resource name of the trigger. Must be unique within the location on the project and must be in \`projects/{project}/locations/{location}/triggers/{trigger}\` format.
+  Required. The resource name of the trigger. Must be unique within the location on the project and must be in `projects/{project}/locations/{location}/triggers/{trigger}` format.
   
 
 The `destination` block supports:
@@ -100,7 +101,8 @@ The `destination` block supports:
 * `cloud_run_service` -
   (Optional)
   Cloud Run fully-managed service that receives the events. The service should be running in the same project as the trigger.
-    The `matching_criteria` block supports:
+
+The `matching_criteria` block supports:
     
 * `attribute` -
   (Required)
@@ -112,13 +114,21 @@ The `destination` block supports:
     
 - - -
 
+* `labels` -
+  (Optional)
+  Optional. User labels attached to the triggers that can be used to group resources.
+  
 * `project` -
   (Optional)
   The project for the resource
   
 * `service_account` -
   (Optional)
-  Optional. The IAM service account email associated with the trigger. The service account represents the identity of the trigger. The principal who calls this API must have \`iam.serviceAccounts.actAs\` permission in the service account. See https://cloud.google.com/iam/docs/understanding-service-accounts?hl=en#sa\_common for more information. For Cloud Run destinations, this service account is used to generate identity tokens when invoking the service. See https://cloud.google.com/run/docs/triggering/pubsub-push#create-service-account for information on how to invoke authenticated Cloud Run services. In order to create Audit Log triggers, the service account should also have 'eventarc.events.receiveAuditLogV1Written' permission.
+  Optional. The IAM service account email associated with the trigger. The service account represents the identity of the trigger. The principal who calls this API must have `iam.serviceAccounts.actAs` permission in the service account. See https://cloud.google.com/iam/docs/understanding-service-accounts?hl=en#sa\\\_common for more information. For Cloud Run destinations, this service account is used to generate identity tokens when invoking the service. See https://cloud.google.com/run/docs/triggering/pubsub-push#create-service-account for information on how to invoke authenticated Cloud Run services. In order to create Audit Log triggers, the service account should also have `roles/eventarc.eventReceiver` IAM role.
+  
+* `transport` -
+  (Optional)
+  Optional. In order to deliver messages, Eventarc may use other GCP products as transport intermediary. This field contains a reference to that transport intermediary. This information can be used for debugging purposes.
   
 
 The `cloud_run_service` block supports:
@@ -135,6 +145,20 @@ The `cloud_run_service` block supports:
   (Optional)
   Required. The region the Cloud Run service is deployed in.
     
+The `transport` block supports:
+    
+* `pubsub` -
+  (Optional)
+  The Pub/Sub topic and subscription used by Eventarc as delivery intermediary.
+    The `pubsub` block supports:
+    
+* `topic` -
+  (Optional)
+  Optional. The name of the Pub/Sub topic created and managed by Eventarc system as a transport for the event delivery. Format: `projects/{PROJECT_ID}/topics/{TOPIC_NAME}`. You may set an existing topic for triggers of the type `google.cloud.pubsub.topic.v1.messagePublished` only. The topic you provide here will not be deleted by Eventarc at trigger deletion.
+    
+* `subscription` -
+  Output only. The name of the Pub/Sub subscription created and managed by Eventarc system as a transport for the event delivery. Format: `projects/{PROJECT_ID}/subscriptions/{SUBSCRIPTION_NAME}`.
+    
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -146,9 +170,6 @@ In addition to the arguments listed above, the following computed attributes are
   
 * `etag` -
   Output only. This checksum is computed by the server based on the value of other fields, and may be sent only on create requests to ensure the client has an up-to-date value before proceeding.
-  
-* `transport` -
-  Optional. In order to deliver messages, Eventarc may use other GCP products as transport intermediary. This field contains a reference to that transport intermediary. This information can be used for debugging purposes.
   
 * `update_time` -
   Output only. The last-modified time.
@@ -171,6 +192,3 @@ $ terraform import google_eventarc_trigger.default projects/{{project}}/location
 $ terraform import google_eventarc_trigger.default {{project}}/{{location}}/{{name}}
 $ terraform import google_eventarc_trigger.default {{location}}/{{name}}
 ```
-
-
-
