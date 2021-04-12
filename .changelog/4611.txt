@@ -1,0 +1,6 @@
+```release-note:enhancement
+eventarc: added `transport.pubsub.topic` to `google_eventarc_trigger` (beta only)
+```
+```release-note:new-resource
+google_eventarc_trigger (GA only)
+```
