@@ -26,7 +26,6 @@ BUG FIXES:
 * iam: fixed issue with principle and principleSet members not retaining their casing ([#8860](https://github.com/hashicorp/terraform-provider-google/pull/8860))
 * storage: fixed intermittent `Provider produced inconsistent result after apply` error when creating `google_storage_hmac_key` ([#8817](https://github.com/hashicorp/terraform-provider-google/pull/8817))
 
-
 ## 3.63.0 (April 5, 2021)
 
 FEATURES:
