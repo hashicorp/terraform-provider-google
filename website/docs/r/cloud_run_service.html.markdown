@@ -624,6 +624,9 @@ The `metadata` block supports:
   **Note**: The Cloud Run API may add additional annotations that were not provided in your config.
   If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
   or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.
+  Cloud Run (fully managed) uses the following annotation keys to configure features on a Service:
+  - `run.googleapis.com/ingress` sets the [ingress settings](https://cloud.google.com/sdk/gcloud/reference/run/deploy#--ingress)
+    for the Service. For example, `"run.googleapis.com/ingress" = "all"`.
 
 ## Attributes Reference
 
