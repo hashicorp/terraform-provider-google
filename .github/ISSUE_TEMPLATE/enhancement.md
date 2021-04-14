@@ -1,10 +1,10 @@
 ---
 name: Enhancement
+labels: enhancement
 about: For when something (a resource, field, etc.) is missing, and should be added.
 
 ---
 
-<!--- Please leave this line, it helps our automation: [issue-type:enhancement] --->
 <!--- Please keep this note for the community --->
 
 ### Community Note
