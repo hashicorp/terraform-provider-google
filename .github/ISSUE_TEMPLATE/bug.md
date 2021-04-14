@@ -1,5 +1,6 @@
 ---
 name: Bug
+labels: bug
 about: For when something is there, but doesn't work how it should.
 
 ---
