@@ -26,7 +26,14 @@ var (
 		"cluster_config.0.gce_cluster_config.0.service_account",
 		"cluster_config.0.gce_cluster_config.0.service_account_scopes",
 		"cluster_config.0.gce_cluster_config.0.internal_ip_only",
+		"cluster_config.0.gce_cluster_config.0.shielded_instance_config",
 		"cluster_config.0.gce_cluster_config.0.metadata",
+	}
+
+	schieldedInstanceConfigKeys = []string{
+		"cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_secure_boot",
+		"cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_vtpm",
+		"cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_integrity_monitoring",
 	}
 
 	preemptibleWorkerDiskConfigKeys = []string{
@@ -257,6 +264,43 @@ func resourceDataprocCluster() *schema.Resource {
 										Elem:         &schema.Schema{Type: schema.TypeString},
 										ForceNew:     true,
 										Description:  `A map of the Compute Engine metadata entries to add to all instances`,
+									},
+
+									"shielded_instance_config": {
+										Type:         schema.TypeList,
+										Optional:     true,
+										AtLeastOneOf: gceClusterConfigKeys,
+										Computed:     true,
+										MaxItems:     1,
+										Description:  `Shielded Instance Config for clusters using Compute Engine Shielded VMs.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enable_secure_boot": {
+													Type:         schema.TypeBool,
+													Optional:     true,
+													Default:      false,
+													AtLeastOneOf: schieldedInstanceConfigKeys,
+													ForceNew:     true,
+													Description:  `Defines whether instances have Secure Boot enabled.`,
+												},
+												"enable_vtpm": {
+													Type:         schema.TypeBool,
+													Optional:     true,
+													Default:      false,
+													AtLeastOneOf: schieldedInstanceConfigKeys,
+													ForceNew:     true,
+													Description:  `Defines whether instances have the vTPM enabled.`,
+												},
+												"enable_integrity_monitoring": {
+													Type:         schema.TypeBool,
+													Optional:     true,
+													Default:      false,
+													AtLeastOneOf: schieldedInstanceConfigKeys,
+													ForceNew:     true,
+													Description:  `Defines whether instances have integrity monitoring enabled.`,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -887,6 +931,19 @@ func expandGceClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.G
 	if v, ok := cfg["metadata"]; ok {
 		conf.Metadata = convertStringMap(v.(map[string]interface{}))
 	}
+	if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.shielded_instance_config"); ok {
+		cfgSic := v.([]interface{})[0].(map[string]interface{})
+		conf.ShieldedInstanceConfig = &dataproc.ShieldedInstanceConfig{}
+		if v, ok := cfgSic["enable_integrity_monitoring"]; ok {
+			conf.ShieldedInstanceConfig.EnableIntegrityMonitoring = v.(bool)
+		}
+		if v, ok := cfgSic["enable_secure_boot"]; ok {
+			conf.ShieldedInstanceConfig.EnableSecureBoot = v.(bool)
+		}
+		if v, ok := cfgSic["enable_vtpm"]; ok {
+			conf.ShieldedInstanceConfig.EnableVtpm = v.(bool)
+		}
+	}
 	return conf, nil
 }
 
@@ -1224,13 +1281,13 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		"bucket":                    cfg.ConfigBucket,
 		"temp_bucket":               cfg.TempBucket,
 		"gce_cluster_config":        flattenGceClusterConfig(d, cfg.GceClusterConfig),
-		"security_config":           flattenSecurityConfig(d, cfg.SecurityConfig),
-		"software_config":           flattenSoftwareConfig(d, cfg.SoftwareConfig),
 		"master_config":             flattenInstanceGroupConfig(d, cfg.MasterConfig),
 		"worker_config":             flattenInstanceGroupConfig(d, cfg.WorkerConfig),
-		"preemptible_worker_config": flattenPreemptibleInstanceGroupConfig(d, cfg.SecondaryWorkerConfig),
+		"software_config":           flattenSoftwareConfig(d, cfg.SoftwareConfig),
 		"encryption_config":         flattenEncryptionConfig(d, cfg.EncryptionConfig),
 		"autoscaling_config":        flattenAutoscalingConfig(d, cfg.AutoscalingConfig),
+		"security_config":           flattenSecurityConfig(d, cfg.SecurityConfig),
+		"preemptible_worker_config": flattenPreemptibleInstanceGroupConfig(d, cfg.SecondaryWorkerConfig),
 	}
 
 	if len(cfg.InitializationActions) > 0 {
@@ -1364,6 +1421,15 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 	}
 	if len(gcc.ServiceAccountScopes) > 0 {
 		gceConfig["service_account_scopes"] = schema.NewSet(stringScopeHashcode, convertStringArrToInterface(gcc.ServiceAccountScopes))
+	}
+	if gcc.ShieldedInstanceConfig != nil {
+		gceConfig["shielded_instance_config"] = []map[string]interface{}{
+			{
+				"enable_integrity_monitoring": gcc.ShieldedInstanceConfig.EnableIntegrityMonitoring,
+				"enable_secure_boot":          gcc.ShieldedInstanceConfig.EnableSecureBoot,
+				"enable_vtpm":                 gcc.ShieldedInstanceConfig.EnableVtpm,
+			},
+		}
 	}
 
 	return []map[string]interface{}{gceConfig}
