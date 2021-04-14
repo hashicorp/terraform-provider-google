@@ -5,7 +5,6 @@ about: For when something is there, but doesn't work how it should.
 
 ---
 
-<!--- Please leave this line, it helps our automation: [issue-type:bug-report] --->
 <!--- Please keep this note for the community --->
 
 ### Community Note
