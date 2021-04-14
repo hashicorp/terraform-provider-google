@@ -277,7 +277,7 @@ func testAccCheckDataprocClusterAccelerator(cluster *dataproc.Cluster, project s
 	}
 }
 
-func TestAccDataprocCluster_withInternalIpOnlyTrue(t *testing.T) {
+func TestAccDataprocCluster_withInternalIpOnlyTrueAndShieldedConfig(t *testing.T) {
 	t.Parallel()
 
 	var cluster dataproc.Cluster
@@ -288,12 +288,15 @@ func TestAccDataprocCluster_withInternalIpOnlyTrue(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withInternalIpOnlyTrue(rnd),
+				Config: testAccDataprocCluster_withInternalIpOnlyTrueAndShieldedConfig(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
 
 					// Testing behavior for Dataproc to use only internal IP addresses
 					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.internal_ip_only", "true"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_integrity_monitoring", "true"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_secure_boot", "true"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.basic", "cluster_config.0.gce_cluster_config.0.shielded_instance_config.0.enable_vtpm", "true"),
 				),
 			},
 		},
@@ -987,7 +990,7 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
 `, rnd, zone, acceleratorType, acceleratorType)
 }
 
-func testAccDataprocCluster_withInternalIpOnlyTrue(rnd string) string {
+func testAccDataprocCluster_withInternalIpOnlyTrueAndShieldedConfig(rnd string) string {
 	return fmt.Sprintf(`
 variable "subnetwork_cidr" {
   default = "10.0.0.0/16"
@@ -1048,6 +1051,11 @@ resource "google_dataproc_cluster" "basic" {
     gce_cluster_config {
       subnetwork       = google_compute_subnetwork.dataproc_subnetwork.name
       internal_ip_only = true
+      shielded_instance_config{
+        enable_integrity_monitoring = true
+        enable_secure_boot          = true
+        enable_vtpm                 = true
+      }
     }
   }
 }

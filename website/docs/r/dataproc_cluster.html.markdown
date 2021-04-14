@@ -265,6 +265,31 @@ The `cluster_config.gce_cluster_config` block supports:
 * `metadata` - (Optional) A map of the Compute Engine metadata entries to add to all instances
    (see [Project and instance metadata](https://cloud.google.com/compute/docs/storing-retrieving-metadata#project_and_instance_metadata)).
 
+* `shielded_instance_config` (Optional) Shielded Instance Config for clusters using [Compute Engine Shielded VMs](https://cloud.google.com/security/shielded-cloud/shielded-vm).
+
+- - -
+
+
+The `cluster_config.gce_cluster_config.shielded_instance_config` block supports:
+
+```hcl
+cluster_config{
+  gce_cluster_config{
+    shielded_instance_config{
+      enable_secure_boot          = true
+      enable_vtpm                 = true
+      enable_integrity_monitoring = true
+    }
+  }
+}
+```
+
+* `enable_secure_boot` - (Optional) Defines whether instances have Secure Boot enabled.
+
+* `enable_vtpm` - (Optional) Defines whether instances have the [vTPM](https://cloud.google.com/security/shielded-cloud/shielded-vm#vtpm) enabled.
+
+* `enable_integrity_monitoring` - (Optional) Defines whether instances have integrity monitoring enabled.
+
 - - -
 
 The `cluster_config.master_config` block supports:
