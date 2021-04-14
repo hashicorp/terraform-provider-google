@@ -1,4 +1,26 @@
 ## 3.65.0 (Unreleased)
+
+UNKNOWN CHANGELOG TYPE:
+*  ([#8903](https://github.com/hashicorp/terraform-provider-google/pull/8903))
+* Bump github.com/hashicorp/go-version from 1.2.1 to 1.3.0 ([#8833](https://github.com/hashicorp/terraform-provider-google/pull/8833))
+* Revert "add minItems for the required field scopes" ([#8893](https://github.com/hashicorp/terraform-provider-google/pull/8893))
+* Update DCL dependency ([#8894](https://github.com/hashicorp/terraform-provider-google/pull/8894))
+
+FEATURES:
+* **New Data Source:** `google_kms_secret_asymmetric` ([#8879](https://github.com/hashicorp/terraform-provider-google/pull/8879))
+* **New Resource:** google_eventarc_trigger (GA only) ([#8895](https://github.com/hashicorp/terraform-provider-google/pull/8895))
+
+IMPROVEMENTS:
+* compute: added the ability to specify `google_compute_forwarding_rule.ip_address` by a reference in addition to raw IP address ([#8877](https://github.com/hashicorp/terraform-provider-google/pull/8877))
+* compute: enabled fields `advertiseMode`, `advertisedGroups`, `peerAsn`, and `peerIpAddress` to be updatable on resource `google_compute_router_peer` ([#8862](https://github.com/hashicorp/terraform-provider-google/pull/8862))
+* eventarc: added `transport.pubsub.topic` to `google_eventarc_trigger` (beta only) ([#8895](https://github.com/hashicorp/terraform-provider-google/pull/8895))
+
+BUG FIXES:
+* cloud_identity: fix google_cloud_identity_group_membership import/update ([#8867](https://github.com/hashicorp/terraform-provider-google/pull/8867))
+* compute: fixed an issue in `google_compute_instance` where `min_node_cpus` could not be set ([#8865](https://github.com/hashicorp/terraform-provider-google/pull/8865))
+* iam: fixed issue with principle and principleSet members not retaining their casing ([#8860](https://github.com/hashicorp/terraform-provider-google/pull/8860))
+* workflows: fixed a bug in `google_workflows_workflow` that could cause inconsistent final plan errors when using the `name` field in other resources ([#8869](https://github.com/hashicorp/terraform-provider-google/pull/8869))
+
 ## 3.64.0 (April 12, 2021)
 
 FEATURES:
