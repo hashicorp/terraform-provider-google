@@ -64,7 +64,7 @@ The following arguments are supported:
 * `type` -
   (Required)
   One of valid DNS resource types.
-  Possible values are `A`, `AAAA`, `CAA`, `CNAME`, `MX`, `NAPTR`, `NS`, `PTR`, `SOA`, `SPF`, `SRV`, `TLSA`, and `TXT`.
+  Possible values are `A`, `AAAA`, `CAA`, `CNAME`, `DNSKEY`, `DS`, `IPSECVPNKEY`, `MX`, `NAPTR`, `NS`, `PTR`, `SOA`, `SPF`, `SRV`, `SSHFP`, `TLSA`, and `TXT`.
 
 * `managed_zone` -
   (Required)
