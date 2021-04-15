@@ -425,6 +425,32 @@ func TestAccBigQueryExternalDataTable_CSV(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDataTable_bigtable(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 8),
+		"project":       getTestProjectFromEnv(),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableFromBigtable(context),
+			},
+			{
+				ResourceName:            "google_bigquery_table.table",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryDataTable_sheet(t *testing.T) {
 	t.Parallel()
 
@@ -1404,6 +1430,53 @@ resource "google_bigquery_table" "test" {
   }
 }
 `, datasetID, bucketName, objectName, content, tableID, format, quoteChar)
+}
+
+func testAccBigQueryTableFromBigtable(context map[string]interface{}) string {
+	return Nprintf(`
+	resource "google_bigtable_instance" "instance" {
+		name = "tf-test-bigtable-inst-%{random_suffix}"
+		cluster {
+			cluster_id = "tf-test-bigtable-%{random_suffix}"
+			zone       = "us-central1-b"
+		}
+		instance_type = "DEVELOPMENT"
+		deletion_protection = false
+	}
+	resource "google_bigtable_table" "table" {
+		name          = "%{random_suffix}"
+		instance_name = google_bigtable_instance.instance.name
+		column_family {
+			family = "cf-%{random_suffix}-first"
+		}
+		column_family {
+			family = "cf-%{random_suffix}-second"
+		}
+	}
+	resource "google_bigquery_table" "table" {
+		deletion_protection = false
+		dataset_id = google_bigquery_dataset.dataset.dataset_id
+		table_id   = "tf_test_bigtable_%{random_suffix}"
+		external_data_configuration {
+		  autodetect            = true
+		  source_format         = "BIGTABLE"
+		  ignore_unknown_values = true
+		  source_uris = [
+			"https://googleapis.com/bigtable/${google_bigtable_table.table.id}",
+		  ]
+		}
+	  }
+	  resource "google_bigquery_dataset" "dataset" {
+		dataset_id                  = "tf_test_ds_%{random_suffix}"
+		friendly_name               = "test"
+		description                 = "This is a test description"
+		location                    = "EU"
+		default_table_expiration_ms = 3600000
+		labels = {
+		  env = "default"
+		}
+	  }
+`, context)
 }
 
 func testAccBigQueryTableFromSheet(context map[string]interface{}) string {
