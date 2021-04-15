@@ -142,6 +142,7 @@ Multiple fields can have the same order, and field orders within a tag do not ha
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: `This confirms the deletion of any possible tags using this template. Must be set to true in order to delete the tag template.`,
+				Default:     false,
 			},
 			"region": {
 				Type:        schema.TypeString,
