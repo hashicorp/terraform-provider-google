@@ -644,7 +644,8 @@ The `load` block supports:
   (Optional)
   The format of the data files. For CSV files, specify "CSV". For datastore backups, specify "DATASTORE_BACKUP".
   For newline-delimited JSON, specify "NEWLINE_DELIMITED_JSON". For Avro, specify "AVRO". For parquet, specify "PARQUET".
-  For orc, specify "ORC". The default value is CSV.
+  For orc, specify "ORC". [Beta] For Bigtable, specify "BIGTABLE".
+  The default value is CSV.
 
 * `allow_jagged_rows` -
   (Optional)
