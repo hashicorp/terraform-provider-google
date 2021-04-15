@@ -17,18 +17,15 @@ func instanceSchedulingNodeAffinitiesElemSchema() *schema.Resource {
 			"key": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"operator": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"IN", "NOT_IN"}, false),
 			},
 			"values": {
 				Type:     schema.TypeSet,
 				Required: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
@@ -378,9 +375,18 @@ func flattenEnableDisplay(displayDevice *computeBeta.DisplayDevice) interface{} 
 	return displayDevice.EnableDisplay
 }
 
+// Node affinity updates require a reboot
+func schedulingHasChangeRequiringReboot(d *schema.ResourceData) bool {
+	o, n := d.GetChange("scheduling")
+	oScheduling := o.([]interface{})[0].(map[string]interface{})
+	newScheduling := n.([]interface{})[0].(map[string]interface{})
+
+	return hasNodeAffinitiesChanged(oScheduling, newScheduling)
+}
+
 // Terraform doesn't correctly calculate changes on schema.Set, so we do it manually
 // https://github.com/hashicorp/terraform-plugin-sdk/issues/98
-func schedulingHasChange(d *schema.ResourceData) bool {
+func schedulingHasChangeWithoutReboot(d *schema.ResourceData) bool {
 	if !d.HasChange("scheduling") {
 		// This doesn't work correctly, which is why this method exists
 		// But it is here for posterity
@@ -389,8 +395,11 @@ func schedulingHasChange(d *schema.ResourceData) bool {
 	o, n := d.GetChange("scheduling")
 	oScheduling := o.([]interface{})[0].(map[string]interface{})
 	newScheduling := n.([]interface{})[0].(map[string]interface{})
-	originalNa := oScheduling["node_affinities"].(*schema.Set)
-	newNa := newScheduling["node_affinities"].(*schema.Set)
+
+	if schedulingHasChangeRequiringReboot(d) {
+		return false
+	}
+
 	if oScheduling["automatic_restart"] != newScheduling["automatic_restart"] {
 		return true
 	}
@@ -407,5 +416,30 @@ func schedulingHasChange(d *schema.ResourceData) bool {
 		return true
 	}
 
-	return reflect.DeepEqual(newNa, originalNa)
+	return false
+}
+
+func hasNodeAffinitiesChanged(oScheduling, newScheduling map[string]interface{}) bool {
+	oldNAs := oScheduling["node_affinities"].(*schema.Set).List()
+	newNAs := newScheduling["node_affinities"].(*schema.Set).List()
+	if len(oldNAs) != len(newNAs) {
+		return true
+	}
+	for i := range oldNAs {
+		oldNodeAffinity := oldNAs[i].(map[string]interface{})
+		newNodeAffinity := newNAs[i].(map[string]interface{})
+		if oldNodeAffinity["key"] != newNodeAffinity["key"] {
+			return true
+		}
+		if oldNodeAffinity["operator"] != newNodeAffinity["operator"] {
+			return true
+		}
+
+		// convertStringSet will sort the set into a slice, allowing DeepEqual
+		if !reflect.DeepEqual(convertStringSet(oldNodeAffinity["values"].(*schema.Set)), convertStringSet(newNodeAffinity["values"].(*schema.Set))) {
+			return true
+		}
+	}
+
+	return false
 }

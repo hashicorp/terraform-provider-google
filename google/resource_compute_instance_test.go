@@ -844,13 +844,21 @@ func TestAccComputeInstance_soleTenantNodeAffinities(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccComputeInstance_withoutNodeAffinities(instanceName, templateName, groupName),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+			{
 				Config: testAccComputeInstance_soleTenantNodeAffinities(instanceName, templateName, groupName),
 			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
 			{
 				Config: testAccComputeInstance_soleTenantNodeAffinitiesUpdated(instanceName, templateName, groupName),
 			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_soleTenantNodeAffinitiesReduced(instanceName, templateName, groupName),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
 		},
 	})
 }
@@ -1515,7 +1523,7 @@ func TestAccComputeInstance_updateRunning_desiredStatusRunning_allowStoppingForU
 	})
 }
 
-const errorAllowStoppingMsg = "Changing the machine_type, min_cpu_platform, service_account, enable_display, shielded_instance_config, or network_interface.\\[#d\\].\\(network/subnetwork/subnetwork_project\\) on a started instance requires stopping it. To acknowledge this, please set allow_stopping_for_update = true in your config. You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update."
+const errorAllowStoppingMsg = "Changing the machine_type, min_cpu_platform, service_account, enable_display, shielded_instance_config, scheduling.node_affinities or network_interface.\\[#d\\].\\(network/subnetwork/subnetwork_project\\) on a started instance requires stopping it. To acknowledge this, please set allow_stopping_for_update = true in your config. You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update."
 
 func TestAccComputeInstance_updateRunning_desiredStatusNotSet_notAllowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
@@ -4544,6 +4552,53 @@ resource "google_compute_instance" "foobar" {
 `, instance)
 }
 
+func testAccComputeInstance_withoutNodeAffinities(instance, nodeTemplate, nodeGroup string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-8"   // can't be e2 because of sole tenancy
+  zone         = "us-central1-a"
+  allow_stopping_for_update = true
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_node_template" "nodetmpl" {
+  name   = "%s"
+  region = "us-central1"
+
+  node_affinity_labels = {
+    tfacc = "test"
+  }
+
+  node_type = "n1-node-96-624"
+
+  cpu_overcommit_type = "ENABLED"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  size          = 1
+  node_template = google_compute_node_template.nodetmpl.self_link
+}
+`, instance, nodeTemplate, nodeGroup)
+}
+
 func testAccComputeInstance_soleTenantNodeAffinities(instance, nodeTemplate, nodeGroup string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -4555,6 +4610,7 @@ resource "google_compute_instance" "foobar" {
   name         = "%s"
   machine_type = "n1-standard-8"   // can't be e2 because of sole tenancy
   zone         = "us-central1-a"
+  allow_stopping_for_update = true
 
   boot_disk {
     initialize_params {
@@ -4623,6 +4679,7 @@ resource "google_compute_instance" "foobar" {
   name         = "%s"
   machine_type = "n1-standard-8"   // can't be e2 because of sole tenancy
   zone         = "us-central1-a"
+  allow_stopping_for_update = true
 
   boot_disk {
     initialize_params {
@@ -4645,6 +4702,69 @@ resource "google_compute_instance" "foobar" {
       key      = "tfacc"
       operator = "NOT_IN"
       values   = ["not_here"]
+    }
+
+    node_affinities {
+      key      = "compute.googleapis.com/node-group-name"
+      operator = "IN"
+      values   = [google_compute_node_group.nodes.name]
+    }
+
+    min_node_cpus = 6
+  }
+}
+
+resource "google_compute_node_template" "nodetmpl" {
+  name   = "%s"
+  region = "us-central1"
+
+  node_affinity_labels = {
+    tfacc = "test"
+  }
+
+  node_type = "n1-node-96-624"
+
+  cpu_overcommit_type = "ENABLED"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  size          = 1
+  node_template = google_compute_node_template.nodetmpl.self_link
+}
+`, instance, nodeTemplate, nodeGroup)
+}
+
+func testAccComputeInstance_soleTenantNodeAffinitiesReduced(instance, nodeTemplate, nodeGroup string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-8"   // can't be e2 because of sole tenancy
+  zone         = "us-central1-a"
+  allow_stopping_for_update = true
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    node_affinities {
+      key      = "tfacc"
+      operator = "IN"
+      values   = ["test", "updatedlabel"]
     }
 
     node_affinities {
