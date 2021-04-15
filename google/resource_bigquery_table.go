@@ -111,6 +111,9 @@ func bigQueryTableSchemaDiffSuppress(_, old, new string, _ *schema.ResourceData)
 	if old == "null" {
 		old = "[]"
 	}
+	if new == "null" {
+		new = "[]"
+	}
 	var a, b interface{}
 	if err := json.Unmarshal([]byte(old), &a); err != nil {
 		log.Printf("[DEBUG] unable to unmarshal json - %v", err)
@@ -234,6 +237,10 @@ func resourceBigQueryTableSchemaCustomizeDiffFunc(d TerraformResourceDiff) error
 		if oldSchemaText == "null" {
 			// The API can return an empty schema which gets encoded to "null" during read.
 			oldSchemaText = "[]"
+		}
+		if newSchemaText == "null" {
+			// The API can return an empty schema which gets encoded to "null" during read.
+			newSchemaText = "[]"
 		}
 		var old, new interface{}
 		if err := json.Unmarshal([]byte(oldSchemaText), &old); err != nil {
