@@ -1387,7 +1387,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instance-template-internal"
+  name_prefix  = "tf-test-"
   machine_type = "e2-medium"
 
   network_interface {
