@@ -156,6 +156,7 @@ resource "google_compute_region_backend_service" "default" {
   region      = "us-central1"
   name        = "backend-service"
   protocol    = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
   timeout_sec = 10
 
   health_checks = [google_compute_region_health_check.default.id]
