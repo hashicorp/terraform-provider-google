@@ -320,6 +320,13 @@ func gcsDataSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: `Google Cloud Storage bucket name.`,
 			},
+			"path": {
+				Optional:     true,
+				Type:         schema.TypeString,
+				Description:  `Google Cloud Storage path in bucket to transfer`,
+				Default:      "",
+				ValidateFunc: validateRegexp("^[^/].*/$"),
+			},
 		},
 	}
 }
@@ -697,12 +704,14 @@ func expandGcsData(gcsDatas []interface{}) *storagetransfer.GcsData {
 	gcsData := gcsDatas[0].(map[string]interface{})
 	return &storagetransfer.GcsData{
 		BucketName: gcsData["bucket_name"].(string),
+		Path:       gcsData["path"].(string),
 	}
 }
 
 func flattenGcsData(gcsData *storagetransfer.GcsData) []map[string]interface{} {
 	data := map[string]interface{}{
 		"bucket_name": gcsData.BucketName,
+		"path":        gcsData.Path,
 	}
 
 	return []map[string]interface{}{data}

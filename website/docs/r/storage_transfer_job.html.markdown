@@ -151,10 +151,12 @@ The `transfer_options` block supports:
 The `gcs_data_sink` block supports:
 
 * `bucket_name` - (Required) Google Cloud Storage bucket name.
+* `path` - (Optional) Root path to transfer objects. Must be an empty string or full path name that ends with a '/'. This field is treated as an object prefix. As such, it should generally not begin with a '/'. 
 
 The `gcs_data_source` block supports:
 
 * `bucket_name` - (Required) Google Cloud Storage bucket name.
+* `path` - (Optional) Root path to transfer objects. Must be an empty string or full path name that ends with a '/'. This field is treated as an object prefix. As such, it should generally not begin with a '/'.
 
 The `aws_s3_data_source` block supports:
 

@@ -153,9 +153,11 @@ resource "google_storage_transfer_job" "transfer_job" {
   transfer_spec {
     gcs_data_source {
       bucket_name = google_storage_bucket.data_source.name
+      path  = "foo/bar/"
     }
     gcs_data_sink {
       bucket_name = google_storage_bucket.data_sink.name
+      path = "fizz/buzz/"
     }
   }
 
