@@ -574,10 +574,11 @@ func resourceComputeInstance() *schema.Resource {
 			},
 
 			"service_account": {
-				Type:        schema.TypeList,
-				MaxItems:    1,
-				Optional:    true,
-				Description: `The service account to attach to the instance.`,
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				DiffSuppressFunc: serviceAccountDiffSuppress,
+				Description:      `The service account to attach to the instance.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"email": {
@@ -2238,4 +2239,29 @@ func hash256(raw string) (string, error) {
 	}
 	h := sha256.Sum256(decoded)
 	return base64.StdEncoding.EncodeToString(h[:]), nil
+}
+
+func serviceAccountDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	o, n := d.GetChange(strings.TrimSuffix(k, ".#"))
+	var l []interface{}
+	if old == "0" && new == "1" {
+		l = n.([]interface{})
+	} else if new == "0" && old == "1" {
+		l = o.([]interface{})
+	} else {
+		// we don't have one set and one unset, so don't suppress the diff
+		return false
+	}
+
+	// suppress changes between { } and {scopes:[]}
+	if l[0] != nil {
+		contents := l[0].(map[string]interface{})
+		if scopes, ok := contents["scopes"]; ok {
+			a := scopes.(*schema.Set).List()
+			if a != nil && len(a) > 0 {
+				return false
+			}
+		}
+	}
+	return true
 }
