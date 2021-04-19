@@ -1322,7 +1322,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "instancet-test-%s"
+  name           = "tf-test-instance-template-%s"
   machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
@@ -1360,7 +1360,7 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_imageShorthand(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_image" "foobar" {
-  name        = "test-%s"
+  name        = "tf-test-%s"
   description = "description-test"
   family      = "family-test"
   raw_disk {
@@ -1376,7 +1376,7 @@ resource "google_compute_image" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "instancet-test-%s"
+  name           = "tf-test-instance-template-%s"
   machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
@@ -1419,7 +1419,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "instancet-test-%s"
+  name           = "tf-test-instance-template-%s"
   machine_type   = "e2-medium"
   can_ip_forward = false
   tags           = ["foo", "bar"]
@@ -1453,7 +1453,7 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_ip(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_address" "foo" {
-  name = "instancet-test-%s"
+  name = "tf-test-instance-template-%s"
 }
 
 data "google_compute_image" "my_image" {
@@ -1462,7 +1462,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instancet-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
   tags         = ["foo", "bar"]
 
@@ -1492,7 +1492,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instancet-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
 
   disk {
@@ -1517,7 +1517,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instancet-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
   tags         = ["foo", "bar"]
 
@@ -1545,7 +1545,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instancet-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
   tags         = ["foo", "bar"]
 
@@ -1573,7 +1573,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_disk" "foobar" {
-  name  = "instancet-test-%s"
+  name  = "tf-test-instance-template-%s"
   image = data.google_compute_image.my_image.self_link
   size  = 10
   type  = "pd-ssd"
@@ -1581,7 +1581,7 @@ resource "google_compute_disk" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instancet-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
 
   disk {
@@ -1619,7 +1619,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_disk" "foobar" {
-  name  = "instancet-test-%s"
+  name  = "tf-test-instance-template-%s"
   image = data.google_compute_image.my_image.self_link
   size  = 10
   type  = "pd-ssd"
@@ -1627,7 +1627,7 @@ resource "google_compute_disk" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instancet-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
 
   disk {
@@ -1662,7 +1662,7 @@ data "google_compute_image" "my_image" {
 	project = "centos-cloud"
 }
 resource "google_compute_instance_template" "foobar" {
-  name           = "instancet-test-%s"
+  name           = "tf-test-instance-template-%s"
   machine_type   = "e2-medium"
   can_ip_forward = false
   disk {
@@ -1691,7 +1691,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_region_disk" "foobar" {
-  name          = "instancet-test-%s"
+  name          = "tf-test-instance-template-%s"
   size          = 10
   type          = "pd-ssd"
   region        = "us-central1"
@@ -1699,7 +1699,7 @@ resource "google_compute_region_disk" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instancet-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
 
   disk {
@@ -1739,7 +1739,7 @@ resource "google_compute_network" "auto-network" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instance-tpl-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
 
   disk {
@@ -1780,7 +1780,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instance-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
   region       = "us-central1"
 
@@ -1857,7 +1857,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instance-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
   region       = "us-central1"
 
@@ -1889,7 +1889,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instance-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
 
   disk {
@@ -1920,7 +1920,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instance-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
 
   disk {
@@ -1967,7 +1967,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instance-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
 
   disk {
@@ -2006,7 +2006,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instance-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
 
   disk {
@@ -2041,7 +2041,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instance-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-medium"
 
   disk {
@@ -2073,7 +2073,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "instancet-test-%s"
+  name           = "tf-test-instance-template-%s"
   machine_type   = "e2-medium"
   can_ip_forward = false
 
@@ -2107,7 +2107,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "instancet-test-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "e2-standard-4"
 
   disk {
@@ -2147,7 +2147,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "instancet-test-%s"
+  name           = "tf-test-instance-template-%s"
   machine_type   = "e2-medium"
   can_ip_forward = false
 
@@ -2178,7 +2178,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name         = "cvm-%s"
+  name         = "tf-test-instance-template-%s"
   machine_type = "n2d-standard-2"
 
   disk {
@@ -2211,7 +2211,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "instancet-test-%s"
+  name           = "tf-test-instance-template-%s"
   machine_type   = "e2-medium"
   can_ip_forward = false
   disk {
@@ -2235,8 +2235,9 @@ func testAccComputeInstanceTemplate_invalidDiskType(suffix string) string {
 # 	family  = "centos-7"
 # 	project = "centos-cloud"
 # }
+
 resource "google_compute_instance_template" "foobar" {
-  name           = "instancet-test-%s"
+  name           = "tf-test-instance-template-%s"
   machine_type   = "e2-medium"
   can_ip_forward = false
   disk {
@@ -2274,13 +2275,15 @@ resource "google_compute_disk" "my_disk" {
 	zone  = "us-central1-a"
 	image = data.google_compute_image.my_image.self_link
 }
+
 resource "google_compute_image" "diskimage" {
 	name = "%s"
 	description = "%s"
 	source_disk = google_compute_disk.my_disk.self_link
 }
+
 resource "google_compute_instance_template" "foobar" {
-	name_prefix = "tf-test-instance-"
+	name_prefix = "tf-test-instance-template-"
 	machine_type         = "e2-medium"
 	disk {
 		source_image = google_compute_image.diskimage.self_link
@@ -2300,7 +2303,7 @@ data "google_compute_image" "my_image" {
   project = "debian-cloud"
 }
 resource "google_compute_instance_template" "foobar" {
-  name           = "instance-test-%s"
+  name           = "tf-test-instance-template-%s"
   machine_type   = "e2-medium"
   can_ip_forward = false
   disk {
@@ -2317,6 +2320,7 @@ resource "google_compute_instance_template" "foobar" {
     my_label = "foobar"
   }
 }
+
 resource "google_compute_resource_policy" "foo" {
   name   = "%s"
   region = "us-central1"
@@ -2352,8 +2356,9 @@ resource "google_compute_image" "example" {
 		type = "GVNIC"
 	}
 }
+
 resource "google_compute_instance_template" "foobar" {
-	name           = "instancet-test-%s"
+	name           = "tf-test-instance-template-%s"
 	machine_type   = "e2-medium"
 	can_ip_forward = false
 	tags           = ["foo", "bar"]

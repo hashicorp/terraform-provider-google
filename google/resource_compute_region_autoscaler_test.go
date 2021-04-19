@@ -11,7 +11,7 @@ func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var autoscalerName = fmt.Sprintf("region-autoscaler-test-%s", randString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-region-autoscaler-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -44,7 +44,7 @@ func TestAccComputeRegionAutoscaler_scaleInControl(t *testing.T) {
 	var itName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 	var tpName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 	var igmName = fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var autoscalerName = fmt.Sprintf("region-autoscaler-test-%s", randString(t, 10))
+	var autoscalerName = fmt.Sprintf("tf-test-region-autoscaler-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
