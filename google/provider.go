@@ -1049,6 +1049,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dataflow_job":                          resourceDataflowJob(),
 			"google_dataproc_cluster":                      resourceDataprocCluster(),
 			"google_dataproc_job":                          resourceDataprocJob(),
+			"google_dataproc_workflow_template":            resourceDataprocWorkflowTemplate(),
 			"google_endpoints_service":                     resourceEndpointsService(),
 			"google_eventarc_trigger":                      resourceEventarcTrigger(),
 			"google_folder":                                resourceGoogleFolder(),
