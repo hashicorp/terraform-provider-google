@@ -72,14 +72,6 @@ func parseCloudFunctionId(d *schema.ResourceData, config *Config) (*cloudFunctio
 	}, nil
 }
 
-func joinMapKeys(mapToJoin *map[int]bool) string {
-	var keys []string
-	for key := range *mapToJoin {
-		keys = append(keys, strconv.Itoa(key))
-	}
-	return strings.Join(keys, ",")
-}
-
 // Differs from validateGcpName because Cloud Functions allow capital letters
 // at start/end
 func validateResourceCloudFunctionsFunctionName(v interface{}, k string) (ws []string, errors []error) {
