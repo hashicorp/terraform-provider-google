@@ -1,4 +1,4 @@
-## 3.65.0 (Unreleased)
+## 3.65.0 (April 20, 2021)
 
 FEATURES:
 * **New Resource:** google_eventarc_trigger ([#8895](https://github.com/hashicorp/terraform-provider-google/pull/8895))
