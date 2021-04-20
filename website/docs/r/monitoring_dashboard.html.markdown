@@ -144,7 +144,7 @@ This resource provides the following
 Dashboard can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_monitoring_dashboard.default project/{{project}}/dashboards/{{dashboard_id}}
+$ terraform import google_monitoring_dashboard.default projects/{{project}}/dashboards/{{dashboard_id}}
 $ terraform import google_monitoring_dashboard.default {{dashboard_id}}
 ```
 
