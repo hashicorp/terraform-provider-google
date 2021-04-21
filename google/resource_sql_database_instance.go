@@ -692,7 +692,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 						},
 						"point_in_time": {
 							Type:             schema.TypeString,
-							Required:         true,
+							Optional:         true,
 							DiffSuppressFunc: timestampDiffSuppress(time.RFC3339Nano),
 							Description:      `The timestamp of the point in time that should be restored.`,
 						},
