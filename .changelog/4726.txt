@@ -1,0 +1,6 @@
+```release-note:bug
+bigquery: fixed `dataset_id` to force new resource if name is changed.
+```
+```release-note:breaking-change
+bigquery: updating `dataset_id` or `project_id` in `google_bigquery_dataset` will now recreate the resource
+```
