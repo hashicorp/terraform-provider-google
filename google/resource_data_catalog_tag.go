@@ -116,6 +116,7 @@ For attaching a tag to a nested column, use '.' to separate the column names. Ex
 			"parent": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Description: `The name of the parent this tag is attached to. This can be the name of an entry or an entry group. If an entry group, the tag will be attached to
 all entries in that group.`,
 			},
