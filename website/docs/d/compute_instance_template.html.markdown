@@ -24,7 +24,7 @@ data "google_compute_instance_template" "generic" {
 
 # using a filter
 data "google_compute_instance_template" "generic-regex" {
-  filter      = "name eq generic-tpl-.*"
+  filter      = "name != generic-tpl-20200107"
   most_recent = true
 }
 ```
