@@ -76,6 +76,21 @@ after the Secret has been created.`,
 													Required:    true,
 													Description: `The canonical IDs of the location to replicate data. For example: "us-east1".`,
 												},
+												"customer_managed_encryption": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `The default encryption key for Secret Created.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"kms_key_name": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Describes the Cloud KMS encryption key that will be used to protect destination.`,
+															},
+														},
+													},
+												},
 											},
 										},
 									},
@@ -412,12 +427,32 @@ func flattenSecretManagerSecretReplicationUserManagedReplicas(v interface{}, d *
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"location": flattenSecretManagerSecretReplicationUserManagedReplicasLocation(original["location"], d, config),
+			"location":                    flattenSecretManagerSecretReplicationUserManagedReplicasLocation(original["location"], d, config),
+			"customer_managed_encryption": flattenSecretManagerSecretReplicationUserManagedReplicasCustomerManagedEncryption(original["customerManagedEncryption"], d, config),
 		})
+
 	}
 	return transformed
 }
+
+func flattenSecretManagerSecretReplicationUserManagedReplicasCustomerManagedEncryption(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] = flattenSecretManagerSecretReplicationUserManagedReplicasCustomerManagedEncryptionKMS(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+
 func flattenSecretManagerSecretReplicationUserManagedReplicasLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenSecretManagerSecretReplicationUserManagedReplicasCustomerManagedEncryptionKMS(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -495,16 +530,45 @@ func expandSecretManagerSecretReplicationUserManagedReplicas(v interface{}, d Te
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
+		transformedCustomerManagedEncryption, err := expandSecretManagerSecretReplicationUserManagedReplicasCustomerManagedEncryption(original["customer_managed_encryption"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCustomerManagedEncryption); val.IsValid() && !isEmptyValue(val) {
+			transformed["customerManagedEncryption"] = transformedCustomerManagedEncryption
+		}
+
 		transformedLocation, err := expandSecretManagerSecretReplicationUserManagedReplicasLocation(original["location"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !isEmptyValue(val) {
 			transformed["location"] = transformedLocation
 		}
-
 		req = append(req, transformed)
 	}
 	return req, nil
+}
+
+func expandSecretManagerSecretReplicationUserManagedReplicasCustomerManagedEncryption(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandSecretManagerSecretReplicationUserManagedReplicasCustomerManagedEncryptionKMS(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandSecretManagerSecretReplicationUserManagedReplicasCustomerManagedEncryptionKMS(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandSecretManagerSecretReplicationUserManagedReplicasLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
