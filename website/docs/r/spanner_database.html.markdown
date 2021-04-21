@@ -88,12 +88,24 @@ The following arguments are supported:
   execute atomically with the creation of the database: if there is an
   error in any statement, the database is not created.
 
+* `encryption_config` -
+  (Optional)
+  Encryption configuration for the database
+  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 * `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
 in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
 
+
+The `encryption_config` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Fully qualified name of the KMS key to use to encrypt this database. This key must exist
+  in the same location as the Spanner Database.
 
 ## Attributes Reference
 

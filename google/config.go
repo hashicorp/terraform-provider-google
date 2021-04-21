@@ -324,7 +324,7 @@ func expandProviderBatchingConfig(v interface{}) (*batchingConfig, error) {
 
 func (c *Config) synchronousTimeout() time.Duration {
 	if c.RequestTimeout == 0 {
-		return 30 * time.Second
+		return 120 * time.Second
 	}
 	return c.RequestTimeout
 }

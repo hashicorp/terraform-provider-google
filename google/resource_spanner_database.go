@@ -102,6 +102,24 @@ error in any statement, the database is not created.`,
 					Type: schema.TypeString,
 				},
 			},
+			"encryption_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Encryption configuration for the database`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Fully qualified name of the KMS key to use to encrypt this database. This key must exist
+in the same location as the Spanner Database.`,
+						},
+					},
+				},
+			},
 			"state": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -142,6 +160,12 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("ddl"); !isEmptyValue(reflect.ValueOf(extraStatementsProp)) && (ok || !reflect.DeepEqual(v, extraStatementsProp)) {
 		obj["extraStatements"] = extraStatementsProp
+	}
+	encryptionConfigProp, err := expandSpannerDatabaseEncryptionConfig(d.Get("encryption_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_config"); !isEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
+		obj["encryptionConfig"] = encryptionConfigProp
 	}
 	instanceProp, err := expandSpannerDatabaseInstance(d.Get("instance"), d, config)
 	if err != nil {
@@ -278,6 +302,9 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("state", flattenSpannerDatabaseState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err := d.Set("encryption_config", flattenSpannerDatabaseEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
 	if err := d.Set("instance", flattenSpannerDatabaseInstance(res["instance"], d, config)); err != nil {
@@ -434,6 +461,23 @@ func flattenSpannerDatabaseState(v interface{}, d *schema.ResourceData, config *
 	return v
 }
 
+func flattenSpannerDatabaseEncryptionConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenSpannerDatabaseEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -446,6 +490,29 @@ func expandSpannerDatabaseName(v interface{}, d TerraformResourceData, config *C
 }
 
 func expandSpannerDatabaseDdl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerDatabaseEncryptionConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandSpannerDatabaseEncryptionConfigKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
