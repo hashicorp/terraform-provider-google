@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: fixed permadiff on `google_cloud_run_domain_mapping.metadata.labels`
+```
