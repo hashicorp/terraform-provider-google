@@ -251,6 +251,7 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(0, 3600),
 							Description:  `Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600].`,
+							Deprecated:   `This attribute is currently in beta and will be removed from the google provider. Please use the google-beta provider to continue using this attribute.`,
 						},
 						"replacement_method": {
 							Type:             schema.TypeString,

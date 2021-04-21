@@ -219,6 +219,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				ForceNew:    true,
 				Computed:    true,
 				Description: `The shape to which the group converges either proactively or on resize events (depending on the value set in updatePolicy.instanceRedistributionType).`,
+				Deprecated:  `This attribute is currently in beta and will be removed from the google provider. Please use the google-beta provider to continue using this attribute.`,
 			},
 
 			"update_policy": {
@@ -280,6 +281,7 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(0, 3600),
 							Description:  `Minimum number of seconds to wait for after a newly created instance becomes available. This value must be from range [0, 3600].`,
+							Deprecated:   `This attribute is currently in beta and will be removed from the google provider. Please use the google-beta provider to continue using this attribute.`,
 						},
 						"instance_redistribution_type": {
 							Type:             schema.TypeString,

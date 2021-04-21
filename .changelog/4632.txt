@@ -1,0 +1,9 @@
+```release-note:deprecation
+compute: deprecated `min_ready_sec` in `google_compute_region_instance_group_manager` & `google_compute_instance_group_manager` in GA
+```
+```release-note:deprecation
+compute: deprecated `distribution_policy_target_shape` in `google_compute_region_instance_group_manager` in GA
+```
+```release-note:deprecation
+container: deprecated `pod_security_policy_config` field on resource `google_container_cluster` in GA
+```
