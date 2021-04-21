@@ -660,6 +660,7 @@ func resourceContainerCluster() *schema.Resource {
 				Optional:    true,
 				MaxItems:    1,
 				Description: `Configuration for the PodSecurityPolicy feature.`,
+				Deprecated:  `This attribute is currently in beta and will be removed from the google provider. Please use the google-beta provider to continue using this attribute.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
