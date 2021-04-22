@@ -24,12 +24,10 @@ description: |-
 
 A Google Cloud Memcache instance.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Instance, see:
 
-* [API documentation](https://cloud.google.com/memorystore/docs/memcached/reference/rest/v1beta2/projects.locations.instances)
+* [API documentation](https://cloud.google.com/memorystore/docs/memcached/reference/rest/v1/projects.locations.instances)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/memcache/docs/creating-instances)
 
@@ -56,7 +54,6 @@ data "google_compute_network" "memcache_network" {
 }
 
 resource "google_compute_global_address" "service_range" {
-  provider = google-beta
   name          = "address"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
@@ -65,14 +62,12 @@ resource "google_compute_global_address" "service_range" {
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
-  provider = google-beta
   network                 = data.google_compute_network.memcache_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
 
 resource "google_memcache_instance" "instance" {
-  provider = google-beta
   name = "test-instance"
   authorized_network = google_service_networking_connection.private_service_connection.network
 
