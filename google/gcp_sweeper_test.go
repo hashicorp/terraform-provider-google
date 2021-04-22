@@ -12,7 +12,10 @@ import (
 var testResourcePrefixes = []string{
 	"tf-test",
 	"tfgen",
-	"gke-us-central1-tf", // composer-created disks which are abandoned by design (https://cloud.google.com/composer/pricing)
+	"gke-us-central1-tf",  // composer-created disks which are abandoned by design (https://cloud.google.com/composer/pricing)
+	"gcs-bucket-tf-test-", // https://github.com/hashicorp/terraform-provider-google/issues/8909
+	"df-",                 // https://github.com/hashicorp/terraform-provider-google/issues/8909
+
 }
 
 func TestMain(m *testing.M) {
