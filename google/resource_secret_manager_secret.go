@@ -79,14 +79,14 @@ after the Secret has been created.`,
 												"customer_managed_encryption": {
 													Type:        schema.TypeList,
 													Optional:    true,
-													Description: `The default encryption key for Secret Created.`,
+													Description: `Customer Managed Encryption for the secret.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"kms_key_name": {
 																Type:        schema.TypeString,
 																Required:    true,
-																Description: `Describes the Cloud KMS encryption key that will be used to protect destination.`,
+																Description: `Describes the Cloud KMS encryption key that will be used to protect destination secret.`,
 															},
 														},
 													},

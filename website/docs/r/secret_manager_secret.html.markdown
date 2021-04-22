@@ -100,6 +100,18 @@ The `replicas` block supports:
   (Required)
   The canonical IDs of the location to replicate data. For example: "us-east1".
 
+* `custom_managed_encryption` -
+  (Optional)
+  Customer Managed Encryption for the secret.
+  Structure is documented below.
+
+
+The `custom_managed_encryption` block supports:
+
+* `kms_key_name` - 
+  (Required)
+   Describes the Cloud KMS encryption key that will be used to protect destination secret.
+   
 - - -
 
 
@@ -116,6 +128,8 @@ The `replicas` block supports:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+
 
 
 ## Attributes Reference
