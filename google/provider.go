@@ -415,6 +415,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_LOGGING_CUSTOM_ENDPOINT",
 				}, LoggingDefaultBasePath),
 			},
+			"memcache_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_MEMCACHE_CUSTOM_ENDPOINT",
+				}, MemcacheDefaultBasePath),
+			},
 			"ml_engine_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -727,9 +735,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 192
+// Generated resources: 193
 // Generated IAM resources: 87
-// Total generated resources: 279
+// Total generated resources: 280
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -952,6 +960,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_kms_key_ring_import_job":                               resourceKMSKeyRingImportJob(),
 			"google_kms_secret_ciphertext":                                 resourceKMSSecretCiphertext(),
 			"google_logging_metric":                                        resourceLoggingMetric(),
+			"google_memcache_instance":                                     resourceMemcacheInstance(),
 			"google_ml_engine_model":                                       resourceMLEngineModel(),
 			"google_monitoring_alert_policy":                               resourceMonitoringAlertPolicy(),
 			"google_monitoring_group":                                      resourceMonitoringGroup(),
@@ -1260,6 +1269,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.IdentityPlatformBasePath = d.Get("identity_platform_custom_endpoint").(string)
 	config.KMSBasePath = d.Get("kms_custom_endpoint").(string)
 	config.LoggingBasePath = d.Get("logging_custom_endpoint").(string)
+	config.MemcacheBasePath = d.Get("memcache_custom_endpoint").(string)
 	config.MLEngineBasePath = d.Get("ml_engine_custom_endpoint").(string)
 	config.MonitoringBasePath = d.Get("monitoring_custom_endpoint").(string)
 	config.NetworkManagementBasePath = d.Get("network_management_custom_endpoint").(string)
