@@ -37,15 +37,17 @@ func TestAccStorageBucket_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportStateId:     fmt.Sprintf("%s/%s", getTestProjectFromEnv(), bucketName),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportStateId:           fmt.Sprintf("%s/%s", getTestProjectFromEnv(), bucketName),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -69,9 +71,10 @@ func TestAccStorageBucket_requesterPays(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -91,9 +94,10 @@ func TestAccStorageBucket_lowercaseLocation(t *testing.T) {
 				Config: testAccStorageBucket_lowercaseLocation(bucketName),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -141,9 +145,10 @@ func TestAccStorageBucket_lifecycleRulesMultiple(t *testing.T) {
 				Config: testAccStorageBucket_lifecycleRulesMultiple(bucketName),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -169,9 +174,10 @@ func TestAccStorageBucket_lifecycleRuleStateLive(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -197,9 +203,10 @@ func TestAccStorageBucket_lifecycleRuleStateArchived(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_lifecycleRule_withStateArchived(bucketName),
@@ -210,9 +217,10 @@ func TestAccStorageBucket_lifecycleRuleStateArchived(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -238,9 +246,10 @@ func TestAccStorageBucket_lifecycleRuleStateAny(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_lifecycleRule_withStateLive(bucketName),
@@ -251,9 +260,10 @@ func TestAccStorageBucket_lifecycleRuleStateAny(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_lifecycleRule_withStateAny(bucketName),
@@ -264,9 +274,10 @@ func TestAccStorageBucket_lifecycleRuleStateAny(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_lifecycleRule_withStateArchived(bucketName),
@@ -277,9 +288,10 @@ func TestAccStorageBucket_lifecycleRuleStateAny(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -305,9 +317,10 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_storageClass(bucketName, "NEARLINE", ""),
@@ -319,9 +332,10 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_storageClass(bucketName, "REGIONAL", "US-CENTRAL1"),
@@ -333,9 +347,10 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -361,9 +376,10 @@ func TestAccStorageBucket_update_requesterPays(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_requesterPays(bucketName, false),
@@ -374,9 +390,10 @@ func TestAccStorageBucket_update_requesterPays(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -596,9 +613,10 @@ func TestAccStorageBucket_versioning(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -625,9 +643,10 @@ func TestAccStorageBucket_logging(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_loggingWithPrefix(bucketName, "another-log-bucket", "object-prefix"),
@@ -641,9 +660,10 @@ func TestAccStorageBucket_logging(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_basic(bucketName),
@@ -653,9 +673,10 @@ func TestAccStorageBucket_logging(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -675,17 +696,19 @@ func TestAccStorageBucket_cors(t *testing.T) {
 				Config: testGoogleStorageBucketsCors(bucketName),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_basic(bucketName),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -705,9 +728,10 @@ func TestAccStorageBucket_defaultEventBasedHold(t *testing.T) {
 				Config: testAccStorageBucket_defaultEventBasedHold(bucketName),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -733,9 +757,10 @@ func TestAccStorageBucket_encryption(t *testing.T) {
 				Config: testAccStorageBucket_encryption(context),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -754,17 +779,19 @@ func TestAccStorageBucket_bucketPolicyOnly(t *testing.T) {
 				Config: testAccStorageBucket_bucketPolicyOnly(bucketName, true),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_bucketPolicyOnly(bucketName, false),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -783,17 +810,19 @@ func TestAccStorageBucket_uniformBucketAccessOnly(t *testing.T) {
 				Config: testAccStorageBucket_uniformBucketAccessOnly(bucketName, true),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_uniformBucketAccessOnly(bucketName, false),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -814,27 +843,30 @@ func TestAccStorageBucket_labels(t *testing.T) {
 				Config: testAccStorageBucket_updateLabels(bucketName),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			// Down to only one label (test single label deletion)
 			{
 				Config: testAccStorageBucket_labels(bucketName),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			// And make sure deleting all labels work
 			{
 				Config: testAccStorageBucket_basic(bucketName),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -860,9 +892,10 @@ func TestAccStorageBucket_retentionPolicy(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -887,17 +920,19 @@ func TestAccStorageBucket_website(t *testing.T) {
 				Config: testAccStorageBucket_websiteOneAttribute(bucketSuffix),
 			},
 			{
-				ResourceName:      "google_storage_bucket.website",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.website",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_website(bucketSuffix),
 			},
 			{
-				ResourceName:      "google_storage_bucket.website",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.website",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 		},
 	})
@@ -924,9 +959,10 @@ func TestAccStorageBucket_retentionPolicyLocked(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_storage_bucket.bucket",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
 				Config: testAccStorageBucket_retentionPolicy(bucketName),
@@ -1109,6 +1145,7 @@ func testAccStorageBucket_requesterPays(bucketName string, pays bool) string {
 resource "google_storage_bucket" "bucket" {
   name           = "%s"
   requester_pays = %t
+  force_destroy = true
 }
 `, bucketName, pays)
 }
@@ -1118,6 +1155,7 @@ func testAccStorageBucket_lowercaseLocation(bucketName string) string {
 resource "google_storage_bucket" "bucket" {
   name     = "%s"
   location = "eu"
+  force_destroy = true
 }
 `, bucketName)
 }
@@ -1188,6 +1226,7 @@ func testAccStorageBucket_storageClass(bucketName, storageClass, location string
 resource "google_storage_bucket" "bucket" {
   name          = "%s"
   storage_class = "%s"%s
+  force_destroy = true
 }
 `, bucketName, storageClass, locationBlock)
 }
@@ -1195,7 +1234,8 @@ resource "google_storage_bucket" "bucket" {
 func testGoogleStorageBucketsCors(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name          = "%s"
+  force_destroy = true
   cors {
     origin          = ["abc", "def"]
     method          = ["a1a"]
@@ -1218,6 +1258,7 @@ func testAccStorageBucket_defaultEventBasedHold(bucketName string) string {
 resource "google_storage_bucket" "bucket" {
   name = "%s"
   default_event_based_hold = true
+  force_destroy = true
 }
 `, bucketName)
 }
@@ -1238,6 +1279,7 @@ func testAccStorageBucket_versioning(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
   versioning {
     enabled = "true"
   }
@@ -1249,6 +1291,7 @@ func testAccStorageBucket_logging(bucketName string, logBucketName string) strin
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
   logging {
     log_bucket = "%s"
   }
@@ -1260,6 +1303,7 @@ func testAccStorageBucket_loggingWithPrefix(bucketName string, logBucketName str
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
   logging {
     log_bucket        = "%s"
     log_object_prefix = "%s"
@@ -1272,6 +1316,7 @@ func testAccStorageBucket_lifecycleRulesMultiple(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
   lifecycle_rule {
     action {
       type          = "SetStorageClass"
@@ -1334,6 +1379,7 @@ func testAccStorageBucket_lifecycleRule_emptyArchived(bucketName string) string 
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
   lifecycle_rule {
     action {
       type = "Delete"
@@ -1351,6 +1397,7 @@ func testAccStorageBucket_lifecycleRule_withStateArchived(bucketName string) str
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
   lifecycle_rule {
     action {
       type = "Delete"
@@ -1369,6 +1416,7 @@ func testAccStorageBucket_lifecycleRule_withStateLive(bucketName string) string 
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
   lifecycle_rule {
     action {
       type = "Delete"
@@ -1398,6 +1446,7 @@ func testAccStorageBucket_lifecycleRule_withStateAny(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
   lifecycle_rule {
     action {
       type = "Delete"
@@ -1416,6 +1465,7 @@ func testAccStorageBucket_labels(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
   labels = {
     my-label = "my-label-value"
   }
@@ -1428,6 +1478,7 @@ func testAccStorageBucket_bucketPolicyOnly(bucketName string, enabled bool) stri
 resource "google_storage_bucket" "bucket" {
   name               = "%s"
   bucket_policy_only = %t
+  force_destroy      = true
 }
 `, bucketName, enabled)
 }
@@ -1437,6 +1488,7 @@ func testAccStorageBucket_uniformBucketAccessOnly(bucketName string, enabled boo
 resource "google_storage_bucket" "bucket" {
   name               = "%s"
   uniform_bucket_level_access = %t
+  force_destroy = true
 }
 `, bucketName, enabled)
 }
@@ -1478,6 +1530,7 @@ resource "google_kms_crypto_key_iam_member" "iam" {
 
 resource "google_storage_bucket" "bucket" {
   name = "tf-test-crypto-bucket-%{random_int}"
+  force_destroy = true
   encryption {
     default_kms_key_name = google_kms_crypto_key.crypto_key.self_link
   }
@@ -1491,6 +1544,7 @@ func testAccStorageBucket_updateLabels(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
   labels = {
     my-label    = "my-updated-label-value"
     a-new-label = "a-new-label-value"
@@ -1504,7 +1558,8 @@ func testAccStorageBucket_website(bucketName string) string {
 resource "google_storage_bucket" "website" {
   name          = "%s.gcp.tfacc.hashicorptest.com"
   location      = "US"
-  storage_class = "MULTI_REGIONAL"
+  storage_class = "STANDARD"
+  force_destroy = true
 
   website {
     main_page_suffix = "index.html"
@@ -1518,6 +1573,7 @@ func testAccStorageBucket_retentionPolicy(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
 
   retention_policy {
     retention_period = 10
@@ -1530,6 +1586,7 @@ func testAccStorageBucket_lockedRetentionPolicy(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
 
   retention_policy {
     is_locked        = true
@@ -1544,7 +1601,8 @@ func testAccStorageBucket_websiteNoAttributes(bucketName string) string {
 resource "google_storage_bucket" "website" {
   name          = "%s.gcp.tfacc.hashicorptest.com"
   location      = "US"
-  storage_class = "MULTI_REGIONAL"
+  storage_class = "STANDARD"
+  force_destroy = true
 
   website {
   }
@@ -1557,7 +1615,8 @@ func testAccStorageBucket_websiteOneAttribute(bucketName string) string {
 resource "google_storage_bucket" "website" {
   name          = "%s.gcp.tfacc.hashicorptest.com"
   location      = "US"
-  storage_class = "MULTI_REGIONAL"
+  storage_class = "STANDARD"
+  force_destroy = true
 
   website {
     main_page_suffix = "index.html"
@@ -1570,7 +1629,6 @@ func testAccStorageBucket_forceDestroy(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
-
   force_destroy = true
 }
 `, bucketName)
@@ -1580,7 +1638,6 @@ func testAccStorageBucket_forceDestroyWithRetentionPolicy(bucketName string) str
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
-
   force_destroy = true
 
   retention_policy {

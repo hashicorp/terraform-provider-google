@@ -366,6 +366,7 @@ func testGoogleStorageBucketsObjectContent(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name = "%s"
+  force_destroy = true
 }
 
 resource "google_storage_bucket_object" "object" {
