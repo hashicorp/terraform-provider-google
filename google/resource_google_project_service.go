@@ -56,6 +56,21 @@ var renamedServicesByOldAndNewServiceNames = mergeStringMaps(renamedServices, re
 
 const maxServiceUsageBatchSize = 20
 
+func validateProjectServiceService(val interface{}, key string) (warns []string, errs []error) {
+	bannedServicesFunc := StringNotInSlice(append(ignoredProjectServices, bannedProjectServices...), false)
+	warns, errs = bannedServicesFunc(val, key)
+	if len(errs) > 0 {
+		return
+	}
+
+	// StringNotInSlice already validates that this is a string
+	v, _ := val.(string)
+	if !strings.Contains(v, ".") {
+		errs = append(errs, fmt.Errorf("expected %s to be a domain like serviceusage.googleapis.com", v))
+	}
+	return
+}
+
 func resourceGoogleProjectService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGoogleProjectServiceCreate,
@@ -79,7 +94,7 @@ func resourceGoogleProjectService() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: StringNotInSlice(append(ignoredProjectServices, bannedProjectServices...), false),
+				ValidateFunc: validateProjectServiceService,
 			},
 			"project": {
 				Type:             schema.TypeString,
