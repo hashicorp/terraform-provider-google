@@ -295,8 +295,6 @@ resource "google_compute_region_disk" "regiondisk" {
   name     = "%s"
   snapshot = google_compute_snapshot.snapdisk.%s
   type     = "pd-ssd"
-  region   = "us-central1"
-
   replica_zones = ["us-central1-a", "us-central1-f"]
 }
 `, diskName, diskName, diskName, refSelector)
@@ -356,7 +354,6 @@ resource "google_compute_region_disk" "regiondisk" {
   name     = "%s"
   snapshot = google_compute_snapshot.snapdisk.self_link
   type     = "pd-ssd"
-  region   = "us-central1"
 
   replica_zones = ["us-central1-a", "us-central1-f"]
 
@@ -387,7 +384,6 @@ resource "google_compute_region_disk" "regiondisk" {
   name     = "%s"
   snapshot = google_compute_snapshot.snapdisk.self_link
   type     = "pd-ssd"
-  region   = "us-central1"
 
   replica_zones = ["us-central1-a", "us-central1-f"]
 }
