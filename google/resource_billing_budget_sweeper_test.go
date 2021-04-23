@@ -99,7 +99,7 @@ func testSweepBillingBudget(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://billingbudgets.googleapis.com/v1/{{name}}"
+		deleteTemplate := "https://billingbudgets.googleapis.com/v1/billingAccounts/{{billing_account}}/budgets/{{name}}"
 		deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
