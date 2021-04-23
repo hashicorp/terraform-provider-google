@@ -99,7 +99,6 @@ letter 's' (seconds). It must be greater than a day (ie, 86400).`,
 				ForceNew: true,
 				Description: `If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 
 You must use the 'google_kms_key_ring_import_job' resource to import the CryptoKeyVersion.`,
-				Default: false,
 			},
 			"version_template": {
 				Type:        schema.TypeList,
@@ -501,6 +500,13 @@ func resourceKMSCryptoKeyEncoder(d *schema.ResourceData, meta interface{}, obj m
 		}
 
 		obj["nextRotationTime"] = nextRotation
+	}
+
+	// set to false if it is not true explicitly
+	if !(d.Get("skip_initial_version_creation").(bool)) {
+		if err := d.Set("skip_initial_version_creation", false); err != nil {
+			return nil, fmt.Errorf("Error setting skip_initial_version_creation: %s", err)
+		}
 	}
 
 	return obj, nil
