@@ -1,6 +1,7 @@
 ## 3.66.0 (Unreleased)
 NOTES:
 * all: changed default HTTP request timeout from 30 seconds to 120 seconds ([#8966](https://github.com/hashicorp/terraform-provider-google/pull/8966))
+
 BREAKING CHANGES:
 * datacatalog: updating `parent` in `google_data_catalog_tag` will now recreate the resource ([#8964](https://github.com/hashicorp/terraform-provider-google/pull/8964))
 
