@@ -39,6 +39,12 @@ func TestAccBillingBudget_billingBudgetBasicExample(t *testing.T) {
 			{
 				Config: testAccBillingBudget_billingBudgetBasicExample(context),
 			},
+			{
+				ResourceName:            "google_billing_budget.budget",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"billing_account"},
+			},
 		},
 	})
 }
@@ -80,6 +86,12 @@ func TestAccBillingBudget_billingBudgetLastperiodExample(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBillingBudget_billingBudgetLastperiodExample(context),
+			},
+			{
+				ResourceName:            "google_billing_budget.budget",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"billing_account"},
 			},
 		},
 	})
@@ -131,6 +143,12 @@ func TestAccBillingBudget_billingBudgetFilterExample(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBillingBudget_billingBudgetFilterExample(context),
+			},
+			{
+				ResourceName:            "google_billing_budget.budget",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"billing_account"},
 			},
 		},
 	})
@@ -188,6 +206,12 @@ func TestAccBillingBudget_billingBudgetNotifyExample(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBillingBudget_billingBudgetNotifyExample(context),
+			},
+			{
+				ResourceName:            "google_billing_budget.budget",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"billing_account"},
 			},
 		},
 	})
@@ -256,7 +280,7 @@ func testAccCheckBillingBudgetDestroyProducer(t *testing.T) func(s *terraform.St
 
 			config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{BillingBasePath}}{{name}}")
+			url, err := replaceVarsForTest(config, rs, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets/{{name}}")
 			if err != nil {
 				return err
 			}

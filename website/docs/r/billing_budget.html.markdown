@@ -376,7 +376,7 @@ The `all_updates_rule` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{name}}`
+* `id` - an identifier for the resource with format `billingAccounts/{{billing_account}}/budgets/{{name}}`
 
 * `name` -
   Resource name of the budget. The resource name
@@ -395,4 +395,11 @@ This resource provides the following
 
 ## Import
 
-This resource does not support import.
+
+Budget can be imported using any of these accepted formats:
+
+```
+$ terraform import google_billing_budget.default billingAccounts/{{billing_account}}/budgets/{{name}}
+$ terraform import google_billing_budget.default {{billing_account}}/{{name}}
+$ terraform import google_billing_budget.default {{name}}
+```
