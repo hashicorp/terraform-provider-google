@@ -18,8 +18,6 @@ Four different resources help you manage your IAM policy for a project. Each of 
 
 ~> **Note:** `google_project_iam_policy` **cannot** be used in conjunction with `google_project_iam_binding`, `google_project_iam_member`, or `google_project_iam_audit_config` or they will fight over what your policy should be.
 
-~> **Note:** `google_project_iam_policy` **cannot** be used in conjunction with `google_project_iam_binding`, `google_project_iam_member`, or `google_project_iam_audit_config` or they will fight over what your policy should be.
-
 ~> **Note:** `google_project_iam_binding` resources **can be** used in conjunction with `google_project_iam_member` resources **only if** they do not grant privilege to the same role.
 
 ~> **Note:** The underlying API method `projects.setIamPolicy` has a lot of constraints which are documented [here](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy). In addition to these constraints, 
