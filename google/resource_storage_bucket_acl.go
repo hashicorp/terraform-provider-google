@@ -299,8 +299,8 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 				Entity: pair.Entity,
 			}
 
-			// If the old state is missing this entity, it needs to be inserted
-			if _, ok := old_re_map[pair.Entity]; !ok {
+			// If the old state entity's role doesn't match the new one, it needs to be inserted
+			if old_re_map[pair.Entity] != bucketAccessControl.Role {
 				_, err = config.NewStorageClient(userAgent).BucketAccessControls.Insert(
 					bucket, bucketAccessControl).Do()
 			}
