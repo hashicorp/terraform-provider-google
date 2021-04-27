@@ -20,9 +20,8 @@ import (
 
 var DataprocEndpointEntryKey = "eventarc_custom_endpoint"
 var DataprocEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
+	Type:     schema.TypeString,
+	Optional: true,
 	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 		"GOOGLE_EVENTARC_CUSTOM_ENDPOINT",
 	}, ""),
@@ -30,9 +29,8 @@ var DataprocEndpointEntry = &schema.Schema{
 
 var EventarcEndpointEntryKey = "eventarc_custom_endpoint"
 var EventarcEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
+	Type:     schema.TypeString,
+	Optional: true,
 	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 		"GOOGLE_EVENTARC_CUSTOM_ENDPOINT",
 	}, ""),
