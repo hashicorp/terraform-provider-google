@@ -624,7 +624,10 @@ func Provider() *schema.Provider {
 			ServiceUsageCustomEndpointEntryKey:      ServiceUsageCustomEndpointEntry,
 			StorageTransferCustomEndpointEntryKey:   StorageTransferCustomEndpointEntry,
 			BigtableAdminCustomEndpointEntryKey:     BigtableAdminCustomEndpointEntry,
-			EventarcCustomEndpointEntryKey:          EventarcCustomEndpointEntry,
+
+			// dcl
+			DataprocEndpointEntryKey: DataprocEndpointEntry,
+			EventarcEndpointEntryKey: EventarcEndpointEntry,
 		},
 
 		ProviderMetaSchema: map[string]*schema.Schema{
@@ -1311,7 +1314,10 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.ServiceUsageBasePath = d.Get(ServiceUsageCustomEndpointEntryKey).(string)
 	config.StorageTransferBasePath = d.Get(StorageTransferCustomEndpointEntryKey).(string)
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
-	config.EventarcBasePath = d.Get(EventarcCustomEndpointEntryKey).(string)
+
+	// dcl
+	config.clientDataprocDCL.Config.BasePath = d.Get(DataprocEndpointEntryKey).(string)
+	config.clientEventarcDCL.Config.BasePath = d.Get(EventarcEndpointEntryKey).(string)
 
 	stopCtx, ok := schema.StopContext(ctx)
 	if !ok {

@@ -158,13 +158,11 @@ type Config struct {
 	ServiceNetworkingBasePath string
 	StorageTransferBasePath   string
 	BigtableAdminBasePath     string
-	EventarcBasePath          string
 
 	requestBatcherServiceUsage *RequestBatcher
 	requestBatcherIam          *RequestBatcher
 
 	// start DCL clients
-	dclConfig         *dcl.Config
 	clientDataprocDCL *dataprocDcl.Client
 	clientEventarcDCL *eventarcDcl.Client
 }
@@ -287,9 +285,13 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 
 	// Start DCL client instantiation
 	// TODO(slevenick): handle user agents
-	c.dclConfig = dcl.NewConfig(dcl.WithHTTPClient(client), dcl.WithUserAgent(c.userAgent), dcl.WithLogger(dclLogger{}))
-	c.clientDataprocDCL = dataprocDcl.NewClient(c.dclConfig)
-	c.clientEventarcDCL = eventarcDcl.NewClient(c.dclConfig)
+	dclClientOptions := dcl.WithHTTPClient(client)
+	dclUserAgentOptions := dcl.WithUserAgent(c.userAgent)
+	dclLoggerOptions := dcl.WithLogger(dclLogger{})
+	// each product needs it own client currently since basepath can only be specified at
+	// the config level.
+	c.clientDataprocDCL = dataprocDcl.NewClient(dcl.NewConfig(dclClientOptions, dclUserAgentOptions, dclLoggerOptions))
+	c.clientEventarcDCL = eventarcDcl.NewClient(dcl.NewConfig(dclClientOptions, dclUserAgentOptions, dclLoggerOptions))
 
 	return nil
 }
