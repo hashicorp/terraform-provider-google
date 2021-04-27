@@ -44,6 +44,10 @@ To get more information about Service, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/run/docs/)
 
+~> **Warning:** `google_cloudrun_service` creates a Managed Google Cloud Run Service. If you need to create
+a Cloud Run Service on Anthos(GKE/VMWare) then you will need to create it using the kubernetes alpha provider.
+Have a look at the Cloud Run Anthos example below.
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -149,6 +153,49 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   service     = google_cloud_run_service.default.name
 
   policy_data = data.google_iam_policy.noauth.policy_data
+}
+```
+## Example Usage - Cloud Run Anthos
+
+
+```hcl
+data "google_client_config" "provider" {}
+
+data "google_container_cluster" "my_cluster" {
+  name     = "cluster-1"
+  location = "us-central1-c"
+}
+
+provider "kubernetes-alpha" {
+  host  = "https://${data.google_container_cluster.my_cluster.endpoint}"
+  token = data.google_client_config.provider.access_token
+  cluster_ca_certificate = base64decode(
+    data.google_container_cluster.my_cluster.master_auth.0.cluster_ca_certificate,
+  )
+}
+
+resource "kubernetes_manifest" "test-configmap" {
+  provider = kubernetes-alpha
+
+  manifest = {
+    "apiVersion" = "serving.knative.dev/v1"
+    "kind"       = "Service"
+    "metadata" = {
+      "name"      = "helloworld-go"
+      "namespace" = "default"
+    }
+    "spec" = {
+      "template" = {
+        "spec" = {
+          "containers" = [
+            {
+              "image" = "us-docker.pkg.dev/cloudrun/container/hello"
+            }
+          ]
+        }
+      }
+    }
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
