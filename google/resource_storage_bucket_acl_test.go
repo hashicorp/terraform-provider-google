@@ -11,6 +11,7 @@ import (
 
 var (
 	roleEntityBasic1        = "OWNER:user-paddy@hashicorp.com"
+	roleEntityBasic1_reader = "READER:user-paddy@hashicorp.com"
 	roleEntityBasic2        = "READER:user-paddy@carvers.co"
 	roleEntityBasic3_owner  = "OWNER:user-paddy@paddy.io"
 	roleEntityBasic3_reader = "READER:user-foran.paddy@gmail.com"
@@ -73,6 +74,44 @@ func TestAccStorageBucketAcl_upgrade(t *testing.T) {
 					testAccCheckGoogleStorageBucketAclDelete(t, bucketName, roleEntityBasic1),
 					testAccCheckGoogleStorageBucketAclDelete(t, bucketName, roleEntityBasic2),
 					testAccCheckGoogleStorageBucketAclDelete(t, bucketName, roleEntityBasic3_owner),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucketAcl_upgradeSingleUser(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+	skipIfEnvNotSet(t, "GOOGLE_PROJECT_NUMBER")
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageBucketAclDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleStorageBucketsAclBasic1_reader(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageBucketAcl(t, bucketName, roleEntityBasic1_reader),
+					testAccCheckGoogleStorageBucketAcl(t, bucketName, roleEntityBasic2),
+				),
+			},
+
+			{
+				Config: testGoogleStorageBucketsAclBasic1(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageBucketAcl(t, bucketName, roleEntityBasic1),
+					testAccCheckGoogleStorageBucketAcl(t, bucketName, roleEntityBasic2),
+				),
+			},
+
+			{
+				Config: testGoogleStorageBucketsAclBasicDelete(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageBucketAclDelete(t, bucketName, roleEntityBasic1),
+					testAccCheckGoogleStorageBucketAclDelete(t, bucketName, roleEntityBasic2),
+					testAccCheckGoogleStorageBucketAclDelete(t, bucketName, roleEntityBasic1_reader),
 				),
 			},
 		},
@@ -222,6 +261,19 @@ func testAccStorageBucketAclDestroyProducer(t *testing.T) func(s *terraform.Stat
 
 		return nil
 	}
+}
+
+func testGoogleStorageBucketsAclBasic1_reader(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_storage_bucket_acl" "acl" {
+  bucket      = google_storage_bucket.bucket.name
+  role_entity = ["%s", "%s", "%s", "%s", "%s"]
+}
+`, bucketName, roleEntityOwners, roleEntityEditors, roleEntityViewers, roleEntityBasic1_reader, roleEntityBasic2)
 }
 
 func testGoogleStorageBucketsAclBasic1(bucketName string) string {
