@@ -313,6 +313,7 @@ func resourceComposerEnvironment() *schema.Resource {
 									"master_ipv4_cidr_block": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 										AtLeastOneOf: []string{
 											"config.0.private_environment_config.0.enable_private_endpoint",
 											"config.0.private_environment_config.0.master_ipv4_cidr_block",
@@ -320,7 +321,6 @@ func resourceComposerEnvironment() *schema.Resource {
 											"config.0.private_environment_config.0.web_server_ipv4_cidr_block",
 										},
 										ForceNew:    true,
-										Default:     "172.16.0.0/28",
 										Description: `The IP range in CIDR notation to use for the hosted master network. This range is used for assigning internal IP addresses to the cluster master or set of masters and to the internal load balancer virtual IP. This range must not overlap with any other ranges in use within the cluster's network. If left blank, the default value of '172.16.0.0/28' is used.`,
 									},
 									"web_server_ipv4_cidr_block": {
