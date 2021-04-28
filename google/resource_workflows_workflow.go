@@ -78,7 +78,6 @@ func resourceWorkflowsWorkflow() *schema.Resource {
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description: `Name of the service account associated with the latest workflow version. This service
 account represents the identity of the workflow and determines what permissions the workflow has.
@@ -88,7 +87,6 @@ Format: projects/{project}/serviceAccounts/{account}.`,
 			"source_contents": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Workflow code to be executed. The size limit is 32KB.`,
 			},
 			"create_time": {
@@ -325,6 +323,18 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	serviceAccountProp, err := expandWorkflowsWorkflowServiceAccount(d.Get("service_account"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_account"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceAccountProp)) {
+		obj["serviceAccount"] = serviceAccountProp
+	}
+	sourceContentsProp, err := expandWorkflowsWorkflowSourceContents(d.Get("source_contents"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_contents"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceContentsProp)) {
+		obj["sourceContents"] = sourceContentsProp
+	}
 
 	obj, err = resourceWorkflowsWorkflowEncoder(d, meta, obj)
 	if err != nil {
@@ -345,6 +355,14 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
+	}
+
+	if d.HasChange("service_account") {
+		updateMask = append(updateMask, "serviceAccount")
+	}
+
+	if d.HasChange("source_contents") {
+		updateMask = append(updateMask, "sourceContents")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
