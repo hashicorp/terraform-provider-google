@@ -8,11 +8,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccWorkflowsWorkflow_basic(t *testing.T) {
+func TestAccWorkflowsWorkflow_Update(t *testing.T) {
 	// Custom test written to test diffs
 	t.Parallel()
 
-	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", randInt(t))
+	workflowName := fmt.Sprintf("tf-test-acc-workflow-%d", randInt(t))
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,16 +20,16 @@ func TestAccWorkflowsWorkflow_basic(t *testing.T) {
 		CheckDestroy: testAccCheckWorkflowsWorkflowDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWorkflowsWorkflow_basic(bucketName),
+				Config: testAccWorkflowsWorkflow_Update(workflowName),
 			},
 			{
-				Config: testAccWorkflowsWorkflow_newBucket(bucketName),
+				Config: testAccWorkflowsWorkflow_Updated(workflowName),
 			},
 		},
 	})
 }
 
-func testAccWorkflowsWorkflow_basic(name string) string {
+func testAccWorkflowsWorkflow_Update(name string) string {
 	return fmt.Sprintf(`
 resource "google_workflows_workflow" "example" {
   name          = "%s"
@@ -66,12 +66,8 @@ EOF
 `, name)
 }
 
-func testAccWorkflowsWorkflow_newBucket(name string) string {
+func testAccWorkflowsWorkflow_Updated(name string) string {
 	return fmt.Sprintf(`
-resource "google_storage_bucket" "bucket" {
-  name = "%s"
-}
-
 resource "google_workflows_workflow" "example" {
   name          = "%s"
   region        = "us-central1"
@@ -95,7 +91,7 @@ resource "google_workflows_workflow" "example" {
   - readWikipedia:
       call: http.get
       args:
-          url: https://en.wikipedia.org/w/api.php
+          url: https:/fi.wikipedia.org/w/api.php
           query:
               action: opensearch
               search: $${CurrentDateTime.body.dayOfTheWeek}
@@ -104,7 +100,7 @@ resource "google_workflows_workflow" "example" {
       return: $${WikiResult.body[1]}
 EOF
 }
-`, name, name)
+`, name)
 }
 
 func TestWorkflowsWorkflowStateUpgradeV0(t *testing.T) {
