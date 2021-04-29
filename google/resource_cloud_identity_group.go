@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceCloudIdentityGroup() *schema.Resource {
@@ -112,6 +113,18 @@ Must not be longer than 4,096 characters.`,
 				Optional:    true,
 				Description: `The display name of the Group.`,
 			},
+			"initial_group_config": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"INITIAL_GROUP_CONFIG_UNSPECIFIED", "WITH_INITIAL_OWNER", "EMPTY", ""}, false),
+				Description: `The initial configuration options for creating a Group.
+
+See the
+[API reference](https://cloud.google.com/identity/docs/reference/rest/v1beta1/groups/create#initialgroupconfig)
+for possible values. Default value: "EMPTY" Possible values: ["INITIAL_GROUP_CONFIG_UNSPECIFIED", "WITH_INITIAL_OWNER", "EMPTY"]`,
+				Default: "EMPTY",
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -172,7 +185,7 @@ func resourceCloudIdentityGroupCreate(d *schema.ResourceData, meta interface{}) 
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}groups?initialGroupConfig=EMPTY")
+	url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}groups?initialGroupConfig={{initial_group_config}}")
 	if err != nil {
 		return err
 	}

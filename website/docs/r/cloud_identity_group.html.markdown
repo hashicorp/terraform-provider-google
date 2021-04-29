@@ -47,7 +47,8 @@ Your account must have the `serviceusage.services.use` permission on the
 
 ```hcl
 resource "google_cloud_identity_group" "cloud_identity_group_basic" {
-  display_name = "my-identity-group"
+  display_name         = "my-identity-group"
+  initial_group_config = "WITH_INITIAL_OWNER"
 
   parent = "customers/A01b123xz"
 
@@ -117,6 +118,15 @@ The `group_key` block supports:
   (Optional)
   An extended description to help users determine the purpose of a Group.
   Must not be longer than 4,096 characters.
+
+* `initial_group_config` -
+  (Optional)
+  The initial configuration options for creating a Group.
+  See the
+  [API reference](https://cloud.google.com/identity/docs/reference/rest/v1beta1/groups/create#initialgroupconfig)
+  for possible values.
+  Default value is `EMPTY`.
+  Possible values are `INITIAL_GROUP_CONFIG_UNSPECIFIED`, `WITH_INITIAL_OWNER`, and `EMPTY`.
 
 
 ## Attributes Reference

@@ -41,9 +41,10 @@ func TestAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(t *testing.T) {
 				Config: testAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(context),
 			},
 			{
-				ResourceName:      "google_cloud_identity_group.cloud_identity_group_basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloud_identity_group.cloud_identity_group_basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_group_config"},
 			},
 		},
 	})
@@ -52,7 +53,8 @@ func TestAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(t *testing.T) {
 func testAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloud_identity_group" "cloud_identity_group_basic" {
-  display_name = "tf-test-my-identity-group%{random_suffix}"
+  display_name         = "tf-test-my-identity-group%{random_suffix}"
+  initial_group_config = "WITH_INITIAL_OWNER"
 
   parent = "customers/%{cust_id}"
 
