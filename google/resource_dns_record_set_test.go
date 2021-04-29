@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"net"
 	"strings"
 	"testing"
 
@@ -11,23 +12,42 @@ import (
 
 func TestIpv6AddressDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
-		Old, New       string
+		Old, New       []string
 		ShouldSuppress bool
 	}{
 		"compact form should suppress diff": {
-			Old:            "2a03:b0c0:1:e0::29b:8001",
-			New:            "2a03:b0c0:0001:00e0:0000:0000:029b:8001",
+			Old:            []string{"2a03:b0c0:1:e0::29b:8001"},
+			New:            []string{"2a03:b0c0:0001:00e0:0000:0000:029b:8001"},
 			ShouldSuppress: true,
 		},
 		"different address should not suppress diff": {
-			Old:            "2a03:b0c0:1:e00::29b:8001",
-			New:            "2a03:b0c0:0001:00e0:0000:0000:029b:8001",
+			Old:            []string{"2a03:b0c0:1:e00::29b:8001"},
+			New:            []string{"2a03:b0c0:0001:00e0:0000:0000:029b:8001"},
 			ShouldSuppress: false,
+		},
+		"increase address should not suppress diff": {
+			Old:            []string{""},
+			New:            []string{"2a03:b0c0:0001:00e0:0000:0000:029b:8001"},
+			ShouldSuppress: false,
+		},
+		"decrease address should not suppress diff": {
+			Old:            []string{"2a03:b0c0:1:e00::29b:8001"},
+			New:            []string{""},
+			ShouldSuppress: false,
+		},
+		"switch address positions should suppress diff": {
+			Old:            []string{"2a03:b0c0:1:e00::28b:8001", "2a03:b0c0:1:e0::29b:8001"},
+			New:            []string{"2a03:b0c0:1:e0::29b:8001", "2a03:b0c0:1:e00::28b:8001"},
+			ShouldSuppress: true,
 		},
 	}
 
+	parseFunc := func(x string) string {
+		return net.ParseIP(x).String()
+	}
+
 	for tn, tc := range cases {
-		shouldSuppress := ipv6AddressforDnsDiffSuppress("", tc.Old, tc.New, nil)
+		shouldSuppress := rrdatasListDiffSuppress(tc.Old, tc.New, parseFunc, nil)
 		if shouldSuppress != tc.ShouldSuppress {
 			t.Errorf("%s: expected %t", tn, tc.ShouldSuppress)
 		}

@@ -28,23 +28,55 @@ import (
 )
 
 func rrdatasDnsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	if d.Get("type") == "AAAA" {
-		return ipv6AddressforDnsDiffSuppress(k, old, new, d)
+	o, n := d.GetChange("rrdatas")
+	if o == nil || n == nil {
+		return false
 	}
-	if d.Get("type") == "MX" {
-		return (strings.ToLower(old) == strings.ToLower(new))
+
+	oList := convertStringArr(o.([]interface{}))
+	nList := convertStringArr(n.([]interface{}))
+
+	parseFunc := func(record string) string {
+		switch d.Get("type") {
+		case "AAAA":
+			// parse ipv6 to a key from one list
+			return net.ParseIP(record).String()
+		case "MX":
+			return strings.ToLower(record)
+		case "TXT":
+			return strings.ToLower(strings.Trim(record, `"`))
+		default:
+			return record
+		}
 	}
-	if d.Get("type") == "TXT" {
-		return strings.ToLower(strings.Trim(old, `"`)) == strings.ToLower(strings.Trim(new, `"`))
-	}
-	return false
+	return rrdatasListDiffSuppress(oList, nList, parseFunc, d)
 }
 
-func ipv6AddressforDnsDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
-	oldIp := net.ParseIP(old)
-	newIp := net.ParseIP(new)
-
-	return oldIp.Equal(newIp)
+// suppress on a list when 1) its items have dups that need to be ignored
+// and 2) string comparison on the items may need a special parse function
+// example of usage can be found ../../../third_party/terraform/tests/resource_dns_record_set_test.go.erb
+func rrdatasListDiffSuppress(oldList, newList []string, fun func(x string) string, _ *schema.ResourceData) bool {
+	// compare two lists of unordered records
+	diff := make(map[string]bool, len(oldList))
+	for _, oldRecord := range oldList {
+		// set all new IPs to true
+		diff[fun(oldRecord)] = true
+	}
+	for _, newRecord := range newList {
+		// set matched IPs to false otherwise can't suppress
+		if diff[fun(newRecord)] {
+			diff[fun(newRecord)] = false
+		} else {
+			return false
+		}
+	}
+	// can't suppress if unmatched records are found
+	for _, element := range diff {
+		if element {
+			return false
+		}
+	}
+	return true
 }
 
 func resourceDNSResourceDnsRecordSet() *schema.Resource {
