@@ -354,6 +354,25 @@ func resourceComputeInstance() *schema.Resource {
 				},
 			},
 
+			"network_performance_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Networking Perforamance Configurations`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"total_egress_bandwidth_tier": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "DEFAULT",
+							ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "TIER_1"}, false),
+							Description:  `Defines the networking bandwidth tier (DEFAULT, TIER_1).`,
+						},
+					},
+				},
+			},
+
 			"allow_stopping_for_update": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -928,6 +947,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 		DisplayDevice:              expandDisplayDevice(d),
 		ResourcePolicies:           convertStringArr(d.Get("resource_policies").([]interface{})),
 		ReservationAffinity:        reservationAffinity,
+		NetworkPerformanceConfig:   expandNetworkPerformanceConfig(d),
 	}, nil
 }
 
@@ -1280,6 +1300,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if err := d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(instance.ConfidentialInstanceConfig)); err != nil {
 		return fmt.Errorf("Error setting confidential_instance_config: %s", err)
+	}
+	if err := d.Set("network_performance_config", flattenNetworkPerformanceConfig(instance.NetworkPerformanceConfig)); err != nil {
+		return fmt.Errorf("Error setting network_performance_config: %s", err)
 	}
 	if d.Get("desired_status") != "" {
 		if err := d.Set("desired_status", instance.Status); err != nil {

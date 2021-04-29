@@ -494,3 +494,24 @@ func flattenReservationAffinity(affinity *computeBeta.ReservationAffinity) []map
 
 	return []map[string]interface{}{flattened}
 }
+
+func expandNetworkPerformanceConfig(d TerraformResourceData) *computeBeta.NetworkPerformanceConfig {
+	if _, ok := d.GetOk("network_performance_config"); !ok {
+		return nil
+	}
+	prefix := "network_performance_config.0"
+	return &computeBeta.NetworkPerformanceConfig{
+		TotalEgressBandwidthTier: d.Get(prefix + ".total_egress_bandwidth_tier").(string),
+		ForceSendFields:          []string{"TotalEgressBandwidthTier"},
+	}
+}
+
+func flattenNetworkPerformanceConfig(netPerf *computeBeta.NetworkPerformanceConfig) interface{} {
+	if netPerf == nil {
+		return nil
+	}
+
+	return []map[string]string{{
+		"total_egress_bandwidth_tier": netPerf.TotalEgressBandwidthTier,
+	}}
+}
