@@ -226,6 +226,9 @@ resource "google_pubsub_subscription" "foo" {
   labels = {
     foo = "%s"
   }
+  retry_policy {
+    minimum_backoff = "60.0s"
+  }
   ack_deadline_seconds = %d
 }
 `, topic, subscription, label, deadline)

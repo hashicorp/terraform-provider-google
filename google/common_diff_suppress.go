@@ -168,3 +168,17 @@ func timestampDiffSuppress(format string) schema.SchemaDiffSuppressFunc {
 func internalIpDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	return (net.ParseIP(old) != nil) && (net.ParseIP(new) == nil)
 }
+
+// Suppress diffs for duration format. ex "60.0s" and "60s" same
+// https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#duration
+func durationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	oDuration, err := time.ParseDuration(old)
+	if err != nil {
+		return false
+	}
+	nDuration, err := time.ParseDuration(new)
+	if err != nil {
+		return false
+	}
+	return oDuration == nDuration
+}
