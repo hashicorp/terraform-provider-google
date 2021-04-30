@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -222,8 +223,8 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("Resource %q with IAM Member: Role %q Member %q", updater.DescribeResource(), eMember.Role, eMember.Members[0]))
 		}
-		log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
-		log.Printf("[DEBUG]: Looking for binding with role %q and condition %+v", eMember.Role, eCondition)
+		log.Print(spew.Sprintf("[DEBUG]: Retrieved policy for %s: %#v\n", updater.DescribeResource(), p))
+		log.Printf("[DEBUG]: Looking for binding with role %q and condition %#v", eMember.Role, eCondition)
 
 		var binding *cloudresourcemanager.Binding
 		for _, b := range p.Bindings {
@@ -234,7 +235,7 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 		}
 
 		if binding == nil {
-			log.Printf("[DEBUG]: Binding for role %q with condition %+v does not exist in policy of %s, removing member %q from state.", eMember.Role, eCondition, updater.DescribeResource(), eMember.Members[0])
+			log.Printf("[DEBUG]: Binding for role %q with condition %#v does not exist in policy of %s, removing member %q from state.", eMember.Role, eCondition, updater.DescribeResource(), eMember.Members[0])
 			d.SetId("")
 			return nil
 		}
@@ -248,7 +249,7 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 		}
 
 		if member == "" {
-			log.Printf("[DEBUG]: Member %q for binding for role %q with condition %+v does not exist in policy of %s, removing from state.", eMember.Members[0], eMember.Role, eCondition, updater.DescribeResource())
+			log.Printf("[DEBUG]: Member %q for binding for role %q with condition %#v does not exist in policy of %s, removing from state.", eMember.Members[0], eMember.Role, eCondition, updater.DescribeResource())
 			d.SetId("")
 			return nil
 		}
