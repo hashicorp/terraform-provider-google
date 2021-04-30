@@ -43,7 +43,14 @@ func (u *OrganizationIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.P
 		return nil, err
 	}
 
-	p, err := u.Config.NewResourceManagerClient(userAgent).Organizations.GetIamPolicy("organizations/"+u.resourceId, &cloudresourcemanager.GetIamPolicyRequest{}).Do()
+	p, err := u.Config.NewResourceManagerClient(userAgent).Organizations.GetIamPolicy(
+		"organizations/"+u.resourceId,
+		&cloudresourcemanager.GetIamPolicyRequest{
+			Options: &cloudresourcemanager.GetPolicyOptions{
+				RequestedPolicyVersion: iamPolicyVersion,
+			},
+		},
+	).Do()
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
