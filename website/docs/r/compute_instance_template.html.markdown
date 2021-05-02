@@ -313,6 +313,9 @@ The `disk` block supports:
     specified, it will inherit the size of its base image. For SCRATCH disks,
     the size must be exactly 375GB.
 
+* `labels` - (Optional) A set of ket/value label pairs to assign to disk created from
+    this template
+
 * `type` - (Optional) The type of GCE disk, can be either `"SCRATCH"` or
     `"PERSISTENT"`.
 
