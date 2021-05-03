@@ -150,7 +150,7 @@ More info: http://kubernetes.io/docs/user-guide/identifiers#uids`,
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Name should be a verified domain`,
+				Description: `Name should be a [verified](https://support.google.com/webmasters/answer/9008080) domain`,
 			},
 			"spec": {
 				Type:        schema.TypeList,

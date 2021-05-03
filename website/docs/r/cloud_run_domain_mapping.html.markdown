@@ -79,7 +79,7 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  Name should be a verified domain
+  Name should be a [verified](https://support.google.com/webmasters/answer/9008080) domain
 
 * `spec` -
   (Required)
