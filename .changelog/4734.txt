@@ -1,0 +1,3 @@
+```release-note:bug
+logging: fixed `metric_descriptor.labels` can't be updated on 'google_logging_metric'
+```

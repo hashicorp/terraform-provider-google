@@ -242,6 +242,7 @@ func loggingMetricMetricDescriptorLabelsSchema() *schema.Resource {
 			"key": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The label key.`,
 			},
 			"description": {
@@ -252,6 +253,7 @@ func loggingMetricMetricDescriptorLabelsSchema() *schema.Resource {
 			"value_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"BOOL", "INT64", "STRING", ""}, false),
 				Description:  `The type of data that can be assigned to the label. Default value: "STRING" Possible values: ["BOOL", "INT64", "STRING"]`,
 				Default:      "STRING",
