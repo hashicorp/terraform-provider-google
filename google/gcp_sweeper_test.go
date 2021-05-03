@@ -30,13 +30,12 @@ func sharedConfigForRegion(region string) (*Config, error) {
 		return nil, fmt.Errorf("set project using any of these env variables %v", projectEnvVars)
 	}
 
-	creds := getTestCredsFromEnv()
-	if creds == "" {
+	if v := multiEnvSearch(credsEnvVars); v == "" {
 		return nil, fmt.Errorf("set credentials using any of these env variables %v", credsEnvVars)
 	}
 
 	conf := &Config{
-		Credentials: creds,
+		Credentials: getTestCredsFromEnv(),
 		Region:      region,
 		Project:     project,
 	}
