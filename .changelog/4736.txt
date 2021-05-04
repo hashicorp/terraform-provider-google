@@ -1,0 +1,4 @@
+```release-note:note
+accesscontextmanager: added `ANDROID` and `IOS` as supported operating system types in `google_access_context_manager_access_level` `os_type`.
+
+```
