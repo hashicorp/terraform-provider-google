@@ -27,6 +27,41 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+func deleteSpannerBackups(d *schema.ResourceData, config *Config, res map[string]interface{}, userAgent string, billingProject string) error {
+	var v interface{}
+	var ok bool
+
+	v, ok = res["backups"]
+	if !ok || v == nil {
+		return nil
+	}
+
+	// Iterate over the list and delete each backup.
+	for _, itemRaw := range v.([]interface{}) {
+		if itemRaw == nil {
+			continue
+		}
+		item := itemRaw.(map[string]interface{})
+
+		backupName := item["name"].(string)
+
+		log.Printf("[DEBUG] Found backups for resource %q: %#v)", d.Id(), item)
+
+		path := "{{SpannerBasePath}}" + backupName
+
+		url, err := replaceVars(d, config, path)
+		if err != nil {
+			return err
+		}
+
+		_, err = sendRequest(config, "DELETE", billingProject, url, userAgent, nil)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func resourceSpannerInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSpannerInstanceCreate,
@@ -93,6 +128,11 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Instance status: 'CREATING' or 'READY'.`,
+			},
+			"force_destroy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -263,6 +303,12 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("force_destroy"); !ok {
+		if err := d.Set("force_destroy", false); err != nil {
+			return fmt.Errorf("Error setting force_destroy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -381,6 +427,24 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	var obj map[string]interface{}
+
+	if d.Get("force_destroy").(bool) {
+		backupsUrl, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}/backups")
+		if err != nil {
+			return err
+		}
+
+		resp, err := sendRequest(config, "GET", billingProject, backupsUrl, userAgent, nil)
+		if err != nil {
+			// API returns 200 if no backups exist but the instance still exists, hence the error check.
+			return handleNotFoundError(err, d, fmt.Sprintf("SpannerInstance %q", d.Id()))
+		}
+
+		err = deleteSpannerBackups(d, config, resp, billingProject, userAgent)
+		if err != nil {
+			return err
+		}
+	}
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -413,6 +477,11 @@ func resourceSpannerInstanceImport(d *schema.ResourceData, meta interface{}) ([]
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("force_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting force_destroy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
