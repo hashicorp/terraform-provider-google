@@ -223,6 +223,10 @@ The `os_constraints` block supports:
   of this OS satisfies the constraint.
   Format: "major.minor.patch" such as "10.5.301", "9.2.1".
 
+* `require_verified_chrome_os` -
+  (Optional)
+  If you specify DESKTOP_CHROME_OS for osType, you can optionally include requireVerifiedChromeOs to require Chrome Verified Access.
+
 * `os_type` -
   (Required)
   The operating system type of the device.
