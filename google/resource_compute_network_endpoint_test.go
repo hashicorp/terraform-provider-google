@@ -20,7 +20,7 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 		"add1_port":     101,
 		"add2_port":     102,
 	}
-	negId := fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/neg-%s",
+	negId := fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/tf-test-neg-%s",
 		getTestProjectFromEnv(), getTestZoneFromEnv(), context["random_suffix"])
 
 	vcrTest(t, resource.TestCase{
@@ -203,7 +203,7 @@ func testAccCheckComputeNetworkEndpointWithPortsDestroyed(t *testing.T, negId st
 func testAccComputeNetworkEndpointsListEndpointPorts(t *testing.T, negId string) (map[string]struct{}, error) {
 	config := googleProviderConfig(t)
 
-	url := fmt.Sprintf("https://www.googleapis.com/compute/beta/%s/listNetworkEndpoints", negId)
+	url := fmt.Sprintf("https://www.googleapis.com/compute/v1/%s/listNetworkEndpoints", negId)
 	res, err := sendRequest(config, "POST", "", url, config.userAgent, nil)
 	if err != nil {
 		return nil, err
