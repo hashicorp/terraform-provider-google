@@ -277,6 +277,177 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_secret_environment_variables&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloud Run Service Secret Environment Variables
+
+
+```hcl
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_secret_manager_secret" "secret" {
+  provider = google-beta
+
+  secret_id = "secret"
+  replication {
+    automatic = true
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-data" {
+  provider = google-beta
+
+  secret = google_secret_manager_secret.secret.name
+  secret_data = "secret-data"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  provider = google-beta
+
+  secret_id = google_secret_manager_secret.secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_secret_manager_secret.secret]
+}
+
+resource "google_cloud_run_service" "default" {
+  provider = google-beta
+
+  name     = "cloudrun-srv"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        env {
+          name = "SECRET_ENV_VAR"
+	  value_from {
+            secret_key_ref {
+              name = google_secret_manager_secret.secret.secret_id
+              key = "1"
+            }
+          }
+        }
+      }
+    }
+  }
+
+  metadata {
+    annotations = {
+      generated-by = "magic-modules"
+      "run.googleapis.com/launch-stage" = "ALPHA"
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+  autogenerate_revision_name = true
+
+  lifecycle {
+    ignore_changes = [
+        metadata.0.annotations,
+    ]
+  }
+
+  depends_on = [google_secret_manager_secret_version.secret-version-data]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_secret_volumes&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloud Run Service Secret Volumes
+
+
+```hcl
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_secret_manager_secret" "secret" {
+  provider = google-beta
+
+  secret_id = "secret"
+  replication {
+    automatic = true
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-data" {
+  provider = google-beta
+
+  secret = google_secret_manager_secret.secret.name
+  secret_data = "secret-data"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  provider = google-beta
+
+  secret_id = google_secret_manager_secret.secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_secret_manager_secret.secret]
+}
+
+resource "google_cloud_run_service" "default" {
+  provider = google-beta
+
+  name     = "cloudrun-srv"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+	volume_mounts {
+	  name = "a-volume"
+	  mount_path = "/secrets"
+	}
+      }
+      volumes {
+        name = "a-volume"
+	secret {
+	  secret_name = google_secret_manager_secret.secret.secret_id
+	  items {
+            key = "1"
+	    path = "my-secret"
+	  }
+	}
+      }
+    }
+  }
+
+  metadata {
+    annotations = {
+      generated-by = "magic-modules"
+      "run.googleapis.com/launch-stage" = "ALPHA"
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+  autogenerate_revision_name = true
+
+  lifecycle {
+    ignore_changes = [
+        metadata.0.annotations,
+    ]
+  }
+
+  depends_on = [google_secret_manager_secret_version.secret-version-data]
+}
+```
 
 ## Argument Reference
 
@@ -413,6 +584,11 @@ The `spec` block supports:
   and determines what permissions the revision has. If not provided, the revision
   will use the project's default service account.
 
+* `volumes` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Volume represents a named volume in a container.
+  Structure is documented below.
+
 * `serving_state` -
   ServingState holds a value describing the state the resources
   are in for this Revision.
@@ -484,6 +660,12 @@ The `containers` block supports:
   Compute Resources required by this container. Used to set values such as max memory
   More info:
   https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits
+  Structure is documented below.
+
+* `volume_mounts` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Volume to mount into the container's filesystem.
+  Only supports SecretVolumeSources.
   Structure is documented below.
 
 
@@ -561,6 +743,39 @@ The `env` block supports:
   exists or not.
   Defaults to "".
 
+* `value_from` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Source for the environment variable's value. Only supports secret_key_ref.
+  Structure is documented below.
+
+
+The `value_from` block supports:
+
+* `secret_key_ref` -
+  (Required)
+  Selects a key (version) of a secret in Secret Manager.
+  Structure is documented below.
+
+
+The `secret_key_ref` block supports:
+
+* `key` -
+  (Required)
+  A Cloud Secret Manager secret version. Must be 'latest' for the latest
+  version or an integer for a specific version.
+
+* `name` -
+  (Required)
+  The name of the secret in Cloud Secret Manager. By default, the secret
+  is assumed to be in the same project.
+  If the secret is in another project, you must define an alias.
+  An alias definition has the form:
+  <alias>:projects/<project-id|project-number>/secrets/<secret-name>.
+  If multiple alias definitions are needed, they must be separated by
+  commas.
+  The alias definitions must be set on the run.googleapis.com/secrets
+  annotation.
+
 The `ports` block supports:
 
 * `name` -
@@ -590,6 +805,69 @@ The `resources` block supports:
   explicitly specified, otherwise to an implementation-defined value.
   The values of the map is string form of the 'quantity' k8s type:
   https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
+
+The `volume_mounts` block supports:
+
+* `mount_path` -
+  (Required)
+  Path within the container at which the volume should be mounted.  Must
+  not contain ':'.
+
+* `name` -
+  (Required)
+  This must match the Name of a Volume.
+
+The `volumes` block supports:
+
+* `name` -
+  (Required)
+  Volume's name.
+
+* `secret` -
+  (Required)
+  The secret's value will be presented as the content of a file whose
+  name is defined in the item path. If no items are defined, the name of
+  the file is the secret_name.
+  Structure is documented below.
+
+
+The `secret` block supports:
+
+* `secret_name` -
+  (Required)
+  The name of the secret in Cloud Secret Manager. By default, the secret
+  is assumed to be in the same project.
+  If the secret is in another project, you must define an alias.
+  An alias definition has the form:
+  <alias>:projects/<project-id|project-number>/secrets/<secret-name>.
+  If multiple alias definitions are needed, they must be separated by
+  commas.
+  The alias definitions must be set on the run.googleapis.com/secrets
+  annotation.
+
+* `items` -
+  (Optional)
+  If unspecified, the volume will expose a file whose name is the
+  secret_name.
+  If specified, the key will be used as the version to fetch from Cloud
+  Secret Manager and the path will be the name of the file exposed in the
+  volume. When items are defined, they must specify a key and a path.
+  Structure is documented below.
+
+
+The `items` block supports:
+
+* `key` -
+  (Required)
+  The Cloud Secret Manager secret version.
+  Can be 'latest' for the latest value or an integer for a specific version.
+
+* `path` -
+  (Required)
+  The relative path of the file to map the key to.
+  May not be an absolute path.
+  May not contain the path element '..'.
+  May not start with the string '..'.
 
 - - -
 
