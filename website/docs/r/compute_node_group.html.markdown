@@ -83,7 +83,7 @@ resource "google_compute_node_group" "nodes" {
   maintenance_window {
     start_time = "08:00"
   }
-  size          = 1
+  initial_size  = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
   autoscaling_policy {
     mode      = "ONLY_SCALE_OUT"
@@ -102,10 +102,6 @@ The following arguments are supported:
   (Required)
   The URL of the node template to which this node group belongs.
 
-* `size` -
-  (Required)
-  The total number of nodes in the node group.
-
 
 - - -
 
@@ -117,6 +113,14 @@ The following arguments are supported:
 * `name` -
   (Optional)
   Name of the resource.
+
+* `size` -
+  (Optional)
+  The total number of nodes in the node group. One of `initial_size` or `size` must be specified.
+
+* `initial_size` -
+  (Optional)
+  The initial number of nodes in the node group. One of `initial_size` or `size` must be specified.
 
 * `maintenance_policy` -
   (Optional)
