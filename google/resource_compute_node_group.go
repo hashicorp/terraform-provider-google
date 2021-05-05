@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -48,12 +49,6 @@ func resourceComputeNodeGroup() *schema.Resource {
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description:      `The URL of the node template to which this node group belongs.`,
-			},
-			"size": {
-				Type:        schema.TypeInt,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The total number of nodes in the node group.`,
 			},
 			"autoscaling_policy": {
 				Type:     schema.TypeList,
@@ -103,6 +98,13 @@ than or equal to max-nodes. The default value is 0.`,
 				ForceNew:    true,
 				Description: `An optional textual description of the resource.`,
 			},
+			"initial_size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `The initial number of nodes in the node group. One of 'initial_size' or 'size' must be specified.`,
+				ExactlyOneOf: []string{"size", "initial_size"},
+			},
 			"maintenance_policy": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -132,6 +134,14 @@ than or equal to max-nodes. The default value is 0.`,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Name of the resource.`,
+			},
+			"size": {
+				Type:         schema.TypeInt,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `The total number of nodes in the node group. One of 'initial_size' or 'size' must be specified.`,
+				ExactlyOneOf: []string{"size", "initial_size"},
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -218,7 +228,7 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 		obj["zone"] = zoneProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups?initialNodeCount={{size}}")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups?initialNodeCount=PRE_CREATE_REPLACE_ME")
 	if err != nil {
 		return err
 	}
@@ -237,6 +247,14 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
+	var sizeParam string
+	if v, ok := d.GetOkExists("size"); ok {
+		sizeParam = fmt.Sprintf("%v", v)
+	} else if v, ok := d.GetOkExists("initial_size"); ok {
+		sizeParam = fmt.Sprintf("%v", v)
+	}
+
+	url = regexp.MustCompile("PRE_CREATE_REPLACE_ME").ReplaceAllLiteralString(url, sizeParam)
 	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating NodeGroup: %s", err)

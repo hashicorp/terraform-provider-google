@@ -42,7 +42,7 @@ func TestAccComputeNodeGroup_nodeGroupBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_node_group.nodes",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"node_template", "zone"},
+				ImportStateVerifyIgnore: []string{"node_template", "initial_size", "zone"},
 			},
 		},
 	})
@@ -86,7 +86,7 @@ func TestAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(t *testing.T) {
 				ResourceName:            "google_compute_node_group.nodes",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"node_template", "zone"},
+				ImportStateVerifyIgnore: []string{"node_template", "initial_size", "zone"},
 			},
 		},
 	})
@@ -108,7 +108,7 @@ resource "google_compute_node_group" "nodes" {
   maintenance_window {
     start_time = "08:00"
   }
-  size          = 1
+  initial_size  = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
   autoscaling_policy {
     mode      = "ONLY_SCALE_OUT"
