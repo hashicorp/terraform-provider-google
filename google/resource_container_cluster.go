@@ -105,6 +105,7 @@ func resourceContainerCluster() *schema.Resource {
 			resourceNodeConfigEmptyGuestAccelerator,
 			containerClusterPrivateClusterConfigCustomDiff,
 			containerClusterAutopilotCustomizeDiff,
+			containerClusterNodeVersionRemoveDefaultCustomizeDiff,
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -3436,6 +3437,14 @@ func containerClusterAutopilotCustomizeDiff(_ context.Context, d *schema.Resourc
 		if err := d.SetNew("enable_shielded_nodes", true); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+// node_version only applies to the default node pool, so it should conflict with remove_default_node_pool = true
+func containerClusterNodeVersionRemoveDefaultCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	if d.Get("node_version").(string) != "" && d.Get("remove_default_node_pool").(bool) {
+		return fmt.Errorf("node_version can only be specified if remove_default_node_pool is not true")
 	}
 	return nil
 }
