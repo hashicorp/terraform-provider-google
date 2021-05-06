@@ -41,7 +41,7 @@ func rrdatasDnsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 		case "AAAA":
 			// parse ipv6 to a key from one list
 			return net.ParseIP(record).String()
-		case "MX":
+		case "MX", "DS":
 			return strings.ToLower(record)
 		case "TXT":
 			return strings.ToLower(strings.Trim(record, `"`))
