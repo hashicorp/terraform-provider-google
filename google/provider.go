@@ -626,7 +626,6 @@ func Provider() *schema.Provider {
 			BigtableAdminCustomEndpointEntryKey:     BigtableAdminCustomEndpointEntry,
 
 			// dcl
-			DataprocEndpointEntryKey: DataprocEndpointEntry,
 			EventarcEndpointEntryKey: EventarcEndpointEntry,
 		},
 
@@ -1316,8 +1315,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
 
 	// dcl
-	// config.clientDataprocDCL.Config.BasePath = d.Get(DataprocEndpointEntryKey).(string)
-	// config.clientEventarcDCL.Config.BasePath = d.Get(EventarcEndpointEntryKey).(string)
+	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
 
 	stopCtx, ok := schema.StopContext(ctx)
 	if !ok {
