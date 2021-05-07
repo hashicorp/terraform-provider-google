@@ -3443,6 +3443,11 @@ func containerClusterAutopilotCustomizeDiff(_ context.Context, d *schema.Resourc
 
 // node_version only applies to the default node pool, so it should conflict with remove_default_node_pool = true
 func containerClusterNodeVersionRemoveDefaultCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	// node_version is computed, so we can only check this on initial creation
+	o, _ := d.GetChange("name")
+	if o != "" {
+		return nil
+	}
 	if d.Get("node_version").(string) != "" && d.Get("remove_default_node_pool").(bool) {
 		return fmt.Errorf("node_version can only be specified if remove_default_node_pool is not true")
 	}
