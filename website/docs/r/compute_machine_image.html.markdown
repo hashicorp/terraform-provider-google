@@ -66,6 +66,64 @@ resource "google_compute_machine_image" "image" {
   source_instance = google_compute_instance.vm.self_link
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=compute_machine_image_kms&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Compute Machine Image Kms
+
+
+```hcl
+resource "google_compute_instance" "vm" {
+  provider     = google-beta
+  name         = "vm"
+  machine_type = "e2-medium"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_machine_image" "image" {
+  provider        = google-beta
+  name            = "image"
+  source_instance = google_compute_instance.vm.self_link
+  machine_image_encryption_key {
+    kms_key_name = google_kms_crypto_key.crypto_key.id
+  }
+  depends_on = [google_project_iam_member.kms-project-binding]
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  provider = google-beta
+  name     = "key"
+  key_ring = google_kms_key_ring.key_ring.id
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  provider = google-beta
+  name     = "keyring"
+  location = "us"
+}
+
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  provider = google-beta
+  project  = data.google_project.project.project_id
+  role     = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member   = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
+}
+```
 
 ## Argument Reference
 
@@ -117,6 +175,7 @@ The `machine_image_encryption_key` block supports:
   customer-supplied encryption key that protects this resource.
 
 * `kms_key_name` -
+  (Optional)
   The name of the encryption key that is stored in Google Cloud KMS.
 
 * `kms_key_service_account` -
