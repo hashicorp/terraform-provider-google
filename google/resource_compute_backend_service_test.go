@@ -536,6 +536,8 @@ func TestAccComputeBackendService_withMaxConnectionsPerEndpoint(t *testing.T) {
 }
 
 func TestAccComputeBackendService_internalLoadBalancing(t *testing.T) {
+	// Instance template uses UniqueId in some cases
+	skipIfVcr(t)
 	t.Parallel()
 
 	fr := fmt.Sprintf("forwardrule-test-%s", randString(t, 10))
