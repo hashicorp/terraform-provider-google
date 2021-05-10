@@ -1,0 +1,3 @@
+```release-note:new-resource
+pubsub: Add schema resource as `google_pubsub_schema` to google pubsub
+```

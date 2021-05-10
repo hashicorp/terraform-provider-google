@@ -89,6 +89,31 @@ resource "google_pubsub_topic" "example" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_topic_schema_settings&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Topic Schema Settings
+
+
+```hcl
+resource "google_pubsub_schema" "example" {
+  name = "example"
+  type = "AVRO"
+  definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
+}
+
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+
+  depends_on = [google_pubsub_schema.example]
+  schema_settings {
+    schema = "projects/my-project-name/schemas/example"
+    encoding = "JSON"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -122,6 +147,11 @@ The following arguments are supported:
   constraints are in effect.
   Structure is documented below.
 
+* `schema_settings` -
+  (Optional)
+  Settings for validating messages published against a schema.
+  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -136,6 +166,21 @@ The `message_storage_policy` block supports:
   of GCP altogether) will be routed for storage in one of the
   allowed regions. An empty list means that no regions are allowed,
   and is not a valid configuration.
+
+The `schema_settings` block supports:
+
+* `schema` -
+  (Required)
+  The name of the schema that messages published should be
+  validated against. Format is projects/{project}/schemas/{schema}.
+  The value of this field will be _deleted-schema_
+  if the schema has been deleted.
+
+* `encoding` -
+  (Optional)
+  The encoding of messages validated against schema.
+  Default value is `ENCODING_UNSPECIFIED`.
+  Possible values are `ENCODING_UNSPECIFIED`, `JSON`, and `BINARY`.
 
 ## Attributes Reference
 
