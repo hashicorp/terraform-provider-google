@@ -1,4 +1,4 @@
-## 3.67.0 (Unreleased)
+## 3.67.0 (May 10, 2021)
 
 FEATURES:
 * **New Resource:** google_memcache_instance ([#8982](https://github.com/hashicorp/terraform-provider-google/pull/8982))
