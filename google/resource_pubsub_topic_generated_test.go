@@ -97,6 +97,51 @@ resource "google_pubsub_topic" "example" {
 `, context)
 }
 
+func TestAccPubsubTopic_pubsubTopicSchemaSettingsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":  getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubTopic_pubsubTopicSchemaSettingsExample(context),
+			},
+			{
+				ResourceName:      "google_pubsub_topic.example",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccPubsubTopic_pubsubTopicSchemaSettingsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_pubsub_schema" "example" {
+  name = "example%{random_suffix}"
+  type = "AVRO"
+  definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
+}
+
+resource "google_pubsub_topic" "example" {
+  name = "tf-test-example-topic%{random_suffix}"
+
+  depends_on = [google_pubsub_schema.example]
+  schema_settings {
+    schema = "projects/%{project_name}/schemas/example%{random_suffix}"
+    encoding = "JSON"
+  }
+}
+`, context)
+}
+
 func testAccCheckPubsubTopicDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
