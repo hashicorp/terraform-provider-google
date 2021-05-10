@@ -19,7 +19,6 @@ IMPROVEMENTS:
 * cloud_identity: added support for `initial_group_config` to the google_cloud_identity_group resource ([#9035](https://github.com/hashicorp/terraform-provider-google/pull/9035))
 * cloudrun: added support to bind secrets from Secret Manager to environment variables or files to `google_cloud_run_service` ([#9073](https://github.com/hashicorp/terraform-provider-google/pull/9073))
 * compute: added `initial_size` to account for scenarios where size may change under the hood in resource `google_compute_node_group` ([#9078](https://github.com/hashicorp/terraform-provider-google/pull/9078))
-* compute: added `interface` field to `google_compute_region_disk` (beta) ([#8989](https://github.com/hashicorp/terraform-provider-google/pull/8989))
 * healthcare: added support for `stream_configs` in `google_healthcare_dicom_store` ([#8986](https://github.com/hashicorp/terraform-provider-google/pull/8986))
 * secretmanager: added support for setting a CMEK on `google_secret_manager_secret` ([#9046](https://github.com/hashicorp/terraform-provider-google/pull/9046))
 * spanner: added `force_destroy` to `google_spanner_instance` to delete instances that have backups enabled. ([#9076](https://github.com/hashicorp/terraform-provider-google/pull/9076))
