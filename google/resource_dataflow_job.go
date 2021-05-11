@@ -356,7 +356,7 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 // Stream update method. Batch job changes should have been set to ForceNew via custom diff
 func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interface{}) error {
 	// Don't send an update request if only virtual fields have changes
-	if resourceDataflowJobIsVirtualUpdate(d) {
+	if resourceDataflowJobIsVirtualUpdate(d, resourceDataflowJob().Schema) {
 		return nil
 	}
 
@@ -580,11 +580,9 @@ func resourceDataflowJobIterateMapHasChange(mapKey string, d *schema.ResourceDat
 	return false
 }
 
-func resourceDataflowJobIsVirtualUpdate(d *schema.ResourceData) bool {
+func resourceDataflowJobIsVirtualUpdate(d *schema.ResourceData, resourceSchema map[string]*schema.Schema) bool {
 	// on_delete is the only virtual field
 	if d.HasChange("on_delete") {
-		// Check if other fields have changes, which would require an actual update request
-		resourceSchema := resourceDataflowJob().Schema
 		for field := range resourceSchema {
 			if field == "on_delete" {
 				continue
