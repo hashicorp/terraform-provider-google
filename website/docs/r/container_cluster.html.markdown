@@ -435,7 +435,7 @@ Minimum CPU platform to be used for NAP created node pools. The instance may be 
 specified or newer CPU platform. Applicable values are the friendly names of CPU platforms, such
 as "Intel Haswell" or "Intel Sandy Bridge".
 
-* `oauth_scopes` - (Optional) Scopes that are used by NAP when creating node pools. Use the "https://www.googleapis.com/auth/cloud-platform" scope to grant access to all APIs. It is recommended that you set `service_account` to a non-default service account and grant IAM roles to that service account for only the resources that it needs. 
+* `oauth_scopes` - (Optional) Scopes that are used by NAP when creating node pools. Use the "https://www.googleapis.com/auth/cloud-platform" scope to grant access to all APIs. It is recommended that you set `service_account` to a non-default service account and grant IAM roles to that service account for only the resources that it needs.
 
 -> `monitoring.write` is always enabled regardless of user input.  `monitoring` and `logging.write` may also be enabled depending on the values for `monitoring_service` and `logging_service`.
 
@@ -498,7 +498,7 @@ maintenance_policy {
 Specify `start_time` and `end_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) "Zulu" date format.  The start time's date is
 the initial date that the window starts, and the end time is used for calculating duration.Specify `recurrence` in
 [RFC5545](https://tools.ietf.org/html/rfc5545#section-3.8.5.3) RRULE format, to specify when this recurs.
-Note that GKE may accept other formats, but will return values in UTC, causing a permanent diff. 
+Note that GKE may accept other formats, but will return values in UTC, causing a permanent diff.
 
 Examples:
 
@@ -631,7 +631,7 @@ ephemeral_storage_config {
     for more information.
 
 * `oauth_scopes` - (Optional) The set of Google API scopes to be made available
-    on all of the node VMs under the "default" service account. 
+    on all of the node VMs under the "default" service account.
     Use the "https://www.googleapis.com/auth/cloud-platform" scope to grant access to all APIs. It is recommended that you set `service_account` to a non-default service account and grant IAM roles to that service account for only the resources that it needs.
 
     See the [official documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/access-scopes) for information on migrating off of legacy access scopes.
