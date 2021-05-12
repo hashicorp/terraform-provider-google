@@ -2017,6 +2017,7 @@ resource "google_container_cluster" "with_master_auth" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 3
+  enable_shielded_nodes = false
 
   master_auth {
     username = "mr.yoda"
@@ -2315,7 +2316,7 @@ resource "google_container_cluster" "with_intranode_visibility" {
   name                        = "%s"
   location                    = "us-central1-a"
   initial_node_count          = 1
-  enable_intranode_visibility = true 
+  enable_intranode_visibility = true
 }
 `, clusterName)
 }
@@ -3536,22 +3537,22 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 	ip_cidr_range            = "10.0.36.0/24"
 	region                   = "us-central1"
 	private_ip_google_access = true
-  
+
 	secondary_ip_range {
 	  range_name    = "pod"
 	  ip_cidr_range = "10.0.0.0/19"
 	}
-  
+
 	secondary_ip_range {
 	  range_name    = "svc"
 	  ip_cidr_range = "10.0.32.0/22"
 	}
 }
-	
+
 data "google_container_engine_versions" "central1a" {
 	location = "us-central1-a"
 }
-	
+
 resource "google_container_cluster" "with_autopilot" {
 	name               = "%s"
 	location           = "us-central1"

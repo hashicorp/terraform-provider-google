@@ -1163,11 +1163,14 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		ResourceLabels: expandStringMap(d, "resource_labels"),
 	}
 
-	if v, ok := d.GetOk("enable_shielded_nodes"); ok {
-		cluster.ShieldedNodes = &containerBeta.ShieldedNodes{
-			Enabled:         v.(bool),
-			ForceSendFields: []string{"Enabled"},
-		}
+	// shielded nodes is computed and optional yet serverside
+	// default is true. Forcing true here esentially serves
+	// as a default false but is unavoidable due to how
+	// computed and GetOk work together.
+	v := d.Get("enable_shielded_nodes")
+	cluster.ShieldedNodes = &containerBeta.ShieldedNodes{
+		Enabled:         v.(bool),
+		ForceSendFields: []string{"Enabled"},
 	}
 
 	if v, ok := d.GetOk("default_max_pods_per_node"); ok {
