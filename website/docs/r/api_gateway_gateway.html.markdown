@@ -77,7 +77,8 @@ The following arguments are supported:
 
 * `api_config` -
   (Required)
-  Resource name of the API Config for this Gateway. Format: projects/{project}/locations/global/apis/{api}/configs/{apiConfig}
+  Resource name of the API Config for this Gateway. Format: projects/{project}/locations/global/apis/{api}/configs/{apiConfig}.
+  When changing api configs please ensure the new config is a new resource and the lifecycle rule `create_before_destroy` is set.
 
 * `gateway_id` -
   (Required)
