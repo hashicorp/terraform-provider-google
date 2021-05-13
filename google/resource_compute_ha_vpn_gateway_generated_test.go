@@ -144,7 +144,7 @@ resource "google_compute_subnetwork" "network2_subnet2" {
 }
 
 resource "google_compute_router" "router1" {
-  name     = "ha-vpn-router1"
+  name     = "tf-test-ha-vpn-router1%{random_suffix}"
   network  = google_compute_network.network1.name
   bgp {
     asn = 64514
@@ -152,7 +152,7 @@ resource "google_compute_router" "router1" {
 }
 
 resource "google_compute_router" "router2" {
-  name     = "ha-vpn-router2"
+  name     = "tf-test-ha-vpn-router2%{random_suffix}"
   network  = google_compute_network.network2.name
   bgp {
     asn = 64515
