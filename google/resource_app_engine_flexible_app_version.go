@@ -153,7 +153,7 @@ replies to a healthcheck until it is ready to serve traffic. Default: "300s"`,
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      `AppEngine service resource`,
+				Description:      `AppEngine service resource. Can contain numbers, letters, and hyphens.`,
 			},
 			"api_config": {
 				Type:        schema.TypeList,
