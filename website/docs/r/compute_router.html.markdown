@@ -61,6 +61,31 @@ resource "google_compute_network" "foobar" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=compute_router_encrypted_interconnect&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Compute Router Encrypted Interconnect
+
+
+```hcl
+resource "google_compute_router" "encrypted-interconnect-router" {
+  name                          = "test-router"
+  network                       = google_compute_network.network.name
+  encrypted_interconnect_router = true
+  bgp {
+    asn = 64514
+  }
+  provider = google-beta
+}
+
+resource "google_compute_network" "network" {
+  name                    = "test-network"
+  auto_create_subnetworks = false
+  provider = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -92,6 +117,12 @@ The following arguments are supported:
   (Optional)
   BGP information specific to this router.
   Structure is documented below.
+
+* `encrypted_interconnect_router` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Field to indicate if a router is dedicated to use with encrypted
+  Interconnect Attachment (IPsec-encrypted Cloud Interconnect feature).
+  Not currently available publicly.
 
 * `region` -
   (Optional)

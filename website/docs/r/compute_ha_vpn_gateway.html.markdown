@@ -243,6 +243,89 @@ resource "google_compute_router_peer" "router2_peer2" {
   interface                 = google_compute_router_interface.router2_interface2.name
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=compute_ha_vpn_gateway_encrypted_interconnect&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Compute Ha Vpn Gateway Encrypted Interconnect
+
+
+```hcl
+resource "google_compute_ha_vpn_gateway" "vpn-gateway" {
+  name           = "test-ha-vpngw"
+  network        = google_compute_network.network.id
+  vpn_interfaces {
+      id                      = 0
+      interconnect_attachment = google_compute_interconnect_attachment.attachment1.self_link
+  }
+  vpn_interfaces {
+      id                      = 1
+      interconnect_attachment = google_compute_interconnect_attachment.attachment2.self_link
+  }
+  provider = google-beta
+}
+
+resource "google_compute_interconnect_attachment" "attachment1" {
+  name                     = "test-interconnect-attachment1"
+  edge_availability_domain = "AVAILABILITY_DOMAIN_1"
+  type                     = "PARTNER"
+  router                   = google_compute_router.router.id
+  encryption               = "IPSEC"
+  ipsec_internal_addresses = [
+    google_compute_address.address1.self_link,
+  ]
+  provider = google-beta
+}
+
+resource "google_compute_interconnect_attachment" "attachment2" {
+  name                     = "test-interconnect-attachment2"
+  edge_availability_domain = "AVAILABILITY_DOMAIN_2"
+  type                     = "PARTNER"
+  router                   = google_compute_router.router.id
+  encryption               = "IPSEC"
+  ipsec_internal_addresses = [
+    google_compute_address.address2.self_link,
+  ]
+  provider = google-beta
+}
+
+resource "google_compute_address" "address1" {
+  name          = "test-address1"
+  address_type  = "INTERNAL"
+  purpose       = "IPSEC_INTERCONNECT"
+  address       = "192.168.1.0"
+  prefix_length = 29
+  network       = google_compute_network.network.self_link
+  provider = google-beta
+}
+
+resource "google_compute_address" "address2" {
+  name          = "test-address2"
+  address_type  = "INTERNAL"
+  purpose       = "IPSEC_INTERCONNECT"
+  address       = "192.168.2.0"
+  prefix_length = 29
+  network       = google_compute_network.network.self_link
+  provider = google-beta
+}
+
+resource "google_compute_router" "router" {
+  name                          = "test-router"
+  network                       = google_compute_network.network.name
+  encrypted_interconnect_router = true
+  bgp {
+    asn = 16550
+  }
+  provider = google-beta
+}
+
+resource "google_compute_network" "network" {
+  name                    = "test-network"
+  auto_create_subnetworks = false
+  provider = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -271,6 +354,11 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `vpn_interfaces` -
+  (Optional)
+  A list of interfaces on this VPN gateway.
+  Structure is documented below.
+
 * `region` -
   (Optional)
   The region this gateway should sit in.
@@ -279,27 +367,31 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-## Attributes Reference
-
-In addition to the arguments listed above, the following computed attributes are exported:
-
-* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/vpnGateways/{{name}}`
-
-* `vpn_interfaces` -
-  A list of interfaces on this VPN gateway.
-  Structure is documented below.
-* `self_link` - The URI of the created resource.
-
-
-The `vpn_interfaces` block contains:
+The `vpn_interfaces` block supports:
 
 * `id` -
   (Optional)
   The numeric ID of this VPN gateway interface.
 
 * `ip_address` -
-  (Optional)
   The external IP address for this VPN gateway interface.
+
+* `interconnect_attachment` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  URL of the interconnect attachment resource. When the value
+  of this field is present, the VPN Gateway will be used for
+  IPsec-encrypted Cloud Interconnect; all Egress or Ingress
+  traffic for this VPN Gateway interface will go through the
+  specified interconnect attachment resource.
+  Not currently available publicly.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/vpnGateways/{{name}}`
+* `self_link` - The URI of the created resource.
+
 
 ## Timeouts
 

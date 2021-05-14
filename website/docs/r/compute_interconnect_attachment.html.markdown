@@ -57,6 +57,53 @@ resource "google_compute_network" "foobar" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=compute_interconnect_attachment_ipsec_encryption&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Compute Interconnect Attachment Ipsec Encryption
+
+
+```hcl
+resource "google_compute_interconnect_attachment" "ipsec-encrypted-interconnect-attachment" {
+  name                     = "test-interconnect-attachment"
+  edge_availability_domain = "AVAILABILITY_DOMAIN_1"
+  type                     = "PARTNER"
+  router                   = google_compute_router.router.id
+  encryption               = "IPSEC"
+  ipsec_internal_addresses = [
+    google_compute_address.address.self_link,
+  ]
+  provider = google-beta
+}
+
+resource "google_compute_address" "address" {
+  name          = "test-address"
+  address_type  = "INTERNAL"
+  purpose       = "IPSEC_INTERCONNECT"
+  address       = "192.168.1.0"
+  prefix_length = 29
+  network       = google_compute_network.network.self_link
+  provider = google-beta
+}
+
+resource "google_compute_router" "router" {
+  name                          = "test-router"
+  network                       = google_compute_network.network.name
+  encrypted_interconnect_router = true
+  bgp {
+    asn = 16550
+  }
+  provider = google-beta
+}
+
+resource "google_compute_network" "network" {
+  name                    = "test-network"
+  auto_create_subnetworks = false
+  provider = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -141,6 +188,41 @@ The following arguments are supported:
   (Optional)
   The IEEE 802.1Q VLAN tag for this attachment, in the range 2-4094. When
   using PARTNER type this will be managed upstream.
+
+* `ipsec_internal_addresses` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  URL of addresses that have been reserved for the interconnect
+  attachment, Used only for interconnect attachment that has the
+  encryption option as IPSEC.
+  The addresses must be RFC 1918 IP address ranges. When creating HA
+  VPN gateway over the interconnect attachment, if the attachment is
+  configured to use an RFC 1918 IP address, then the VPN gateway's IP
+  address will be allocated from the IP address range specified
+  here.
+  For example, if the HA VPN gateway's interface 0 is paired to this
+  interconnect attachment, then an RFC 1918 IP address for the VPN
+  gateway interface 0 will be allocated from the IP address specified
+  for this interconnect attachment.
+  If this field is not specified for interconnect attachment that has
+  encryption option as IPSEC, later on when creating HA VPN gateway on
+  this interconnect attachment, the HA VPN gateway's IP address will be
+  allocated from regional external IP address pool.
+
+* `encryption` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Indicates the user-supplied encryption option of this interconnect
+  attachment:
+  NONE is the default value, which means that the attachment carries
+  unencrypted traffic. VMs can send traffic to, or receive traffic
+  from, this type of attachment.
+  IPSEC indicates that the attachment carries only traffic encrypted by
+  an IPsec device such as an HA VPN gateway. VMs cannot directly send
+  traffic to, or receive traffic from, such an attachment. To use
+  IPsec-encrypted Cloud Interconnect create the attachment using this
+  option.
+  Not currently available publicly.
+  Default value is `NONE`.
+  Possible values are `NONE` and `IPSEC`.
 
 * `region` -
   (Optional)
