@@ -66,7 +66,7 @@ resource "google_compute_address" "internal" {
 }
 
 resource "google_compute_network" "default" {
-  name = "network-test-%s"
+  name = "tf-test-network-test-%s"
 }
 
 resource "google_compute_subnetwork" "foo" {
