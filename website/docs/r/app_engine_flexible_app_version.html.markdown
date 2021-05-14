@@ -154,7 +154,7 @@ The following arguments are supported:
 
 * `service` -
   (Required)
-  AppEngine service resource
+  AppEngine service resource. Can contain numbers, letters, and hyphens.
 
 
 The `readiness_check` block supports:
