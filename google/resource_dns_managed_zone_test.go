@@ -340,7 +340,7 @@ resource "google_compute_network" "network-2" {
 }
 
 resource "google_compute_network" "network-3" {
-  name                    = "network-3-%s"
+  name                    = "tf-test-network-3-%s"
   auto_create_subnetworks = false
 }
 `, suffix, first_network, second_network, suffix, suffix, suffix)

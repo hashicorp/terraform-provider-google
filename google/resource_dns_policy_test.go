@@ -59,12 +59,12 @@ resource "google_dns_policy" "example-policy" {
 }
 
 resource "google_compute_network" "network-1" {
-  name                    = "network-1-%s"
+  name                    = "tf-test-network-1-%s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network-2" {
-  name                    = "network-2-%s"
+  name                    = "tf-test-network-2-%s"
   auto_create_subnetworks = false
 }
 `, suffix, forwarding, first_nameserver, second_nameserver, network, suffix, suffix)

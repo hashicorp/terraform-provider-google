@@ -460,7 +460,7 @@ func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
 	t.Parallel()
 
 	var instanceTemplate compute.InstanceTemplate
-	network := "network-" + randString(t, 10)
+	network := "tf-test-network-" + randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -1763,7 +1763,7 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_subnet_custom(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "network" {
-  name                    = "network-%s"
+  name                    = "tf-test-network-%s"
   auto_create_subnetworks = false
 }
 
@@ -1838,7 +1838,7 @@ resource "google_compute_shared_vpc_service_project" "service_project" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "network-%s"
+  name                    = "tf-test-network-%s"
   auto_create_subnetworks = false
   project                 = google_compute_shared_vpc_host_project.host_project.project
 }
