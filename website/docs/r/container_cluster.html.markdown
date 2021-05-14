@@ -251,6 +251,8 @@ region are guaranteed to support the same version.
     `version_prefix` field to approximate fuzzy versions in a Terraform-compatible way.
     To update nodes in other node pools, use the `version` attribute on the node pool.
 
+* `notification_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for the [cluster upgrade notifications](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-upgrade-notifications) feature. Structure is documented below.
+
 * `pod_security_policy_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for the
     [PodSecurityPolicy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies) feature.
     Structure is documented below.
@@ -708,6 +710,25 @@ The `workload_identity_config` block supports:
 ```hcl
 workload_identity_config {
   identity_namespace = "${data.google_project.project.project_id}.svc.id.goog"
+}
+```
+
+The `notification_config` block supports:
+
+* `pubsub` (Required) - The pubsub config for the cluster's upgrade notifications.
+
+The `pubsub` block supports:
+
+* `enabled` (Required) - Whether or not the notification config is enabled
+
+* `topic` (Optional) - The pubsub topic to push upgrade notifications to. Must be in the same project as the cluster. Must be in the format: `projects/{project}/topics/{topic}`.
+
+```hcl
+notification_config {
+  pubsub {
+    enabled = true
+    topic = google_pubsub_topic.notifications.id
+  }
 }
 ```
 
