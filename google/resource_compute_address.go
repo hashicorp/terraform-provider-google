@@ -90,13 +90,21 @@ specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Description: `The purpose of this resource. Possible values include:
+				Description: `The purpose of this resource, which can be one of the following values:
 
-* GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
+* GCE_ENDPOINT for addresses that are used by VM instances, alias IP
+  ranges, internal load balancers, and similar resources.
 
-* SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal load balancers.
+* SHARED_LOADBALANCER_VIP for an address that can be used by multiple
+  internal load balancers.
 
-* VPC_PEERING for addresses that are reserved for VPC peer networks.`,
+* VPC_PEERING for addresses that are reserved for VPC peer networks.
+
+* IPSEC_INTERCONNECT (Beta only) for addresses created from a private IP range
+  that are reserved for a VLAN attachment in an IPsec-encrypted Cloud
+  Interconnect configuration. These addresses are regional resources.
+
+This should only be set when using an Internal address.`,
 			},
 			"region": {
 				Type:             schema.TypeString,

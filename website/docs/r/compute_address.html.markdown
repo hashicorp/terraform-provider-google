@@ -137,6 +137,31 @@ resource "google_compute_instance" "instance_with_ip" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=compute_address_ipsec_interconnect&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Compute Address Ipsec Interconnect
+
+
+```hcl
+resource "google_compute_address" "ipsec-interconnect-address" {
+  name          = "test-address"
+  address_type  = "INTERNAL"
+  purpose       = "IPSEC_INTERCONNECT"
+  address       = "192.168.1.0"
+  prefix_length = 29
+  network       = google_compute_network.network.self_link
+  provider = google-beta
+}
+
+resource "google_compute_network" "network" {
+  name                    = "test-network"
+  auto_create_subnetworks = false
+  provider = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -175,10 +200,16 @@ The following arguments are supported:
 
 * `purpose` -
   (Optional)
-  The purpose of this resource. Possible values include:
-  * GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, internal load balancers, and similar resources.
-  * SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal load balancers.
+  The purpose of this resource, which can be one of the following values:
+  * GCE_ENDPOINT for addresses that are used by VM instances, alias IP
+    ranges, internal load balancers, and similar resources.
+  * SHARED_LOADBALANCER_VIP for an address that can be used by multiple
+    internal load balancers.
   * VPC_PEERING for addresses that are reserved for VPC peer networks.
+  * IPSEC_INTERCONNECT (Beta only) for addresses created from a private IP range
+    that are reserved for a VLAN attachment in an IPsec-encrypted Cloud
+    Interconnect configuration. These addresses are regional resources.
+  This should only be set when using an Internal address.
 
 * `network_tier` -
   (Optional)
@@ -196,6 +227,16 @@ The following arguments are supported:
 * `labels` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Labels to apply to this address.  A list of key->value pairs.
+
+* `network` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The URL of the network in which to reserve the address. This field
+  can only be used with INTERNAL type with the VPC_PEERING and
+  IPSEC_INTERCONNECT purposes.
+
+* `prefix_length` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The prefix length if the resource represents an IP range.
 
 * `region` -
   (Optional)
