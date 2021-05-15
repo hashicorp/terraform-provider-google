@@ -113,6 +113,16 @@ scales up until it reaches the maximum number of instances you
 specified or until the average utilization reaches the target
 utilization.`,
 									},
+									"predictive_method": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Indicates whether predictive autoscaling based on CPU metric is enabled. Valid values are:
+
+- NONE (default). No predictive method is used. The autoscaler scales the group to meet current demand based on real-time metrics.
+
+- OPTIMIZE_AVAILABILITY. Predictive autoscaling improves availability by monitoring daily and weekly load patterns and scaling out ahead of anticipated demand.`,
+										Default: "NONE",
+									},
 								},
 							},
 						},
@@ -745,9 +755,19 @@ func flattenComputeAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d *s
 	transformed := make(map[string]interface{})
 	transformed["target"] =
 		flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(original["utilizationTarget"], d, config)
+	transformed["predictive_method"] =
+		flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(original["predictiveMethod"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return "NONE"
+	}
+
 	return v
 }
 
@@ -986,10 +1006,21 @@ func expandComputeAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d Ter
 		transformed["utilizationTarget"] = transformedTarget
 	}
 
+	transformedPredictiveMethod, err := expandComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(original["predictive_method"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPredictiveMethod); val.IsValid() && !isEmptyValue(val) {
+		transformed["predictiveMethod"] = transformedPredictiveMethod
+	}
+
 	return transformed, nil
 }
 
 func expandComputeAutoscalerAutoscalingPolicyCpuUtilizationTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
