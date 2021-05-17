@@ -72,6 +72,12 @@ resource "google_compute_region_instance_group_manager" "rigm" {
     instance_template = google_compute_instance_template.igm-basic.self_link
   }
 
+  update_policy {
+    type                         = "OPPORTUNISTIC"
+    instance_redistribution_type = "NONE"
+    minimal_action               = "RESTART"
+  }
+
   base_instance_name = "rigm"
   region             = "us-central1"
   target_size        = 2
@@ -86,7 +92,7 @@ resource "google_compute_disk" "default" {
 }
 
 resource "google_compute_region_per_instance_config" "with_disk" {
-  region = google_compute_instance_group_manager.igm.region
+  region = google_compute_region_instance_group_manager.igm.region
   region_instance_group_manager = google_compute_region_instance_group_manager.rigm.name
   name = "instance-1"
   preserved_state {
