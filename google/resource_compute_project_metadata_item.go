@@ -170,6 +170,10 @@ func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta inter
 
 func updateComputeCommonInstanceMetadata(config *Config, projectID, key, userAgent string, afterVal *string, timeout time.Duration, failIfPresent metadataPresentBehavior) error {
 	updateMD := func() error {
+		lockName := fmt.Sprintf("projects/%s/commoninstancemetadata", projectID)
+		mutexKV.Lock(lockName)
+		defer mutexKV.Unlock(lockName)
+
 		log.Printf("[DEBUG] Loading project metadata: %s", projectID)
 		project, err := config.NewComputeClient(userAgent).Projects.Get(projectID).Do()
 		if err != nil {
