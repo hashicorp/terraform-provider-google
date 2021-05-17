@@ -1,6 +1,6 @@
 ## 3.68.0 (Unreleased)
 FEATURES:
-* **New Resource:** google_pubsub_schema` ([#9116](https://github.com/hashicorp/terraform-provider-google/pull/9116))
+* **New Resource:** `google_pubsub_schema` ([#9116](https://github.com/hashicorp/terraform-provider-google/pull/9116))
 
 IMPROVEMENTS:
 * compute: added `initial_size`  in resource `google_compute_node_group` to account for scenarios where size may change under the hood ([#9078](https://github.com/hashicorp/terraform-provider-google/pull/9078))
