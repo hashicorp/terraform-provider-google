@@ -286,7 +286,7 @@ The `autoscaling_policy` block supports:
   Structure is documented below.
 
 * `scaling_schedules` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Scaling schedules defined for an autoscaler. Multiple schedules can be set on an autoscaler and they can overlap.
   Structure is documented below.
 
