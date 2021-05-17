@@ -1,4 +1,16 @@
 ## 3.68.0 (Unreleased)
+FEATURES:
+* **New Resource:** `google_pubsub_schema` ([#9116](https://github.com/hashicorp/terraform-provider-google/pull/9116))
+
+IMPROVEMENTS:
+* compute: added `initial_size`  in resource `google_compute_node_group` to account for scenarios where size may change under the hood ([#9078](https://github.com/hashicorp/terraform-provider-google/pull/9078))
+* compute: added support for setting `kms_key_name` on `google_compute_machine_image` ([#9107](https://github.com/hashicorp/terraform-provider-google/pull/9107))
+* dataflow: enabled updates for `google_dataflow_flex_template_job` ([#9123](https://github.com/hashicorp/terraform-provider-google/pull/9123))
+
+BUG FIXES:
+* compute: fixed bug where, when an organization security policy association was removed outside of terraform, the next plan/apply would fail. ([#9095](https://github.com/hashicorp/terraform-provider-google/pull/9095))
+* container: added validation to check that both `node_version` and `remove_default_node_pool` cannot be set on `google_container_cluster` ([#9100](https://github.com/hashicorp/terraform-provider-google/pull/9100))
+* dns: suppressed spurious diffs due to case changes in DS records ([#9099](https://github.com/hashicorp/terraform-provider-google/pull/9099))
 
 ## 3.67.0 (May 10, 2021)
 FEATURES:
