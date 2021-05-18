@@ -99,6 +99,30 @@ resource "google_compute_resource_policy" "baz" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=resource_policy_instance_schedule_policy&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Resource Policy Instance Schedule Policy
+
+
+```hcl
+resource "google_compute_resource_policy" "hourly" {
+  name   = "policy"
+  region = "us-central1"
+  description = "Start and stop instances"
+  instance_schedule_policy {
+    vm_start_schedule {
+      schedule = "0 * * * *"
+    }
+    vm_stop_schedule {
+      schedule = "15 * * * *"
+    }
+    time_zone = "US/Central"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -119,6 +143,10 @@ The following arguments are supported:
 - - -
 
 
+* `description` -
+  (Optional)
+  An optional description of this resource. Provide this property when you create the resource.
+
 * `snapshot_schedule_policy` -
   (Optional)
   Policy for creating snapshots of persistent disks.
@@ -127,6 +155,11 @@ The following arguments are supported:
 * `group_placement_policy` -
   (Optional)
   Resource policy for instances used for placement configuration.
+  Structure is documented below.
+
+* `instance_schedule_policy` -
+  (Optional)
+  Resource policy for scheduling instance operations.
   Structure is documented below.
 
 * `region` -
@@ -264,6 +297,44 @@ The `group_placement_policy` block supports:
   with a COLLOCATED policy, then exactly `vm_count` instances must be created at the same time with the resource policy
   attached.
   Possible values are `COLLOCATED`.
+
+The `instance_schedule_policy` block supports:
+
+* `vm_start_schedule` -
+  (Optional)
+  Specifies the schedule for starting instances.
+  Structure is documented below.
+
+* `vm_stop_schedule` -
+  (Optional)
+  Specifies the schedule for stopping instances.
+  Structure is documented below.
+
+* `time_zone` -
+  (Required)
+  Specifies the time zone to be used in interpreting the schedule. The value of this field must be a time zone name
+  from the tz database: http://en.wikipedia.org/wiki/Tz_database.
+
+* `start_time` -
+  (Optional)
+  The start time of the schedule. The timestamp is an RFC3339 string.
+
+* `expiration_time` -
+  (Optional)
+  The expiration time of the schedule. The timestamp is an RFC3339 string.
+
+
+The `vm_start_schedule` block supports:
+
+* `schedule` -
+  (Required)
+  Specifies the frequency for the operation, using the unix-cron format.
+
+The `vm_stop_schedule` block supports:
+
+* `schedule` -
+  (Required)
+  Specifies the frequency for the operation, using the unix-cron format.
 
 ## Attributes Reference
 
