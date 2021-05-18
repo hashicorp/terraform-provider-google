@@ -156,6 +156,50 @@ resource "google_compute_resource_policy" "baz" {
 `, context)
 }
 
+func TestAccComputeResourcePolicy_resourcePolicyInstanceSchedulePolicyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeResourcePolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeResourcePolicy_resourcePolicyInstanceSchedulePolicyExample(context),
+			},
+			{
+				ResourceName:            "google_compute_resource_policy.hourly",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccComputeResourcePolicy_resourcePolicyInstanceSchedulePolicyExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_resource_policy" "hourly" {
+  name   = "policy%{random_suffix}"
+  region = "us-central1"
+  description = "Start and stop instances"
+  instance_schedule_policy {
+    vm_start_schedule {
+      schedule = "0 * * * *"
+    }
+    vm_stop_schedule {
+      schedule = "15 * * * *"
+    }
+    time_zone = "US/Central"
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeResourcePolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

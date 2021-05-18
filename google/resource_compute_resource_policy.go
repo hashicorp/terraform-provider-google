@@ -53,6 +53,12 @@ first character must be a lowercase letter, and all following characters
 must be a dash, lowercase letter, or digit, except the last character,
 which cannot be a dash.`,
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An optional description of this resource. Provide this property when you create the resource.`,
+			},
 			"group_placement_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -88,7 +94,74 @@ attached. Possible values: ["COLLOCATED"]`,
 						},
 					},
 				},
-				ConflictsWith: []string{"snapshot_schedule_policy"},
+				ConflictsWith: []string{"snapshot_schedule_policy", "instance_schedule_policy"},
+			},
+			"instance_schedule_policy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Resource policy for scheduling instance operations.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"time_zone": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Specifies the time zone to be used in interpreting the schedule. The value of this field must be a time zone name
+from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
+						},
+						"expiration_time": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The expiration time of the schedule. The timestamp is an RFC3339 string.`,
+						},
+						"start_time": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The start time of the schedule. The timestamp is an RFC3339 string.`,
+						},
+						"vm_start_schedule": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies the schedule for starting instances.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"schedule": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Specifies the frequency for the operation, using the unix-cron format.`,
+									},
+								},
+							},
+							AtLeastOneOf: []string{"instance_schedule_policy.0.vm_start_schedule", "instance_schedule_policy.0.vm_stop_schedule"},
+						},
+						"vm_stop_schedule": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies the schedule for stopping instances.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"schedule": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Specifies the frequency for the operation, using the unix-cron format.`,
+									},
+								},
+							},
+							AtLeastOneOf: []string{"instance_schedule_policy.0.vm_start_schedule", "instance_schedule_policy.0.vm_stop_schedule"},
+						},
+					},
+				},
+				ConflictsWith: []string{"snapshot_schedule_policy", "group_placement_policy"},
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -261,7 +334,7 @@ the source disk is deleted. Default value: "KEEP_AUTO_SNAPSHOTS" Possible values
 						},
 					},
 				},
-				ConflictsWith: []string{"group_placement_policy"},
+				ConflictsWith: []string{"group_placement_policy", "instance_schedule_policy"},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -313,6 +386,12 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
+	descriptionProp, err := expandComputeResourcePolicyDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
 	snapshotSchedulePolicyProp, err := expandComputeResourcePolicySnapshotSchedulePolicy(d.Get("snapshot_schedule_policy"), d, config)
 	if err != nil {
 		return err
@@ -324,6 +403,12 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("group_placement_policy"); !isEmptyValue(reflect.ValueOf(groupPlacementPolicyProp)) && (ok || !reflect.DeepEqual(v, groupPlacementPolicyProp)) {
 		obj["groupPlacementPolicy"] = groupPlacementPolicyProp
+	}
+	instanceSchedulePolicyProp, err := expandComputeResourcePolicyInstanceSchedulePolicy(d.Get("instance_schedule_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance_schedule_policy"); !isEmptyValue(reflect.ValueOf(instanceSchedulePolicyProp)) && (ok || !reflect.DeepEqual(v, instanceSchedulePolicyProp)) {
+		obj["instanceSchedulePolicy"] = instanceSchedulePolicyProp
 	}
 	regionProp, err := expandComputeResourcePolicyRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -415,10 +500,16 @@ func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("name", flattenComputeResourcePolicyName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
+	if err := d.Set("description", flattenComputeResourcePolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
 	if err := d.Set("snapshot_schedule_policy", flattenComputeResourcePolicySnapshotSchedulePolicy(res["snapshotSchedulePolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
 	if err := d.Set("group_placement_policy", flattenComputeResourcePolicyGroupPlacementPolicy(res["groupPlacementPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
+	if err := d.Set("instance_schedule_policy", flattenComputeResourcePolicyInstanceSchedulePolicy(res["instanceSchedulePolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
 	if err := d.Set("region", flattenComputeResourcePolicyRegion(res["region"], d, config)); err != nil {
@@ -498,6 +589,10 @@ func resourceComputeResourcePolicyImport(d *schema.ResourceData, meta interface{
 }
 
 func flattenComputeResourcePolicyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeResourcePolicyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -770,6 +865,73 @@ func flattenComputeResourcePolicyGroupPlacementPolicyCollocation(v interface{}, 
 	return v
 }
 
+func flattenComputeResourcePolicyInstanceSchedulePolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["vm_start_schedule"] =
+		flattenComputeResourcePolicyInstanceSchedulePolicyVmStartSchedule(original["vmStartSchedule"], d, config)
+	transformed["vm_stop_schedule"] =
+		flattenComputeResourcePolicyInstanceSchedulePolicyVmStopSchedule(original["vmStopSchedule"], d, config)
+	transformed["time_zone"] =
+		flattenComputeResourcePolicyInstanceSchedulePolicyTimeZone(original["timeZone"], d, config)
+	transformed["start_time"] =
+		flattenComputeResourcePolicyInstanceSchedulePolicyStartTime(original["startTime"], d, config)
+	transformed["expiration_time"] =
+		flattenComputeResourcePolicyInstanceSchedulePolicyExpirationTime(original["expirationTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeResourcePolicyInstanceSchedulePolicyVmStartSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["schedule"] =
+		flattenComputeResourcePolicyInstanceSchedulePolicyVmStartScheduleSchedule(original["schedule"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeResourcePolicyInstanceSchedulePolicyVmStartScheduleSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeResourcePolicyInstanceSchedulePolicyVmStopSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["schedule"] =
+		flattenComputeResourcePolicyInstanceSchedulePolicyVmStopScheduleSchedule(original["schedule"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeResourcePolicyInstanceSchedulePolicyVmStopScheduleSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeResourcePolicyInstanceSchedulePolicyTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeResourcePolicyInstanceSchedulePolicyStartTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeResourcePolicyInstanceSchedulePolicyExpirationTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeResourcePolicyRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -778,6 +940,10 @@ func flattenComputeResourcePolicyRegion(v interface{}, d *schema.ResourceData, c
 }
 
 func expandComputeResourcePolicyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeResourcePolicyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1101,6 +1267,111 @@ func expandComputeResourcePolicyGroupPlacementPolicyAvailabilityDomainCount(v in
 }
 
 func expandComputeResourcePolicyGroupPlacementPolicyCollocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeResourcePolicyInstanceSchedulePolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedVmStartSchedule, err := expandComputeResourcePolicyInstanceSchedulePolicyVmStartSchedule(original["vm_start_schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVmStartSchedule); val.IsValid() && !isEmptyValue(val) {
+		transformed["vmStartSchedule"] = transformedVmStartSchedule
+	}
+
+	transformedVmStopSchedule, err := expandComputeResourcePolicyInstanceSchedulePolicyVmStopSchedule(original["vm_stop_schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVmStopSchedule); val.IsValid() && !isEmptyValue(val) {
+		transformed["vmStopSchedule"] = transformedVmStopSchedule
+	}
+
+	transformedTimeZone, err := expandComputeResourcePolicyInstanceSchedulePolicyTimeZone(original["time_zone"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeZone); val.IsValid() && !isEmptyValue(val) {
+		transformed["timeZone"] = transformedTimeZone
+	}
+
+	transformedStartTime, err := expandComputeResourcePolicyInstanceSchedulePolicyStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !isEmptyValue(val) {
+		transformed["startTime"] = transformedStartTime
+	}
+
+	transformedExpirationTime, err := expandComputeResourcePolicyInstanceSchedulePolicyExpirationTime(original["expiration_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExpirationTime); val.IsValid() && !isEmptyValue(val) {
+		transformed["expirationTime"] = transformedExpirationTime
+	}
+
+	return transformed, nil
+}
+
+func expandComputeResourcePolicyInstanceSchedulePolicyVmStartSchedule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSchedule, err := expandComputeResourcePolicyInstanceSchedulePolicyVmStartScheduleSchedule(original["schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSchedule); val.IsValid() && !isEmptyValue(val) {
+		transformed["schedule"] = transformedSchedule
+	}
+
+	return transformed, nil
+}
+
+func expandComputeResourcePolicyInstanceSchedulePolicyVmStartScheduleSchedule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeResourcePolicyInstanceSchedulePolicyVmStopSchedule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSchedule, err := expandComputeResourcePolicyInstanceSchedulePolicyVmStopScheduleSchedule(original["schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSchedule); val.IsValid() && !isEmptyValue(val) {
+		transformed["schedule"] = transformedSchedule
+	}
+
+	return transformed, nil
+}
+
+func expandComputeResourcePolicyInstanceSchedulePolicyVmStopScheduleSchedule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeResourcePolicyInstanceSchedulePolicyTimeZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeResourcePolicyInstanceSchedulePolicyStartTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeResourcePolicyInstanceSchedulePolicyExpirationTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
