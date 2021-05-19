@@ -156,6 +156,10 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Indicates whether or not the disk can be read/write attached to more than one instance.
 
+* `provisioned_iops` -
+  (Optional)
+  Indicates how many IOPS must be provisioned for the disk.
+
 * `zone` -
   (Optional)
   A reference to the zone where the disk resides.
