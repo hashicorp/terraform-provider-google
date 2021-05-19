@@ -219,7 +219,6 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				ForceNew:    true,
 				Computed:    true,
 				Description: `The shape to which the group converges either proactively or on resize events (depending on the value set in updatePolicy.instanceRedistributionType).`,
-				Deprecated:  `This attribute is currently in beta and will be removed from the google provider. Please use the google-beta provider to continue using this attribute.`,
 			},
 
 			"update_policy": {
