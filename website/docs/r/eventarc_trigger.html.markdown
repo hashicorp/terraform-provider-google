@@ -19,11 +19,13 @@ An event trigger sends messages to the event receiver service deployed on Cloud 
 resource "google_eventarc_trigger" "trigger" {
   name = "trigger"
   location = "us-central1"
+  # matching_criteria is named event_filters in other tools
   matching_criteria {
     attribute = "type"
     value = "google.cloud.pubsub.topic.v1.messagePublished"
   }
   destination {
+    # cloud_run_service is named cloud_run in other tools
     cloud_run_service {
       service = google_cloud_run_service.default.name
       region = "us-central1"
@@ -71,7 +73,9 @@ The following arguments are supported:
 * `matching_criteria` -
   (Required)
   Required. The criteria by which events are filtered. Only events that match with this criteria will be sent to the destination.
-  
+
+~> **NOTE:** `matching_criteria` is named `event_filters` in other tools.
+
 * `name` -
   (Required)
   Required. The resource name of the trigger. Must be unique within the location on the project and must be in `projects/{project}/locations/{location}/triggers/{trigger}` format.
@@ -82,6 +86,8 @@ The `destination` block supports:
 * `cloud_run_service` -
   (Optional)
   Cloud Run fully-managed service that receives the events. The service should be running in the same project as the trigger.
+
+~> **NOTE:** `cloud_run_service` is named `cloud_run` in other tools.
 
 The `matching_criteria` block supports:
     
