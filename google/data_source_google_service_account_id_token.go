@@ -69,7 +69,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 	}
 
 	targetAudience := d.Get("target_audience").(string)
-	creds, err := config.GetCredentials([]string{userInfoScope})
+	creds, err := config.GetCredentials([]string{userInfoScope}, false)
 	if err != nil {
 		return fmt.Errorf("error calling getCredentials(): %v", err)
 	}
