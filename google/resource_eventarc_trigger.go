@@ -241,12 +241,12 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 
 	obj := &eventarc.Trigger{
 		Destination:    expandEventarcTriggerDestination(d.Get("destination")),
-		Location:       dcl.StringOrNil(d.Get("location").(string)),
+		Location:       dcl.String(d.Get("location").(string)),
 		EventFilters:   expandEventarcTriggerEventFiltersArray(d.Get("matching_criteria")),
-		Name:           dcl.StringOrNil(d.Get("name").(string)),
+		Name:           dcl.String(d.Get("name").(string)),
 		Labels:         checkStringMap(d.Get("labels")),
 		Project:        dcl.String(project),
-		ServiceAccount: dcl.StringOrNil(d.Get("service_account").(string)),
+		ServiceAccount: dcl.String(d.Get("service_account").(string)),
 		Transport:      expandEventarcTriggerTransport(d.Get("transport")),
 	}
 
@@ -277,12 +277,12 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 
 	obj := &eventarc.Trigger{
 		Destination:    expandEventarcTriggerDestination(d.Get("destination")),
-		Location:       dcl.StringOrNil(d.Get("location").(string)),
+		Location:       dcl.String(d.Get("location").(string)),
 		EventFilters:   expandEventarcTriggerEventFiltersArray(d.Get("matching_criteria")),
-		Name:           dcl.StringOrNil(d.Get("name").(string)),
+		Name:           dcl.String(d.Get("name").(string)),
 		Labels:         checkStringMap(d.Get("labels")),
 		Project:        dcl.String(project),
-		ServiceAccount: dcl.StringOrNil(d.Get("service_account").(string)),
+		ServiceAccount: dcl.String(d.Get("service_account").(string)),
 		Transport:      expandEventarcTriggerTransport(d.Get("transport")),
 	}
 
@@ -341,12 +341,12 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 
 	obj := &eventarc.Trigger{
 		Destination:    expandEventarcTriggerDestination(d.Get("destination")),
-		Location:       dcl.StringOrNil(d.Get("location").(string)),
+		Location:       dcl.String(d.Get("location").(string)),
 		EventFilters:   expandEventarcTriggerEventFiltersArray(d.Get("matching_criteria")),
-		Name:           dcl.StringOrNil(d.Get("name").(string)),
+		Name:           dcl.String(d.Get("name").(string)),
 		Labels:         checkStringMap(d.Get("labels")),
 		Project:        dcl.String(project),
-		ServiceAccount: dcl.StringOrNil(d.Get("service_account").(string)),
+		ServiceAccount: dcl.String(d.Get("service_account").(string)),
 		Transport:      expandEventarcTriggerTransport(d.Get("transport")),
 	}
 	directive := UpdateDirective
@@ -369,12 +369,12 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 
 	obj := &eventarc.Trigger{
 		Destination:    expandEventarcTriggerDestination(d.Get("destination")),
-		Location:       dcl.StringOrNil(d.Get("location").(string)),
+		Location:       dcl.String(d.Get("location").(string)),
 		EventFilters:   expandEventarcTriggerEventFiltersArray(d.Get("matching_criteria")),
-		Name:           dcl.StringOrNil(d.Get("name").(string)),
+		Name:           dcl.String(d.Get("name").(string)),
 		Labels:         checkStringMap(d.Get("labels")),
 		Project:        dcl.String(project),
-		ServiceAccount: dcl.StringOrNil(d.Get("service_account").(string)),
+		ServiceAccount: dcl.String(d.Get("service_account").(string)),
 		Transport:      expandEventarcTriggerTransport(d.Get("transport")),
 	}
 
@@ -409,21 +409,21 @@ func resourceEventarcTriggerImport(d *schema.ResourceData, meta interface{}) ([]
 
 func expandEventarcTriggerDestination(o interface{}) *eventarc.TriggerDestination {
 	if o == nil {
-		return nil
+		return eventarc.EmptyTriggerDestination
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 {
-		return nil
+		return eventarc.EmptyTriggerDestination
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &eventarc.TriggerDestination{
-		CloudFunction: dcl.StringOrNil(obj["cloud_function"].(string)),
+		CloudFunction: dcl.String(obj["cloud_function"].(string)),
 		CloudRun:      expandEventarcTriggerDestinationCloudRun(obj["cloud_run_service"]),
 	}
 }
 
 func flattenEventarcTriggerDestination(obj *eventarc.TriggerDestination) interface{} {
-	if obj == nil {
+	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
@@ -437,22 +437,22 @@ func flattenEventarcTriggerDestination(obj *eventarc.TriggerDestination) interfa
 
 func expandEventarcTriggerDestinationCloudRun(o interface{}) *eventarc.TriggerDestinationCloudRun {
 	if o == nil {
-		return nil
+		return eventarc.EmptyTriggerDestinationCloudRun
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 {
-		return nil
+		return eventarc.EmptyTriggerDestinationCloudRun
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &eventarc.TriggerDestinationCloudRun{
-		Service: dcl.StringOrNil(obj["service"].(string)),
-		Path:    dcl.StringOrNil(obj["path"].(string)),
+		Service: dcl.String(obj["service"].(string)),
+		Path:    dcl.String(obj["path"].(string)),
 		Region:  dcl.StringOrNil(obj["region"].(string)),
 	}
 }
 
 func flattenEventarcTriggerDestinationCloudRun(obj *eventarc.TriggerDestinationCloudRun) interface{} {
-	if obj == nil {
+	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
@@ -487,13 +487,13 @@ func expandEventarcTriggerEventFiltersArray(o interface{}) []eventarc.TriggerEve
 
 func expandEventarcTriggerEventFilters(o interface{}) *eventarc.TriggerEventFilters {
 	if o == nil {
-		return nil
+		return eventarc.EmptyTriggerEventFilters
 	}
 
 	obj := o.(map[string]interface{})
 	return &eventarc.TriggerEventFilters{
-		Attribute: dcl.StringOrNil(obj["attribute"].(string)),
-		Value:     dcl.StringOrNil(obj["value"].(string)),
+		Attribute: dcl.String(obj["attribute"].(string)),
+		Value:     dcl.String(obj["value"].(string)),
 	}
 }
 
@@ -512,7 +512,7 @@ func flattenEventarcTriggerEventFiltersArray(objs []eventarc.TriggerEventFilters
 }
 
 func flattenEventarcTriggerEventFilters(obj *eventarc.TriggerEventFilters) interface{} {
-	if obj == nil {
+	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
@@ -539,7 +539,7 @@ func expandEventarcTriggerTransport(o interface{}) *eventarc.TriggerTransport {
 }
 
 func flattenEventarcTriggerTransport(obj *eventarc.TriggerTransport) interface{} {
-	if obj == nil {
+	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
@@ -552,20 +552,20 @@ func flattenEventarcTriggerTransport(obj *eventarc.TriggerTransport) interface{}
 
 func expandEventarcTriggerTransportPubsub(o interface{}) *eventarc.TriggerTransportPubsub {
 	if o == nil {
-		return nil
+		return eventarc.EmptyTriggerTransportPubsub
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 {
-		return nil
+		return eventarc.EmptyTriggerTransportPubsub
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &eventarc.TriggerTransportPubsub{
-		Topic: dcl.StringOrNil(obj["topic"].(string)),
+		Topic: dcl.String(obj["topic"].(string)),
 	}
 }
 
 func flattenEventarcTriggerTransportPubsub(obj *eventarc.TriggerTransportPubsub) interface{} {
-	if obj == nil {
+	if obj == nil || obj.Empty() {
 		return nil
 	}
 	transformed := map[string]interface{}{
