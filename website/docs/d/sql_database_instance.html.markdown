@@ -68,6 +68,8 @@ instance, high availability (`REGIONAL`) or single zone (`ZONAL`).
 
 * `disk_autoresize` - Configuration to increase storage size automatically.
 
+* `disk_autoresize_limit` - The maximum size, in GB, to which storage capacity can be automatically increased.
+
 * `disk_size` - The size of data disk, in GB.
 
 * `disk_type` - The type of data disk.

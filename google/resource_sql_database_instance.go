@@ -270,6 +270,13 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							DiffSuppressFunc: suppressFirstGen,
 							Description:      `Configuration to increase storage size automatically.  Note that future terraform apply calls will attempt to resize the disk to the value specified in disk_size - if this is set, do not set disk_size.`,
 						},
+						"disk_autoresize_limit": {
+							Type:             schema.TypeInt,
+							Optional:         true,
+							Default:          0,
+							DiffSuppressFunc: suppressFirstGen,
+							Description:      `The maximum size, in GB, to which storage capacity can be automatically increased. The default value is 0, which specifies that there is no limit.`,
+						},
 						"disk_size": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -965,6 +972,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool)
 	if secondGen {
 		resize := _settings["disk_autoresize"].(bool)
 		settings.StorageAutoResize = &resize
+		settings.StorageAutoResizeLimit = int64(_settings["disk_autoresize_limit"].(int))
 	}
 
 	return settings
@@ -1377,6 +1385,7 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 	}
 
 	data["disk_autoresize"] = settings.StorageAutoResize
+	data["disk_autoresize_limit"] = settings.StorageAutoResizeLimit
 
 	if settings.UserLabels != nil {
 		data["user_labels"] = settings.UserLabels
