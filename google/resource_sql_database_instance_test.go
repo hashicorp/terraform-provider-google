@@ -1192,10 +1192,11 @@ resource "google_sql_database_instance" "instance" {
   deletion_protection = false
 
   settings {
-    tier            = "db-f1-micro"
-    disk_autoresize = true
-    disk_size       = 15
-    disk_type       = "PD_HDD"
+    tier                  = "db-f1-micro"
+    disk_autoresize       = true
+    disk_autoresize_limit = 50
+    disk_size             = 15
+    disk_type             = "PD_HDD"
   }
 }
 `
