@@ -274,6 +274,14 @@ func TestAccComputeBackendService_withCdnPolicy(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccComputeBackendService_withCdnPolicy2(serviceName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -987,6 +995,33 @@ resource "google_compute_https_health_check" "zero" {
 }
 
 func testAccComputeBackendService_withCdnPolicy(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+
+  cdn_policy {
+    negative_caching = false
+    serve_while_stale = 0
+    cache_key_policy {
+      include_protocol       = true
+      include_host           = true
+      include_query_string   = true
+      query_string_whitelist = ["foo", "bar"]
+    }
+  }
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, checkName)
+}
+
+func testAccComputeBackendService_withCdnPolicy2(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
   name          = "%s"
