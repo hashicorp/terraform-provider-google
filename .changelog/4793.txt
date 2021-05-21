@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: fixed a bug where resources would return successfully due to responses based on a previous version of the resource
+```
