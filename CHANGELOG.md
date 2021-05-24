@@ -1,4 +1,17 @@
-## 3.69.0 (Unreleased)
+## 3.70.0 (Unreleased)
+
+## 3.69.0 (May 24, 2021)
+
+IMPROVEMENTS:
+* compute: added "description" field to "google_compute_resource_policy" resource ([#9176](https://github.com/hashicorp/terraform-provider-google/pull/9176))
+* compute: added "instance_schedule_policy" field to "google_compute_resource_policy" resource ([#9176](https://github.com/hashicorp/terraform-provider-google/pull/9176))
+* compute: promoted field `autoscaling_policy.scaling_schedules` on `google_compute_autoscaler` and `google_compute_region_autoscaler` to ga ([#9165](https://github.com/hashicorp/terraform-provider-google/pull/9165))
+* compute: promoted `autoscaling_policy.cpu_utilization.predictive_method` on `google_compute_autoscaler` and `google_compute_region_autoscaler` to ga. ([#9156](https://github.com/hashicorp/terraform-provider-google/pull/9156))
+
+BUG FIXES:
+* cloudidentity: fixed recreation on the `initial_group_config` of `google_cloud_identity_group` ([#9143](https://github.com/hashicorp/terraform-provider-google/pull/9143))
+* compute: added mutex in `google_compute_metadata_item` to reduce retries + quota errors ([#9168](https://github.com/hashicorp/terraform-provider-google/pull/9168))
+* container: fixed bug where `enable_shielded_nodes` could not be false on resource `google_container_cluster` ([#9131](https://github.com/hashicorp/terraform-provider-google/pull/9131))
 
 ## 3.68.0 (May 18, 2021)
 FEATURES:
