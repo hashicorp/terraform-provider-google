@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed error when `matches_storage_class` is set empty on `google_storage_bucket`
+```

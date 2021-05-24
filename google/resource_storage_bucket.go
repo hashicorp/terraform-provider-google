@@ -194,7 +194,6 @@ func resourceStorageBucket() *schema.Resource {
 									"matches_storage_class": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										MinItems:    1,
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Description: `Storage Class of objects to satisfy this condition. Supported values include: MULTI_REGIONAL, REGIONAL, NEARLINE, COLDLINE, ARCHIVE, STANDARD, DURABLE_REDUCED_AVAILABILITY.`,
 									},
