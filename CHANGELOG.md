@@ -4,7 +4,7 @@ IMPROVEMENTS:
 * compute: added "description" field to "google_compute_resource_policy" resource ([#9176](https://github.com/hashicorp/terraform-provider-google/pull/9176))
 * compute: added "instance_schedule_policy" field to "google_compute_resource_policy" resource ([#9176](https://github.com/hashicorp/terraform-provider-google/pull/9176))
 * compute: promoted field `autoscaling_policy.scaling_schedules` on `google_compute_autoscaler` and `google_compute_region_autoscaler` to ga ([#9165](https://github.com/hashicorp/terraform-provider-google/pull/9165))
-* computed: promoted `autoscaling_policy.cpu_utilization.predictive_method` on `google_compute_autoscaler` and `google_compute_region_autoscaler` to ga. ([#9156](https://github.com/hashicorp/terraform-provider-google/pull/9156))
+* compute: promoted `autoscaling_policy.cpu_utilization.predictive_method` on `google_compute_autoscaler` and `google_compute_region_autoscaler` to ga. ([#9156](https://github.com/hashicorp/terraform-provider-google/pull/9156))
 
 BUG FIXES:
 * cloudidentity: fixed recreation on the `initial_group_config` of `google_cloud_identity_group` ([#9143](https://github.com/hashicorp/terraform-provider-google/pull/9143))
