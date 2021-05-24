@@ -1,4 +1,4 @@
-## 3.69.0 (Unreleased)
+## 3.69.0 (May 24, 2021)
 
 IMPROVEMENTS:
 * compute: added "description" field to "google_compute_resource_policy" resource ([#9176](https://github.com/hashicorp/terraform-provider-google/pull/9176))
