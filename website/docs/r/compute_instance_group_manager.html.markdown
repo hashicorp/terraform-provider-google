@@ -129,6 +129,11 @@ The following arguments are supported:
     returning. Note that if this is set to true and the operation does not succeed, Terraform will
     continue trying until it times out.
 
+* `wait_for_instances_status` - (Optional) When used with `wait_for_instances` it specifies the status to wait for.
+    When `STABLE` is specified this resource will wait until the instances are stable before returning. When `UPDATED` is
+    set, it will wait for the version target to be reached and any per instance configs to be effective as well as all
+    instances to be stable before returning. The possible values are `STABLE` and `UPDATED`
+
 ---
 
 * `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
@@ -246,6 +251,29 @@ exported:
 
 * `self_link` - The URL of the created resource.
 
+* `status` - The status of this managed instance group.
+
+The `status` block holds:
+
+* `is_stable` - A bit indicating whether the managed instance group is in a stable state. A stable state means that: none of the instances in the managed instance group is currently undergoing any type of change (for example, creation, restart, or deletion); no future changes are scheduled for instances in the managed instance group; and the managed instance group itself is not being modified.
+
+* `version_target` - A status of consistency of Instances' versions with their target version specified by version field on Instance Group Manager.
+
+The `version_target` block holds:
+
+* `version_target` - A bit indicating whether version target has been reached in this managed instance group, i.e. all instances are in their target version. Instances' target version are specified by version field on Instance Group Manager.
+
+* `stateful` - Stateful status of the given Instance Group Manager.
+
+The `stateful` block holds:
+
+* `has_stateful_config` - A bit indicating whether the managed instance group has stateful configuration, that is, if you have configured any items in a stateful policy or in per-instance configs. The group might report that it has no stateful config even when there is still some preserved state on a managed instance, for example, if you have deleted all PICs but not yet applied those deletions.
+
+* `per_instance_configs` - Status of per-instance configs on the instance.
+
+The `per_instance_configs` block holds:
+
+* `all_effective` - A bit indicating if all of the group's per-instance configs (listed in the output of a listPerInstanceConfigs API call) have status `EFFECTIVE` or there are no per-instance-configs.
 
 ## Timeouts
 

@@ -373,6 +373,41 @@ func TestAccInstanceGroupManager_stateful(t *testing.T) {
 	})
 }
 
+func TestAccInstanceGroupManager_waitForStatus(t *testing.T) {
+	t.Parallel()
+
+	template := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+	target := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+	igm := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+	perInstanceConfig := fmt.Sprintf("tf-test-config-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccInstanceGroupManager_waitForStatus(template, target, igm, perInstanceConfig),
+			},
+			{
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status", "wait_for_instances_status", "wait_for_instances"},
+			},
+			{
+				Config: testAccInstanceGroupManager_waitForStatusUpdated(template, target, igm, perInstanceConfig),
+			},
+			{
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status", "wait_for_instances_status", "wait_for_instances"},
+			},
+		},
+	})
+}
+
 func testAccCheckInstanceGroupManagerDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -1422,4 +1457,128 @@ resource "google_compute_http_health_check" "zero" {
   timeout_sec        = 1
 }
 `, template, target, igm, hck)
+}
+
+func testAccInstanceGroupManager_waitForStatus(template, target, igm, perInstanceConfig string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "my-stateful-disk"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_target_pool" "igm-basic" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
+
+resource "google_compute_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "prod"
+  }
+  target_pools       = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name = "igm-basic"
+  zone               = "us-central1-c"
+  wait_for_instances = true
+  wait_for_instances_status = "STABLE"
+}
+
+resource "google_compute_per_instance_config" "per-instance" {
+	instance_group_manager = google_compute_instance_group_manager.igm-basic.name
+	zone = "us-central1-c"
+	name = "%s"
+	remove_instance_state_on_destroy = true
+	preserved_state {
+		metadata = {
+			foo = "bar"
+		}
+	}
+}
+`, template, target, igm, perInstanceConfig)
+}
+
+func testAccInstanceGroupManager_waitForStatusUpdated(template, target, igm, perInstanceConfig string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "my-stateful-disk"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_target_pool" "igm-basic" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
+
+resource "google_compute_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "prod"
+  }
+  target_pools       = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name = "igm-basic"
+  zone               = "us-central1-c"
+  wait_for_instances = true
+  wait_for_instances_status = "UPDATED"
+}
+
+resource "google_compute_per_instance_config" "per-instance" {
+	instance_group_manager = google_compute_instance_group_manager.igm-basic.name
+	zone = "us-central1-c"
+	name = "%s"
+	remove_instance_state_on_destroy = true
+	preserved_state {
+		metadata = {
+			foo = "baz"
+		}
+	}
+}
+`, template, target, igm, perInstanceConfig)
 }
