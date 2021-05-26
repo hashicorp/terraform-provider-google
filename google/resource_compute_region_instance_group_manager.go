@@ -175,6 +175,13 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Default:     false,
 				Description: `Whether to wait for all instances to be created/updated before returning. Note that if this is set to true and the operation does not succeed, Terraform will continue trying until it times out.`,
 			},
+			"wait_for_instances_status": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "STABLE",
+				ValidateFunc: validation.StringInSlice([]string{"STABLE", "UPDATED"}, false),
+				Description:  `When used with wait_for_instances specifies the status to wait for. When STABLE is specified this resource will wait until the instances are stable before returning. When UPDATED is set, it will wait for the version target to be reached and any per instance configs to be effective as well as all instances to be stable before returning.`,
+			},
 
 			"auto_healing_policies": {
 				Type:        schema.TypeList,
@@ -322,6 +329,63 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
+			"status": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The status of this managed instance group.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"is_stable": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `A bit indicating whether the managed instance group is in a stable state. A stable state means that: none of the instances in the managed instance group is currently undergoing any type of change (for example, creation, restart, or deletion); no future changes are scheduled for instances in the managed instance group; and the managed instance group itself is not being modified.`,
+						},
+
+						"version_target": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `A status of consistency of Instances' versions with their target version specified by version field on Instance Group Manager.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"is_reached": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `A bit indicating whether version target has been reached in this managed instance group, i.e. all instances are in their target version. Instances' target version are specified by version field on Instance Group Manager.`,
+									},
+								},
+							},
+						},
+						"stateful": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Stateful status of the given Instance Group Manager.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"has_stateful_config": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `A bit indicating whether the managed instance group has stateful configuration, that is, if you have configured any items in a stateful policy or in per-instance configs. The group might report that it has no stateful config even when there is still some preserved state on a managed instance, for example, if you have deleted all PICs but not yet applied those deletions.`,
+									},
+									"per_instance_configs": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Status of per-instance configs on the instance.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"all_effective": {
+													Type:        schema.TypeBool,
+													Computed:    true,
+													Description: `A bit indicating if all of the group's per-instance configs (listed in the output of a listPerInstanceConfigs API call) have status EFFECTIVE or there are no per-instance-configs.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -409,7 +473,7 @@ func getRegionalManager(d *schema.ResourceData, meta interface{}) (*computeBeta.
 	return manager, nil
 }
 
-func waitForInstancesRefreshFunc(f getInstanceManagerFunc, d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
+func waitForInstancesRefreshFunc(f getInstanceManagerFunc, waitForUpdates bool, d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		m, err := f(d, meta)
 		if err != nil {
@@ -417,6 +481,17 @@ func waitForInstancesRefreshFunc(f getInstanceManagerFunc, d *schema.ResourceDat
 			return nil, "error", err
 		}
 		if m.Status.IsStable {
+			if waitForUpdates {
+				// waitForUpdates waits for versions to be reached and per instance configs to be updated (if present)
+				if m.Status.Stateful.HasStatefulConfig {
+					if !m.Status.Stateful.PerInstanceConfigs.AllEffective {
+						return false, "updating per instance configs", nil
+					}
+				}
+				if !m.Status.VersionTarget.IsReached {
+					return false, "reaching version target", nil
+				}
+			}
 			return true, "created", nil
 		} else {
 			return false, "creating", nil
@@ -494,12 +569,23 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	if err = d.Set("stateful_disk", flattenStatefulPolicy(manager.StatefulPolicy)); err != nil {
 		return fmt.Errorf("Error setting stateful_disk in state: %s", err.Error())
 	}
+	if err = d.Set("status", flattenStatus(manager.Status)); err != nil {
+		return fmt.Errorf("Error setting status in state: %s", err.Error())
+	}
+
+	// If unset in state set to default value
+	if d.Get("wait_for_instances_status").(string) == "" {
+		if err = d.Set("wait_for_instances_status", "STABLE"); err != nil {
+			return fmt.Errorf("Error setting wait_for_instances_status in state: %s", err.Error())
+		}
+	}
 
 	if d.Get("wait_for_instances").(bool) {
+		waitForUpdates := d.Get("wait_for_instances_status").(string) == "UPDATED"
 		conf := resource.StateChangeConf{
-			Pending: []string{"creating", "error"},
+			Pending: []string{"creating", "error", "updating per instance configs", "reaching version target"},
 			Target:  []string{"created"},
-			Refresh: waitForInstancesRefreshFunc(getRegionalManager, d, meta),
+			Refresh: waitForInstancesRefreshFunc(getRegionalManager, waitForUpdates, d, meta),
 			Timeout: d.Timeout(schema.TimeoutCreate),
 		}
 		_, err := conf.WaitForState()
@@ -770,6 +856,9 @@ func hashZoneFromSelfLinkOrResourceName(value interface{}) int {
 func resourceRegionInstanceGroupManagerStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	if err := d.Set("wait_for_instances", false); err != nil {
 		return nil, fmt.Errorf("Error setting wait_for_instances: %s", err)
+	}
+	if err := d.Set("wait_for_instances_status", "STABLE"); err != nil {
+		return nil, fmt.Errorf("Error setting wait_for_instances_status: %s", err)
 	}
 	config := meta.(*Config)
 	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/instanceGroupManagers/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {

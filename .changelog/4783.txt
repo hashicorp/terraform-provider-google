@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added support for output-only `status` field on `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager`
+```
+```release-note:enhancement
+compute: added support for `wait_for_instances_status` on `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager`
+```
