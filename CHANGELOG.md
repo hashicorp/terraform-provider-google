@@ -1,4 +1,19 @@
 ## 3.70.0 (Unreleased)
+UNKNOWN CHANGELOG TYPE:
+* Bump cloud.google.com/go/bigtable from 1.5.0 to 1.10.0 ([#9179](https://github.com/hashicorp/terraform-provider-google/pull/9179))
+* Downgrade bigtable to 1.7.1 ([#9209](https://github.com/hashicorp/terraform-provider-google/pull/9209))
+* Update dcl ([#9199](https://github.com/hashicorp/terraform-provider-google/pull/9199))
+* upgrade google api to 0.46 ([#9178](https://github.com/hashicorp/terraform-provider-google/pull/9178))
+
+IMPROVEMENTS:
+* compute: added `provisioned_iops` to `google_compute_disk` ([#9193](https://github.com/hashicorp/terraform-provider-google/pull/9193))
+* compute: promoted `distribution_policy_target_shape` field in `google_compute_region_instance_group_manager` to GA. ([#9186](https://github.com/hashicorp/terraform-provider-google/pull/9186))
+* sql: added field `disk_autoresize_limit` to `sql_database_instance` ([#9203](https://github.com/hashicorp/terraform-provider-google/pull/9203))
+
+BUG FIXES:
+* cloudrun: fixed a bug where resources would return successfully due to responses based on a previous version of the resource ([#9213](https://github.com/hashicorp/terraform-provider-google/pull/9213))
+* compute: fixed missing values for `negative_caching` and `serve_while_stale` on `google_compute_backend_service` ([#9214](https://github.com/hashicorp/terraform-provider-google/pull/9214))
+* storage: fixed error when `matches_storage_class` is set empty on `google_storage_bucket` ([#9221](https://github.com/hashicorp/terraform-provider-google/pull/9221))
 
 ## 3.69.0 (May 24, 2021)
 
