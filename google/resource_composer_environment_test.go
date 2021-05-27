@@ -39,12 +39,12 @@ func TestComposerImageVersionDiffSuppress(t *testing.T) {
 		{"new latest", "composer-1.4.1-airflow-1.10.0", "composer-latest-airflow-1.10.0", true},
 		{"airflow equivalent", "composer-1.4.0-airflow-1.10.0", "composer-1.4.0-airflow-1.10", true},
 		{"airflow different", "composer-1.4.0-airflow-1.10.0", "composer-1.4-airflow-1.9.0", false},
-		{"airflow different composer latest", "composer-1.4.0-airflow-1.10.0", "composer-latest-airflow-1.9.0", false},
+		{"preview matches", "composer-1.17.0-preview.0-airflow-2.0.1", "composer-1.17.0-preview.0-airflow-2.0.1", true},
 	}
 
 	for _, tc := range cases {
 		if actual := composerImageVersionDiffSuppress("", tc.old, tc.new, nil); actual != tc.expected {
-			t.Fatalf("'%s' failed, expected %v but got %v", tc.name, tc.expected, actual)
+			t.Errorf("'%s' failed, expected %v but got %v", tc.name, tc.expected, actual)
 		}
 	}
 }
