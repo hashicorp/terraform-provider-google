@@ -737,6 +737,51 @@ func resourceComputeInstance() *schema.Resource {
 				MaxItems:         1,
 				Description:      `A list of short names or self_links of resource policies to attach to the instance. Modifying this list will cause the instance to recreate. Currently a max of 1 resource policy is supported.`,
 			},
+
+			"reservation_affinity": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specifies the reservations that this instance can consume from.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ANY_RESERVATION", "SPECIFIC_RESERVATION", "NO_RESERVATION"}, false),
+							Description:  `The type of reservation from which this instance can consume resources.`,
+						},
+
+						"specific_reservation": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies the label selector for the reservation to use.`,
+
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify compute.googleapis.com/reservation-name as the key and specify the name of your reservation as the only value.`,
+									},
+									"values": {
+										Type:        schema.TypeList,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Required:    true,
+										ForceNew:    true,
+										Description: `Corresponds to the label values of a reservation resource.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		CustomizeDiff: customdiff.All(
 			customdiff.If(
@@ -855,6 +900,11 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 		return nil, fmt.Errorf("Error creating guest accelerators: %s", err)
 	}
 
+	reservationAffinity, err := expandReservationAffinity(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error creating reservation affinity: %s", err)
+	}
+
 	// Create the instance information
 	return &computeBeta.Instance{
 		CanIpForward:               d.Get("can_ip_forward").(bool),
@@ -877,6 +927,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
 		DisplayDevice:              expandDisplayDevice(d),
 		ResourcePolicies:           convertStringArr(d.Get("resource_policies").([]interface{})),
+		ReservationAffinity:        reservationAffinity,
 	}, nil
 }
 
@@ -1234,6 +1285,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		if err := d.Set("desired_status", instance.Status); err != nil {
 			return fmt.Errorf("Error setting desired_status: %s", err)
 		}
+	}
+	if err := d.Set("reservation_affinity", flattenReservationAffinity(instance.ReservationAffinity)); err != nil {
+		return fmt.Errorf("Error setting reservation_affinity: %s", err)
 	}
 
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
