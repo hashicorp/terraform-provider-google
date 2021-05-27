@@ -614,6 +614,51 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Set:         schema.HashString,
 				Description: `A set of key/value label pairs to assign to instances created from this template,`,
 			},
+
+			"reservation_affinity": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specifies the reservations that this instance can consume from.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ANY_RESERVATION", "SPECIFIC_RESERVATION", "NO_RESERVATION"}, false),
+							Description:  `The type of reservation from which this instance can consume resources.`,
+						},
+
+						"specific_reservation": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies the label selector for the reservation to use.`,
+
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify compute.googleapis.com/reservation-name as the key and specify the name of your reservation as the only value.`,
+									},
+									"values": {
+										Type:        schema.TypeList,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Required:    true,
+										ForceNew:    true,
+										Description: `Corresponds to the label values of a reservation resource.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -871,6 +916,11 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
+	reservationAffinity, err := expandReservationAffinity(d)
+	if err != nil {
+		return err
+	}
+
 	instanceProperties := &computeBeta.InstanceProperties{
 		CanIpForward:               d.Get("can_ip_forward").(bool),
 		Description:                d.Get("instance_description").(string),
@@ -886,6 +936,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
 		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
 		DisplayDevice:              expandDisplayDevice(d),
+		ReservationAffinity:        reservationAffinity,
 	}
 
 	if _, ok := d.GetOk("labels"); ok {
@@ -1280,6 +1331,13 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting enable_display: %s", err)
 		}
 	}
+
+	if reservationAffinity := instanceTemplate.Properties.ReservationAffinity; reservationAffinity != nil {
+		if err = d.Set("reservation_affinity", flattenReservationAffinity(reservationAffinity)); err != nil {
+			return fmt.Errorf("Error setting reservation_affinity: %s", err)
+		}
+	}
+
 	return nil
 }
 

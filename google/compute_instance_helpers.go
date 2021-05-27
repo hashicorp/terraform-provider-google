@@ -443,3 +443,54 @@ func hasNodeAffinitiesChanged(oScheduling, newScheduling map[string]interface{})
 
 	return false
 }
+
+func expandReservationAffinity(d *schema.ResourceData) (*computeBeta.ReservationAffinity, error) {
+	_, ok := d.GetOk("reservation_affinity")
+	if !ok {
+		return nil, nil
+	}
+
+	prefix := "reservation_affinity.0"
+	reservationAffinityType := d.Get(prefix + ".type").(string)
+
+	affinity := computeBeta.ReservationAffinity{
+		ConsumeReservationType: reservationAffinityType,
+		ForceSendFields:        []string{"ConsumeReservationType"},
+	}
+
+	_, hasSpecificReservation := d.GetOk(prefix + ".specific_reservation")
+	if (reservationAffinityType == "SPECIFIC_RESERVATION") != hasSpecificReservation {
+		return nil, fmt.Errorf("specific_reservation must be set when reservation_affinity is SPECIFIC_RESERVATION, and not set otherwise")
+	}
+
+	prefix = prefix + ".specific_reservation.0"
+	if hasSpecificReservation {
+		affinity.Key = d.Get(prefix + ".key").(string)
+		affinity.ForceSendFields = append(affinity.ForceSendFields, "Key", "Values")
+
+		for _, v := range d.Get(prefix + ".values").([]interface{}) {
+			affinity.Values = append(affinity.Values, v.(string))
+		}
+	}
+
+	return &affinity, nil
+}
+
+func flattenReservationAffinity(affinity *computeBeta.ReservationAffinity) []map[string]interface{} {
+	if affinity == nil {
+		return nil
+	}
+
+	flattened := map[string]interface{}{
+		"type": affinity.ConsumeReservationType,
+	}
+
+	if affinity.ConsumeReservationType == "SPECIFIC_RESERVATION" {
+		flattened["specific_reservation"] = []map[string]interface{}{{
+			"key":    affinity.Key,
+			"values": affinity.Values,
+		}}
+	}
+
+	return []map[string]interface{}{flattened}
+}
