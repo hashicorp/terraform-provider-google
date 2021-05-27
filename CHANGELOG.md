@@ -1,9 +1,4 @@
 ## 3.70.0 (Unreleased)
-UNKNOWN CHANGELOG TYPE:
-* Bump cloud.google.com/go/bigtable from 1.5.0 to 1.10.0 ([#9179](https://github.com/hashicorp/terraform-provider-google/pull/9179))
-* Downgrade bigtable to 1.7.1 ([#9209](https://github.com/hashicorp/terraform-provider-google/pull/9209))
-* Update dcl ([#9199](https://github.com/hashicorp/terraform-provider-google/pull/9199))
-* upgrade google api to 0.46 ([#9178](https://github.com/hashicorp/terraform-provider-google/pull/9178))
 
 IMPROVEMENTS:
 * compute: added `provisioned_iops` to `google_compute_disk` ([#9193](https://github.com/hashicorp/terraform-provider-google/pull/9193))
