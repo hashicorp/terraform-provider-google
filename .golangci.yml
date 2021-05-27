@@ -1,10 +1,6 @@
 run:
   deadline: 2m30s
 
-issues:
-  max-per-linter: 0
-  max-same-issues: 0
-
 linters:
   disable-all: true
   enable:
@@ -24,3 +20,62 @@ linters:
 linters-settings:
   errcheck:
     ignore: github.com/hashicorp/terraform-plugin-sdk/helper/schema:ForceNew|Set,fmt:.*,io:Close,github.com/hashicorp/terraform-provider-google/google:Set
+
+issues:
+  max-per-linter: 0
+  max-same-issues: 0
+  exclude-rules:
+    - linters:
+        - gosimple
+      text: "S1002:"
+    - linters:
+        - gosimple
+      text: "S1007:"
+    - linters:
+        - gosimple
+      text: "S1008:"
+    - linters:
+        - gosimple
+      text: "S1009:"
+    - linters:
+        - gosimple
+      text: "S1019:"
+    - linters:
+        - gosimple
+      text: "S1021:"
+    - linters:
+        - gosimple
+      text: "S1025:"
+    - linters:
+        - gosimple
+      text: "S1034:"
+    - linters:
+        - gosimple
+      text: "S1039:"
+    - linters:
+        - stylecheck
+      text: "ST1000:"
+    - linters:
+        - stylecheck
+      text: "ST1003:"
+    - linters:
+        - stylecheck
+      text: "ST1005:"
+    - linters:
+        - stylecheck
+      text: "ST1017:"
+    - linters:
+        - staticcheck
+      text: "SA1019:"
+    - linters:
+        - staticcheck
+      text: "SA4006:"
+    - linters:
+        - staticcheck
+      text: "SA4010:"
+    - linters:
+        - staticcheck
+      text: "SA6000:"
+    - linters:
+        - staticcheck
+      text: "SA6005:"
