@@ -7,7 +7,6 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * cloudrun: fixed a bug where resources would return successfully due to responses based on a previous version of the resource ([#9213](https://github.com/hashicorp/terraform-provider-google/pull/9213))
-* compute: fixed missing values for `negative_caching` and `serve_while_stale` on `google_compute_backend_service` ([#9214](https://github.com/hashicorp/terraform-provider-google/pull/9214))
 * storage: fixed error when `matches_storage_class` is set empty on `google_storage_bucket` ([#9221](https://github.com/hashicorp/terraform-provider-google/pull/9221))
 
 ## 3.69.0 (May 24, 2021)
