@@ -1,4 +1,4 @@
-## 3.70.0 (Unreleased)
+## 3.70.0 (June 01, 2021)
 
 IMPROVEMENTS:
 * compute: added `provisioned_iops` to `google_compute_disk` ([#9193](https://github.com/hashicorp/terraform-provider-google/pull/9193))
