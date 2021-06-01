@@ -2485,7 +2485,7 @@ resource "google_container_cluster" "with_node_config_scope_alias" {
   initial_node_count = 1
 
   node_config {
-    machine_type = "g1-small"
+    machine_type = "e2-medium"
     disk_size_gb = 15
     oauth_scopes = ["compute-rw", "storage-ro", "logging-write", "monitoring"]
   }
