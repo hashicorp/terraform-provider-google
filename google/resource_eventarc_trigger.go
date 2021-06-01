@@ -256,7 +256,12 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 	createDirective := CreateDirective
-	res, err := config.clientEventarcDCL.ApplyTrigger(context.Background(), obj, createDirective...)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	client := CreateEventarcClient(config, userAgent, "")
+	res, err := client.ApplyTrigger(context.Background(), obj, createDirective...)
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -286,7 +291,12 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 		Transport:      expandEventarcTriggerTransport(d.Get("transport")),
 	}
 
-	res, err := config.clientEventarcDCL.GetTrigger(context.Background(), obj)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	client := CreateEventarcClient(config, userAgent, "")
+	res, err := client.GetTrigger(context.Background(), obj)
 	if err != nil {
 		// Resource not found
 		d.SetId("")
@@ -350,7 +360,12 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 		Transport:      expandEventarcTriggerTransport(d.Get("transport")),
 	}
 	directive := UpdateDirective
-	res, err := config.clientEventarcDCL.ApplyTrigger(context.Background(), obj, directive...)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	client := CreateEventarcClient(config, userAgent, "")
+	res, err := client.ApplyTrigger(context.Background(), obj, directive...)
 	if err != nil {
 		return fmt.Errorf("Error updating Trigger: %s", err)
 	}
@@ -379,7 +394,12 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Deleting Trigger %q", d.Id())
-	if err := config.clientEventarcDCL.DeleteTrigger(context.Background(), obj); err != nil {
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	client := CreateEventarcClient(config, userAgent, "")
+	if err := client.DeleteTrigger(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting Trigger: %s", err)
 	}
 
