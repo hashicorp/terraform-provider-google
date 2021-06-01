@@ -1,0 +1,10 @@
+groups:
+  - name: devs
+    if: github.actor != "modular-magician"
+    reviewers: 1
+    usernames:
+      - rileykarson
+      - slevenick
+      - c2thorn
+      - scottsuarez
+      - melinath

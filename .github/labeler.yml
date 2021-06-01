@@ -1,0 +1,6 @@
+bug:
+  - '( \[issue-type:bug-report\] |panic:)'
+crash:
+  - 'panic:'
+enhancement:
+  - ' \[issue-type:enhancement\] '
