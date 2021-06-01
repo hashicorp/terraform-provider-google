@@ -44,7 +44,8 @@ func testSweepEventarcTrigger(region string) error {
 		"billing_account": billingId,
 	}
 
-	err = config.clientEventarcDCL.DeleteAllTrigger(context.Background(), d["project"], d["location"], isDeletableEventarcTrigger)
+	client := CreateEventarcClient(config, config.userAgent, "")
+	err = client.DeleteAllTrigger(context.Background(), d["project"], d["location"], isDeletableEventarcTrigger)
 	if err != nil {
 		return err
 	}

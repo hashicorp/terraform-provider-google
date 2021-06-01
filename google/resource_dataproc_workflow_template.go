@@ -1742,7 +1742,12 @@ func resourceDataprocWorkflowTemplateCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 	createDirective := CreateDirective
-	res, err := config.clientDataprocDCL.ApplyWorkflowTemplate(context.Background(), obj, createDirective...)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	client := CreateDataprocClient(config, userAgent, "")
+	res, err := client.ApplyWorkflowTemplate(context.Background(), obj, createDirective...)
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
@@ -1772,7 +1777,12 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 		Version:    dcl.Int64OrNil(int64(d.Get("version").(int))),
 	}
 
-	res, err := config.clientDataprocDCL.GetWorkflowTemplate(context.Background(), obj)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	client := CreateDataprocClient(config, userAgent, "")
+	res, err := client.GetWorkflowTemplate(context.Background(), obj)
 	if err != nil {
 		// Resource not found
 		d.SetId("")
@@ -1832,7 +1842,12 @@ func resourceDataprocWorkflowTemplateDelete(d *schema.ResourceData, meta interfa
 	}
 
 	log.Printf("[DEBUG] Deleting WorkflowTemplate %q", d.Id())
-	if err := config.clientDataprocDCL.DeleteWorkflowTemplate(context.Background(), obj); err != nil {
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+	client := CreateDataprocClient(config, userAgent, "")
+	if err := client.DeleteWorkflowTemplate(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting WorkflowTemplate: %s", err)
 	}
 

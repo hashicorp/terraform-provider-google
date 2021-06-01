@@ -13,9 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"google.golang.org/api/option"
 
-	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
-	dataprocDcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataproc"
-	eventarcDcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
 	"golang.org/x/oauth2"
 	googleoauth "golang.org/x/oauth2/google"
 	appengine "google.golang.org/api/appengine/v1"
@@ -162,11 +159,9 @@ type Config struct {
 	requestBatcherServiceUsage *RequestBatcher
 	requestBatcherIam          *RequestBatcher
 
-	// start DCL clients
+	// start DCLBasePaths
 	// dataprocBasePath is implemented in mm
-	clientDataprocDCL *dataprocDcl.Client
-	EventarcBasePath  string
-	clientEventarcDCL *eventarcDcl.Client
+	EventarcBasePath string
 }
 
 // Generated product base paths
@@ -290,16 +285,6 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	c.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, c.BatchingConfig)
 	c.requestBatcherIam = NewRequestBatcher("IAM", ctx, c.BatchingConfig)
 	c.PollInterval = 10 * time.Second
-
-	// Start DCL client instantiation
-	// TODO(slevenick): handle user agents
-	dclClientOptions := dcl.WithHTTPClient(client)
-	dclUserAgentOptions := dcl.WithUserAgent(c.userAgent)
-	dclLoggerOptions := dcl.WithLogger(dclLogger{})
-	// each product needs it own client currently since basepath can only be specified at
-	// the config level.
-	c.clientDataprocDCL = dataprocDcl.NewClient(dcl.NewConfig(dclClientOptions, dclUserAgentOptions, dclLoggerOptions, dcl.WithBasePath(c.DataprocBasePath)))
-	c.clientEventarcDCL = eventarcDcl.NewClient(dcl.NewConfig(dclClientOptions, dclUserAgentOptions, dclLoggerOptions, dcl.WithBasePath(c.EventarcBasePath)))
 
 	return nil
 }
