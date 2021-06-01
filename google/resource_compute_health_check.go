@@ -456,6 +456,24 @@ can only be ASCII.`,
 				},
 				ExactlyOneOf: []string{"http_health_check", "https_health_check", "http2_health_check", "tcp_health_check", "ssl_health_check", "grpc_health_check"},
 			},
+			"log_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Configure logging on this health check.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Indicates whether or not to export logs. This is false by default,
+which means no health check logging will be done.`,
+							Default: false,
+						},
+					},
+				},
+			},
 			"ssl_health_check": {
 				Type:             schema.TypeList,
 				Optional:         true,
@@ -720,6 +738,12 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("grpc_health_check"); !isEmptyValue(reflect.ValueOf(grpcHealthCheckProp)) && (ok || !reflect.DeepEqual(v, grpcHealthCheckProp)) {
 		obj["grpcHealthCheck"] = grpcHealthCheckProp
 	}
+	logConfigProp, err := expandComputeHealthCheckLogConfig(d.Get("log_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(logConfigProp)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+		obj["logConfig"] = logConfigProp
+	}
 
 	obj, err = resourceComputeHealthCheckEncoder(d, meta, obj)
 	if err != nil {
@@ -848,6 +872,9 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("grpc_health_check", flattenComputeHealthCheckGrpcHealthCheck(res["grpcHealthCheck"], d, config)); err != nil {
 		return fmt.Errorf("Error reading HealthCheck: %s", err)
 	}
+	if err := d.Set("log_config", flattenComputeHealthCheckLogConfig(res["logConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HealthCheck: %s", err)
+	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading HealthCheck: %s", err)
 	}
@@ -942,6 +969,12 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("grpc_health_check"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, grpcHealthCheckProp)) {
 		obj["grpcHealthCheck"] = grpcHealthCheckProp
+	}
+	logConfigProp, err := expandComputeHealthCheckLogConfig(d.Get("log_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+		obj["logConfig"] = logConfigProp
 	}
 
 	obj, err = resourceComputeHealthCheckEncoder(d, meta, obj)
@@ -1495,6 +1528,19 @@ func flattenComputeHealthCheckGrpcHealthCheckGrpcServiceName(v interface{}, d *s
 	return v
 }
 
+func flattenComputeHealthCheckLogConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	transformed := make(map[string]interface{})
+	if v == nil {
+		// Disabled by default, but API will not return object if value is false
+		transformed["enable"] = false
+		return []interface{}{transformed}
+	}
+
+	original := v.(map[string]interface{})
+	transformed["enable"] = original["enable"]
+	return []interface{}{transformed}
+}
+
 func expandComputeHealthCheckCheckIntervalSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1995,6 +2041,29 @@ func expandComputeHealthCheckGrpcHealthCheckPortSpecification(v interface{}, d T
 }
 
 func expandComputeHealthCheckGrpcHealthCheckGrpcServiceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHealthCheckLogConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnable, err := expandComputeHealthCheckLogConfigEnable(original["enable"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnable); val.IsValid() && !isEmptyValue(val) {
+		transformed["enable"] = transformedEnable
+	}
+
+	return transformed, nil
+}
+
+func expandComputeHealthCheckLogConfigEnable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
