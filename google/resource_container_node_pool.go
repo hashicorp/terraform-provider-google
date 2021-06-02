@@ -482,7 +482,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {
-			log.Printf("[INFO] GKE node pool %s doesn't exist to delete", d.Id())
+			log.Printf("[INFO] GKE cluster %s doesn't exist, skipping node pool %s deletion", nodePoolInfo.cluster, d.Id())
 			return nil
 		}
 		return err
