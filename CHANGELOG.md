@@ -6,7 +6,7 @@ IMPROVEMENTS:
 * compute: added `reservation_affinity` to `google_compute_instance` and `google_compute_instance_template` ([#9256](https://github.com/hashicorp/terraform-provider-google/pull/9256))
 * compute: added support for `wait_for_instances_status` on `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` ([#9231](https://github.com/hashicorp/terraform-provider-google/pull/9231))
 * compute: added support for output-only `status` field on `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` ([#9231](https://github.com/hashicorp/terraform-provider-google/pull/9231))
-* compute: promoted `log_config` field of `google_compute_health_check` and `google_compute_region_health_check` ([#9274](https://github.com/hashicorp/terraform-provider-google/pull/9274))
+* compute: promoted `log_config` field of `google_compute_health_check` and `google_compute_region_health_check` to GA ([#9274](https://github.com/hashicorp/terraform-provider-google/pull/9274))
 * compute: set the default value for log_config.enable on `google_compute_region_health_check` to avoid permanent diff on plan/apply. ([#9274](https://github.com/hashicorp/terraform-provider-google/pull/9274))
 
 BUG FIXES:
