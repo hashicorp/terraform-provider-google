@@ -203,6 +203,8 @@ BUG FIXES:
 
 ## 3.60.0 (March 15, 2021)
 
+NOTES: From this release onwards [`google_compute_shared_vpc_service_project`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_shared_vpc_service_project) will not recognise the Shared VPC Admin role when assigned at the folder level in the GA provider, as that functionality is not enabled in the GA API. If you have folder-level IAM configured for Shared VPC permissions, use the `google-beta` provider instead.
+
 FEATURES:
 * **New Resource:** google_apigee_envgroup ([#8641](https://github.com/hashicorp/terraform-provider-google/pull/8641))
 * **New Resource:** google_apigee_environment ([#8596](https://github.com/hashicorp/terraform-provider-google/pull/8596))
