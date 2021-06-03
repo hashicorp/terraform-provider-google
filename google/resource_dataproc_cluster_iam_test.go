@@ -217,7 +217,7 @@ resource "google_dataproc_cluster" "cluster" {
       num_instances = 1
       machine_type  = "e2-standard-2"
       disk_config {
-        boot_disk_size_gb = 30
+        boot_disk_size_gb = 35
       }
     }
   }
