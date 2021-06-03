@@ -135,6 +135,27 @@ selected availability domain will be provided to the Partner via the
 pairing key so that the provisioned circuit will lie in the specified
 domain. If not specified, the value will default to AVAILABILITY_DOMAIN_ANY.`,
 			},
+			"encryption": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"NONE", "IPSEC", ""}, false),
+				Description: `Indicates the user-supplied encryption option of this interconnect
+attachment:
+
+NONE is the default value, which means that the attachment carries
+unencrypted traffic. VMs can send traffic to, or receive traffic
+from, this type of attachment.
+
+IPSEC indicates that the attachment carries only traffic encrypted by
+an IPsec device such as an HA VPN gateway. VMs cannot directly send
+traffic to, or receive traffic from, such an attachment. To use
+IPsec-encrypted Cloud Interconnect create the attachment using this
+option.
+
+Not currently available publicly. Default value: "NONE" Possible values: ["NONE", "IPSEC"]`,
+				Default: "NONE",
+			},
 			"interconnect": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -143,6 +164,34 @@ domain. If not specified, the value will default to AVAILABILITY_DOMAIN_ANY.`,
 				Description: `URL of the underlying Interconnect object that this attachment's
 traffic will traverse through. Required if type is DEDICATED, must not
 be set if type is PARTNER.`,
+			},
+			"ipsec_internal_addresses": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `URL of addresses that have been reserved for the interconnect
+attachment, Used only for interconnect attachment that has the
+encryption option as IPSEC.
+
+The addresses must be RFC 1918 IP address ranges. When creating HA
+VPN gateway over the interconnect attachment, if the attachment is
+configured to use an RFC 1918 IP address, then the VPN gateway's IP
+address will be allocated from the IP address range specified
+here.
+
+For example, if the HA VPN gateway's interface 0 is paired to this
+interconnect attachment, then an RFC 1918 IP address for the VPN
+gateway interface 0 will be allocated from the IP address specified
+for this interconnect attachment.
+
+If this field is not specified for interconnect attachment that has
+encryption option as IPSEC, later on when creating HA VPN gateway on
+this interconnect attachment, the HA VPN gateway's IP address will be
+allocated from regional external IP address pool.`,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					DiffSuppressFunc: compareSelfLinkOrResourceName,
+				},
 			},
 			"mtu": {
 				Type:     schema.TypeString,
@@ -322,6 +371,18 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("vlan_tag8021q"); !isEmptyValue(reflect.ValueOf(vlanTag8021qProp)) && (ok || !reflect.DeepEqual(v, vlanTag8021qProp)) {
 		obj["vlanTag8021q"] = vlanTag8021qProp
 	}
+	ipsecInternalAddressesProp, err := expandComputeInterconnectAttachmentIpsecInternalAddresses(d.Get("ipsec_internal_addresses"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ipsec_internal_addresses"); !isEmptyValue(reflect.ValueOf(ipsecInternalAddressesProp)) && (ok || !reflect.DeepEqual(v, ipsecInternalAddressesProp)) {
+		obj["ipsecInternalAddresses"] = ipsecInternalAddressesProp
+	}
+	encryptionProp, err := expandComputeInterconnectAttachmentEncryption(d.Get("encryption"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption"); !isEmptyValue(reflect.ValueOf(encryptionProp)) && (ok || !reflect.DeepEqual(v, encryptionProp)) {
+		obj["encryption"] = encryptionProp
+	}
 	regionProp, err := expandComputeInterconnectAttachmentRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -465,6 +526,12 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("vlan_tag8021q", flattenComputeInterconnectAttachmentVlanTag8021q(res["vlanTag8021q"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("ipsec_internal_addresses", flattenComputeInterconnectAttachmentIpsecInternalAddresses(res["ipsecInternalAddresses"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("encryption", flattenComputeInterconnectAttachmentEncryption(res["encryption"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
 	if err := d.Set("region", flattenComputeInterconnectAttachmentRegion(res["region"], d, config)); err != nil {
@@ -742,6 +809,17 @@ func flattenComputeInterconnectAttachmentVlanTag8021q(v interface{}, d *schema.R
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeInterconnectAttachmentIpsecInternalAddresses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+}
+
+func flattenComputeInterconnectAttachmentEncryption(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeInterconnectAttachmentRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -794,6 +872,26 @@ func expandComputeInterconnectAttachmentCandidateSubnets(v interface{}, d Terraf
 }
 
 func expandComputeInterconnectAttachmentVlanTag8021q(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentIpsecInternalAddresses(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			return nil, fmt.Errorf("Invalid value for ipsec_internal_addresses: nil")
+		}
+		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for ipsec_internal_addresses: %s", err)
+		}
+		req = append(req, f.RelativeLink())
+	}
+	return req, nil
+}
+
+func expandComputeInterconnectAttachmentEncryption(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

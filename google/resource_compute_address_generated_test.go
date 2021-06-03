@@ -42,7 +42,7 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_address.ip_address",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
 			},
 		},
 	})
@@ -75,7 +75,7 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 				ResourceName:            "google_compute_address.internal_with_subnet_and_address",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
 			},
 		},
 	})
@@ -123,7 +123,7 @@ func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
 				ResourceName:            "google_compute_address.internal_with_gce_endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
 			},
 		},
 	})
@@ -158,7 +158,7 @@ func TestAccComputeAddress_addressWithSharedLoadbalancerVipExample(t *testing.T)
 				ResourceName:            "google_compute_address.internal_with_shared_loadbalancer_vip",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
 			},
 		},
 	})
@@ -193,7 +193,7 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 				ResourceName:            "google_compute_address.static",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
 			},
 		},
 	})
@@ -227,6 +227,49 @@ resource "google_compute_instance" "instance_with_ip" {
       nat_ip = google_compute_address.static.address
     }
   }
+}
+`, context)
+}
+
+func TestAccComputeAddress_computeAddressIpsecInterconnectExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeAddress_computeAddressIpsecInterconnectExample(context),
+			},
+			{
+				ResourceName:            "google_compute_address.ipsec-interconnect-address",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"subnetwork", "network", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeAddress_computeAddressIpsecInterconnectExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_address" "ipsec-interconnect-address" {
+  name          = "tf-test-test-address%{random_suffix}"
+  address_type  = "INTERNAL"
+  purpose       = "IPSEC_INTERCONNECT"
+  address       = "192.168.1.0"
+  prefix_length = 29
+  network       = google_compute_network.network.self_link
+}
+
+resource "google_compute_network" "network" {
+  name                    = "tf-test-test-network%{random_suffix}"
+  auto_create_subnetworks = false
 }
 `, context)
 }

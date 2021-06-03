@@ -75,7 +75,6 @@ resource "google_compute_interconnect_attachment" "ipsec-encrypted-interconnect-
   ipsec_internal_addresses = [
     google_compute_address.address.self_link,
   ]
-  provider = google-beta
 }
 
 resource "google_compute_address" "address" {
@@ -85,7 +84,6 @@ resource "google_compute_address" "address" {
   address       = "192.168.1.0"
   prefix_length = 29
   network       = google_compute_network.network.self_link
-  provider = google-beta
 }
 
 resource "google_compute_router" "router" {
@@ -95,13 +93,11 @@ resource "google_compute_router" "router" {
   bgp {
     asn = 16550
   }
-  provider = google-beta
 }
 
 resource "google_compute_network" "network" {
   name                    = "test-network"
   auto_create_subnetworks = false
-  provider = google-beta
 }
 ```
 
@@ -190,7 +186,7 @@ The following arguments are supported:
   using PARTNER type this will be managed upstream.
 
 * `ipsec_internal_addresses` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   URL of addresses that have been reserved for the interconnect
   attachment, Used only for interconnect attachment that has the
   encryption option as IPSEC.
@@ -209,7 +205,7 @@ The following arguments are supported:
   allocated from regional external IP address pool.
 
 * `encryption` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Indicates the user-supplied encryption option of this interconnect
   attachment:
   NONE is the default value, which means that the attachment carries
