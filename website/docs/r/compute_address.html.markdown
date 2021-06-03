@@ -153,13 +153,11 @@ resource "google_compute_address" "ipsec-interconnect-address" {
   address       = "192.168.1.0"
   prefix_length = 29
   network       = google_compute_network.network.self_link
-  provider = google-beta
 }
 
 resource "google_compute_network" "network" {
   name                    = "test-network"
   auto_create_subnetworks = false
-  provider = google-beta
 }
 ```
 
@@ -206,7 +204,7 @@ The following arguments are supported:
   * SHARED_LOADBALANCER_VIP for an address that can be used by multiple
     internal load balancers.
   * VPC_PEERING for addresses that are reserved for VPC peer networks.
-  * IPSEC_INTERCONNECT (Beta only) for addresses created from a private IP range
+  * IPSEC_INTERCONNECT for addresses created from a private IP range
     that are reserved for a VLAN attachment in an IPsec-encrypted Cloud
     Interconnect configuration. These addresses are regional resources.
   This should only be set when using an Internal address.
@@ -229,13 +227,13 @@ The following arguments are supported:
   Labels to apply to this address.  A list of key->value pairs.
 
 * `network` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The URL of the network in which to reserve the address. This field
   can only be used with INTERNAL type with the VPC_PEERING and
   IPSEC_INTERCONNECT purposes.
 
 * `prefix_length` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The prefix length if the resource represents an IP range.
 
 * `region` -

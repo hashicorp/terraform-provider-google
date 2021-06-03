@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -76,6 +77,15 @@ if any.`,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"network": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description: `The URL of the network in which to reserve the address. This field
+can only be used with INTERNAL type with the VPC_PEERING and
+IPSEC_INTERCONNECT purposes.`,
+			},
 			"network_tier": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -84,6 +94,12 @@ if any.`,
 				ValidateFunc: validation.StringInSlice([]string{"PREMIUM", "STANDARD", ""}, false),
 				Description: `The networking tier used for configuring this address. If this field is not
 specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]`,
+			},
+			"prefix_length": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The prefix length if the resource represents an IP range.`,
 			},
 			"purpose": {
 				Type:     schema.TypeString,
@@ -100,7 +116,7 @@ specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]
 
 * VPC_PEERING for addresses that are reserved for VPC peer networks.
 
-* IPSEC_INTERCONNECT (Beta only) for addresses created from a private IP range
+* IPSEC_INTERCONNECT for addresses created from a private IP range
   that are reserved for a VLAN attachment in an IPsec-encrypted Cloud
   Interconnect configuration. These addresses are regional resources.
 
@@ -203,6 +219,18 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("subnetwork"); !isEmptyValue(reflect.ValueOf(subnetworkProp)) && (ok || !reflect.DeepEqual(v, subnetworkProp)) {
 		obj["subnetwork"] = subnetworkProp
+	}
+	networkProp, err := expandComputeAddressNetwork(d.Get("network"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
+		obj["network"] = networkProp
+	}
+	prefixLengthProp, err := expandComputeAddressPrefixLength(d.Get("prefix_length"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("prefix_length"); !isEmptyValue(reflect.ValueOf(prefixLengthProp)) && (ok || !reflect.DeepEqual(v, prefixLengthProp)) {
+		obj["prefixLength"] = prefixLengthProp
 	}
 	regionProp, err := expandComputeAddressRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -316,6 +344,12 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 	if err := d.Set("users", flattenComputeAddressUsers(res["users"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Address: %s", err)
+	}
+	if err := d.Set("network", flattenComputeAddressNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Address: %s", err)
+	}
+	if err := d.Set("prefix_length", flattenComputeAddressPrefixLength(res["prefixLength"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 	if err := d.Set("region", flattenComputeAddressRegion(res["region"], d, config)); err != nil {
@@ -437,6 +471,30 @@ func flattenComputeAddressUsers(v interface{}, d *schema.ResourceData, config *C
 	return v
 }
 
+func flattenComputeAddressNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeAddressPrefixLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeAddressRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -474,6 +532,18 @@ func expandComputeAddressSubnetwork(v interface{}, d TerraformResourceData, conf
 		return nil, fmt.Errorf("Invalid value for subnetwork: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeAddressNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for network: %s", err)
+	}
+	return f.RelativeLink(), nil
+}
+
+func expandComputeAddressPrefixLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeAddressRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
