@@ -22,11 +22,7 @@ provider.
 
 First, authenticate with GCP.  The easiest way to do this is to run
 `gcloud auth application-default login`, if you already have gcloud
-installed.  If you don't already have it, gcloud can be installed with
-`apt-get install google-cloud-sdk` on Debian-based machines.  For a
-production use-case you will want to use service account authentication,
-which you can learn about further down in this doc, but for experimenting
-gcloud authentication will work fine.
+installed.  If you don't already have it, you can install it from [here](https://cloud.google.com/sdk/docs/install).
 
 Next, create a Terraform config file named `"main.tf"`. Inside, you'll
 want to include the following configuration:
@@ -157,10 +153,11 @@ Terraform needs GCP credentials.
 ## Adding credentials
 In order to make requests against the GCP API, you need to authenticate to prove
 that it's you making the request. The preferred method of provisioning resources
-with Terraform is to use a [GCP service account](https://cloud.google.com/docs/authentication/getting-started),
-a "robot account" that can be granted a limited set of IAM permissions.
+with Terraform on your workstation is to use the Google Cloud SDK as we mentioned earlier.
 
-From [the service account key page in the Cloud Console](https://console.cloud.google.com/apis/credentials/serviceaccountkey)
+You can also use a Google Cloud Service Account with terraform.
+
+From [the service account key page in the Cloud Console](https://console.cloud.google.com/iam-admin/serviceaccounts)
 choose an existing account, or create a new one. Next, download the JSON key
 file. Name it something you can remember, and store it somewhere secure on your
 machine.
