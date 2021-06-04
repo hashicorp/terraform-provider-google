@@ -37,8 +37,7 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "my-node-pool"
-  location   = "us-central1"
-  cluster    = google_container_cluster.primary.name
+  cluster    = google_container_cluster.primary.id
   node_count = 1
 
   node_config {
@@ -64,8 +63,7 @@ resource "google_service_account" "default" {
 
 resource "google_container_node_pool" "np" {
   name       = "my-node-pool"
-  location   = "us-central1-a"
-  cluster    = google_container_cluster.primary.name
+  cluster    = google_container_cluster.primary.id
   node_config {
     machine_type = "e2-medium"
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
@@ -105,7 +103,7 @@ resource "google_container_cluster" "primary" {
 
 ## Argument Reference
 
-* `cluster` - (Required) The cluster to create the node pool for. Cluster must be present in `location` provided for zonal clusters.
+* `cluster` - (Required) The cluster to create the node pool for. Cluster must be present in `location` provided for zonal clusters. May be specified in the format `projects/{{project}}/locations/{{location}}/clusters/{{cluster}}` or as just the name of the cluster.
 
 - - -
 

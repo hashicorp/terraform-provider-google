@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: Allowed specifying a cluster id field for `google_container_node_pool.cluster` to ensure that a node pool is recreated if the associated cluster is recreated.
+```
