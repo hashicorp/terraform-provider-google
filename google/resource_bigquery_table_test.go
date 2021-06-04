@@ -916,20 +916,6 @@ func TestAccBigQueryDataTable_expandArray(t *testing.T) {
 	})
 }
 
-func TestUnitBigQueryDataTable_schemaIsChangable(t *testing.T) {
-	t.Parallel()
-	for _, testcase := range testUnitBigQueryDataTableIsChangableTestCases {
-		testcase.check(t)
-		testcaseNested := &testUnitBigQueryDataTableJSONChangeableTestCase{
-			testcase.name + "Nested",
-			fmt.Sprintf("[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"fields\" : %s }]", testcase.jsonOld),
-			fmt.Sprintf("[{\"name\": \"someValue\", \"type\" : \"INT64\", \"fields\" : %s }]", testcase.jsonNew),
-			testcase.changeable,
-		}
-		testcaseNested.check(t)
-	}
-}
-
 func TestAccBigQueryTable_allowDestroy(t *testing.T) {
 	t.Parallel()
 
@@ -1081,6 +1067,43 @@ var testUnitBigQueryDataTableIsChangableTestCases = []testUnitBigQueryDataTableJ
 		jsonNew:    "[{\"name\": \"value3\", \"type\" : \"BOOLEAN\", \"mode\" : \"NULLABLE\", \"description\" : \"newVal\" },  {\"name\": \"value1\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
 		changeable: false,
 	},
+	{
+		name: "policyTags",
+		jsonOld: `[
+			{
+				"mode": "NULLABLE",
+				"name": "providerphone",
+				"policyTags": {
+					"names": ["projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"]
+				},
+				"type":"STRING"
+			}
+		]`,
+		jsonNew: `[
+			{
+				"name": "providerphone",
+				"type": "STRING",
+				"policyTags": {
+					"names": ["projects/my-project/locations/us/taxonomies/12345678/policyTags/12345678"]
+				}
+			}
+		]`,
+		changeable: true,
+	},
+}
+
+func TestUnitBigQueryDataTable_schemaIsChangable(t *testing.T) {
+	t.Parallel()
+	for _, testcase := range testUnitBigQueryDataTableIsChangableTestCases {
+		testcase.check(t)
+		testcaseNested := &testUnitBigQueryDataTableJSONChangeableTestCase{
+			testcase.name + "Nested",
+			fmt.Sprintf("[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"fields\" : %s }]", testcase.jsonOld),
+			fmt.Sprintf("[{\"name\": \"someValue\", \"type\" : \"INT64\", \"fields\" : %s }]", testcase.jsonNew),
+			testcase.changeable,
+		}
+		testcaseNested.check(t)
+	}
 }
 
 func testAccCheckBigQueryExtData(t *testing.T, expectedQuoteChar string) resource.TestCheckFunc {
