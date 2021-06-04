@@ -28,10 +28,9 @@ require (
 	github.com/spf13/pflag v1.0.3 // indirect
 	github.com/zclconf/go-cty v1.5.1 // indirect
 	golang.org/x/net v0.0.0-20210503060351-7fd8e65b6420
-	golang.org/x/oauth2 v0.0.0-20210427180440-81ed05c6b58c
-	google.golang.org/api v0.46.0
-	google.golang.org/genproto v0.0.0-20210503173045-b96a97608f20 // indirect
-	google.golang.org/grpc v1.38.0
+	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
+	google.golang.org/api v0.47.0
+	google.golang.org/grpc v1.38.0 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
 
