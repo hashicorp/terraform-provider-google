@@ -73,69 +73,6 @@ resource "google_compute_network" "foobar" {
 `, context)
 }
 
-func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncryptionExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-	}
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInterconnectAttachmentDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncryptionExample(context),
-			},
-			{
-				ResourceName:            "google_compute_interconnect_attachment.ipsec-encrypted-interconnect-attachment",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"router", "candidate_subnets", "region"},
-			},
-		},
-	})
-}
-
-func testAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncryptionExample(context map[string]interface{}) string {
-	return Nprintf(`
-resource "google_compute_interconnect_attachment" "ipsec-encrypted-interconnect-attachment" {
-  name                     = "tf-test-test-interconnect-attachment%{random_suffix}"
-  edge_availability_domain = "AVAILABILITY_DOMAIN_1"
-  type                     = "PARTNER"
-  router                   = google_compute_router.router.id
-  encryption               = "IPSEC"
-  ipsec_internal_addresses = [
-    google_compute_address.address.self_link,
-  ]
-}
-
-resource "google_compute_address" "address" {
-  name          = "tf-test-test-address%{random_suffix}"
-  address_type  = "INTERNAL"
-  purpose       = "IPSEC_INTERCONNECT"
-  address       = "192.168.1.0"
-  prefix_length = 29
-  network       = google_compute_network.network.self_link
-}
-
-resource "google_compute_router" "router" {
-  name                          = "tf-test-test-router%{random_suffix}"
-  network                       = google_compute_network.network.name
-  encrypted_interconnect_router = true
-  bgp {
-    asn = 16550
-  }
-}
-
-resource "google_compute_network" "network" {
-  name                    = "tf-test-test-network%{random_suffix}"
-  auto_create_subnetworks = false
-}
-`, context)
-}
-
 func testAccCheckComputeInterconnectAttachmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
