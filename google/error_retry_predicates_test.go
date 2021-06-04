@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"google.golang.org/api/googleapi"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func TestIsAppEngineRetryableError_operationInProgress(t *testing.T) {
@@ -87,5 +89,23 @@ func TestIsOperationReadQuotaError_quotaExceeded(t *testing.T) {
 	isRetryable, _ := isOperationReadQuotaError(&err)
 	if !isRetryable {
 		t.Errorf("Error not detected as retryable")
+	}
+}
+
+func TestGRPCRetryable(t *testing.T) {
+	code := codes.FailedPrecondition
+	err := status.Error(code, "is retryable")
+	isRetryable, _ := isBigTableRetryableError(err)
+	if !isRetryable {
+		t.Errorf("Error not detected as retryable")
+	}
+}
+
+func TestGRPCNotRetryable(t *testing.T) {
+	code := codes.InvalidArgument
+	err := status.Error(code, "is noto retryable")
+	isRetryable, _ := isBigTableRetryableError(err)
+	if isRetryable {
+		t.Errorf("Error incorrectly detected as retryable")
 	}
 }

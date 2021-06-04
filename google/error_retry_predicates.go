@@ -10,6 +10,7 @@ import (
 
 	"google.golang.org/api/googleapi"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
+	"google.golang.org/grpc/status"
 )
 
 type RetryErrorPredicateFunc func(error) (bool, string)
@@ -366,6 +367,18 @@ func iamServiceAccountNotFound(err error) (bool, string) {
 		if gerr.Code == 400 && strings.Contains(gerr.Body, "Service account") && strings.Contains(gerr.Body, "does not exist") {
 			return true, "service account not found in IAM"
 		}
+	}
+
+	return false, ""
+}
+
+// Big Table uses gRPC and thus does not return errors of type *googleapi.Error.
+// Instead the errors returned are *status.Error. See the types of codes returned
+// here (https://pkg.go.dev/google.golang.org/grpc/codes#Code).
+func isBigTableRetryableError(err error) (bool, string) {
+	statusCode := status.Code(err)
+	if statusCode.String() == "FailedPrecondition" {
+		return true, "Waiting for table to be in a valid state"
 	}
 
 	return false, ""
