@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -12,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
 )
+
+var clusterIdRegex = regexp.MustCompile("projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<name>[^/]+)")
 
 func resourceContainerNodePool() *schema.Resource {
 	return &schema.Resource{
@@ -242,6 +245,18 @@ func (nodePoolInformation *NodePoolInformation) lockKey() string {
 }
 
 func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePoolInformation, error) {
+	cluster := d.Get("cluster").(string)
+
+	if fieldValues := clusterIdRegex.FindStringSubmatch(cluster); fieldValues != nil {
+		log.Printf("[DEBUG] matching parent cluster %s to regex %s", cluster, clusterIdRegex.String())
+		return &NodePoolInformation{
+			project:  fieldValues[1],
+			location: fieldValues[2],
+			cluster:  fieldValues[3],
+		}, nil
+	}
+	log.Printf("[DEBUG] parent cluster %s does not match regex %s", cluster, clusterIdRegex.String())
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -255,7 +270,7 @@ func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePo
 	return &NodePoolInformation{
 		project:  project,
 		location: location,
-		cluster:  d.Get("cluster").(string),
+		cluster:  cluster,
 	}, nil
 }
 
