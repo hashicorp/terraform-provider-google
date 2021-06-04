@@ -1746,7 +1746,12 @@ func resourceDataprocWorkflowTemplateCreate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
-	client := CreateDataprocClient(config, userAgent, "")
+	billingProject := project
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+	client := CreateDataprocClient(config, userAgent, billingProject)
 	res, err := client.ApplyWorkflowTemplate(context.Background(), obj, createDirective...)
 	if err != nil {
 		// The resource didn't actually create
@@ -1781,7 +1786,12 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	client := CreateDataprocClient(config, userAgent, "")
+	billingProject := project
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+	client := CreateDataprocClient(config, userAgent, billingProject)
 	res, err := client.GetWorkflowTemplate(context.Background(), obj)
 	if err != nil {
 		// Resource not found
@@ -1846,7 +1856,12 @@ func resourceDataprocWorkflowTemplateDelete(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
-	client := CreateDataprocClient(config, userAgent, "")
+	billingProject := project
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+	client := CreateDataprocClient(config, userAgent, billingProject)
 	if err := client.DeleteWorkflowTemplate(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting WorkflowTemplate: %s", err)
 	}

@@ -1,0 +1,4 @@
+```release-note:enhancement
+dataproc: added support for `user_project_override` to `google_dataproc_workflow_template`
+eventarc: added support for `user_project_override` to `google_eventarc_trigger`
+```
