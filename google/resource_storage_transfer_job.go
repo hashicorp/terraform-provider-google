@@ -30,6 +30,7 @@ var (
 		"transfer_spec.0.gcs_data_source",
 		"transfer_spec.0.aws_s3_data_source",
 		"transfer_spec.0.http_data_source",
+		"transfer_spec.0.azure_blob_storage_data_source",
 	}
 )
 
@@ -99,7 +100,15 @@ func resourceStorageTransferJob() *schema.Resource {
 							MaxItems:     1,
 							Elem:         httpDataSchema(),
 							ExactlyOneOf: transferSpecDataSourceKeys,
-							Description:  `An HTTP URL data source.`,
+							Description:  `A HTTP URL data source.`,
+						},
+						"azure_blob_storage_data_source": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							MaxItems:     1,
+							Elem:         azureBlobStorageDataSchema(),
+							ExactlyOneOf: transferSpecDataSourceKeys,
+							Description:  `An Azure Blob Storage data source.`,
 						},
 					},
 				},
@@ -365,6 +374,45 @@ func httpDataSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The URL that points to the file that stores the object list entries. This file must allow public access. Currently, only URLs with HTTP and HTTPS schemes are supported.`,
+			},
+		},
+	}
+}
+
+func azureBlobStorageDataSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"storage_account": {
+				Required:    true,
+				Type:        schema.TypeString,
+				Description: `The name of the Azure Storage account.`,
+			},
+			"container": {
+				Required:    true,
+				Type:        schema.TypeString,
+				Description: `The container to transfer from the Azure Storage account.`,
+			},
+			"path": {
+				Optional:    true,
+				Computed:    true,
+				Type:        schema.TypeString,
+				Description: `Root path to transfer objects. Must be an empty string or full path name that ends with a '/'. This field is treated as an object prefix. As such, it should generally not begin with a '/'.`,
+			},
+			"azure_credentials": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"sas_token": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Sensitive:   true,
+							Description: `Azure shared access signature.`,
+						},
+					},
+				},
+				Description: ` Credentials used to authenticate API requests to Azure.`,
 			},
 		},
 	}
@@ -769,6 +817,50 @@ func flattenHttpData(httpData *storagetransfer.HttpData) []map[string]interface{
 	return []map[string]interface{}{data}
 }
 
+func expandAzureCredentials(azureCredentials []interface{}) *storagetransfer.AzureCredentials {
+	if len(azureCredentials) == 0 || azureCredentials[0] == nil {
+		return nil
+	}
+
+	azureCredential := azureCredentials[0].(map[string]interface{})
+	return &storagetransfer.AzureCredentials{
+		SasToken: azureCredential["sas_token"].(string),
+	}
+}
+
+func flattenAzureCredentials(d *schema.ResourceData) []map[string]interface{} {
+	data := map[string]interface{}{
+		"sas_token": d.Get("transfer_spec.0.azure_blob_storage_data_source.0.azure_credentials.0.sas_token"),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func expandAzureBlobStorageData(azureBlobStorageDatas []interface{}) *storagetransfer.AzureBlobStorageData {
+	if len(azureBlobStorageDatas) == 0 || azureBlobStorageDatas[0] == nil {
+		return nil
+	}
+
+	azureBlobStorageData := azureBlobStorageDatas[0].(map[string]interface{})
+	return &storagetransfer.AzureBlobStorageData{
+		Container:        azureBlobStorageData["container"].(string),
+		Path:             azureBlobStorageData["path"].(string),
+		StorageAccount:   azureBlobStorageData["storage_account"].(string),
+		AzureCredentials: expandAzureCredentials(azureBlobStorageData["sas_token"].([]interface{})),
+	}
+}
+
+func flattenAzureBlobStorageData(azureBlobStorageData *storagetransfer.AzureBlobStorageData, d *schema.ResourceData) []map[string]interface{} {
+	data := map[string]interface{}{
+		"container":         azureBlobStorageData.Container,
+		"path":              azureBlobStorageData.Path,
+		"storage_account":   azureBlobStorageData.StorageAccount,
+		"azure_credentials": flattenAzureCredentials(d),
+	}
+
+	return []map[string]interface{}{data}
+}
+
 func expandObjectConditions(conditions []interface{}) *storagetransfer.ObjectConditions {
 	if len(conditions) == 0 || conditions[0] == nil {
 		return nil
@@ -823,12 +915,13 @@ func expandTransferSpecs(transferSpecs []interface{}) *storagetransfer.TransferS
 
 	transferSpec := transferSpecs[0].(map[string]interface{})
 	return &storagetransfer.TransferSpec{
-		GcsDataSink:      expandGcsData(transferSpec["gcs_data_sink"].([]interface{})),
-		ObjectConditions: expandObjectConditions(transferSpec["object_conditions"].([]interface{})),
-		TransferOptions:  expandTransferOptions(transferSpec["transfer_options"].([]interface{})),
-		GcsDataSource:    expandGcsData(transferSpec["gcs_data_source"].([]interface{})),
-		AwsS3DataSource:  expandAwsS3Data(transferSpec["aws_s3_data_source"].([]interface{})),
-		HttpDataSource:   expandHttpData(transferSpec["http_data_source"].([]interface{})),
+		GcsDataSink:                expandGcsData(transferSpec["gcs_data_sink"].([]interface{})),
+		ObjectConditions:           expandObjectConditions(transferSpec["object_conditions"].([]interface{})),
+		TransferOptions:            expandTransferOptions(transferSpec["transfer_options"].([]interface{})),
+		GcsDataSource:              expandGcsData(transferSpec["gcs_data_source"].([]interface{})),
+		AwsS3DataSource:            expandAwsS3Data(transferSpec["aws_s3_data_source"].([]interface{})),
+		HttpDataSource:             expandHttpData(transferSpec["http_data_source"].([]interface{})),
+		AzureBlobStorageDataSource: expandAzureBlobStorageData(transferSpec["azure_blob_storage_data_source"].([]interface{})),
 	}
 }
 
@@ -850,6 +943,8 @@ func flattenTransferSpec(transferSpec *storagetransfer.TransferSpec, d *schema.R
 		data["aws_s3_data_source"] = flattenAwsS3Data(transferSpec.AwsS3DataSource, d)
 	} else if transferSpec.HttpDataSource != nil {
 		data["http_data_source"] = flattenHttpData(transferSpec.HttpDataSource)
+	} else if transferSpec.AzureBlobStorageDataSource != nil {
+		data["azure_blob_storage_data_source"] = flattenAzureBlobStorageData(transferSpec.AzureBlobStorageDataSource, d)
 	}
 
 	return []map[string][]map[string]interface{}{data}

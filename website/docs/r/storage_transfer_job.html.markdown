@@ -14,7 +14,7 @@ Creates a new Transfer Job in Google Cloud Storage Transfer.
 To get more information about Google Cloud Storage Transfer, see:
 
 * [Overview](https://cloud.google.com/storage-transfer/docs/overview)
-* [API documentation](https://cloud.google.com/storage-transfer/docs/reference/rest/v1/transferJobs#TransferJob)
+* [API documentation](https://cloud.google.com/storage-transfer/docs/reference/rest/v1/transferJobs)
 * How-to Guides
     * [Configuring Access to Data Sources and Sinks](https://cloud.google.com/storage-transfer/docs/configure-access)
 
@@ -118,7 +118,9 @@ The `transfer_spec` block supports:
 
 * `aws_s3_data_source` - (Optional) An AWS S3 data source. Structure documented below.
 
-* `http_data_source` - (Optional) An HTTP URL data source. Structure documented below.
+* `http_data_source` - (Optional) A HTTP URL data source. Structure documented below.
+
+* `azure_blob_storage_data_source` - (Optional) An Azure Blob Storage data source. Structure documented below.
 
 The `schedule` block supports:
 
@@ -171,6 +173,20 @@ The `aws_access_key` block supports:
 The `http_data_source` block supports:
 
 * `list_url` - (Required) The URL that points to the file that stores the object list entries. This file must allow public access. Currently, only URLs with HTTP and HTTPS schemes are supported.
+
+The `azure_blob_storage_data_source` block supports:
+
+* `storage_account` - (Required) The name of the Azure Storage account.
+
+* `container` - (Required) The container to transfer from the Azure Storage account.`
+
+* `path` - (Required) Root path to transfer objects. Must be an empty string or full path name that ends with a '/'. This field is treated as an object prefix. As such, it should generally not begin with a '/'.
+
+* `azure_credentials` - (Required) Credentials used to authenticate API requests to Azure block.
+
+The `azure_credentials` block supports:
+
+* `sas_token` - (Required) Azure shared access signature. See [Grant limited access to Azure Storage resources using shared access signatures (SAS)](https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview).
 
 The `schedule_start_date` and `schedule_end_date` blocks support:
 
