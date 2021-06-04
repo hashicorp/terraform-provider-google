@@ -817,6 +817,10 @@ func flattenComputeInterconnectAttachmentIpsecInternalAddresses(v interface{}, d
 }
 
 func flattenComputeInterconnectAttachmentEncryption(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return "NONE"
+	}
+
 	return v
 }
 
