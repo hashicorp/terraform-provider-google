@@ -209,7 +209,7 @@ includes an up-to-date reference of supported versions.
     created. This is done because after a name is used, it cannot be reused for
     up to [one week](https://cloud.google.com/sql/docs/delete-instance).
 
-* `master_instance_name` - (Optional) The name of the instance that will act as
+* `master_instance_name` - (Optional) The name of the existing instance that will act as
     the master in the replication setup. Note, this requires the master to have
     `binary_log_enabled` set, as well as existing backups.
 
