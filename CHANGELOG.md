@@ -1,4 +1,4 @@
-## 3.71.0 (Unreleased)
+## 3.71.0 (June 07, 2021)
 FEATURES:
 * **New Resource:** `google_dialogflow_fulfillment` ([#9253](https://github.com/hashicorp/terraform-provider-google/pull/9253))
 
