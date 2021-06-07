@@ -225,7 +225,7 @@ version {
 }
 ```
 
-* `name` - (Required) - Version name.
+* `name` - (Optional) - Version name.
 
 * `instance_template` - (Required) - The full URL to an instance template from which all new instances of this version will be created.
 
