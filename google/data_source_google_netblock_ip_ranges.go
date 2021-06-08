@@ -5,8 +5,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"gopkg.in/netaddr.v1"
+)
+
+const (
+	CLOUD_NETBLOCK_URL  = "https://www.gstatic.com/ipranges/cloud.json"
+	GOOGLE_NETBLOCK_URL = "https://www.gstatic.com/ipranges/goog.json"
 )
 
 type googRanges struct {
@@ -58,7 +65,6 @@ func dataSourceGoogleNetblockIpRangesRead(d *schema.ResourceData, meta interface
 	// Dynamic ranges
 	case "cloud-netblocks":
 		// https://cloud.google.com/compute/docs/faq#find_ip_range
-		const CLOUD_NETBLOCK_URL = "https://www.gstatic.com/ipranges/cloud.json"
 		CidrBlocks, err := getCidrBlocksFromUrl(CLOUD_NETBLOCK_URL)
 
 		if err != nil {
@@ -75,12 +81,36 @@ func dataSourceGoogleNetblockIpRangesRead(d *schema.ResourceData, meta interface
 		}
 	case "google-netblocks":
 		// https://cloud.google.com/vpc/docs/configure-private-google-access?hl=en#ip-addr-defaults
-		const GOOGLE_NETBLOCK_URL = "https://www.gstatic.com/ipranges/goog.json"
 		CidrBlocks, err := getCidrBlocksFromUrl(GOOGLE_NETBLOCK_URL)
 
 		if err != nil {
 			return err
 		}
+
+		if err := d.Set("cidr_blocks", CidrBlocks["cidr_blocks"]); err != nil {
+			return fmt.Errorf("Error setting cidr_blocks: %s", err)
+		}
+		if err := d.Set("cidr_blocks_ipv4", CidrBlocks["cidr_blocks_ipv4"]); err != nil {
+			return fmt.Errorf("Error setting cidr_blocks_ipv4: %s", err)
+		}
+		if err := d.Set("cidr_blocks_ipv6", CidrBlocks["cidr_blocks_ipv6"]); err != nil {
+			return fmt.Errorf("Error setting cidr_blocks_ipv6: %s", err)
+		}
+	case "default-domains-netblocks":
+		// https://cloud.google.com/vpc/docs/configure-private-google-access#ip-addr-defaults
+		googBlocks, err := getCidrBlocksFromUrl(GOOGLE_NETBLOCK_URL)
+		if err != nil {
+			return err
+		}
+		cloudBlocks, err := getCidrBlocksFromUrl(CLOUD_NETBLOCK_URL)
+		if err != nil {
+			return err
+		}
+		CidrBlocks, err := getCidrsDifference(googBlocks, cloudBlocks)
+		if err != nil {
+			return err
+		}
+
 		if err := d.Set("cidr_blocks", CidrBlocks["cidr_blocks"]); err != nil {
 			return fmt.Errorf("Error setting cidr_blocks: %s", err)
 		}
@@ -198,4 +228,41 @@ func getCidrBlocksFromUrl(url string) (map[string][]string, error) {
 	}
 
 	return cidrBlocks, nil
+}
+
+// select or split CIDRs ranges from "reference" set, so the result has no overlap with ranges in "excluded"
+func getCidrsDifference(reference, excluded map[string][]string) (map[string][]string, error) {
+	result := make(map[string][]string)
+
+	for blockName := range reference {
+		referenceSet := netaddr.IPSet{}
+		for _, cidr := range reference[blockName] {
+			net, err := netaddr.ParseNet(cidr)
+			if err != nil {
+				return result, err
+			}
+			referenceSet.InsertNet(net)
+		}
+
+		excludedSet := netaddr.IPSet{}
+		for _, cidr := range excluded[blockName] {
+			net, err := netaddr.ParseNet(cidr)
+			if err != nil {
+				return result, err
+			}
+			excludedSet.InsertNet(net)
+		}
+
+		delta := referenceSet.Difference(&excludedSet)
+
+		var difference []string
+		for _, cidr := range delta.GetNetworks() {
+			difference = append(difference, cidr.String())
+		}
+		sort.Strings(difference)
+
+		result[blockName] = difference
+	}
+
+	return result, nil
 }

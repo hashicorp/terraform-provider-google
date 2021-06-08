@@ -66,6 +66,8 @@ The following arguments are supported:
 
   * `google-netblocks` - Corresponds to IP addresses used for Google services. [More details.](https://cloud.google.com/compute/docs/faq#where_can_i_find_product_name_short_ip_ranges)
 
+  * `default-domains-netblocks` - Correspond to the IP addresses used by the default domains for Google APIs and services. Those are IPs addresses in `google-netblocks` but not in `cloud-netblocks`. [More details.](https://cloud.google.com/vpc/docs/configure-private-google-access#ip-addr-defaults)
+
   * `restricted-googleapis` - Corresponds to the IP addresses used for Private Google Access only for services that support VPC Service Controls API access. [More details.](https://cloud.google.com/vpc/docs/private-access-options#domain-vips)
 
   * `private-googleapis` - Corresponds to the IP addresses used for Private Google Access for services that do not support VPC Service Controls. [More details.](https://cloud.google.com/vpc/docs/private-access-options#domain-vips)

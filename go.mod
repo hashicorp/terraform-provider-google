@@ -26,6 +26,7 @@ require (
 	google.golang.org/api v0.46.0
 	google.golang.org/genproto v0.0.0-20210503173045-b96a97608f20 // indirect
 	google.golang.org/grpc v1.38.0
+	gopkg.in/netaddr.v1 v1.5.1
 )
 
 go 1.16
