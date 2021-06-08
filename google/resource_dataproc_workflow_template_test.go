@@ -10,8 +10,6 @@ import (
 )
 
 func TestAccDataprocWorkflowTemplate_basic(t *testing.T) {
-	// DCL currently fails due to transport modification
-	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
