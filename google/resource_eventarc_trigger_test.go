@@ -10,8 +10,6 @@ import (
 )
 
 func TestAccEventarcTrigger_basic(t *testing.T) {
-	// DCL currently fails due to transport modification
-	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -37,8 +35,6 @@ func TestAccEventarcTrigger_basic(t *testing.T) {
 }
 
 func TestAccEventarcTrigger_transport(t *testing.T) {
-	// DCL currently fails due to transport modification
-	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
