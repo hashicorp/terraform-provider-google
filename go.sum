@@ -59,6 +59,8 @@ github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-202104
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210405181318-9364c5bf716b/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210519165700-76bc5cc4eeee h1:WZLlNdsfnB6FHmuyYtMaCEBVoKgUDW4YtXLGac5uB54=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210519165700-76bc5cc4eeee/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210608155717-d4a3100dc193 h1:AtGAJali4Qb3YXHzF1gQQpkJCQrHheFinaDvr0563cU=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210608155717-d4a3100dc193/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
 github.com/OpenPeeDeeP/depguard v1.0.0 h1:k9QF73nrHT3nPLz3lu6G5s+3Hi8Je36ODr1F5gjAXXM=
 github.com/OpenPeeDeeP/depguard v1.0.0/go.mod h1:7/4sitnI9YlQgTLLk734QlzXT8DuHVnAyztLplQjk+o=
 github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 h1:fLjPD/aNc3UIOA6tDi6QXUemppXK3P9BI7mr2hd6gx8=
