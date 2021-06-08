@@ -255,37 +255,6 @@ func TestAccComputeBackendService_withHttpsHealthCheck(t *testing.T) {
 	})
 }
 
-func TestAccComputeBackendService_withCdnPolicy(t *testing.T) {
-	t.Parallel()
-
-	serviceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	checkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeBackendService_withCdnPolicy(serviceName, checkName),
-			},
-			{
-				ResourceName:      "google_compute_backend_service.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccComputeBackendService_withCdnPolicy2(serviceName, checkName),
-			},
-			{
-				ResourceName:      "google_compute_backend_service.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeBackendService_withSecurityPolicy(t *testing.T) {
 	t.Parallel()
 
@@ -986,58 +955,6 @@ resource "google_compute_backend_service" "foobar" {
 }
 
 resource "google_compute_https_health_check" "zero" {
-  name               = "%s"
-  request_path       = "/"
-  check_interval_sec = 1
-  timeout_sec        = 1
-}
-`, serviceName, checkName)
-}
-
-func testAccComputeBackendService_withCdnPolicy(serviceName, checkName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_backend_service" "foobar" {
-  name          = "%s"
-  health_checks = [google_compute_http_health_check.zero.self_link]
-
-  cdn_policy {
-    negative_caching = false
-    serve_while_stale = 0
-    cache_key_policy {
-      include_protocol       = true
-      include_host           = true
-      include_query_string   = true
-      query_string_whitelist = ["foo", "bar"]
-    }
-  }
-}
-
-resource "google_compute_http_health_check" "zero" {
-  name               = "%s"
-  request_path       = "/"
-  check_interval_sec = 1
-  timeout_sec        = 1
-}
-`, serviceName, checkName)
-}
-
-func testAccComputeBackendService_withCdnPolicy2(serviceName, checkName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_backend_service" "foobar" {
-  name          = "%s"
-  health_checks = [google_compute_http_health_check.zero.self_link]
-
-  cdn_policy {
-    cache_key_policy {
-      include_protocol       = true
-      include_host           = true
-      include_query_string   = true
-      query_string_whitelist = ["foo", "bar"]
-    }
-  }
-}
-
-resource "google_compute_http_health_check" "zero" {
   name               = "%s"
   request_path       = "/"
   check_interval_sec = 1
