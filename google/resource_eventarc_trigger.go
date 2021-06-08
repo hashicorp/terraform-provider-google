@@ -63,8 +63,8 @@ func resourceEventarcTrigger() *schema.Resource {
 				Type:        schema.TypeSet,
 				Required:    true,
 				Description: ``,
-				Elem:        EventarcTriggerEventFiltersSchema(),
-				Set:         schema.HashResource(EventarcTriggerEventFiltersSchema()),
+				Elem:        EventarcTriggerMatchingCriteriaSchema(),
+				Set:         schema.HashResource(EventarcTriggerMatchingCriteriaSchema()),
 			},
 
 			"name": {
@@ -148,13 +148,13 @@ func EventarcTriggerDestinationSchema() *schema.Resource {
 				Optional:    true,
 				Description: ``,
 				MaxItems:    1,
-				Elem:        EventarcTriggerDestinationCloudRunSchema(),
+				Elem:        EventarcTriggerDestinationCloudRunServiceSchema(),
 			},
 		},
 	}
 }
 
-func EventarcTriggerDestinationCloudRunSchema() *schema.Resource {
+func EventarcTriggerDestinationCloudRunServiceSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"service": {
@@ -180,7 +180,7 @@ func EventarcTriggerDestinationCloudRunSchema() *schema.Resource {
 	}
 }
 
-func EventarcTriggerEventFiltersSchema() *schema.Resource {
+func EventarcTriggerMatchingCriteriaSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"attribute": {
@@ -240,14 +240,14 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := &eventarc.Trigger{
-		Destination:    expandEventarcTriggerDestination(d.Get("destination")),
-		Location:       dcl.String(d.Get("location").(string)),
-		EventFilters:   expandEventarcTriggerEventFiltersArray(d.Get("matching_criteria")),
-		Name:           dcl.String(d.Get("name").(string)),
-		Labels:         checkStringMap(d.Get("labels")),
-		Project:        dcl.String(project),
-		ServiceAccount: dcl.String(d.Get("service_account").(string)),
-		Transport:      expandEventarcTriggerTransport(d.Get("transport")),
+		Destination:      expandEventarcTriggerDestination(d.Get("destination")),
+		Location:         dcl.String(d.Get("location").(string)),
+		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
+		Name:             dcl.String(d.Get("name").(string)),
+		Labels:           checkStringMap(d.Get("labels")),
+		Project:          dcl.String(project),
+		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
+		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
 	}
 
 	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{name}}")
@@ -286,14 +286,14 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	obj := &eventarc.Trigger{
-		Destination:    expandEventarcTriggerDestination(d.Get("destination")),
-		Location:       dcl.String(d.Get("location").(string)),
-		EventFilters:   expandEventarcTriggerEventFiltersArray(d.Get("matching_criteria")),
-		Name:           dcl.String(d.Get("name").(string)),
-		Labels:         checkStringMap(d.Get("labels")),
-		Project:        dcl.String(project),
-		ServiceAccount: dcl.String(d.Get("service_account").(string)),
-		Transport:      expandEventarcTriggerTransport(d.Get("transport")),
+		Destination:      expandEventarcTriggerDestination(d.Get("destination")),
+		Location:         dcl.String(d.Get("location").(string)),
+		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
+		Name:             dcl.String(d.Get("name").(string)),
+		Labels:           checkStringMap(d.Get("labels")),
+		Project:          dcl.String(project),
+		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
+		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
 	}
 
 	userAgent, err := generateUserAgentString(d, config.userAgent)
@@ -319,7 +319,7 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 	if err = d.Set("location", res.Location); err != nil {
 		return fmt.Errorf("error setting location in state: %s", err)
 	}
-	if err = d.Set("matching_criteria", flattenEventarcTriggerEventFiltersArray(res.EventFilters)); err != nil {
+	if err = d.Set("matching_criteria", flattenEventarcTriggerMatchingCriteriaArray(res.MatchingCriteria)); err != nil {
 		return fmt.Errorf("error setting matching_criteria in state: %s", err)
 	}
 	if err = d.Set("name", res.Name); err != nil {
@@ -360,14 +360,14 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := &eventarc.Trigger{
-		Destination:    expandEventarcTriggerDestination(d.Get("destination")),
-		Location:       dcl.String(d.Get("location").(string)),
-		EventFilters:   expandEventarcTriggerEventFiltersArray(d.Get("matching_criteria")),
-		Name:           dcl.String(d.Get("name").(string)),
-		Labels:         checkStringMap(d.Get("labels")),
-		Project:        dcl.String(project),
-		ServiceAccount: dcl.String(d.Get("service_account").(string)),
-		Transport:      expandEventarcTriggerTransport(d.Get("transport")),
+		Destination:      expandEventarcTriggerDestination(d.Get("destination")),
+		Location:         dcl.String(d.Get("location").(string)),
+		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
+		Name:             dcl.String(d.Get("name").(string)),
+		Labels:           checkStringMap(d.Get("labels")),
+		Project:          dcl.String(project),
+		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
+		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
 	}
 	directive := UpdateDirective
 	userAgent, err := generateUserAgentString(d, config.userAgent)
@@ -398,14 +398,14 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := &eventarc.Trigger{
-		Destination:    expandEventarcTriggerDestination(d.Get("destination")),
-		Location:       dcl.String(d.Get("location").(string)),
-		EventFilters:   expandEventarcTriggerEventFiltersArray(d.Get("matching_criteria")),
-		Name:           dcl.String(d.Get("name").(string)),
-		Labels:         checkStringMap(d.Get("labels")),
-		Project:        dcl.String(project),
-		ServiceAccount: dcl.String(d.Get("service_account").(string)),
-		Transport:      expandEventarcTriggerTransport(d.Get("transport")),
+		Destination:      expandEventarcTriggerDestination(d.Get("destination")),
+		Location:         dcl.String(d.Get("location").(string)),
+		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
+		Name:             dcl.String(d.Get("name").(string)),
+		Labels:           checkStringMap(d.Get("labels")),
+		Project:          dcl.String(project),
+		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
+		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
 	}
 
 	log.Printf("[DEBUG] Deleting Trigger %q", d.Id())
@@ -457,8 +457,8 @@ func expandEventarcTriggerDestination(o interface{}) *eventarc.TriggerDestinatio
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &eventarc.TriggerDestination{
-		CloudFunction: dcl.String(obj["cloud_function"].(string)),
-		CloudRun:      expandEventarcTriggerDestinationCloudRun(obj["cloud_run_service"]),
+		CloudFunction:   dcl.String(obj["cloud_function"].(string)),
+		CloudRunService: expandEventarcTriggerDestinationCloudRunService(obj["cloud_run_service"]),
 	}
 }
 
@@ -468,30 +468,30 @@ func flattenEventarcTriggerDestination(obj *eventarc.TriggerDestination) interfa
 	}
 	transformed := map[string]interface{}{
 		"cloud_function":    obj.CloudFunction,
-		"cloud_run_service": flattenEventarcTriggerDestinationCloudRun(obj.CloudRun),
+		"cloud_run_service": flattenEventarcTriggerDestinationCloudRunService(obj.CloudRunService),
 	}
 
 	return []interface{}{transformed}
 
 }
 
-func expandEventarcTriggerDestinationCloudRun(o interface{}) *eventarc.TriggerDestinationCloudRun {
+func expandEventarcTriggerDestinationCloudRunService(o interface{}) *eventarc.TriggerDestinationCloudRunService {
 	if o == nil {
-		return eventarc.EmptyTriggerDestinationCloudRun
+		return eventarc.EmptyTriggerDestinationCloudRunService
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 {
-		return eventarc.EmptyTriggerDestinationCloudRun
+		return eventarc.EmptyTriggerDestinationCloudRunService
 	}
 	obj := objArr[0].(map[string]interface{})
-	return &eventarc.TriggerDestinationCloudRun{
+	return &eventarc.TriggerDestinationCloudRunService{
 		Service: dcl.String(obj["service"].(string)),
 		Path:    dcl.String(obj["path"].(string)),
 		Region:  dcl.StringOrNil(obj["region"].(string)),
 	}
 }
 
-func flattenEventarcTriggerDestinationCloudRun(obj *eventarc.TriggerDestinationCloudRun) interface{} {
+func flattenEventarcTriggerDestinationCloudRunService(obj *eventarc.TriggerDestinationCloudRunService) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
@@ -504,7 +504,7 @@ func flattenEventarcTriggerDestinationCloudRun(obj *eventarc.TriggerDestinationC
 	return []interface{}{transformed}
 
 }
-func expandEventarcTriggerEventFiltersArray(o interface{}) []eventarc.TriggerEventFilters {
+func expandEventarcTriggerMatchingCriteriaArray(o interface{}) []eventarc.TriggerMatchingCriteria {
 	if o == nil {
 		return nil
 	}
@@ -516,42 +516,42 @@ func expandEventarcTriggerEventFiltersArray(o interface{}) []eventarc.TriggerEve
 		return nil
 	}
 
-	items := make([]eventarc.TriggerEventFilters, 0, len(objs))
+	items := make([]eventarc.TriggerMatchingCriteria, 0, len(objs))
 	for _, item := range objs {
-		i := expandEventarcTriggerEventFilters(item)
+		i := expandEventarcTriggerMatchingCriteria(item)
 		items = append(items, *i)
 	}
 
 	return items
 }
 
-func expandEventarcTriggerEventFilters(o interface{}) *eventarc.TriggerEventFilters {
+func expandEventarcTriggerMatchingCriteria(o interface{}) *eventarc.TriggerMatchingCriteria {
 	if o == nil {
-		return eventarc.EmptyTriggerEventFilters
+		return eventarc.EmptyTriggerMatchingCriteria
 	}
 
 	obj := o.(map[string]interface{})
-	return &eventarc.TriggerEventFilters{
+	return &eventarc.TriggerMatchingCriteria{
 		Attribute: dcl.String(obj["attribute"].(string)),
 		Value:     dcl.String(obj["value"].(string)),
 	}
 }
 
-func flattenEventarcTriggerEventFiltersArray(objs []eventarc.TriggerEventFilters) []interface{} {
+func flattenEventarcTriggerMatchingCriteriaArray(objs []eventarc.TriggerMatchingCriteria) []interface{} {
 	if objs == nil {
 		return nil
 	}
 
 	items := []interface{}{}
 	for _, item := range objs {
-		i := flattenEventarcTriggerEventFilters(&item)
+		i := flattenEventarcTriggerMatchingCriteria(&item)
 		items = append(items, i)
 	}
 
 	return items
 }
 
-func flattenEventarcTriggerEventFilters(obj *eventarc.TriggerEventFilters) interface{} {
+func flattenEventarcTriggerMatchingCriteria(obj *eventarc.TriggerMatchingCriteria) interface{} {
 	if obj == nil || obj.Empty() {
 		return nil
 	}
