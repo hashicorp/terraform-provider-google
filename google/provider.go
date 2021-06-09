@@ -343,6 +343,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_DIALOGFLOW_CUSTOM_ENDPOINT",
 				}, DialogflowDefaultBasePath),
 			},
+			"dialogflow_cx_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DIALOGFLOW_CX_CUSTOM_ENDPOINT",
+				}, DialogflowCXDefaultBasePath),
+			},
 			"dns_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -737,9 +745,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 195
+// Generated resources: 196
 // Generated IAM resources: 87
-// Total generated resources: 282
+// Total generated resources: 283
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -906,6 +914,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dialogflow_intent":                                     resourceDialogflowIntent(),
 			"google_dialogflow_entity_type":                                resourceDialogflowEntityType(),
 			"google_dialogflow_fulfillment":                                resourceDialogflowFulfillment(),
+			"google_dialogflow_cx_agent":                                   resourceDialogflowCXAgent(),
 			"google_dns_managed_zone":                                      resourceDNSManagedZone(),
 			"google_dns_policy":                                            resourceDNSPolicy(),
 			"google_dns_record_set":                                        resourceDNSResourceDnsRecordSet(),
@@ -1264,6 +1273,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DatastoreBasePath = d.Get("datastore_custom_endpoint").(string)
 	config.DeploymentManagerBasePath = d.Get("deployment_manager_custom_endpoint").(string)
 	config.DialogflowBasePath = d.Get("dialogflow_custom_endpoint").(string)
+	config.DialogflowCXBasePath = d.Get("dialogflow_cx_custom_endpoint").(string)
 	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
