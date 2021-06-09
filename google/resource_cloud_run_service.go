@@ -194,30 +194,11 @@ https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument
 													},
 												},
 												"env": {
-													Type:        schema.TypeList,
+													Type:        schema.TypeSet,
 													Optional:    true,
 													Description: `List of environment variables to set in the container.`,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"name": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: `Name of the environment variable.`,
-															},
-															"value": {
-																Type:     schema.TypeString,
-																Optional: true,
-																Description: `Variable references $(VAR_NAME) are expanded
-using the previous defined environment variables in the container and
-any route environment variables. If a variable cannot be resolved,
-the reference in the input string will be unchanged. The $(VAR_NAME)
-syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped
-references will never be expanded, regardless of whether the variable
-exists or not.
-Defaults to "".`,
-															},
-														},
-													},
+													Elem:        cloudrunServiceSpecTemplateSpecContainersContainersEnvSchema(),
+													// Default schema.HashSchema is used.
 												},
 												"env_from": {
 													Type:       schema.TypeList,
@@ -690,6 +671,30 @@ https://{route-hash}-{project-hash}-{cluster-level-suffix}.a.run.app`,
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func cloudrunServiceSpecTemplateSpecContainersContainersEnvSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Name of the environment variable.`,
+			},
+			"value": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Variable references $(VAR_NAME) are expanded
+using the previous defined environment variables in the container and
+any route environment variables. If a variable cannot be resolved,
+the reference in the input string will be unchanged. The $(VAR_NAME)
+syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped
+references will never be expanded, regardless of whether the variable
+exists or not.
+Defaults to "".`,
+			},
+		},
 	}
 }
 
@@ -1318,14 +1323,14 @@ func flattenCloudRunServiceSpecTemplateSpecContainersEnv(v interface{}, d *schem
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(cloudrunServiceSpecTemplateSpecContainersContainersEnvSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"name":  flattenCloudRunServiceSpecTemplateSpecContainersEnvName(original["name"], d, config),
 			"value": flattenCloudRunServiceSpecTemplateSpecContainersEnvValue(original["value"], d, config),
 		})
@@ -2101,6 +2106,7 @@ func expandCloudRunServiceSpecTemplateSpecContainersCommand(v interface{}, d Ter
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersEnv(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

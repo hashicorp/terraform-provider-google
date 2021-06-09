@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: fixed a bug where plan would should a diff on `google_cloud_run_service` if the order of the `template.spec.containers.env` list was re-ordered outside of terraform.
+```
