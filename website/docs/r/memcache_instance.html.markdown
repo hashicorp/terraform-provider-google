@@ -49,7 +49,6 @@ To get more information about Instance, see:
 // config, add an additional network resource or change
 // this from "data"to "resource"
 data "google_compute_network" "memcache_network" {
-  provider = google-beta
   name = "test-network"
 }
 
