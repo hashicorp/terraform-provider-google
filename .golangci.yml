@@ -19,7 +19,7 @@ linters:
 
 linters-settings:
   errcheck:
-    ignore: github.com/hashicorp/terraform-plugin-sdk/helper/schema:ForceNew|Set,fmt:.*,io:Close,github.com/hashicorp/terraform-provider-google/google:Set
+    ignore: github.com/hashicorp/terraform-plugin-sdk/helper/schema:ForceNew|Set,fmt:.*,io:Close,github.com/hashicorp/terraform-provider-google-beta/google-beta:Set
 
 issues:
   max-per-linter: 0
@@ -51,7 +51,10 @@ issues:
       text: "S1034:"
     - linters:
         - gosimple
-      text: "S1039:"
+      text: "S1039:" # new field - remove this once resolved
+    - linters:
+        - gosimple
+      text: "S1034:" # new field - remove this once resolved
     - linters:
         - stylecheck
       text: "ST1000:"
@@ -73,6 +76,9 @@ issues:
     - linters:
         - staticcheck
       text: "SA4010:"
+    - linters:
+        - staticcheck
+      text: "SA4023:" # new field - remove this once resolved
     - linters:
         - staticcheck
       text: "SA6000:"
