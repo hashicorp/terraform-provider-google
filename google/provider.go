@@ -634,7 +634,8 @@ func Provider() *schema.Provider {
 			BigtableAdminCustomEndpointEntryKey:     BigtableAdminCustomEndpointEntry,
 
 			// dcl
-			EventarcEndpointEntryKey: EventarcEndpointEntry,
+			EventarcEndpointEntryKey:            EventarcEndpointEntry,
+			GkeHubFeatureCustomEndpointEntryKey: GkeHubFeatureCustomEndpointEntry,
 		},
 
 		ProviderMetaSchema: map[string]*schema.Schema{
@@ -1328,6 +1329,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 
 	// dcl
 	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
+	config.GkeHubBasePath = d.Get(GkeHubFeatureCustomEndpointEntryKey).(string)
 
 	stopCtx, ok := schema.StopContext(ctx)
 	if !ok {
