@@ -137,7 +137,8 @@ The `transport` block supports:
 * `pubsub` -
   (Optional)
   The Pub/Sub topic and subscription used by Eventarc as delivery intermediary.
-    The `pubsub` block supports:
+
+The `pubsub` block supports:
     
 * `topic` -
   (Optional)
