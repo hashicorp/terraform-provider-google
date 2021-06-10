@@ -48,13 +48,10 @@ issues:
       text: "S1025:"
     - linters:
         - gosimple
-      text: "S1034:"
+      text: "S1034"
     - linters:
         - gosimple
       text: "S1039:" # new field - remove this once resolved
-    - linters:
-        - gosimple
-      text: "S1034:" # new field - remove this once resolved
     - linters:
         - stylecheck
       text: "ST1000:"
@@ -78,7 +75,7 @@ issues:
       text: "SA4010:"
     - linters:
         - staticcheck
-      text: "SA4023:" # new field - remove this once resolved
+      text: "SA4023" # new field - remove this once resolved
     - linters:
         - staticcheck
       text: "SA6000:"
