@@ -111,9 +111,9 @@ func schemaNodeConfig() *schema.Schema {
 					Type:        schema.TypeMap,
 					Optional:    true,
 					Computed:    true,
-					ForceNew:    true,
+					ForceNew:    false,
 					Elem:        &schema.Schema{Type: schema.TypeString},
-					Description: `The metadata key/value pairs assigned to instances in the cluster.`,
+					Description: `If someone will modify metada the resource will not be re-created`,
 				},
 
 				"min_cpu_platform": {
