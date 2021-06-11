@@ -14,4 +14,4 @@ jobs:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
           labels: |
             stale
-            waiting-reply
+            waiting-response
