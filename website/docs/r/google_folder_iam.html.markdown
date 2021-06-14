@@ -21,6 +21,9 @@ Four different resources help you manage your IAM policy for a folder. Each of t
 
 ~> **Note:** `google_folder_iam_binding` resources **can be** used in conjunction with `google_folder_iam_member` resources **only if** they do not grant privilege to the same role.
 
+~> **Note:** The underlying API method `projects.setIamPolicy` has constraints which are documented [here](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy). In addition to these constraints, 
+   IAM Conditions cannot be used with Basic Roles such as Owner. Violating these constraints will result in the API returning a 400 error code so please review these if you encounter errors with this resource.
+
 ## google\_folder\_iam\_policy
 
 ~> **Be careful!** You can accidentally lock yourself out of your folder
@@ -58,7 +61,7 @@ resource "google_folder_iam_policy" "folder" {
 
 data "google_iam_policy" "admin" {
   binding {
-    role = "roles/editor"
+    role = "roles/compute.admin"
 
     members = [
       "user:jane@example.com",
@@ -91,7 +94,7 @@ With IAM Conditions:
 ```hcl
 resource "google_folder_iam_binding" "folder" {
   folder  = "folders/1234567"
-  role    = "roles/editor"
+  role    = "roles/container.admin"
 
   members = [
     "user:jane@example.com",
@@ -120,7 +123,7 @@ With IAM Conditions:
 ```hcl
 resource "google_folder_iam_member" "folder" {
   folder  = "folders/1234567"
-  role    = "roles/editor"
+  role    = "roles/firebase.admin"
   member  = "user:jane@example.com"
 
   condition {
