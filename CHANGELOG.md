@@ -1,4 +1,4 @@
-## 3.72.0 (Unreleased)
+## 3.72.0 (June 14, 2021)
 IMPROVEMENTS:
 * compute: added support for IPsec-encrypted Interconnect in the form of new fields on `google_compute_router`, `google_compute_ha_vpn_gateway`, `google_compute_interconnect_attachment` and `google_compute_address`([#9288](https://github.com/hashicorp/terraform-provider-google/pull/9288))
 * container: Allowed specifying a cluster id field for `google_container_node_pool.cluster` to ensure that a node pool is recreated if the associated cluster is recreated. ([#9309](https://github.com/hashicorp/terraform-provider-google/pull/9309))
