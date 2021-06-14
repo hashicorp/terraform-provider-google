@@ -345,6 +345,29 @@ func flattenConfidentialInstanceConfig(ConfidentialInstanceConfig *computeBeta.C
 	}}
 }
 
+func expandAdvancedMachineFeatures(d TerraformResourceData) *computeBeta.AdvancedMachineFeatures {
+	if _, ok := d.GetOk("advanced_machine_features"); !ok {
+		return nil
+	}
+
+	prefix := "advanced_machine_features.0"
+	return &computeBeta.AdvancedMachineFeatures{
+		EnableNestedVirtualization: d.Get(prefix + ".enable_nested_virtualization").(bool),
+		ThreadsPerCore:             int64(d.Get(prefix + ".threads_per_core").(int)),
+		//	ForceSendFields:           []string{"EnableSecureBoot"},
+	}
+}
+
+func flattenAdvancedMachineFeatures(AdvancedMachineFeatures *computeBeta.AdvancedMachineFeatures) []map[string]interface{} {
+	if AdvancedMachineFeatures == nil {
+		return nil
+	}
+	return []map[string]interface{}{{
+		"enable_nested_virtualization": AdvancedMachineFeatures.EnableNestedVirtualization,
+		"threads_per_core":             AdvancedMachineFeatures.ThreadsPerCore,
+	}}
+}
+
 func flattenShieldedVmConfig(shieldedVmConfig *computeBeta.ShieldedInstanceConfig) []map[string]bool {
 	if shieldedVmConfig == nil {
 		return nil
