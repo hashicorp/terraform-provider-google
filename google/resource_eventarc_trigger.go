@@ -265,7 +265,7 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := CreateEventarcClient(config, userAgent, billingProject)
+	client := NewDCLEventarcClient(config, userAgent, billingProject)
 	res, err := client.ApplyTrigger(context.Background(), obj, createDirective...)
 	if err != nil {
 		// The resource didn't actually create
@@ -305,7 +305,7 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := CreateEventarcClient(config, userAgent, billingProject)
+	client := NewDCLEventarcClient(config, userAgent, billingProject)
 	res, err := client.GetTrigger(context.Background(), obj)
 	if err != nil {
 		// Resource not found
@@ -379,7 +379,7 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := CreateEventarcClient(config, userAgent, billingProject)
+	client := NewDCLEventarcClient(config, userAgent, billingProject)
 	res, err := client.ApplyTrigger(context.Background(), obj, directive...)
 	if err != nil {
 		return fmt.Errorf("Error updating Trigger: %s", err)
@@ -418,7 +418,7 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := CreateEventarcClient(config, userAgent, billingProject)
+	client := NewDCLEventarcClient(config, userAgent, billingProject)
 	if err := client.DeleteTrigger(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting Trigger: %s", err)
 	}
