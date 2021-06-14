@@ -113,3 +113,18 @@ resource "google_storage_bucket" "bucket" {
 }
 `, backendName, storageName)
 }
+
+func testAccComputeBackendBucket_withCustomResponseHeaders(backendName, storageName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_bucket" "foobar" {
+  name        = "%s"
+  bucket_name = google_storage_bucket.bucket.name
+  custom_response_headers = ["X-Cache-Hit: {cdn_cache_status}", "X-Cache-Id: {cdn_cache_id}"]
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "EU"
+}
+`, backendName, storageName)
+}

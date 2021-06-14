@@ -293,7 +293,7 @@ The following arguments are supported:
   requests.
 
 * `custom_response_headers` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Headers that the HTTP/S load balancer should add to proxied
   responses.
 

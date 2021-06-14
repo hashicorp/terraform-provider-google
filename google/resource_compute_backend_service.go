@@ -466,6 +466,16 @@ requests.`,
 				},
 				Set: schema.HashString,
 			},
+			"custom_response_headers": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Description: `Headers that the HTTP/S load balancer should add to proxied
+responses.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: schema.HashString,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -979,6 +989,12 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("custom_request_headers"); !isEmptyValue(reflect.ValueOf(customRequestHeadersProp)) && (ok || !reflect.DeepEqual(v, customRequestHeadersProp)) {
 		obj["customRequestHeaders"] = customRequestHeadersProp
 	}
+	customResponseHeadersProp, err := expandComputeBackendServiceCustomResponseHeaders(d.Get("custom_response_headers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_response_headers"); !isEmptyValue(reflect.ValueOf(customResponseHeadersProp)) && (ok || !reflect.DeepEqual(v, customResponseHeadersProp)) {
+		obj["customResponseHeaders"] = customResponseHeadersProp
+	}
 	fingerprintProp, err := expandComputeBackendServiceFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
 		return err
@@ -1223,6 +1239,9 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("custom_request_headers", flattenComputeBackendServiceCustomRequestHeaders(res["customRequestHeaders"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
+	if err := d.Set("custom_response_headers", flattenComputeBackendServiceCustomResponseHeaders(res["customResponseHeaders"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendService: %s", err)
+	}
 	if err := d.Set("fingerprint", flattenComputeBackendServiceFingerprint(res["fingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
@@ -1332,6 +1351,12 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("custom_request_headers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customRequestHeadersProp)) {
 		obj["customRequestHeaders"] = customRequestHeadersProp
+	}
+	customResponseHeadersProp, err := expandComputeBackendServiceCustomResponseHeaders(d.Get("custom_response_headers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_response_headers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customResponseHeadersProp)) {
+		obj["customResponseHeaders"] = customResponseHeadersProp
 	}
 	fingerprintProp, err := expandComputeBackendServiceFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -2020,6 +2045,13 @@ func flattenComputeBackendServiceCreationTimestamp(v interface{}, d *schema.Reso
 }
 
 func flattenComputeBackendServiceCustomRequestHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeBackendServiceCustomResponseHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2866,6 +2898,11 @@ func expandComputeBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(v
 }
 
 func expandComputeBackendServiceCustomRequestHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeBackendServiceCustomResponseHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
