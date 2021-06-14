@@ -555,7 +555,34 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 						"enable_confidential_compute": {
 							Type:        schema.TypeBool,
 							Required:    true,
+							ForceNew:    true,
 							Description: `Defines whether the instance should have confidential compute enabled.`,
+						},
+					},
+				},
+			},
+			"advanced_machine_features": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Controls for advanced machine-related behavior features.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_nested_virtualization": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							ForceNew:    true,
+							Description: `Whether to enable nested virtualization or not.`,
+						},
+						"threads_per_core": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    false,
+							ForceNew:    true,
+							Description: `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
 						},
 					},
 				},
@@ -935,6 +962,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Tags:                       resourceInstanceTags(d),
 		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
 		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
+		AdvancedMachineFeatures:    expandAdvancedMachineFeatures(d),
 		DisplayDevice:              expandDisplayDevice(d),
 		ReservationAffinity:        reservationAffinity,
 	}
@@ -1324,6 +1352,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	if instanceTemplate.Properties.ConfidentialInstanceConfig != nil {
 		if err = d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(instanceTemplate.Properties.ConfidentialInstanceConfig)); err != nil {
 			return fmt.Errorf("Error setting confidential_instance_config: %s", err)
+		}
+	}
+	if instanceTemplate.Properties.AdvancedMachineFeatures != nil {
+		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(instanceTemplate.Properties.AdvancedMachineFeatures)); err != nil {
+			return fmt.Errorf("Error setting advanced_machine_features: %s", err)
 		}
 	}
 	if instanceTemplate.Properties.DisplayDevice != nil {
