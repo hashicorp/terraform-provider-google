@@ -1141,7 +1141,6 @@ func TestAccComputeInstance_private_image_family(t *testing.T) {
 		},
 	})
 }
-
 func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 	t.Parallel()
 

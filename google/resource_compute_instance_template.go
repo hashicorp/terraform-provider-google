@@ -1,4 +1,3 @@
-//
 package google
 
 import (
@@ -280,7 +279,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Computed:    true,
 				Description: `The unique fingerprint of the metadata.`,
 			},
-
 			"network_interface": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -942,7 +940,6 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-
 	reservationAffinity, err := expandReservationAffinity(d)
 	if err != nil {
 		return err
