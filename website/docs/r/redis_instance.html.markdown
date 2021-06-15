@@ -275,6 +275,7 @@ In addition to the arguments listed above, the following computed attributes are
   checked before each import/export operation.
 
 * `server_ca_certs` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   List of server CA certificates for the instance.
   Structure is documented below.
 
