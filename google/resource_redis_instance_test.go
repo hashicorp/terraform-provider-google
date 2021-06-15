@@ -18,7 +18,7 @@ func TestAccRedisInstance_update(t *testing.T) {
 		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRedisInstance_update(name),
+				Config: testAccRedisInstance_update(name, true),
 			},
 			{
 				ResourceName:      "google_redis_instance.test",
@@ -26,12 +26,15 @@ func TestAccRedisInstance_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccRedisInstance_update2(name),
+				Config: testAccRedisInstance_update2(name, true),
 			},
 			{
 				ResourceName:      "google_redis_instance.test",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				Config: testAccRedisInstance_update2(name, false),
 			},
 		},
 	})
@@ -103,13 +106,100 @@ func TestAccRedisInstance_redisInstanceAuthEnabled(t *testing.T) {
 	})
 }
 
-func testAccRedisInstance_update(name string) string {
+func TestAccRedisInstance_downgradeRedisVersion(t *testing.T) {
+	t.Parallel()
+
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRedisInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisInstance_redis5(name),
+			},
+			{
+				ResourceName:      "google_redis_instance.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccRedisInstance_redis4(name),
+			},
+			{
+				ResourceName:      "google_redis_instance.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestUnitRedisInstance_redisVersionIsDecreasing(t *testing.T) {
+	t.Parallel()
+	type testcase struct {
+		name       string
+		old        interface{}
+		new        interface{}
+		decreasing bool
+	}
+	tcs := []testcase{
+		{
+			name:       "stays the same",
+			old:        "REDIS_4_0",
+			new:        "REDIS_4_0",
+			decreasing: false,
+		},
+		{
+			name:       "increases",
+			old:        "REDIS_4_0",
+			new:        "REDIS_5_0",
+			decreasing: false,
+		},
+		{
+			name:       "nil vals",
+			old:        nil,
+			new:        "REDIS_4_0",
+			decreasing: false,
+		},
+		{
+			name:       "corrupted",
+			old:        "REDIS_4_0",
+			new:        "REDIS_banana",
+			decreasing: false,
+		},
+		{
+			name:       "decreases",
+			old:        "REDIS_6_0",
+			new:        "REDIS_4_0",
+			decreasing: true,
+		},
+	}
+
+	for _, tc := range tcs {
+		decreasing := isRedisVersionDecreasingFunc(tc.old, tc.new)
+		if decreasing != tc.decreasing {
+			t.Errorf("%s: expected decreasing to be %v, but was %v", tc.name, tc.decreasing, decreasing)
+		}
+	}
+}
+
+func testAccRedisInstance_update(name string, preventDestroy bool) string {
+	lifecycleBlock := ""
+	if preventDestroy {
+		lifecycleBlock = `
+		lifecycle {
+			prevent_destroy = true
+		}`
+	}
 	return fmt.Sprintf(`
 resource "google_redis_instance" "test" {
   name           = "%s"
   display_name   = "pre-update"
   memory_size_gb = 1
   region         = "us-central1"
+	%s
 
   labels = {
     my_key    = "my_val"
@@ -120,16 +210,25 @@ resource "google_redis_instance" "test" {
     maxmemory-policy       = "allkeys-lru"
     notify-keyspace-events = "KEA"
   }
+  redis_version = "REDIS_4_0"
 }
-`, name)
+`, name, lifecycleBlock)
 }
 
-func testAccRedisInstance_update2(name string) string {
+func testAccRedisInstance_update2(name string, preventDestroy bool) string {
+	lifecycleBlock := ""
+	if preventDestroy {
+		lifecycleBlock = `
+		lifecycle {
+			prevent_destroy = true
+		}`
+	}
 	return fmt.Sprintf(`
 resource "google_redis_instance" "test" {
   name           = "%s"
   display_name   = "post-update"
   memory_size_gb = 1
+	%s
 
   labels = {
     my_key    = "my_val"
@@ -140,8 +239,9 @@ resource "google_redis_instance" "test" {
     maxmemory-policy       = "noeviction"
     notify-keyspace-events = ""
   }
-  }
-`, name)
+  redis_version = "REDIS_5_0"
+}
+`, name, lifecycleBlock)
 }
 
 func testAccRedisInstance_regionFromLocation(name, zone string) string {
@@ -172,4 +272,38 @@ resource "google_redis_instance" "cache" {
   auth_enabled = false
 }
 `, context)
+}
+
+func testAccRedisInstance_redis5(name string) string {
+	return fmt.Sprintf(`
+resource "google_redis_instance" "test" {
+  name           = "%s"
+  display_name   = "redissss"
+  memory_size_gb = 1
+  region         = "us-central1"
+
+  redis_configs = {
+    maxmemory-policy       = "allkeys-lru"
+    notify-keyspace-events = "KEA"
+  }
+  redis_version = "REDIS_5_0"
+}
+`, name)
+}
+
+func testAccRedisInstance_redis4(name string) string {
+	return fmt.Sprintf(`
+resource "google_redis_instance" "test" {
+  name           = "%s"
+  display_name   = "redissss"
+  memory_size_gb = 1
+  region         = "us-central1"
+
+  redis_configs = {
+    maxmemory-policy       = "allkeys-lru"
+    notify-keyspace-events = "KEA"
+  }
+  redis_version = "REDIS_4_0"
+}
+`, name)
 }
