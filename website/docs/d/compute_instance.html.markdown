@@ -94,6 +94,8 @@ The following arguments are supported:
 
 * `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
 
+* `network_performance_config` - The network performance configuration setting for the instance, if set. Structure is documented below.
+
 * `attached_disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption) that protects this resource.
@@ -205,3 +207,7 @@ The `shielded_instance_config` block supports:
 * `enable_vtpm` -- Whether the instance uses vTPM.
 
 * `enable_integrity_monitoring` -- Whether integrity monitoring is enabled for the instance.
+
+The `network_performance_config` block supports:
+
+* `total_egress_bandwidth_tier` - The egress bandwidth tier for the instance.

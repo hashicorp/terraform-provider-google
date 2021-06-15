@@ -241,6 +241,14 @@ The following arguments are supported:
     this template. This can be specified multiple times for multiple networks.
     Structure is documented below.
 
+* `network_performance_config` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)
+    Configures network performance settings for the instance created from the
+    template. Structure is documented below. **Note**: [`machine_type`](#machine_type)
+    must be a [supported type](https://cloud.google.com/compute/docs/networking/configure-vm-with-high-bandwidth-configuration),
+    the [`image`](#image) used must include the [`GVNIC`](https://cloud.google.com/compute/docs/networking/using-gvnic#create-instance-gvnic-image)
+    in `guest-os-features`, and `network_interface.0.nic-type` must be `GVNIC`
+    in order for this setting to take effect.
+
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
@@ -446,6 +454,10 @@ The `shielded_instance_config` block supports:
 The `confidential_instance_config` block supports:
 
 * `enable_confidential_compute` (Optional) Defines whether the instance should have confidential compute enabled. [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
+
+The `network_performance_config` block supports:
+
+* `total_egress_bandwidth_tier` - (Optional) The egress bandwidth tier to enable. Possible values: TIER_1, DEFAULT
 
 The `advanced_machine_features` block supports:
 

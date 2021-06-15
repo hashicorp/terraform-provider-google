@@ -353,7 +353,6 @@ func resourceComputeInstance() *schema.Resource {
 					},
 				},
 			},
-
 			"allow_stopping_for_update": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -894,7 +893,6 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 	if err != nil {
 		return nil, fmt.Errorf("Error creating network interfaces: %s", err)
 	}
-
 	accels, err := expandInstanceGuestAccelerators(d, config)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating guest accelerators: %s", err)
@@ -1081,7 +1079,6 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("machine_type", GetResourceNameFromSelfLink(instance.MachineType)); err != nil {
 		return fmt.Errorf("Error setting machine_type: %s", err)
 	}
-
 	// Set the networks
 	// Use the first external IP found for the default connection info.
 	networkInterfaces, _, internalIP, externalIP, err := flattenNetworkInterfaces(d, config, instance.NetworkInterfaces)

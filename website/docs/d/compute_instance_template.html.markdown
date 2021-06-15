@@ -85,6 +85,9 @@ The following arguments are supported:
     this template. This can be specified multiple times for multiple networks.
     Structure is documented below.
 
+* `network_performance_config` - The network performance configuration setting
+    for the instance, if set. Structure is documented below.
+
 * `project` - The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
@@ -286,6 +289,10 @@ The `shielded_instance_config` block supports:
 The `confidential_instance_config` block supports:
 
 * `enable_confidential_compute` Defines whether the instance should have confidential compute enabled. [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
+
+The `network_performance_config` block supports:
+
+* `total_egress_bandwidth_tier` - The egress bandwidth tier for the instance.
 
 ---
 
