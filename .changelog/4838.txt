@@ -1,0 +1,6 @@
+```release-note:enhancement
+redis: allowed `redis_version` to be upgraded on `google_redis_instance`
+```
+```release-note:enhancement
+redis: promoted fields `transit_encryption_mode` and `server_ca_certs` to GA on `google_redis_instance` (GA)
+```
