@@ -5,13 +5,11 @@ on:
     types: [created]
 
 jobs:
-  issue_comment_triage:
+  remove_waiting_response:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-ecosystem/action-remove-labels@v1
         with:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
-          labels: |
-            stale
-            waiting-response
+          labels: waiting-response
