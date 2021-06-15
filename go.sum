@@ -70,6 +70,8 @@ github.com/Djarvur/go-err113 v0.0.0-20210108212216-aea10b59be24 h1:sHglBQTwgx+rW
 github.com/Djarvur/go-err113 v0.0.0-20210108212216-aea10b59be24/go.mod h1:4UJr5HIiMZrwgkSPdsjy2uOQExX/WEILpIrO9UPGuXs=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210608155717-d4a3100dc193 h1:AtGAJali4Qb3YXHzF1gQQpkJCQrHheFinaDvr0563cU=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210608155717-d4a3100dc193/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210615164947-80cc6666b426 h1:kg4ntdGQj2DGuck2CEgHUgaQ+x7W7B29HKJA4qbxKnc=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210615164947-80cc6666b426/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
 github.com/Masterminds/goutils v1.1.0 h1:zukEsf/1JZwCMgHiK3GZftabmxiCw4apj3a28RPBiVg=
 github.com/Masterminds/goutils v1.1.0/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
 github.com/Masterminds/semver v1.4.2/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
