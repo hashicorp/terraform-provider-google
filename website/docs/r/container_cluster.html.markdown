@@ -947,3 +947,7 @@ For example, the following fields will show diffs if set in config:
 
 - `min_master_version`
 - `remove_default_node_pool`
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).
