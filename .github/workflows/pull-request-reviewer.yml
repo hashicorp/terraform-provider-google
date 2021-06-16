@@ -8,7 +8,7 @@ jobs:
     if: ${{ github.actor != 'modular-magician' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: uesteibar/reviewer-lottery@v1
+    - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+    - uses: uesteibar/reviewer-lottery@5e584a0455eb063a623b7fd949f006fc7dbcf8bf
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
