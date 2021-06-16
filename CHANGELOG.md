@@ -1,5 +1,22 @@
 ## 3.73.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_dialogflow_cx_agent` ([#9338](https://github.com/hashicorp/terraform-provider-google/pull/9338))
+
+IMPROVEMENTS:
+* added support for [mtls authentication](https://google.aip.dev/auth/4114) ([#9382](https://github.com/hashicorp/terraform-provider-google/pull/9382))
+* compute: added field `adaptive_protection_config` to `google_compute_security_policy` (beta) ([#9335](https://github.com/hashicorp/terraform-provider-google/pull/9335))
+* compute: added `advanced_machine_features` fields to `google_compute_instance_template` ([#9363](https://github.com/hashicorp/terraform-provider-google/pull/9363))
+* compute: added a `network_performance_config` block to each of `resource_compute_instance`, `resource_compute_instance_from_template`, and `resource_compute_instance_template` ([#9373](https://github.com/hashicorp/terraform-provider-google/pull/9373))
+* compute: promoted `custom_response_headers` to GA for `google_compute_backend_service` and `google_compute_backend_bucket` ([#9374](https://github.com/hashicorp/terraform-provider-google/pull/9374))
+* redis: allowed `redis_version` to be upgraded on `google_redis_instance` ([#9378](https://github.com/hashicorp/terraform-provider-google/pull/9378))
+* redis: promoted fields `transit_encryption_mode` and `server_ca_certs` to GA on `google_redis_instance` ([#9378](https://github.com/hashicorp/terraform-provider-google/pull/9378))
+
+BUG FIXES:
+* apigee: added SLASH_23 support for `peering_cidr_range` on `google_apigee_instance` ([#9343](https://github.com/hashicorp/terraform-provider-google/pull/9343))
+* cloudrun: fixed a bug where plan would should a diff on `google_cloud_run_service` if the order of the `template.spec.containers.env` list was re-ordered outside of terraform. ([#9340](https://github.com/hashicorp/terraform-provider-google/pull/9340))
+* container: added `user_project_override` support to the ContainerOperationWaiter used by `google_container_cluster` ([#9379](https://github.com/hashicorp/terraform-provider-google/pull/9379))
+
 ## 3.72.0 (June 14, 2021)
 IMPROVEMENTS:
 * compute: added support for IPsec-encrypted Interconnect in the form of new fields on `google_compute_router`, `google_compute_ha_vpn_gateway`, `google_compute_interconnect_attachment` and `google_compute_address`([#9288](https://github.com/hashicorp/terraform-provider-google/pull/9288))
