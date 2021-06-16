@@ -18,6 +18,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+// empty string is passed for dcl default since dcl
+// [hardcodes the values](https://github.com/GoogleCloudPlatform/declarative-resource-client-library/blob/main/services/google/eventarc/beta/trigger_internal.go#L96-L103)
+
 var EventarcEndpointEntryKey = "eventarc_custom_endpoint"
 var EventarcEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
