@@ -78,6 +78,10 @@ credential/authentication file. Ensure that the scope of the VM/Cluster is set t
 If you are running terraform outside of Google Cloud, generate a service account key and set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to
 the path of the service account key. Terraform will use that key for authentication.
 
+### Disabling mtls authentication
+
+[mtls authentication](https://google.aip.dev/auth/4114) will soon become enabled by default if your system supports it. To disable mtls authentication at any point set `GOOGLE_API_USE_CLIENT_CERTIFICATE` to `false`.
+
 ### Impersonating Service Accounts
 
 Terraform can impersonate a Google Service Account as described [here](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials). A valid credential must be provided as mentioned in the earlier section and that identity must have the `roles/iam.serviceAccountTokenCreator` role on the service account you are impersonating.
