@@ -5,7 +5,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * added support for [mtls authentication](https://google.aip.dev/auth/4114) ([#9382](https://github.com/hashicorp/terraform-provider-google/pull/9382))
-* compute: added field `adaptive_protection_config` to `google_compute_security_policy` (beta) ([#9335](https://github.com/hashicorp/terraform-provider-google/pull/9335))
 * compute: added `advanced_machine_features` fields to `google_compute_instance_template` ([#9363](https://github.com/hashicorp/terraform-provider-google/pull/9363))
 * compute: added a `network_performance_config` block to each of `resource_compute_instance`, `resource_compute_instance_from_template`, and `resource_compute_instance_template` ([#9373](https://github.com/hashicorp/terraform-provider-google/pull/9373))
 * compute: promoted `custom_response_headers` to GA for `google_compute_backend_service` and `google_compute_backend_bucket` ([#9374](https://github.com/hashicorp/terraform-provider-google/pull/9374))
