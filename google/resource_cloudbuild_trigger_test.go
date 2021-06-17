@@ -37,6 +37,35 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 	})
 }
 
+func TestAccCloudBuildTrigger_pubsub_config(t *testing.T) {
+	t.Parallel()
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_pubsub_config(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudBuildTrigger_pubsub_config_update(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccCloudBuildTrigger_customizeDiffTimeoutSum(t *testing.T) {
 	t.Parallel()
 
@@ -279,6 +308,62 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   }
 }
   `, name)
+}
+
+func testAccCloudBuildTrigger_pubsub_config(name string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "build-trigger" {
+  name = "topic-name"
+}
+
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name        = "%s"
+  description = "acceptance test build trigger"
+  pubsub_config {
+    topic = "${google_pubsub_topic.build-trigger.id}"
+  }
+  build {
+    tags   = ["team-a", "service-b"]
+    timeout = "1800s"
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "300s"
+    }
+  }
+  depends_on = [
+    google_pubsub_topic.build-trigger
+  ]
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_pubsub_config_update(name string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "build-trigger" {
+  name = "topic-name"
+}
+
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name        = "%s"
+  description = "acceptance test build trigger updated"
+  pubsub_config {
+    topic = "${google_pubsub_topic.build-trigger.id}"
+  }
+  build {
+    tags   = ["team-a", "service-b"]
+    timeout = "1800s"
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "300s"
+    }
+  }
+  depends_on = [
+    google_pubsub_topic.build-trigger
+  ]
+}
+`, name)
 }
 
 func testAccCloudBuildTrigger_customizeDiffTimeoutSum(name string) string {

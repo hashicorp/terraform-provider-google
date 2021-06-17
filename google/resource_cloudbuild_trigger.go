@@ -648,7 +648,7 @@ Default time is ten minutes (600s).`,
 				Optional: true,
 				Description: `Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
 
-One of 'trigger_template' or 'github' must be provided.`,
+One of 'trigger_template', 'pubsub_config' or 'github' must be provided.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -721,7 +721,7 @@ https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".`
 						},
 					},
 				},
-				ExactlyOneOf: []string{"trigger_template", "github"},
+				ExactlyOneOf: []string{"trigger_template", "github", "pubsub_config"},
 			},
 			"ignored_files": {
 				Type:     schema.TypeList,
@@ -786,7 +786,7 @@ Branch and tag names in trigger templates are interpreted as regular
 expressions. Any branch or tag change that matches that regular
 expression will trigger a build.
 
-One of 'trigger_template' or 'github' must be provided.`,
+One of 'trigger_template', 'pubsub_config' or 'github' must be provided.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -836,6 +836,39 @@ omitted, the project ID requesting the build is assumed.`,
 							Description: `Name of the tag to build. Exactly one of a branch name, tag, or commit SHA must be provided.
 This field is a regular expression.`,
 							ExactlyOneOf: []string{"trigger_template.0.branch_name", "trigger_template.0.tag_name", "trigger_template.0.commit_sha"},
+						},
+					},
+				},
+			},
+			"pubsub_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `PubsubConfig describes the configuration of a trigger that creates a build whenever a Pub/Sub message is published.
+
+One of 'trigger_template', 'pubsub_config' or 'github' must be provided.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"subscription": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Output only. Name of the subscription.`,
+						},
+						"topic": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the topic from which this subscription is receiving messages.`,
+						},
+						"service_account_email": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Service account that will make the push request.`,
+						},
+						"state": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Potential issues with the underlying Pub/Sub subscription configuration. Only populated on get requests.`,
+							ValidateFunc: validation.StringInSlice([]string{"STATE_UNSPECIFIED", "OK", "SUBSCRIPTION_DELETED", "TOPIC_DELETED", "SUBSCRIPTION_MISCONFIGURED"}, false),
 						},
 					},
 				},
@@ -928,6 +961,12 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("github"); !isEmptyValue(reflect.ValueOf(githubProp)) && (ok || !reflect.DeepEqual(v, githubProp)) {
 		obj["github"] = githubProp
+	}
+	pubSubConfigProp, err := expandCloudBuildTriggerPubSubConfig(d.Get("pubsub_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("pubsub_config"); !isEmptyValue(reflect.ValueOf(pubSubConfigProp)) && (ok || !reflect.DeepEqual(v, pubSubConfigProp)) {
+		obj["pubsubConfig"] = pubSubConfigProp
 	}
 	buildProp, err := expandCloudBuildTriggerBuild(d.Get("build"), d, config)
 	if err != nil {
@@ -1056,6 +1095,9 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("trigger_template", flattenCloudBuildTriggerTriggerTemplate(res["triggerTemplate"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
+	if err := d.Set("pubsub_config", flattenCloudBuildTriggerPubSubConfig(res["pubsubConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Trigger: %s", err)
+	}
 	if err := d.Set("github", flattenCloudBuildTriggerGithub(res["github"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
@@ -1135,6 +1177,12 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("trigger_template"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, triggerTemplateProp)) {
 		obj["triggerTemplate"] = triggerTemplateProp
+	}
+	pubSubConfigProp, err := expandCloudBuildTriggerPubSubConfig(d.Get("pubsub_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("pubsub_config"); !isEmptyValue(reflect.ValueOf(pubSubConfigProp)) && (ok || !reflect.DeepEqual(v, pubSubConfigProp)) {
+		obj["pubsubConfig"] = pubSubConfigProp
 	}
 	githubProp, err := expandCloudBuildTriggerGithub(d.Get("github"), d, config)
 	if err != nil {
@@ -1295,6 +1343,7 @@ func flattenCloudBuildTriggerTriggerTemplate(v interface{}, d *schema.ResourceDa
 		flattenCloudBuildTriggerTriggerTemplateCommitSha(original["commitSha"], d, config)
 	return []interface{}{transformed}
 }
+
 func flattenCloudBuildTriggerTriggerTemplateProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -1320,6 +1369,36 @@ func flattenCloudBuildTriggerTriggerTemplateTagName(v interface{}, d *schema.Res
 }
 
 func flattenCloudBuildTriggerTriggerTemplateCommitSha(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerPubSubConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["topic"] =
+		flattenCloudBuildTriggerTriggerTopic(original["topic"], d, config)
+	transformed["service_account_email"] =
+		flattenCloudBuildTriggerTriggerServiceAccountEmail(original["serviceAccountEmail"], d, config)
+	transformed["state"] =
+		flattenCloudBuildTriggerTriggerState(original["state"], d, config)
+	return []interface{}{transformed}
+}
+
+func flattenCloudBuildTriggerTriggerTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerTriggerServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerTriggerState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2139,6 +2218,51 @@ func expandCloudBuildTriggerGithubPushBranch(v interface{}, d TerraformResourceD
 }
 
 func expandCloudBuildTriggerGithubPushTag(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerPubSubConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTopic, err := expandCloudBuildTriggerPubSubConfigTopic(original["topic"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTopic); val.IsValid() && !isEmptyValue(val) {
+		transformed["topic"] = transformedTopic
+	}
+
+	transformedServiceAccountEmail, err := expandCloudBuildTriggerPubSubConfigServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !isEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
+	transformedState, err := expandCloudBuildTriggerPubSubConfigState(original["state"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !isEmptyValue(val) {
+		transformed["state"] = transformedState
+	}
+
+	return transformed, nil
+}
+
+func expandCloudBuildTriggerPubSubConfigTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerPubSubConfigServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerPubSubConfigState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
