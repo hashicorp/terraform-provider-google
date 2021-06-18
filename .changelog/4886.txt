@@ -1,0 +1,3 @@
+```release-note:bug
+filestore: fixed an issue in `google_filestore_instance` where creating two instances simultaneously resulted in an error.
+```
