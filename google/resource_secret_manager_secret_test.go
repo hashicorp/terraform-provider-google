@@ -22,9 +22,10 @@ func TestAccSecretManagerSecret_import(t *testing.T) {
 				Config: testAccSecretManagerSecret_basic(context),
 			},
 			{
-				ResourceName:      "google_secret_manager_secret.secret-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
 			},
 		},
 	})
@@ -50,9 +51,10 @@ func TestAccSecretManagerSecret_cmek(t *testing.T) {
 				Config: testAccSecretMangerSecret_cmek(context1),
 			},
 			{
-				ResourceName:      "google_secret_manager_secret.secret-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
 			},
 		},
 	})
@@ -77,6 +79,9 @@ resource "google_secret_manager_secret" "secret-basic" {
       }
     }
   }
+
+  ttl = "3600s"
+
 }
 `, context)
 }

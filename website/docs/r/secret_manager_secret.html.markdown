@@ -126,9 +126,48 @@ The `customer_managed_encryption` block supports:
   An object containing a list of "key": value pairs. Example:
   { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
+* `topics` -
+  (Optional)
+  A list of up to 10 Pub/Sub topics to which messages are published when control plane operations are called on the secret or its versions.
+  Structure is documented below.
+
+* `expire_time` -
+  (Optional)
+  Timestamp in UTC when the Secret is scheduled to expire. This is always provided on output, regardless of what was sent on input.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `ttl` -
+  (Optional)
+  The TTL for the Secret.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+
+* `rotation` -
+  (Optional)
+  The rotation time and period for a Secret. At `next_rotation_time`, Secret Manager will send a Pub/Sub notification to the topics configured on the Secret. `topics` must be set to configure rotation.
+  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+The `topics` block supports:
+
+* `name` -
+  (Required)
+  The resource name of the Pub/Sub topic that will be published to, in the following format: projects/*/topics/*.
+  For publication to succeed, the Secret Manager Service Agent service account must have pubsub.publisher permissions on the topic.
+
+The `rotation` block supports:
+
+* `next_rotation_time` -
+  (Optional)
+  Timestamp in UTC at which the Secret is scheduled to rotate.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `rotation_period` -
+  (Optional)
+  The Duration between rotation notifications. Must be in seconds and at least 3600s (1h) and at most 3153600000s (100 years).
+  If rotationPeriod is set, `next_rotation_time` must be set. `next_rotation_time` will be advanced by this period when the service automatically sends rotation notifications.
 
 ## Attributes Reference
 
