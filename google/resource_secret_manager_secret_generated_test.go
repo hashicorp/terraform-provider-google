@@ -42,7 +42,7 @@ func TestAccSecretManagerSecret_secretConfigBasicExample(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"secret_id"},
+				ImportStateVerifyIgnore: []string{"ttl", "secret_id"},
 			},
 		},
 	})
