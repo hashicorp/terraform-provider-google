@@ -1,0 +1,3 @@
+```release-note:bug
+container: allowed setting `node_config.service_account` at the same time as `enable_autopilot = true` for `google_container_cluster`
+```
