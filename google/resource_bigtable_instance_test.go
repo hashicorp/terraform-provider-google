@@ -158,6 +158,33 @@ func TestAccBigtableInstance_allowDestroy(t *testing.T) {
 	})
 }
 
+func TestAccBigtableInstance_kms(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
+	t.Parallel()
+
+	kms := BootstrapKMSKeyInLocation(t, "us-central1")
+	pid := getTestProjectFromEnv()
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableInstance_kms(pid, instanceName, kms.CryptoKey.Name, 3),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+			},
+		},
+	})
+}
+
 func testAccCheckBigtableInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		var ctx = context.Background()
@@ -338,4 +365,33 @@ resource "google_bigtable_instance" "instance" {
   }
 }
 `, instanceName, instanceName, numNodes)
+}
+
+func testAccBigtableInstance_kms(pid, instanceName, kmsKey string, numNodes int) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+
+
+resource "google_project_iam_member" "kms_project_binding" {
+  project = data.google_project.project.project_id
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigtable.iam.gserviceaccount.com"
+}
+
+resource "google_bigtable_instance" "instance" {
+  name = "%s"
+  cluster {
+    cluster_id   = "%s"
+    zone         = "us-central1-b"
+    num_nodes    = %d
+    storage_type = "HDD"
+	kms_key_name = "%s"
+  }
+  depends_on = [google_project_iam_member.kms_project_binding]
+  deletion_protection = false
+
+}
+`, pid, instanceName, instanceName, numNodes, kmsKey)
 }
