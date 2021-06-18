@@ -75,8 +75,6 @@ func clusterSchemaNodeConfig() *schema.Schema {
 			changeFieldSchemaToForceNew(sch)
 		}
 	}
-	// Autopilot is only applicable for container cluster
-	nodeConfigSch.ConflictsWith = []string{"enable_autopilot"}
 	return nodeConfigSch
 }
 
