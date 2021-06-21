@@ -85,7 +85,7 @@ health check is performed will be used.`,
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: `The TCP port number for the HTTPS health check request.
-The default value is 80.`,
+The default value is 443.`,
 				Default: 443,
 			},
 			"request_path": {
