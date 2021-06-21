@@ -1,4 +1,4 @@
-## 3.73.0 (Unreleased)
+## 3.73.0 (June 21, 2021)
 
 FEATURES:
 * **New Resource:** `google_dialogflow_cx_agent` ([#9338](https://github.com/hashicorp/terraform-provider-google/pull/9338))
