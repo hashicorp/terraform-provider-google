@@ -18,13 +18,13 @@ for more details.
 To upgrade your First-generation instance, update your Terraform config that the instance has
 * `settings.ip_configuration.ipv4_enabled=true`
 * `settings.backup_configuration.enabled=true`
-* `settings.backup_configuration.binary_log_enabled=true`.  
+* `settings.backup_configuration.binary_log_enabled=true`.
 Apply the terraform config, then upgrade the instance in the console as described in the documentation.
 Once upgraded, update the following attributes in your Terraform config to the correct value according to
 the above documentation:
 * `region`
 * `database_version` (if applicable)
-* `tier`  
+* `tier`
 Remove any fields that are not applicable to Second-generation instances:
 * `settings.crash_safe_replication`
 * `settings.replication_type`
@@ -198,8 +198,8 @@ The following arguments are supported:
 
 * `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL, PostgreSQL or
 SQL Server (beta) version to use. Supported values include `MYSQL_5_6`,
-`MYSQL_5_7`, `MYSQL_8_0`, `POSTGRES_9_6`,`POSTGRES_10`, `POSTGRES_11`, 
-`POSTGRES_12`, `POSTGRES_13`, `SQLSERVER_2017_STANDARD`, 
+`MYSQL_5_7`, `MYSQL_8_0`, `POSTGRES_9_6`,`POSTGRES_10`, `POSTGRES_11`,
+`POSTGRES_12`, `POSTGRES_13`, `SQLSERVER_2017_STANDARD`,
 `SQLSERVER_2017_ENTERPRISE`, `SQLSERVER_2017_EXPRESS`, `SQLSERVER_2017_WEB`.
 [Database Version Policies](https://cloud.google.com/sql/docs/db-versions)
 includes an up-to-date reference of supported versions.
@@ -209,16 +209,16 @@ includes an up-to-date reference of supported versions.
     created. This is done because after a name is used, it cannot be reused for
     up to [one week](https://cloud.google.com/sql/docs/delete-instance).
 
-* `master_instance_name` - (Optional) The name of the instance that will act as
-    the master in the replication setup. Note, this requires the master to have
-    `binary_log_enabled` set, as well as existing backups.
+* `master_instance_name` - (Optional) The name of the existing instance that will
+    act as the master in the replication setup. Note, this requires the master to
+    have `binary_log_enabled` set, as well as existing backups.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
 * `replica_configuration` - (Optional) The configuration for replication. The
     configuration is detailed below. Valid only for MySQL instances.
-    
+
 * `root_password` - (Optional) Initial root password. Required for MS SQL Server, ignored by MySQL and PostgreSQL.
 
 * `encryption_key_name` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -237,9 +237,9 @@ in Terraform state, a `terraform destroy` or `terraform apply` command that dele
 * `restore_backup_context` - (optional) The context needed to restore the database to a backup run. This field will
     cause Terraform to trigger the database to restore from the backup run indicated. The configuration is detailed below.
     **NOTE:** Restoring from a backup is an imperative action and not recommended via Terraform. Adding or modifying this
-    block during resource creation/update will trigger the restore action after the resource is created/updated. 
+    block during resource creation/update will trigger the restore action after the resource is created/updated.
 
-* `clone` - (Optional) The context needed to create this instance as a clone of another instance. When this field is set during 
+* `clone` - (Optional) The context needed to create this instance as a clone of another instance. When this field is set during
     resource creation, Terraform will attempt to clone another instance as indicated in the context. The
     configuration is detailed below.
 
@@ -413,7 +413,7 @@ The optional `clone` block supports:
 
 The optional `restore_backup_context` block supports:
 **NOTE:** Restoring from a backup is an imperative action and not recommended via Terraform. Adding or modifying this
-block during resource creation/update will trigger the restore action after the resource is created/updated. 
+block during resource creation/update will trigger the restore action after the resource is created/updated.
 
 * `backup_run_id` - (Required) The ID of the backup run to restore from.
 
