@@ -611,6 +611,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_TPU_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[TPUBasePathKey]),
 			},
+			"vertex_ai_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_VERTEX_AI_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[VertexAIBasePathKey]),
+			},
 			"vpc_access_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -758,9 +766,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 196
+// Generated resources: 197
 // Generated IAM resources: 87
-// Total generated resources: 283
+// Total generated resources: 284
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1050,6 +1058,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_tags_tag_value_iam_policy":                             ResourceIamPolicy(TagsTagValueIamSchema, TagsTagValueIamUpdaterProducer, TagsTagValueIdParseFunc),
 			"google_tags_tag_binding":                                      resourceTagsTagBinding(),
 			"google_tpu_node":                                              resourceTPUNode(),
+			"google_vertex_ai_dataset":                                     resourceVertexAIDataset(),
 			"google_vpc_access_connector":                                  resourceVPCAccessConnector(),
 			"google_workflows_workflow":                                    resourceWorkflowsWorkflow(),
 		},
@@ -1318,6 +1327,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.StorageBasePath = d.Get("storage_custom_endpoint").(string)
 	config.TagsBasePath = d.Get("tags_custom_endpoint").(string)
 	config.TPUBasePath = d.Get("tpu_custom_endpoint").(string)
+	config.VertexAIBasePath = d.Get("vertex_ai_custom_endpoint").(string)
 	config.VPCAccessBasePath = d.Get("vpc_access_custom_endpoint").(string)
 	config.WorkflowsBasePath = d.Get("workflows_custom_endpoint").(string)
 

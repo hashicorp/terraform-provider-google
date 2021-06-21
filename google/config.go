@@ -139,6 +139,7 @@ type Config struct {
 	StorageBasePath              string
 	TagsBasePath                 string
 	TPUBasePath                  string
+	VertexAIBasePath             string
 	VPCAccessBasePath            string
 	WorkflowsBasePath            string
 
@@ -225,6 +226,7 @@ const SQLBasePathKey = "SQL"
 const StorageBasePathKey = "Storage"
 const TagsBasePathKey = "Tags"
 const TPUBasePathKey = "TPU"
+const VertexAIBasePathKey = "VertexAI"
 const VPCAccessBasePathKey = "VPCAccess"
 const WorkflowsBasePathKey = "Workflows"
 const CloudBillingBasePathKey = "CloudBilling"
@@ -303,6 +305,7 @@ var DefaultBasePaths = map[string]string{
 	StorageBasePathKey:              "https://storage.googleapis.com/storage/v1/",
 	TagsBasePathKey:                 "https://cloudresourcemanager.googleapis.com/v3/",
 	TPUBasePathKey:                  "https://tpu.googleapis.com/v1/",
+	VertexAIBasePathKey:             "https://{{region}}-aiplatform.googleapis.com/v1/",
 	VPCAccessBasePathKey:            "https://vpcaccess.googleapis.com/v1/",
 	WorkflowsBasePathKey:            "https://workflows.googleapis.com/v1/",
 	CloudBillingBasePathKey:         "https://cloudbilling.googleapis.com/v1/",
@@ -1134,6 +1137,7 @@ func ConfigureBasePaths(c *Config) {
 	c.StorageBasePath = DefaultBasePaths[StorageBasePathKey]
 	c.TagsBasePath = DefaultBasePaths[TagsBasePathKey]
 	c.TPUBasePath = DefaultBasePaths[TPUBasePathKey]
+	c.VertexAIBasePath = DefaultBasePaths[VertexAIBasePathKey]
 	c.VPCAccessBasePath = DefaultBasePaths[VPCAccessBasePathKey]
 	c.WorkflowsBasePath = DefaultBasePaths[WorkflowsBasePathKey]
 
