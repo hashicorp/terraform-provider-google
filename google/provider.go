@@ -766,9 +766,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 197
+// Generated resources: 198
 // Generated IAM resources: 87
-// Total generated resources: 284
+// Total generated resources: 285
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -802,6 +802,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_app_engine_flexible_app_version":                       resourceAppEngineFlexibleAppVersion(),
 			"google_app_engine_application_url_dispatch_rules":             resourceAppEngineApplicationUrlDispatchRules(),
 			"google_app_engine_service_split_traffic":                      resourceAppEngineServiceSplitTraffic(),
+			"google_app_engine_service_network_settings":                   resourceAppEngineServiceNetworkSettings(),
 			"google_bigquery_dataset":                                      resourceBigQueryDataset(),
 			"google_bigquery_dataset_access":                               resourceBigQueryDatasetAccess(),
 			"google_bigquery_job":                                          resourceBigQueryJob(),
