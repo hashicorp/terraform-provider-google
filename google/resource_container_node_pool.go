@@ -301,10 +301,22 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	timeout := d.Timeout(schema.TimeoutCreate)
 	startTime := time.Now()
 
-	// Set the ID before we attempt to create - that way, if we receive an error but
-	// the resource is created anyway, it will be refreshed on the next call to
-	// apply.
-	d.SetId(fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s", nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
+	// we attempt to prefetch the node pool to make sure it doesn't exist before creation
+	var id = fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s", nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name)
+	name := getNodePoolName(id)
+	clusterNodePoolsGetCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name))
+	if config.UserProjectOverride {
+		clusterNodePoolsGetCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+	}
+	_, err = clusterNodePoolsGetCall.Do()
+	if err != nil && isGoogleApiErrorWithCode(err, 404) {
+		// Set the ID before we attempt to create if the resource doesn't exist. That
+		// way, if we receive an error but the resource is created anyway, it will be
+		// refreshed on the next call to apply.
+		d.SetId(fmt.Sprintf(id))
+	} else if err == nil {
+		return fmt.Errorf("resource - %s - already exists", id)
+	}
 
 	var operation *containerBeta.Operation
 	err = resource.Retry(timeout, func() *resource.RetryError {
