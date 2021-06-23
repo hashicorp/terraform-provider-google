@@ -247,6 +247,14 @@ The `node_config` block supports:
   Structure is documented below.
   Cannot be updated.
 
+* `max_pods_per_node` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The maximum pods per node in the GKE cluster allocated during environment 
+  creation. Lowering this value reduces IP address consumption by the Cloud 
+  Composer Kubernetes cluster. This value can only be set if the environment is VPC-Native. 
+  The range of possible values is 8-110, and the default is 32.
+  Cannot be updated.
+
 The `software_config` block supports:
 
 * `airflow_config_overrides` -
