@@ -440,6 +440,10 @@ resource "google_composer_environment" "test" {
 			zone       = "us-central1-a"
 
 			service_account = google_service_account.test.name
+			ip_allocation_policy {
+				use_ip_aliases          = true
+				cluster_ipv4_cidr_block = "10.0.0.0/16"
+			}
 		}
 	}
 
