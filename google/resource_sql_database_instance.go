@@ -839,6 +839,17 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		defer mutexKV.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
 	}
 
+	var patchData *sqladmin.DatabaseInstance
+
+	// BinaryLogging can be enabled on replica instances but only after creation.
+	if instance.MasterInstanceName != "" && instance.Settings != nil && instance.Settings.BackupConfiguration != nil {
+		bc := instance.Settings.BackupConfiguration
+		instance.Settings.BackupConfiguration = nil
+		if bc.BinaryLogEnabled {
+			patchData = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{BackupConfiguration: bc}}
+		}
+	}
+
 	var op *sqladmin.Operation
 	err = retryTimeDuration(func() (operr error) {
 		if cloneContext != nil {
@@ -864,6 +875,21 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		d.SetId("")
 		return err
+	}
+
+	// patch any fields that need to be sent postcreation
+	if patchData != nil {
+		err = retryTimeDuration(func() (rerr error) {
+			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, instance.Name, patchData).Do()
+			return rerr
+		}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
+		if err != nil {
+			return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
+		}
+		err = sqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
 	}
 
 	err = resourceSqlDatabaseInstanceRead(d, meta)
