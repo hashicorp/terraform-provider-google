@@ -313,7 +313,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		// Set the ID before we attempt to create if the resource doesn't exist. That
 		// way, if we receive an error but the resource is created anyway, it will be
 		// refreshed on the next call to apply.
-		d.SetId(fmt.Sprintf(id))
+		d.SetId(id)
 	} else if err == nil {
 		return fmt.Errorf("resource - %s - already exists", id)
 	}
