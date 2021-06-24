@@ -1,13 +1,4 @@
 ## 3.74.0 (Unreleased)
-UNKNOWN CHANGELOG TYPE:
-*  ([#9408](https://github.com/hashicorp/terraform-provider-google/pull/9408))
-* Add link to Google Cloud Function ingress settings documentation ([#9392](https://github.com/hashicorp/terraform-provider-google/pull/9392))
-* Bump cloud.google.com/go/bigtable from 1.7.1 to 1.10.1 ([#9301](https://github.com/hashicorp/terraform-provider-google/pull/9301))
-* Changelog ([#9384](https://github.com/hashicorp/terraform-provider-google/pull/9384))
-* Remove reference to trigger_bucket and trigger_topic parameter ([#9391](https://github.com/hashicorp/terraform-provider-google/pull/9391))
-* Revert "Changelog (#9384)" ([#9407](https://github.com/hashicorp/terraform-provider-google/pull/9407))
-* remove exception about minscale key for cloudrun ([#9389](https://github.com/hashicorp/terraform-provider-google/pull/9389))
-* update the request reviewer workflow and use commit numbers rather than versions ([#9387](https://github.com/hashicorp/terraform-provider-google/pull/9387))
 
 FEATURES:
 * **New Resource:** `google_app_engine_service_network_settings` ([#9414](https://github.com/hashicorp/terraform-provider-google/pull/9414))
