@@ -1,5 +1,33 @@
 ## 3.74.0 (Unreleased)
+UNKNOWN CHANGELOG TYPE:
+*  ([#9408](https://github.com/hashicorp/terraform-provider-google/pull/9408))
+* Add link to Google Cloud Function ingress settings documentation ([#9392](https://github.com/hashicorp/terraform-provider-google/pull/9392))
+* Bump cloud.google.com/go/bigtable from 1.7.1 to 1.10.1 ([#9301](https://github.com/hashicorp/terraform-provider-google/pull/9301))
+* Changelog ([#9384](https://github.com/hashicorp/terraform-provider-google/pull/9384))
+* Remove reference to trigger_bucket and trigger_topic parameter ([#9391](https://github.com/hashicorp/terraform-provider-google/pull/9391))
+* Revert "Changelog (#9384)" ([#9407](https://github.com/hashicorp/terraform-provider-google/pull/9407))
+* remove exception about minscale key for cloudrun ([#9389](https://github.com/hashicorp/terraform-provider-google/pull/9389))
+* update the request reviewer workflow and use commit numbers rather than versions ([#9387](https://github.com/hashicorp/terraform-provider-google/pull/9387))
 
+FEATURES:
+* **New Resource:** `google_app_engine_service_network_settings` ([#9414](https://github.com/hashicorp/terraform-provider-google/pull/9414))
+* **New Resource:** `google_vertex_ai_dataset` ([#9411](https://github.com/hashicorp/terraform-provider-google/pull/9411))
+* **New Resource:** google_cloudbuild_worker_pool ([#9417](https://github.com/hashicorp/terraform-provider-google/pull/9417))
+
+IMPROVEMENTS:
+* added support for [mtls authentication](https://google.aip.dev/auth/4114) ([#9382](https://github.com/hashicorp/terraform-provider-google/pull/9382))
+* bigtable: added `cluster.kms_key_name` field to `google_bigtable_instance` ([#9393](https://github.com/hashicorp/terraform-provider-google/pull/9393))
+* composer: added field `max_pods_per_node` to resource `google_composer_environment` (beta) ([#9421](https://github.com/hashicorp/terraform-provider-google/pull/9421))
+* compute: promoted all `cdn_policy` sub fields in `google_compute_backend_service`, `google_compute_region_backend_service` and `google_compute_backend_bucket` to GA ([#9432](https://github.com/hashicorp/terraform-provider-google/pull/9432))
+* secretmanager: added `ttl`, `expire_time`, `topics` and `rotation` fields to `google_secret_manager_secret` ([#9398](https://github.com/hashicorp/terraform-provider-google/pull/9398))
+
+BUG FIXES:
+* container: allowed setting `node_config.service_account` at the same time as `enable_autopilot = true` for `google_container_cluster` ([#9399](https://github.com/hashicorp/terraform-provider-google/pull/9399))
+* container: fixed issue where creating a node pool with a name that already exists would import that resource. `google_container_node_pool` ([#9424](https://github.com/hashicorp/terraform-provider-google/pull/9424))
+* dataproc: fixed crash when creating `google_dataproc_workflow_template` with `secondary_worker_config` empty except for `num_instances = 0` ([#9381](https://github.com/hashicorp/terraform-provider-google/pull/9381))
+* filestore: fixed an issue in `google_filestore_instance` where creating two instances simultaneously resulted in an error. ([#9396](https://github.com/hashicorp/terraform-provider-google/pull/9396))
+* sql: add support for `binary_logging` on replica instances for `googe_sql_database_instance` ([#9428](https://github.com/hashicorp/terraform-provider-google/pull/9428))
+* 
 ## 3.73.0 (June 21, 2021)
 FEATURES:
 * **New Resource:** `google_dialogflow_cx_agent` ([#9338](https://github.com/hashicorp/terraform-provider-google/pull/9338))
