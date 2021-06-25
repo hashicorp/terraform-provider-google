@@ -60,6 +60,16 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 		info_type_transformations {
 			transformations {
 				info_types {
+					name = "FIRST_NAME"
+				}
+
+				primitive_transformation {
+					replace_with_info_type_config = true
+				}
+			}
+
+			transformations {
+				info_types {
 					name = "PHONE_NUMBER"
 				}
 				info_types {

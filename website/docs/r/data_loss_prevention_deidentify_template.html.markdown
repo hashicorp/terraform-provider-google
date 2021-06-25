@@ -49,6 +49,16 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 		info_type_transformations {
 			transformations {
 				info_types {
+					name = "FIRST_NAME"
+				}
+
+				primitive_transformation {
+					replace_with_info_type_config = true
+				}
+			}
+
+			transformations {
+				info_types {
 					name = "PHONE_NUMBER"
 				}
 				info_types {
@@ -167,6 +177,10 @@ The `primitive_transformation` block supports:
   (Optional)
   Replace each input value with a given value.
   Structure is documented below.
+
+* `replace_with_info_type_config` -
+  (Optional)
+  Replace each matching finding with the name of the info type.
 
 * `character_mask_config` -
   (Optional)
