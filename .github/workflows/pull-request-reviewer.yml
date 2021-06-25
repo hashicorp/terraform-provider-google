@@ -4,16 +4,8 @@ on:
     types: [opened, ready_for_review, reopened]
 
 permissions:
-  actions: none
-  checks: none
   contents: read
-  deployments: none
-  issues: none
-  packages: none
   pull-requests: write
-  repository-projects: none
-  security-events: none
-  statuses: none
 
 jobs:
   test:
