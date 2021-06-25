@@ -228,6 +228,11 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 																	},
 																},
 															},
+															"replace_with_info_type_config": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Description: `Replace each matching finding with the name of the info type.`,
+															},
 														},
 													},
 												},
@@ -626,6 +631,8 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	transformed := make(map[string]interface{})
 	transformed["replace_config"] =
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfig(original["replaceConfig"], d, config)
+	transformed["replace_with_info_type_config"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceWithInfoTypeConfig(original["replaceWithInfoTypeConfig"], d, config)
 	transformed["character_mask_config"] =
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfig(original["characterMaskConfig"], d, config)
 	return []interface{}{transformed}
@@ -862,6 +869,10 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	return v
 }
 
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceWithInfoTypeConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v != nil
+}
+
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -1048,6 +1059,13 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 		return nil, err
 	} else if val := reflect.ValueOf(transformedReplaceConfig); val.IsValid() && !isEmptyValue(val) {
 		transformed["replaceConfig"] = transformedReplaceConfig
+	}
+
+	transformedReplaceWithInfoTypeConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceWithInfoTypeConfig(original["replace_with_info_type_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReplaceWithInfoTypeConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["replaceWithInfoTypeConfig"] = transformedReplaceWithInfoTypeConfig
 	}
 
 	transformedCharacterMaskConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfig(original["character_mask_config"], d, config)
@@ -1270,6 +1288,14 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfigNewValueDayOfWeekValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceWithInfoTypeConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	if v == nil || !v.(bool) {
+		return nil, nil
+	}
+
+	return struct{}{}, nil
 }
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCharacterMaskConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
