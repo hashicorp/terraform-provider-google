@@ -227,7 +227,7 @@ The following arguments are supported:
     created from this template.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to instances
-    created from this template,
+    created from this template.
 
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within instances created from this template.
@@ -258,6 +258,9 @@ The following arguments are supported:
     region where that resource resides. For example, a custom `subnetwork`
     resource is tied to a specific region. Defaults to the region of the
     Provider if no value is given.
+
+* `reservation_affinity` - (Optional) Specifies the reservations that this instance can consume from.
+    Structure is documented below.
 
 * `scheduling` - (Optional) The scheduling strategy to use. More details about
     this configuration option are detailed below.
@@ -442,6 +445,19 @@ The `node_affinities` block supports:
     or `NOT_IN` for anti-affinities.
 
 * `value` (Required) - The values for the node affinity label.
+
+The `reservation_affinity` block supports:
+
+* `type` - (Required) The type of reservation from which this instance can consume resources.
+
+* `specific_reservation` - (Optional) Specifies the label selector for the reservation to use..
+    Structure is documented below.
+
+The `specific_reservation` block supports:
+
+* `key` - (Required) Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify compute.googleapis.com/reservation-name as the key and specify the name of your reservation as the only value.
+
+* `values` - (Required) Corresponds to the label values of a reservation resource.
 
 The `shielded_instance_config` block supports:
 
