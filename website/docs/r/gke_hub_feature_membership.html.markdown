@@ -1,6 +1,4 @@
-
 ---
-
 subcategory: "GKEHub"
 layout: "google"
 page_title: "Google: google_gke_hub_feature_membership"
