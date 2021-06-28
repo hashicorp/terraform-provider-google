@@ -7,7 +7,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * bigtable: added `cluster.kms_key_name` field to `google_bigtable_instance` ([#9393](https://github.com/hashicorp/terraform-provider-google/pull/9393))
-* composer: added field `max_pods_per_node` to resource `google_composer_environment` (beta) ([#9421](https://github.com/hashicorp/terraform-provider-google/pull/9421))
 * compute: promoted all `cdn_policy` sub fields in `google_compute_backend_service`, `google_compute_region_backend_service` and `google_compute_backend_bucket` to GA ([#9432](https://github.com/hashicorp/terraform-provider-google/pull/9432))
 * secretmanager: added `ttl`, `expire_time`, `topics` and `rotation` fields to `google_secret_manager_secret` ([#9398](https://github.com/hashicorp/terraform-provider-google/pull/9398))
 
