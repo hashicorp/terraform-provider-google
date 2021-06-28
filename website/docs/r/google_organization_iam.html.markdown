@@ -23,13 +23,17 @@ Four different resources help you manage your IAM policy for a organization. Eac
 
 ## google\_organization\_iam\_policy
 
-~> **Be careful!** You can accidentally lock yourself out of your organization
-   using this resource. Deleting a `google_organization_iam_policy` removes access
-   from anyone without organization-level access to the organization. Proceed with caution.
-   It's not recommended to use `google_organization_iam_policy` with your provider organization
-   to avoid locking yourself out, and it should generally only be used with organizations
-   fully managed by Terraform. If you do use this resource, it is recommended to **import** the policy before
-   applying the change.
+!> **Warning:** New organizations have several default policies which will,
+   without extreme caution, be **overwritten** by use of this resource.
+   The safest alternative is to use multiple `google_organization_iam_binding`
+   resources. This resource makes it easy to remove your own access to
+   an organization, which will require a call to Google Support to have
+   fixed, and can take multiple days to resolve.
+   <br /><br />
+   In general, this resource should only be used with organizations
+   fully managed by Terraform.If you do use this resource,
+   the best way to be sure that you are not making dangerous changes is to start
+   by **importing** your existing policy, and examining the diff very closely.
 
 ```hcl
 resource "google_organization_iam_policy" "organization" {
