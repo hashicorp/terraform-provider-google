@@ -1,4 +1,4 @@
-## 3.74.0 (Unreleased)
+## 3.74.0 (June 28, 2021)
 
 FEATURES:
 * **New Resource:** `google_app_engine_service_network_settings` ([#9414](https://github.com/hashicorp/terraform-provider-google/pull/9414))
