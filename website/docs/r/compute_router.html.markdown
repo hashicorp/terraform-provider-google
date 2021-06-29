@@ -71,6 +71,7 @@ resource "google_compute_network" "foobar" {
 
 ```hcl
 resource "google_compute_router" "encrypted-interconnect-router" {
+  provider = google-beta
   name                          = "test-router"
   network                       = google_compute_network.network.name
   encrypted_interconnect_router = true
@@ -80,6 +81,7 @@ resource "google_compute_router" "encrypted-interconnect-router" {
 }
 
 resource "google_compute_network" "network" {
+  provider = google-beta
   name                    = "test-network"
   auto_create_subnetworks = false
 }
