@@ -740,6 +740,7 @@ func resourceComputeInstance() *schema.Resource {
 			"reservation_affinity": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Specifies the reservations that this instance can consume from.`,
