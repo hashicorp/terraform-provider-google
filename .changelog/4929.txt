@@ -1,0 +1,3 @@
+```release-note:bug
+billing: made `amount.specified_amount.units` updatable on `google_billing_budget`
+```

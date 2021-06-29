@@ -62,7 +62,7 @@ resource "google_billing_budget" "budget" {
 `, context)
 }
 
-func TestAccBillingBudget_billingBudgetUpdateRemoveFilter(t *testing.T) {
+func TestAccBillingBudget_billingBudgetUpdate(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -76,7 +76,7 @@ func TestAccBillingBudget_billingBudgetUpdateRemoveFilter(t *testing.T) {
 		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBillingBudget_billingBudgetUpdateRemoveFilterStart(context),
+				Config: testAccBillingBudget_billingBudgetUpdateStart(context),
 			},
 			{
 				ResourceName:      "google_billing_budget.budget",
@@ -84,7 +84,15 @@ func TestAccBillingBudget_billingBudgetUpdateRemoveFilter(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccBillingBudget_billingBudgetUpdateRemoveFilterEnd(context),
+				Config: testAccBillingBudget_billingBudgetUpdateRemoveFilter(context),
+			},
+			{
+				ResourceName:      "google_billing_budget.budget",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBillingBudget_billingBudgetUpdateChangeAmount(context),
 			},
 			{
 				ResourceName:      "google_billing_budget.budget",
@@ -95,7 +103,7 @@ func TestAccBillingBudget_billingBudgetUpdateRemoveFilter(t *testing.T) {
 	})
 }
 
-func testAccBillingBudget_billingBudgetUpdateRemoveFilterStart(context map[string]interface{}) string {
+func testAccBillingBudget_billingBudgetUpdateStart(context map[string]interface{}) string {
 	return Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
@@ -130,7 +138,7 @@ resource "google_billing_budget" "budget" {
 `, context)
 }
 
-func testAccBillingBudget_billingBudgetUpdateRemoveFilterEnd(context map[string]interface{}) string {
+func testAccBillingBudget_billingBudgetUpdateRemoveFilter(context map[string]interface{}) string {
 	return Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
@@ -151,6 +159,41 @@ resource "google_billing_budget" "budget" {
     specified_amount {
       currency_code = "USD"
       units = "100000"
+    }
+  }
+
+  threshold_rules {
+    threshold_percent = 0.5
+  }
+  threshold_rules {
+    threshold_percent = 0.9
+    spend_basis = "FORECASTED_SPEND"
+  }
+}
+`, context)
+}
+
+func testAccBillingBudget_billingBudgetUpdateChangeAmount(context map[string]interface{}) string {
+	return Nprintf(`
+data "google_billing_account" "account" {
+  billing_account = "%{billing_acct}"
+}
+
+data "google_project" "project" {
+}
+
+resource "google_billing_budget" "budget" {
+  billing_account = data.google_billing_account.account.id
+  display_name = "Example Billing Budget%{random_suffix}"
+
+  budget_filter {
+    projects = []
+  }
+
+  amount {
+    specified_amount {
+      currency_code = "USD"
+      units = "2000"
     }
   }
 
