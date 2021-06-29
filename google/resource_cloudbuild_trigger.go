@@ -648,7 +648,7 @@ Default time is ten minutes (600s).`,
 				Optional: true,
 				Description: `Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
 
-One of 'trigger_template', 'pubsub_config' or 'github' must be provided.`,
+One of 'trigger_template', 'pubsub_config', 'webhook_config' or 'github' must be provided.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -721,7 +721,7 @@ https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".`
 						},
 					},
 				},
-				ExactlyOneOf: []string{"trigger_template", "github", "pubsub_config"},
+				ExactlyOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config"},
 			},
 			"ignored_files": {
 				Type:     schema.TypeList,
@@ -786,7 +786,7 @@ Branch and tag names in trigger templates are interpreted as regular
 expressions. Any branch or tag change that matches that regular
 expression will trigger a build.
 
-One of 'trigger_template', 'pubsub_config' or 'github' must be provided.`,
+One of 'trigger_template', 'pubsub_config', 'webhook_config' or 'github' must be provided.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -845,7 +845,7 @@ This field is a regular expression.`,
 				Optional: true,
 				Description: `PubsubConfig describes the configuration of a trigger that creates a build whenever a Pub/Sub message is published.
 
-One of 'trigger_template', 'pubsub_config' or 'github' must be provided.`,
+One of 'trigger_template', 'pubsub_config', 'webhook_config' or 'github' must be provided.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -863,6 +863,29 @@ One of 'trigger_template', 'pubsub_config' or 'github' must be provided.`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `Service account that will make the push request.`,
+						},
+						"state": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Potential issues with the underlying Pub/Sub subscription configuration. Only populated on get requests.`,
+							ValidateFunc: validation.StringInSlice([]string{"STATE_UNSPECIFIED", "OK", "SUBSCRIPTION_DELETED", "TOPIC_DELETED", "SUBSCRIPTION_MISCONFIGURED"}, false),
+						},
+					},
+				},
+			},
+			"webhook_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `WebhookConfig describes the configuration of a trigger that creates a build whenever a webhook is sent to a trigger's webhook URL.
+
+One of 'trigger_template', 'pubsub_config', 'webhook_config', 'webhook_config' or 'github' must be provided.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"secret": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Required. Resource name for the secret required as a URL parameter.`,
 						},
 						"state": {
 							Type:         schema.TypeString,
@@ -967,6 +990,12 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("pubsub_config"); !isEmptyValue(reflect.ValueOf(pubSubConfigProp)) && (ok || !reflect.DeepEqual(v, pubSubConfigProp)) {
 		obj["pubsubConfig"] = pubSubConfigProp
+	}
+	webhookConfigProp, err := expandCloudBuildTriggerWebHookConfig(d.Get("webhook_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("pubsub_config"); !isEmptyValue(reflect.ValueOf(webhookConfigProp)) && (ok || !reflect.DeepEqual(v, webhookConfigProp)) {
+		obj["webhookConfig"] = webhookConfigProp
 	}
 	buildProp, err := expandCloudBuildTriggerBuild(d.Get("build"), d, config)
 	if err != nil {
@@ -1098,6 +1127,9 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("pubsub_config", flattenCloudBuildTriggerPubSubConfig(res["pubsubConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
+	if err := d.Set("webhook_config", flattenCloudBuildTriggerWebHookConfig(res["webhookConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Trigger: %s", err)
+	}
 	if err := d.Set("github", flattenCloudBuildTriggerGithub(res["github"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
@@ -1183,6 +1215,12 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("pubsub_config"); !isEmptyValue(reflect.ValueOf(pubSubConfigProp)) && (ok || !reflect.DeepEqual(v, pubSubConfigProp)) {
 		obj["pubsubConfig"] = pubSubConfigProp
+	}
+	webHookConfigProp, err := expandCloudBuildTriggerWebHookConfig(d.Get("webhook_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("webhook_config"); !isEmptyValue(reflect.ValueOf(webHookConfigProp)) && (ok || !reflect.DeepEqual(v, webHookConfigProp)) {
+		obj["webhookConfig"] = webHookConfigProp
 	}
 	githubProp, err := expandCloudBuildTriggerGithub(d.Get("github"), d, config)
 	if err != nil {
@@ -1382,23 +1420,43 @@ func flattenCloudBuildTriggerPubSubConfig(v interface{}, d *schema.ResourceData,
 	}
 	transformed := make(map[string]interface{})
 	transformed["topic"] =
-		flattenCloudBuildTriggerTriggerTopic(original["topic"], d, config)
+		flattenCloudBuildTriggerTopic(original["topic"], d, config)
 	transformed["service_account_email"] =
-		flattenCloudBuildTriggerTriggerServiceAccountEmail(original["serviceAccountEmail"], d, config)
+		flattenCloudBuildTriggerServiceAccountEmail(original["serviceAccountEmail"], d, config)
 	transformed["state"] =
-		flattenCloudBuildTriggerTriggerState(original["state"], d, config)
+		flattenCloudBuildTriggerState(original["state"], d, config)
 	return []interface{}{transformed}
 }
 
-func flattenCloudBuildTriggerTriggerTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildTriggerTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildTriggerTriggerServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildTriggerServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildTriggerTriggerState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildTriggerState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerWebHookConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["secret"] =
+		flattenCloudBuildTriggerSecret(original["secret"], d, config)
+	transformed["state"] =
+		flattenCloudBuildTriggerState(original["state"], d, config)
+	return []interface{}{transformed}
+}
+
+func flattenCloudBuildTriggerSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2244,7 +2302,7 @@ func expandCloudBuildTriggerPubSubConfig(v interface{}, d TerraformResourceData,
 		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
 	}
 
-	transformedState, err := expandCloudBuildTriggerPubSubConfigState(original["state"], d, config)
+	transformedState, err := expandCloudBuildTriggerConfigState(original["state"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !isEmptyValue(val) {
@@ -2262,7 +2320,37 @@ func expandCloudBuildTriggerPubSubConfigServiceAccountEmail(v interface{}, d Ter
 	return v, nil
 }
 
-func expandCloudBuildTriggerPubSubConfigState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildTriggerConfigState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerWebHookConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSecret, err := expandCloudBuildTriggerWebHookConfigSecret(original["secret"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecret); val.IsValid() && !isEmptyValue(val) {
+		transformed["secret"] = transformedSecret
+	}
+
+	transformedState, err := expandCloudBuildTriggerConfigState(original["state"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !isEmptyValue(val) {
+		transformed["state"] = transformedState
+	}
+
+	return transformed, nil
+}
+
+func expandCloudBuildTriggerWebHookConfigSecret(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
