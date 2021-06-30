@@ -331,7 +331,6 @@ func expandConfidentialInstanceConfig(d TerraformResourceData) *computeBeta.Conf
 	prefix := "confidential_instance_config.0"
 	return &computeBeta.ConfidentialInstanceConfig{
 		EnableConfidentialCompute: d.Get(prefix + ".enable_confidential_compute").(bool),
-		ForceSendFields:           []string{"EnableSecureBoot"},
 	}
 }
 
@@ -354,7 +353,6 @@ func expandAdvancedMachineFeatures(d TerraformResourceData) *computeBeta.Advance
 	return &computeBeta.AdvancedMachineFeatures{
 		EnableNestedVirtualization: d.Get(prefix + ".enable_nested_virtualization").(bool),
 		ThreadsPerCore:             int64(d.Get(prefix + ".threads_per_core").(int)),
-		//	ForceSendFields:           []string{"EnableSecureBoot"},
 	}
 }
 

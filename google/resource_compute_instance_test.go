@@ -924,6 +924,37 @@ func TestAccComputeInstance_scheduling(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_advancedMachineFeatures(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_advancedMachineFeatures(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_advancedMachineFeaturesUpdated(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func TestAccComputeInstance_soleTenantNodeAffinities(t *testing.T) {
 	t.Parallel()
 
@@ -1654,7 +1685,7 @@ func TestAccComputeInstance_updateRunning_desiredStatusRunning_allowStoppingForU
 	})
 }
 
-const errorAllowStoppingMsg = "Changing the machine_type, min_cpu_platform, service_account, enable_display, shielded_instance_config, scheduling.node_affinities or network_interface.\\[#d\\].\\(network/subnetwork/subnetwork_project\\) on a started instance requires stopping it. To acknowledge this, please set allow_stopping_for_update = true in your config. You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update."
+const errorAllowStoppingMsg = "Changing the machine_type, min_cpu_platform, service_account, enable_display, shielded_instance_config, scheduling.node_affinities, network_interface.\\[#d\\].\\(network/subnetwork/subnetwork_project\\) or advanced_machine_config on a started instance requires stopping it. To acknowledge this, please set allow_stopping_for_update = true in your config. You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update."
 
 func TestAccComputeInstance_updateRunning_desiredStatusNotSet_notAllowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
@@ -4200,6 +4231,64 @@ resource "google_compute_instance" "foobar" {
     automatic_restart = false
     preemptible       = true
   }
+}
+`, instance)
+}
+
+func testAccComputeInstance_advancedMachineFeatures(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-10"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-2" // Nested Virt isn't supported on E2 and N2Ds https://cloud.google.com/compute/docs/instances/nested-virtualization/overview#restrictions and https://cloud.google.com/compute/docs/instances/disabling-smt#limitations
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  allow_stopping_for_update = true
+
+}
+`, instance)
+}
+
+func testAccComputeInstance_advancedMachineFeaturesUpdated(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-10"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-2" // Nested Virt isn't supported on E2 and N2Ds https://cloud.google.com/compute/docs/instances/nested-virtualization/overview#restrictions and https://cloud.google.com/compute/docs/instances/disabling-smt#limitations
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+  advanced_machine_features {
+	threads_per_core = 1
+	enable_nested_virtualization = true
+  }
+  allow_stopping_for_update = true
 }
 `, instance)
 }
