@@ -640,6 +640,28 @@ func resourceComputeInstance() *schema.Resource {
 					},
 				},
 			},
+			"advanced_machine_features": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Description: `Controls for advanced machine-related behavior features.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_nested_virtualization": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization","advanced_machine_features.0.threads_per_core"}
+							Description: `Whether to enable nested virtualization or not.`,
+						},
+						"threads_per_core": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							AtLeastOneOf: []string{"advanced_machine_features.0.enable_nested_virtualization","advanced_machine_features.0.threads_per_core"}
+							Description: `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
+						},
+					},
+				},
+			},
 			"confidential_instance_config": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -923,6 +945,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 		Hostname:                   d.Get("hostname").(string),
 		ForceSendFields:            []string{"CanIpForward", "DeletionProtection"},
 		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
+		AdvancedMachineFeatures:    expandAdvancedMachineFeatures(d),
 		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
 		DisplayDevice:              expandDisplayDevice(d),
 		ResourcePolicies:           convertStringArr(d.Get("resource_policies").([]interface{})),
@@ -1278,6 +1301,9 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if err := d.Set("confidential_instance_config", flattenConfidentialInstanceConfig(instance.ConfidentialInstanceConfig)); err != nil {
 		return fmt.Errorf("Error setting confidential_instance_config: %s", err)
+	}
+	if err := d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(instance.AdvancedMachineFeatures)); err != nil {
+		return fmt.Errorf("Error setting advanced_machine_config: %s", err)
 	}
 	if d.Get("desired_status") != "" {
 		if err := d.Set("desired_status", instance.Status); err != nil {
@@ -1683,7 +1709,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") || d.HasChange("shielded_instance_config") || len(updatesToNIWhileStopped) > 0 || bootRequiredSchedulingChange
+	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") || d.HasChange("shielded_instance_config") || len(updatesToNIWhileStopped) > 0 || bootRequiredSchedulingChange || d.HasChange("advanced_machine_features")
 
 	if d.HasChange("desired_status") && !needToStopInstanceBeforeUpdating {
 		desiredStatus := d.Get("desired_status").(string)
@@ -1718,7 +1744,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		if statusBeforeUpdate == "RUNNING" && desiredStatus != "TERMINATED" && !d.Get("allow_stopping_for_update").(bool) {
 			return fmt.Errorf("Changing the machine_type, min_cpu_platform, service_account, enable_display, shielded_instance_config, scheduling.node_affinities " +
-				"or network_interface.[#d].(network/subnetwork/subnetwork_project) on a started instance requires stopping it. " +
+				"or network_interface.[#d].(network/subnetwork/subnetwork_project) or advanced_machine_config on a started instance requires stopping it. " +
 				"To acknowledge this, please set allow_stopping_for_update = true in your config. " +
 				"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update.")
 		}
@@ -1839,6 +1865,37 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				d.Timeout(schema.TimeoutUpdate))
 			if opErr != nil {
 				return opErr
+			}
+		}
+
+		if d.HasChange("advanced_machine_features") {
+			err = retry(
+				func() error {
+					// retrieve up-to-date instance from the API in case several updates hit simultaneously. instances
+					// sometimes but not always share metadata fingerprints.
+					instance, err := config.NewComputeBetaClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
+					if err != nil {
+						return fmt.Errorf("Error retrieving instance: %s", err)
+					}
+
+					instance.AdvancedMachineFeatures = expandAdvancedMachineFeatures(d)
+
+					op, err := config.NewComputeBetaClient(userAgent).Instances.Update(project, zone, instance.Name, instance).Do()
+					if err != nil {
+						return fmt.Errorf("Error updating instance: %s", err)
+					}
+
+					opErr := computeOperationWaitTime(config, op, project, "advanced_machine_features to update", userAgent, d.Timeout(schema.TimeoutUpdate))
+					if opErr != nil {
+						return opErr
+					}
+
+					return nil
+				},
+			)
+
+			if err != nil {
+				return err
 			}
 		}
 

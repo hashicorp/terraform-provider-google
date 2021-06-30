@@ -282,7 +282,7 @@ The following arguments are supported:
 
 * `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
 
-* `advanced_machine_features` (Optional) - Configure Nested Virtualisation and Simultaneous Hyper Threading  on this VM.
+* `advanced_machine_features` (Optional) - Configure Nested Virtualisation and Simultaneous Hyper Threading on this VM.
 
 The `disk` block supports:
 
@@ -477,7 +477,7 @@ The `network_performance_config` block supports:
 
 The `advanced_machine_features` block supports:
 
-* `enable_nested_virtualization` (Optional) Defines whether the instance should have [nested virtualization](#on_host_maintenance)  enabled. Defaults to false.
+* `enable_nested_virtualization` (Optional) Defines whether the instance should have [nested virtualization](#on_host_maintenance) enabled. Defaults to false.
 
 * `threads_per_core` (Optional) he number of threads per physical core. To disable [simultaneous multithreading (SMT)](https://cloud.google.com/compute/docs/instances/disabling-smt) set this to 1.
 
