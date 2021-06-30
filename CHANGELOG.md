@@ -1,5 +1,13 @@
 ## 3.75.0 (Unreleased)
 
+IMPROVEMENTS:
+* compute: promoted all `cdn_policy` sub fields in `google_compute_backend_service`, `google_compute_region_backend_service` and `google_compute_backend_bucket` to GA ([#9432](https://github.com/hashicorp/terraform-provider-google/pull/9432))
+* dlp: Added `replace_with_info_type_config` to `dlp_deidentify_template`. ([#9446](https://github.com/hashicorp/terraform-provider-google/pull/9446))
+
+BUG FIXES:
+* billing: made `amount.specified_amount.units` updatable on `google_billing_budget` ([#9465](https://github.com/hashicorp/terraform-provider-google/pull/9465))
+* compute: fixed perma-diff in `google_compute_instance` ([#9460](https://github.com/hashicorp/terraform-provider-google/pull/9460))
+
 ## 3.74.0 (June 28, 2021)
 FEATURES:
 * **New Resource:** `google_app_engine_service_network_settings` ([#9414](https://github.com/hashicorp/terraform-provider-google/pull/9414))
