@@ -22,18 +22,12 @@ description: |-
 
 # google\_privateca\_certificate
 
-A Certificate corresponds to a signed X.509 certificate issued by a CertificateAuthority.
+A Certificate corresponds to a signed X.509 certificate issued by a Certificate.
 
 
 ~> **Note:** The Certificate Authority that is referenced by this resource **must** be 
 `tier = "ENTERPRISE"`
 
-~> **Warning:** Please remember that all resources created during preview (via the terraform-provider-google-beta)
-will be deleted when CA service transitions to General Availability (GA). Relying on these
-certificate authorities for production traffic is discouraged.
-
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -46,65 +40,82 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_privateca_certificate_authority" "test-ca" {
-  provider = google-beta
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
+  pool = ""
   tier = "ENTERPRISE"
+  ignore_active_certificates = true
   config {
     subject_config {
       subject {
         organization = "HashiCorp"
+        common_name = "my-certificate-authority"
       }
-      common_name = "my-certificate-authority"
       subject_alt_name {
         dns_names = ["hashicorp.com"]
       }
     }
-    reusable_config {
-      reusable_config = "projects/568668481468/locations/us-central1/reusableConfigs/root-unconstrained"
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
     }
   }
   key_spec {
     algorithm = "RSA_PKCS1_4096_SHA256"
   }
-  disable_on_delete = true
 }
 
-
 resource "google_privateca_certificate" "default" {
-  provider = google-beta
-  project = "my-project-name"
+  pool = ""
   location = "us-central1"
   certificate_authority = google_privateca_certificate_authority.test-ca.certificate_authority_id
   lifetime = "860s"
   name = "my-certificate"
   config {
-      reusable_config {
-        reusable_config= "projects/568668481468/locations/us-central1/reusableConfigs/leaf-server-tls"
-      } 
-      subject_config  {
+    subject_config  {
+      subject {
         common_name = "san1.example.com"
-        subject {
-          country_code = "us"
-          organization = "google"
-          organizational_unit = "enterprise"
-          locality = "mountain view"
-          province = "california"
-          street_address = "1600 amphitheatre parkway"
-          postal_code = "94109"
-        } 
-        subject_alt_name {
-          dns_names = ["hashicorp.com"]
-          email_addresses = ["email@example.com"]
-          ip_addresses = ["127.0.0.1"]
-          uris = ["http://www.ietf.org/rfc/rfc3986.txt"]
+        country_code = "us"
+        organization = "google"
+        organizational_unit = "enterprise"
+        locality = "mountain view"
+        province = "california"
+        street_address = "1600 amphitheatre parkway"
+      } 
+      subject_alt_name {
+        email_addresses = ["email@example.com"]
+        ip_addresses = ["127.0.0.1"]
+        uris = ["http://www.ietf.org/rfc/rfc3986.txt"]
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = false
+      }
+      key_usage {
+        base_key_usage {
+          crl_sign = false
+          decipher_only = false
+        }
+        extended_key_usage {
+          server_auth = false
         }
       }
-
+    }
     public_key {
-      type = "PEM_RSA_KEY"
+      format = "PEM"
       key = filebase64("test-fixtures/rsa_public.pem")
-    }    
+    }
   }
 }
 ```
@@ -118,7 +129,7 @@ resource "google_privateca_certificate" "default" {
 
 ```hcl
 resource "google_privateca_certificate_authority" "test-ca" {
-  provider = google-beta
+  pool = ""
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
   tier = "ENTERPRISE"
@@ -126,33 +137,131 @@ resource "google_privateca_certificate_authority" "test-ca" {
     subject_config {
       subject {
         organization = "HashiCorp"
+        common_name = "my-certificate-authority"
       }
-      common_name = "my-certificate-authority"
       subject_alt_name {
         dns_names = ["hashicorp.com"]
       }
     }
-    reusable_config {
-      reusable_config = "projects/568668481468/locations/us-central1/reusableConfigs/root-unconstrained"
+    x509_config {
+      ca_options {
+        # is_ca *MUST* be true for certificate authorities
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          # cert_sign and crl_sign *MUST* be true for certificate authorities
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
     }
   }
   key_spec {
     algorithm = "RSA_PKCS1_4096_SHA256"
   }
-  disable_on_delete = true
 }
 
 
-
-
 resource "google_privateca_certificate" "default" {
-  provider = google-beta
-  project = "my-project-name"
+  pool = ""
   location = "us-central1"
   certificate_authority = google_privateca_certificate_authority.test-ca.certificate_authority_id
   lifetime = "860s"
   name = "my-certificate"
   pem_csr = file("test-fixtures/rsa_csr.pem")
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=privateca_certificate_no_authority&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Privateca Certificate No Authority
+
+
+```hcl
+resource "google_privateca_certificate_authority" "authority" {
+  // This example assumes this pool already exists.
+  // Pools cannot be deleted in normal test circumstances, so we depend on static pools
+  pool = ""
+  certificate_authority_id = "my-authority"
+  location = "us-central1"
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          digital_signature = true
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  lifetime = "86400s"
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+}
+
+
+resource "google_privateca_certificate" "default" {
+  pool = ""
+  location = "us-central1"
+  lifetime = "860s"
+  name = "my-certificate"
+  config {
+    subject_config  {
+      subject {
+        common_name = "san1.example.com"
+        country_code = "us"
+        organization = "google"
+        organizational_unit = "enterprise"
+        locality = "mountain view"
+        province = "california"
+        street_address = "1600 amphitheatre parkway"
+        postal_code = "94109"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = false
+      }
+      key_usage {
+        base_key_usage {
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+    public_key {
+      format = "PEM"
+      key = filebase64("test-fixtures/rsa_public.pem")
+    }
+  }
+  // Certificates require an authority to exist in the pool, though they don't
+  // need to be explicitly connected to it
+  depends_on = [google_privateca_certificate_authority.authority]
 }
 ```
 
@@ -161,18 +270,18 @@ resource "google_privateca_certificate" "default" {
 The following arguments are supported:
 
 
+* `pool` -
+  (Required)
+  The name of the CaPool this Certificate belongs to.
+
 * `name` -
   (Required)
-  The name for this Certificate .
+  The name for this Certificate.
 
 * `location` -
   (Required)
-  Location of the CertificateAuthority. A full list of valid locations can be found by
-  running `gcloud beta privateca locations list`.
-
-* `certificate_authority` -
-  (Required)
-  Certificate Authority name.
+  Location of the Certificate. A full list of valid locations can be found by
+  running `gcloud privateca locations list`.
 
 
 - - -
@@ -197,337 +306,121 @@ The following arguments are supported:
   The config used to create a self-signed X.509 certificate or CSR.
   Structure is documented below.
 
+* `certificate_authority` -
+  (Optional)
+  Certificate Authority name.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
 The `config` block supports:
 
+* `x509_config` -
+  (Required)
+  Describes how some of the technical X.509 fields in a certificate should be populated.
+  Structure is documented below.
+
 * `subject_config` -
   (Required)
   Specifies some of the values in a certificate that are related to the subject.
   Structure is documented below.
 
-* `reusable_config` -
-  (Required)
-  Specifies some of the values in a certificate that are related to the subject.
-  Structure is documented below.
-
 * `public_key` -
   (Required)
   A PublicKey describes a public key.
   Structure is documented below.
 
 
-The `subject_config` block supports:
+The `x509_config` block supports:
 
-* `subject` -
+* `additional_extensions` -
+  (Optional)
+  Specifies an X.509 extension, which may be used in different parts of X.509 objects like certificates, CSRs, and CRLs.
+  Structure is documented below.
+
+* `policy_ids` -
+  (Optional)
+  Describes the X.509 certificate policy object identifiers, per https://tools.ietf.org/html/rfc5280#section-4.2.1.4.
+  Structure is documented below.
+
+* `aia_ocsp_servers` -
+  (Optional)
+  Describes Online Certificate Status Protocol (OCSP) endpoint addresses that appear in the
+  "Authority Information Access" extension in the certificate.
+
+* `ca_options` -
+  (Optional)
+  Describes values that are relevant in a CA certificate.
+  Structure is documented below.
+
+* `key_usage` -
   (Required)
-  Contains distinguished name fields such as the location and organization.
-  Structure is documented below.
-
-* `common_name` -
-  (Required)
-  The common name of the distinguished name.
-
-* `subject_alt_name` -
-  (Optional)
-  The subject alternative name fields.
+  Indicates the intended use for keys that correspond to a certificate.
   Structure is documented below.
 
 
-The `subject` block supports:
-
-* `country_code` -
-  (Optional)
-  The country code of the subject.
-
-* `organization` -
-  (Required)
-  The organization of the subject.
-
-* `organizational_unit` -
-  (Optional)
-  The organizational unit of the subject.
-
-* `locality` -
-  (Optional)
-  The locality or city of the subject.
-
-* `province` -
-  (Optional)
-  The province, territory, or regional state of the subject.
-
-* `street_address` -
-  (Optional)
-  The street address of the subject.
-
-* `postal_code` -
-  (Optional)
-  The postal code of the subject.
-
-The `subject_alt_name` block supports:
-
-* `dns_names` -
-  (Optional)
-  Contains only valid, fully-qualified host names.
-
-* `uris` -
-  (Optional)
-  Contains only valid RFC 3986 URIs.
-
-* `email_addresses` -
-  (Optional)
-  Contains only valid RFC 2822 E-mail addresses.
-
-* `ip_addresses` -
-  (Optional)
-  Contains only valid 32-bit IPv4 addresses or RFC 4291 IPv6 addresses.
-
-The `reusable_config` block supports:
-
-* `reusable_config` -
-  (Required)
-  A resource path to a ReusableConfig in the format
-  `projects/*/locations/*/reusableConfigs/*`.
-
-The `public_key` block supports:
-
-* `key` -
-  (Optional)
-  Required. A public key. When this is specified in a request, the padding and encoding can be any of the options described by the respective 'KeyType' value. When this is generated by the service, it will always be an RFC 5280 SubjectPublicKeyInfo structure containing an algorithm identifier and a key. A base64-encoded string.
-
-* `type` -
-  (Required)
-  Types of public keys that are supported. At a minimum, we support RSA and ECDSA, for the key sizes or curves listed: https://cloud.google.com/kms/docs/algorithms#asymmetric_signing_algorithms
-  Possible values are `KEY_TYPE_UNSPECIFIED`, `PEM_RSA_KEY`, and `PEM_EC_KEY`.
-
-## Attributes Reference
-
-In addition to the arguments listed above, the following computed attributes are exported:
-
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/certificateAuthorities/{{certificate_authority}}/certificates/{{name}}`
-
-* `revocation_details` -
-  Output only. Details regarding the revocation of this Certificate. This Certificate is 
-  considered revoked if and only if this field is present.
-  Structure is documented below.
-
-* `pem_certificate` -
-  Output only. The pem-encoded, signed X.509 certificate.
-
-* `certificate_description` -
-  Output only. Details regarding the revocation of this Certificate. This Certificate is considered revoked if and only if this field is present.
-  Structure is documented below.
-
-* `pem_certificates` -
-  Required. Expected to be in leaf-to-root order according to RFC 5246.
-
-* `create_time` -
-  The time that this resource was created on the server.
-  This is in RFC3339 text format.
-
-* `update_time` -
-  Output only. The time at which this CertificateAuthority was updated.
-  This is in RFC3339 text format.
-
-
-The `revocation_details` block contains:
-
-* `revocation_state` -
-  (Optional)
-  Indicates why a Certificate was revoked.
-  Possible values are `REVOCATION_REASON_UNSPECIFIED`, `KEY_COMPROMISE`, `CERTIFICATE_AUTHORITY_COMPROMISE`, `AFFILIATION_CHANGED`, `SUPERSEDED`, `CESSATION_OF_OPERATION`, `CERTIFICATE_HOLD`, `PRIVILEGE_WITHDRAWN`, and `ATTRIBUTE_AUTHORITY_COMPROMISE`.
-
-* `revocation_time` -
-  (Optional)
-  The time at which this Certificate was revoked.
-
-The `certificate_description` block contains:
-
-* `subject_description` -
-  (Optional)
-  Describes some of the values in a certificate that are related to the subject and lifetime.
-  Structure is documented below.
-
-* `config_values` -
-  (Optional)
-  Describes some of the technical fields in a certificate.
-  Structure is documented below.
-
-* `public_key` -
-  (Required)
-  A PublicKey describes a public key.
-  Structure is documented below.
-
-* `subject_key_id` -
-  (Optional)
-  Provides a means of identifiying certificates that contain a particular public key, per https://tools.ietf.org/html/rfc5280#section-4.2.1.2.
-  Structure is documented below.
-
-* `authority_key_id` -
-  (Optional)
-  Identifies the subjectKeyId of the parent certificate, per https://tools.ietf.org/html/rfc5280#section-4.2.1.1
-  Structure is documented below.
-
-* `crl_distribution_points` -
-  (Optional)
-  Describes a list of locations to obtain CRL information, i.e. the DistributionPoint.fullName described by https://tools.ietf.org/html/rfc5280#section-4.2.1.13
-
-* `aia_issuing_certificate_urls` -
-  (Optional)
-  Describes lists of issuer CA certificate URLs that appear in the "Authority Information Access" extension in the certificate.
-
-* `cert_fingerprint` -
-  (Optional)
-  The hash of the x.509 certificate.
-  Structure is documented below.
-
-
-The `subject_description` block supports:
-
-* `subject` -
-  (Optional)
-  Required. Contains distinguished name fields such as the location and organization.
-  Structure is documented below.
-
-* `common_name` -
-  (Optional)
-  The "common name" of the distinguished name.
-
-* `subject_alt_name` -
-  (Optional)
-  Optional. The subject alternative name fields.
-  Structure is documented below.
-
-* `hex_serial_number` -
-  (Optional)
-  The serial number encoded in lowercase hexadecimal.
-
-* `lifetime` -
-  (Optional)
-  For convenience, the actual lifetime of an issued certificate. Corresponds to 'notAfterTime' - 'notBeforeTime'.
-
-* `not_before_time` -
-  (Optional)
-  The time at which the certificate becomes valid.
-
-* `not_after_time` -
-  (Optional)
-  The time at which the certificate expires.
-
-
-The `subject` block supports:
-
-* `country_code` -
-  (Optional)
-  The country code of the subject.
-
-* `organization` -
-  (Optional)
-  The organization of the subject.
-
-* `organizational_unit` -
-  (Optional)
-  The organizationalUnit of the subject.
-
-* `locality` -
-  (Optional)
-  The locality or city of the subject.
-
-* `province` -
-  (Optional)
-  The province of the subject.
-
-* `street_address` -
-  (Optional)
-  The streetAddress or city of the subject.
-
-* `postal_code` -
-  (Optional)
-  The postalCode or city of the subject.
-
-The `subject_alt_name` block supports:
-
-* `dns_names` -
-  (Optional)
-  Contains only valid, fully-qualified host names.
-
-* `uris` -
-  (Optional)
-  Contains only valid RFC 3986 URIs.
-
-* `email_addresses` -
-  (Optional)
-  Contains only valid RFC 2822 E-mail addresses.
-
-* `ip_addresses` -
-  (Optional)
-  Contains only valid 32-bit IPv4 addresses or RFC 4291 IPv6 addresses.
-
-* `custom_sans` -
-  (Required)
-  Contains additional subject alternative name values.
-  Structure is documented below.
-
-
-The `custom_sans` block supports:
-
-* `obect_id` -
-  (Required)
-  Required. Describes how some of the technical fields in a certificate should be populated.
-  Structure is documented below.
+The `additional_extensions` block supports:
 
 * `critical` -
   (Required)
-  Required. Indicates whether or not this extension is critical (i.e., if the client does not know how to handle this extension, the client should consider this to be an error).
+  Indicates whether or not this extension is critical (i.e., if the client does not know how to
+  handle this extension, the client should consider this to be an error).
 
 * `value` -
-  (Optional)
-  Required. The value of this X.509 extension.
+  (Required)
+  The value of this X.509 extension. A base64-encoded string.
+
+* `object_id` -
+  (Required)
+  Describes values that are relevant in a CA certificate.
+  Structure is documented below.
 
 
-The `obect_id` block supports:
+The `object_id` block supports:
 
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-The `config_values` block supports:
+The `policy_ids` block supports:
 
-* `key_usage` -
+* `object_id_path` -
+  (Required)
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+The `ca_options` block supports:
+
+* `is_ca` -
   (Optional)
-  Optional. Indicates the intended use for keys that correspond to a certificate.
-  Structure is documented below.
+  Refers to the "CA" X.509 extension, which is a boolean value. When this value is missing,
+  the extension will be omitted from the CA certificate.
 
+* `max_issuer_path_length` -
+  (Optional)
+  Refers to the path length restriction X.509 extension. For a CA certificate, this value describes the depth of
+  subordinate CA certificates that are allowed. If this value is less than 0, the request will fail. If this
+  value is missing, the max path length will be omitted from the CA certificate.
 
 The `key_usage` block supports:
 
 * `base_key_usage` -
-  (Optional)
+  (Required)
   Describes high-level ways in which a key may be used.
   Structure is documented below.
 
 * `extended_key_usage` -
-  (Optional)
+  (Required)
   Describes high-level ways in which a key may be used.
   Structure is documented below.
 
 * `unknown_extended_key_usages` -
-  (Required)
+  (Optional)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
   Structure is documented below.
 
 
 The `base_key_usage` block supports:
-
-* `key_usage_options` -
-  (Optional)
-  Describes high-level ways in which a key may be used.
-  Structure is documented below.
-
-
-The `key_usage_options` block supports:
 
 * `digital_signature` -
   (Optional)
@@ -593,17 +486,74 @@ The `extended_key_usage` block supports:
 
 The `unknown_extended_key_usages` block supports:
 
-* `obect_id` -
-  (Required)
-  Required. Describes how some of the technical fields in a certificate should be populated.
-  Structure is documented below.
-
-
-The `obect_id` block supports:
-
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+The `subject_config` block supports:
+
+* `subject` -
+  (Required)
+  Contains distinguished name fields such as the location and organization.
+  Structure is documented below.
+
+* `subject_alt_name` -
+  (Optional)
+  The subject alternative name fields.
+  Structure is documented below.
+
+
+The `subject` block supports:
+
+* `country_code` -
+  (Optional)
+  The country code of the subject.
+
+* `organization` -
+  (Required)
+  The organization of the subject.
+
+* `organizational_unit` -
+  (Optional)
+  The organizational unit of the subject.
+
+* `locality` -
+  (Optional)
+  The locality or city of the subject.
+
+* `province` -
+  (Optional)
+  The province, territory, or regional state of the subject.
+
+* `street_address` -
+  (Optional)
+  The street address of the subject.
+
+* `postal_code` -
+  (Optional)
+  The postal code of the subject.
+
+* `common_name` -
+  (Required)
+  The common name of the distinguished name.
+
+The `subject_alt_name` block supports:
+
+* `dns_names` -
+  (Optional)
+  Contains only valid, fully-qualified host names.
+
+* `uris` -
+  (Optional)
+  Contains only valid RFC 3986 URIs.
+
+* `email_addresses` -
+  (Optional)
+  Contains only valid RFC 2822 E-mail addresses.
+
+* `ip_addresses` -
+  (Optional)
+  Contains only valid 32-bit IPv4 addresses or RFC 4291 IPv6 addresses.
 
 The `public_key` block supports:
 
@@ -611,27 +561,279 @@ The `public_key` block supports:
   (Optional)
   Required. A public key. When this is specified in a request, the padding and encoding can be any of the options described by the respective 'KeyType' value. When this is generated by the service, it will always be an RFC 5280 SubjectPublicKeyInfo structure containing an algorithm identifier and a key. A base64-encoded string.
 
-* `type` -
+* `format` -
   (Required)
-  Types of public keys that are supported. At a minimum, we support RSA and ECDSA, for the key sizes or curves listed: https://cloud.google.com/kms/docs/algorithms#asymmetric_signing_algorithms
-  Possible values are `KEY_TYPE_UNSPECIFIED`, `PEM_RSA_KEY`, and `PEM_EC_KEY`.
+  Types of public keys that are supported. At a minimum, we support RSA, for the key sizes or curves listed: https://cloud.google.com/kms/docs/algorithms#asymmetric_signing_algorithms
+  Possible values are `KEY_TYPE_UNSPECIFIED` and `PEM`.
 
-The `subject_key_id` block supports:
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}`
+
+* `revocation_details` -
+  Output only. Details regarding the revocation of this Certificate. This Certificate is 
+  considered revoked if and only if this field is present.
+  Structure is documented below.
+
+* `pem_certificate` -
+  Output only. The pem-encoded, signed X.509 certificate.
+
+* `certificate_description` -
+  Output only. Details regarding the revocation of this Certificate. This Certificate is considered revoked if and only if this field is present.
+  Structure is documented below.
+
+* `pem_certificates` -
+  Required. Expected to be in leaf-to-root order according to RFC 5246.
+
+* `create_time` -
+  The time that this resource was created on the server.
+  This is in RFC3339 text format.
+
+* `update_time` -
+  Output only. The time at which this CertificateAuthority was updated.
+  This is in RFC3339 text format.
+
+
+The `revocation_details` block contains:
+
+* `revocation_state` -
+  Indicates why a Certificate was revoked.
+
+* `revocation_time` -
+  The time at which this Certificate was revoked.
+
+The `certificate_description` block contains:
+
+* `subject_description` -
+  Describes some of the values in a certificate that are related to the subject and lifetime.
+  Structure is documented below.
+
+* `config_values` -
+  Describes some of the technical fields in a certificate.
+  Structure is documented below.
+
+* `public_key` -
+  A PublicKey describes a public key.
+  Structure is documented below.
+
+* `subject_key_id` -
+  Provides a means of identifiying certificates that contain a particular public key, per https://tools.ietf.org/html/rfc5280#section-4.2.1.2.
+  Structure is documented below.
+
+* `authority_key_id` -
+  Identifies the subjectKeyId of the parent certificate, per https://tools.ietf.org/html/rfc5280#section-4.2.1.1
+  Structure is documented below.
+
+* `crl_distribution_points` -
+  Describes a list of locations to obtain CRL information, i.e. the DistributionPoint.fullName described by https://tools.ietf.org/html/rfc5280#section-4.2.1.13
+
+* `aia_issuing_certificate_urls` -
+  Describes lists of issuer CA certificate URLs that appear in the "Authority Information Access" extension in the certificate.
+
+* `cert_fingerprint` -
+  The hash of the x.509 certificate.
+  Structure is documented below.
+
+
+The `subject_description` block contains:
+
+* `subject` -
+  Contains distinguished name fields such as the location and organization.
+  Structure is documented below.
+
+* `subject_alt_name` -
+  The subject alternative name fields.
+  Structure is documented below.
+
+* `hex_serial_number` -
+  The serial number encoded in lowercase hexadecimal.
+
+* `lifetime` -
+  For convenience, the actual lifetime of an issued certificate. Corresponds to 'notAfterTime' - 'notBeforeTime'.
+
+* `not_before_time` -
+  The time at which the certificate becomes valid.
+
+* `not_after_time` -
+  The time at which the certificate expires.
+
+
+The `subject` block contains:
+
+* `country_code` -
+  The country code of the subject.
+
+* `organization` -
+  The organization of the subject.
+
+* `organizational_unit` -
+  The organizationalUnit of the subject.
+
+* `locality` -
+  The locality or city of the subject.
+
+* `province` -
+  The province of the subject.
+
+* `street_address` -
+  The streetAddress or city of the subject.
+
+* `postal_code` -
+  The postalCode or city of the subject.
+
+* `common_name` -
+  The "common name" of the distinguished name.
+
+The `subject_alt_name` block contains:
+
+* `dns_names` -
+  Contains only valid, fully-qualified host names.
+
+* `uris` -
+  Contains only valid RFC 3986 URIs.
+
+* `email_addresses` -
+  Contains only valid RFC 2822 E-mail addresses.
+
+* `ip_addresses` -
+  Contains only valid 32-bit IPv4 addresses or RFC 4291 IPv6 addresses.
+
+* `custom_sans` -
+  Contains additional subject alternative name values.
+  Structure is documented below.
+
+
+The `custom_sans` block contains:
+
+* `obect_id` -
+  Describes how some of the technical fields in a certificate should be populated.
+  Structure is documented below.
+
+* `critical` -
+  Required. Indicates whether or not this extension is critical (i.e., if the client does not know how to handle this extension, the client should consider this to be an error).
+
+* `value` -
+  The value of this X.509 extension.
+
+
+The `obect_id` block contains:
+
+* `object_id_path` -
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+The `config_values` block contains:
+
+* `key_usage` -
+  Indicates the intended use for keys that correspond to a certificate.
+  Structure is documented below.
+
+
+The `key_usage` block contains:
+
+* `base_key_usage` -
+  Describes high-level ways in which a key may be used.
+  Structure is documented below.
+
+* `extended_key_usage` -
+  Describes high-level ways in which a key may be used.
+  Structure is documented below.
+
+* `unknown_extended_key_usages` -
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+  Structure is documented below.
+
+
+The `base_key_usage` block contains:
+
+* `key_usage_options` -
+  Describes high-level ways in which a key may be used.
+  Structure is documented below.
+
+
+The `key_usage_options` block contains:
+
+* `digital_signature` -
+  The key may be used for digital signatures.
+
+* `content_commitment` -
+  The key may be used for cryptographic commitments. Note that this may also be referred to as "non-repudiation".
+
+* `key_encipherment` -
+  The key may be used to encipher other keys.
+
+* `data_encipherment` -
+  The key may be used to encipher data.
+
+* `key_agreement` -
+  The key may be used in a key agreement protocol.
+
+* `cert_sign` -
+  The key may be used to sign certificates.
+
+* `crl_sign` -
+  The key may be used sign certificate revocation lists.
+
+* `encipher_only` -
+  The key may be used to encipher only.
+
+* `decipher_only` -
+  The key may be used to decipher only.
+
+The `extended_key_usage` block contains:
+
+* `server_auth` -
+  Corresponds to OID 1.3.6.1.5.5.7.3.1. Officially described as "TLS WWW server authentication", though regularly used for non-WWW TLS.
+
+* `client_auth` -
+  Corresponds to OID 1.3.6.1.5.5.7.3.2. Officially described as "TLS WWW client authentication", though regularly used for non-WWW TLS.
+
+* `code_signing` -
+  Corresponds to OID 1.3.6.1.5.5.7.3.3. Officially described as "Signing of downloadable executable code client authentication".
+
+* `email_protection` -
+  Corresponds to OID 1.3.6.1.5.5.7.3.4. Officially described as "Email protection".
+
+* `time_stamping` -
+  Corresponds to OID 1.3.6.1.5.5.7.3.8. Officially described as "Binding the hash of an object to a time".
+
+* `ocsp_signing` -
+  Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".
+
+The `unknown_extended_key_usages` block contains:
+
+* `obect_id` -
+  Required. Describes how some of the technical fields in a certificate should be populated.
+  Structure is documented below.
+
+
+The `obect_id` block contains:
+
+* `object_id_path` -
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+The `public_key` block contains:
+
+* `key` -
+  Required. A public key. When this is specified in a request, the padding and encoding can be any of the options described by the respective 'KeyType' value. When this is generated by the service, it will always be an RFC 5280 SubjectPublicKeyInfo structure containing an algorithm identifier and a key. A base64-encoded string.
+
+* `format` -
+  Types of public keys that are supported. At a minimum, we support RSA, for the key sizes or curves listed: https://cloud.google.com/kms/docs/algorithms#asymmetric_signing_algorithms
+
+The `subject_key_id` block contains:
 
 * `key_id` -
-  (Optional)
   Optional. The value of this KeyId encoded in lowercase hexadecimal. This is most likely the 160 bit SHA-1 hash of the public key.
 
-The `authority_key_id` block supports:
+The `authority_key_id` block contains:
 
 * `key_id` -
-  (Optional)
   Optional. The value of this KeyId encoded in lowercase hexadecimal. This is most likely the 160 bit SHA-1 hash of the public key.
 
-The `cert_fingerprint` block supports:
+The `cert_fingerprint` block contains:
 
 * `sha256_hash` -
-  (Optional)
   The SHA 256 hash, encoded in hexadecimal, of the DER x509 certificate.
 
 ## Timeouts
@@ -648,9 +850,9 @@ This resource provides the following
 Certificate can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_privateca_certificate.default projects/{{project}}/locations/{{location}}/certificateAuthorities/{{certificate_authority}}/certificates/{{name}}
-$ terraform import google_privateca_certificate.default {{project}}/{{location}}/{{certificate_authority}}/{{name}}
-$ terraform import google_privateca_certificate.default {{location}}/{{certificate_authority}}/{{name}}
+$ terraform import google_privateca_certificate.default projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}
+$ terraform import google_privateca_certificate.default {{project}}/{{location}}/{{pool}}/{{name}}
+$ terraform import google_privateca_certificate.default {{location}}/{{pool}}/{{name}}
 ```
 
 ## User Project Overrides

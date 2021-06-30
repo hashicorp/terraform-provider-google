@@ -491,6 +491,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_OS_LOGIN_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[OSLoginBasePathKey]),
 			},
+			"privateca_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_PRIVATECA_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[PrivatecaBasePathKey]),
+			},
 			"pubsub_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -766,9 +774,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 198
-// Generated IAM resources: 87
-// Total generated resources: 285
+// Generated resources: 201
+// Generated IAM resources: 90
+// Total generated resources: 291
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1012,6 +1020,12 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_notebooks_location":                                    resourceNotebooksLocation(),
 			"google_os_config_patch_deployment":                            resourceOSConfigPatchDeployment(),
 			"google_os_login_ssh_public_key":                               resourceOSLoginSSHPublicKey(),
+			"google_privateca_certificate_authority":                       resourcePrivatecaCertificateAuthority(),
+			"google_privateca_certificate":                                 resourcePrivatecaCertificate(),
+			"google_privateca_ca_pool":                                     resourcePrivatecaCaPool(),
+			"google_privateca_ca_pool_iam_binding":                         ResourceIamBinding(PrivatecaCaPoolIamSchema, PrivatecaCaPoolIamUpdaterProducer, PrivatecaCaPoolIdParseFunc),
+			"google_privateca_ca_pool_iam_member":                          ResourceIamMember(PrivatecaCaPoolIamSchema, PrivatecaCaPoolIamUpdaterProducer, PrivatecaCaPoolIdParseFunc),
+			"google_privateca_ca_pool_iam_policy":                          ResourceIamPolicy(PrivatecaCaPoolIamSchema, PrivatecaCaPoolIamUpdaterProducer, PrivatecaCaPoolIdParseFunc),
 			"google_pubsub_topic":                                          resourcePubsubTopic(),
 			"google_pubsub_topic_iam_binding":                              ResourceIamBinding(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
 			"google_pubsub_topic_iam_member":                               ResourceIamMember(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc),
@@ -1313,6 +1327,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.NotebooksBasePath = d.Get("notebooks_custom_endpoint").(string)
 	config.OSConfigBasePath = d.Get("os_config_custom_endpoint").(string)
 	config.OSLoginBasePath = d.Get("os_login_custom_endpoint").(string)
+	config.PrivatecaBasePath = d.Get("privateca_custom_endpoint").(string)
 	config.PubsubBasePath = d.Get("pubsub_custom_endpoint").(string)
 	config.PubsubLiteBasePath = d.Get("pubsub_lite_custom_endpoint").(string)
 	config.RedisBasePath = d.Get("redis_custom_endpoint").(string)

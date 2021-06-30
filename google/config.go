@@ -124,6 +124,7 @@ type Config struct {
 	NotebooksBasePath            string
 	OSConfigBasePath             string
 	OSLoginBasePath              string
+	PrivatecaBasePath            string
 	PubsubBasePath               string
 	PubsubLiteBasePath           string
 	RedisBasePath                string
@@ -211,6 +212,7 @@ const NetworkManagementBasePathKey = "NetworkManagement"
 const NotebooksBasePathKey = "Notebooks"
 const OSConfigBasePathKey = "OSConfig"
 const OSLoginBasePathKey = "OSLogin"
+const PrivatecaBasePathKey = "Privateca"
 const PubsubBasePathKey = "Pubsub"
 const PubsubLiteBasePathKey = "PubsubLite"
 const RedisBasePathKey = "Redis"
@@ -290,6 +292,7 @@ var DefaultBasePaths = map[string]string{
 	NotebooksBasePathKey:            "https://notebooks.googleapis.com/v1/",
 	OSConfigBasePathKey:             "https://osconfig.googleapis.com/v1/",
 	OSLoginBasePathKey:              "https://oslogin.googleapis.com/v1/",
+	PrivatecaBasePathKey:            "https://privateca.googleapis.com/v1/",
 	PubsubBasePathKey:               "https://pubsub.googleapis.com/v1/",
 	PubsubLiteBasePathKey:           "https://{{region}}-pubsublite.googleapis.com/v1/admin/",
 	RedisBasePathKey:                "https://redis.googleapis.com/v1/",
@@ -1122,6 +1125,7 @@ func ConfigureBasePaths(c *Config) {
 	c.NotebooksBasePath = DefaultBasePaths[NotebooksBasePathKey]
 	c.OSConfigBasePath = DefaultBasePaths[OSConfigBasePathKey]
 	c.OSLoginBasePath = DefaultBasePaths[OSLoginBasePathKey]
+	c.PrivatecaBasePath = DefaultBasePaths[PrivatecaBasePathKey]
 	c.PubsubBasePath = DefaultBasePaths[PubsubBasePathKey]
 	c.PubsubLiteBasePath = DefaultBasePaths[PubsubLiteBasePathKey]
 	c.RedisBasePath = DefaultBasePaths[RedisBasePathKey]

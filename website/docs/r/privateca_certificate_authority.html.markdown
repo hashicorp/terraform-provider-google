@@ -26,13 +26,6 @@ A CertificateAuthority represents an individual Certificate Authority. A
 CertificateAuthority can be used to create Certificates.
 
 
-~> **Warning:** Please remember that all resources created during preview (via the terraform-provider-google-beta)
-will be deleted when CA service transitions to General Availability (GA). Relying on these
-certificate authorities for production traffic is discouraged.
-
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
-
 To get more information about CertificateAuthority, see:
 
 * [API documentation](https://cloud.google.com/certificate-authority-service/docs/reference/rest)
@@ -49,75 +42,51 @@ To get more information about CertificateAuthority, see:
 
 ```hcl
 resource "google_privateca_certificate_authority" "default" {
-  provider = google-beta
+  // This example assumes this pool already exists.
+  // Pools cannot be deleted in normal test circumstances, so we depend on static pools
+  pool = ""
   certificate_authority_id = "my-certificate-authority"
   location = "us-central1"
   config {
     subject_config {
       subject {
         organization = "HashiCorp"
+        common_name = "my-certificate-authority"
       }
-      common_name = "my-certificate-authority"
       subject_alt_name {
         dns_names = ["hashicorp.com"]
       }
     }
-    reusable_config {
-      reusable_config = "projects/568668481468/locations/us-central1/reusableConfigs/root-unconstrained"
-    }
-  }
-  key_spec {
-    algorithm = "RSA_PKCS1_4096_SHA256"
-  }
-  disable_on_delete = true
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=privateca_certificate_authority_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Privateca Certificate Authority Full
-
-
-```hcl
-resource "google_privateca_certificate_authority" "default" {
-  provider = google-beta
-  certificate_authority_id = "my-certificate-authority"
-  location = "us-central1"
-  tier = "DEVOPS"
-  config {
-    subject_config {
-      subject {
-        country_code = "US"
-        organization = "HashiCorp"
-        organizational_unit = "Terraform"
-        locality = "San Francisco"
-        province = "CA"
-        street_address = "101 2nd St #700"
-        postal_code = "94105"
+    x509_config {
+      ca_options {
+        is_ca = true
+        max_issuer_path_length = 10
       }
-      common_name = "my-certificate-authority"
-      subject_alt_name {
-        dns_names = ["hashicorp.com"]
-        email_addresses = ["email@example.com"]
-        ip_addresses = ["127.0.0.1"]
-        uris = ["http://www.ietf.org/rfc/rfc3986.txt"]
+      key_usage {
+        base_key_usage {
+          digital_signature = true
+          content_commitment = true
+          key_encipherment = false
+          data_encipherment = true
+          key_agreement = true
+          cert_sign = true
+          crl_sign = true
+          decipher_only = true
+        }
+        extended_key_usage {
+          server_auth = true
+          client_auth = false
+          email_protection = true
+          code_signing = true
+          time_stamping = true
+        }
       }
-    }
-    reusable_config {
-      reusable_config = "projects/568668481468/locations/us-central1/reusableConfigs/root-unconstrained"
     }
   }
   lifetime = "86400s"
-  issuing_options {
-    include_ca_cert_url = true
-    include_crl_access_url = false
-  }
   key_spec {
-    algorithm = "EC_P256_SHA256"
+    algorithm = "RSA_PKCS1_4096_SHA256"
   }
-  disable_on_delete = true
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -130,12 +99,10 @@ resource "google_privateca_certificate_authority" "default" {
 
 ```hcl
 resource "google_project_service_identity" "privateca_sa" {
-  provider = google-beta
-  service  = "privateca.googleapis.com"
+  service = "privateca.googleapis.com"
 }
 
 resource "google_kms_crypto_key_iam_binding" "privateca_sa_keyuser_signerverifier" {
-  provider      = google-beta
   crypto_key_id = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key"
   role          = "roles/cloudkms.signerVerifier"
 
@@ -145,7 +112,6 @@ resource "google_kms_crypto_key_iam_binding" "privateca_sa_keyuser_signerverifie
 }
 
 resource "google_kms_crypto_key_iam_binding" "privateca_sa_keyuser_viewer" {
-  provider      = google-beta
   crypto_key_id = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key"
   role          = "roles/viewer"
   members = [
@@ -154,24 +120,38 @@ resource "google_kms_crypto_key_iam_binding" "privateca_sa_keyuser_viewer" {
 }
 
 resource "google_privateca_certificate_authority" "default" {
-  provider                 = google-beta
-  certificate_authority_id = "tf-test%{random_suffix}"
-  location                 = "us-central1"
-
+  // This example assumes this pool already exists.
+  // Pools cannot be deleted in normal test circumstances, so we depend on static pools
+  pool = ""
+  certificate_authority_id = "my-certificate-authority"
+  location = "us-central1"
   key_spec {
     cloud_kms_key_version = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key/cryptoKeyVersions/1"
   }
 
   config  {
     subject_config  {
-      common_name = "Example Authority"
       subject {
         organization = "Example, Org."
+        common_name  = "Example Authority"
       }
     }
-
-    reusable_config {
-      reusable_config= "root-unconstrained"
+    x509_config {
+      ca_options {
+        # is_ca *MUST* be true for certificate authorities
+        is_ca = true
+        max_issuer_path_length = 10
+      }
+      key_usage {
+        base_key_usage {
+          # cert_sign and crl_sign *MUST* be true for certificate authorities
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
     }
   }
 
@@ -179,8 +159,6 @@ resource "google_privateca_certificate_authority" "default" {
     google_kms_crypto_key_iam_binding.privateca_sa_keyuser_signerverifier,
     google_kms_crypto_key_iam_binding.privateca_sa_keyuser_viewer,
   ]
-
-  disable_on_delete = true
 }
 ```
 
@@ -192,11 +170,15 @@ The following arguments are supported:
 * `location` -
   (Required)
   Location of the CertificateAuthority. A full list of valid locations can be found by
-  running `gcloud beta privateca locations list`.
+  running `gcloud privateca locations list`.
 
 * `certificate_authority_id` -
   (Required)
   The user provided Resource ID for this Certificate Authority.
+
+* `pool` -
+  (Required)
+  The name of the CaPool this Certificate Authority belongs to.
 
 * `config` -
   (Required)
@@ -213,16 +195,174 @@ The following arguments are supported:
 
 The `config` block supports:
 
+* `x509_config` -
+  (Required)
+  Describes how some of the technical X.509 fields in a certificate should be populated.
+  Structure is documented below.
+
 * `subject_config` -
   (Required)
   Specifies some of the values in a certificate that are related to the subject.
   Structure is documented below.
 
-* `reusable_config` -
-  (Required)
-  Specifies some of the values in a certificate that are related to the subject.
+
+The `x509_config` block supports:
+
+* `additional_extensions` -
+  (Optional)
+  Specifies an X.509 extension, which may be used in different parts of X.509 objects like certificates, CSRs, and CRLs.
   Structure is documented below.
 
+* `policy_ids` -
+  (Optional)
+  Describes the X.509 certificate policy object identifiers, per https://tools.ietf.org/html/rfc5280#section-4.2.1.4.
+  Structure is documented below.
+
+* `aia_ocsp_servers` -
+  (Optional)
+  Describes Online Certificate Status Protocol (OCSP) endpoint addresses that appear in the
+  "Authority Information Access" extension in the certificate.
+
+* `ca_options` -
+  (Required)
+  Describes values that are relevant in a CA certificate.
+  Structure is documented below.
+
+* `key_usage` -
+  (Required)
+  Indicates the intended use for keys that correspond to a certificate.
+  Structure is documented below.
+
+
+The `additional_extensions` block supports:
+
+* `critical` -
+  (Required)
+  Indicates whether or not this extension is critical (i.e., if the client does not know how to
+  handle this extension, the client should consider this to be an error).
+
+* `value` -
+  (Required)
+  The value of this X.509 extension. A base64-encoded string.
+
+* `object_id` -
+  (Required)
+  Describes values that are relevant in a CA certificate.
+  Structure is documented below.
+
+
+The `object_id` block supports:
+
+* `object_id_path` -
+  (Required)
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+The `policy_ids` block supports:
+
+* `object_id_path` -
+  (Required)
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+The `ca_options` block supports:
+
+* `is_ca` -
+  (Required)
+  Refers to the "CA" X.509 extension, which is a boolean value. When this value is missing,
+  the extension will be omitted from the CA certificate.
+
+* `max_issuer_path_length` -
+  (Optional)
+  Refers to the path length restriction X.509 extension. For a CA certificate, this value describes the depth of
+  subordinate CA certificates that are allowed. If this value is less than 0, the request will fail. If this
+  value is missing, the max path length will be omitted from the CA certificate.
+
+The `key_usage` block supports:
+
+* `base_key_usage` -
+  (Required)
+  Describes high-level ways in which a key may be used.
+  Structure is documented below.
+
+* `extended_key_usage` -
+  (Required)
+  Describes high-level ways in which a key may be used.
+  Structure is documented below.
+
+* `unknown_extended_key_usages` -
+  (Optional)
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+  Structure is documented below.
+
+
+The `base_key_usage` block supports:
+
+* `digital_signature` -
+  (Optional)
+  The key may be used for digital signatures.
+
+* `content_commitment` -
+  (Optional)
+  The key may be used for cryptographic commitments. Note that this may also be referred to as "non-repudiation".
+
+* `key_encipherment` -
+  (Optional)
+  The key may be used to encipher other keys.
+
+* `data_encipherment` -
+  (Optional)
+  The key may be used to encipher data.
+
+* `key_agreement` -
+  (Optional)
+  The key may be used in a key agreement protocol.
+
+* `cert_sign` -
+  (Optional)
+  The key may be used to sign certificates.
+
+* `crl_sign` -
+  (Optional)
+  The key may be used sign certificate revocation lists.
+
+* `encipher_only` -
+  (Optional)
+  The key may be used to encipher only.
+
+* `decipher_only` -
+  (Optional)
+  The key may be used to decipher only.
+
+The `extended_key_usage` block supports:
+
+* `server_auth` -
+  (Optional)
+  Corresponds to OID 1.3.6.1.5.5.7.3.1. Officially described as "TLS WWW server authentication", though regularly used for non-WWW TLS.
+
+* `client_auth` -
+  (Optional)
+  Corresponds to OID 1.3.6.1.5.5.7.3.2. Officially described as "TLS WWW client authentication", though regularly used for non-WWW TLS.
+
+* `code_signing` -
+  (Optional)
+  Corresponds to OID 1.3.6.1.5.5.7.3.3. Officially described as "Signing of downloadable executable code client authentication".
+
+* `email_protection` -
+  (Optional)
+  Corresponds to OID 1.3.6.1.5.5.7.3.4. Officially described as "Email protection".
+
+* `time_stamping` -
+  (Optional)
+  Corresponds to OID 1.3.6.1.5.5.7.3.8. Officially described as "Binding the hash of an object to a time".
+
+* `ocsp_signing` -
+  (Optional)
+  Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".
+
+The `unknown_extended_key_usages` block supports:
+
+* `object_id_path` -
+  (Required)
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
 The `subject_config` block supports:
 
@@ -230,10 +370,6 @@ The `subject_config` block supports:
   (Required)
   Contains distinguished name fields such as the location and organization.
   Structure is documented below.
-
-* `common_name` -
-  (Required)
-  The common name of the distinguished name.
 
 * `subject_alt_name` -
   (Optional)
@@ -271,6 +407,10 @@ The `subject` block supports:
   (Optional)
   The postal code of the subject.
 
+* `common_name` -
+  (Required)
+  The common name of the distinguished name.
+
 The `subject_alt_name` block supports:
 
 * `dns_names` -
@@ -289,15 +429,6 @@ The `subject_alt_name` block supports:
   (Optional)
   Contains only valid 32-bit IPv4 addresses or RFC 4291 IPv6 addresses.
 
-The `reusable_config` block supports:
-
-* `reusable_config` -
-  (Required)
-  A resource path to a ReusableConfig in the format
-  `projects/*/locations/*/reusableConfigs/*`.
-  . Alternatively, one of the short names
-  found by running `gcloud beta privateca reusable-configs list`.
-
 The `key_spec` block supports:
 
 * `cloud_kms_key_version` -
@@ -313,6 +444,11 @@ The `key_spec` block supports:
 
 - - -
 
+
+* `ignore_active_certificates` -
+  (Optional)
+  This field allows the CA to be deleted even if the CA has active certs. Active certs include both unrevoked and unexpired certs.
+  Use with care. Defaults to `false`.
 
 * `type` -
   (Optional)
@@ -337,11 +473,6 @@ The `key_spec` block supports:
   "notAfterTime" fields inside an X.509 certificate. A duration in seconds with up to nine
   fractional digits, terminated by 's'. Example: "3.5s".
 
-* `issuing_options` -
-  (Optional)
-  Options that affect all certificates issued by a CertificateAuthority.
-  Structure is documented below.
-
 * `gcs_bucket` -
   (Optional)
   The name of a Cloud Storage bucket where this CertificateAuthority will publish content,
@@ -359,29 +490,12 @@ The `key_spec` block supports:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `disable_on_delete` - (Optional) If set to `true`, the Certificate Authority will be disabled
-on delete. If the Certitificate Authorities is not disabled,
-it cannot be deleted. Use with care. Defaults to `false`.
-
-
-The `issuing_options` block supports:
-
-* `include_ca_cert_url` -
-  (Optional)
-  When true, includes a URL to the issuing CA certificate in the "authority
-  information access" X.509 extension.
-
-* `include_crl_access_url` -
-  (Optional)
-  When true, includes a URL to the CRL corresponding to certificates issued from a
-  CertificateAuthority. CRLs will expire 7 days from their creation. However, we will
-  rebuild daily. CRLs are also rebuilt shortly after a certificate is revoked.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/certificateAuthorities/{{certificate_authority_id}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}`
 
 * `name` -
   The resource name for this CertificateAuthority in the format
@@ -427,7 +541,6 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
-- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import
@@ -436,9 +549,9 @@ This resource provides the following
 CertificateAuthority can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_privateca_certificate_authority.default projects/{{project}}/locations/{{location}}/certificateAuthorities/{{certificate_authority_id}}
-$ terraform import google_privateca_certificate_authority.default {{project}}/{{location}}/{{certificate_authority_id}}
-$ terraform import google_privateca_certificate_authority.default {{location}}/{{certificate_authority_id}}
+$ terraform import google_privateca_certificate_authority.default projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}
+$ terraform import google_privateca_certificate_authority.default {{project}}/{{location}}/{{pool}}/{{certificate_authority_id}}
+$ terraform import google_privateca_certificate_authority.default {{location}}/{{pool}}/{{certificate_authority_id}}
 ```
 
 ## User Project Overrides

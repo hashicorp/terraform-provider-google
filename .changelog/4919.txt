@@ -1,0 +1,12 @@
+```release-note:new-resource
+google_privateca_certificate
+```
+```release-note:new-resource
+google_privateca_certificate_authority
+```
+```release-note:new-resource
+google_privateca_ca_pool
+```
+```release-note:breaking-change
+privateca: existing beta resources will no longer function
+```
