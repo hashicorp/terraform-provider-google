@@ -184,7 +184,7 @@ exported:
 
 * `project` - Project of the function. If it is not provided, the provider project is used.
 
-* `region` - Region of function. Currently can be only "us-central1". If it is not provided, the provider region is used.
+* `region` - Region of function. If it is not provided, the provider region is used.
 
 ## Timeouts
 
