@@ -92,7 +92,7 @@ func TestAccBillingBudget_billingBudgetUpdate(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccBillingBudget_billingBudgetUpdateChangeAmount(context),
+				Config: testAccBillingBudget_billingBudgetUpdate(context),
 			},
 			{
 				ResourceName:      "google_billing_budget.budget",
@@ -105,6 +105,13 @@ func TestAccBillingBudget_billingBudgetUpdate(t *testing.T) {
 
 func testAccBillingBudget_billingBudgetUpdateStart(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_pubsub_topic" "topic1" {
+  name = "tf-test-billing-budget1-%{random_suffix}"
+}
+resource "google_pubsub_topic" "topic2" {
+  name = "tf-test-billing-budget2-%{random_suffix}"
+}
+
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -134,12 +141,22 @@ resource "google_billing_budget" "budget" {
     threshold_percent = 0.9
     spend_basis = "FORECASTED_SPEND"
   }
+
+  all_updates_rule {
+    pubsub_topic = google_pubsub_topic.topic1.id
+  }
 }
 `, context)
 }
 
 func testAccBillingBudget_billingBudgetUpdateRemoveFilter(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_pubsub_topic" "topic1" {
+  name = "tf-test-billing-budget1-%{random_suffix}"
+}
+resource "google_pubsub_topic" "topic2" {
+  name = "tf-test-billing-budget2-%{random_suffix}"
+}
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -169,12 +186,22 @@ resource "google_billing_budget" "budget" {
     threshold_percent = 0.9
     spend_basis = "FORECASTED_SPEND"
   }
+
+  all_updates_rule {
+    pubsub_topic = google_pubsub_topic.topic1.id
+  }
 }
 `, context)
 }
 
-func testAccBillingBudget_billingBudgetUpdateChangeAmount(context map[string]interface{}) string {
+func testAccBillingBudget_billingBudgetUpdate(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_pubsub_topic" "topic1" {
+  name = "tf-test-billing-budget1-%{random_suffix}"
+}
+resource "google_pubsub_topic" "topic2" {
+  name = "tf-test-billing-budget2-%{random_suffix}"
+}
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -203,6 +230,10 @@ resource "google_billing_budget" "budget" {
   threshold_rules {
     threshold_percent = 0.9
     spend_basis = "FORECASTED_SPEND"
+  }
+
+  all_updates_rule {
+    pubsub_topic = google_pubsub_topic.topic2.id
   }
 }
 `, context)
