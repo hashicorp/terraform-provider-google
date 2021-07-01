@@ -59,27 +59,6 @@ resource "google_compute_instance" "mirror" {
   }
 }
 
-resource "google_compute_packet_mirroring" "foobar" {
-  name = "my-mirroring"
-  description = "bar"
-  network {
-    url = google_compute_network.default.id
-  }
-  collector_ilb {
-    url = google_compute_forwarding_rule.default.id
-  }
-  mirrored_resources {
-    tags = ["foo"]
-    instances {
-      url = google_compute_instance.mirror.id
-    }
-  }
-  filter {
-    ip_protocols = ["tcp"]
-    cidr_ranges = ["0.0.0.0/0"]
-    direction = "BOTH"
-  }
-}
 resource "google_compute_network" "default" {
   name = "my-network"
 }
@@ -117,6 +96,28 @@ resource "google_compute_forwarding_rule" "default" {
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
   network_tier           = "PREMIUM"
+}
+
+resource "google_compute_packet_mirroring" "foobar" {
+  name = "my-mirroring"
+  description = "bar"
+  network {
+    url = google_compute_network.default.id
+  }
+  collector_ilb {
+    url = google_compute_forwarding_rule.default.id
+  }
+  mirrored_resources {
+    tags = ["foo"]
+    instances {
+      url = google_compute_instance.mirror.id
+    }
+  }
+  filter {
+    ip_protocols = ["tcp"]
+    cidr_ranges = ["0.0.0.0/0"]
+    direction = "BOTH"
+  }
 }
 ```
 
