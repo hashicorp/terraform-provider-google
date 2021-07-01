@@ -22,6 +22,7 @@ func resourceStorageBucketObject() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceStorageBucketObjectCreate,
 		Read:   resourceStorageBucketObjectRead,
+		Update: resourceStorageBucketObjectUpdate,
 		Delete: resourceStorageBucketObjectDelete,
 
 		Schema: map[string]*schema.Schema{
@@ -160,7 +161,16 @@ func resourceStorageBucketObject() *schema.Resource {
 				DiffSuppressFunc: compareCryptoKeyVersions,
 				Description:      `Resource name of the Cloud KMS key that will be used to encrypt the object. Overrides the object metadata's kmsKeyName value, if any.`,
 			},
-
+			"event_based_hold": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether an object is under event-based hold. Event-based hold is a way to retain objects until an event occurs, which is signified by the hold's release (i.e. this value is set to false). After being released (set to false), such objects will be subject to bucket-level retention (if any).`,
+			},
+			"temporary_hold": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether an object is under temporary hold. While this flag is set to true, the object is protected against deletion and overwrites.`,
+			},
 			"metadata": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -266,6 +276,14 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 		object.KmsKeyName = v.(string)
 	}
 
+	if v, ok := d.GetOk("event_based_hold"); ok {
+		object.EventBasedHold = v.(bool)
+	}
+
+	if v, ok := d.GetOk("temporary_hold"); ok {
+		object.TemporaryHold = v.(bool)
+	}
+
 	insertCall := objectsService.Insert(bucket, object)
 	insertCall.Name(name)
 	insertCall.Media(media)
@@ -277,6 +295,41 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	return resourceStorageBucketObjectRead(d, meta)
+}
+
+func resourceStorageBucketObjectUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	bucket := d.Get("bucket").(string)
+	name := d.Get("name").(string)
+
+	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
+	getCall := objectsService.Get(bucket, name)
+
+	res, err := getCall.Do()
+
+	if d.HasChange("event_based_hold") {
+		v := d.Get("event_based_hold")
+		res.EventBasedHold = v.(bool)
+	}
+
+	if d.HasChange("temporary_hold") {
+		v := d.Get("temporary_hold")
+		res.TemporaryHold = v.(bool)
+	}
+
+	updateCall := objectsService.Update(bucket, name, res)
+	_, err = updateCall.Do()
+
+	if err != nil {
+		return fmt.Errorf("Error updating object %s: %s", name, err)
+	}
+
+	return nil
 }
 
 func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
@@ -339,6 +392,12 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	}
 	if err := d.Set("media_link", res.MediaLink); err != nil {
 		return fmt.Errorf("Error setting media_link: %s", err)
+	}
+	if err := d.Set("event_based_hold", res.EventBasedHold); err != nil {
+		return fmt.Errorf("Error setting event_based_hold: %s", err)
+	}
+	if err := d.Set("temporary_hold", res.TemporaryHold); err != nil {
+		return fmt.Errorf("Error setting temporary_hold: %s", err)
 	}
 
 	d.SetId(objectGetID(res))

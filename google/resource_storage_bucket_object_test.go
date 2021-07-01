@@ -315,6 +315,50 @@ func TestAccStorageObjectKms(t *testing.T) {
 	})
 }
 
+func TestAccStorageObject_holds(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+	data := []byte(content)
+	h := md5.New()
+	if _, err := h.Write(data); err != nil {
+		t.Errorf("error calculating md5: %v", err)
+	}
+	dataMd5 := base64.StdEncoding.EncodeToString(h.Sum(nil))
+	testFile := getNewTmpTestFile(t, "tf-test")
+	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageObjectDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleStorageBucketsObjectHolds(bucketName, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageObject(t, bucketName, objectName, dataMd5),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket_object.object", "event_based_hold", "true"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket_object.object", "temporary_hold", "true"),
+				),
+			},
+			{
+				Config: testGoogleStorageBucketsObjectHolds(bucketName, false, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageObject(t, bucketName, objectName, dataMd5),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket_object.object", "event_based_hold", "false"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket_object.object", "temporary_hold", "false"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleStorageObject(t *testing.T, bucket, object, md5 string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -470,6 +514,23 @@ resource "google_storage_bucket_object" "object" {
   }
 }
 `, bucketName, objectName, content)
+}
+
+func testGoogleStorageBucketsObjectHolds(bucketName string, eventBasedHold bool, temporaryHold bool) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  name             = "%s"
+  bucket           = google_storage_bucket.bucket.name
+  content          = "%s"
+  event_based_hold = %t
+  temporary_hold   = %t
+}
+`, bucketName, objectName, content, eventBasedHold, temporaryHold)
 }
 
 func testGoogleStorageBucketsObjectKms(bucketName, sourceFilename, kmsKey string) string {
