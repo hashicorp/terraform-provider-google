@@ -539,6 +539,9 @@ The `destination_encryption_configuration` block supports:
   Describes the Cloud KMS encryption key that will be used to protect destination BigQuery table.
   The BigQuery Service Account associated with your project requires access to this encryption key.
 
+* `kms_key_version` -
+  Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
+
 The `script_options` block supports:
 
 * `statement_timeout_ms` -
@@ -731,6 +734,9 @@ The `destination_encryption_configuration` block supports:
   Describes the Cloud KMS encryption key that will be used to protect destination BigQuery table.
   The BigQuery Service Account associated with your project requires access to this encryption key.
 
+* `kms_key_version` -
+  Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
+
 The `copy` block supports:
 
 * `source_tables` -
@@ -805,6 +811,9 @@ The `destination_encryption_configuration` block supports:
   (Required)
   Describes the Cloud KMS encryption key that will be used to protect destination BigQuery table.
   The BigQuery Service Account associated with your project requires access to this encryption key.
+
+* `kms_key_version` -
+  Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
 
 The `extract` block supports:
 

@@ -322,6 +322,8 @@ exported:
 
 * `etag` - A hash of the resource.
 
+* `kms_key_version` - The self link or full name of the kms key version used to encrypt this table.
+
 * `last_modified_time` - The time when this table was last modified, in milliseconds since the epoch.
 
 * `location` - The geographic location where the table resides. This value is inherited from the dataset.
