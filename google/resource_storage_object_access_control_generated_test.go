@@ -81,7 +81,7 @@ func testAccCheckStorageObjectAccessControlDestroyProducer(t *testing.T) func(s 
 
 			config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+			url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/o/{{%object}}/acl/{{entity}}")
 			if err != nil {
 				return err
 			}
