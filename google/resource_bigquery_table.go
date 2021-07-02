@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -820,6 +821,11 @@ func resourceBigQueryTable() *schema.Resource {
 							Required:    true,
 							Description: `The self link or full name of a key which should be used to encrypt this table. Note that the default bigquery service account will need to have encrypt/decrypt permissions on this key - you may want to see the google_bigquery_default_service_account datasource and the google_kms_crypto_key_iam_binding resource.`,
 						},
+						"kms_key_version": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The self link or full name of the kms key version used to encrypt this table.`,
+						},
 					},
 				},
 			},
@@ -1543,7 +1549,20 @@ func expandRangePartitioning(configured interface{}) (*bigquery.RangePartitionin
 }
 
 func flattenEncryptionConfiguration(ec *bigquery.EncryptionConfiguration) []map[string]interface{} {
-	return []map[string]interface{}{{"kms_key_name": ec.KmsKeyName}}
+	re := regexp.MustCompile(`(projects/.*/locations/.*/keyRings/.*/cryptoKeys/.*)/cryptoKeyVersions/.*`)
+	paths := re.FindStringSubmatch(ec.KmsKeyName)
+
+	if len(paths) > 0 {
+		return []map[string]interface{}{
+			{
+				"kms_key_name":    paths[0],
+				"kms_key_version": ec.KmsKeyName,
+			},
+		}
+	}
+
+	//	The key name was returned, no need to set the version
+	return []map[string]interface{}{{"kms_key_name": ec.KmsKeyName, "kms_key_version": ""}}
 }
 
 func flattenTimePartitioning(tp *bigquery.TimePartitioning) []map[string]interface{} {
