@@ -482,7 +482,7 @@ such as the CA certificate and CRLs. This must be a bucket name, without any pre
 my-bucket, you would simply specify 'my-bucket'. If not specified, a managed bucket will be
 created.`,
 			},
-			"ignore_active_certificates": {
+			"ignore_active_certificates_on_deletion": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
@@ -508,16 +508,6 @@ An object containing a list of "key": value pairs. Example: { "name": "wrench", 
 "notAfterTime" fields inside an X.509 certificate. A duration in seconds with up to nine
 fractional digits, terminated by 's'. Example: "3.5s".`,
 				Default: "315360000s",
-			},
-			"tier": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ENTERPRISE", "DEVOPS", ""}, false),
-				Description: `The Tier of this CertificateAuthority. 'ENTERPRISE' Certificate Authorities track
-server side certificates issued, and support certificate revocation. For more details,
-please check the [associated documentation](https://cloud.google.com/certificate-authority-service/docs/tiers). Default value: "ENTERPRISE" Possible values: ["ENTERPRISE", "DEVOPS"]`,
-				Default: "ENTERPRISE",
 			},
 			"type": {
 				Type:         schema.TypeString,
@@ -614,12 +604,6 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
-	}
-	tierProp, err := expandPrivatecaCertificateAuthorityTier(d.Get("tier"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("tier"); !isEmptyValue(reflect.ValueOf(tierProp)) && (ok || !reflect.DeepEqual(v, tierProp)) {
-		obj["tier"] = tierProp
 	}
 	configProp, err := expandPrivatecaCertificateAuthorityConfig(d.Get("config"), d, config)
 	if err != nil {
@@ -726,6 +710,13 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
 	}
 
+	err = privatecaOperationWaitTimeWithResponse(
+		config, res, &opRes, project, "Enabling CertificateAuthority", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return fmt.Errorf("Error waiting to enable CertificateAuthority: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating CertificateAuthority %q: %#v", d.Id(), res)
 
 	return resourcePrivatecaCertificateAuthorityRead(d, meta)
@@ -783,9 +774,6 @@ func resourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta inte
 	if err := d.Set("type", flattenPrivatecaCertificateAuthorityType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CertificateAuthority: %s", err)
 	}
-	if err := d.Set("tier", flattenPrivatecaCertificateAuthorityTier(res["tier"], d, config)); err != nil {
-		return fmt.Errorf("Error reading CertificateAuthority: %s", err)
-	}
 	if err := d.Set("config", flattenPrivatecaCertificateAuthorityConfig(res["config"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CertificateAuthority: %s", err)
 	}
@@ -835,7 +823,7 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}?ignoreActiveCertificates={{ignore_active_certificates}}")
+	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}?ignoreActiveCertificates={{ignore_active_certificates_on_deletion}}")
 	if err != nil {
 		return err
 	}
@@ -846,11 +834,18 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 		return err
 	}
 
-	log.Printf("[DEBUG] Enabling CertificateAuthority: %#v", obj)
+	log.Printf("[DEBUG] Disabling CertificateAuthority: %#v", obj)
 
-	_, err = sendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
+	res, err = sendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
 	if err != nil {
-		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
+		return fmt.Errorf("Error disabling CertificateAuthority: %s", err)
+	}
+
+	err = privatecaOperationWaitTimeWithResponse(
+		config, res, &opRes, project, "Disabling CertificateAuthority", userAgent,
+		d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return fmt.Errorf("Error waiting to disable CertificateAuthority: %s", err)
 	}
 	log.Printf("[DEBUG] Deleting CertificateAuthority %q", d.Id())
 
@@ -901,10 +896,6 @@ func flattenPrivatecaCertificateAuthorityName(v interface{}, d *schema.ResourceD
 }
 
 func flattenPrivatecaCertificateAuthorityType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateAuthorityTier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1126,10 +1117,6 @@ func flattenPrivatecaCertificateAuthorityLabels(v interface{}, d *schema.Resourc
 }
 
 func expandPrivatecaCertificateAuthorityType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandPrivatecaCertificateAuthorityTier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

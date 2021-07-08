@@ -370,13 +370,13 @@ If this is omitted, then this CaPool will not add restrictions on a certificate'
 								Schema: map[string]*schema.Schema{
 									"allow_subject_alt_names_passthrough": {
 										Type:     schema.TypeBool,
-										Optional: true,
+										Required: true,
 										Description: `If this is set, the SubjectAltNames extension may be copied from a certificate request into the signed certificate.
 Otherwise, the requested SubjectAltNames will be discarded.`,
 									},
 									"allow_subject_passthrough": {
 										Type:     schema.TypeBool,
-										Optional: true,
+										Required: true,
 										Description: `If this is set, the Subject field may be copied from a certificate request into the signed certificate.
 Otherwise, the requested Subject will be discarded.`,
 									},
@@ -1160,14 +1160,14 @@ func expandPrivatecaCaPoolIssuancePolicyIdentityConstraints(v interface{}, d Ter
 	transformedAllowSubjectPassthrough, err := expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectPassthrough(original["allow_subject_passthrough"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowSubjectPassthrough); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["allowSubjectPassthrough"] = transformedAllowSubjectPassthrough
 	}
 
 	transformedAllowSubjectAltNamesPassthrough, err := expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectAltNamesPassthrough(original["allow_subject_alt_names_passthrough"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowSubjectAltNamesPassthrough); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["allowSubjectAltNamesPassthrough"] = transformedAllowSubjectAltNamesPassthrough
 	}
 

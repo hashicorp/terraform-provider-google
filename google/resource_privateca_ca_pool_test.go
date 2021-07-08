@@ -77,10 +77,10 @@ resource "google_privateca_ca_pool" "default" {
     maximum_lifetime = "50000s"
     allowed_issuance_modes {
       allow_csr_based_issuance = true
-      allow_config_based_issuance = true
+      allow_config_based_issuance = false
     }
     identity_constraints {
-      allow_subject_passthrough = true
+      allow_subject_passthrough = false
       allow_subject_alt_names_passthrough = true
       cel_expression {
         expression = "subject_alt_names.all(san, san.type == DNS || san.type == EMAIL )"
@@ -100,7 +100,7 @@ resource "google_privateca_ca_pool" "default" {
         object_id_path = [123, 888]
       }
       policy_ids {
-        object_id_path = [456, 120]
+        object_id_path = [2,5,29,25]
       }
       ca_options {
         is_ca = true

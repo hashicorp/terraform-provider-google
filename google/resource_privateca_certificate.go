@@ -86,7 +86,7 @@ running 'gcloud privateca locations list'.`,
 										Required:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.StringInSlice([]string{"KEY_TYPE_UNSPECIFIED", "PEM"}, false),
-										Description:  `Types of public keys that are supported. At a minimum, we support RSA, for the key sizes or curves listed: https://cloud.google.com/kms/docs/algorithms#asymmetric_signing_algorithms Possible values: ["KEY_TYPE_UNSPECIFIED", "PEM"]`,
+										Description:  `The format of the public key. Currently, only PEM format is supported. Possible values: ["KEY_TYPE_UNSPECIFIED", "PEM"]`,
 									},
 									"key": {
 										Type:        schema.TypeString,
@@ -701,7 +701,7 @@ fractional digits, terminated by 's'. Example: "3.5s".`,
 									"format": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: `Types of public keys that are supported. At a minimum, we support RSA, for the key sizes or curves listed: https://cloud.google.com/kms/docs/algorithms#asymmetric_signing_algorithms`,
+										Description: `The format of the public key. Currently, only PEM format is supported.`,
 									},
 									"key": {
 										Type:        schema.TypeString,
