@@ -259,12 +259,12 @@ The `allowed_issuance_modes` block supports:
 The `identity_constraints` block supports:
 
 * `allow_subject_passthrough` -
-  (Optional)
+  (Required)
   If this is set, the Subject field may be copied from a certificate request into the signed certificate.
   Otherwise, the requested Subject will be discarded.
 
 * `allow_subject_alt_names_passthrough` -
-  (Optional)
+  (Required)
   If this is set, the SubjectAltNames extension may be copied from a certificate request into the signed certificate.
   Otherwise, the requested SubjectAltNames will be discarded.
 

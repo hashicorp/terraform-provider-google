@@ -56,8 +56,7 @@ resource "google_privateca_certificate_authority" "test-ca" {
   certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
   location = "us-central1"
   pool = "%{pool}"
-  tier = "ENTERPRISE"
-  ignore_active_certificates = true
+  ignore_active_certificates_on_deletion = true
   config {
     subject_config {
       subject {
@@ -167,7 +166,6 @@ resource "google_privateca_certificate_authority" "test-ca" {
   pool = "%{pool}"
   certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
   location = "us-central1"
-  tier = "ENTERPRISE"
   config {
     subject_config {
       subject {

@@ -43,7 +43,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 				ResourceName:            "google_privateca_certificate_authority.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ignore_active_certificates", "location", "certificate_authority_id", "pool"},
+				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool"},
 			},
 		},
 	})
@@ -101,7 +101,7 @@ resource "google_privateca_certificate_authority" "default" {
 `, context)
 }
 
-func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityCmekExample(t *testing.T) {
+func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityByoKeyExample(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
 
@@ -117,19 +117,19 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityCmekExamp
 		CheckDestroy: testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityCmekExample(context),
+				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityByoKeyExample(context),
 			},
 			{
 				ResourceName:            "google_privateca_certificate_authority.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ignore_active_certificates", "location", "certificate_authority_id", "pool"},
+				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool"},
 			},
 		},
 	})
 }
 
-func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityCmekExample(context map[string]interface{}) string {
+func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityByoKeyExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project_service_identity" "privateca_sa" {
   service = "privateca.googleapis.com"
