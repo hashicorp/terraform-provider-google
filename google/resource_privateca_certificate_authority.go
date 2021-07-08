@@ -836,13 +836,14 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 
 	log.Printf("[DEBUG] Disabling CertificateAuthority: %#v", obj)
 
-	res, err = sendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
+	dRes, err := sendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error disabling CertificateAuthority: %s", err)
 	}
 
+	var opRes map[string]interface{}
 	err = privatecaOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Disabling CertificateAuthority", userAgent,
+		config, dRes, &opRes, project, "Disabling CertificateAuthority", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return fmt.Errorf("Error waiting to disable CertificateAuthority: %s", err)
