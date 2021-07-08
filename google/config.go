@@ -164,8 +164,9 @@ type Config struct {
 
 	// start DCLBasePaths
 	// dataprocBasePath is implemented in mm
-	EventarcBasePath string
-	GkeHubBasePath   string
+	AssuredWorkloadsBasePath string
+	EventarcBasePath         string
+	GkeHubBasePath           string
 }
 
 const AccessApprovalBasePathKey = "AccessApproval"

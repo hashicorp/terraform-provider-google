@@ -1,0 +1,147 @@
+---
+subcategory: "Assured Workloads"
+layout: "google"
+page_title: "Google: google_assured_workloads_workload"
+sidebar_current: "docs-google-assured_workloads_workload"
+description: |-
+---
+
+# google\_assured\_workloads\_workload
+An Workload object for managing highly regulated workloads of cloud customers.
+
+
+## Example Usage - basic
+
+```hcl
+resource "google_assured_workloads_workload" "meep" {
+	provider = google-beta
+	display_name = "workloadExample"
+	billing_account = "billingAccounts/1337-8008"
+	compliance_regime = "FEDRAMP_MODERATE"
+	organization = "13371234"
+	location = "us-central1"
+}
+```
+
+## Example Usage - full
+```hcl
+resource "google_assured_workloads_workload" "meep" {
+	provider = google-beta
+	display_name = "workloadExample"
+	billing_account = "billingAccounts/1324-24232-42424-2323"
+	compliance_regime = "FEDRAMP_MODERATE"
+	organization = "13371234"
+	location = "us-central1"
+	kms_settings {
+		next_rotation_time = "2021-10-02T15:01:23Z"
+		rotation_period = "864000s"
+	}
+	provisioned_resources_parent = "folders/1337123434"
+	resource_settings {
+		resource_id = "tf-test-prj-1"
+		resource_type = "CONSUMER_PROJECT"
+	}
+}
+```
+
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `billing_account` -
+  (Required)
+  Required. Input only. The billing account used for the resources which are direct children of workload. This billing account is initially associated with the resources created as part of Workload creation. After the initial creation of these resources, the customer can change the assigned billing account. The resource name has the form `billingAccounts/{billing_account_id}`. For example, 'billingAccounts/012345-567890-ABCDEF`.
+
+* `compliance_regime` -
+  (Required)
+  Required. Immutable. Compliance Regime associated with this workload. Possible values: COMPLIANCE_REGIME_UNSPECIFIED, IL4, CJIS, FEDRAMP_HIGH, FEDRAMP_MODERATE, US_REGIONAL_ACCESS
+
+* `display_name` -
+  (Required)
+  Required. The user-assigned display name of the Workload. When present it must be between 4 to 30 characters. Allowed characters are: lowercase and uppercase letters, numbers, hyphen, and spaces. Example: My Workload
+
+* `location` -
+  (Required)
+  The location for the resource
+
+* `organization` -
+  (Required)
+  The organization for the resource
+
+
+
+- - -
+
+* `kms_settings` -
+  (Optional)
+  Input only. Settings used to create a CMEK crypto key. When set a project with a KMS CMEK key is provisioned. This field is mandatory for a subset of Compliance Regimes.
+
+* `labels` -
+  (Optional)
+  Optional. Labels applied to the workload.
+
+* `provisioned_resources_parent` -
+  (Optional)
+  Input only. The parent resource for the resources managed by this Assured Workload. May be either an organization or a folder. Must be the same or a child of the Workload parent. If not specified all resources are created under the Workload parent. Formats: folders/{folder_id}, organizations/{organization_id}
+
+* `resource_settings` -
+  (Optional)
+  (Beta only) Input only. Resource properties that are used to customize workload resources. These properties (such as custom project id) will be used to create workload resources if possible. This field is optional.
+
+
+
+The `kms_settings` block supports:
+
+* `next_rotation_time` -
+  (Required)
+  Required. Input only. Immutable. The time at which the Key Management Service will automatically create a new version of the crypto key and mark it as the primary.
+
+* `rotation_period` -
+  (Required)
+  Required. Input only. Immutable. will be advanced by this period when the Key Management Service automatically rotates a key. Must be at least 24 hours and at most 876,000 hours.
+
+The `resource_settings` block supports:
+
+* `resource_id` -
+  (Optional)
+  Resource identifier. For a project this represents project_id. If the project is already taken, the workload creation will fail.
+
+* `resource_type` -
+  (Optional)
+  Indicates the type of resource. This field should be specified to correspond the id to the right project type (CONSUMER_PROJECT or ENCRYPTION_KEYS_PROJECT) Possible values: RESOURCE_TYPE_UNSPECIFIED, CONSUMER_PROJECT, ENCRYPTION_KEYS_PROJECT
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `id` - an identifier for the resource with format `organizations/{{organization}}/locations/{{location}}/workloads/{{name}}`
+
+* `create_time` -
+  Output only. Immutable. The Workload creation timestamp.
+
+* `name` -
+  Output only. The resource name of the workload.
+
+* `resources` -
+  Output only. The resources associated with this workload. These resources will be created when creating the workload. If any of the projects already exist, the workload creation will fail. Always read only.
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 10 minutes.
+- `update` - Default is 10 minutes.
+- `delete` - Default is 10 minutes.
+
+## Import
+
+Workload can be imported using any of these accepted formats:
+
+```
+$ terraform import google_assuredworkloads_workload.default organizations/{{organization}}/locations/{{location}}/workloads/{{name}}
+$ terraform import google_assuredworkloads_workload.default {{organization}}/{{location}}/{{name}}
+```
+
+
