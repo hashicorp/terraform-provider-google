@@ -662,7 +662,6 @@ func Provider() *schema.Provider {
 			BigtableAdminCustomEndpointEntryKey:     BigtableAdminCustomEndpointEntry,
 
 			// dcl
-			AssuredWorkloadsEndpointEntryKey:    AssuredWorkloadsEndpointEntry,
 			EventarcEndpointEntryKey:            EventarcEndpointEntry,
 			GkeHubFeatureCustomEndpointEntryKey: GkeHubFeatureCustomEndpointEntry,
 		},
@@ -1079,7 +1078,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_workflows_workflow":                                    resourceWorkflowsWorkflow(),
 		},
 		map[string]*schema.Resource{
-			"google_assured_workloads_workload":            resourceAssuredWorkloadsWorkload(),
 			"google_app_engine_application":                resourceAppEngineApplication(),
 			"google_bigquery_table":                        resourceBigQueryTable(),
 			"google_bigtable_gc_policy":                    resourceBigtableGCPolicy(),
@@ -1368,7 +1366,6 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
 
 	// dcl
-	config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
 	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
 	config.GkeHubBasePath = d.Get(GkeHubFeatureCustomEndpointEntryKey).(string)
 
