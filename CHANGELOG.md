@@ -6,11 +6,11 @@ FEATURES:
 * **New Resource:** google_privateca_certificate_authority ([#9480](https://github.com/hashicorp/terraform-provider-google/pull/9480))
 
 IMPROVEMENTS:
-* bigquery: add `kms_key_version` as an output on `bigquery_table.encryption_configuration` and the `destination_encryption_configuration` blocks of `bigquery_job.query`, `bigquery_job.load`, and `bigquery_copy`. ([#9500](https://github.com/hashicorp/terraform-provider-google/pull/9500))
+* bigquery: added `kms_key_version` as an output on `bigquery_table.encryption_configuration` and the `destination_encryption_configuration` blocks of `bigquery_job.query`, `bigquery_job.load`, and `bigquery_copy`. ([#9500](https://github.com/hashicorp/terraform-provider-google/pull/9500))
 * compute: added `advanced_machine_features` to `google_compute_instance` ([#9470](https://github.com/hashicorp/terraform-provider-google/pull/9470))
 * compute: promoted all `cdn_policy` sub fields in `google_compute_backend_service`, `google_compute_region_backend_service` and `google_compute_backend_bucket` to GA ([#9432](https://github.com/hashicorp/terraform-provider-google/pull/9432))
 * dlp: Added `replace_with_info_type_config` to `dlp_deidentify_template`. ([#9446](https://github.com/hashicorp/terraform-provider-google/pull/9446))
-* storage_bucket_object: added temporary_hold and event_based_hold attributes ([#9487](https://github.com/hashicorp/terraform-provider-google/pull/9487))
+* storage: added `temporary_hold` and `event_based_hold` attributes to `google_storage_bucket_object` ([#9487](https://github.com/hashicorp/terraform-provider-google/pull/9487))
 
 BUG FIXES:
 * bigquery: Fixed permadiff due to lowercase mode/type in `google_bigquery_table.schema` ([#9499](https://github.com/hashicorp/terraform-provider-google/pull/9499))
