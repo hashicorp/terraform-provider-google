@@ -186,13 +186,27 @@ The following arguments are supported:
   Branch and tag names in trigger templates are interpreted as regular
   expressions. Any branch or tag change that matches that regular
   expression will trigger a build.
-  One of `trigger_template` or `github` must be provided.
+  One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
   Structure is documented below.
 
 * `github` -
   (Optional)
   Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
-  One of `trigger_template` or `github` must be provided.
+  One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
+  Structure is documented below.
+
+* `pubsub_config` -
+  (Optional)
+  PubsubConfig describes the configuration of a trigger that creates 
+  a build whenever a Pub/Sub message is published.
+  One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
+  Structure is documented below.
+
+* `webhook_config` -
+  (Optional)
+  WebhookConfig describes the configuration of a trigger that creates 
+  a build whenever a webhook is sent to a trigger's webhook URL.
+  One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
   Structure is documented below.
 
 * `build` -
@@ -291,6 +305,33 @@ The `push` block supports:
 * `tag` -
   (Optional)
   Regex of tags to match.  Specify only one of branch or tag.
+
+The `pubsub_config` block supports:
+
+* `subscription` -
+  Output only. Name of the subscription.
+
+* `topic` -
+  (Required)
+  The name of the topic from which this subscription is receiving messages.
+
+* `service_account_email` -
+  (Optional)
+  Service account that will make the push request.
+
+* `state` -
+  Potential issues with the underlying Pub/Sub subscription configuration.
+  Only populated on get requests.
+
+The `webhook_config` block supports:
+
+* `secret` -
+  (Required)
+  Resource name for the secret required as a URL parameter.
+
+* `state` -
+  Potential issues with the underlying Pub/Sub subscription configuration.
+  Only populated on get requests.
 
 The `build` block supports:
 
