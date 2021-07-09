@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_certificate_manager_certificate`
+`google_certificate_manager_dns_authorization`
+`google_network_services_edge_cache_keyset`
+`google_network_services_edge_cache_origin`
+`google_network_services_edge_cache_service`
+```

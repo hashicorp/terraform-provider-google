@@ -91,6 +91,7 @@ type Config struct {
 	BigtableBasePath             string
 	BillingBasePath              string
 	BinaryAuthorizationBasePath  string
+	CertificateManagerBasePath   string
 	CloudAssetBasePath           string
 	CloudBuildBasePath           string
 	CloudFunctionsBasePath       string
@@ -121,6 +122,7 @@ type Config struct {
 	MLEngineBasePath             string
 	MonitoringBasePath           string
 	NetworkManagementBasePath    string
+	NetworkServicesBasePath      string
 	NotebooksBasePath            string
 	OSConfigBasePath             string
 	OSLoginBasePath              string
@@ -180,6 +182,7 @@ const BigqueryReservationBasePathKey = "BigqueryReservation"
 const BigtableBasePathKey = "Bigtable"
 const BillingBasePathKey = "Billing"
 const BinaryAuthorizationBasePathKey = "BinaryAuthorization"
+const CertificateManagerBasePathKey = "CertificateManager"
 const CloudAssetBasePathKey = "CloudAsset"
 const CloudBuildBasePathKey = "CloudBuild"
 const CloudFunctionsBasePathKey = "CloudFunctions"
@@ -210,6 +213,7 @@ const MemcacheBasePathKey = "Memcache"
 const MLEngineBasePathKey = "MLEngine"
 const MonitoringBasePathKey = "Monitoring"
 const NetworkManagementBasePathKey = "NetworkManagement"
+const NetworkServicesBasePathKey = "NetworkServices"
 const NotebooksBasePathKey = "Notebooks"
 const OSConfigBasePathKey = "OSConfig"
 const OSLoginBasePathKey = "OSLogin"
@@ -260,6 +264,7 @@ var DefaultBasePaths = map[string]string{
 	BigtableBasePathKey:             "https://bigtableadmin.googleapis.com/v2/",
 	BillingBasePathKey:              "https://billingbudgets.googleapis.com/v1/",
 	BinaryAuthorizationBasePathKey:  "https://binaryauthorization.googleapis.com/v1/",
+	CertificateManagerBasePathKey:   "https://certificatemanager.googleapis.com/v1alpha2/",
 	CloudAssetBasePathKey:           "https://cloudasset.googleapis.com/v1/",
 	CloudBuildBasePathKey:           "https://cloudbuild.googleapis.com/v1/",
 	CloudFunctionsBasePathKey:       "https://cloudfunctions.googleapis.com/v1/",
@@ -290,6 +295,7 @@ var DefaultBasePaths = map[string]string{
 	MLEngineBasePathKey:             "https://ml.googleapis.com/v1/",
 	MonitoringBasePathKey:           "https://monitoring.googleapis.com/",
 	NetworkManagementBasePathKey:    "https://networkmanagement.googleapis.com/v1/",
+	NetworkServicesBasePathKey:      "https://networkservices.googleapis.com/v1/",
 	NotebooksBasePathKey:            "https://notebooks.googleapis.com/v1/",
 	OSConfigBasePathKey:             "https://osconfig.googleapis.com/v1/",
 	OSLoginBasePathKey:              "https://oslogin.googleapis.com/v1/",
@@ -1093,6 +1099,7 @@ func ConfigureBasePaths(c *Config) {
 	c.BigtableBasePath = DefaultBasePaths[BigtableBasePathKey]
 	c.BillingBasePath = DefaultBasePaths[BillingBasePathKey]
 	c.BinaryAuthorizationBasePath = DefaultBasePaths[BinaryAuthorizationBasePathKey]
+	c.CertificateManagerBasePath = DefaultBasePaths[CertificateManagerBasePathKey]
 	c.CloudAssetBasePath = DefaultBasePaths[CloudAssetBasePathKey]
 	c.CloudBuildBasePath = DefaultBasePaths[CloudBuildBasePathKey]
 	c.CloudFunctionsBasePath = DefaultBasePaths[CloudFunctionsBasePathKey]
@@ -1123,6 +1130,7 @@ func ConfigureBasePaths(c *Config) {
 	c.MLEngineBasePath = DefaultBasePaths[MLEngineBasePathKey]
 	c.MonitoringBasePath = DefaultBasePaths[MonitoringBasePathKey]
 	c.NetworkManagementBasePath = DefaultBasePaths[NetworkManagementBasePathKey]
+	c.NetworkServicesBasePath = DefaultBasePaths[NetworkServicesBasePathKey]
 	c.NotebooksBasePath = DefaultBasePaths[NotebooksBasePathKey]
 	c.OSConfigBasePath = DefaultBasePaths[OSConfigBasePathKey]
 	c.OSLoginBasePath = DefaultBasePaths[OSLoginBasePathKey]
