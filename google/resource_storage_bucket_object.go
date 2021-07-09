@@ -311,6 +311,9 @@ func resourceStorageBucketObjectUpdate(d *schema.ResourceData, meta interface{})
 	getCall := objectsService.Get(bucket, name)
 
 	res, err := getCall.Do()
+	if err != nil {
+		return fmt.Errorf("Error retrieving object during update %s: %s", name, err)
+	}
 
 	if d.HasChange("event_based_hold") {
 		v := d.Get("event_based_hold")
