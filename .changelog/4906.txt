@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_vertex_ai_featurestore`
+```
+```release-note:new-resource
+`google_vertex_ai_featurestore_entitytype`
+```

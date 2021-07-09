@@ -84,7 +84,7 @@ Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The timestamp of when the workflow was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
+				Description: `The timestamp of when the dataset was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -94,7 +94,7 @@ Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The timestamp of when the workflow was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
+				Description: `The timestamp of when the dataset was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

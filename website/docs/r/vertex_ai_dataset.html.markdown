@@ -98,10 +98,10 @@ In addition to the arguments listed above, the following computed attributes are
   The resource name of the Dataset. This value is set by Google.
 
 * `create_time` -
-  The timestamp of when the workflow was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+  The timestamp of when the dataset was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
 
 * `update_time` -
-  The timestamp of when the workflow was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+  The timestamp of when the dataset was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
 
 
 ## Timeouts
