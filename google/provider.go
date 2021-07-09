@@ -227,6 +227,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_BINARY_AUTHORIZATION_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[BinaryAuthorizationBasePathKey]),
 			},
+			"certificate_manager_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_CERTIFICATE_MANAGER_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[CertificateManagerBasePathKey]),
+			},
 			"cloud_asset_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -466,6 +474,14 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"GOOGLE_NETWORK_MANAGEMENT_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[NetworkManagementBasePathKey]),
+			},
+			"network_services_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_NETWORK_SERVICES_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[NetworkServicesBasePathKey]),
 			},
 			"notebooks_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -775,9 +791,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 202
+// Generated resources: 207
 // Generated IAM resources: 90
-// Total generated resources: 292
+// Total generated resources: 297
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -828,6 +844,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_binary_authorization_attestor_iam_member":              ResourceIamMember(BinaryAuthorizationAttestorIamSchema, BinaryAuthorizationAttestorIamUpdaterProducer, BinaryAuthorizationAttestorIdParseFunc),
 			"google_binary_authorization_attestor_iam_policy":              ResourceIamPolicy(BinaryAuthorizationAttestorIamSchema, BinaryAuthorizationAttestorIamUpdaterProducer, BinaryAuthorizationAttestorIdParseFunc),
 			"google_binary_authorization_policy":                           resourceBinaryAuthorizationPolicy(),
+			"google_certificate_manager_dns_authorization":                 resourceCertificateManagerDnsAuthorization(),
+			"google_certificate_manager_certificate":                       resourceCertificateManagerCertificate(),
 			"google_cloud_asset_project_feed":                              resourceCloudAssetProjectFeed(),
 			"google_cloud_asset_folder_feed":                               resourceCloudAssetFolderFeed(),
 			"google_cloud_asset_organization_feed":                         resourceCloudAssetOrganizationFeed(),
@@ -1014,6 +1032,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_monitoring_uptime_check_config":                        resourceMonitoringUptimeCheckConfig(),
 			"google_monitoring_metric_descriptor":                          resourceMonitoringMetricDescriptor(),
 			"google_network_management_connectivity_test":                  resourceNetworkManagementConnectivityTest(),
+			"google_network_services_edge_cache_keyset":                    resourceNetworkServicesEdgeCacheKeyset(),
+			"google_network_services_edge_cache_origin":                    resourceNetworkServicesEdgeCacheOrigin(),
+			"google_network_services_edge_cache_service":                   resourceNetworkServicesEdgeCacheService(),
 			"google_notebooks_environment":                                 resourceNotebooksEnvironment(),
 			"google_notebooks_instance":                                    resourceNotebooksInstance(),
 			"google_notebooks_instance_iam_binding":                        ResourceIamBinding(NotebooksInstanceIamSchema, NotebooksInstanceIamUpdaterProducer, NotebooksInstanceIdParseFunc),
@@ -1297,6 +1318,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.BigtableBasePath = d.Get("bigtable_custom_endpoint").(string)
 	config.BillingBasePath = d.Get("billing_custom_endpoint").(string)
 	config.BinaryAuthorizationBasePath = d.Get("binary_authorization_custom_endpoint").(string)
+	config.CertificateManagerBasePath = d.Get("certificate_manager_custom_endpoint").(string)
 	config.CloudAssetBasePath = d.Get("cloud_asset_custom_endpoint").(string)
 	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
 	config.CloudFunctionsBasePath = d.Get("cloud_functions_custom_endpoint").(string)
@@ -1327,6 +1349,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.MLEngineBasePath = d.Get("ml_engine_custom_endpoint").(string)
 	config.MonitoringBasePath = d.Get("monitoring_custom_endpoint").(string)
 	config.NetworkManagementBasePath = d.Get("network_management_custom_endpoint").(string)
+	config.NetworkServicesBasePath = d.Get("network_services_custom_endpoint").(string)
 	config.NotebooksBasePath = d.Get("notebooks_custom_endpoint").(string)
 	config.OSConfigBasePath = d.Get("os_config_custom_endpoint").(string)
 	config.OSLoginBasePath = d.Get("os_login_custom_endpoint").(string)
