@@ -1,5 +1,24 @@
 ## 3.75.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** google_privateca_ca_pool ([#9480](https://github.com/hashicorp/terraform-provider-google/pull/9480))
+* **New Resource:** google_privateca_certificate ([#9480](https://github.com/hashicorp/terraform-provider-google/pull/9480))
+* **New Resource:** google_privateca_certificate_authority ([#9480](https://github.com/hashicorp/terraform-provider-google/pull/9480))
+
+IMPROVEMENTS:
+* bigquery: add `kms_key_version` as an output on `bigquery_table.encryption_configuration` and the `destination_encryption_configuration` blocks of `bigquery_job.query`, `bigquery_job.load`, and `bigquery_copy`. ([#9500](https://github.com/hashicorp/terraform-provider-google/pull/9500))
+* compute: added `advanced_machine_features` to `google_compute_instance` ([#9470](https://github.com/hashicorp/terraform-provider-google/pull/9470))
+* compute: promoted all `cdn_policy` sub fields in `google_compute_backend_service`, `google_compute_region_backend_service` and `google_compute_backend_bucket` to GA ([#9432](https://github.com/hashicorp/terraform-provider-google/pull/9432))
+* dlp: Added `replace_with_info_type_config` to `dlp_deidentify_template`. ([#9446](https://github.com/hashicorp/terraform-provider-google/pull/9446))
+* storage_bucket_object: added temporary_hold and event_based_hold attributes ([#9487](https://github.com/hashicorp/terraform-provider-google/pull/9487))
+
+BUG FIXES:
+* bigquery: Fixed permadiff due to lowercase mode/type in `google_bigquery_table.schema` ([#9499](https://github.com/hashicorp/terraform-provider-google/pull/9499))
+* billing: made `all_updates_rule.*` fields updatable on `google_billing_budget` ([#9473](https://github.com/hashicorp/terraform-provider-google/pull/9473))
+* billing: made `amount.specified_amount.units` updatable on `google_billing_budget` ([#9465](https://github.com/hashicorp/terraform-provider-google/pull/9465))
+* compute: fixed perma-diff in `google_compute_instance` ([#9460](https://github.com/hashicorp/terraform-provider-google/pull/9460))
+* storage: fixed handling of object paths that contain slashes for `google_storage_object_access_control` ([#9502](https://github.com/hashicorp/terraform-provider-google/pull/9502))
+
 ## 3.74.0 (June 28, 2021)
 FEATURES:
 * **New Resource:** `google_app_engine_service_network_settings` ([#9414](https://github.com/hashicorp/terraform-provider-google/pull/9414))
