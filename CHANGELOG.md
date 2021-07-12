@@ -1,4 +1,4 @@
-## 3.75.0 (Unreleased)
+## 3.75.0 (July 12, 2021)
 
 FEATURES:
 * **New Resource:** google_privateca_ca_pool ([#9480](https://github.com/hashicorp/terraform-provider-google/pull/9480))
