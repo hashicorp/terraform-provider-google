@@ -26,6 +26,31 @@ var allowedVpcConnectorEgressSettings = []string{
 	"PRIVATE_RANGES_ONLY",
 }
 
+var allowedRegionsSettings = []string{
+	"asia-east1",
+	"asia-east2",
+	"asia-northeast1",
+	"asia-northeast2",
+	"asia-northeast3",
+	"asia-south1",
+	"asia-southeast1",
+	"asia-southeast2",
+	"australia-southeast1",
+	"europe-central2",
+	"europe-west1",
+	"europe-west2",
+	"europe-west3",
+	"europe-west6",
+	"northamerica-northeast1",
+	"southamerica-east1",
+	"us-central1",
+	"us-east1",
+	"us-east4",
+	"us-west2",
+	"us-west3",
+	"us-west4",
+}
+
 type cloudFunctionId struct {
 	Project string
 	Region  string
@@ -302,11 +327,12 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `Region of function. If it is not provided, the provider region is used.`,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice(allowedRegionsSettings, true),
+				Description:  `Region of function. If it is not provided, the provider region is used. For a list of allowed regions see https://cloud.google.com/functions/docs/locations`,
 			},
 		},
 		UseJSONNumber: true,
