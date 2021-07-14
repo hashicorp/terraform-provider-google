@@ -1,0 +1,3 @@
+```release-note:enhancement
+Added SLASH_22 support for `peering_cidr_range` on `google_apigee_instance`
+```
