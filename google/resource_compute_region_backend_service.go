@@ -579,6 +579,7 @@ INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2. Possible va
 			},
 			"log_config": {
 				Type:     schema.TypeList,
+				Computed: true,
 				Optional: true,
 				Description: `This field denotes the logging options for the load balancer traffic served by this backend service.
 If logging is enabled, logs will be exported to Stackdriver.`,
