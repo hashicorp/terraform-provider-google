@@ -122,6 +122,28 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 					}
 				}
 			}
+
+      transformations {
+        info_types {
+          name = "CREDIT_CARD_NUMBER"
+        }
+
+        primitive_transformation {
+          crypto_deterministic_config {
+            context {
+              name = "sometweak"
+            }
+            crypto_key {
+              transient {
+                name = "beep"
+              }
+            }
+            surrogate_info_type {
+              name = "abc"
+            }
+          }
+        }
+      }
 		}
 	}
 }
