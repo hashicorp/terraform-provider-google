@@ -37,10 +37,6 @@ resource "google_assured_workloads_workload" "meep" {
 		rotation_period = "864000s"
 	}
 	provisioned_resources_parent = "folders/1337123434"
-	resource_settings {
-		resource_id = "tf-test-prj-1"
-		resource_type = "CONSUMER_PROJECT"
-	}
 }
 ```
 
@@ -87,7 +83,7 @@ The following arguments are supported:
 
 * `resource_settings` -
   (Optional)
-  (Beta only) Input only. Resource properties that are used to customize workload resources. These properties (such as custom project id) will be used to create workload resources if possible. This field is optional.
+  Input only. Resource properties that are used to customize workload resources. These properties (such as custom project id) will be used to create workload resources if possible. This field is optional.
 
 
 
