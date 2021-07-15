@@ -105,6 +105,14 @@ func resourceAssuredWorkloadsWorkload() *schema.Resource {
 				Description: ``,
 			},
 
+			"resource_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: ``,
+				Elem:        AssuredWorkloadsWorkloadResourceSettingsSchema(),
+			},
+
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -147,6 +155,27 @@ func AssuredWorkloadsWorkloadKmsSettingsSchema() *schema.Resource {
 	}
 }
 
+func AssuredWorkloadsWorkloadResourceSettingsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"resource_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: ``,
+			},
+
+			"resource_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  ``,
+				ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "CONSUMER_PROJECT", "ENCRYPTION_KEYS_PROJECT", "KEYRING", ""}, false),
+			},
+		},
+	}
+}
+
 func AssuredWorkloadsWorkloadResourcesSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -177,6 +206,7 @@ func resourceAssuredWorkloadsWorkloadCreate(d *schema.ResourceData, meta interfa
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
 		Labels:                     checkStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
+		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 	}
 
 	id, err := replaceVarsForId(d, config, "organizations/{{organization}}/locations/{{location}}/workloads/{{name}}")
@@ -229,6 +259,7 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
 		Labels:                     checkStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
+		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		Name:                       dcl.StringOrNil(d.Get("name").(string)),
 	}
 
@@ -273,6 +304,9 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 	if err = d.Set("provisioned_resources_parent", res.ProvisionedResourcesParent); err != nil {
 		return fmt.Errorf("error setting provisioned_resources_parent in state: %s", err)
 	}
+	if err = d.Set("resource_settings", flattenAssuredWorkloadsWorkloadResourceSettingsArray(res.ResourceSettings)); err != nil {
+		return fmt.Errorf("error setting resource_settings in state: %s", err)
+	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
 	}
@@ -297,6 +331,7 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
 		Labels:                     checkStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
+		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		Name:                       dcl.StringOrNil(d.Get("name").(string)),
 	}
 	// Construct state hint from old values
@@ -309,6 +344,7 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(oldValue(d.GetChange("kms_settings"))),
 		Labels:                     checkStringMap(oldValue(d.GetChange("labels"))),
 		ProvisionedResourcesParent: dcl.String(oldValue(d.GetChange("provisioned_resources_parent")).(string)),
+		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(oldValue(d.GetChange("resource_settings"))),
 		Name:                       dcl.StringOrNil(oldValue(d.GetChange("name")).(string)),
 	}
 	directive := UpdateDirective
@@ -345,6 +381,7 @@ func resourceAssuredWorkloadsWorkloadDelete(d *schema.ResourceData, meta interfa
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
 		Labels:                     checkStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
+		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		Name:                       dcl.StringOrNil(d.Get("name").(string)),
 	}
 
@@ -411,6 +448,63 @@ func flattenAssuredWorkloadsWorkloadKmsSettings(obj *assuredworkloads.WorkloadKm
 	}
 
 	return []interface{}{transformed}
+
+}
+func expandAssuredWorkloadsWorkloadResourceSettingsArray(o interface{}) []assuredworkloads.WorkloadResourceSettings {
+	if o == nil {
+		return nil
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 {
+		return nil
+	}
+
+	items := make([]assuredworkloads.WorkloadResourceSettings, 0, len(objs))
+	for _, item := range objs {
+		i := expandAssuredWorkloadsWorkloadResourceSettings(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandAssuredWorkloadsWorkloadResourceSettings(o interface{}) *assuredworkloads.WorkloadResourceSettings {
+	if o == nil {
+		return assuredworkloads.EmptyWorkloadResourceSettings
+	}
+
+	obj := o.(map[string]interface{})
+	return &assuredworkloads.WorkloadResourceSettings{
+		ResourceId:   dcl.String(obj["resource_id"].(string)),
+		ResourceType: assuredworkloads.WorkloadResourceSettingsResourceTypeEnumRef(obj["resource_type"].(string)),
+	}
+}
+
+func flattenAssuredWorkloadsWorkloadResourceSettingsArray(objs []assuredworkloads.WorkloadResourceSettings) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenAssuredWorkloadsWorkloadResourceSettings(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenAssuredWorkloadsWorkloadResourceSettings(obj *assuredworkloads.WorkloadResourceSettings) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"resource_id":   obj.ResourceId,
+		"resource_type": obj.ResourceType,
+	}
+
+	return transformed
 
 }
 
