@@ -1,4 +1,4 @@
-## 3.76.0 (Unreleased)
+## 3.76.0 (July 19, 2021)
 
 FEATURES:
 * **New Resource:** `google_dialogflow_cx_flow` ([#9551](https://github.com/hashicorp/terraform-provider-google/pull/9551))
