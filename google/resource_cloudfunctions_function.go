@@ -239,7 +239,7 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice(allowedHTTPTriggerSettings, true),
-				Description:  `String value that controls whether HTTP and HTTPS trafic is allowed or just HTTP. Allowed values are SECURE_OPTIONAL and SECURE_ALWAYS. Cannot be used with trigger_bucket and trigger_topic.`,
+				Description:  `String value that controls whether HTTP and HTTPS trafic is allowed or just HTTP. Allowed values are SECURE_OPTIONAL and SECURE_ALWAYS. Cannot be used with trigger_bucket and trigger_topic. Changes to this field will recreate the cloud function.`,
 			},
 
 			"event_trigger": {
