@@ -1,4 +1,20 @@
 ## 3.76.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_dialogflow_cx_flow` ([#9551](https://github.com/hashicorp/terraform-provider-google/pull/9551))
+* **New Resource:** `google_dialogflow_cx_intent` ([#9537](https://github.com/hashicorp/terraform-provider-google/pull/9537))
+* **New Resource:** `google_dialogflow_cx_version` ([#9554](https://github.com/hashicorp/terraform-provider-google/pull/9554))
+* **New Resource:** `google_network_services_edge_cache_keyset` ([#9540](https://github.com/hashicorp/terraform-provider-google/pull/9540))
+* **New Resource:** `google_network_services_edge_cache_origin` ([#9540](https://github.com/hashicorp/terraform-provider-google/pull/9540))
+* **New Resource:** `google_network_services_edge_cache_service` ([#9540](https://github.com/hashicorp/terraform-provider-google/pull/9540))
+
+IMPROVEMENTS:
+* apigee: Added SLASH_22 support for `peering_cidr_range` on `google_apigee_instance` ([#9558](https://github.com/hashicorp/terraform-provider-google/pull/9558))
+* cloudbuild: Added `pubsub_config` and `webhook_config` parameter to `google_cloudbuild_trigger`. ([#9541](https://github.com/hashicorp/terraform-provider-google/pull/9541))
+
+BUG FIXES:
+* pubsub: fixed pubsublite update issues ([#9544](https://github.com/hashicorp/terraform-provider-google/pull/9544))
+
 ## 3.75.0 (July 12, 2021)
 
 FEATURES:
