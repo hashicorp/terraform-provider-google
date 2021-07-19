@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed bug where the provider would retry on an error if the database instance name couldn't be reused.
+```
