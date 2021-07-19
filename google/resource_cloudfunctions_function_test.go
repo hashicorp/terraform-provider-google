@@ -154,7 +154,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(funcResourceName,
 						"entry_point", "helloGET"),
 					resource.TestCheckResourceAttr(funcResourceName,
-						"trigger_http", "SECURE_ALWAYS"),
+						"trigger_http", "true"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
 					testAccCloudFunctionsFunctionHasEnvironmentVariable("TEST_ENV_VARIABLE",
 						"test-env-variable-value", &function),
@@ -608,7 +608,7 @@ resource "google_cloudfunctions_function" "function" {
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
-  trigger_http          = "SECURE_ALWAYS"
+  trigger_http          = true
   timeout               = 61
   entry_point           = "helloGET"
   ingress_settings      = "ALLOW_INTERNAL_ONLY"
@@ -644,7 +644,7 @@ resource "google_cloudfunctions_function" "function" {
   available_memory_mb   = 256
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
-  trigger_http          = "SECURE_ALWAYS"
+  trigger_http          = true
   runtime               = "nodejs10"
   timeout               = 91
   entry_point           = "helloGET"
@@ -809,7 +809,7 @@ resource "google_cloudfunctions_function" "function" {
     url = "https://source.developers.google.com/projects/%s/repos/cloudfunctions-test-do-not-delete/moveable-aliases/master/paths/"
   }
 
-  trigger_http = "SECURE_ALWAYS"
+  trigger_http = true
   entry_point  = "helloGET"
 }
 `, functionName, project)
@@ -839,7 +839,7 @@ resource "google_cloudfunctions_function" "function" {
 
   service_account_email = data.google_compute_default_service_account.default.email
 
-  trigger_http = "SECURE_ALWAYS"
+  trigger_http = true
   entry_point  = "helloGET"
 }
 `, bucketName, zipFilePath, functionName)
@@ -883,7 +883,7 @@ resource "google_cloudfunctions_function" "function" {
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
-  trigger_http          = "SECURE_ALWAYS"
+  trigger_http          = true
   timeout               = 61
   entry_point           = "helloGET"
   labels = {

@@ -15,11 +15,6 @@ import (
 	"time"
 )
 
-var allowedHTTPTriggerSettings = []string{
-	"SECURE_ALWAYS",
-	"SECURE_OPTIONAL",
-}
-
 var allowedIngressSettings = []string{
 	"ALLOW_ALL",
 	"ALLOW_INTERNAL_AND_GCLB",
@@ -236,10 +231,10 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"trigger_http": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice(allowedHTTPTriggerSettings, true),
-				Description:  `String value that controls whether HTTP and HTTPS trafic is allowed or just HTTP. Allowed values are SECURE_OPTIONAL and SECURE_ALWAYS. Cannot be used with trigger_bucket and trigger_topic. Changes to this field will recreate the cloud function.`,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as https_trigger_url. Cannot be used with trigger_bucket and trigger_topic.`,
 			},
 
 			"event_trigger": {
@@ -379,10 +374,8 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 
 	if v, ok := d.GetOk("event_trigger"); ok {
 		function.EventTrigger = expandEventTrigger(v.([]interface{}), project)
-	} else if v, ok := d.GetOk("trigger_http"); ok {
-		function.HttpsTrigger = &cloudfunctions.HttpsTrigger{
-			SecurityLevel: v.(string),
-		}
+	} else if v, ok := d.GetOk("trigger_http"); ok && v.(bool) {
+		function.HttpsTrigger = &cloudfunctions.HttpsTrigger{}
 	} else {
 		return fmt.Errorf("One of `event_trigger` or `trigger_http` is required: " +
 			"You must specify a trigger when deploying a new function.")
@@ -520,7 +513,7 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if function.HttpsTrigger != nil {
-		if err := d.Set("trigger_http", function.HttpsTrigger.SecurityLevel); err != nil {
+		if err := d.Set("trigger_http", true); err != nil {
 			return fmt.Errorf("Error setting trigger_http: %s", err)
 		}
 		if err := d.Set("https_trigger_url", function.HttpsTrigger.Url); err != nil {
