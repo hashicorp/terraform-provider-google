@@ -446,7 +446,6 @@ resource "google_composer_environment" "test" {
 			}
 		}
 	}
-
 	depends_on = [google_project_iam_member.composer-worker]
 }
 

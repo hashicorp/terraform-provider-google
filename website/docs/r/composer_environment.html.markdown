@@ -182,6 +182,10 @@ The `config` block supports:
 * `encryption_config` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The encryption options for the Cloud Composer environment and its dependencies.
+  
+* `maintenance_window` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The configuration settings for Cloud Composer maintenance window.
 
 The `node_config` block supports:
 
@@ -410,6 +414,22 @@ The `encryption_config` block supports:
   be the fully qualified resource name, 
   i.e. projects/project-id/locations/location/keyRings/keyring/cryptoKeys/key. Cannot be updated.
 
+The `maintenance_window` block supports:
+
+* `start_time` -
+  (Required)
+  Start time of the first recurrence of the maintenance window.
+
+* `end_time` -
+  (Required)
+  Maintenance window end time. It is used only to calculate the duration of the maintenance window.
+  The value for end-time must be in the future, relative to 'start_time'.
+
+* `recurrence` -
+  (Required)
+  Maintenance window recurrence. Format is a subset of RFC-5545 (https://tools.ietf.org/html/rfc5545) 'RRULE'.
+  The only allowed values for 'FREQ' field are 'FREQ=DAILY' and 'FREQ=WEEKLY;BYDAY=...'.
+  Example values: 'FREQ=WEEKLY;BYDAY=TU,WE', 'FREQ=DAILY'.
 
 ## Attributes Reference
 
