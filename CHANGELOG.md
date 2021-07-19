@@ -7,8 +7,6 @@ FEATURES:
 * **New Resource:** `google_network_services_edge_cache_keyset` ([#9540](https://github.com/hashicorp/terraform-provider-google/pull/9540))
 * **New Resource:** `google_network_services_edge_cache_origin` ([#9540](https://github.com/hashicorp/terraform-provider-google/pull/9540))
 * **New Resource:** `google_network_services_edge_cache_service` ([#9540](https://github.com/hashicorp/terraform-provider-google/pull/9540))
-* **New Resource:** `google_vertex_ai_featurestore_entitytype` ([#9538](https://github.com/hashicorp/terraform-provider-google/pull/9538))
-* **New Resource:** `google_vertex_ai_featurestore` ([#9538](https://github.com/hashicorp/terraform-provider-google/pull/9538))
 
 IMPROVEMENTS:
 * apigee: Added SLASH_22 support for `peering_cidr_range` on `google_apigee_instance` ([#9558](https://github.com/hashicorp/terraform-provider-google/pull/9558))
