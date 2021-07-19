@@ -932,6 +932,7 @@ Provide this property when you create the resource.`,
 			},
 			"max_connections": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 				Description: `The max number of simultaneous connections for the group. Can
 be used with either CONNECTION or UTILIZATION balancing modes.
@@ -942,6 +943,7 @@ as appropriate for group type, must be set.`,
 			},
 			"max_connections_per_endpoint": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 				Description: `The max number of simultaneous connections that a single backend
 network endpoint can handle. This is used to calculate the
@@ -953,6 +955,7 @@ maxConnections or maxConnectionsPerEndpoint must be set.`,
 			},
 			"max_connections_per_instance": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 				Description: `The max number of simultaneous connections that a single
 backend instance can handle. This is used to calculate the
@@ -964,6 +967,7 @@ maxConnectionsPerInstance must be set.`,
 			},
 			"max_rate": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 				Description: `The max requests per second (RPS) of the group.
 
@@ -974,6 +978,7 @@ group type, must be set.`,
 			},
 			"max_rate_per_endpoint": {
 				Type:     schema.TypeFloat,
+				Computed: true,
 				Optional: true,
 				Description: `The max requests per second (RPS) that a single backend network
 endpoint can handle. This is used to calculate the capacity of
@@ -982,6 +987,7 @@ either maxRate or maxRatePerEndpoint must be set.`,
 			},
 			"max_rate_per_instance": {
 				Type:     schema.TypeFloat,
+				Computed: true,
 				Optional: true,
 				Description: `The max requests per second (RPS) that a single backend
 instance can handle. This is used to calculate the capacity of
@@ -990,11 +996,10 @@ either maxRate or maxRatePerInstance must be set.`,
 			},
 			"max_utilization": {
 				Type:     schema.TypeFloat,
+				Computed: true,
 				Optional: true,
 				Description: `Used when balancingMode is UTILIZATION. This ratio defines the
-CPU utilization target for the group. The default is 0.8. Valid
-range is [0.0, 1.0].`,
-				Default: 0.8,
+CPU utilization target for the group. Valid range is [0.0, 1.0].`,
 			},
 		},
 	}
@@ -2750,7 +2755,7 @@ func expandComputeBackendServiceBackend(v interface{}, d TerraformResourceData, 
 		transformedMaxUtilization, err := expandComputeBackendServiceBackendMaxUtilization(original["max_utilization"], d, config)
 		if err != nil {
 			return nil, err
-		} else {
+		} else if val := reflect.ValueOf(transformedMaxUtilization); val.IsValid() && !isEmptyValue(val) {
 			transformed["maxUtilization"] = transformedMaxUtilization
 		}
 
