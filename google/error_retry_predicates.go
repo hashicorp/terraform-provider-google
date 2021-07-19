@@ -182,7 +182,7 @@ func isSqlInternalError(err error) (bool, string) {
 // concurrent operations.
 func isSqlOperationInProgressError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 {
-		if strings.Contains(gerr.Body, "you cannot reuse the name of the deleted instance until one week from the deletion date.") {
+		if strings.Contains(gerr.Body, "instanceAlreadyExists") {
 			return false, ""
 		}
 
