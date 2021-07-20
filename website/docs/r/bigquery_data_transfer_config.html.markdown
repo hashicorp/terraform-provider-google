@@ -81,10 +81,6 @@ The following arguments are supported:
   (Required)
   The user specified display name for the transfer config.
 
-* `destination_dataset_id` -
-  (Required)
-  The BigQuery target dataset id.
-
 * `data_source_id` -
   (Required)
   The data source id. Cannot be changed once the transfer config is created.
@@ -96,6 +92,10 @@ The following arguments are supported:
 
 - - -
 
+
+* `destination_dataset_id` -
+  (Optional)
+  The BigQuery target dataset id.
 
 * `schedule` -
   (Optional)

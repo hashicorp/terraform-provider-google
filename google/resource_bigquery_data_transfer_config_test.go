@@ -17,6 +17,7 @@ func TestAccBigqueryDataTransferConfig(t *testing.T) {
 		"basic":           testAccBigqueryDataTransferConfig_scheduledQuery_basic,
 		"update":          testAccBigqueryDataTransferConfig_scheduledQuery_update,
 		"service_account": testAccBigqueryDataTransferConfig_scheduledQuery_with_service_account,
+		"no_destintation": testAccBigqueryDataTransferConfig_scheduledQuery_no_destination,
 		"booleanParam":    testAccBigqueryDataTransferConfig_copy_booleanParam,
 	}
 
@@ -78,6 +79,32 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 			},
 			{
 				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, "second", second_start_time, second_end_time, "z"),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.query_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryDataTransferConfig_scheduledQuery_no_destination(t *testing.T) {
+	// Uses time.Now
+	skipIfVcr(t)
+	random_suffix := randString(t, 10)
+	now := time.Now().UTC()
+	start_time := now.Add(1 * time.Hour).Format(time.RFC3339)
+	end_time := now.AddDate(0, 1, 0).Format(time.RFC3339)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDataTransferConfig_scheduledQueryNoDestination(random_suffix, "third", start_time, end_time, "y"),
 			},
 			{
 				ResourceName:            "google_bigquery_data_transfer_config.query_config",
@@ -243,6 +270,44 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   }
 }
 `, random_suffix, random_suffix, random_suffix)
+}
+
+func testAccBigqueryDataTransferConfig_scheduledQueryNoDestination(random_suffix, schedule, start_time, end_time, letter string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_project_iam_member" "permissions" {
+  role   = "roles/iam.serviceAccountShortTermTokenMinter"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
+}
+
+resource "google_pubsub_topic" "my_topic" {
+  name = "tf-test-my-topic-%s"
+}
+
+resource "google_bigquery_data_transfer_config" "query_config" {
+  depends_on = [google_project_iam_member.permissions]
+
+  display_name           = "my-query-%s"
+  location               = "asia-northeast1"
+  data_source_id         = "scheduled_query"
+  schedule               = "%s sunday of quarter 00:00"
+  schedule_options {
+    disable_auto_scheduling = false
+    start_time              = "%s"
+    end_time                = "%s"
+  }
+  notification_pubsub_topic = google_pubsub_topic.my_topic.id
+  email_preferences {
+    enable_failure_email = true
+  }
+  params = {
+    destination_table_name_template = "my_table"
+    write_disposition               = "WRITE_APPEND"
+    query                           = "SELECT name FROM tabl WHERE x = '%s'"
+  }
+}
+`, random_suffix, random_suffix, schedule, start_time, end_time, letter)
 }
 
 func testAccBigqueryDataTransferConfig_booleanParam(random_suffix string) string {
