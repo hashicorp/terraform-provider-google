@@ -1,0 +1,3 @@
+```release-note:bug
+Fixed ordering of `budget_filter. projects` on `google_billing_budget`
+```

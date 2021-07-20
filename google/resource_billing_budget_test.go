@@ -283,3 +283,129 @@ func TestBillingBudgetStateUpgradeV0(t *testing.T) {
 		})
 	}
 }
+
+func TestAccBillingBudget_budgetFilterProjectsOrdering(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org":             getTestOrgFromEnv(t),
+		"billing_acct":    getTestBillingAccountFromEnv(t),
+		"random_suffix_1": randString(t, 10),
+		"random_suffix_2": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBillingBudget_budgetFilterProjectsOrdering1(context),
+			},
+			{
+				ResourceName:      "google_billing_budget.budget",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
+			{
+				Config:             testAccBillingBudget_budgetFilterProjectsOrdering2(context),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+			{
+				ResourceName:      "google_billing_budget.budget",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBillingBudget_budgetFilterProjectsOrdering1(context map[string]interface{}) string {
+	return Nprintf(`
+
+data "google_billing_account" "account" {
+	billing_account = "%{billing_acct}"
+}
+
+resource "google_project" "project1" {
+	project_id      = "tf-test-%{random_suffix_1}"
+	name            = "tf-test-%{random_suffix_1}"
+	org_id          = "%{org}"
+	billing_account = data.google_billing_account.account.id
+}
+
+resource "google_project" "project2" {
+	project_id      = "tf-test-%{random_suffix_2}"
+	name            = "tf-test-%{random_suffix_2}"
+	org_id          = "%{org}"
+	billing_account = data.google_billing_account.account.id
+}
+
+resource "google_billing_budget" "budget" {
+	billing_account = data.google_billing_account.account.id
+	display_name    = "Example Billing Budget"
+
+	budget_filter {
+		projects = [
+			"projects/${google_project.project1.number}",
+			"projects/${google_project.project2.number}",
+		]
+	}
+
+	amount {
+		last_period_amount = true
+	}
+
+	threshold_rules {
+		threshold_percent =  10.0
+	}
+}
+
+`, context)
+}
+
+func testAccBillingBudget_budgetFilterProjectsOrdering2(context map[string]interface{}) string {
+	return Nprintf(`
+
+data "google_billing_account" "account" {
+	billing_account = "%{billing_acct}"
+}
+
+resource "google_project" "project1" {
+	project_id      = "tf-test-%{random_suffix_1}"
+	name            = "tf-test-%{random_suffix_1}"
+	org_id          = "%{org}"
+	billing_account = data.google_billing_account.account.id
+}
+
+resource "google_project" "project2" {
+	project_id      = "tf-test-%{random_suffix_2}"
+	name            = "tf-test-%{random_suffix_2}"
+	org_id          = "%{org}"
+	billing_account = data.google_billing_account.account.id
+}
+
+resource "google_billing_budget" "budget" {
+	billing_account = data.google_billing_account.account.id
+	display_name    = "Example Billing Budget"
+
+	budget_filter {
+		projects = [
+			"projects/${google_project.project2.number}",
+			"projects/${google_project.project1.number}",
+		]
+	}
+
+	amount {
+		last_period_amount = true
+	}
+
+	threshold_rules {
+		threshold_percent =  10.0
+	}
+}
+
+`, context)
+}
