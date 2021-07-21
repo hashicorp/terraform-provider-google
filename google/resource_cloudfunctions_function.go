@@ -236,16 +236,16 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			},
 
 			"trigger_http": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as https_trigger_url. Cannot be used with trigger_bucket and trigger_topic.`,
+				Type:         schema.TypeBool,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"security_level"},
+				Description:  `Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as https_trigger_url. Cannot be used with trigger_bucket and trigger_topic.`,
 			},
 
 			"security_level": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				RequiredWith: []string{"trigger_http"},
 				ValidateFunc: validation.StringInSlice(allowedSecurityLevelSettings, true),
 				Description:  `String value that controls whether HTTP and HTTPS trafic is allowed or just HTTP. Allowed values are SECURE_OPTIONAL and SECURE_ALWAYS. Only can be used when trigger_http is set.`,
 			},
@@ -389,12 +389,16 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.EventTrigger = expandEventTrigger(v.([]interface{}), project)
 	} else if v, ok := d.GetOk("trigger_http"); ok && v.(bool) {
 		function.HttpsTrigger = &cloudfunctions.HttpsTrigger{}
-		if vv, ok := d.GetOk("security_level"); ok {
-			function.HttpsTrigger.SecurityLevel = vv.(string)
-		}
 	} else {
 		return fmt.Errorf("One of `event_trigger` or `trigger_http` is required: " +
 			"You must specify a trigger when deploying a new function.")
+	}
+
+	if v, ok := d.GetOk("security_level"); ok {
+		if function.HttpsTrigger == nil {
+			return fmt.Errorf("`security_level` requires `trigger_http` to be enabled")
+		}
+		function.HttpsTrigger.SecurityLevel = v.(string)
 	}
 
 	if v, ok := d.GetOk("ingress_settings"); ok {
@@ -657,7 +661,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("security_level") {
 		if function.HttpsTrigger == nil {
-			function.HttpsTrigger = &cloudfunctions.HttpsTrigger{}
+			return fmt.Errorf("cannot update `security_level` as `trigger_http` is not enabled")
 		}
 		function.HttpsTrigger.SecurityLevel = d.Get("security_level").(string)
 		updateMaskArr = append(updateMaskArr, "httpsTrigger.securityLevel")
