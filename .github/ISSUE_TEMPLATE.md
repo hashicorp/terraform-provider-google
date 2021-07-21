@@ -56,3 +56,7 @@ Information about referencing Github Issues: https://help.github.com/articles/ba
 Are there any other GitHub issues (open or closed) or pull requests that should be linked here? Vendor documentation? For example:
 --->
 * #0000
+
+<!---
+Note Google Cloud customers who are working with a dedicated Technical Account Manager (TAM) and Customer Engineer (CE): to expedite the investigation and resolution of this issue, please request your TAM/CE to open an internal bug for Terraform team at Google.
+--->
