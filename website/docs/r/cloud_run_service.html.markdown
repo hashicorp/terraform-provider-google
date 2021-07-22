@@ -769,12 +769,11 @@ The `secret_key_ref` block supports:
   The name of the secret in Cloud Secret Manager. By default, the secret
   is assumed to be in the same project.
   If the secret is in another project, you must define an alias.
-  An alias definition has the form:
-  <alias>:projects/<project-id|project-number>/secrets/<secret-name>.
-  If multiple alias definitions are needed, they must be separated by
-  commas.
-  The alias definitions must be set on the run.googleapis.com/secrets
-  annotation.
+  You set the <alias> in this field, and create an annotation with the
+  following structure 
+  "run.googleapis.com/secrets" = "<alias>:projects/<project-id|project-number>/secrets/<secret-name>".
+  If multiple alias definitions are needed, they must be separated by 
+  commas in the annotation field.
 
 The `ports` block supports:
 
