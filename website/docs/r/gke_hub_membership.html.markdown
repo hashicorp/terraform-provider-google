@@ -24,12 +24,10 @@ description: |-
 
 Membership contains information about a member cluster.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Membership, see:
 
-* [API documentation](https://cloud.google.com/gkehub/docs/reference/rest/v1beta1/projects.locations.memberships)
+* [API documentation](https://cloud.google.com/anthos/multicluster-management/reference/rest/v1/projects.locations.memberships)
 * How-to Guides
     * [Registering a Cluster](https://cloud.google.com/anthos/multicluster-management/connect/registering-a-cluster#register_cluster)
 
@@ -46,7 +44,6 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster"
   location           = "us-central1-a"
   initial_node_count = 1
-  provider = google-beta
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -56,8 +53,6 @@ resource "google_gke_hub_membership" "membership" {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
   }
-  description = "test resource."
-  provider = google-beta
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -76,7 +71,6 @@ resource "google_container_cluster" "primary" {
   workload_identity_config {
     identity_namespace = "my-project-name.svc.id.goog"
   }
-  provider = google-beta
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -89,8 +83,6 @@ resource "google_gke_hub_membership" "membership" {
   authority {
     issuer = "https://container.googleapis.com/v1/${google_container_cluster.primary.id}"
   }
-  description = "test resource."
-  provider = google-beta
 }
 ```
 
@@ -108,8 +100,8 @@ The following arguments are supported:
 
 
 * `description` -
-  (Optional)
-  The name of this entity type to be displayed on the console.
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The name of this entity type to be displayed on the console. This field is unavailable in v1 of the API.
 
 * `labels` -
   (Optional)
