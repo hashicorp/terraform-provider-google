@@ -45,6 +45,33 @@ func TestAccSqlUser_mysql(t *testing.T) {
 	})
 }
 
+func TestAccSqlUser_iamUser(t *testing.T) {
+	// Multiple fine-grained resources
+	skipIfVcr(t)
+	t.Parallel()
+
+	instance := fmt.Sprintf("i-%d", randInt(t))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlUser_iamUser(instance),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user1"),
+				),
+			},
+			{
+				ResourceName:      "google_sql_user.user1",
+				ImportStateId:     fmt.Sprintf("%s/%s/gmail.com/admin", getTestProjectFromEnv(), instance),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccSqlUser_postgres(t *testing.T) {
 	t.Parallel()
 
@@ -201,6 +228,10 @@ func testAccSqlUserDestroyProducer(t *testing.T) func(s *terraform.State) error 
 			users, err := config.NewSqlAdminClient(config.userAgent).Users.List(config.Project,
 				instance).Do()
 
+			if users == nil {
+				return nil
+			}
+
 			for _, user := range users.Items {
 				if user.Name == name && user.Host == host {
 					return fmt.Errorf("User still %s exists %s", name, err)
@@ -322,4 +353,61 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, instance)
+}
+
+func testGoogleSqlUser_iamUser(instance string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  database_version = "MYSQL_8_0"
+  name             = "%s"
+  region           = "us-central1"
+
+  settings {
+    tier              = "db-f1-micro"
+    availability_type = "REGIONAL"
+
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+
+    database_flags {
+      name  = "cloudsql_iam_authentication"
+      value = "on"
+    }
+  }
+
+  deletion_protection = false
+}
+
+resource "google_sql_database" "db" {
+  name     = "%s"
+  instance = google_sql_database_instance.instance.name
+}
+
+resource "google_service_account" "sa" {
+  account_id   = "%s"
+  display_name = "%s"
+}
+
+resource "google_service_account_key" "sa_key" {
+  service_account_id = google_service_account.sa.email
+}
+
+resource "google_sql_user" "user1" {
+  name     = google_service_account.sa.email
+  instance = google_sql_database_instance.instance.name
+  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
+}
+
+resource "google_project_iam_member" "instance_user" {
+  role    = "roles/cloudsql.instanceUser"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
+resource "google_project_iam_member" "sa_user" {
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+`, instance, instance, instance, instance)
 }
