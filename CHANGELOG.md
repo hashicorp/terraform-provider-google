@@ -4,7 +4,6 @@ FEATURES:
 * **New Resource:** `google_scc_notification_config` ([#9578](https://github.com/hashicorp/terraform-provider-google/pull/9578))
 
 IMPROVEMENTS:
-* composer: added field `maintenance_window` to resource `google_composer_environment` (beta) ([#9595](https://github.com/hashicorp/terraform-provider-google/pull/9595))
 * compute: fixed a permadiff bug in `log_config` field of `google_compute_region_backend_service` ([#9568](https://github.com/hashicorp/terraform-provider-google/pull/9568))
 * dlp: added `crypto_replace_ffx_fpe_config` and `crypto_replace_ffx_fpe_config` as primitive transformation types to `google_data_loss_prevention_deidentify_template` ([#9572](https://github.com/hashicorp/terraform-provider-google/pull/9572))
 
