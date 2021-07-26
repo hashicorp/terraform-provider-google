@@ -1,4 +1,4 @@
-## 3.77.0 (Unreleased)
+## 3.77.0 (July 26, 2021)
 
 FEATURES:
 * **New Resource:** `google_scc_notification_config` ([#9578](https://github.com/hashicorp/terraform-provider-google/pull/9578))
