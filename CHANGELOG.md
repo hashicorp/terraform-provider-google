@@ -8,8 +8,8 @@ IMPROVEMENTS:
 * dlp: added `crypto_replace_ffx_fpe_config` and `crypto_replace_ffx_fpe_config` as primitive transformation types to `google_data_loss_prevention_deidentify_template` ([#9572](https://github.com/hashicorp/terraform-provider-google/pull/9572))
 
 BUG FIXES:
-* Fixed ordering of `budget_filter. projects` on `google_billing_budget` ([#9598](https://github.com/hashicorp/terraform-provider-google/pull/9598))
 * bigquerydatatransfer: fixed a bug where `destination_dataset_id` was required, it is now optional. ([#9605](https://github.com/hashicorp/terraform-provider-google/pull/9605))
+* billing: Fixed ordering of `budget_filter. projects` on `google_billing_budget` ([#9598](https://github.com/hashicorp/terraform-provider-google/pull/9598))
 * compute: removed default value of `0.8` from `google_backend_service.backend.max_utilization` and it will now default from API. All `max_connections_xxx` and `max_rate_xxx` will also default from API as these are all conditional on balancing mode. ([#9587](https://github.com/hashicorp/terraform-provider-google/pull/9587))
 * sql: fixed bug where the provider would retry on an error if the database instance name couldn't be reused. ([#9591](https://github.com/hashicorp/terraform-provider-google/pull/9591))
 
