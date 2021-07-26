@@ -11,14 +11,21 @@ type headerTransportLayer struct {
 	baseTransit http.RoundTripper
 }
 
-func newTransportWithHeaders(baseTransit http.RoundTripper) headerTransportLayer {
+func newTransportWithHeaders(baseTransit http.RoundTripper, c *Config) headerTransportLayer {
 	if baseTransit == nil {
 		baseTransit = http.DefaultTransport
 	}
 
 	headers := make(http.Header)
+
 	if requestReason := os.Getenv("CLOUDSDK_CORE_REQUEST_REASON"); requestReason != "" {
 		headers.Set("X-Goog-Request-Reason", requestReason)
+	}
+
+	// Ensure $userProject is set for all HTTP requests using the client if specified by the provider config
+	// See https://cloud.google.com/apis/docs/system-parameters
+	if c.UserProjectOverride && c.BillingProject != "" {
+		headers.Set("X-Goog-User-Project", c.BillingProject)
 	}
 
 	return headerTransportLayer{Header: headers, baseTransit: baseTransit}

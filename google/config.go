@@ -359,11 +359,19 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 
 	cleanCtx := context.WithValue(ctx, oauth2.HTTPClient, cleanhttp.DefaultClient())
 
-	// 1. MTLS TRANSPORT/CLIENT - sets up proper auth headers
-	client, _, err := transport.NewHTTPClient(cleanCtx, option.WithTokenSource(tokenSource))
+	// 0. ClientOption setup for HTTP client
+	clientOpts := []option.ClientOption{
+		// Set up authorization headers
+		option.WithTokenSource(tokenSource),
+	}
+
+	// 1. MTLS TRANSPORT/CLIENT
+	client, _, err := transport.NewHTTPClient(cleanCtx, clientOpts...)
+
 	if err != nil {
 		return err
 	}
+
 	// Userinfo is fetched before request logging is enabled to reduce additional noise.
 	err = c.logGoogleIdentities()
 	if err != nil {
@@ -381,7 +389,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 
 	// 4. Header Transport - outer wrapper to inject additional headers we want to apply
 	// before making requests
-	headerTransport := newTransportWithHeaders(retryTransport)
+	headerTransport := newTransportWithHeaders(retryTransport, c)
 
 	// Set final transport value.
 	client.Transport = headerTransport
