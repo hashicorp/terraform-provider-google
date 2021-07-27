@@ -28,7 +28,7 @@ func NewKmsCryptoKeyIamUpdater(d TerraformResourceData, config *Config) (Resourc
 	cryptoKeyId, err := parseKmsCryptoKeyId(cryptoKey, config)
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for for %s: {{err}}", cryptoKey), err)
+		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for %s: {{err}}", cryptoKey), err)
 	}
 
 	return &KmsCryptoKeyIamUpdater{
