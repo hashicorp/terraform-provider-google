@@ -731,7 +731,7 @@ This resource provides the following
 AlertPolicy can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_monitoring_alert_policy.default {{name}}
+$ terraform import google_monitoring_alert_policy.default projects/[PROJECT_ID]/alertPolicies/[ALERT_POLICY_ID]
 ```
 
 ## User Project Overrides
