@@ -113,7 +113,7 @@ or addressType=INTERNAL when purpose=PRIVATE_SERVICE_CONNECT`,
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `The purpose of the resource. Possible values include:
+				Description: `The purpose of the resource. This field cannot be specified with `EXTERNAL` address_type. Possible values include:
 
 * VPC_PEERING - for peer networks
 

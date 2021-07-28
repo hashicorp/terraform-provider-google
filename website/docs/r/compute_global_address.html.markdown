@@ -125,7 +125,7 @@ The following arguments are supported:
 
 * `purpose` -
   (Optional)
-  The purpose of the resource. Possible values include:
+  The purpose of the resource. This field cannot be specified with `EXTERNAL` address_type. Possible values include:
   * VPC_PEERING - for peer networks
   * PRIVATE_SERVICE_CONNECT - for ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Private Service Connect networks
 
