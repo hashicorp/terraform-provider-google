@@ -56,3 +56,8 @@ ServiceNetworkingConnection can be imported using any of these accepted formats
 * terraform import google_service_networking_connection.peering_connection {{peering-network}}:{{service}}
 
 * terraform import google_service_networking_connection.peering_connection /projects/{{project}}/global/networks/{{peering-network}}:{{service}}
+
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).

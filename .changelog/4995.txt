@@ -1,0 +1,3 @@
+```release-note:enhancement
+servicenetworking: added support for `user_project_override` and `billing_project ` to `google_service_networking_connection`
+```
