@@ -39,7 +39,7 @@ func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
 				Config: testAccGKEHubMembership_gkehubMembershipBasicExample(context),
 			},
 			{
-				ResourceName:            "google_gke_hub_membership.basic_membership",
+				ResourceName:            "google_gke_hub_membership.membership",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"membership_id"},
@@ -84,7 +84,7 @@ func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
 				Config: testAccGKEHubMembership_gkehubMembershipIssuerExample(context),
 			},
 			{
-				ResourceName:            "google_gke_hub_membership.issuer_membership",
+				ResourceName:            "google_gke_hub_membership.membership",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"membership_id"},
