@@ -378,7 +378,7 @@ func resourceGKEHubMembershipDelete(d *schema.ResourceData, meta interface{}) er
 func resourceGKEHubMembershipImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
-		"(?P<name>[^/]+)",
+		"(?P<name>.+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
