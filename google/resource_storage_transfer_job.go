@@ -843,15 +843,11 @@ func expandAzureBlobStorageData(azureBlobStorageDatas []interface{}) *storagetra
 
 	azureBlobStorageData := azureBlobStorageDatas[0].(map[string]interface{})
 
-	if azureBlobStorageData["sas_token"] == nil {
-		log.Printf("[DEBUG] sas_token is not found")
-		return nil
-	}
 	return &storagetransfer.AzureBlobStorageData{
 		Container:        azureBlobStorageData["container"].(string),
 		Path:             azureBlobStorageData["path"].(string),
 		StorageAccount:   azureBlobStorageData["storage_account"].(string),
-		AzureCredentials: expandAzureCredentials(azureBlobStorageData["sas_token"].([]interface{})),
+		AzureCredentials: expandAzureCredentials(azureBlobStorageData["azure_credentials"].([]interface{})),
 	}
 }
 
