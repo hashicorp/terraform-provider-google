@@ -2,6 +2,7 @@ package google
 
 import (
 	"crypto/md5"
+	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -315,6 +316,39 @@ func TestAccStorageObjectKms(t *testing.T) {
 	})
 }
 
+func TestAccStorageObject_customerEncryption(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+	data := []byte(content)
+	h := md5.New()
+	if _, err := h.Write(data); err != nil {
+		t.Errorf("error calculating md5: %v", err)
+	}
+	dataMd5 := base64.StdEncoding.EncodeToString(h.Sum(nil))
+	testFile := getNewTmpTestFile(t, "tf-test")
+	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
+
+	customerEncryptionKey := "qI6+xvCZE9jUm94nJWIulFc8rthN64ybkGCsLUY9Do4="
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccStorageObjectDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleStorageBucketsObjectCustomerEncryption(bucketName, customerEncryptionKey),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageObjectWithEncryption(t, bucketName, objectName, dataMd5, customerEncryptionKey),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket_object.object", "customer_encryption.0.encryption_key", customerEncryptionKey),
+				),
+			},
+		},
+	})
+}
+
 func TestAccStorageObject_holds(t *testing.T) {
 	t.Parallel()
 
@@ -360,12 +394,24 @@ func TestAccStorageObject_holds(t *testing.T) {
 }
 
 func testAccCheckGoogleStorageObject(t *testing.T, bucket, object, md5 string) resource.TestCheckFunc {
+	return testAccCheckGoogleStorageObjectWithEncryption(t, bucket, object, md5, "")
+}
+
+func testAccCheckGoogleStorageObjectWithEncryption(t *testing.T, bucket, object, md5 string, customerEncryptionKey string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
 
 		objectsService := storage.NewObjectsService(config.NewStorageClient(config.userAgent))
 
 		getCall := objectsService.Get(bucket, object)
+		if customerEncryptionKey != "" {
+			decodedKey, _ := base64.StdEncoding.DecodeString(customerEncryptionKey)
+			keyHash := sha256.Sum256(decodedKey)
+			headers := getCall.Header()
+			headers.Set("x-goog-encryption-algorithm", "AES256")
+			headers.Set("x-goog-encryption-key", customerEncryptionKey)
+			headers.Set("x-goog-encryption-key-sha256", base64.StdEncoding.EncodeToString(keyHash[:]))
+		}
 		res, err := getCall.Do()
 
 		if err != nil {
@@ -514,6 +560,23 @@ resource "google_storage_bucket_object" "object" {
   }
 }
 `, bucketName, objectName, content)
+}
+
+func testGoogleStorageBucketsObjectCustomerEncryption(bucketName string, customerEncryptionKey string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name = "%s"
+}
+
+resource "google_storage_bucket_object" "object" {
+  name                = "%s"
+  bucket              = google_storage_bucket.bucket.name
+  content             = "%s"
+  customer_encryption {
+    encryption_key = "%s"
+  }
+}
+`, bucketName, objectName, content, customerEncryptionKey)
 }
 
 func testGoogleStorageBucketsObjectHolds(bucketName string, eventBasedHold bool, temporaryHold bool) string {
