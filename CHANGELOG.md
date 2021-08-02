@@ -1,4 +1,4 @@
-## 3.78.0 (Unreleased)
+## 3.78.0 (August 02, 2021)
 
 FEATURES:
 * **New Resource:** `google_gke_hub_membership` ([#9616](https://github.com/hashicorp/terraform-provider-google/pull/9616))
