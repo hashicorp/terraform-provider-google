@@ -64,7 +64,7 @@ func TestAccSqlUser_iamUser(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_sql_user.user1",
-				ImportStateId:     fmt.Sprintf("%s/%s/gmail.com/admin", getTestProjectFromEnv(), instance),
+				ImportStateId:     fmt.Sprintf("%s/%s/%%/%s@%s.iam.gserviceaccount.com", getTestProjectFromEnv(), instance, instance, getTestProjectFromEnv()),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
