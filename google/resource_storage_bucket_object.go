@@ -11,8 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"crypto/md5"
+	"crypto/sha256"
 	"encoding/base64"
 	"io/ioutil"
+	"net/http"
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
@@ -158,19 +160,57 @@ func resourceStorageBucketObject() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				Computed:         true,
+				ConflictsWith:    []string{"customer_encryption"},
 				DiffSuppressFunc: compareCryptoKeyVersions,
 				Description:      `Resource name of the Cloud KMS key that will be used to encrypt the object. Overrides the object metadata's kmsKeyName value, if any.`,
 			},
+
+			"customer_encryption": {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				Sensitive:     true,
+				ConflictsWith: []string{"kms_key_name"},
+				Description:   `Encryption key; encoded using base64.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"encryption_algorithm": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "AES256",
+							ForceNew:    true,
+							Description: `The encryption algorithm. Default: AES256`,
+						},
+						"encryption_key": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Sensitive:   true,
+							Description: `Base64 encoded customer supplied encryption key.`,
+							ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+								_, err := base64.StdEncoding.DecodeString(val.(string))
+								if err != nil {
+									errs = append(errs, fmt.Errorf("Failed to decode (base64) customer_encryption, expecting valid base64 encoded key"))
+								}
+								return
+							},
+						},
+					},
+				},
+			},
+
 			"event_based_hold": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: `Whether an object is under event-based hold. Event-based hold is a way to retain objects until an event occurs, which is signified by the hold's release (i.e. this value is set to false). After being released (set to false), such objects will be subject to bucket-level retention (if any).`,
 			},
+
 			"temporary_hold": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: `Whether an object is under temporary hold. While this flag is set to true, the object is protected against deletion and overwrites.`,
 			},
+
 			"metadata": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -288,6 +328,12 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	insertCall.Name(name)
 	insertCall.Media(media)
 
+	// This is done late as we need to add headers to enable customer encryption
+	if v, ok := d.GetOk("customer_encryption"); ok {
+		customerEncryption := expandCustomerEncryption(v.([]interface{}))
+		setEncryptionHeaders(customerEncryption, insertCall.Header())
+	}
+
 	_, err = insertCall.Do()
 
 	if err != nil {
@@ -347,6 +393,11 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 
 	objectsService := storage.NewObjectsService(config.NewStorageClient(userAgent))
 	getCall := objectsService.Get(bucket, name)
+
+	if v, ok := d.GetOk("customer_encryption"); ok {
+		customerEncryption := expandCustomerEncryption(v.([]interface{}))
+		setEncryptionHeaders(customerEncryption, getCall.Header())
+	}
 
 	res, err := getCall.Do()
 
@@ -438,13 +489,20 @@ func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
+func setEncryptionHeaders(customerEncryption map[string]string, headers http.Header) {
+	decodedKey, _ := base64.StdEncoding.DecodeString(customerEncryption["encryption_key"])
+	keyHash := sha256.Sum256(decodedKey)
+	headers.Set("x-goog-encryption-algorithm", customerEncryption["encryption_algorithm"])
+	headers.Set("x-goog-encryption-key", customerEncryption["encryption_key"])
+	headers.Set("x-goog-encryption-key-sha256", base64.StdEncoding.EncodeToString(keyHash[:]))
+}
+
 func getFileMd5Hash(filename string) string {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		log.Printf("[WARN] Failed to read source file %q. Cannot compute md5 hash for it.", filename)
 		return ""
 	}
-
 	return getContentMd5Hash(data)
 }
 
@@ -454,4 +512,17 @@ func getContentMd5Hash(content []byte) string {
 		log.Printf("[WARN] Failed to compute md5 hash for content: %v", err)
 	}
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+
+func expandCustomerEncryption(input []interface{}) map[string]string {
+	expanded := make(map[string]string)
+	if input == nil {
+		return expanded
+	}
+	for _, v := range input {
+		original := v.(map[string]interface{})
+		expanded["encryption_key"] = original["encryption_key"].(string)
+		expanded["encryption_algorithm"] = original["encryption_algorithm"].(string)
+	}
+	return expanded
 }
