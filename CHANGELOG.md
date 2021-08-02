@@ -7,7 +7,7 @@ IMPROVEMENTS:
 * servicenetworking: added support for `user_project_override` and `billing_project ` to `google_service_networking_connection` ([#9668](https://github.com/hashicorp/terraform-provider-google/pull/9668))
 
 BUG FIXES:
-* Fixed a crash on `azure_blob_storage_data_source` for `google_storage_transfer_job` ([#9644](https://github.com/hashicorp/terraform-provider-google/pull/9644))
+* storagetransfer: Fixed a crash on `azure_blob_storage_data_source` for `google_storage_transfer_job` ([#9644](https://github.com/hashicorp/terraform-provider-google/pull/9644))
 * bigquerydatatransfer: fixed a bug where `destination_dataset_id` was required, it is now optional. ([#9605](https://github.com/hashicorp/terraform-provider-google/pull/9605))
 * sql: fixed bug that wouldn't insert the `google_sql_user` in state for iam users. ([#9625](https://github.com/hashicorp/terraform-provider-google/pull/9625))
 * storage: fixed a crash when `azure_credentials` was defined in `google_storage_transfer_job` ([#9671](https://github.com/hashicorp/terraform-provider-google/pull/9671))
