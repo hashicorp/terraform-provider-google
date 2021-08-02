@@ -1,4 +1,17 @@
-## 3.78.0 (Unreleased)
+## 3.79.0 (Unreleased)
+
+## 3.78.0 (August 2, 2021)
+FEATURES:
+* **New Resource:** `google_gke_hub_membership` ([#9616](https://github.com/hashicorp/terraform-provider-google/pull/9616))
+
+IMPROVEMENTS:
+* servicenetworking: added support for `user_project_override` and `billing_project ` to `google_service_networking_connection` ([#9668](https://github.com/hashicorp/terraform-provider-google/pull/9668))
+
+BUG FIXES:
+* storagetransfer: Fixed a crash on `azure_blob_storage_data_source` for `google_storage_transfer_job` ([#9644](https://github.com/hashicorp/terraform-provider-google/pull/9644))
+* sql: fixed bug that wouldn't insert the `google_sql_user` in state for iam users. ([#9625](https://github.com/hashicorp/terraform-provider-google/pull/9625))
+* storage: fixed a crash when `azure_credentials` was defined in `google_storage_transfer_job` ([#9671](https://github.com/hashicorp/terraform-provider-google/pull/9671))
+
 ## 3.77.0 (July 26, 2021)
 
 FEATURES:
