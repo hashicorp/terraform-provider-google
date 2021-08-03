@@ -52,6 +52,24 @@ resource "google_spanner_instance" "example" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=spanner_instance_processing_units&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Spanner Instance Processing Units
+
+
+```hcl
+resource "google_spanner_instance" "example" {
+  config       = "regional-us-central1"
+  display_name = "Test Spanner Instance"
+  processing_units    = 200
+  labels = {
+    "foo" = "bar"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=spanner_instance_multi_regional&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -103,7 +121,13 @@ The following arguments are supported:
 
 * `num_nodes` -
   (Optional)
-  The number of nodes allocated to this instance.
+  The number of nodes allocated to this instance. At most one of either node_count or processing_units
+  can be present in terraform.
+
+* `processing_units` -
+  (Optional)
+  The number of processing units allocated to this instance. At most one of processing_units 
+  or node_count can be present in terraform.
 
 * `labels` -
   (Optional)

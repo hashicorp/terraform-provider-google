@@ -119,10 +119,18 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"num_nodes": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: `The number of nodes allocated to this instance.`,
-				Default:     1,
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				Description: `The number of nodes allocated to this instance. At most one of either node_count or processing_units
+can be present in terraform.`,
+			},
+			"processing_units": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				Description: `The number of processing units allocated to this instance. At most one of processing_units 
+or node_count can be present in terraform.`,
 			},
 			"state": {
 				Type:        schema.TypeString,
@@ -176,6 +184,12 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("num_nodes"); !isEmptyValue(reflect.ValueOf(nodeCountProp)) && (ok || !reflect.DeepEqual(v, nodeCountProp)) {
 		obj["nodeCount"] = nodeCountProp
+	}
+	processingUnitsProp, err := expandSpannerInstanceProcessingUnits(d.Get("processing_units"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("processing_units"); !isEmptyValue(reflect.ValueOf(processingUnitsProp)) && (ok || !reflect.DeepEqual(v, processingUnitsProp)) {
+		obj["processingUnits"] = processingUnitsProp
 	}
 	labelsProp, err := expandSpannerInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
@@ -325,6 +339,9 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("num_nodes", flattenSpannerInstanceNumNodes(res["nodeCount"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("processing_units", flattenSpannerInstanceProcessingUnits(res["processingUnits"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("labels", flattenSpannerInstanceLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -362,6 +379,12 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("num_nodes"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeCountProp)) {
 		obj["nodeCount"] = nodeCountProp
+	}
+	processingUnitsProp, err := expandSpannerInstanceProcessingUnits(d.Get("processing_units"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("processing_units"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, processingUnitsProp)) {
+		obj["processingUnits"] = processingUnitsProp
 	}
 	labelsProp, err := expandSpannerInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
@@ -521,6 +544,23 @@ func flattenSpannerInstanceNumNodes(v interface{}, d *schema.ResourceData, confi
 	return v // let terraform core handle it otherwise
 }
 
+func flattenSpannerInstanceProcessingUnits(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenSpannerInstanceLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -555,6 +595,10 @@ func expandSpannerInstanceNumNodes(v interface{}, d TerraformResourceData, confi
 	return v, nil
 }
 
+func expandSpannerInstanceProcessingUnits(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandSpannerInstanceLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -567,6 +611,10 @@ func expandSpannerInstanceLabels(v interface{}, d TerraformResourceData, config 
 }
 
 func resourceSpannerInstanceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Temp Logic to accomodate processing_units and num_nodes
+	if obj["processingUnits"] == nil && obj["nodeCount"] == nil {
+		obj["nodeCount"] = 1
+	}
 	newObj := make(map[string]interface{})
 	newObj["instance"] = obj
 	if obj["name"] == nil {
