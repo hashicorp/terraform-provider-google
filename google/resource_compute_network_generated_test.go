@@ -59,6 +59,7 @@ func TestAccComputeNetwork_networkCustomMtuExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
 		"random_suffix": randString(t, 10),
 	}
 
@@ -82,8 +83,10 @@ func TestAccComputeNetwork_networkCustomMtuExample(t *testing.T) {
 func testAccComputeNetwork_networkCustomMtuExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network" "vpc_network" {
-  name = "tf-test-vpc-network%{random_suffix}"
-  mtu  = 1500
+  project                 = "%{project}"
+  name                    = "tf-test-vpc-network%{random_suffix}"
+  auto_create_subnetworks = true
+  mtu                     = 1460
 }
 `, context)
 }
