@@ -71,6 +71,30 @@ func TestAccSpannerInstance_basic(t *testing.T) {
 	})
 }
 
+func TestAccSpannerInstance_noNodeCountSpecified(t *testing.T) {
+	t.Parallel()
+
+	idName := fmt.Sprintf("spanner-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_noNodeCountSpecified(idName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.basic", "state"),
+				),
+			},
+			{
+				ResourceName:      "google_spanner_instance.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccSpannerInstance_basicWithAutogenName(t *testing.T) {
 	// Randomness
 	skipIfVcr(t)
@@ -136,6 +160,16 @@ resource "google_spanner_instance" "basic" {
   config       = "regional-us-central1"
   display_name = "%s-dname"
   num_nodes    = 1
+}
+`, name, name)
+}
+
+func testAccSpannerInstance_noNodeCountSpecified(name string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "basic" {
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "%s-dname"
 }
 `, name, name)
 }
