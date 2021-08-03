@@ -235,6 +235,9 @@ region are guaranteed to support the same version.
     manages the default node pool, which isn't recommended to be used with
     Terraform. Structure is documented below.
 
+* `network_config` -  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Configuration for
+   [Adding Pod IP address ranges](https://cloud.google.com/kubernetes-engine/docs/how-to/multi-pod-cidr)) to the node pool.
+
 * `node_pool` - (Optional) List of node pools associated with this cluster.
     See [google_container_node_pool](container_node_pool.html) for schema.
     **Warning:** node pools defined inside a cluster can't be changed (or added/removed) after
@@ -693,6 +696,14 @@ linux_node_config {
 }
 ```
 
+The `network_config` block supports:
+
+* `create_pod_range` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Whether to create a new range for pod IPs in this node pool. Defaults are provided for `pod_range` and `pod_ipv4_cidr_block` if they are not specified.
+
+* `pod_ipv4_cidr_block` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The IP address range for pod IPs in this node pool. Only applicable if createPodRange is true. Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14) to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) to pick a specific range to use.
+
+* `pod_range` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The ID of the secondary range for pod IPs. If `create_pod_range` is true, this ID is used for the new range. If `create_pod_range` is false, uses an existing secondary range with this ID.
+
 The `ephemeral_storage_config` block supports:
 
 * `local_ssd_count` (Required) - Number of local SSDs to use to back ephemeral storage. Uses NVMe interfaces. Each local SSD is 375 GB in size. If zero, it means to disable using local SSDs as ephemeral storage.
@@ -753,7 +764,7 @@ to private clusters, when `enable_private_nodes` is `true`.
 the hosted master network. This range will be used for assigning private IP
 addresses to the cluster master(s) and the ILB VIP. This range must not overlap
 with any other ranges in use within the cluster's network, and it must be a /28
-subnet. See [Private Cluster Limitations](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters#limitations)
+subnet. See [Private Cluster Limitations](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters#req_res_lim)
 for more details. This field only applies to private clusters, when
 `enable_private_nodes` is `true`.
 

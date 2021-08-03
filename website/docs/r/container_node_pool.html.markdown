@@ -147,7 +147,10 @@ cluster.
 * `name_prefix` - (Optional) Creates a unique name for the node pool beginning
     with the specified prefix. Conflicts with `name`.
 
-* `node_config` - (Optional) The node configuration of the pool. See
+* `node_config` - (Optional) The network configuration of the pool. See
+    [google_container_cluster](container_cluster.html) for schema.
+
+* `network_config` - (Optional) The network configuration of the pool. See
     [google_container_cluster](container_cluster.html) for schema.
 
 * `node_count` - (Optional) The number of nodes per instance group. This field can be used to
