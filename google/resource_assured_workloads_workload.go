@@ -227,14 +227,13 @@ func resourceAssuredWorkloadsWorkloadCreate(d *schema.ResourceData, meta interfa
 	}
 	client := NewDCLAssuredWorkloadsClient(config, userAgent, billingProject)
 	res, err := client.ApplyWorkload(context.Background(), obj, createDirective...)
-	if err != nil {
-		if _, ok := err.(dcl.DiffAfterApplyError); ok {
-			log.Printf("[DEBUG] Diff after apply returned from the DCL: %s", err)
-		} else {
-			// The resource didn't actually create
-			d.SetId("")
-			return fmt.Errorf("Error creating Workload: %s", err)
-		}
+
+	if _, ok := err.(dcl.DiffAfterApplyError); ok {
+		log.Printf("[DEBUG] Diff after apply returned from the DCL: %s", err)
+	} else if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error creating Workload: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Workload %q: %#v", d.Id(), res)
@@ -365,14 +364,13 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 	}
 	client := NewDCLAssuredWorkloadsClient(config, userAgent, billingProject)
 	res, err := client.ApplyWorkload(context.Background(), obj, directive...)
-	if err != nil {
-		if _, ok := err.(dcl.DiffAfterApplyError); ok {
-			log.Printf("[DEBUG] Diff after apply returned from the DCL: %s", err)
-		} else {
-			// The resource didn't actually create
-			d.SetId("")
-			return fmt.Errorf("Error updating Workload: %s", err)
-		}
+
+	if _, ok := err.(dcl.DiffAfterApplyError); ok {
+		log.Printf("[DEBUG] Diff after apply returned from the DCL: %s", err)
+	} else if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error updating Workload: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Workload %q: %#v", d.Id(), res)

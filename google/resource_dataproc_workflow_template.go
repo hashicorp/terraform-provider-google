@@ -1754,14 +1754,13 @@ func resourceDataprocWorkflowTemplateCreate(d *schema.ResourceData, meta interfa
 	}
 	client := NewDCLDataprocClient(config, userAgent, billingProject)
 	res, err := client.ApplyWorkflowTemplate(context.Background(), obj, createDirective...)
-	if err != nil {
-		if _, ok := err.(dcl.DiffAfterApplyError); ok {
-			log.Printf("[DEBUG] Diff after apply returned from the DCL: %s", err)
-		} else {
-			// The resource didn't actually create
-			d.SetId("")
-			return fmt.Errorf("Error creating WorkflowTemplate: %s", err)
-		}
+
+	if _, ok := err.(dcl.DiffAfterApplyError); ok {
+		log.Printf("[DEBUG] Diff after apply returned from the DCL: %s", err)
+	} else if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error creating WorkflowTemplate: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating WorkflowTemplate %q: %#v", d.Id(), res)
