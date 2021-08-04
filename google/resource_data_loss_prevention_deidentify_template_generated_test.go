@@ -73,7 +73,7 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 					name = "PHONE_NUMBER"
 				}
 				info_types {
-					name = "CREDIT_CARD_NUMBER"
+					name = "AGE"
 				}
 
 				primitive_transformation {
