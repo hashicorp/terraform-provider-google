@@ -93,7 +93,7 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 		ServiceAccount: sa,
 	}
 
-	sa, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
+	sa, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Create(project, r).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating service account: %s", err)
 	}
