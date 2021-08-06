@@ -1,8 +1,4 @@
 ## 3.79.0 (Unreleased)
-UNKNOWN CHANGELOG TYPE:
-* Fix format for import in google_service_networking_connection ([#9681](https://github.com/hashicorp/terraform-provider-google/pull/9681))
-* Update DCL to fix worker pool issues ([#9710](https://github.com/hashicorp/terraform-provider-google/pull/9710))
-* resource_storage_bucket_object: added support for Customer Supplied E… ([#9704](https://github.com/hashicorp/terraform-provider-google/pull/9704))
 NOTES:
 * spanner: `num_nodes` will become a required field in the next major release and a value has to be set on `google_spanner_instance`. It will also conflict with the new field `processing_units`. ([#9716](https://github.com/hashicorp/terraform-provider-google/pull/9716))
 
@@ -13,7 +9,8 @@ FEATURES:
 IMPROVEMENTS:
 * all (DCL resources only): ignore diff after apply errors coming from the DCL ([#9701](https://github.com/hashicorp/terraform-provider-google/pull/9701))
 * container: added `network_config` block to `google_container_node_pool` resource (beta) ([#9707](https://github.com/hashicorp/terraform-provider-google/pull/9707))
-* spanner: added `processing_units` to `google_spanner_instance`. ([#9716](https://github.com/hashicorp/terraform-provider-google/pull/9716))
+* spanner: added `processing_units` to `google_spanner_instance` ([#9716](https://github.com/hashicorp/terraform-provider-google/pull/9716))
+* storage: added support for Customer Supplied Encryption on `resource_storage_bucket_object` ([#9704](https://github.com/hashicorp/terraform-provider-google/pull/9704))
 
 ## 3.78.0 (August 2, 2021)
 FEATURES:
