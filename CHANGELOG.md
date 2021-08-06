@@ -10,7 +10,7 @@ IMPROVEMENTS:
 * all (DCL resources only): ignore diff after apply errors coming from the DCL ([#9701](https://github.com/hashicorp/terraform-provider-google/pull/9701))
 * container: added `network_config` block to `google_container_node_pool` resource (beta) ([#9707](https://github.com/hashicorp/terraform-provider-google/pull/9707))
 * spanner: added `processing_units` to `google_spanner_instance` ([#9716](https://github.com/hashicorp/terraform-provider-google/pull/9716))
-* storage: added support for Customer Supplied Encryption on `resource_storage_bucket_object` ([#9704](https://github.com/hashicorp/terraform-provider-google/pull/9704))
+* storage: added support for `customer_encryption` on `resource_storage_bucket_object` ([#9704](https://github.com/hashicorp/terraform-provider-google/pull/9704))
 
 ## 3.78.0 (August 2, 2021)
 FEATURES:
