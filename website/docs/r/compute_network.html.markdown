@@ -86,7 +86,7 @@ The following arguments are supported:
   it will create a subnet for each region automatically across the
   `10.128.0.0/9` address range.
   When set to `false`, the network is created in "custom subnet mode" so
-  the user can explicitly connect subnetwork resources.
+  the user can explicitly connect subnetwork resources. Defaults to `true`.
 
 * `routing_mode` -
   (Optional)
@@ -95,7 +95,7 @@ The following arguments are supported:
   of this network in the same region as the router. If set to `GLOBAL`,
   this network's cloud routers will advertise routes with all
   subnetworks of this network, across regions.
-  Possible values are `REGIONAL` and `GLOBAL`.
+  Possible values are `REGIONAL` and `GLOBAL`. Defaults to `REGIONAL`.
 
 * `mtu` -
   (Optional)
