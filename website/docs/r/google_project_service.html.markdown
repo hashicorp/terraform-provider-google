@@ -70,3 +70,9 @@ $ terraform import google_project_service.my_project your-project-id/iam.googlea
 ```
 
 Note that unlike other resources that fail if they already exist, `terraform apply` can be successfully used to verify already enabled services. This means that when importing existing resources into Terraform, you can either import the `google_project_service` resources or treat them as new infrastructure and run `terraform apply` to add them to state.
+
+
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://www.terraform.io/docs/providers/google/guides/provider_reference.html#user_project_override).
