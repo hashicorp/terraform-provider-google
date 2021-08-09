@@ -227,7 +227,7 @@ The following arguments are supported:
     created from this template.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to instances
-    created from this template,
+    created from this template.
 
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within instances created from this template.
@@ -241,6 +241,14 @@ The following arguments are supported:
     this template. This can be specified multiple times for multiple networks.
     Structure is documented below.
 
+* `network_performance_config` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)
+    Configures network performance settings for the instance created from the
+    template. Structure is documented below. **Note**: [`machine_type`](#machine_type)
+    must be a [supported type](https://cloud.google.com/compute/docs/networking/configure-vm-with-high-bandwidth-configuration),
+    the [`image`](#image) used must include the [`GVNIC`](https://cloud.google.com/compute/docs/networking/using-gvnic#create-instance-gvnic-image)
+    in `guest-os-features`, and `network_interface.0.nic-type` must be `GVNIC`
+    in order for this setting to take effect.
+
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
@@ -250,6 +258,9 @@ The following arguments are supported:
     region where that resource resides. For example, a custom `subnetwork`
     resource is tied to a specific region. Defaults to the region of the
     Provider if no value is given.
+
+* `reservation_affinity` - (Optional) Specifies the reservations that this instance can consume from.
+    Structure is documented below.
 
 * `scheduling` - (Optional) The scheduling strategy to use. More details about
     this configuration option are detailed below.
@@ -270,6 +281,8 @@ The following arguments are supported:
 **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
 
 * `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
+
+* `advanced_machine_features` (Optional) - Configure Nested Virtualisation and Simultaneous Hyper Threading on this VM.
 
 The `disk` block supports:
 
@@ -433,6 +446,19 @@ The `node_affinities` block supports:
 
 * `value` (Required) - The values for the node affinity label.
 
+The `reservation_affinity` block supports:
+
+* `type` - (Required) The type of reservation from which this instance can consume resources.
+
+* `specific_reservation` - (Optional) Specifies the label selector for the reservation to use..
+    Structure is documented below.
+
+The `specific_reservation` block supports:
+
+* `key` - (Required) Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify compute.googleapis.com/reservation-name as the key and specify the name of your reservation as the only value.
+
+* `values` - (Required) Corresponds to the label values of a reservation resource.
+
 The `shielded_instance_config` block supports:
 
 * `enable_secure_boot` (Optional) -- Verify the digital signature of all boot components, and halt the boot process if signature verification fails. Defaults to false.
@@ -444,6 +470,16 @@ The `shielded_instance_config` block supports:
 The `confidential_instance_config` block supports:
 
 * `enable_confidential_compute` (Optional) Defines whether the instance should have confidential compute enabled. [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
+
+The `network_performance_config` block supports:
+
+* `total_egress_bandwidth_tier` - (Optional) The egress bandwidth tier to enable. Possible values: TIER_1, DEFAULT
+
+The `advanced_machine_features` block supports:
+
+* `enable_nested_virtualization` (Optional) Defines whether the instance should have [nested virtualization](#on_host_maintenance) enabled. Defaults to false.
+
+* `threads_per_core` (Optional) he number of threads per physical core. To disable [simultaneous multithreading (SMT)](https://cloud.google.com/compute/docs/instances/disabling-smt) set this to 1.
 
 ## Attributes Reference
 

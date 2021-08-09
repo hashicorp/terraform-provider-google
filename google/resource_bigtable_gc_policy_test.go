@@ -91,6 +91,35 @@ func TestAccBigtableGCPolicy_union(t *testing.T) {
 	})
 }
 
+func TestAccBigtableGCPolicy_multiplePolicies(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	skipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	familyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableGCPolicy_multiplePolicies(instanceName, tableName, familyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccBigtableGCPolicyExists(
+						t, "google_bigtable_gc_policy.policyA"),
+					testAccBigtableGCPolicyExists(
+						t, "google_bigtable_gc_policy.policyB"),
+					testAccBigtableGCPolicyExists(
+						t, "google_bigtable_gc_policy.policyC"),
+				),
+			},
+		},
+	})
+}
+
 func TestUnitBigtableGCPolicy_customizeDiff(t *testing.T) {
 	for _, tc := range testUnitBigtableGCPolicyCustomizeDiffTestcases {
 		tc.check(t)
@@ -346,4 +375,65 @@ resource "google_bigtable_gc_policy" "policy" {
   }
 }
 `, instanceName, instanceName, tableName, family, family)
+}
+
+func testAccBigtableGCPolicy_multiplePolicies(instanceName, tableName, family string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "%s"
+
+  cluster {
+    cluster_id = "%s"
+    zone       = "us-central1-b"
+  }
+
+  instance_type = "DEVELOPMENT"
+  deletion_protection = false
+}
+
+resource "google_bigtable_table" "table" {
+  name          = "%s"
+  instance_name = google_bigtable_instance.instance.id
+
+  column_family {
+    family = "%s"
+  }
+}
+
+resource "google_bigtable_gc_policy" "policyA" {
+  instance_name = google_bigtable_instance.instance.id
+  table         = google_bigtable_table.table.name
+  column_family = "%s"
+
+  max_age {
+    days = 30
+  }
+}
+
+resource "google_bigtable_gc_policy" "policyB" {
+  instance_name = google_bigtable_instance.instance.id
+  table         = google_bigtable_table.table.name
+  column_family = "%s"
+
+  max_version {
+    number = 8
+  }
+}
+
+resource "google_bigtable_gc_policy" "policyC" {
+	instance_name = google_bigtable_instance.instance.id
+  table         = google_bigtable_table.table.name
+  column_family = "%s"
+
+  max_age {
+    days = 7
+  }
+
+  max_version {
+    number = 10
+  }
+
+  mode        = "UNION"
+}
+`, instanceName, instanceName, tableName, family, family, family, family)
 }

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -118,7 +118,7 @@ The following arguments are supported:
 
 * `max_throughput` -
   (Optional)
-  Maximum throughput of the connector in Mbps, must be greater than `min_throughput`. Default is 1000.
+  Maximum throughput of the connector in Mbps, must be greater than `min_throughput`. Default is 300.
 
 * `subnet` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))

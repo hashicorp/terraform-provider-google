@@ -56,3 +56,7 @@ Information about referencing Github Issues: https://help.github.com/articles/ba
 Are there any other GitHub issues (open or closed) or pull requests that should be linked here? Vendor documentation? For example:
 --->
 * #0000
+
+<!---
+Note Google Cloud customers who are working with a dedicated Technical Account Manager / Customer Engineer: to expedite the investigation and resolution of this issue, please refer to these instructions: https://github.com/hashicorp/terraform-provider-google/wiki/Customer-Contact#raising-gcp-internal-issues-with-the-provider-development-team
+--->

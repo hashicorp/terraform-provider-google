@@ -1,0 +1,4 @@
+```release-note:enhancement
+added support for Customer Supplied Encryption Key (CSEK)
+
+```

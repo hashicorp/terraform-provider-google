@@ -122,3 +122,15 @@ func TestGetRegionFromRegionSelfLink(t *testing.T) {
 		}
 	}
 }
+
+func TestGetRegionFromRegionalSelfLink(t *testing.T) {
+	cases := map[string]string{
+		"projects/foo/locations/europe-north1/datasets/bar/operations/foobar":        "europe-north1",
+		"projects/REDACTED/regions/europe-north1/subnetworks/tf-test-net-xbwhsmlfm8": "europe-north1",
+	}
+	for input, expected := range cases {
+		if result := GetRegionFromRegionalSelfLink(input); result != expected {
+			t.Errorf("expected to get %q from %q, got %q", expected, input, result)
+		}
+	}
+}

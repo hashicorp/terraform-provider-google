@@ -1,0 +1,4 @@
+```release-note:bug
+Fixed update failing on `google_pubsub_lite_topic`
+Fixed update failing on `google_pubsub_lite_subscription`
+```

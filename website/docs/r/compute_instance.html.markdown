@@ -14,7 +14,6 @@ Manages a VM instance resource within GCE. For more information see
 and
 [API](https://cloud.google.com/compute/docs/reference/latest/instances).
 
-
 ## Example Usage
 
 ```hcl
@@ -172,7 +171,19 @@ The following arguments are supported:
 
 * `resource_policies` (Optional) -- A list of short names or self_links of resource policies to attach to the instance. Modifying this list will cause the instance to recreate. Currently a max of 1 resource policy is supported.
 
+* `reservation_affinity` - (Optional) Specifies the reservations that this instance can consume from.
+    Structure is documented below.
+
 * `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
+
+* `advanced_machine_config` (Optional) - Configure Nested Virtualisation and Simultaneous Hyper Threading  on this VM.
+
+* `network_performance_config` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)
+    Configures network performance settings for the instance. Structure is
+    documented below. **Note**: [`machine_type`](#machine_type) must be a [supported type](https://cloud.google.com/compute/docs/networking/configure-vm-with-high-bandwidth-configuration),
+    the [`image`](#image) used must include the [`GVNIC`](https://cloud.google.com/compute/docs/networking/using-gvnic#create-instance-gvnic-image)
+    in `guest-os-features`, and `network_interface.0.nic-type` must be `GVNIC`
+    in order for this setting to take effect.
 
 ---
 
@@ -246,6 +257,11 @@ The `attached_disk` block supports:
 * `kms_key_self_link` - (Optional) The self_link of the encryption key that is
     stored in Google Cloud KMS to encrypt this disk. Only one of `kms_key_self_link`
     and `disk_encryption_key_raw` may be set.
+
+The `network_performance_config` block supports:
+
+* `total_egress_bandwidth_tier` - (Optional) The egress bandwidth tier to enable.
+    Possible values: TIER_1, DEFAULT
 
 The `network_interface` block supports:
 
@@ -334,7 +350,7 @@ The `scheduling` block supports:
    [here](https://cloud.google.com/compute/docs/nodes/create-nodes).
    Structure documented below.
 
-* `minNodeCpus` - (Optional) The minimum number of virtual CPUs this instance will consume when running on a sole-tenant node.
+* `min_node_cpus` - (Optional) The minimum number of virtual CPUs this instance will consume when running on a sole-tenant node.
 
 The `guest_accelerator` block supports:
 
@@ -365,6 +381,25 @@ The `shielded_instance_config` block supports:
 The `confidential_instance_config` block supports:
 
 * `enable_confidential_compute` (Optional) Defines whether the instance should have confidential compute enabled. [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
+
+The `advanced_machine_features` block supports:
+
+* `enable_nested_virtualization` (Optional) Defines whether the instance should have [nested virtualization](#on_host_maintenance)  enabled. Defaults to false.
+
+* `threads_per_core` (Optional) he number of threads per physical core. To disable [simultaneous multithreading (SMT)](https://cloud.google.com/compute/docs/instances/disabling-smt) set this to 1.
+
+The `reservation_affinity` block supports:
+
+* `type` - (Required) The type of reservation from which this instance can consume resources.
+
+* `specific_reservation` - (Optional) Specifies the label selector for the reservation to use..
+    Structure is documented below.
+
+The `specific_reservation` block supports:
+
+* `key` - (Required) Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify compute.googleapis.com/reservation-name as the key and specify the name of your reservation as the only value.
+
+* `values` - (Required) Corresponds to the label values of a reservation resource.
 
 ## Attributes Reference
 

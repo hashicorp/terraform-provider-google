@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -100,7 +100,7 @@ The following arguments are supported:
 * `port` -
   (Optional)
   The TCP port number for the HTTPS health check request.
-  The default value is 80.
+  The default value is 443.
 
 * `request_path` -
   (Optional)

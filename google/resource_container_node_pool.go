@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -12,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	containerBeta "google.golang.org/api/container/v1beta1"
 )
+
+var clusterIdRegex = regexp.MustCompile("projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<name>[^/]+)")
 
 func resourceContainerNodePool() *schema.Resource {
 	return &schema.Resource{
@@ -242,6 +245,18 @@ func (nodePoolInformation *NodePoolInformation) lockKey() string {
 }
 
 func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePoolInformation, error) {
+	cluster := d.Get("cluster").(string)
+
+	if fieldValues := clusterIdRegex.FindStringSubmatch(cluster); fieldValues != nil {
+		log.Printf("[DEBUG] matching parent cluster %s to regex %s", cluster, clusterIdRegex.String())
+		return &NodePoolInformation{
+			project:  fieldValues[1],
+			location: fieldValues[2],
+			cluster:  fieldValues[3],
+		}, nil
+	}
+	log.Printf("[DEBUG] parent cluster %s does not match regex %s", cluster, clusterIdRegex.String())
+
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -255,7 +270,7 @@ func extractNodePoolInformation(d *schema.ResourceData, config *Config) (*NodePo
 	return &NodePoolInformation{
 		project:  project,
 		location: location,
-		cluster:  d.Get("cluster").(string),
+		cluster:  cluster,
 	}, nil
 }
 
@@ -286,10 +301,22 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	timeout := d.Timeout(schema.TimeoutCreate)
 	startTime := time.Now()
 
-	// Set the ID before we attempt to create - that way, if we receive an error but
-	// the resource is created anyway, it will be refreshed on the next call to
-	// apply.
-	d.SetId(fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s", nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name))
+	// we attempt to prefetch the node pool to make sure it doesn't exist before creation
+	var id = fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s", nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, nodePool.Name)
+	name := getNodePoolName(id)
+	clusterNodePoolsGetCall := config.NewContainerBetaClient(userAgent).Projects.Locations.Clusters.NodePools.Get(nodePoolInfo.fullyQualifiedName(name))
+	if config.UserProjectOverride {
+		clusterNodePoolsGetCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+	}
+	_, err = clusterNodePoolsGetCall.Do()
+	if err != nil && isGoogleApiErrorWithCode(err, 404) {
+		// Set the ID before we attempt to create if the resource doesn't exist. That
+		// way, if we receive an error but the resource is created anyway, it will be
+		// refreshed on the next call to apply.
+		d.SetId(id)
+	} else if err == nil {
+		return fmt.Errorf("resource - %s - already exists", id)
+	}
 
 	var operation *containerBeta.Operation
 	err = resource.Retry(timeout, func() *resource.RetryError {
@@ -482,7 +509,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		if isGoogleApiErrorWithCode(err, 404) {
-			log.Printf("[INFO] GKE node pool %s doesn't exist to delete", d.Id())
+			log.Printf("[INFO] GKE cluster %s doesn't exist, skipping node pool %s deletion", nodePoolInfo.cluster, d.Id())
 			return nil
 		}
 		return err

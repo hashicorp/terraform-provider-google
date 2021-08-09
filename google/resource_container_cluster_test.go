@@ -173,89 +173,6 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withMasterAuthConfig(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withMasterAuth(clusterName),
-			},
-			{
-				ResourceName:      "google_container_cluster.with_master_auth",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccContainerCluster_updateMasterAuth(clusterName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.username", "mr.yoda.adoy.mr"),
-					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.password", "adoy.rm.123456789.mr.yoda"),
-				),
-			},
-			{
-				ResourceName:      "google_container_cluster.with_master_auth",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccContainerCluster_disableMasterAuth(clusterName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.username", ""),
-					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.password", ""),
-				),
-			},
-			{
-				ResourceName:      "google_container_cluster.with_master_auth",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccContainerCluster_updateMasterAuth(clusterName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.username", "mr.yoda.adoy.mr"),
-					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth", "master_auth.0.password", "adoy.rm.123456789.mr.yoda"),
-				),
-			},
-			{
-				ResourceName:      "google_container_cluster.with_master_auth",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccContainerCluster_withMasterAuthConfig_NoCert(t *testing.T) {
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerCluster_withMasterAuthNoCert(clusterName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth_no_cert", "master_auth.0.client_certificate", ""),
-				),
-			},
-			{
-				ResourceName:      "google_container_cluster.with_master_auth_no_cert",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccContainerCluster_withAuthenticatorGroupsConfig(t *testing.T) {
 	t.Parallel()
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
@@ -681,8 +598,6 @@ func TestAccContainerCluster_withVersion(t *testing.T) {
 }
 
 func TestAccContainerCluster_updateVersion(t *testing.T) {
-	// TODO re-enable this test when GKE supports multiple versions concurrently
-	t.Skip("Only a single GKE version is supported currently by the API, this test cannot pass")
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
@@ -889,8 +804,6 @@ func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolUpdateVersion(t *testing.T) {
-	// TODO re-enable this test when GKE supports multiple versions concurrently
-	t.Skip("Only a single GKE version is supported currently by the API, this test cannot pass")
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-nodepool-%s", randString(t, 10))
@@ -2011,69 +1924,6 @@ resource "google_container_cluster" "primary" {
 `, projectID, clusterName)
 }
 
-func testAccContainerCluster_withMasterAuth(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_master_auth" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 3
-
-  master_auth {
-    username = "mr.yoda"
-    password = "adoy.rm.123456789"
-  }
-}
-`, clusterName)
-}
-
-func testAccContainerCluster_updateMasterAuth(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_master_auth" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 3
-
-  master_auth {
-    username = "mr.yoda.adoy.mr"
-    password = "adoy.rm.123456789.mr.yoda"
-  }
-}
-`, clusterName)
-}
-
-func testAccContainerCluster_disableMasterAuth(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_master_auth" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 3
-
-  master_auth {
-    username = ""
-    password = ""
-  }
-}
-`, clusterName)
-}
-
-func testAccContainerCluster_withMasterAuthNoCert(clusterName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_master_auth_no_cert" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 3
-
-  master_auth {
-    username = "mr.yoda"
-    password = "adoy.rm.123456789"
-    client_certificate_config {
-      issue_client_certificate = false
-    }
-  }
-}
-`, clusterName)
-}
-
 func testAccContainerCluster_withNetworkPolicyEnabled(clusterName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_network_policy_enabled" {
@@ -2315,7 +2165,7 @@ resource "google_container_cluster" "with_intranode_visibility" {
   name                        = "%s"
   location                    = "us-central1-a"
   initial_node_count          = 1
-  enable_intranode_visibility = true 
+  enable_intranode_visibility = true
 }
 `, clusterName)
 }
@@ -2484,7 +2334,7 @@ resource "google_container_cluster" "with_node_config_scope_alias" {
   initial_node_count = 1
 
   node_config {
-    machine_type = "g1-small"
+    machine_type = "e2-medium"
     disk_size_gb = 15
     oauth_scopes = ["compute-rw", "storage-ro", "logging-write", "monitoring"]
   }
@@ -3536,22 +3386,22 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 	ip_cidr_range            = "10.0.36.0/24"
 	region                   = "us-central1"
 	private_ip_google_access = true
-  
+
 	secondary_ip_range {
 	  range_name    = "pod"
 	  ip_cidr_range = "10.0.0.0/19"
 	}
-  
+
 	secondary_ip_range {
 	  range_name    = "svc"
 	  ip_cidr_range = "10.0.32.0/22"
 	}
 }
-	
+
 data "google_container_engine_versions" "central1a" {
 	location = "us-central1-a"
 }
-	
+
 resource "google_container_cluster" "with_autopilot" {
 	name               = "%s"
 	location           = "us-central1"

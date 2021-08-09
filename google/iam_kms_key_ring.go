@@ -28,7 +28,7 @@ func NewKmsKeyRingIamUpdater(d TerraformResourceData, config *Config) (ResourceI
 	keyRingId, err := parseKmsKeyRingId(keyRing, config)
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for for %s: {{err}}", keyRing), err)
+		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for %s: {{err}}", keyRing), err)
 	}
 
 	return &KmsKeyRingIamUpdater{

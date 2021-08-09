@@ -50,12 +50,13 @@ data "google_compute_image" "my_image" {
 resource "google_compute_disk" "foobar" {
   name  = "%s"
   image = data.google_compute_image.my_image.self_link
-  size  = 50
-  type  = "pd-ssd"
-  zone  = "us-central1-a"
+  size  = 1000
+  type  = "pd-extreme"
+  zone  = "us-central1-c"
   labels = {
     my-label = "my-label-value"
   }
+  provisioned_iops = 90000
 }
 
 resource "google_compute_resource_policy" "foobar" {
@@ -74,7 +75,7 @@ resource "google_compute_resource_policy" "foobar" {
 resource "google_compute_disk_resource_policy_attachment" "foobar" {
   name = google_compute_resource_policy.foobar.name
   disk = google_compute_disk.foobar.name
-  zone = "us-central1-a"
+  zone = "us-central1-c"
 }
 `, diskName, policyName)
 }

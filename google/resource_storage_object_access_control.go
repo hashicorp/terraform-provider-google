@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -158,7 +158,7 @@ func resourceStorageObjectAccessControlCreate(d *schema.ResourceData, meta inter
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{%object}}/acl")
 	if err != nil {
 		return err
 	}
@@ -195,7 +195,7 @@ func resourceStorageObjectAccessControlRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{%object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -285,7 +285,7 @@ func resourceStorageObjectAccessControlUpdate(d *schema.ResourceData, meta inter
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{%object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,7 @@ func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta inter
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{object}}/acl/{{entity}}")
+	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/o/{{%object}}/acl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -349,7 +349,7 @@ func resourceStorageObjectAccessControlDelete(d *schema.ResourceData, meta inter
 func resourceStorageObjectAccessControlImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
-		"(?P<bucket>[^/]+)/(?P<object>[^/]+)/(?P<entity>[^/]+)",
+		"(?P<bucket>[^/]+)/(?P<object>.+)/(?P<entity>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}

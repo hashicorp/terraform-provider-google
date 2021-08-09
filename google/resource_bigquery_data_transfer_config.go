@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -65,11 +65,6 @@ func resourceBigqueryDataTransferConfig() *schema.Resource {
 				ForceNew:    true,
 				Description: `The data source id. Cannot be changed once the transfer config is created.`,
 			},
-			"destination_dataset_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The BigQuery target dataset id.`,
-			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -90,6 +85,11 @@ For example, if dataRefreshWindowDays = 10, then every day BigQuery
 reingests data for [today-10, today-1], rather than ingesting data for
 just [today-1]. Only valid if the data source supports the feature.
 Set the value to 0 to use the default value.`,
+			},
+			"destination_dataset_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The BigQuery target dataset id.`,
 			},
 			"disabled": {
 				Type:        schema.TypeBool,

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -176,11 +176,6 @@ resource "google_bigquery_job" "job" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_job_copy&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Bigquery Job Copy
 
 
@@ -539,6 +534,9 @@ The `destination_encryption_configuration` block supports:
   Describes the Cloud KMS encryption key that will be used to protect destination BigQuery table.
   The BigQuery Service Account associated with your project requires access to this encryption key.
 
+* `kms_key_version` -
+  Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
+
 The `script_options` block supports:
 
 * `statement_timeout_ms` -
@@ -731,6 +729,9 @@ The `destination_encryption_configuration` block supports:
   Describes the Cloud KMS encryption key that will be used to protect destination BigQuery table.
   The BigQuery Service Account associated with your project requires access to this encryption key.
 
+* `kms_key_version` -
+  Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
+
 The `copy` block supports:
 
 * `source_tables` -
@@ -805,6 +806,9 @@ The `destination_encryption_configuration` block supports:
   (Required)
   Describes the Cloud KMS encryption key that will be used to protect destination BigQuery table.
   The BigQuery Service Account associated with your project requires access to this encryption key.
+
+* `kms_key_version` -
+  Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
 
 The `extract` block supports:
 

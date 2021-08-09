@@ -11,11 +11,12 @@ import (
 )
 
 type ContainerOperationWaiter struct {
-	Service  *container.Service
-	Context  context.Context
-	Op       *container.Operation
-	Project  string
-	Location string
+	Service             *container.Service
+	Context             context.Context
+	Op                  *container.Operation
+	Project             string
+	Location            string
+	UserProjectOverride bool
 }
 
 func (w *ContainerOperationWaiter) State() string {
@@ -75,7 +76,11 @@ func (w *ContainerOperationWaiter) QueryOp() (interface{}, error) {
 		// default must be here to keep the previous case from blocking
 	}
 	err := retryTimeDuration(func() (opErr error) {
-		op, opErr = w.Service.Projects.Locations.Operations.Get(name).Do()
+		opGetCall := w.Service.Projects.Locations.Operations.Get(name)
+		if w.UserProjectOverride {
+			opGetCall.Header().Add("X-Goog-User-Project", w.Project)
+		}
+		op, opErr = opGetCall.Do()
 		return opErr
 	}, DefaultRequestTimeout)
 
@@ -99,11 +104,12 @@ func (w *ContainerOperationWaiter) TargetStates() []string {
 
 func containerOperationWait(config *Config, op *container.Operation, project, location, activity, userAgent string, timeout time.Duration) error {
 	w := &ContainerOperationWaiter{
-		Service:  config.NewContainerBetaClient(userAgent),
-		Context:  config.context,
-		Op:       op,
-		Project:  project,
-		Location: location,
+		Service:             config.NewContainerBetaClient(userAgent),
+		Context:             config.context,
+		Op:                  op,
+		Project:             project,
+		Location:            location,
+		UserProjectOverride: config.UserProjectOverride,
 	}
 
 	if err := w.SetOp(op); err != nil {

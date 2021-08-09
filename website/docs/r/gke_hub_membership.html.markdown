@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -24,12 +24,10 @@ description: |-
 
 Membership contains information about a member cluster.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Membership, see:
 
-* [API documentation](https://cloud.google.com/gkehub/docs/reference/rest/v1beta1/projects.locations.memberships)
+* [API documentation](https://cloud.google.com/anthos/multicluster-management/reference/rest/v1/projects.locations.memberships)
 * How-to Guides
     * [Registering a Cluster](https://cloud.google.com/anthos/multicluster-management/connect/registering-a-cluster#register_cluster)
 
@@ -46,7 +44,6 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster"
   location           = "us-central1-a"
   initial_node_count = 1
-  provider = google-beta
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -56,15 +53,8 @@ resource "google_gke_hub_membership" "membership" {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
   }
-  description = "test resource."
-  provider = google-beta
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=gkehub_membership_issuer&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Gkehub Membership Issuer
 
 
@@ -76,7 +66,6 @@ resource "google_container_cluster" "primary" {
   workload_identity_config {
     identity_namespace = "my-project-name.svc.id.goog"
   }
-  provider = google-beta
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -89,8 +78,6 @@ resource "google_gke_hub_membership" "membership" {
   authority {
     issuer = "https://container.googleapis.com/v1/${google_container_cluster.primary.id}"
   }
-  description = "test resource."
-  provider = google-beta
 }
 ```
 
@@ -108,8 +95,8 @@ The following arguments are supported:
 
 
 * `description` -
-  (Optional)
-  The name of this entity type to be displayed on the console.
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The name of this entity type to be displayed on the console. This field is unavailable in v1 of the API.
 
 * `labels` -
   (Optional)
@@ -145,7 +132,7 @@ The `gke_cluster` block supports:
   (Required)
   Self-link of the GCP resource for the GKE cluster.
   For example: `//container.googleapis.com/projects/my-project/zones/us-west1-a/clusters/my-cluster`.
-  It can be at the most 1000 characters in length.  If the cluster is provisioned with Terraform,
+  It can be at the most 1000 characters in length. If the cluster is provisioned with Terraform,
   this is `"//container.googleapis.com/${google_container_cluster.my-cluster.id}"`.
 
 The `authority` block supports:
@@ -153,7 +140,7 @@ The `authority` block supports:
 * `issuer` -
   (Required)
   A JSON Web Token (JWT) issuer URI. `issuer` must start with `https://` and // be a valid 
-  with length <2000 characters.
+  with length <2000 characters. For example: `https://container.googleapis.com/v1/projects/my-project/locations/us-west1/clusters/my-cluster` (must be `locations` rather than `zones`). If the cluster is provisioned with Terraform, this is `"https://container.googleapis.com/v1/${google_container_cluster.my-cluster.id}"`.
 
 ## Attributes Reference
 

@@ -1076,7 +1076,7 @@ resource "google_sql_database_instance" "instance" {
 var testGoogleSqlDatabaseInstance_replica = `
 resource "google_sql_database_instance" "instance_master" {
   name             = "tf-lw-%d"
-  database_version = "MYSQL_5_6"
+  database_version = "MYSQL_5_7"
   region           = "us-central1"
   deletion_protection = false
 
@@ -1093,12 +1093,15 @@ resource "google_sql_database_instance" "instance_master" {
 
 resource "google_sql_database_instance" "replica1" {
   name             = "tf-lw-%d-1"
-  database_version = "MYSQL_5_6"
+  database_version = "MYSQL_5_7"
   region           = "us-central1"
   deletion_protection = false
 
   settings {
     tier = "db-n1-standard-1"
+		backup_configuration {
+      binary_log_enabled = true
+		}
   }
 
   master_instance_name = google_sql_database_instance.instance_master.name
@@ -1115,7 +1118,7 @@ resource "google_sql_database_instance" "replica1" {
 
 resource "google_sql_database_instance" "replica2" {
   name             = "tf-lw-%d-2"
-  database_version = "MYSQL_5_6"
+  database_version = "MYSQL_5_7"
   region           = "us-central1"
   deletion_protection = false
 
@@ -1192,10 +1195,11 @@ resource "google_sql_database_instance" "instance" {
   deletion_protection = false
 
   settings {
-    tier            = "db-f1-micro"
-    disk_autoresize = true
-    disk_size       = 15
-    disk_type       = "PD_HDD"
+    tier                  = "db-f1-micro"
+    disk_autoresize       = true
+    disk_autoresize_limit = 50
+    disk_size             = 15
+    disk_type             = "PD_HDD"
   }
 }
 `

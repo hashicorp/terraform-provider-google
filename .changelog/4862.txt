@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: added SLASH_23 support for `peering_cidr_range` on `google_apigee_instance`
+```

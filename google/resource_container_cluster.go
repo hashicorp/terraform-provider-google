@@ -75,8 +75,6 @@ func clusterSchemaNodeConfig() *schema.Schema {
 			changeFieldSchemaToForceNew(sch)
 		}
 	}
-	// Autopilot is only applicable for container cluster
-	nodeConfigSch.ConflictsWith = []string{"enable_autopilot"}
 	return nodeConfigSch
 }
 
@@ -1163,11 +1161,14 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		ResourceLabels: expandStringMap(d, "resource_labels"),
 	}
 
-	if v, ok := d.GetOk("enable_shielded_nodes"); ok {
-		cluster.ShieldedNodes = &containerBeta.ShieldedNodes{
-			Enabled:         v.(bool),
-			ForceSendFields: []string{"Enabled"},
-		}
+	// shielded nodes is computed and optional yet serverside
+	// default is true. Forcing true here esentially serves
+	// as a default false but is unavoidable due to how
+	// computed and GetOk work together.
+	v := d.Get("enable_shielded_nodes")
+	cluster.ShieldedNodes = &containerBeta.ShieldedNodes{
+		Enabled:         v.(bool),
+		ForceSendFields: []string{"Enabled"},
 	}
 
 	if v, ok := d.GetOk("default_max_pods_per_node"); ok {
@@ -3443,6 +3444,11 @@ func containerClusterAutopilotCustomizeDiff(_ context.Context, d *schema.Resourc
 
 // node_version only applies to the default node pool, so it should conflict with remove_default_node_pool = true
 func containerClusterNodeVersionRemoveDefaultCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	// node_version is computed, so we can only check this on initial creation
+	o, _ := d.GetChange("name")
+	if o != "" {
+		return nil
+	}
 	if d.Get("node_version").(string) != "" && d.Get("remove_default_node_pool").(bool) {
 		return fmt.Errorf("node_version can only be specified if remove_default_node_pool is not true")
 	}

@@ -29,7 +29,7 @@ func NewHealthcareDatasetIamUpdater(d TerraformResourceData, config *Config) (Re
 	datasetId, err := parseHealthcareDatasetId(dataset, config)
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for for %s: {{err}}", dataset), err)
+		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for %s: {{err}}", dataset), err)
 	}
 
 	return &HealthcareDatasetIamUpdater{

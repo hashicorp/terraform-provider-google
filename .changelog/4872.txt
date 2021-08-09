@@ -1,0 +1,3 @@
+```release-note:enhancement
+ compute: promote `custom_response_headers` for `google_compute_backend_service` and `google_compute_backend_bucket` to GA
+ ```

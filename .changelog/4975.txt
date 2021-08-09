@@ -1,0 +1,3 @@
+```release-note:bug
+compute: removed default value of `0.8` from `google_backend_service.backend.max_utilization` and it will now default from API. All `max_connections_xxx` and `max_rate_xxx` will also default from API as these are all conditional on balancing mode.
+```

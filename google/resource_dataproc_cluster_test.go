@@ -857,7 +857,7 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 
 		clusterTests := []tfAndGCPTestField{
 			{"cluster_config.0.master_config.0.num_instances", "3", strconv.Itoa(int(cluster.Config.MasterConfig.NumInstances))},
-			{"cluster_config.0.master_config.0.disk_config.0.boot_disk_size_gb", "30", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb))},
+			{"cluster_config.0.master_config.0.disk_config.0.boot_disk_size_gb", "35", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.master_config.0.disk_config.0.num_local_ssds", "0", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.NumLocalSsds))},
 			{"cluster_config.0.master_config.0.disk_config.0.boot_disk_type", "pd-ssd", cluster.Config.MasterConfig.DiskConfig.BootDiskType},
 			{"cluster_config.0.master_config.0.machine_type", "n1-standard-2", GetResourceNameFromSelfLink(cluster.Config.MasterConfig.MachineTypeUri)},
@@ -865,7 +865,7 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 			{"cluster_config.0.master_config.0.min_cpu_platform", "Intel Skylake", cluster.Config.MasterConfig.MinCpuPlatform},
 
 			{"cluster_config.0.worker_config.0.num_instances", "3", strconv.Itoa(int(cluster.Config.WorkerConfig.NumInstances))},
-			{"cluster_config.0.worker_config.0.disk_config.0.boot_disk_size_gb", "32", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb))},
+			{"cluster_config.0.worker_config.0.disk_config.0.boot_disk_size_gb", "35", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.worker_config.0.disk_config.0.num_local_ssds", "1", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds))},
 			{"cluster_config.0.worker_config.0.disk_config.0.boot_disk_type", "pd-standard", cluster.Config.WorkerConfig.DiskConfig.BootDiskType},
 			{"cluster_config.0.worker_config.0.machine_type", "n1-standard-2", GetResourceNameFromSelfLink(cluster.Config.WorkerConfig.MachineTypeUri)},
@@ -873,7 +873,7 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 			{"cluster_config.0.worker_config.0.min_cpu_platform", "Intel Broadwell", cluster.Config.WorkerConfig.MinCpuPlatform},
 
 			{"cluster_config.0.preemptible_worker_config.0.num_instances", "1", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.NumInstances))},
-			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_size_gb", "34", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb))},
+			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_size_gb", "35", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.num_local_ssds", "1", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.DiskConfig.NumLocalSsds))},
 			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_type", "pd-ssd", cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskType},
 			{"cluster_config.0.preemptible_worker_config.0.instance_names.#", "1", strconv.Itoa(len(cluster.Config.SecondaryWorkerConfig.InstanceNames))},
@@ -1111,7 +1111,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
       machine_type  = "n1-standard-2"  // can't be e2 because of min_cpu_platform
       disk_config {
         boot_disk_type    = "pd-ssd"
-        boot_disk_size_gb = 30
+        boot_disk_size_gb = 35
       }
       min_cpu_platform = "Intel Skylake"
     }
@@ -1121,7 +1121,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
       machine_type  = "n1-standard-2"  // can't be e2 because of min_cpu_platform
       disk_config {
         boot_disk_type    = "pd-standard"
-        boot_disk_size_gb = 32
+        boot_disk_size_gb = 35
         num_local_ssds    = 1
       }
 
@@ -1132,7 +1132,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
       num_instances = 1
       disk_config {
         boot_disk_type    = "pd-ssd"
-        boot_disk_size_gb = 34
+        boot_disk_size_gb = 35
         num_local_ssds    = 1
       }
     }
@@ -1174,7 +1174,7 @@ resource "google_dataproc_cluster" "with_init_action" {
     master_config {
       machine_type = "e2-medium"
       disk_config {
-        boot_disk_size_gb = 30
+        boot_disk_size_gb = 35
       }
     }
 
@@ -1202,7 +1202,7 @@ resource "google_dataproc_cluster" "updatable" {
       num_instances = "1"
       machine_type  = "e2-medium"
       disk_config {
-        boot_disk_size_gb = 30
+        boot_disk_size_gb = 35
       }
     }
 
@@ -1210,14 +1210,14 @@ resource "google_dataproc_cluster" "updatable" {
       num_instances = "%d"
       machine_type  = "e2-medium"
       disk_config {
-        boot_disk_size_gb = 30
+        boot_disk_size_gb = 35
       }
     }
 
     preemptible_worker_config {
       num_instances = "%d"
       disk_config {
-        boot_disk_size_gb = 30
+        boot_disk_size_gb = 35
       }
     }
   }
@@ -1264,7 +1264,7 @@ resource "google_dataproc_cluster" "with_bucket" {
     master_config {
       machine_type = "e2-medium"
       disk_config {
-        boot_disk_size_gb = 30
+        boot_disk_size_gb = 35
       }
     }
   }
@@ -1293,7 +1293,7 @@ resource "google_dataproc_cluster" "with_bucket" {
     master_config {
       machine_type = "e2-medium"
       disk_config {
-        boot_disk_size_gb = 30
+        boot_disk_size_gb = 35
       }
     }
   }
@@ -1376,7 +1376,7 @@ resource "google_dataproc_cluster" "with_service_account" {
     master_config {
       machine_type = "e2-medium"
       disk_config {
-        boot_disk_size_gb = 30
+        boot_disk_size_gb = 35
       }
     }
 
@@ -1453,7 +1453,7 @@ resource "google_dataproc_cluster" "with_net_ref_by_name" {
     master_config {
       machine_type = "e2-medium"
       disk_config {
-        boot_disk_size_gb = 30
+        boot_disk_size_gb = 35
       }
     }
 
@@ -1479,7 +1479,7 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
     master_config {
       machine_type = "e2-medium"
       disk_config {
-        boot_disk_size_gb = 30
+        boot_disk_size_gb = 35
       }
     }
 

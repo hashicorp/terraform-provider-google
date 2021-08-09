@@ -37,8 +37,7 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "my-node-pool"
-  location   = "us-central1"
-  cluster    = google_container_cluster.primary.name
+  cluster    = google_container_cluster.primary.id
   node_count = 1
 
   node_config {
@@ -64,8 +63,7 @@ resource "google_service_account" "default" {
 
 resource "google_container_node_pool" "np" {
   name       = "my-node-pool"
-  location   = "us-central1-a"
-  cluster    = google_container_cluster.primary.name
+  cluster    = google_container_cluster.primary.id
   node_config {
     machine_type = "e2-medium"
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
@@ -105,7 +103,7 @@ resource "google_container_cluster" "primary" {
 
 ## Argument Reference
 
-* `cluster` - (Required) The cluster to create the node pool for. Cluster must be present in `location` provided for zonal clusters.
+* `cluster` - (Required) The cluster to create the node pool for. Cluster must be present in `location` provided for zonal clusters. May be specified in the format `projects/{{project}}/locations/{{location}}/clusters/{{cluster}}` or as just the name of the cluster.
 
 - - -
 
@@ -149,7 +147,10 @@ cluster.
 * `name_prefix` - (Optional) Creates a unique name for the node pool beginning
     with the specified prefix. Conflicts with `name`.
 
-* `node_config` - (Optional) The node configuration of the pool. See
+* `node_config` - (Optional) The network configuration of the pool. See
+    [google_container_cluster](container_cluster.html) for schema.
+
+* `network_config` - (Optional) The network configuration of the pool. See
     [google_container_cluster](container_cluster.html) for schema.
 
 * `node_count` - (Optional) The number of nodes per instance group. This field can be used to

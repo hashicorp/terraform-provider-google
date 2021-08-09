@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -286,7 +286,7 @@ The `autoscaling_policy` block supports:
   Structure is documented below.
 
 * `scaling_schedules` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Scaling schedules defined for an autoscaler. Multiple schedules can be set on an autoscaler and they can overlap.
   Structure is documented below.
 
@@ -358,7 +358,7 @@ The `cpu_utilization` block supports:
   utilization.
 
 * `predictive_method` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Indicates whether predictive autoscaling based on CPU metric is enabled. Valid values are:
   - NONE (default). No predictive method is used. The autoscaler scales the group to meet current demand based on real-time metrics.
   - OPTIMIZE_AVAILABILITY. Predictive autoscaling improves availability by monitoring daily and weekly load patterns and scaling out ahead of anticipated demand.

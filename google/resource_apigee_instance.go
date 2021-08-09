@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -85,8 +85,8 @@ Use the following format: 'projects/([^/]+)/locations/([^/]+)/keyRings/([^/]+)/c
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"SLASH_16", "SLASH_20", ""}, false),
-				Description:  `The size of the CIDR block range that will be reserved by the instance. Possible values: ["SLASH_16", "SLASH_20"]`,
+				ValidateFunc: validation.StringInSlice([]string{"SLASH_16", "SLASH_20", "SLASH_22", ""}, false),
+				Description:  `The size of the CIDR block range that will be reserved by the instance. Possible values: ["SLASH_16", "SLASH_20", "SLASH_22"]`,
 			},
 			"host": {
 				Type:        schema.TypeString,

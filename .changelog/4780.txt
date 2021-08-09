@@ -1,0 +1,3 @@
+```release-note:bug
+cloudidentity: fixed recreation on the `initial_group_config` of `google_cloud_identity_group`
+```

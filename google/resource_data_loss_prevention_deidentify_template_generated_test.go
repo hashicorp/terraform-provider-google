@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -60,10 +60,20 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 		info_type_transformations {
 			transformations {
 				info_types {
+					name = "FIRST_NAME"
+				}
+
+				primitive_transformation {
+					replace_with_info_type_config = true
+				}
+			}
+
+			transformations {
+				info_types {
 					name = "PHONE_NUMBER"
 				}
 				info_types {
-					name = "CREDIT_CARD_NUMBER"
+					name = "AGE"
 				}
 
 				primitive_transformation {
@@ -112,6 +122,28 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 					}
 				}
 			}
+
+      transformations {
+        info_types {
+          name = "CREDIT_CARD_NUMBER"
+        }
+
+        primitive_transformation {
+          crypto_deterministic_config {
+            context {
+              name = "sometweak"
+            }
+            crypto_key {
+              transient {
+                name = "beep"
+              }
+            }
+            surrogate_info_type {
+              name = "abc"
+            }
+          }
+        }
+      }
 		}
 	}
 }

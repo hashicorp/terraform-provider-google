@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -233,7 +233,7 @@ this set of labeled resources should be included in the budget.`,
 							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels"},
 						},
 						"projects": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Description: `A set of projects of the form projects/{project_number},
 specifying that usage from only this set of projects should be
@@ -243,6 +243,7 @@ the usage occurred on.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Set:          schema.HashString,
 							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels"},
 						},
 						"services": {
@@ -471,7 +472,9 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("amount") {
-		updateMask = append(updateMask, "amount")
+		updateMask = append(updateMask, "amount.specifiedAmount.currencyCode",
+			"amount.specifiedAmount.units",
+			"amount.specifiedAmount.nanos")
 	}
 
 	if d.HasChange("threshold_rules") {
@@ -479,7 +482,10 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("all_updates_rule") {
-		updateMask = append(updateMask, "notificationsRule")
+		updateMask = append(updateMask, "notificationsRule.pubsubTopic",
+			"notificationsRule.schemaVersion",
+			"notificationsRule.monitoringNotificationChannels",
+			"notificationsRule.disableDefaultIamRecipients")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -590,7 +596,10 @@ func flattenBillingBudgetBudgetFilter(v interface{}, d *schema.ResourceData, con
 	return []interface{}{transformed}
 }
 func flattenBillingBudgetBudgetFilterProjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenBillingBudgetBudgetFilterCreditTypesTreatment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -799,6 +808,7 @@ func expandBillingBudgetBudgetFilter(v interface{}, d TerraformResourceData, con
 }
 
 func expandBillingBudgetBudgetFilterProjects(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	return v, nil
 }
 

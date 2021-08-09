@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -144,7 +144,7 @@ resource "google_compute_subnetwork" "network2_subnet2" {
 }
 
 resource "google_compute_router" "router1" {
-  name     = "ha-vpn-router1"
+  name     = "tf-test-ha-vpn-router1%{random_suffix}"
   network  = google_compute_network.network1.name
   bgp {
     asn = 64514
@@ -152,7 +152,7 @@ resource "google_compute_router" "router1" {
 }
 
 resource "google_compute_router" "router2" {
-  name     = "ha-vpn-router2"
+  name     = "tf-test-ha-vpn-router2%{random_suffix}"
   network  = google_compute_network.network2.name
   bgp {
     asn = 64515
@@ -269,6 +269,102 @@ resource "google_compute_router_peer" "router2_peer2" {
   peer_asn                  = 64514
   advertised_route_priority = 100
   interface                 = google_compute_router_interface.router2_interface2.name
+}
+`, context)
+}
+
+func TestAccComputeHaVpnGateway_computeHaVpnGatewayEncryptedInterconnectExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeHaVpnGatewayDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHaVpnGateway_computeHaVpnGatewayEncryptedInterconnectExample(context),
+			},
+			{
+				ResourceName:            "google_compute_ha_vpn_gateway.vpn-gateway",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeHaVpnGateway_computeHaVpnGatewayEncryptedInterconnectExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_ha_vpn_gateway" "vpn-gateway" {
+  name           = "tf-test-test-ha-vpngw%{random_suffix}"
+  network        = google_compute_network.network.id
+  vpn_interfaces {
+      id                      = 0
+      interconnect_attachment = google_compute_interconnect_attachment.attachment1.self_link
+  }
+  vpn_interfaces {
+      id                      = 1
+      interconnect_attachment = google_compute_interconnect_attachment.attachment2.self_link
+  }
+}
+
+resource "google_compute_interconnect_attachment" "attachment1" {
+  name                     = "tf-test-test-interconnect-attachment1%{random_suffix}"
+  edge_availability_domain = "AVAILABILITY_DOMAIN_1"
+  type                     = "PARTNER"
+  router                   = google_compute_router.router.id
+  encryption               = "IPSEC"
+  ipsec_internal_addresses = [
+    google_compute_address.address1.self_link,
+  ]
+}
+
+resource "google_compute_interconnect_attachment" "attachment2" {
+  name                     = "tf-test-test-interconnect-attachment2%{random_suffix}"
+  edge_availability_domain = "AVAILABILITY_DOMAIN_2"
+  type                     = "PARTNER"
+  router                   = google_compute_router.router.id
+  encryption               = "IPSEC"
+  ipsec_internal_addresses = [
+    google_compute_address.address2.self_link,
+  ]
+}
+
+resource "google_compute_address" "address1" {
+  name          = "tf-test-test-address1%{random_suffix}"
+  address_type  = "INTERNAL"
+  purpose       = "IPSEC_INTERCONNECT"
+  address       = "192.168.1.0"
+  prefix_length = 29
+  network       = google_compute_network.network.self_link
+}
+
+resource "google_compute_address" "address2" {
+  name          = "tf-test-test-address2%{random_suffix}"
+  address_type  = "INTERNAL"
+  purpose       = "IPSEC_INTERCONNECT"
+  address       = "192.168.2.0"
+  prefix_length = 29
+  network       = google_compute_network.network.self_link
+}
+
+resource "google_compute_router" "router" {
+  name                          = "tf-test-test-router%{random_suffix}"
+  network                       = google_compute_network.network.name
+  encrypted_interconnect_router = true
+  bgp {
+    asn = 16550
+  }
+}
+
+resource "google_compute_network" "network" {
+  name                    = "tf-test-test-network%{random_suffix}"
+  auto_create_subnetworks = false
 }
 `, context)
 }

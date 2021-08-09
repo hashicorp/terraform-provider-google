@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -96,7 +96,6 @@ resource "google_compute_http_health_check" "default" {
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  provider      = google-beta
   name          = "backend-service"
   health_checks = [google_compute_http_health_check.default.id]
   enable_cdn  = true
@@ -111,7 +110,6 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  provider           = google-beta
   name               = "health-check"
   request_path       = "/"
   check_interval_sec = 1
@@ -198,26 +196,26 @@ resource "google_compute_health_check" "health_check" {
 
 ```hcl
 resource "google_compute_global_network_endpoint_group" "external_proxy" {
-  provider=google-beta
+  provider = google-beta
   name                  = "network-endpoint"
   network_endpoint_type = "INTERNET_FQDN_PORT"
   default_port          = "443"
 }
 
 resource "google_compute_global_network_endpoint" "proxy" {
-  provider=google-beta
+  provider = google-beta
   global_network_endpoint_group = google_compute_global_network_endpoint_group.external_proxy.id
   fqdn                          = "test.example.com"
   port                          = google_compute_global_network_endpoint_group.external_proxy.default_port
 }
 
 resource "google_compute_backend_service" "default" {
-  provider=google-beta
+  provider = google-beta
   name                            = "backend-service"
   enable_cdn                      = true
   timeout_sec                     = 10
   connection_draining_timeout_sec = 10
- 
+
   custom_request_headers          = ["host: ${google_compute_global_network_endpoint.proxy.fqdn}"]
   custom_response_headers         = ["X-Cache-Hit: {cdn_cache_status}"]
 
@@ -293,7 +291,7 @@ The following arguments are supported:
   requests.
 
 * `custom_response_headers` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Headers that the HTTP/S load balancer should add to proxied
   responses.
 
@@ -491,8 +489,7 @@ The `backend` block supports:
 * `max_utilization` -
   (Optional)
   Used when balancingMode is UTILIZATION. This ratio defines the
-  CPU utilization target for the group. The default is 0.8. Valid
-  range is [0.0, 1.0].
+  CPU utilization target for the group. Valid range is [0.0, 1.0].
 
 The `circuit_breakers` block supports:
 
@@ -618,36 +615,36 @@ The `cdn_policy` block supports:
   responses will not be altered.
 
 * `default_ttl` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Specifies the default TTL for cached content served by this origin for responses
   that do not have an existing valid TTL (max-age or s-max-age).
 
 * `max_ttl` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Specifies the maximum allowed TTL for cached content served by this origin.
 
 * `client_ttl` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Specifies the maximum allowed TTL for cached content served by this origin.
 
 * `negative_caching` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Negative caching allows per-status code TTLs to be set, in order to apply fine-grained caching for common errors or redirects.
 
 * `negative_caching_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
   Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.
   Structure is documented below.
 
 * `cache_mode` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Specifies the cache setting for all responses from this backend.
   The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
   Possible values are `USE_ORIGIN_HEADERS`, `FORCE_CACHE_ALL`, and `CACHE_ALL_STATIC`.
 
 * `serve_while_stale` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
 
 
@@ -689,12 +686,12 @@ The `cache_key_policy` block supports:
 The `negative_caching_policy` block supports:
 
 * `code` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The HTTP status code to define a TTL against. Only HTTP status codes 300, 301, 308, 404, 405, 410, 421, 451 and 501
   can be specified as values, and you cannot specify a status code more than once.
 
 * `ttl` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
   (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
 

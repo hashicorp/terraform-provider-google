@@ -136,7 +136,7 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 						"tier": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: `The machine type to use. See tiers for more details and supported versions. Postgres supports only shared-core machine types such as db-f1-micro, and custom machine types such as db-custom-2-13312. See the Custom Machine Type Documentation to learn about specifying custom machine types.`,
+							Description: `The machine type to use. See tiers for more details and supported versions. Postgres supports only shared-core machine types, and custom machine types such as db-custom-2-13312. See the Custom Machine Type Documentation to learn about specifying custom machine types.`,
 						},
 						"activation_policy": {
 							Type:     schema.TypeString,
@@ -269,6 +269,13 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Default:          true,
 							DiffSuppressFunc: suppressFirstGen,
 							Description:      `Configuration to increase storage size automatically.  Note that future terraform apply calls will attempt to resize the disk to the value specified in disk_size - if this is set, do not set disk_size.`,
+						},
+						"disk_autoresize_limit": {
+							Type:             schema.TypeInt,
+							Optional:         true,
+							Default:          0,
+							DiffSuppressFunc: suppressFirstGen,
+							Description:      `The maximum size, in GB, to which storage capacity can be automatically increased. The default value is 0, which specifies that there is no limit.`,
 						},
 						"disk_size": {
 							Type:     schema.TypeInt,
@@ -445,7 +452,7 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 				Optional:    true,
 				Default:     "MYSQL_5_6",
 				ForceNew:    true,
-				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, POSTGRES_9_6,POSTGRES_11, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
+				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 			},
 
 			"root_password": {
@@ -832,6 +839,17 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		defer mutexKV.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
 	}
 
+	var patchData *sqladmin.DatabaseInstance
+
+	// BinaryLogging can be enabled on replica instances but only after creation.
+	if instance.MasterInstanceName != "" && instance.Settings != nil && instance.Settings.BackupConfiguration != nil {
+		bc := instance.Settings.BackupConfiguration
+		instance.Settings.BackupConfiguration = nil
+		if bc.BinaryLogEnabled {
+			patchData = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{BackupConfiguration: bc}}
+		}
+	}
+
 	var op *sqladmin.Operation
 	err = retryTimeDuration(func() (operr error) {
 		if cloneContext != nil {
@@ -857,6 +875,21 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		d.SetId("")
 		return err
+	}
+
+	// patch any fields that need to be sent postcreation
+	if patchData != nil {
+		err = retryTimeDuration(func() (rerr error) {
+			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, instance.Name, patchData).Do()
+			return rerr
+		}, d.Timeout(schema.TimeoutUpdate), isSqlOperationInProgressError)
+		if err != nil {
+			return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
+		}
+		err = sqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
 	}
 
 	err = resourceSqlDatabaseInstanceRead(d, meta)
@@ -965,6 +998,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool)
 	if secondGen {
 		resize := _settings["disk_autoresize"].(bool)
 		settings.StorageAutoResize = &resize
+		settings.StorageAutoResizeLimit = int64(_settings["disk_autoresize_limit"].(int))
 	}
 
 	return settings
@@ -1377,6 +1411,7 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 	}
 
 	data["disk_autoresize"] = settings.StorageAutoResize
+	data["disk_autoresize_limit"] = settings.StorageAutoResizeLimit
 
 	if settings.UserLabels != nil {
 		data["user_labels"] = settings.UserLabels

@@ -83,6 +83,12 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 		ReservedPeeringRanges: convertStringArr(d.Get("reserved_peering_ranges").([]interface{})),
 	}
 
+	networkFieldValue, err := ParseNetworkFieldValue(network, d, config)
+	if err != nil {
+		return errwrap.Wrapf("Failed to retrieve network field value, err: {{err}}", err)
+	}
+	project := networkFieldValue.Project
+
 	parentService := formatParentService(d.Get("service").(string))
 	// We use Patch instead of Create, because we're getting
 	//  "Error waiting for Create Service Networking Connection:
@@ -98,12 +104,22 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 	// The API docs don't specify that you can do connections/-,
 	// but that's what gcloud does, and it's easier than grabbing
 	// the connection name.
-	op, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true).Do()
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		project = bp
+	}
+
+	createCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true)
+	if config.UserProjectOverride {
+		createCall.Header().Add("X-Goog-User-Project", project)
+	}
+	op, err := createCall.Do()
 	if err != nil {
 		return err
 	}
 
-	if err := serviceNetworkingOperationWaitTime(config, op, "Create Service Networking Connection", userAgent, d.Timeout(schema.TimeoutCreate)); err != nil {
+	if err := serviceNetworkingOperationWaitTime(config, op, "Create Service Networking Connection", userAgent, project, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return err
 	}
 
@@ -133,9 +149,24 @@ func resourceServiceNetworkingConnectionRead(d *schema.ResourceData, meta interf
 		return errwrap.Wrapf("Failed to find Service Networking Connection, err: {{err}}", err)
 	}
 
+	network := d.Get("network").(string)
+	networkFieldValue, err := ParseNetworkFieldValue(network, d, config)
+	if err != nil {
+		return errwrap.Wrapf("Failed to retrieve network field value, err: {{err}}", err)
+	}
+	project := networkFieldValue.Project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		project = bp
+	}
+
 	parentService := formatParentService(connectionId.Service)
-	response, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.List(parentService).
-		Network(serviceNetworkingNetworkName).Do()
+	readCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.List(parentService).Network(serviceNetworkingNetworkName)
+	if config.UserProjectOverride {
+		readCall.Header().Add("X-Goog-User-Project", project)
+	}
+	response, err := readCall.Do()
 	if err != nil {
 		return err
 	}
@@ -195,13 +226,29 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 			ReservedPeeringRanges: convertStringArr(d.Get("reserved_peering_ranges").([]interface{})),
 		}
 
+		networkFieldValue, err := ParseNetworkFieldValue(network, d, config)
+		if err != nil {
+			return errwrap.Wrapf("Failed to retrieve network field value, err: {{err}}", err)
+		}
+		project := networkFieldValue.Project
+
 		// The API docs don't specify that you can do connections/-, but that's what gcloud does,
 		// and it's easier than grabbing the connection name.
-		op, err := config.NewServiceNetworkingClient(userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true).Do()
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			project = bp
+		}
+
+		patchCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true)
+		if config.UserProjectOverride {
+			patchCall.Header().Add("X-Goog-User-Project", project)
+		}
+		op, err := patchCall.Do()
 		if err != nil {
 			return err
 		}
-		if err := serviceNetworkingOperationWaitTime(config, op, "Update Service Networking Connection", userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		if err := serviceNetworkingOperationWaitTime(config, op, "Update Service Networking Connection", userAgent, project, d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return err
 		}
 	}
@@ -322,7 +369,17 @@ func retrieveServiceNetworkingNetworkName(d *schema.ResourceData, config *Config
 		return "", fmt.Errorf("Could not determine project")
 	}
 	log.Printf("[DEBUG] Retrieving project number by doing a GET with the project id, as required by service networking")
-	project, err := config.NewResourceManagerClient(userAgent).Projects.Get(pid).Do()
+	// err == nil indicates that the billing_project value was found
+	billingProject := pid
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	getProjectCall := config.NewResourceManagerClient(userAgent).Projects.Get(pid)
+	if config.UserProjectOverride {
+		getProjectCall.Header().Add("X-Goog-User-Project", billingProject)
+	}
+	project, err := getProjectCall.Do()
 	if err != nil {
 		// note: returning a wrapped error is part of this method's contract!
 		// https://blog.golang.org/go1.13-errors

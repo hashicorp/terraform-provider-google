@@ -36,10 +36,6 @@ func resourceBigtableInstance() *schema.Resource {
 			},
 		},
 
-		// ----------------------------------------------------------------------
-		// IMPORTANT: Do not add any additional ForceNew fields to this resource.
-		// Destroying/recreating instances can lead to data loss for users.
-		// ----------------------------------------------------------------------
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -81,6 +77,13 @@ func resourceBigtableInstance() *schema.Resource {
 							Default:      "SSD",
 							ValidateFunc: validation.StringInSlice([]string{"SSD", "HDD"}, false),
 							Description:  `The storage type to use. One of "SSD" or "HDD". Defaults to "SSD".`,
+						},
+						"kms_key_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `Describes the Cloud KMS encryption key that will be used to protect the destination Bigtable cluster. The requirements for this key are: 1) The Cloud Bigtable service account associated with the project that contains this cluster must be granted the cloudkms.cryptoKeyEncrypterDecrypter role on the CMEK key. 2) Only regional keys can be used and the region of the CMEK key must match the region of the cluster. 3) All clusters within an instance must use the same CMEK key. Values are of the form projects/{project}/locations/{location}/keyRings/{keyring}/cryptoKeys/{key}`,
 						},
 					},
 				},
@@ -354,6 +357,7 @@ func flattenBigtableCluster(c *bigtable.ClusterInfo) map[string]interface{} {
 		"num_nodes":    c.ServeNodes,
 		"cluster_id":   c.Name,
 		"storage_type": storageType,
+		"kms_key_name": c.KMSKeyName,
 	}
 }
 
@@ -378,6 +382,7 @@ func expandBigtableClusters(clusters []interface{}, instanceID string, config *C
 			ClusterID:   cluster["cluster_id"].(string),
 			NumNodes:    int32(cluster["num_nodes"].(int)),
 			StorageType: storageType,
+			KMSKeyName:  cluster["kms_key_name"].(string),
 		})
 	}
 	return results, nil

@@ -924,6 +924,37 @@ func TestAccComputeInstance_scheduling(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_advancedMachineFeatures(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_advancedMachineFeatures(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_advancedMachineFeaturesUpdated(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func TestAccComputeInstance_soleTenantNodeAffinities(t *testing.T) {
 	t.Parallel()
 
@@ -952,6 +983,45 @@ func TestAccComputeInstance_soleTenantNodeAffinities(t *testing.T) {
 				Config: testAccComputeInstance_soleTenantNodeAffinitiesReduced(instanceName, templateName, groupName),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
+func TestAccComputeInstance_reservationAffinities(t *testing.T) {
+	t.Parallel()
+
+	var instance computeBeta.Instance
+	var instanceName = fmt.Sprintf("tf-test-resaffinity-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_reservationAffinity_nonSpecificReservationConfig(instanceName, "NO_RESERVATION"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasReservationAffinity(&instance, "NO_RESERVATION"),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+			{
+				Config: testAccComputeInstance_reservationAffinity_nonSpecificReservationConfig(instanceName, "ANY_RESERVATION"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasReservationAffinity(&instance, "ANY_RESERVATION"),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+			{
+				Config: testAccComputeInstance_reservationAffinity_specificReservationConfig(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasReservationAffinity(&instance, "SPECIFIC_RESERVATION", instanceName),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -1102,7 +1172,6 @@ func TestAccComputeInstance_private_image_family(t *testing.T) {
 		},
 	})
 }
-
 func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 	t.Parallel()
 
@@ -1616,7 +1685,7 @@ func TestAccComputeInstance_updateRunning_desiredStatusRunning_allowStoppingForU
 	})
 }
 
-const errorAllowStoppingMsg = "Changing the machine_type, min_cpu_platform, service_account, enable_display, shielded_instance_config, scheduling.node_affinities or network_interface.\\[#d\\].\\(network/subnetwork/subnetwork_project\\) on a started instance requires stopping it. To acknowledge this, please set allow_stopping_for_update = true in your config. You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update."
+const errorAllowStoppingMsg = "please set allow_stopping_for_update"
 
 func TestAccComputeInstance_updateRunning_desiredStatusNotSet_notAllowStoppingForUpdate(t *testing.T) {
 	t.Parallel()
@@ -2736,6 +2805,34 @@ func testAccCheckComputeInstanceHasConfiguredDeletionProtection(instance *comput
 	return func(s *terraform.State) error {
 		if instance.DeletionProtection != configuredDeletionProtection {
 			return fmt.Errorf("Wrong deletion protection flag: expected %t, got %t", configuredDeletionProtection, instance.DeletionProtection)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasReservationAffinity(instance *computeBeta.Instance, reservationType string, specificReservationNames ...string) resource.TestCheckFunc {
+	if len(specificReservationNames) > 1 {
+		panic("too many specificReservationNames provided in test")
+	}
+
+	return func(*terraform.State) error {
+		if instance.ReservationAffinity == nil {
+			return fmt.Errorf("expected instance to have reservation affinity, but it was nil")
+		}
+
+		if instance.ReservationAffinity.ConsumeReservationType != reservationType {
+			return fmt.Errorf("Wrong reservationAffinity consumeReservationType: expected %s, got, %s", reservationType, instance.ReservationAffinity.ConsumeReservationType)
+		}
+
+		if len(specificReservationNames) > 0 {
+			const reservationNameKey = "compute.googleapis.com/reservation-name"
+			if instance.ReservationAffinity.Key != reservationNameKey {
+				return fmt.Errorf("Wrong reservationAffinity key: expected %s, got, %s", reservationNameKey, instance.ReservationAffinity.Key)
+			}
+			if len(instance.ReservationAffinity.Values) != 1 || instance.ReservationAffinity.Values[0] != specificReservationNames[0] {
+				return fmt.Errorf("Wrong reservationAffinity values: expected %s, got, %s", specificReservationNames, instance.ReservationAffinity.Values)
+			}
 		}
 
 		return nil
@@ -4138,6 +4235,64 @@ resource "google_compute_instance" "foobar" {
 `, instance)
 }
 
+func testAccComputeInstance_advancedMachineFeatures(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-10"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-2" // Nested Virt isn't supported on E2 and N2Ds https://cloud.google.com/compute/docs/instances/nested-virtualization/overview#restrictions and https://cloud.google.com/compute/docs/instances/disabling-smt#limitations
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  allow_stopping_for_update = true
+
+}
+`, instance)
+}
+
+func testAccComputeInstance_advancedMachineFeaturesUpdated(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-10"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-2" // Nested Virt isn't supported on E2 and N2Ds https://cloud.google.com/compute/docs/instances/nested-virtualization/overview#restrictions and https://cloud.google.com/compute/docs/instances/disabling-smt#limitations
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+  advanced_machine_features {
+	threads_per_core = 1
+	enable_nested_virtualization = true
+  }
+  allow_stopping_for_update = true
+}
+`, instance)
+}
+
 func testAccComputeInstance_subnet_auto(suffix, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -5070,6 +5225,81 @@ resource "google_compute_node_group" "nodes" {
   node_template = google_compute_node_template.nodetmpl.self_link
 }
 `, instance, nodeTemplate, nodeGroup)
+}
+
+func testAccComputeInstance_reservationAffinity_nonSpecificReservationConfig(instanceName, reservationType string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  reservation_affinity {
+    type = "%s"
+  }
+}`, instanceName, reservationType)
+}
+
+func testAccComputeInstance_reservationAffinity_specificReservationConfig(instanceName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_reservation" "reservation" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  specific_reservation {
+    count = 1
+    instance_properties {
+      machine_type = "n1-standard-1"
+    }
+  }
+
+  specific_reservation_required = true
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%[1]s"
+  machine_type = "n1-standard-1"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  reservation_affinity {
+    type = "SPECIFIC_RESERVATION"
+
+	specific_reservation {
+		key    = "compute.googleapis.com/reservation-name"
+		values = ["%[1]s"]
+	}
+  }
+}`, instanceName)
 }
 
 func testAccComputeInstance_shieldedVmConfig(instance string, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) string {

@@ -1332,6 +1332,7 @@ resource "google_storage_bucket" "bucket" {
       type = "Delete"
     }
     condition {
+	  matches_storage_class = []
       age = 10
     }
   }

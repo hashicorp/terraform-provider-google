@@ -12,7 +12,46 @@ func TestAccStorageObjectAccessControl_update(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName(t)
-	objectName := testAclObjectName(t)
+	objectName := fmt.Sprintf("%s-%d", "tf-test-acl-object", randInt(t))
+	objectData := []byte("data data data")
+	if err := ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
+	vcrTest(t, resource.TestCase{
+		PreCheck: func() {
+			if errObjectAcl != nil {
+				panic(errObjectAcl)
+			}
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageObjectAccessControlDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleStorageObjectAccessControlBasic(bucketName, objectName, "READER", "allUsers"),
+			},
+			{
+				ResourceName:      "google_storage_object_access_control.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testGoogleStorageObjectAccessControlBasic(bucketName, objectName, "OWNER", "allUsers"),
+			},
+			{
+				ResourceName:      "google_storage_object_access_control.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccStorageObjectAccessControl_updateWithSlashes(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+	objectName := fmt.Sprintf("%s-%d", "tf-test/acl/object", randInt(t))
 	objectData := []byte("data data data")
 	if err := ioutil.WriteFile(tfObjectAcl.Name(), objectData, 0644); err != nil {
 		t.Errorf("error writing file: %v", err)

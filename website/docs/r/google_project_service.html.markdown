@@ -23,6 +23,11 @@ resource "google_project_service" "project" {
   project = "your-project-id"
   service = "iam.googleapis.com"
 
+  timeouts {
+    create = "30m"
+    update = "40m"
+  }
+
   disable_dependent_services = true
 }
 ```
@@ -45,6 +50,16 @@ If `false` or unset, an error will be generated if any enabled services depend o
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `{{project}}/{{service}}`
+
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 20 minutes.
+- `read`   - Default is 10 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 

@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -172,7 +172,7 @@ The following arguments are supported:
 * `peering_cidr_range` -
   (Optional)
   The size of the CIDR block range that will be reserved by the instance.
-  Possible values are `SLASH_16` and `SLASH_20`.
+  Possible values are `SLASH_16`, `SLASH_20`, and `SLASH_22`.
 
 * `description` -
   (Optional)

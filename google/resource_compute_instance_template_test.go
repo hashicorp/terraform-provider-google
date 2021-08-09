@@ -460,7 +460,7 @@ func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
 	t.Parallel()
 
 	var instanceTemplate compute.InstanceTemplate
-	network := "network-" + randString(t, 10)
+	network := "tf-test-network-" + randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -734,6 +734,57 @@ func TestAccComputeInstanceTemplate_soleTenantNodeAffinities(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_reservationAffinities(t *testing.T) {
+	t.Parallel()
+
+	var template computeBeta.InstanceTemplate
+	var templateName = randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_reservationAffinityInstanceTemplate_nonSpecificReservation(templateName, "NO_RESERVATION"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &template),
+					testAccCheckComputeInstanceTemplateHasReservationAffinity(&template, "NO_RESERVATION"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeInstanceTemplate_reservationAffinityInstanceTemplate_nonSpecificReservation(templateName, "ANY_RESERVATION"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &template),
+					testAccCheckComputeInstanceTemplateHasReservationAffinity(&template, "ANY_RESERVATION"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeInstanceTemplate_reservationAffinityInstanceTemplate_specificReservation(templateName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &template),
+					testAccCheckComputeInstanceTemplateHasReservationAffinity(&template, "SPECIFIC_RESERVATION", templateName),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_shieldedVmConfig1(t *testing.T) {
 	t.Parallel()
 
@@ -801,6 +852,26 @@ func TestAccComputeInstanceTemplate_ConfidentialInstanceConfigMain(t *testing.T)
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
 					testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(&instanceTemplate, true),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_AdvancedMachineFeatures(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate computeBeta.InstanceTemplate
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplateAdvancedMachineFeatures(randString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
 				),
 			},
 		},
@@ -1258,6 +1329,36 @@ func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *comp
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.MinCpuPlatform != minCpuPlatform {
 			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instanceTemplate.Properties.MinCpuPlatform)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceTemplateHasReservationAffinity(instanceTemplate *computeBeta.InstanceTemplate, consumeReservationType string, specificReservationNames ...string) resource.TestCheckFunc {
+	if len(specificReservationNames) > 1 {
+		panic("too many specificReservationNames in test")
+	}
+
+	return func(*terraform.State) error {
+		if instanceTemplate.Properties.ReservationAffinity == nil {
+			return fmt.Errorf("expected template to have reservation affinity, but it was nil")
+		}
+
+		if actualReservationType := instanceTemplate.Properties.ReservationAffinity.ConsumeReservationType; actualReservationType != consumeReservationType {
+			return fmt.Errorf("Wrong reservationAffinity consumeReservationType: expected %s, got, %s", consumeReservationType, actualReservationType)
+		}
+
+		if len(specificReservationNames) > 0 {
+			const reservationNameKey = "compute.googleapis.com/reservation-name"
+			if actualKey := instanceTemplate.Properties.ReservationAffinity.Key; actualKey != reservationNameKey {
+				return fmt.Errorf("Wrong reservationAffinity key: expected %s, got, %s", reservationNameKey, actualKey)
+			}
+
+			reservationAffinityValues := instanceTemplate.Properties.ReservationAffinity.Values
+			if len(reservationAffinityValues) != 1 || reservationAffinityValues[0] != specificReservationNames[0] {
+				return fmt.Errorf("Wrong reservationAffinity values: expected %s, got, %s", specificReservationNames, reservationAffinityValues)
+			}
 		}
 
 		return nil
@@ -1763,7 +1864,7 @@ resource "google_compute_instance_template" "foobar" {
 func testAccComputeInstanceTemplate_subnet_custom(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "network" {
-  name                    = "network-%s"
+  name                    = "tf-test-network-%s"
   auto_create_subnetworks = false
 }
 
@@ -1838,7 +1939,7 @@ resource "google_compute_shared_vpc_service_project" "service_project" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "network-%s"
+  name                    = "tf-test-network-%s"
   auto_create_subnetworks = false
   project                 = google_compute_shared_vpc_host_project.host_project.project
 }
@@ -2139,6 +2240,69 @@ resource "google_compute_instance_template" "foobar" {
 `, suffix)
 }
 
+func testAccComputeInstanceTemplate_reservationAffinityInstanceTemplate_nonSpecificReservation(templateName, consumeReservationType string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "instancet-test-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  reservation_affinity {
+    type = "%s"
+  }
+}
+`, templateName, consumeReservationType)
+}
+
+func testAccComputeInstanceTemplate_reservationAffinityInstanceTemplate_specificReservation(templateName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "instancet-test-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  reservation_affinity {
+    type = "SPECIFIC_RESERVATION"
+
+	specific_reservation {
+		key = "compute.googleapis.com/reservation-name"
+		values = ["%s"]
+	}
+  }
+}
+`, templateName, templateName)
+}
+
 func testAccComputeInstanceTemplate_shieldedVmConfig(suffix string, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -2201,6 +2365,40 @@ resource "google_compute_instance_template" "foobar" {
 
 }
 `, suffix, enableConfidentialCompute)
+}
+
+func testAccComputeInstanceTemplateAdvancedMachineFeatures(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "ubuntu-2004-lts"
+  project = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "tf-test-instance-template-%s"
+  machine_type = "n2-standard-2" // Nested Virt isn't supported on E2 and N2Ds https://cloud.google.com/compute/docs/instances/nested-virtualization/overview#restrictions and https://cloud.google.com/compute/docs/instances/disabling-smt#limitations
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+	auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  advanced_machine_features {
+	threads_per_core = 1
+	enable_nested_virtualization = true
+  }
+
+  scheduling {
+	  on_host_maintenance = "TERMINATE"
+  }
+
+}
+`, suffix)
 }
 
 func testAccComputeInstanceTemplate_enableDisplay(suffix string) string {

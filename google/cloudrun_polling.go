@@ -26,37 +26,63 @@ type KnativeStatus struct {
 		SelfLink  string
 	}
 	Status struct {
-		Conditions []Condition
+		Conditions         []Condition
+		ObservedGeneration float64
 	}
 }
 
-func PollCheckKnativeStatus(resp map[string]interface{}, respErr error) PollResult {
-	if respErr != nil {
-		return ErrorPollResult(respErr)
+func getGeneration(res map[string]interface{}) (int, error) {
+	metadata, ok := res["metadata"]
+	if !ok {
+		return 0, fmt.Errorf("Unable to find knative metadata")
 	}
-	s := KnativeStatus{}
-	if err := Convert(resp, &s); err != nil {
-		return ErrorPollResult(errwrap.Wrapf("unable to get KnativeStatus: {{err}}", err))
+	m, ok := metadata.(map[string]interface{})
+	if !ok {
+		return 0, fmt.Errorf("Unable to find generation in knative metadata")
 	}
+	gen, ok := m["generation"]
+	if !ok {
+		return 0, fmt.Errorf("Unable to find generation in knative metadata")
+	}
+	return int(gen.(float64)), nil
+}
 
-	for _, condition := range s.Status.Conditions {
-		if condition.Type == readyStatusType {
-			log.Printf("[DEBUG] checking KnativeStatus Ready condition %s: %s", condition.Status, condition.Message)
-			switch condition.Status {
-			case "True":
-				// Resource is ready
-				return SuccessPollResult()
-			case "Unknown":
-				// DomainMapping can enter a 'terminal' state where "Ready" status is "Unknown"
-				// but the resource is waiting for external verification of DNS records.
-				if condition.Reason == pendingCertificateReason {
+func PollCheckKnativeStatusFunc(knativeRestResponse map[string]interface{}) func(resp map[string]interface{}, respErr error) PollResult {
+	return func(resp map[string]interface{}, respErr error) PollResult {
+		if respErr != nil {
+			return ErrorPollResult(respErr)
+		}
+		s := KnativeStatus{}
+		if err := Convert(resp, &s); err != nil {
+			return ErrorPollResult(errwrap.Wrapf("unable to get KnativeStatus: {{err}}", err))
+		}
+
+		gen, err := getGeneration(knativeRestResponse)
+		if err != nil {
+			return ErrorPollResult(errwrap.Wrapf("unable to find Knative generation: {{err}}", err))
+		}
+		if int(s.Status.ObservedGeneration) != gen {
+			return PendingStatusPollResult("waiting for observed generation to match")
+		}
+		for _, condition := range s.Status.Conditions {
+			if condition.Type == readyStatusType {
+				log.Printf("[DEBUG] checking KnativeStatus Ready condition %s: %s", condition.Status, condition.Message)
+				switch condition.Status {
+				case "True":
+					// Resource is ready
 					return SuccessPollResult()
+				case "Unknown":
+					// DomainMapping can enter a 'terminal' state where "Ready" status is "Unknown"
+					// but the resource is waiting for external verification of DNS records.
+					if condition.Reason == pendingCertificateReason {
+						return SuccessPollResult()
+					}
+					return PendingStatusPollResult(fmt.Sprintf("%s:%s", condition.Status, condition.Message))
+				case "False":
+					return ErrorPollResult(fmt.Errorf(`resource is in failed state "Ready:False", message: %s`, condition.Message))
 				}
-				return PendingStatusPollResult(fmt.Sprintf("%s:%s", condition.Status, condition.Message))
-			case "False":
-				return ErrorPollResult(fmt.Errorf(`resource is in failed state "Ready:False", message: %s`, condition.Message))
 			}
 		}
+		return PendingStatusPollResult("no status yet")
 	}
-	return PendingStatusPollResult("no status yet")
 }

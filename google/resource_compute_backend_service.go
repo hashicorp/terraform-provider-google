@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -290,6 +290,67 @@ delimiters.`,
 							},
 							AtLeastOneOf: []string{"cdn_policy.0.cache_key_policy", "cdn_policy.0.signed_url_cache_max_age_sec"},
 						},
+						"cache_mode": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC", ""}, false),
+							Description: `Specifies the cache setting for all responses from this backend.
+The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC Possible values: ["USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC"]`,
+						},
+						"client_ttl": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							Description: `Specifies the maximum allowed TTL for cached content served by this origin.`,
+						},
+						"default_ttl": {
+							Type:     schema.TypeInt,
+							Computed: true,
+							Optional: true,
+							Description: `Specifies the default TTL for cached content served by this origin for responses
+that do not have an existing valid TTL (max-age or s-max-age).`,
+						},
+						"max_ttl": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							Description: `Specifies the maximum allowed TTL for cached content served by this origin.`,
+						},
+						"negative_caching": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Optional:    true,
+							Description: `Negative caching allows per-status code TTLs to be set, in order to apply fine-grained caching for common errors or redirects.`,
+						},
+						"negative_caching_policy": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
+Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"code": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `The HTTP status code to define a TTL against. Only HTTP status codes 300, 301, 308, 404, 405, 410, 421, 451 and 501
+can be specified as values, and you cannot specify a status code more than once.`,
+									},
+									"ttl": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
+(30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.`,
+									},
+								},
+							},
+						},
+						"serve_while_stale": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							Description: `Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.`,
+						},
 						"signed_url_cache_max_age_sec": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -461,6 +522,16 @@ Defaults to 1024.`,
 				Optional: true,
 				Description: `Headers that the HTTP/S load balancer should add to proxied
 requests.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: schema.HashString,
+			},
+			"custom_response_headers": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Description: `Headers that the HTTP/S load balancer should add to proxied
+responses.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -861,6 +932,7 @@ Provide this property when you create the resource.`,
 			},
 			"max_connections": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 				Description: `The max number of simultaneous connections for the group. Can
 be used with either CONNECTION or UTILIZATION balancing modes.
@@ -871,6 +943,7 @@ as appropriate for group type, must be set.`,
 			},
 			"max_connections_per_endpoint": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 				Description: `The max number of simultaneous connections that a single backend
 network endpoint can handle. This is used to calculate the
@@ -882,6 +955,7 @@ maxConnections or maxConnectionsPerEndpoint must be set.`,
 			},
 			"max_connections_per_instance": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 				Description: `The max number of simultaneous connections that a single
 backend instance can handle. This is used to calculate the
@@ -893,6 +967,7 @@ maxConnectionsPerInstance must be set.`,
 			},
 			"max_rate": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 				Description: `The max requests per second (RPS) of the group.
 
@@ -903,6 +978,7 @@ group type, must be set.`,
 			},
 			"max_rate_per_endpoint": {
 				Type:     schema.TypeFloat,
+				Computed: true,
 				Optional: true,
 				Description: `The max requests per second (RPS) that a single backend network
 endpoint can handle. This is used to calculate the capacity of
@@ -911,6 +987,7 @@ either maxRate or maxRatePerEndpoint must be set.`,
 			},
 			"max_rate_per_instance": {
 				Type:     schema.TypeFloat,
+				Computed: true,
 				Optional: true,
 				Description: `The max requests per second (RPS) that a single backend
 instance can handle. This is used to calculate the capacity of
@@ -919,11 +996,10 @@ either maxRate or maxRatePerInstance must be set.`,
 			},
 			"max_utilization": {
 				Type:     schema.TypeFloat,
+				Computed: true,
 				Optional: true,
 				Description: `Used when balancingMode is UTILIZATION. This ratio defines the
-CPU utilization target for the group. The default is 0.8. Valid
-range is [0.0, 1.0].`,
-				Default: 0.8,
+CPU utilization target for the group. Valid range is [0.0, 1.0].`,
 			},
 		},
 	}
@@ -978,6 +1054,12 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("custom_request_headers"); !isEmptyValue(reflect.ValueOf(customRequestHeadersProp)) && (ok || !reflect.DeepEqual(v, customRequestHeadersProp)) {
 		obj["customRequestHeaders"] = customRequestHeadersProp
+	}
+	customResponseHeadersProp, err := expandComputeBackendServiceCustomResponseHeaders(d.Get("custom_response_headers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_response_headers"); !isEmptyValue(reflect.ValueOf(customResponseHeadersProp)) && (ok || !reflect.DeepEqual(v, customResponseHeadersProp)) {
+		obj["customResponseHeaders"] = customResponseHeadersProp
 	}
 	fingerprintProp, err := expandComputeBackendServiceFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -1223,6 +1305,9 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("custom_request_headers", flattenComputeBackendServiceCustomRequestHeaders(res["customRequestHeaders"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
+	if err := d.Set("custom_response_headers", flattenComputeBackendServiceCustomResponseHeaders(res["customResponseHeaders"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendService: %s", err)
+	}
 	if err := d.Set("fingerprint", flattenComputeBackendServiceFingerprint(res["fingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
@@ -1332,6 +1417,12 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("custom_request_headers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customRequestHeadersProp)) {
 		obj["customRequestHeaders"] = customRequestHeadersProp
+	}
+	customResponseHeadersProp, err := expandComputeBackendServiceCustomResponseHeaders(d.Get("custom_response_headers"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_response_headers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customResponseHeadersProp)) {
+		obj["customResponseHeaders"] = customResponseHeadersProp
 	}
 	fingerprintProp, err := expandComputeBackendServiceFingerprint(d.Get("fingerprint"), d, config)
 	if err != nil {
@@ -1919,6 +2010,20 @@ func flattenComputeBackendServiceCdnPolicy(v interface{}, d *schema.ResourceData
 		flattenComputeBackendServiceCdnPolicyCacheKeyPolicy(original["cacheKeyPolicy"], d, config)
 	transformed["signed_url_cache_max_age_sec"] =
 		flattenComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(original["signedUrlCacheMaxAgeSec"], d, config)
+	transformed["default_ttl"] =
+		flattenComputeBackendServiceCdnPolicyDefaultTtl(original["defaultTtl"], d, config)
+	transformed["max_ttl"] =
+		flattenComputeBackendServiceCdnPolicyMaxTtl(original["maxTtl"], d, config)
+	transformed["client_ttl"] =
+		flattenComputeBackendServiceCdnPolicyClientTtl(original["clientTtl"], d, config)
+	transformed["negative_caching"] =
+		flattenComputeBackendServiceCdnPolicyNegativeCaching(original["negativeCaching"], d, config)
+	transformed["negative_caching_policy"] =
+		flattenComputeBackendServiceCdnPolicyNegativeCachingPolicy(original["negativeCachingPolicy"], d, config)
+	transformed["cache_mode"] =
+		flattenComputeBackendServiceCdnPolicyCacheMode(original["cacheMode"], d, config)
+	transformed["serve_while_stale"] =
+		flattenComputeBackendServiceCdnPolicyServeWhileStale(original["serveWhileStale"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1985,6 +2090,135 @@ func flattenComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{},
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeBackendServiceCdnPolicyDefaultTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendServiceCdnPolicyMaxTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendServiceCdnPolicyClientTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendServiceCdnPolicyNegativeCaching(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendServiceCdnPolicyNegativeCachingPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"code": flattenComputeBackendServiceCdnPolicyNegativeCachingPolicyCode(original["code"], d, config),
+			"ttl":  flattenComputeBackendServiceCdnPolicyNegativeCachingPolicyTtl(original["ttl"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeBackendServiceCdnPolicyNegativeCachingPolicyCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendServiceCdnPolicyNegativeCachingPolicyTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendServiceCdnPolicyCacheMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendServiceCdnPolicyServeWhileStale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeBackendServiceConnectionDraining(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -2020,6 +2254,13 @@ func flattenComputeBackendServiceCreationTimestamp(v interface{}, d *schema.Reso
 }
 
 func flattenComputeBackendServiceCustomRequestHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenComputeBackendServiceCustomResponseHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2514,7 +2755,7 @@ func expandComputeBackendServiceBackend(v interface{}, d TerraformResourceData, 
 		transformedMaxUtilization, err := expandComputeBackendServiceBackendMaxUtilization(original["max_utilization"], d, config)
 		if err != nil {
 			return nil, err
-		} else {
+		} else if val := reflect.ValueOf(transformedMaxUtilization); val.IsValid() && !isEmptyValue(val) {
 			transformed["maxUtilization"] = transformedMaxUtilization
 		}
 
@@ -2773,6 +3014,55 @@ func expandComputeBackendServiceCdnPolicy(v interface{}, d TerraformResourceData
 		transformed["signedUrlCacheMaxAgeSec"] = transformedSignedUrlCacheMaxAgeSec
 	}
 
+	transformedDefaultTtl, err := expandComputeBackendServiceCdnPolicyDefaultTtl(original["default_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultTtl); val.IsValid() && !isEmptyValue(val) {
+		transformed["defaultTtl"] = transformedDefaultTtl
+	}
+
+	transformedMaxTtl, err := expandComputeBackendServiceCdnPolicyMaxTtl(original["max_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxTtl); val.IsValid() && !isEmptyValue(val) {
+		transformed["maxTtl"] = transformedMaxTtl
+	}
+
+	transformedClientTtl, err := expandComputeBackendServiceCdnPolicyClientTtl(original["client_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientTtl); val.IsValid() && !isEmptyValue(val) {
+		transformed["clientTtl"] = transformedClientTtl
+	}
+
+	transformedNegativeCaching, err := expandComputeBackendServiceCdnPolicyNegativeCaching(original["negative_caching"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["negativeCaching"] = transformedNegativeCaching
+	}
+
+	transformedNegativeCachingPolicy, err := expandComputeBackendServiceCdnPolicyNegativeCachingPolicy(original["negative_caching_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNegativeCachingPolicy); val.IsValid() && !isEmptyValue(val) {
+		transformed["negativeCachingPolicy"] = transformedNegativeCachingPolicy
+	}
+
+	transformedCacheMode, err := expandComputeBackendServiceCdnPolicyCacheMode(original["cache_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCacheMode); val.IsValid() && !isEmptyValue(val) {
+		transformed["cacheMode"] = transformedCacheMode
+	}
+
+	transformedServeWhileStale, err := expandComputeBackendServiceCdnPolicyServeWhileStale(original["serve_while_stale"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["serveWhileStale"] = transformedServeWhileStale
+	}
+
 	return transformed, nil
 }
 
@@ -2849,6 +3139,67 @@ func expandComputeBackendServiceCdnPolicySignedUrlCacheMaxAgeSec(v interface{}, 
 	return v, nil
 }
 
+func expandComputeBackendServiceCdnPolicyDefaultTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceCdnPolicyMaxTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceCdnPolicyClientTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceCdnPolicyNegativeCaching(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceCdnPolicyNegativeCachingPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedCode, err := expandComputeBackendServiceCdnPolicyNegativeCachingPolicyCode(original["code"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCode); val.IsValid() && !isEmptyValue(val) {
+			transformed["code"] = transformedCode
+		}
+
+		transformedTtl, err := expandComputeBackendServiceCdnPolicyNegativeCachingPolicyTtl(original["ttl"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTtl); val.IsValid() && !isEmptyValue(val) {
+			transformed["ttl"] = transformedTtl
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeBackendServiceCdnPolicyNegativeCachingPolicyCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceCdnPolicyNegativeCachingPolicyTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceCdnPolicyCacheMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceCdnPolicyServeWhileStale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeBackendServiceConnectionDraining(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
 	transformedConnectionDrainingTimeoutSec, err := expandComputeBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(d.Get("connection_draining_timeout_sec"), d, config)
@@ -2866,6 +3217,11 @@ func expandComputeBackendServiceConnectionDrainingConnectionDrainingTimeoutSec(v
 }
 
 func expandComputeBackendServiceCustomRequestHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeBackendServiceCustomResponseHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }

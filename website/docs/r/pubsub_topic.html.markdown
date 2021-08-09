@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -89,6 +89,26 @@ resource "google_pubsub_topic" "example" {
   }
 }
 ```
+## Example Usage - Pubsub Topic Schema Settings
+
+
+```hcl
+resource "google_pubsub_schema" "example" {
+  name = "example"
+  type = "AVRO"
+  definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
+}
+
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+
+  depends_on = [google_pubsub_schema.example]
+  schema_settings {
+    schema = "projects/my-project-name/schemas/example"
+    encoding = "JSON"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -122,6 +142,11 @@ The following arguments are supported:
   constraints are in effect.
   Structure is documented below.
 
+* `schema_settings` -
+  (Optional)
+  Settings for validating messages published against a schema.
+  Structure is documented below.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -136,6 +161,21 @@ The `message_storage_policy` block supports:
   of GCP altogether) will be routed for storage in one of the
   allowed regions. An empty list means that no regions are allowed,
   and is not a valid configuration.
+
+The `schema_settings` block supports:
+
+* `schema` -
+  (Required)
+  The name of the schema that messages published should be
+  validated against. Format is projects/{project}/schemas/{schema}.
+  The value of this field will be _deleted-schema_
+  if the schema has been deleted.
+
+* `encoding` -
+  (Optional)
+  The encoding of messages validated against schema.
+  Default value is `ENCODING_UNSPECIFIED`.
+  Possible values are `ENCODING_UNSPECIFIED`, `JSON`, and `BINARY`.
 
 ## Attributes Reference
 

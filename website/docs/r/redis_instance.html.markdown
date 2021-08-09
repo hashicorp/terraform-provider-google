@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -229,7 +229,7 @@ The following arguments are supported:
   Possible values are `BASIC` and `STANDARD_HA`.
 
 * `transit_encryption_mode` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The TLS mode of the Redis instance, If not provided, TLS is disabled for the instance.
   - SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with server authentcation
   Default value is `DISABLED`.

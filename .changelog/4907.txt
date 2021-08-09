@@ -1,0 +1,3 @@
+```release-note:bug
+sql: add support for `binary_logging` on replica instances for `googe_sql_database_instance`
+```

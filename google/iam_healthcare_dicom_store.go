@@ -29,7 +29,7 @@ func NewHealthcareDicomStoreIamUpdater(d TerraformResourceData, config *Config) 
 	dicomStoreId, err := parseHealthcareDicomStoreId(dicomStore, config)
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for for %s: {{err}}", dicomStore), err)
+		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for %s: {{err}}", dicomStore), err)
 	}
 
 	return &HealthcareDicomStoreIamUpdater{

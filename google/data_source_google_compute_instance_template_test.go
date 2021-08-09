@@ -156,6 +156,7 @@ resource "google_compute_instance_template" "c" {
 
 data "google_compute_instance_template" "default" {
   // Hack to prevent depends_on bug triggering datasource recreate due to https://github.com/hashicorp/terraform/issues/11806
+  // This bug is fixed in 0.13+.
   project = "%{project}${replace(google_compute_instance_template.a.id, "/.*/", "")}${replace(google_compute_instance_template.b.id, "/.*/", "")}${replace(google_compute_instance_template.c.id, "/.*/", "")}"
   filter  = "name = tf-test-template-c-%{suffix}"
 }
@@ -166,7 +167,7 @@ func testAccInstanceTemplate_filter_mostRecent(project, suffix string) string {
 	return Nprintf(`
 resource "google_compute_instance_template" "a" {
   name        = "tf-test-template-%{suffix}-a"
-  description = "Example template."
+  description = "tf-test-instance-template"
 
   machine_type = "e2-small"
 
@@ -184,7 +185,7 @@ resource "google_compute_instance_template" "a" {
 }
 resource "google_compute_instance_template" "b" {
   name        = "tf-test-template-%{suffix}-b"
-  description = "Example template."
+  description = "tf-test-instance-template"
 
   machine_type = "e2-small"
 
@@ -207,7 +208,7 @@ resource "google_compute_instance_template" "b" {
 }
 resource "google_compute_instance_template" "c" {
   name        = "tf-test-template-%{suffix}-c"
-  description = "Example template."
+  description = "tf-test-instance-template"
 
   machine_type = "e2-small"
 
@@ -230,8 +231,9 @@ resource "google_compute_instance_template" "c" {
 
 data "google_compute_instance_template" "default" {
   // Hack to prevent depends_on bug triggering datasource recreate due to https://github.com/hashicorp/terraform/issues/11806
+  // This bug is fixed in 0.13+.
   project = "%{project}${replace(google_compute_instance_template.b.id, "/.*/", "")}"
-  filter      = "name != tf-test-template-%{suffix}-b"
+  filter      = "(name != tf-test-template-%{suffix}-b) (description = tf-test-instance-template)"
   most_recent = true
 }
 `, map[string]interface{}{"project": project, "suffix": suffix})

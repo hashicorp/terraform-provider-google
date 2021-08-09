@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed issue where creating a node pool with a name that already exists would import that resource. `google_container_node_pool`
+```

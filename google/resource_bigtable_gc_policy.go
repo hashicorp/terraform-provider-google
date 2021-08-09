@@ -184,7 +184,11 @@ func resourceBigtableGCPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	tableName := d.Get("table").(string)
 	columnFamily := d.Get("column_family").(string)
 
-	if err := c.SetGCPolicy(ctx, tableName, columnFamily, gcPolicy); err != nil {
+	err = retryTimeDuration(func() error {
+		reqErr := c.SetGCPolicy(ctx, tableName, columnFamily, gcPolicy)
+		return reqErr
+	}, d.Timeout(schema.TimeoutCreate), isBigTableRetryableError)
+	if err != nil {
 		return err
 	}
 
@@ -266,7 +270,11 @@ func resourceBigtableGCPolicyDestroy(d *schema.ResourceData, meta interface{}) e
 
 	defer c.Close()
 
-	if err := c.SetGCPolicy(ctx, d.Get("table").(string), d.Get("column_family").(string), bigtable.NoGcPolicy()); err != nil {
+	err = retryTimeDuration(func() error {
+		reqErr := c.SetGCPolicy(ctx, d.Get("table").(string), d.Get("column_family").(string), bigtable.NoGcPolicy())
+		return reqErr
+	}, d.Timeout(schema.TimeoutDelete), isBigTableRetryableError)
+	if err != nil {
 		return err
 	}
 

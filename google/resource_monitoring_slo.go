@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 //
-//     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+//     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 //
 // ----------------------------------------------------------------------------
 //
@@ -230,8 +230,8 @@ MetricKind = DELTA or MetricKind = CUMULATIVE.`,
 										Required: true,
 										Description: `Range of numerical values. The computed good_service
 will be the count of values x in the Distribution such
-that range.min <= x < range.max. inclusive of min and
-exclusive of max. Open ranges can be defined by setting
+that range.min <= x <= range.max. inclusive of min and
+max. Open ranges can be defined by setting
 just one of min or max.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{
@@ -477,8 +477,8 @@ MetricKind = DELTA or MetricKind = CUMULATIVE.`,
 																Required: true,
 																Description: `Range of numerical values. The computed good_service
 will be the count of values x in the Distribution such
-that range.min <= x < range.max. inclusive of min and
-exclusive of max. Open ranges can be defined by setting
+that range.min <= x <= range.max. inclusive of min and
+max. Open ranges can be defined by setting
 just one of min or max.`,
 																MaxItems: 1,
 																Elem: &schema.Resource{
@@ -583,7 +583,7 @@ One of 'good_bad_metric_filter',
 'good_total_ratio_threshold', 'metric_mean_in_range',
 'metric_sum_in_range' must be set for 'windows_based_sli'.
 Average value X of 'time_series' should satisfy
-'range.min <= X < range.max' for a good window.`,
+'range.min <= X <= range.max' for a good window.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -592,10 +592,10 @@ Average value X of 'time_series' should satisfy
 										Required: true,
 										Description: `Range of numerical values. The computed good_service
 will be the count of values x in the Distribution such
-that range.min <= x < range.max. inclusive of min and
-exclusive of max. Open ranges can be defined by setting
+that range.min <= x <= range.max. inclusive of min and
+max. Open ranges can be defined by setting
 just one of min or max. Mean value 'X' of 'time_series'
-values should satisfy 'range.min <= X < range.max' for a
+values should satisfy 'range.min <= X <= range.max' for a
 good service.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{
@@ -626,7 +626,7 @@ will be set to "-infinity", defining an open range
 specifying the TimeSeries to use for evaluating window
 The provided TimeSeries must have ValueType = INT64 or
 ValueType = DOUBLE and MetricKind = GAUGE. Mean value 'X'
-should satisfy 'range.min <= X < range.max'
+should satisfy 'range.min <= X <= range.max'
 under good service.`,
 									},
 								},
@@ -639,7 +639,7 @@ under good service.`,
 							Description: `Criterion that describes a window as good if the metric's value
 is in a good range, *summed* across returned streams.
 Summed value 'X' of 'time_series' should satisfy
-'range.min <= X < range.max' for a good window.
+'range.min <= X <= range.max' for a good window.
 
 One of 'good_bad_metric_filter',
 'good_total_ratio_threshold', 'metric_mean_in_range',
@@ -652,10 +652,10 @@ One of 'good_bad_metric_filter',
 										Required: true,
 										Description: `Range of numerical values. The computed good_service
 will be the count of values x in the Distribution such
-that range.min <= x < range.max. inclusive of min and
-exclusive of max. Open ranges can be defined by setting
+that range.min <= x <= range.max. inclusive of min and
+max. Open ranges can be defined by setting
 just one of min or max. Summed value 'X' should satisfy
-'range.min <= X < range.max' for a good window.`,
+'range.min <= X <= range.max' for a good window.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -688,7 +688,7 @@ ValueType = INT64 or ValueType = DOUBLE and
 MetricKind = GAUGE.
 
 Summed value 'X' should satisfy
-'range.min <= X < range.max' for a good window.`,
+'range.min <= X <= range.max' for a good window.`,
 									},
 								},
 							},

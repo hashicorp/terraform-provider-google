@@ -331,7 +331,6 @@ func expandConfidentialInstanceConfig(d TerraformResourceData) *computeBeta.Conf
 	prefix := "confidential_instance_config.0"
 	return &computeBeta.ConfidentialInstanceConfig{
 		EnableConfidentialCompute: d.Get(prefix + ".enable_confidential_compute").(bool),
-		ForceSendFields:           []string{"EnableSecureBoot"},
 	}
 }
 
@@ -342,6 +341,28 @@ func flattenConfidentialInstanceConfig(ConfidentialInstanceConfig *computeBeta.C
 
 	return []map[string]bool{{
 		"enable_confidential_compute": ConfidentialInstanceConfig.EnableConfidentialCompute,
+	}}
+}
+
+func expandAdvancedMachineFeatures(d TerraformResourceData) *computeBeta.AdvancedMachineFeatures {
+	if _, ok := d.GetOk("advanced_machine_features"); !ok {
+		return nil
+	}
+
+	prefix := "advanced_machine_features.0"
+	return &computeBeta.AdvancedMachineFeatures{
+		EnableNestedVirtualization: d.Get(prefix + ".enable_nested_virtualization").(bool),
+		ThreadsPerCore:             int64(d.Get(prefix + ".threads_per_core").(int)),
+	}
+}
+
+func flattenAdvancedMachineFeatures(AdvancedMachineFeatures *computeBeta.AdvancedMachineFeatures) []map[string]interface{} {
+	if AdvancedMachineFeatures == nil {
+		return nil
+	}
+	return []map[string]interface{}{{
+		"enable_nested_virtualization": AdvancedMachineFeatures.EnableNestedVirtualization,
+		"threads_per_core":             AdvancedMachineFeatures.ThreadsPerCore,
 	}}
 }
 
@@ -442,4 +463,55 @@ func hasNodeAffinitiesChanged(oScheduling, newScheduling map[string]interface{})
 	}
 
 	return false
+}
+
+func expandReservationAffinity(d *schema.ResourceData) (*computeBeta.ReservationAffinity, error) {
+	_, ok := d.GetOk("reservation_affinity")
+	if !ok {
+		return nil, nil
+	}
+
+	prefix := "reservation_affinity.0"
+	reservationAffinityType := d.Get(prefix + ".type").(string)
+
+	affinity := computeBeta.ReservationAffinity{
+		ConsumeReservationType: reservationAffinityType,
+		ForceSendFields:        []string{"ConsumeReservationType"},
+	}
+
+	_, hasSpecificReservation := d.GetOk(prefix + ".specific_reservation")
+	if (reservationAffinityType == "SPECIFIC_RESERVATION") != hasSpecificReservation {
+		return nil, fmt.Errorf("specific_reservation must be set when reservation_affinity is SPECIFIC_RESERVATION, and not set otherwise")
+	}
+
+	prefix = prefix + ".specific_reservation.0"
+	if hasSpecificReservation {
+		affinity.Key = d.Get(prefix + ".key").(string)
+		affinity.ForceSendFields = append(affinity.ForceSendFields, "Key", "Values")
+
+		for _, v := range d.Get(prefix + ".values").([]interface{}) {
+			affinity.Values = append(affinity.Values, v.(string))
+		}
+	}
+
+	return &affinity, nil
+}
+
+func flattenReservationAffinity(affinity *computeBeta.ReservationAffinity) []map[string]interface{} {
+	if affinity == nil {
+		return nil
+	}
+
+	flattened := map[string]interface{}{
+		"type": affinity.ConsumeReservationType,
+	}
+
+	if affinity.ConsumeReservationType == "SPECIFIC_RESERVATION" {
+		flattened["specific_reservation"] = []map[string]interface{}{{
+			"key":    affinity.Key,
+			"values": affinity.Values,
+		}}
+	}
+
+	return []map[string]interface{}{flattened}
 }

@@ -16,7 +16,7 @@ import (
 const (
 	composerEnvironmentEnvVariablesRegexp          = "[a-zA-Z_][a-zA-Z0-9_]*."
 	composerEnvironmentReservedAirflowEnvVarRegexp = "AIRFLOW__[A-Z0-9_]+__[A-Z0-9_]+"
-	composerEnvironmentVersionRegexp               = `composer-([0-9]+\.[0-9]+\.[0-9]+|latest)-airflow-([0-9]+\.[0-9]+(\.[0-9]+.*)?)`
+	composerEnvironmentVersionRegexp               = `composer-([0-9]+\.[0-9]+\.[0-9]+(-preview.[0-9]+)?|latest)-airflow-([0-9]+\.[0-9]+(\.[0-9]+.*)?)`
 )
 
 var composerEnvironmentReservedEnvVar = map[string]struct{}{
@@ -1241,7 +1241,7 @@ func composerImageVersionDiffSuppress(_, old, new string, _ *schema.ResourceData
 	versionRe := regexp.MustCompile(composerEnvironmentVersionRegexp)
 	oldVersions := versionRe.FindStringSubmatch(old)
 	newVersions := versionRe.FindStringSubmatch(new)
-	if oldVersions == nil || len(oldVersions) < 3 {
+	if oldVersions == nil || len(oldVersions) < 4 {
 		// Somehow one of the versions didn't match the regexp or didn't
 		// have values in the capturing groups. In that case, fall back to
 		// an equality check.
@@ -1258,7 +1258,7 @@ func composerImageVersionDiffSuppress(_, old, new string, _ *schema.ResourceData
 
 	// Check airflow version using the version package to account for
 	// diffs like 1.10 and 1.10.0
-	eq, err := versionsEqual(oldVersions[2], newVersions[2])
+	eq, err := versionsEqual(oldVersions[3], newVersions[3])
 	if err != nil {
 		log.Printf("[WARN] Could not parse airflow version, %s", err)
 	}

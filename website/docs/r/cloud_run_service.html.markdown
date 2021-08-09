@@ -1,7 +1,7 @@
 ---
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -48,11 +48,6 @@ To get more information about Service, see:
 a Cloud Run Service on Anthos(GKE/VMWare) then you will need to create it using the kubernetes alpha provider.
 Have a look at the Cloud Run Anthos example below.
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloud Run Service Basic
 
 
@@ -116,11 +111,6 @@ resource "google_sql_database_instance" "instance" {
   deletion_protection  = "true"
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_noauth&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloud Run Service Noauth
 
 
@@ -198,11 +188,6 @@ resource "kubernetes_manifest" "test-configmap" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_multiple_environment_variables&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloud Run Service Multiple Environment Variables
 
 
@@ -277,11 +262,6 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_secret_environment_variables&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloud Run Service Secret Environment Variables
 
 
@@ -341,7 +321,7 @@ resource "google_cloud_run_service" "default" {
   metadata {
     annotations = {
       generated-by = "magic-modules"
-      "run.googleapis.com/launch-stage" = "ALPHA"
+      "run.googleapis.com/launch-stage" = "BETA"
     }
   }
 
@@ -360,11 +340,6 @@ resource "google_cloud_run_service" "default" {
   depends_on = [google_secret_manager_secret_version.secret-version-data]
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloud_run_service_secret_volumes&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloud Run Service Secret Volumes
 
 
@@ -429,7 +404,7 @@ resource "google_cloud_run_service" "default" {
   metadata {
     annotations = {
       generated-by = "magic-modules"
-      "run.googleapis.com/launch-stage" = "ALPHA"
+      "run.googleapis.com/launch-stage" = "BETA"
     }
   }
 
@@ -491,7 +466,7 @@ The `template` block supports:
   Optional metadata for this Revision, including labels and annotations.
   Name will be generated by the Configuration. To set minimum instances
   for this revision, use the "autoscaling.knative.dev/minScale" annotation
-  key (Cloud Run on GKE only). To set maximum instances for this revision, use the
+  key. To set maximum instances for this revision, use the
   "autoscaling.knative.dev/maxScale" annotation key. To set Cloud SQL
   connections for the revision, use the "run.googleapis.com/cloudsql-instances"
   annotation key.
@@ -769,12 +744,11 @@ The `secret_key_ref` block supports:
   The name of the secret in Cloud Secret Manager. By default, the secret
   is assumed to be in the same project.
   If the secret is in another project, you must define an alias.
-  An alias definition has the form:
-  <alias>:projects/<project-id|project-number>/secrets/<secret-name>.
-  If multiple alias definitions are needed, they must be separated by
-  commas.
-  The alias definitions must be set on the run.googleapis.com/secrets
-  annotation.
+  You set the <alias> in this field, and create an annotation with the
+  following structure 
+  "run.googleapis.com/secrets" = "<alias>:projects/<project-id|project-number>/secrets/<secret-name>".
+  If multiple alias definitions are needed, they must be separated by 
+  commas in the annotation field.
 
 The `ports` block supports:
 

@@ -32,7 +32,7 @@ These resources are intended to convert the permissions system for BigQuery data
 ```hcl
 data "google_iam_policy" "owner" {
   binding {
-    role = "roles/dataOwner"
+    role = "roles/bigquery.dataOwner"
 
     members = [
       "user:jane@example.com",
