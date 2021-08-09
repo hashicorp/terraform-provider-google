@@ -1245,14 +1245,18 @@ func composerImageVersionDiffSuppress(_, old, new string, _ *schema.ResourceData
 		// Somehow one of the versions didn't match the regexp or didn't
 		// have values in the capturing groups. In that case, fall back to
 		// an equality check.
-		log.Printf("[WARN] Composer version didn't match regexp: %s", old)
+		if old != "" {
+			log.Printf("[WARN] Composer version didn't match regexp: %s", old)
+		}
 		return old == new
 	}
 	if newVersions == nil || len(newVersions) < 3 {
 		// Somehow one of the versions didn't match the regexp or didn't
 		// have values in the capturing groups. In that case, fall back to
 		// an equality check.
-		log.Printf("[WARN] Composer version didn't match regexp: %s", new)
+		if new != "" {
+			log.Printf("[WARN] Composer version didn't match regexp: %s", new)
+		}
 		return old == new
 	}
 
