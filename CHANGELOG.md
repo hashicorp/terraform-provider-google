@@ -1,6 +1,6 @@
 ## 3.79.0 (Unreleased)
 NOTES:
-* spanner: `num_nodes` will become a required field in the next major release and a value has to be set on `google_spanner_instance`. It will also conflict with the new field `processing_units`. ([#9716](https://github.com/hashicorp/terraform-provider-google/pull/9716))
+* spanner: The `num_nodes` field on `google_spanner_instance` will have its default removed in a future major release, and either `num_nodes or `processing_units` will be required. ([#9716](https://github.com/hashicorp/terraform-provider-google/pull/9716))
 
 FEATURES:
 * **New Resource:** `google_dialogflow_cx_entity_type` ([#9717](https://github.com/hashicorp/terraform-provider-google/pull/9717))
