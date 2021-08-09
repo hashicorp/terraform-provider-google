@@ -1,4 +1,4 @@
-## 3.79.0 (Unreleased)
+## 3.79.0 (August 09, 2021)
 NOTES:
 * spanner: The `num_nodes` field on `google_spanner_instance` will have its default removed in a future major release, and either `num_nodes` or `processing_units` will be required. ([#9716](https://github.com/hashicorp/terraform-provider-google/pull/9716))
 
