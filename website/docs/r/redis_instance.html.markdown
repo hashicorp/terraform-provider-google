@@ -207,10 +207,8 @@ The following arguments are supported:
 * `redis_version` -
   (Optional)
   The version of Redis software. If not provided, latest supported
-  version will be used. Currently, the supported values are:
-  - REDIS_5_0 for Redis 5.0 compatibility
-  - REDIS_4_0 for Redis 4.0 compatibility
-  - REDIS_3_2 for Redis 3.2 compatibility
+  version will be used. Please check the API documentation linked 
+  at the top for the latest valid values.
 
 * `reserved_ip_range` -
   (Optional)
