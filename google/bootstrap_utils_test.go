@@ -429,3 +429,42 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 
 	return bootstrapInstance.Name
 }
+
+func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
+	project := getTestProjectFromEnv()
+	poolName := "static-ca-pool"
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+
+	log.Printf("[DEBUG] Getting shared CA pool %q", poolName)
+	url := fmt.Sprintf("%sprojects/%s/locations/%s/caPools/%s", config.PrivatecaBasePath, project, location, poolName)
+	_, err := sendRequest(config, "GET", project, url, config.userAgent, nil)
+	if err != nil {
+		log.Printf("[DEBUG] CA pool %q not found, bootstrapping", poolName)
+		poolObj := map[string]interface{}{
+			"tier": "ENTERPRISE",
+		}
+		createUrl := fmt.Sprintf("%sprojects/%s/locations/%s/caPools?caPoolId=%s", config.PrivatecaBasePath, project, location, poolName)
+		res, err := sendRequestWithTimeout(config, "POST", project, createUrl, config.userAgent, poolObj, 4*time.Minute)
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared CA pool %q: %s", poolName, err)
+		}
+
+		log.Printf("[DEBUG] Waiting for CA pool creation to finish")
+		var opRes map[string]interface{}
+		err = privatecaOperationWaitTimeWithResponse(
+			config, res, &opRes, project, "Creating CA pool", config.userAgent,
+			4*time.Minute)
+		if err != nil {
+			t.Errorf("Error getting shared CA pool %q: %s", poolName, err)
+		}
+		res, err = sendRequest(config, "GET", project, url, config.userAgent, nil)
+		if err != nil {
+			t.Errorf("Error getting shared CA pool %q: %s", poolName, err)
+		}
+	}
+	return poolName
+}
