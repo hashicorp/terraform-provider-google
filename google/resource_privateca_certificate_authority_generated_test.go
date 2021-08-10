@@ -27,7 +27,8 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"pool":          "static-ca-pool",
+		"pool_name":     BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"pool_location": "us-central1",
 		"random_suffix": randString(t, 10),
 	}
 
@@ -54,9 +55,9 @@ func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 resource "google_privateca_certificate_authority" "default" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools
-  pool = "%{pool}"
+  pool = "%{pool_name}"
   certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
-  location = "us-central1"
+  location = "%{pool_location}"
   config {
     subject_config {
       subject {
@@ -101,13 +102,94 @@ resource "google_privateca_certificate_authority" "default" {
 `, context)
 }
 
+func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"pool_name":     BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"pool_location": "us-central1",
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateExample(context),
+			},
+			{
+				ResourceName:            "google_privateca_certificate_authority.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_active_certificates_on_deletion", "location", "certificate_authority_id", "pool"},
+			},
+		},
+	})
+}
+
+func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_privateca_certificate_authority" "default" {
+  // This example assumes this pool already exists.
+  // Pools cannot be deleted in normal test circumstances, so we depend on static pools
+  pool = "%{pool_name}"
+  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
+  location = "%{pool_location}"
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-subordinate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+        max_issuer_path_length = 10
+      }
+      key_usage {
+        base_key_usage {
+          digital_signature = true
+          content_commitment = true
+          key_encipherment = false
+          data_encipherment = true
+          key_agreement = true
+          cert_sign = true
+          crl_sign = true
+          decipher_only = true
+        }
+        extended_key_usage {
+          server_auth = true
+          client_auth = false
+          email_protection = true
+          code_signing = true
+          time_stamping = true
+        }
+      }
+    }
+  }
+  lifetime = "86400s"
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+  type = "SUBORDINATE"
+}
+`, context)
+}
+
 func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityByoKeyExample(t *testing.T) {
 	skipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"kms_key_name":  BootstrapKMSKeyWithPurposeInLocation(t, "ASYMMETRIC_SIGN", "us-central1").CryptoKey.Name,
-		"pool":          "static-ca-pool",
+		"pool_name":     BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"pool_location": "us-central1",
 		"random_suffix": randString(t, 10),
 	}
 
@@ -155,9 +237,9 @@ resource "google_kms_crypto_key_iam_binding" "privateca_sa_keyuser_viewer" {
 resource "google_privateca_certificate_authority" "default" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools
-  pool = "%{pool}"
+  pool = "%{pool_name}"
   certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
-  location = "us-central1"
+  location = "%{pool_location}"
   key_spec {
     cloud_kms_key_version = "%{kms_key_name}/cryptoKeyVersions/1"
   }

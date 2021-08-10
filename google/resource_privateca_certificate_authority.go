@@ -698,23 +698,25 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
-	url, err = replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:enable")
-	if err != nil {
-		return err
-	}
+	if d.Get("type").(string) != "SUBORDINATE" {
+		url, err = replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:enable")
+		if err != nil {
+			return err
+		}
 
-	log.Printf("[DEBUG] Enabling CertificateAuthority: %#v", obj)
+		log.Printf("[DEBUG] Enabling CertificateAuthority: %#v", obj)
 
-	res, err = sendRequest(config, "POST", billingProject, url, userAgent, nil)
-	if err != nil {
-		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
-	}
+		res, err = sendRequest(config, "POST", billingProject, url, userAgent, nil)
+		if err != nil {
+			return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
+		}
 
-	err = privatecaOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Enabling CertificateAuthority", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return fmt.Errorf("Error waiting to enable CertificateAuthority: %s", err)
+		err = privatecaOperationWaitTimeWithResponse(
+			config, res, &opRes, project, "Enabling CertificateAuthority", userAgent,
+			d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return fmt.Errorf("Error waiting to enable CertificateAuthority: %s", err)
+		}
 	}
 
 	log.Printf("[DEBUG] Finished creating CertificateAuthority %q: %#v", d.Id(), res)
@@ -829,24 +831,26 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 	}
 
 	var obj map[string]interface{}
-	disableUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:disable")
-	if err != nil {
-		return err
-	}
+	if d.Get("state").(string) == "ENABLED" {
+		disableUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:disable")
+		if err != nil {
+			return err
+		}
 
-	log.Printf("[DEBUG] Disabling CertificateAuthority: %#v", obj)
+		log.Printf("[DEBUG] Disabling CertificateAuthority: %#v", obj)
 
-	dRes, err := sendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
-	if err != nil {
-		return fmt.Errorf("Error disabling CertificateAuthority: %s", err)
-	}
+		dRes, err := sendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
+		if err != nil {
+			return fmt.Errorf("Error disabling CertificateAuthority: %s", err)
+		}
 
-	var opRes map[string]interface{}
-	err = privatecaOperationWaitTimeWithResponse(
-		config, dRes, &opRes, project, "Disabling CertificateAuthority", userAgent,
-		d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return fmt.Errorf("Error waiting to disable CertificateAuthority: %s", err)
+		var opRes map[string]interface{}
+		err = privatecaOperationWaitTimeWithResponse(
+			config, dRes, &opRes, project, "Disabling CertificateAuthority", userAgent,
+			d.Timeout(schema.TimeoutDelete))
+		if err != nil {
+			return fmt.Errorf("Error waiting to disable CertificateAuthority: %s", err)
+		}
 	}
 	log.Printf("[DEBUG] Deleting CertificateAuthority %q", d.Id())
 
