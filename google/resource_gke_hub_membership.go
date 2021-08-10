@@ -24,6 +24,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+func suppressGkeHubEndpointSelfLinkDiff(_, old, new string, _ *schema.ResourceData) bool {
+	// The custom expander injects //container.googleapis.com/ if a selflink is supplied.
+	selfLink := strings.TrimPrefix(old, "//container.googleapis.com/")
+	if selfLink == new {
+		return true
+	}
+
+	return false
+}
+
 func resourceGKEHubMembership() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGKEHubMembershipCreate,
@@ -83,13 +93,15 @@ with length <2000 characters. For example: 'https://container.googleapis.com/v1/
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resource_link": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: suppressGkeHubEndpointSelfLinkDiff,
 										Description: `Self-link of the GCP resource for the GKE cluster.
 For example: '//container.googleapis.com/projects/my-project/zones/us-west1-a/clusters/my-cluster'.
 It can be at the most 1000 characters in length. If the cluster is provisioned with Terraform,
-this is '"//container.googleapis.com/${google_container_cluster.my-cluster.id}"'.`,
+this can be '"//container.googleapis.com/${google_container_cluster.my-cluster.id}"' or
+'google_container_cluster.my-cluster.id'.`,
 									},
 								},
 							},
@@ -498,7 +510,12 @@ func expandGKEHubMembershipEndpointGkeCluster(v interface{}, d TerraformResource
 }
 
 func expandGKEHubMembershipEndpointGkeClusterResourceLink(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	if strings.HasPrefix(v.(string), "//container.googleapis.com/") {
+		return v, nil
+	} else {
+		v = "//container.googleapis.com/" + v.(string)
+		return v, nil
+	}
 }
 
 func expandGKEHubMembershipAuthority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
