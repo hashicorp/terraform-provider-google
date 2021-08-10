@@ -72,7 +72,7 @@ resource "google_gke_hub_membership" "membership" {
   membership_id = "basic"
   endpoint {
     gke_cluster {
-      resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
+      resource_link = google_container_cluster.primary.id
     }
   }
   authority {
@@ -133,7 +133,8 @@ The `gke_cluster` block supports:
   Self-link of the GCP resource for the GKE cluster.
   For example: `//container.googleapis.com/projects/my-project/zones/us-west1-a/clusters/my-cluster`.
   It can be at the most 1000 characters in length. If the cluster is provisioned with Terraform,
-  this is `"//container.googleapis.com/${google_container_cluster.my-cluster.id}"`.
+  this can be `"//container.googleapis.com/${google_container_cluster.my-cluster.id}"` or
+  `google_container_cluster.my-cluster.id`.
 
 The `authority` block supports:
 

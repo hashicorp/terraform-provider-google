@@ -108,7 +108,7 @@ resource "google_gke_hub_membership" "membership" {
   membership_id = "basic%{random_suffix}"
   endpoint {
     gke_cluster {
-      resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
+      resource_link = google_container_cluster.primary.id
     }
   }
   authority {
