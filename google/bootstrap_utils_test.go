@@ -461,7 +461,7 @@ func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
 		if err != nil {
 			t.Errorf("Error getting shared CA pool %q: %s", poolName, err)
 		}
-		res, err = sendRequest(config, "GET", project, url, config.userAgent, nil)
+		_, err = sendRequest(config, "GET", project, url, config.userAgent, nil)
 		if err != nil {
 			t.Errorf("Error getting shared CA pool %q: %s", poolName, err)
 		}
