@@ -26,11 +26,11 @@ data "google_kms_key_ring" "my_key_ring" {
 
 data "google_kms_crypto_key" "my_crypto_key" {
   name     = "my-crypto-key"
-  key_ring = data.google_kms_key_ring.my_key_ring.self_link
+  key_ring = data.google_kms_key_ring.my_key_ring.id
 }
 
 data "google_kms_crypto_key_version" "my_crypto_key_version" {
-  crypto_key = data.google_kms_key.my_key.self_link
+  crypto_key = data.google_kms_key.my_key.id
 }
 ```
 
@@ -38,7 +38,8 @@ data "google_kms_crypto_key_version" "my_crypto_key_version" {
 
 The following arguments are supported:
 
-* `crypto_key` - (Required) The `self_link` of the Google Cloud Platform CryptoKey to which the key version belongs.
+* `crypto_key` - (Required) The `self_link` of the Google Cloud Platform CryptoKey to which the key version belongs. This is also the `id` field of the 
+`google_kms_crypto_key` resource/datasource.
 
 * `version` - (Optional) The version number for this CryptoKeyVersion. Defaults to `1`.
 
@@ -48,6 +49,8 @@ In addition to the arguments listed above, the following computed attributes are
 exported:
 
 * `id` - an identifier for the resource with format `//cloudkms.googleapis.com/v1/{{crypto_key}}/cryptoKeyVersions/{{version}}`
+
+* `name` - The resource name for this CryptoKeyVersion in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`
 
 * `state` - The current state of the CryptoKeyVersion. See the [state reference](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys.cryptoKeyVersions#CryptoKeyVersion.CryptoKeyVersionState) for possible outputs.
 

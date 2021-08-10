@@ -18,6 +18,10 @@ func dataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"version": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -81,6 +85,9 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("version", flattenKmsCryptoKeyVersionVersion(res["name"], d)); err != nil {
 		return fmt.Errorf("Error setting CryptoKeyVersion: %s", err)
 	}
+	if err := d.Set("name", flattenKmsCryptoKeyVersionName(res["name"], d)); err != nil {
+		return fmt.Errorf("Error setting CryptoKeyVersion: %s", err)
+	}
 	if err := d.Set("state", flattenKmsCryptoKeyVersionState(res["state"], d)); err != nil {
 		return fmt.Errorf("Error setting CryptoKeyVersion: %s", err)
 	}
@@ -132,6 +139,10 @@ func flattenKmsCryptoKeyVersionVersion(v interface{}, d *schema.ResourceData) in
 	if intVal, err := strconv.ParseInt(version, 10, 64); err == nil {
 		return intVal
 	} // let terraform core handle it if we can't convert the string to an int.
+	return v
+}
+
+func flattenKmsCryptoKeyVersionName(v interface{}, d *schema.ResourceData) interface{} {
 	return v
 }
 
