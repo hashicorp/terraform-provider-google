@@ -125,9 +125,14 @@ The following arguments are supported:
 
 * `purpose` -
   (Optional)
-  The purpose of the resource. This field cannot be specified with `EXTERNAL` address_type. Possible values include:
-  * VPC_PEERING - for peer networks
-  * PRIVATE_SERVICE_CONNECT - for ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Private Service Connect networks
+  The purpose of the resource. Possible values include:
+  * GCE_ENDPOINT for addresses that are used by VM instances, alias IP ranges, load balancers, and similar resources. 
+  * DNS_RESOLVER for a DNS resolver address in a subnetwork for a Cloud DNS [inbound forwarder IP addresses](https://cloud.google.com/dns/docs/policies#create-in) (regional internal IP address in a subnet of a VPC network)
+  * VPC_PEERING for global internal IP addresses used for [private services access allocated ranges](https://cloud.google.com/vpc/docs/configure-private-services-access#allocating-range).
+  * NAT_AUTO for the regional external IP addresses used by Cloud NAT when allocating addresses using automatic NAT IP address allocation.
+  * IPSEC_INTERCONNECT for addresses created from a private IP range that are reserved for a VLAN attachment in an IPsec-encrypted Cloud Interconnect configuration. These addresses are regional resources. Not currently available publicly.
+  * SHARED_LOADBALANCER_VIP for an internal IP address that is assigned to multiple internal forwarding rules.
+  * PRIVATE_SERVICE_CONNECT for a private network address that is used to configure Private Service Connect. Only global internal addresses can use this purpose.
 
 * `network` -
   (Optional)
