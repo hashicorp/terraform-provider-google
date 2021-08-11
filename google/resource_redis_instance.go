@@ -878,7 +878,7 @@ func resourceRedisInstanceDecoder(d *schema.ResourceData, meta interface{}, res 
 			}
 
 			if err := d.Set("auth_string", res["authString"]); err != nil {
-				return nil, fmt.Errorf("Er2ror reading Instance: %s", err)
+				return nil, fmt.Errorf("Error reading Instance: %s", err)
 			}
 		}
 	} else {
