@@ -402,17 +402,17 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("RedisInstance %q", d.Id()))
 	}
 
-	res, err = resourceRedisInstanceDecoder(d, meta, res)
-	if err != nil {
-		return err
-	}
+	// res, err = resourceRedisInstanceDecoder(d, meta, res)
+	// if err != nil {
+	// 	return err
+	// }
 
-	if res == nil {
-		// Decoding the object has resulted in it being gone. It may be marked deleted
-		log.Printf("[DEBUG] Removing RedisInstance because it no longer exists.")
-		d.SetId("")
-		return nil
-	}
+	// if res == nil {
+	// 	// Decoding the object has resulted in it being gone. It may be marked deleted
+	// 	log.Printf("[DEBUG] Removing RedisInstance because it no longer exists.")
+	// 	d.SetId("")
+	// 	return nil
+	// }
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
@@ -878,7 +878,7 @@ func resourceRedisInstanceDecoder(d *schema.ResourceData, meta interface{}, res 
 			}
 
 			if err := d.Set("auth_string", res["authString"]); err != nil {
-				return nil, fmt.Errorf("Error reading Instance: %s", err)
+				return nil, fmt.Errorf("Er2ror reading Instance: %s", err)
 			}
 		}
 	} else {
