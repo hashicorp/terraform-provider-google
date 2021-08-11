@@ -264,6 +264,8 @@ func vcrTest(t *testing.T, c resource.TestCase) {
 		providers := getTestAccProviders(t.Name())
 		c.Providers = providers
 		defer closeRecorder(t)
+	} else if isUpstreamDiffEnabled() {
+		c = initializeUpstreamDiffTest(c)
 	}
 	resource.Test(t, c)
 }
@@ -936,4 +938,71 @@ func sleepInSecondsForTest(t int) resource.TestCheckFunc {
 		time.Sleep(time.Duration(t) * time.Second)
 		return nil
 	}
+}
+
+func isUpstreamDiffEnabled() bool {
+	upstreamDiff := os.Getenv("UPSTREAM_DIFF")
+	return upstreamDiff != ""
+}
+
+func initializeUpstreamDiffTest(c resource.TestCase) resource.TestCase {
+	var upstreamProvider string
+	packagePath := fmt.Sprint(reflect.TypeOf(Config{}).PkgPath())
+	if strings.Contains(packagePath, "google-beta") {
+		upstreamProvider = "google-beta"
+	} else {
+		upstreamProvider = "google"
+	}
+
+	if c.ExternalProviders != nil {
+		c.ExternalProviders[upstreamProvider] = resource.ExternalProvider{}
+	} else {
+		c.ExternalProviders = map[string]resource.ExternalProvider{
+			upstreamProvider: {},
+		}
+	}
+
+	localProviderName := "google-local"
+	localProvider := map[string]*schema.Provider{
+		localProviderName: testAccProvider,
+	}
+	c.Providers = localProvider
+
+	var replacementSteps []resource.TestStep
+	for _, teststep := range c.Steps {
+		if teststep.Config != "" {
+			ogConfig := teststep.Config
+			teststep.Config = reformConfigWithProvider(ogConfig, localProviderName)
+			replacementSteps = append(replacementSteps, teststep)
+			if teststep.ExpectError == nil && teststep.PlanOnly == false {
+				newStep := resource.TestStep{
+					Config:   reformConfigWithProvider(ogConfig, upstreamProvider),
+					PlanOnly: true,
+				}
+				replacementSteps = append(replacementSteps, newStep)
+			}
+		} else {
+			replacementSteps = append(replacementSteps, teststep)
+		}
+	}
+
+	c.Steps = replacementSteps
+
+	return c
+}
+
+func reformConfigWithProvider(config, provider string) string {
+	configBytes := []byte(config)
+	providerReplacement := fmt.Sprintf("provider = %s", provider)
+	providerReplacementBytes := []byte(providerReplacement)
+	providerBlock := regexp.MustCompile(`provider *=.*google-beta.*`)
+
+	if providerBlock.Match(configBytes) {
+		return string(providerBlock.ReplaceAll(configBytes, providerReplacementBytes))
+	}
+
+	providerReplacement = fmt.Sprintf("${1}\n\t%s", providerReplacement)
+	providerReplacementBytes = []byte(providerReplacement)
+	resourceHeader := regexp.MustCompile(`(resource .*google_.* .*\w+.*\{.*)`)
+	return string(resourceHeader.ReplaceAll(configBytes, providerReplacementBytes))
 }
