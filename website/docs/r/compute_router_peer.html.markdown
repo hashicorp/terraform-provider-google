@@ -49,6 +49,21 @@ resource "google_compute_router_peer" "peer" {
   interface                 = "interface-1"
 }
 ```
+## Example Usage - Router Peer Disabled
+
+
+```hcl
+resource "google_compute_router_peer" "peer" {
+   name                      = "my-router-peer"
+   router                    = "my-router"
+   region                    = "us-central1"
+   peer_ip_address           = "169.254.1.2"
+   peer_asn                  = 65513
+   advertised_route_priority = 100
+   interface                 = "interface-1"
+   enable                    = false
+ }
+```
 
 ## Argument Reference
 
@@ -120,6 +135,13 @@ The following arguments are supported:
   ranges will be advertised in addition to any specified groups.
   Leave this field blank to advertise no custom IP ranges.
   Structure is documented below.
+
+* `enable` -
+  (Optional)
+  The status of the BGP peer connection. If set to false, any active session
+  with the peer is terminated and all associated routing information is removed.
+  If set to true, the peer connection can be established with routing information.
+  The default is true.
 
 * `region` -
   (Optional)
