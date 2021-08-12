@@ -138,6 +138,14 @@ func Provider() *schema.Provider {
 				Optional: true,
 			},
 
+			"request_reason": {
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"CLOUDSDK_CORE_REQUEST_REASON",
+				}, nil),
+			},
+
 			// Generated Products
 			"access_approval_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -1266,6 +1274,10 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}
+	}
+
+	if v, ok := d.GetOk("request_reason"); ok {
+		config.RequestReason = v.(string)
 	}
 
 	// Search for default credentials

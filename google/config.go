@@ -69,6 +69,7 @@ type Config struct {
 	Scopes                             []string
 	BatchingConfig                     *batchingConfig
 	UserProjectOverride                bool
+	RequestReason                      string
 	RequestTimeout                     time.Duration
 	// PollInterval is passed to resource.StateChangeConf in common_operation.go
 	// It controls the interval at which we poll for successful operations
@@ -382,6 +383,9 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	// 4. Header Transport - outer wrapper to inject additional headers we want to apply
 	// before making requests
 	headerTransport := newTransportWithHeaders(retryTransport)
+	if c.RequestReason != "" {
+		headerTransport.Set("X-Goog-Request-Reason", c.RequestReason)
+	}
 
 	// Set final transport value.
 	client.Transport = headerTransport
