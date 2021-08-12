@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added support for `L3_DEFAULT` as `ip_protocol` for `google_compute_forwarding_rule` and `UNSPECIFIED` as `protocol` for `google_compute_region_backend_service` to support network load balancers that forward all protocols and ports.
+```

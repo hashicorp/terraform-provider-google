@@ -83,22 +83,24 @@ Google APIs, IP address must be provided.`,
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				ValidateFunc:     validation.StringInSlice([]string{"TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", ""}, false),
+				ValidateFunc:     validation.StringInSlice([]string{"TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", "L3_DEFAULT", ""}, false),
 				DiffSuppressFunc: caseDiffSuppress,
 				Description: `The IP protocol to which this rule applies.
 
 When the load balancing scheme is INTERNAL, only TCP and UDP are
-valid. Possible values: ["TCP", "UDP", "ESP", "AH", "SCTP", "ICMP"]`,
+valid. Possible values: ["TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", "L3_DEFAULT"]`,
 			},
 			"all_ports": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Description: `For internal TCP/UDP load balancing (i.e. load balancing scheme is
-INTERNAL and protocol is TCP/UDP), set this to true to allow packets
-addressed to any ports to be forwarded to the backends configured
-with this forwarding rule. Used with backend service. Cannot be set
-if port or portRange are set.`,
+				Description: `This field can be used with internal load balancer or network load balancer
+when the forwarding rule references a backend service, or with the target
+field when it references a TargetInstance. Set this to true to
+allow packets addressed to any ports to be forwarded to the backends configured
+with this forwarding rule. This can be used when the protocol is TCP/UDP, and it
+must be set to true when the protocol is set to L3_DEFAULT.
+Cannot be set if port or portRange are set.`,
 			},
 			"allow_global_access": {
 				Type:     schema.TypeBool,
@@ -195,15 +197,18 @@ ports:
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
-				Description: `This field is used along with the backend_service field for internal
-load balancing.
+				Description: `This field is used along with internal load balancing and network
+load balancer when the forwarding rule references a backend service
+and when protocol is not L3_DEFAULT.
 
-When the load balancing scheme is INTERNAL, a single port or a comma
-separated list of ports can be configured. Only packets addressed to
-these ports will be forwarded to the backends configured with this
-forwarding rule.
+A single port or a comma separated list of ports can be configured.
+Only packets addressed to these ports will be forwarded to the backends
+configured with this forwarding rule.
 
-You may specify a maximum of up to 5 ports.`,
+You can only use one of ports and portRange, or allPorts.
+The three are mutually exclusive.
+
+You may specify a maximum of up to 5 ports, which can be non-contiguous.`,
 				MaxItems: 5,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
