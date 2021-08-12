@@ -375,6 +375,14 @@ The following arguments are supported:
   (Optional)
   The security policy associated with this backend service.
 
+* `security_settings` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The security settings that apply to this backend service. This field is applicable to either
+  a regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2, and
+  load_balancing_scheme set to INTERNAL_MANAGED; or a global backend service with the
+  load_balancing_scheme set to INTERNAL_SELF_MANAGED.
+  Structure is documented below.
+
 * `session_affinity` -
   (Optional)
   Type of session affinity to use. The default is NONE. Session affinity is
@@ -810,6 +818,20 @@ The `interval` block supports:
   Span of time that's a fraction of a second at nanosecond resolution. Durations
   less than one second are represented with a 0 `seconds` field and a positive
   `nanos` field. Must be from 0 to 999,999,999 inclusive.
+
+The `security_settings` block supports:
+
+* `client_tls_policy` -
+  (Required, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  ClientTlsPolicy is a resource that specifies how a client should authenticate
+  connections to backends of a service. This resource itself does not affect
+  configuration unless it is attached to a backend service resource.
+
+* `subject_alt_names` -
+  (Required, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A list of alternate names to verify the subject identity in the certificate.
+  If specified, the client will verify that the server certificate's subject
+  alt name matches one of the specified values.
 
 The `log_config` block supports:
 
