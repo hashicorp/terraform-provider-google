@@ -55,7 +55,7 @@ The `TESTARGS` variable is regexp-like, so multiple tests can be run in parallel
 
 ### Ensuring no plan-time difference to upstream provider
 
-To ensure the resource you are modifying doesn't result in diff to existing deployments you can run set the [environment variable](https://github.com/GoogleCloudPlatform/magic-modules/blob/a30da2040ca7b8bd37186d8521a911e7469da632/mmv1/third_party/terraform/utils/provider_test.go.erb#L284-L286) `UPSTREAM_DIFF` before running a test. This will append plan only steps using the upstream provider (`google` or `google-beta`) after all configuration deployments to ensure uniformity. This is recommended when you are modifying existing fields and do not want to break existing user deployments.
+To ensure the resource you are modifying doesn't result in diff to existing deployments you can run set the [environment variable](https://github.com/GoogleCloudPlatform/magic-modules/blob/a30da2040ca7b8bd37186d8521a911e7469da632/mmv1/third_party/terraform/utils/provider_test.go.erb#L284-L286) `UPSTREAM_DIFF` before running a test. This will append plan only steps using the downstream - published provider (`google` or `google-beta`) after all configuration deployments to ensure uniformity. This is recommended when you are modifying existing fields and do not want to break existing user deployments.
 
 ```
 export UPSTREAM_DIFF=true
