@@ -893,7 +893,9 @@ func resourcePrivatecaCertificateAuthorityImport(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 
-	d.Set("ignore_active_certificates_on_deletion", false)
+	if err := d.Set("ignore_active_certificates_on_deletion", false); err != nil {
+		return nil, err
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
