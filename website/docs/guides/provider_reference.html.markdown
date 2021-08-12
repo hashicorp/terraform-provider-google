@@ -148,6 +148,8 @@ the provider should wait for a single HTTP request.  This will not adjust the
 amount of time the provider will wait for a logical operation - use the resource
 timeout blocks for that.
 
+* `request_reason` - (Optional) Send a Request Reason [System Parameter](https://cloud.google.com/apis/docs/system-parameters) for each API call made by the provider.  The `X-Goog-Request-Reason` header value is used to provide a user-supplied justification into GCP AuditLogs.
+
 The `batching` fields supports:
 
 * `send_after` - (Optional) A duration string representing the amount of time
@@ -265,6 +267,8 @@ an access token using the service account key specified in `credentials`.
     * https://www.googleapis.com/auth/ndev.clouddns.readwrite
     * https://www.googleapis.com/auth/devstorage.full_control
     * https://www.googleapis.com/auth/userinfo.email
+
+* `request_reason` - (Optional) Send a Request Reason [System Parameter](https://cloud.google.com/apis/docs/system-parameters) for each API call made by the provider.  The `X-Goog-Request-Reason` header value is used to provide a user-supplied justification into GCP AuditLogs. Alternatively, this can be specified using the `CLOUDSDK_CORE_REQUEST_REASON` environment variable.
 
 ---
 
