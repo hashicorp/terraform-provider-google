@@ -133,6 +133,42 @@ resource "google_compute_target_pool" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=forwarding_rule_l3_default&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Forwarding Rule L3 Default
+
+
+```hcl
+resource "google_compute_forwarding_rule" "fwd_rule" {
+  provider        = google-beta
+  name            = "l3-forwarding-rule"
+  backend_service = google_compute_region_backend_service.service.id
+  ip_protocol     = "L3_DEFAULT"
+  all_ports       = true
+}
+
+resource "google_compute_region_backend_service" "service" {
+  provider              = google-beta
+  region                = "us-central1"
+  name                  = "service"
+  health_checks         = [google_compute_region_health_check.health_check.id]
+  protocol              = "UNSPECIFIED"
+  load_balancing_scheme = "EXTERNAL"
+}
+
+resource "google_compute_region_health_check" "health_check" {
+  provider           = google-beta
+  name               = "health-check"
+  region             = "us-central1"
+
+  tcp_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=forwarding_rule_internallb&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -435,7 +471,7 @@ The following arguments are supported:
   The IP protocol to which this rule applies.
   When the load balancing scheme is INTERNAL, only TCP and UDP are
   valid.
-  Possible values are `TCP`, `UDP`, `ESP`, `AH`, `SCTP`, and `ICMP`.
+  Possible values are `TCP`, `UDP`, `ESP`, `AH`, `SCTP`, `ICMP`, and `L3_DEFAULT`.
 
 * `backend_service` -
   (Optional)
@@ -482,13 +518,15 @@ The following arguments are supported:
 
 * `ports` -
   (Optional)
-  This field is used along with the backend_service field for internal
-  load balancing.
-  When the load balancing scheme is INTERNAL, a single port or a comma
-  separated list of ports can be configured. Only packets addressed to
-  these ports will be forwarded to the backends configured with this
-  forwarding rule.
-  You may specify a maximum of up to 5 ports.
+  This field is used along with internal load balancing and network
+  load balancer when the forwarding rule references a backend service
+  and when protocol is not L3_DEFAULT.
+  A single port or a comma separated list of ports can be configured.
+  Only packets addressed to these ports will be forwarded to the backends
+  configured with this forwarding rule.
+  You can only use one of ports and portRange, or allPorts.
+  The three are mutually exclusive.
+  You may specify a maximum of up to 5 ports, which can be non-contiguous.
 
 * `subnetwork` -
   (Optional)
@@ -516,11 +554,13 @@ The following arguments are supported:
 
 * `all_ports` -
   (Optional)
-  For internal TCP/UDP load balancing (i.e. load balancing scheme is
-  INTERNAL and protocol is TCP/UDP), set this to true to allow packets
-  addressed to any ports to be forwarded to the backends configured
-  with this forwarding rule. Used with backend service. Cannot be set
-  if port or portRange are set.
+  This field can be used with internal load balancer or network load balancer
+  when the forwarding rule references a backend service, or with the target
+  field when it references a TargetInstance. Set this to true to
+  allow packets addressed to any ports to be forwarded to the backends configured
+  with this forwarding rule. This can be used when the protocol is TCP/UDP, and it
+  must be set to true when the protocol is set to L3_DEFAULT.
+  Cannot be set if port or portRange are set.
 
 * `network_tier` -
   (Optional)
