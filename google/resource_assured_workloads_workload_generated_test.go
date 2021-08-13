@@ -181,7 +181,7 @@ func testAccAssuredWorkloadsWorkload_BasicHandWritten(context map[string]interfa
 resource "google_assured_workloads_workload" "primary" {
   display_name = "workload%{random_suffix}"
   labels = {
-    a = "b"
+    a = "a"
   }
   billing_account = "billingAccounts/%{billing_acct}"
   compliance_regime = "FEDRAMP_MODERATE"
