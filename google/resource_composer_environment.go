@@ -16,7 +16,7 @@ import (
 const (
 	composerEnvironmentEnvVariablesRegexp          = "[a-zA-Z_][a-zA-Z0-9_]*."
 	composerEnvironmentReservedAirflowEnvVarRegexp = "AIRFLOW__[A-Z0-9_]+__[A-Z0-9_]+"
-	composerEnvironmentVersionRegexp               = `composer-([0-9]+\.[0-9]+\.[0-9]+(-preview.[0-9]+)?|latest)-airflow-([0-9]+\.[0-9]+(\.[0-9]+.*)?)`
+	composerEnvironmentVersionRegexp               = `composer-([0-9]+\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?|latest)-airflow-([0-9]+\.[0-9]+(\.[0-9]+.*)?)`
 )
 
 var composerEnvironmentReservedEnvVar = map[string]struct{}{
