@@ -162,9 +162,10 @@ organize and group your datasets`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"location": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: caseDiffSuppress,
 				Description: `The geographic location where the dataset should reside.
 See [official docs](https://cloud.google.com/bigquery/docs/dataset-locations).
 
