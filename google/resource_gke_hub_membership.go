@@ -510,7 +510,7 @@ func expandGKEHubMembershipEndpointGkeCluster(v interface{}, d TerraformResource
 }
 
 func expandGKEHubMembershipEndpointGkeClusterResourceLink(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	if strings.HasPrefix(v.(string), "//container.googleapis.com/") {
+	if strings.HasPrefix(v.(string), "//") {
 		return v, nil
 	} else {
 		v = "//container.googleapis.com/" + v.(string)
