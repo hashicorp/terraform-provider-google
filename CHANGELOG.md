@@ -1,6 +1,6 @@
 ## 3.80.0 (Unreleased)
 
-## 3.79.0 (August 9th, 2021)
+## 3.79.0 (August 09, 2021)
 
 NOTES:
 * spanner: The `num_nodes` field on `google_spanner_instance` will have its default removed in a future major release, and either `num_nodes` or `processing_units` will be required. ([#9716](https://github.com/hashicorp/terraform-provider-google/pull/9716))
@@ -14,7 +14,7 @@ IMPROVEMENTS:
 * storage: added support for `customer_encryption` on `resource_storage_bucket_object` ([#9704](https://github.com/hashicorp/terraform-provider-google/pull/9704))
 
 
-## 3.78.0 (August 2, 2021)
+## 3.78.0 (August 02, 2021)
 FEATURES:
 * **New Resource:** `google_gke_hub_membership` ([#9616](https://github.com/hashicorp/terraform-provider-google/pull/9616))
 
