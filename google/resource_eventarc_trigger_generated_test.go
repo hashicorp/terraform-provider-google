@@ -79,24 +79,13 @@ resource "google_eventarc_trigger" "primary" {
 	}
 	destination {
 		cloud_run_service {
-			service = google_cloud_run_service.default2.name
-			region = "europe-north1"
-		}
-	}
-	transport {
-		pubsub {
-			topic = google_pubsub_topic.foo.id
+			service = google_cloud_run_service.default.name
+			region = "europe-west1"
 		}
 	}
 	labels = {
 		foo = "bar"
 	}
-	service_account = google_service_account.eventarc-sa.email
-}
-
-resource "google_service_account" "eventarc-sa" {
-	account_id   = "sa%{random_suffix}"
-	display_name = "Test Service Account"
 }
 
 resource "google_pubsub_topic" "foo" {
@@ -106,30 +95,6 @@ resource "google_pubsub_topic" "foo" {
 resource "google_cloud_run_service" "default" {
 	name     = "tf-test-service-eventarc%{random_suffix}"
 	location = "europe-west1"
-
-	metadata {
-		namespace = "%{project_name}"
-	}
-
-	template {
-		spec {
-			containers {
-				image = "gcr.io/cloudrun/hello"
-				args  = ["arrgs"]
-			}
-		container_concurrency = 50
-		}
-	}
-
-	traffic {
-		percent         = 100
-		latest_revision = true
-	}
-}
-
-resource "google_cloud_run_service" "default2" {
-	name     = "tf-test-service-eventarc%{random_suffix}2"
-	location = "europe-north1"
 
 	metadata {
 		namespace = "%{project_name}"
@@ -164,8 +129,8 @@ resource "google_eventarc_trigger" "primary" {
 	}
 	destination {
 		cloud_run_service {
-			service = google_cloud_run_service.default2.name
-			region = "europe-north1"
+			service = google_cloud_run_service.default.name
+			region = "europe-west1"
 		}
 	}
 	transport {
@@ -173,15 +138,6 @@ resource "google_eventarc_trigger" "primary" {
 			topic = google_pubsub_topic.foo.id
 		}
 	}
-	labels = {
-		foo = "bar"
-	}
-	service_account = google_service_account.eventarc-sa.email
-}
-
-resource "google_service_account" "eventarc-sa" {
-	account_id   = "sa%{random_suffix}"
-	display_name = "Test Service Account"
 }
 
 resource "google_pubsub_topic" "foo" {
