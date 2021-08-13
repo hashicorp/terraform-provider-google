@@ -1,4 +1,18 @@
-## 3.79.0 (Unreleased)
+## 3.80.0 (Unreleased)
+
+## 3.79.0 (August 9th, 2021)
+
+NOTES:
+* spanner: The `num_nodes` field on `google_spanner_instance` will have its default removed in a future major release, and either `num_nodes` or `processing_units` will be required. ([#9716](https://github.com/hashicorp/terraform-provider-google/pull/9716))
+
+FEATURES:
+* **New Resource:** `google_dialogflow_cx_entity_type` ([#9717](https://github.com/hashicorp/terraform-provider-google/pull/9717))
+* **New Resource:** `google_dialogflow_cx_page` ([#9683](https://github.com/hashicorp/terraform-provider-google/pull/9683))
+
+IMPROVEMENTS:
+* spanner: added `processing_units` to `google_spanner_instance` ([#9716](https://github.com/hashicorp/terraform-provider-google/pull/9716))
+* storage: added support for `customer_encryption` on `resource_storage_bucket_object` ([#9704](https://github.com/hashicorp/terraform-provider-google/pull/9704))
+
 
 ## 3.78.0 (August 2, 2021)
 FEATURES:
