@@ -25,6 +25,43 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+/*
+ * FirestoreIndex api apends __name__ as an item to the
+ * end of the fields list if not present. We are suppressing
+ * this server generated field.
+ */
+func firestoreIFieldsDiffSuppressFunc(k, old, new string, d TerraformResourceDataChange) bool {
+	kLength := "fields.#"
+	oldLength, newLength := d.GetChange(kLength)
+	oldInt, ok := oldLength.(int)
+	if !ok {
+		return false
+	}
+	newInt, ok := newLength.(int)
+	if !ok {
+		return false
+	}
+
+	if oldInt == newInt+1 {
+		kold := fmt.Sprintf("fields.%v.field_path", oldInt-1)
+		knew := fmt.Sprintf("fields.%v.field_path", newInt-1)
+
+		oldLastIndexName, _ := d.GetChange(kold)
+		_, newLastIndexName := d.GetChange(knew)
+		if oldLastIndexName == "__name__" && newLastIndexName != "__name__" {
+			oldBase := fmt.Sprintf("fields.%v", oldInt-1)
+			if strings.HasPrefix(k, oldBase) || k == kLength {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func firestoreIFieldsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return firestoreIFieldsDiffSuppressFunc(k, old, new, d)
+}
+
 func resourceFirestoreIndex() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceFirestoreIndexCreate,
@@ -48,9 +85,10 @@ func resourceFirestoreIndex() *schema.Resource {
 				Description: `The collection being indexed.`,
 			},
 			"fields": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeList,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: firestoreIFieldsDiffSuppress,
 				Description: `The fields supported by this index. The last field entry is always for
 the field path '__name__'. If, on creation, '__name__' was not
 specified as the last field, it will be added automatically with the

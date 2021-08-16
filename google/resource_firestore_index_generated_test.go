@@ -66,10 +66,6 @@ resource "google_firestore_index" "my-index" {
     order      = "DESCENDING"
   }
 
-  fields {
-    field_path = "__name__"
-    order      = "DESCENDING"
-  }
 }
 `, context)
 }
