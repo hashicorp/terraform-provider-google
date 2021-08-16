@@ -65,6 +65,22 @@ resource "google_compute_router_peer" "peer" {
  }
 ```
 
+## Example Usage - Router Peer specify IP address explicitly
+
+
+```hcl
+resource "google_compute_router_peer" "peer" {
+  name                      = "my-router-peer"
+  router                    = "my-router"
+  region                    = "us-central1"
+  ip_address                = "169.254.1.1"
+  peer_ip_address           = "169.254.1.2"
+  peer_asn                  = 65513
+  advertised_route_priority = 100
+  interface                 = "interface-1"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -82,6 +98,10 @@ The following arguments are supported:
 * `interface` -
   (Required)
   Name of the interface the BGP peer is associated with.
+
+* `ip_address` -
+  IP address of the interface inside Google Cloud Platform.
+  Only IPv4 is supported.
 
 * `peer_ip_address` -
   (Required)
@@ -168,10 +188,6 @@ The `advertised_ip_ranges` block supports:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/routers/{{router}}/{{name}}`
-
-* `ip_address` -
-  IP address of the interface inside Google Cloud Platform.
-  Only IPv4 is supported.
 
 * `management_type` -
   The resource that configures and manages this BGP peer.
