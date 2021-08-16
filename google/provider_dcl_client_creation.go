@@ -24,79 +24,58 @@ import (
 )
 
 func NewDCLAssuredWorkloadsClient(config *Config, userAgent, billingProject string) *assuredworkloads.Client {
-	dclClientOptions := dcl.WithHTTPClient(config.client)
-	dclUserAgentOptions := dcl.WithUserAgent(userAgent)
-	dclLoggerOptions := dcl.WithLogger(dclLogger{})
-	var dclConfig *dcl.Config
-	if config.UserProjectOverride && billingProject != "" {
-		dclBillingProjectHeader := dcl.WithHeader("X-Goog-User-Project", billingProject)
-		dclConfig = dcl.NewConfig(
-			dclClientOptions,
-			dclUserAgentOptions,
-			dclLoggerOptions,
-			dcl.WithBasePath(config.AssuredWorkloadsBasePath),
-			dclBillingProjectHeader,
-		)
-	} else {
-		dclConfig = dcl.NewConfig(
-			dclClientOptions,
-			dclUserAgentOptions,
-			dclLoggerOptions,
-			dcl.WithBasePath(config.AssuredWorkloadsBasePath),
-		)
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.AssuredWorkloadsBasePath),
 	}
 
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
 	return assuredworkloads.NewClient(dclConfig)
 }
 
 func NewDCLDataprocClient(config *Config, userAgent, billingProject string) *dataproc.Client {
-	dclClientOptions := dcl.WithHTTPClient(config.client)
-	dclUserAgentOptions := dcl.WithUserAgent(userAgent)
-	dclLoggerOptions := dcl.WithLogger(dclLogger{})
-	var dclConfig *dcl.Config
-	if config.UserProjectOverride && billingProject != "" {
-		dclBillingProjectHeader := dcl.WithHeader("X-Goog-User-Project", billingProject)
-		dclConfig = dcl.NewConfig(
-			dclClientOptions,
-			dclUserAgentOptions,
-			dclLoggerOptions,
-			dcl.WithBasePath(config.DataprocBasePath),
-			dclBillingProjectHeader,
-		)
-	} else {
-		dclConfig = dcl.NewConfig(
-			dclClientOptions,
-			dclUserAgentOptions,
-			dclLoggerOptions,
-			dcl.WithBasePath(config.DataprocBasePath),
-		)
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.DataprocBasePath),
 	}
 
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
 	return dataproc.NewClient(dclConfig)
 }
 
 func NewDCLEventarcClient(config *Config, userAgent, billingProject string) *eventarc.Client {
-	dclClientOptions := dcl.WithHTTPClient(config.client)
-	dclUserAgentOptions := dcl.WithUserAgent(userAgent)
-	dclLoggerOptions := dcl.WithLogger(dclLogger{})
-	var dclConfig *dcl.Config
-	if config.UserProjectOverride && billingProject != "" {
-		dclBillingProjectHeader := dcl.WithHeader("X-Goog-User-Project", billingProject)
-		dclConfig = dcl.NewConfig(
-			dclClientOptions,
-			dclUserAgentOptions,
-			dclLoggerOptions,
-			dcl.WithBasePath(config.EventarcBasePath),
-			dclBillingProjectHeader,
-		)
-	} else {
-		dclConfig = dcl.NewConfig(
-			dclClientOptions,
-			dclUserAgentOptions,
-			dclLoggerOptions,
-			dcl.WithBasePath(config.EventarcBasePath),
-		)
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.EventarcBasePath),
 	}
 
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
 	return eventarc.NewClient(dclConfig)
 }
