@@ -16,6 +16,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+type TerraformResourceDataChange interface {
+	GetChange(string) (interface{}, interface{})
+}
+
 type TerraformResourceData interface {
 	HasChange(string) bool
 	GetOkExists(string) (interface{}, bool)
