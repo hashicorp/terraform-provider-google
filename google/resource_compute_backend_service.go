@@ -3175,7 +3175,7 @@ func expandComputeBackendServiceCdnPolicyNegativeCachingPolicy(v interface{}, d 
 		transformedTtl, err := expandComputeBackendServiceCdnPolicyNegativeCachingPolicyTtl(original["ttl"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedTtl); val.IsValid() && !isEmptyValue(val) {
+		} else {
 			transformed["ttl"] = transformedTtl
 		}
 
