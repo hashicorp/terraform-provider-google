@@ -1,4 +1,4 @@
-## 3.80.0 (Unreleased)
+## 3.80.0 (August 16, 2021)
 
 FEATURES:
 * **New Resource:** `google_dialogflow_cx_environment` ([#9738](https://github.com/hashicorp/terraform-provider-google/pull/9738))
