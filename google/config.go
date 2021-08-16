@@ -110,6 +110,7 @@ type Config struct {
 	DialogflowBasePath           string
 	DialogflowCXBasePath         string
 	DNSBasePath                  string
+	EssentialContactsBasePath    string
 	FilestoreBasePath            string
 	FirestoreBasePath            string
 	GameServicesBasePath         string
@@ -201,6 +202,7 @@ const DeploymentManagerBasePathKey = "DeploymentManager"
 const DialogflowBasePathKey = "Dialogflow"
 const DialogflowCXBasePathKey = "DialogflowCX"
 const DNSBasePathKey = "DNS"
+const EssentialContactsBasePathKey = "EssentialContacts"
 const FilestoreBasePathKey = "Filestore"
 const FirestoreBasePathKey = "Firestore"
 const GameServicesBasePathKey = "GameServices"
@@ -283,6 +285,7 @@ var DefaultBasePaths = map[string]string{
 	DialogflowBasePathKey:           "https://dialogflow.googleapis.com/v2/",
 	DialogflowCXBasePathKey:         "https://dialogflow.googleapis.com/v3/",
 	DNSBasePathKey:                  "https://dns.googleapis.com/dns/v1/",
+	EssentialContactsBasePathKey:    "https://essentialcontacts.googleapis.com/v1/",
 	FilestoreBasePathKey:            "https://file.googleapis.com/v1/",
 	FirestoreBasePathKey:            "https://firestore.googleapis.com/v1/",
 	GameServicesBasePathKey:         "https://gameservices.googleapis.com/v1/",
@@ -1121,6 +1124,7 @@ func ConfigureBasePaths(c *Config) {
 	c.DialogflowBasePath = DefaultBasePaths[DialogflowBasePathKey]
 	c.DialogflowCXBasePath = DefaultBasePaths[DialogflowCXBasePathKey]
 	c.DNSBasePath = DefaultBasePaths[DNSBasePathKey]
+	c.EssentialContactsBasePath = DefaultBasePaths[EssentialContactsBasePathKey]
 	c.FilestoreBasePath = DefaultBasePaths[FilestoreBasePathKey]
 	c.FirestoreBasePath = DefaultBasePaths[FirestoreBasePathKey]
 	c.GameServicesBasePath = DefaultBasePaths[GameServicesBasePathKey]

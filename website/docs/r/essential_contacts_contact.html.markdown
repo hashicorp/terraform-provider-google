@@ -24,8 +24,6 @@ description: |-
 
 A contact that will receive notifications from Google Cloud.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Contact, see:
 
@@ -49,11 +47,9 @@ Your account must have the `serviceusage.services.use` permission on the
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_essential_contacts_contact" "contact" {
-  provider = google-beta
   parent = data.google_project.project.id
   email = "foo@bar.com"
   language_tag = "en-GB"

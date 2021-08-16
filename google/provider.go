@@ -379,6 +379,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_DNS_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[DNSBasePathKey]),
 			},
+			"essential_contacts_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_ESSENTIAL_CONTACTS_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[EssentialContactsBasePathKey]),
+			},
 			"filestore_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -799,9 +807,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 212
+// Generated resources: 213
 // Generated IAM resources: 90
-// Total generated resources: 302
+// Total generated resources: 303
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -979,6 +987,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dns_managed_zone":                                      resourceDNSManagedZone(),
 			"google_dns_policy":                                            resourceDNSPolicy(),
 			"google_dns_record_set":                                        resourceDNSResourceDnsRecordSet(),
+			"google_essential_contacts_contact":                            resourceEssentialContactsContact(),
 			"google_filestore_instance":                                    resourceFilestoreInstance(),
 			"google_firestore_index":                                       resourceFirestoreIndex(),
 			"google_firestore_document":                                    resourceFirestoreDocument(),
@@ -1353,6 +1362,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DialogflowBasePath = d.Get("dialogflow_custom_endpoint").(string)
 	config.DialogflowCXBasePath = d.Get("dialogflow_cx_custom_endpoint").(string)
 	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
+	config.EssentialContactsBasePath = d.Get("essential_contacts_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
 	config.GameServicesBasePath = d.Get("game_services_custom_endpoint").(string)
