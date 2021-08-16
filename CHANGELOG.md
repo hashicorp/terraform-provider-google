@@ -1,4 +1,17 @@
-## 3.80.0 (Unreleased)
+## 3.81.0 (Unreleased)
+
+## 3.80.0 (August 16, 2021)
+
+FEATURES:
+* **New Resource:** `google_dialogflow_cx_environment` ([#9738](https://github.com/hashicorp/terraform-provider-google/pull/9738))
+
+IMPROVEMENTS:
+* gkehub: added support for both `//container.googleapis.com/${google_container_cluster.my-cluster.id}` and `google_container_cluster.my-cluster.id` references in `google_gke_hub_membership.endpoint.0.gke_cluster.0.resource_link` ([#9765](https://github.com/hashicorp/terraform-provider-google/pull/9765))
+* kms: added `name` field to `google_kms_crypto_key_version` datasource ([#9762](https://github.com/hashicorp/terraform-provider-google/pull/9762))
+
+BUG FIXES:
+* apigee: fixed update behavior on `google_apigee_envgroup` ([#9740](https://github.com/hashicorp/terraform-provider-google/pull/9740))
+* privateca: fixed a failure to create `google_privateca_certificate_authority` of type `SUBORDINATE` due to an invalid attempt to activate it on creation. ([#9761](https://github.com/hashicorp/terraform-provider-google/pull/9761))
 
 ## 3.79.0 (August 09, 2021)
 
