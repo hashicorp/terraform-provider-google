@@ -23,8 +23,8 @@ func resourceComputeRegionInstanceGroupManager() *schema.Resource {
 			State: resourceRegionInstanceGroupManagerStateImporter,
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(5 * time.Minute),
+			Create: schema.DefaultTimeout(15 * time.Minute),
+			Update: schema.DefaultTimeout(15 * time.Minute),
 			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 
@@ -441,7 +441,30 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
+
+	if d.Get("wait_for_instances").(bool) {
+		err := computeRIGMWaitForInstanceStatus(d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceComputeRegionInstanceGroupManagerRead(d, config)
+}
+
+func computeRIGMWaitForInstanceStatus(d *schema.ResourceData, meta interface{}) error {
+	waitForUpdates := d.Get("wait_for_instances_status").(string) == "UPDATED"
+	conf := resource.StateChangeConf{
+		Pending: []string{"creating", "error", "updating per instance configs", "reaching version target"},
+		Target:  []string{"created"},
+		Refresh: waitForInstancesRefreshFunc(getRegionalManager, waitForUpdates, d, meta),
+		Timeout: d.Timeout(schema.TimeoutCreate),
+	}
+	_, err := conf.WaitForState()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 type getInstanceManagerFunc func(*schema.ResourceData, interface{}) (*computeBeta.InstanceGroupManager, error)
@@ -580,25 +603,19 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 		}
 	}
 
-	if d.Get("wait_for_instances").(bool) {
-		waitForUpdates := d.Get("wait_for_instances_status").(string) == "UPDATED"
-		conf := resource.StateChangeConf{
-			Pending: []string{"creating", "error", "updating per instance configs", "reaching version target"},
-			Target:  []string{"created"},
-			Refresh: waitForInstancesRefreshFunc(getRegionalManager, waitForUpdates, d, meta),
-			Timeout: d.Timeout(schema.TimeoutCreate),
-		}
-		_, err := conf.WaitForState()
-		if err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
 func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	if d.Get("wait_for_instances").(bool) {
+		err := computeRIGMWaitForInstanceStatus(d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
@@ -699,11 +716,26 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 
 	d.Partial(false)
 
+	if d.Get("wait_for_instances").(bool) {
+		err := computeRIGMWaitForInstanceStatus(d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceComputeRegionInstanceGroupManagerRead(d, meta)
 }
 
 func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	if d.Get("wait_for_instances").(bool) {
+		err := computeRIGMWaitForInstanceStatus(d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
