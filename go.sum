@@ -75,6 +75,8 @@ github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-202107
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210728014810-286c21ee1916/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210803014808-0fdb1dc411b3 h1:hCgFUjbMh/nscHQ3Q8/GxFpTkbgytks+FoZt/e2qD3M=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210803014808-0fdb1dc411b3/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210812005055-c5fc24943f87 h1:k1QG6P6FW079MKAzFsnNtzIXGHFaiSDZyWnPR5IBhqo=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210812005055-c5fc24943f87/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
 github.com/Masterminds/goutils v1.1.0 h1:zukEsf/1JZwCMgHiK3GZftabmxiCw4apj3a28RPBiVg=
 github.com/Masterminds/goutils v1.1.0/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
 github.com/Masterminds/semver v1.4.2/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=

@@ -171,7 +171,7 @@ func AssuredWorkloadsWorkloadResourceSettingsSchema() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				Description:  ``,
-				ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "CONSUMER_PROJECT", "ENCRYPTION_KEYS_PROJECT", "KEYRING", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "CONSUMER_PROJECT", "ENCRYPTION_KEYS_PROJECT", "KEYRING", "CONSUMER_FOLDER", ""}, false),
 			},
 		},
 	}
