@@ -72,7 +72,7 @@ resource "google_storage_bucket" "log-bucket" {
 # Our sink; this logs all activity related to our "my-logged-instance" instance
 resource "google_logging_project_sink" "instance-sink" {
   name        = "my-instance-sink"
-  description = "some explaination on what this is"
+  description = "some explanation on what this is"
   destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
   filter      = "resource.type = gce_instance AND resource.labels.instance_id = \"${google_compute_instance.my-logged-instance.instance_id}\""
 

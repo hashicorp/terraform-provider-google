@@ -28,7 +28,7 @@ After this intermediate phase, attempting to grant permissions to a principal th
 
 ## Using `*_iam_policy` resources
 
-`_iam_policy` allows you to declare the entire IAM policy from within Terraform. Users may see diffs on `deleted:` members in some cirtumstances, but applying the policy should succeed and resolve any issues. Specifying `deleted:` members is not allowed in Terraform, so any policy entirely managed by Terraform should automatically remove any deleted members when Terraform is run.
+`_iam_policy` allows you to declare the entire IAM policy from within Terraform. Users may see diffs on `deleted:` members in some circumstances, but applying the policy should succeed and resolve any issues. Specifying `deleted:` members is not allowed in Terraform, so any policy entirely managed by Terraform should automatically remove any deleted members when Terraform is run.
 
 During the intermediate period it may be required to `taint` the `_iam_policy` resource to ensure any deleted principals are removed *before* the new principal is granted permission. This should only be necessary if you are continuing to see diffs after successful applies. For more information on using `taint` see the [official documentation](https://www.terraform.io/docs/commands/taint.html).
 
