@@ -23,7 +23,7 @@ typical IAM roles granted on a project.
 ```hcl
 resource "google_logging_billing_account_sink" "my-sink" {
   name            = "my-sink"
-  description = "some explaination on what this is"
+  description = "some explanation on what this is"
   billing_account = "ABCDEF-012345-GHIJKL"
 
   # Can export to pubsub, cloud storage, or bigquery

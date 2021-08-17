@@ -19,7 +19,7 @@ Manages a organization-level logging sink. For more information see:
 ```hcl
 resource "google_logging_organization_sink" "my-sink" {
   name   = "my-sink"
-  description = "some explaination on what this is"
+  description = "some explanation on what this is"
   org_id = "123456789"
 
   # Can export to pubsub, cloud storage, or bigquery

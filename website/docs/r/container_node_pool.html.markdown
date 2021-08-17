@@ -120,7 +120,7 @@ resource "google_container_cluster" "primary" {
     may change this value in your existing cluster, which will trigger destruction
     and recreation on the next Terraform run (to rectify the discrepancy).  If you don't
     need this value, don't set it.  If you do need it, you can [use a lifecycle block to
-    ignore subsqeuent changes to this field](https://github.com/hashicorp/terraform-provider-google/issues/6901#issuecomment-667369691).
+    ignore subsequent changes to this field](https://github.com/hashicorp/terraform-provider-google/issues/6901#issuecomment-667369691).
 
 * `management` - (Optional) Node management configuration, wherein auto-repair and
     auto-upgrade is configured. Structure is documented below.

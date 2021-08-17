@@ -14,7 +14,7 @@ Get information about a HealthCheck.
 ## Example Usage
 
 ```tf
-data "google_compute_health_check" "health_chceck" {
+data "google_compute_health_check" "health_check" {
   name = "my-hc"
 }
 ```

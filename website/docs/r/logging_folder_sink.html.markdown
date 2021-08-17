@@ -20,7 +20,7 @@ Manages a folder-level logging sink. For more information see:
 ```hcl
 resource "google_logging_folder_sink" "my-sink" {
   name   = "my-sink"
-  description = "some explaination on what this is"
+  description = "some explanation on what this is"
   folder = google_folder.my-folder.name
 
   # Can export to pubsub, cloud storage, or bigquery

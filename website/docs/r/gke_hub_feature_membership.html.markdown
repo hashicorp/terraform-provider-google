@@ -106,7 +106,7 @@ The `configmanagement` block supports:
     
 * `binauthz` -
   (Optional)
-  Binauthz conifguration for the cluster.
+  Binauthz configuration for the cluster.
     
 * `config_sync` -
   (Optional)
