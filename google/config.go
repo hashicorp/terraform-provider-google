@@ -507,29 +507,27 @@ func (c *Config) getTokenSource(clientScopes []string, initialCredentialsOnly bo
 // of those "projects" as well. You can find out if this is required by looking at
 // the basePath value in the client library file.
 func (c *Config) NewComputeClient(userAgent string) *compute.Service {
-	computeClientBasePath := c.ComputeBasePath + "projects/"
-	log.Printf("[INFO] Instantiating GCE client for path %s", computeClientBasePath)
+	log.Printf("[INFO] Instantiating GCE client for path %s", c.ComputeBasePath)
 	clientCompute, err := compute.NewService(c.context, option.WithHTTPClient(c.client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client compute: %s", err)
 		return nil
 	}
 	clientCompute.UserAgent = userAgent
-	clientCompute.BasePath = computeClientBasePath
+	clientCompute.BasePath = c.ComputeBasePath
 
 	return clientCompute
 }
 
 func (c *Config) NewComputeBetaClient(userAgent string) *computeBeta.Service {
-	computeBetaClientBasePath := c.ComputeBetaBasePath + "projects/"
-	log.Printf("[INFO] Instantiating GCE Beta client for path %s", computeBetaClientBasePath)
+	log.Printf("[INFO] Instantiating GCE Beta client for path %s", c.ComputeBetaBasePath)
 	clientComputeBeta, err := computeBeta.NewService(c.context, option.WithHTTPClient(c.client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client compute beta: %s", err)
 		return nil
 	}
 	clientComputeBeta.UserAgent = userAgent
-	clientComputeBeta.BasePath = computeBetaClientBasePath
+	clientComputeBeta.BasePath = c.ComputeBetaBasePath
 
 	return clientComputeBeta
 }
