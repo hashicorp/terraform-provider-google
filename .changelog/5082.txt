@@ -1,0 +1,3 @@
+```release-note:bug
+assuredworkloads: enhanced resource deletion so `google_assured_workloads_workload` can delete what it creates
+```
