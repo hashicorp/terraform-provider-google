@@ -121,15 +121,18 @@ authenticate HTTP requests to GCP APIs. This is an alternative to `credentials`,
 and ignores the `scopes` field. If both are specified, `access_token` will be
 used over the `credentials` field.
 
-* `user_project_override` - (Optional) Defaults to false. If true, uses the
-resource project for preconditions, quota, and billing, instead of the project
-the credentials belong to. Not all resources support this- see the
-documentation for each resource to learn whether it does.
+* `user_project_override` - (Optional) Defaults to `false`. Controls the quota
+project used in requests to GCP APIs for the purpose of preconditions, quota,
+and billing. If `false`, the quota project is determined by the API and may be
+the project associated with your credentials, or the resource project. If `true`,
+most resources in the provider will explicitly supply their resource project, as
+described in their documentation. Otherwise, a `billing_project` value must be
+supplied.
 
-* `billing_project` - (Optional) This fields specifies a project that's used for
-preconditions, quota, and billing for requests. All resources that support user project
-overrides will use this project instead of the resource's project (if available). This
-field is ignored if `user_project_override` is set to false or unset.
+* `billing_project` - (Optional) A quota project to send in `user_project_override`,
+used for all requests sent from the provider. If set on a resource that supports
+sending the resource project, this value will supersede the resource project.
+This field is ignored if `user_project_override` is set to false or unset.
 
 * `{{service}}_custom_endpoint` - (Optional) The endpoint for a service's APIs,
 such as `compute_custom_endpoint`. Defaults to the production GCP endpoint for
@@ -209,13 +212,6 @@ following ordered by precedence.
     * GOOGLE_CLOUD_PROJECT
     * GCLOUD_PROJECT
     * CLOUDSDK_CORE_PROJECT
-
----
-
-* `billing_project` - (Optional) This fields allows Terraform to set X-Goog-User-Project
-for APIs that require a billing project to be specified like Access Context Manager APIs if
-User ADCs are being used. This can also be
-specified using the `GOOGLE_BILLING_PROJECT` environment variable.
 
 ---
 
@@ -450,18 +446,30 @@ to create the resource.  This may help in those cases.
 
 ---
 
-* `user_project_override` - (Optional) Defaults to false. If true, uses the
-resource project for preconditions, quota, and billing, instead of the project
-the credentials belong to. Not all resources support this- see the
-documentation for each resource to learn whether it does. Alternatively, this can
-be specified using the `USER_PROJECT_OVERRIDE` environment variable.
+* `user_project_override` - (Optional) Defaults to `false`. Controls the quota
+project used in requests to GCP APIs for the purpose of preconditions, quota,
+and billing. If `false`, the quota project is determined by the API and may be
+the project associated with your credentials, or the resource project. If `true`,
+most resources in the provider will explicitly supply their resource project, as
+described in their documentation. Otherwise, a `billing_project` value must be
+supplied. Alternatively, this can be specified using the `USER_PROJECT_OVERRIDE`
+environment variable.
 
-When set to false, the project the credentials belong to will be billed for the
-request, and quota / API enablement checks will be done against that project.
-For service account credentials, this is the project the service account was
-created in. For credentials that come from the gcloud tool, this is a project
-owned by Google. In order to properly use credentials that come from gcloud
-with Terraform, it is recommended to set this property to true.
+Service account credentials are associated with the project the service account
+was created in. Credentials that come from the gcloud tool are associated with a
+project owned by Google. In order to properly use credentials that come from
+gcloud with Terraform, it is recommended to set this property to true.
 
-When set to true, the caller must have `serviceusage.services.use` permission
-on the resource project.
+`user_project_override` uses the `X-Goog-User-Project`
+[system parameter](https://cloud.google.com/apis/docs/system-parameters). When
+set to true, the caller must have `serviceusage.services.use` permission on the
+quota project.
+
+---
+
+* `billing_project` - (Optional) A quota project to send in `user_project_override`,
+used for all requests sent from the provider. If set on a resource that supports
+sending the resource project, this value will supersede the resource project.
+This field is ignored if `user_project_override` is set to false or unset.
+Alternatively, this can be specified using the `GOOGLE_BILLING_PROJECT`
+environment variable.

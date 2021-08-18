@@ -368,6 +368,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	// Userinfo is fetched before request logging is enabled to reduce additional noise.
 	err = c.logGoogleIdentities()
 	if err != nil {
@@ -388,6 +389,12 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	headerTransport := newTransportWithHeaders(retryTransport)
 	if c.RequestReason != "" {
 		headerTransport.Set("X-Goog-Request-Reason", c.RequestReason)
+	}
+
+	// Ensure $userProject is set for all HTTP requests using the client if specified by the provider config
+	// See https://cloud.google.com/apis/docs/system-parameters
+	if c.UserProjectOverride && c.BillingProject != "" {
+		headerTransport.Set("X-Goog-User-Project", c.BillingProject)
 	}
 
 	// Set final transport value.
