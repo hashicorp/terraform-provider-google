@@ -186,9 +186,12 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var user *sqladmin.User
+	databaseInstance, err := config.NewSqlAdminClient(userAgent).Instances.Get(project, instance).Do()
+	if err != nil {
+		return err
+	}
 
 	for _, currentUser := range users.Items {
-		var databaseInstance *sqladmin.DatabaseInstance
 		if !strings.Contains(databaseInstance.DatabaseVersion, "POSTGRES") {
 			name = strings.Split(name, "@")[0]
 		}
