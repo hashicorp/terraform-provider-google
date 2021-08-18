@@ -186,9 +186,12 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var user *sqladmin.User
-	for _, currentUser := range users.Items {
+	var databaseInstance *sqladmin.DatabaseInstance
 
-		name = strings.Split(name, "@")[0]
+	for _, currentUser := range users.Items {
+		if !strings.Contains(databaseInstance.DatabaseVersion, "POSTGRES") {
+			name = strings.Split(name, "@")[0]
+		}
 
 		if currentUser.Name == name {
 			// Host can only be empty for postgres instances,
