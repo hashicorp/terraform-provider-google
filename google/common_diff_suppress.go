@@ -23,7 +23,7 @@ func optionalPrefixSuppress(prefix string) schema.SchemaDiffSuppressFunc {
 
 func ignoreMissingKeyInMap(key string) schema.SchemaDiffSuppressFunc {
 	return func(k, old, new string, d *schema.ResourceData) bool {
-		log.Printf("suppressing diff %q with old %q, new %q", k, old, new)
+		log.Printf("[DEBUG] - suppressing diff %q with old %q, new %q", k, old, new)
 		if strings.HasSuffix(k, ".%") {
 			oldNum, err := strconv.Atoi(old)
 			if err != nil {
