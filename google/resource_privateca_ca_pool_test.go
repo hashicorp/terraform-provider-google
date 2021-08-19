@@ -93,14 +93,14 @@ resource "google_privateca_ca_pool" "default" {
         critical = true
         value = "asdf"
         object_id {
-          object_id_path = [123, 899]
+          object_id_path = [1, 5]
         }
       }
       policy_ids {
-        object_id_path = [123, 888]
+        object_id_path = [1, 7]
       }
       policy_ids {
-        object_id_path = [2,5,29,25]
+        object_id_path = [1,5,7]
       }
       ca_options {
         is_ca = true
@@ -175,14 +175,14 @@ resource "google_privateca_ca_pool" "default" {
         critical = true
         value = "asdf"
         object_id {
-          object_id_path = [899, 123]
+          object_id_path = [1, 7]
         }
       }
       policy_ids {
-        object_id_path = [123, 999]
+        object_id_path = [1, 5]
       }
       policy_ids {
-        object_id_path = [456, 120, 789]
+        object_id_path = [1, 7]
       }
       ca_options {
         is_ca = true
@@ -257,7 +257,7 @@ resource "google_privateca_ca_pool" "default" {
         critical = false
         value = "asdf"
         object_id {
-          object_id_path = [123, 899]
+          object_id_path = [3, 7]
         }
       }
       ca_options {

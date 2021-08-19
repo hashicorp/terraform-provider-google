@@ -134,14 +134,14 @@ resource "google_privateca_ca_pool" "default" {
         critical = true
         value = "asdf"
         object_id {
-          object_id_path = [123, 899]
+          object_id_path = [1, 7]
         }
       }
       policy_ids {
-        object_id_path = [123, 888]
+        object_id_path = [1, 5]
       }
       policy_ids {
-        object_id_path = [456, 120]
+        object_id_path = [1, 5, 7]
       }
       ca_options {
         is_ca = true
