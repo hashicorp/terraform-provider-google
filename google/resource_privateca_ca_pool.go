@@ -1408,7 +1408,7 @@ func expandPrivatecaCaPoolIssuancePolicyBaselineValuesCaOptions(v interface{}, d
 	transformedMaxIssuerPathLength, err := expandPrivatecaCaPoolIssuancePolicyBaselineValuesCaOptionsMaxIssuerPathLength(original["max_issuer_path_length"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxIssuerPathLength); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["maxIssuerPathLength"] = transformedMaxIssuerPathLength
 	}
 
