@@ -38,7 +38,7 @@ func resourcePubsubSchema() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(4 * time.Minute),
 			Update: schema.DefaultTimeout(4 * time.Minute),
-			Delete: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(6 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -135,6 +135,41 @@ func resourcePubsubSchemaCreate(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Finished creating Schema %q: %#v", d.Id(), res)
 
 	return resourcePubsubSchemaRead(d, meta)
+}
+
+func resourcePubsubSchemaPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*Config)
+
+		url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
+		if err != nil {
+			return nil, err
+		}
+
+		billingProject := ""
+
+		project, err := getProject(d, config)
+		if err != nil {
+			return nil, fmt.Errorf("Error fetching project for Schema: %s", err)
+		}
+		billingProject = project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		userAgent, err := generateUserAgentString(d, config.userAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
+		if err != nil {
+			return res, err
+		}
+		return res, nil
+	}
 }
 
 func resourcePubsubSchemaRead(d *schema.ResourceData, meta interface{}) error {
@@ -270,6 +305,11 @@ func resourcePubsubSchemaDelete(d *schema.ResourceData, meta interface{}) error 
 	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return handleNotFoundError(err, d, "Schema")
+	}
+
+	err = PollingWaitTime(resourcePubsubSchemaPollRead(d, meta), PollCheckForAbsence, "Deleting Schema", d.Timeout(schema.TimeoutCreate), 10)
+	if err != nil {
+		return fmt.Errorf("Error waiting to delete Schema: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished deleting Schema %q: %#v", d.Id(), res)

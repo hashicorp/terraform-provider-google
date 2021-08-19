@@ -1,0 +1,3 @@
+```release-note:bug
+pubsub: added polling to `google_pubsub_schema` to deal with eventually consistent deletes
+```
