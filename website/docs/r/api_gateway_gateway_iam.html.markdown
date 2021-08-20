@@ -121,10 +121,10 @@ exported:
 
 For all import syntaxes, the "resource in question" can take any of the following forms:
 
-* projects/{{project}}/locations/{{region}}/gateways/{{name}}
-* {{project}}/{{region}}/{{name}}
-* {{region}}/{{name}}
-* {{name}}
+* projects/{{project}}/locations/{{region}}/gateways/{{gateway}}
+* {{project}}/{{region}}/{{gateway}}
+* {{region}}/{{gateway}}
+* {{gateway}}
 
 Any variables not passed in the import command will be taken from the provider configuration.
 

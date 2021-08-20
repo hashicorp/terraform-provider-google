@@ -114,9 +114,9 @@ exported:
 
 For all import syntaxes, the "resource in question" can take any of the following forms:
 
-* projects/{{project}}/locations/global/apis/{{name}}
-* {{project}}/{{name}}
-* {{name}}
+* projects/{{project}}/locations/global/apis/{{api}}
+* {{project}}/{{api}}
+* {{api}}
 
 Any variables not passed in the import command will be taken from the provider configuration.
 

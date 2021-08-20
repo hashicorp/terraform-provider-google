@@ -167,9 +167,9 @@ This resource provides the following
 ApiConfig can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_api_gateway_api_config.default projects/{{project}}/locations/global/apis/{{api}}/configs/{{name}}
-$ terraform import google_api_gateway_api_config.default {{project}}/{{api}}/{{name}}
-$ terraform import google_api_gateway_api_config.default {{api}}/{{name}}
+$ terraform import google_api_gateway_api_config.default projects/{{project}}/locations/global/apis/{{api}}/configs/{{api_config_id}}
+$ terraform import google_api_gateway_api_config.default {{project}}/{{api}}/{{api_config_id}}
+$ terraform import google_api_gateway_api_config.default {{api}}/{{api_config_id}}
 ```
 
 ## User Project Overrides
