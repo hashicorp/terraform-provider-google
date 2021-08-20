@@ -106,9 +106,9 @@ This resource provides the following
 Api can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_api_gateway_api.default projects/{{project}}/locations/global/apis/{{name}}
-$ terraform import google_api_gateway_api.default {{project}}/{{name}}
-$ terraform import google_api_gateway_api.default {{name}}
+$ terraform import google_api_gateway_api.default projects/{{project}}/locations/global/apis/{{api_id}}
+$ terraform import google_api_gateway_api.default {{project}}/{{api_id}}
+$ terraform import google_api_gateway_api.default {{api_id}}
 ```
 
 ## User Project Overrides

@@ -132,10 +132,10 @@ This resource provides the following
 Gateway can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_api_gateway_gateway.default projects/{{project}}/locations/{{region}}/gateways/{{name}}
-$ terraform import google_api_gateway_gateway.default {{project}}/{{region}}/{{name}}
-$ terraform import google_api_gateway_gateway.default {{region}}/{{name}}
-$ terraform import google_api_gateway_gateway.default {{name}}
+$ terraform import google_api_gateway_gateway.default projects/{{project}}/locations/{{region}}/gateways/{{gateway_id}}
+$ terraform import google_api_gateway_gateway.default {{project}}/{{region}}/{{gateway_id}}
+$ terraform import google_api_gateway_gateway.default {{region}}/{{gateway_id}}
+$ terraform import google_api_gateway_gateway.default {{gateway_id}}
 ```
 
 ## User Project Overrides
