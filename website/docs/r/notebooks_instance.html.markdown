@@ -137,6 +137,12 @@ resource "google_notebooks_instance" "instance" {
   metadata = {
     terraform = "true"
   }
+
+  nic_type = "VIRTIO_NET"
+
+  reservation_affinity {
+    consume_reservation_type = "NO_RESERVATION"
+  } 
 }
 
 data "google_compute_network" "my_network" {
@@ -210,6 +216,16 @@ The following arguments are supported:
   (Optional)
   A set of Shielded Instance options. Check [Images using supported Shielded VM features]
   Not all combinations are valid
+  Structure is documented below.
+
+* `nic_type` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The type of vNIC driver.
+  Possible values are `UNSPECIFIED_NIC_TYPE`, `VIRTIO_NET`, and `GVNIC`.
+
+* `reservation_affinity` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Reservation Affinity for consuming Zonal reservation.
   Structure is documented below.
 
 * `install_gpu_driver` -
@@ -337,6 +353,21 @@ The `shielded_instance_config` block supports:
   (Optional)
   Defines whether the instance has the vTPM enabled.
   Enabled by default.
+
+The `reservation_affinity` block supports:
+
+* `consume_reservation_type` -
+  (Required)
+  The type of Compute Reservation.
+  Possible values are `NO_RESERVATION`, `ANY_RESERVATION`, and `SPECIFIC_RESERVATION`.
+
+* `key` -
+  (Optional)
+  Corresponds to the label key of reservation resource.
+
+* `values` -
+  (Optional)
+  Corresponds to the label values of reservation resource.
 
 The `vm_image` block supports:
 
