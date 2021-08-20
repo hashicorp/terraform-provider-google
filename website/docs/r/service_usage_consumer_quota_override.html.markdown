@@ -145,7 +145,7 @@ ConsumerQuotaOverride can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_service_usage_consumer_quota_override.default projects/{{project}}/services/{{service}}/consumerQuotaMetrics/{{metric}}/limits/{{limit}}/consumerOverrides/{{name}}
-$ terraform import google_service_usage_consumer_quota_override.default {{project}}/{{service}}/{{metric}}/{{limit}}/{{name}}
+$ terraform import google_service_usage_consumer_quota_override.default services/{{service}}/consumerQuotaMetrics/{{metric}}/limits/{{limit}}/consumerOverrides/{{name}}
 $ terraform import google_service_usage_consumer_quota_override.default {{service}}/{{metric}}/{{limit}}/{{name}}
 ```
 
