@@ -1,0 +1,3 @@
+```release-note:bug
+os_config: fixed imports for `google_os_config_guest_policies`
+```

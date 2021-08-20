@@ -823,9 +823,9 @@ This resource provides the following
 GuestPolicies can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_os_config_guest_policies.default projects/{{project}}/guestPolicies/{{name}}
-$ terraform import google_os_config_guest_policies.default {{project}}/{{name}}
-$ terraform import google_os_config_guest_policies.default {{name}}
+$ terraform import google_os_config_guest_policies.default projects/{{project}}/guestPolicies/{{guest_policy_id}}
+$ terraform import google_os_config_guest_policies.default {{project}}/{{guest_policy_id}}
+$ terraform import google_os_config_guest_policies.default {{guest_policy_id}}
 ```
 
 ## User Project Overrides
