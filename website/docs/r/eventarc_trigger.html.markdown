@@ -24,51 +24,53 @@ description: |-
 # google\_eventarc\_trigger
 
 
-## Example Usage - basic_trigger
-A basic example for an Eventarc Trigger
+## Example Usage - basic
 ```hcl
 resource "google_eventarc_trigger" "primary" {
-  destination {
-    cloud_run_service {
-      service = google_cloud_run_service.default.name
-      region  = "us-west1"
-    }
-  }
+	name = "trigger"
+	location = "europe-west1"
+	matching_criteria {
+		attribute = "type"
+		value = "google.cloud.pubsub.topic.v1.messagePublished"
+	}
+	destination {
+		cloud_run_service {
+			service = google_cloud_run_service.default.name
+			region = "europe-west1"
+		}
+	}
+	labels = {
+		foo = "bar"
+	}
+}
 
-  location = "us-west1"
-
-  matching_criteria {
-    attribute = "type"
-    value     = "google.cloud.pubsub.topic.v1.messagePublished"
-  }
-
-  name = "trigger"
+resource "google_pubsub_topic" "foo" {
+	name = "topic"
 }
 
 resource "google_cloud_run_service" "default" {
-  location = "us-west1"
-  name     = "trigger"
+	name     = "service-eventarc"
+	location = "europe-west1"
 
-  metadata {
-    namespace = "my-project-name"
-  }
+	metadata {
+		namespace = "my-project-name"
+	}
 
-  template {
-    spec {
-      containers {
-        args  = ["arrgs"]
-        image = "gcr.io/cloudrun/hello"
-      }
-    }
-  }
+	template {
+		spec {
+			containers {
+				image = "gcr.io/cloudrun/hello"
+				args  = ["arrgs"]
+			}
+		container_concurrency = 50
+		}
+	}
 
-  traffic {
-    latest_revision = true
-    percent         = 100
-  }
+	traffic {
+		percent         = 100
+		latest_revision = true
+	}
 }
-
-
 ```
 
 ## Argument Reference
