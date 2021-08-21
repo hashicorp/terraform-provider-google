@@ -74,7 +74,7 @@ func BigqueryDatasetIdParseFunc(d *schema.ResourceData, config *Config) error {
 }
 
 func (u *BigqueryDatasetIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	url := fmt.Sprintf("%s%s", u.Config.BigQueryBasePath, u.GetResourceId())
+	url := fmt.Sprintf("%s%s", u.Config.BigQueryBasePath, u.datasetId)
 
 	userAgent, err := generateUserAgentString(u.d, u.Config.userAgent)
 	if err != nil {
@@ -94,7 +94,7 @@ func (u *BigqueryDatasetIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 }
 
 func (u *BigqueryDatasetIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
-	url := fmt.Sprintf("%s%s", u.Config.BigQueryBasePath, u.GetResourceId())
+	url := fmt.Sprintf("%s%s", u.Config.BigQueryBasePath, u.datasetId)
 
 	access, err := policyToAccess(policy)
 	if err != nil {
