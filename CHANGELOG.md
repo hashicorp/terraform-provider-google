@@ -1,4 +1,4 @@
-## 3.81.0 (Unreleased)
+## 3.81.0 (August 23, 2021)
 
 IMPROVEMENTS:
 * compute: Added `enable` attribute to `google_compute_router_peer` ([#9776](https://github.com/hashicorp/terraform-provider-google/pull/9776))
