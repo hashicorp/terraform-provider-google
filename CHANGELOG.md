@@ -1,4 +1,26 @@
-## 3.81.0 (Unreleased)
+## 3.82.0 (Unreleased)
+
+## 3.81.0 (August 23, 2021)
+
+IMPROVEMENTS:
+* compute: Added `enable` attribute to `google_compute_router_peer` ([#9776](https://github.com/hashicorp/terraform-provider-google/pull/9776))
+* compute: added support for `L3_DEFAULT` as `ip_protocol` for `google_compute_forwarding_rule` and `UNSPECIFIED` as `protocol` for `google_compute_region_backend_service` to support network load balancers that forward all protocols and ports. ([#9799](https://github.com/hashicorp/terraform-provider-google/pull/9799))
+* compute: added support for `security_settings` to `google_compute_backend_service` ([#9797](https://github.com/hashicorp/terraform-provider-google/pull/9797))
+* essentialcontacts: promoted `google_essential_contacts_contact` to GA ([#9822](https://github.com/hashicorp/terraform-provider-google/pull/9822))
+* gkehub: added `google_gke_hub_membership` support for both `//container.googleapis.com/${google_container_cluster.my-cluster.id}` and `google_container_cluster.my-cluster.id` in `endpoint.0.gke_cluster.0.resource_link` ([#9765](https://github.com/hashicorp/terraform-provider-google/pull/9765))
+* provider: Added provider support for `request_reason` ([#9794](https://github.com/hashicorp/terraform-provider-google/pull/9794))
+* provider: added support for `billing_project` across all resources. If `user_project_override` is set to `true` and a `billing_project` is set, the `X-Goog-User-Project` header will be sent for all resources. ([#9852](https://github.com/hashicorp/terraform-provider-google/pull/9852))
+
+BUG FIXES:
+* assuredworkloads: fixed resource deletion so `google_assured_workloads_workload` can delete what it creates ([#9835](https://github.com/hashicorp/terraform-provider-google/pull/9835))
+* bigquery: fixed the permadiff bug on `location` of the `google_bigquery_dataset` ([#9810](https://github.com/hashicorp/terraform-provider-google/pull/9810))
+* composer: fixed environment version regexp to explicitly require . (dot) instead of any character after 'preview' (example: composer-2.0.0-preview.0-airflow-2.1.1) ([#9804](https://github.com/hashicorp/terraform-provider-google/pull/9804))
+* compute: changed `wait_for_instances` in `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` to no longer block plan / refresh, waiting on managed instance statuses during apply instead ([#9832](https://github.com/hashicorp/terraform-provider-google/pull/9832))
+* compute: fixed a bug where `negative_caching_policy` cannot be set always revalidate on `google_compute_backend_service` ([#9821](https://github.com/hashicorp/terraform-provider-google/pull/9821))
+* compute: fixed instances where compute resource calls would have their urls appended with a redundant `/projects` after the host ([#9834](https://github.com/hashicorp/terraform-provider-google/pull/9834))
+* firestore: removed diff for server generated field `__name__` on `google_firestore_index` ([#9820](https://github.com/hashicorp/terraform-provider-google/pull/9820))
+* privateca: fixed the creation of subordinate `google_privateca_certificate_authority` with `max_issuer_path_length = 0`. ([#9856](https://github.com/hashicorp/terraform-provider-google/pull/9856))
+* privateca: Fixed null for `ignore_active_certificates_on_deletion` on the imported `google_privateca_certificate_authority` ([#9781](https://github.com/hashicorp/terraform-provider-google/pull/9781))
 
 ## 3.80.0 (August 16, 2021)
 
