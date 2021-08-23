@@ -19,6 +19,7 @@ import (
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 
 	assuredworkloads "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/assuredworkloads"
+	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
 	dataproc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataproc"
 	eventarc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
 )
@@ -40,6 +41,25 @@ func NewDCLAssuredWorkloadsClient(config *Config, userAgent, billingProject stri
 
 	dclConfig := dcl.NewConfig(configOptions...)
 	return assuredworkloads.NewClient(dclConfig)
+}
+
+func NewDCLComputeClient(config *Config, userAgent, billingProject string) *compute.Client {
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.ComputeBasePath),
+	}
+
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
+	return compute.NewClient(dclConfig)
 }
 
 func NewDCLDataprocClient(config *Config, userAgent, billingProject string) *dataproc.Client {

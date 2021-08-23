@@ -31,6 +31,15 @@ var AssuredWorkloadsEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
+var ComputeEndpointEntryKey = "compute_custom_endpoint"
+var ComputeEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_COMPUTE_CUSTOM_ENDPOINT",
+	}, ""),
+}
+
 var EventarcEndpointEntryKey = "eventarc_custom_endpoint"
 var EventarcEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -42,12 +51,15 @@ var EventarcEndpointEntry = &schema.Schema{
 
 //Add new values to config.go.erb config object declaration
 //AssuredWorkloadsBasePath string
+//ComputeBasePath string
 //EventarcBasePath string
 
 //Add new values to provider.go.erb schema initialization
 // AssuredWorkloadsEndpointEntryKey:               AssuredWorkloadsEndpointEntry,
+// ComputeEndpointEntryKey:               ComputeEndpointEntry,
 // EventarcEndpointEntryKey:               EventarcEndpointEntry,
 
 //Add new values to provider.go.erb - provider block read
 // config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
+// config.ComputeBasePath = d.Get(ComputeEndpointEntryKey).(string)
 // config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
