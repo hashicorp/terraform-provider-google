@@ -933,6 +933,7 @@ resource "google_sql_database_instance" "instance" {
   deletion_protection = false
   settings {
     tier = "db-custom-1-3840"
+    collation = "Polish_CI_AS"
   }
 }
 `

@@ -262,6 +262,8 @@ instance, high availability (`REGIONAL`) or single zone (`ZONAL`).' For MySQL
 instances, ensure that `settings.backup_configuration.enabled` and
 `settings.backup_configuration.binary_log_enabled` are both set to `true`.
 
+* `collation` - (Optional) The name of server instance collation.
+
 * `crash_safe_replication` - (Optional, Deprecated) This property is only applicable to First Generation instances.
     First Generation instances are now deprecated, see [here](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
     for information on how to upgrade to Second Generation instances.
