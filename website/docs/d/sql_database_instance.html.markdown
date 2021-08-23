@@ -63,6 +63,8 @@ The `settings` block contains:
 * `availability_type` - The availability type of the Cloud SQL
 instance, high availability (`REGIONAL`) or single zone (`ZONAL`).
 
+* `collation` - The name of server instance collation.
+
 * `crash_safe_replication` - (Deprecated) This property is only applicable to First Generation instances.
     First Generation instances are now deprecated, see [here](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
 
