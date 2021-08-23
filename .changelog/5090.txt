@@ -1,0 +1,9 @@
+```release-note:new-resource
+google_compute_firewall_policy_rule
+```
+```release-note:new-resource
+google_compute_firewall_policy_association
+```
+```release-note:new-resource
+google_compute_firewall_policy
+```

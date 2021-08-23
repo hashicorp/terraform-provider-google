@@ -13,5 +13,10 @@ func expandStringArray(v interface{}) []string {
 		return convertStringSet(arr)
 	}
 
-	return convertStringArr(v.([]interface{}))
+	arr = convertStringArr(v.([]interface{}))
+	if arr == nil {
+		// Send empty array specifically instead of nil
+		return make([]string, 0)
+	}
+	return arr
 }
