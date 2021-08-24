@@ -126,7 +126,7 @@ The `split` block supports:
 
 * `migrate_traffic` -
   (Optional)
-  If set to true traffic will be migrated to this version.
+  If set to true traffic will be migrated to this version gradually.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

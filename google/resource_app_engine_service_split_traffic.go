@@ -73,7 +73,7 @@ func resourceAppEngineServiceSplitTraffic() *schema.Resource {
 			"migrate_traffic": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: `If set to true traffic will be migrated to this version.`,
+				Description: `If set to true traffic will be migrated to this version gradually.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
