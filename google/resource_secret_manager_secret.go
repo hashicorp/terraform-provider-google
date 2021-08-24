@@ -54,12 +54,14 @@ after the Secret has been created.`,
 						"automatic": {
 							Type:         schema.TypeBool,
 							Optional:     true,
+							ForceNew:     true,
 							Description:  `The Secret will automatically be replicated without any restrictions.`,
 							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed"},
 						},
 						"user_managed": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `The Secret will automatically be replicated without any restrictions.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -67,6 +69,7 @@ after the Secret has been created.`,
 									"replicas": {
 										Type:        schema.TypeList,
 										Required:    true,
+										ForceNew:    true,
 										Description: `The list of Replicas for this Secret. Cannot be empty.`,
 										MinItems:    1,
 										Elem: &schema.Resource{
@@ -74,11 +77,13 @@ after the Secret has been created.`,
 												"location": {
 													Type:        schema.TypeString,
 													Required:    true,
+													ForceNew:    true,
 													Description: `The canonical IDs of the location to replicate data. For example: "us-east1".`,
 												},
 												"customer_managed_encryption": {
 													Type:        schema.TypeList,
 													Optional:    true,
+													ForceNew:    true,
 													Description: `Customer Managed Encryption for the secret.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
@@ -86,6 +91,7 @@ after the Secret has been created.`,
 															"kms_key_name": {
 																Type:        schema.TypeString,
 																Required:    true,
+																ForceNew:    true,
 																Description: `Describes the Cloud KMS encryption key that will be used to protect destination secret.`,
 															},
 														},
