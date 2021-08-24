@@ -66,7 +66,7 @@ func dataSourceDnsManagedZoneRead(d *schema.ResourceData, meta interface{}) erro
 	zone, err := config.NewDnsClient(userAgent).ManagedZones.Get(
 		project, name).Do()
 	if err != nil {
-		return err
+		return handleNotFoundError(err, d, fmt.Sprintf("dataSourceDnsManagedZone %q", name))
 	}
 
 	if err := d.Set("name_servers", zone.NameServers); err != nil {
