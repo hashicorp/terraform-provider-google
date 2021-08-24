@@ -2,25 +2,25 @@ package google
 
 import "testing"
 
-func TestParseLoggingSinkId(t *testing.T) {
+func TestParseLoggingSinkParentId(t *testing.T) {
 	tests := []struct {
 		val         string
-		out         *LoggingSinkId
+		out         string
 		errExpected bool
 	}{
-		{"projects/my-project/sinks/my-sink", &LoggingSinkId{"projects", "my-project", "my-sink"}, false},
-		{"folders/foofolder/sinks/woo", &LoggingSinkId{"folders", "foofolder", "woo"}, false},
-		{"kitchens/the-big-one/sinks/second-from-the-left", nil, true},
+		{"projects/my-project/sinks/my-sink", "my-project", false},
+		{"folders/foofolder/sinks/woo", "foofolder", false},
+		{"kitchens/the-big-one/sinks/second-from-the-left", "", true},
 	}
 
 	for _, test := range tests {
-		out, err := parseLoggingSinkId(test.val)
+		out, err := parseLoggingSinkParentId(test.val)
 		if err != nil {
 			if !test.errExpected {
 				t.Errorf("Got error with val %#v: error = %#v", test.val, err)
 			}
 		} else {
-			if *out != *test.out {
+			if out != test.out {
 				t.Errorf("Mismatch on val %#v: expected %#v but got %#v", test.val, test.out, out)
 			}
 		}

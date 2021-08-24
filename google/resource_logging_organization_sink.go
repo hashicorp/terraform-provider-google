@@ -2,121 +2,97 @@ package google
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"strings"
 )
 
-func resourceLoggingOrganizationSink() *schema.Resource {
-	schm := &schema.Resource{
-		Create: resourceLoggingOrganizationSinkCreate,
-		Read:   resourceLoggingOrganizationSinkRead,
-		Delete: resourceLoggingOrganizationSinkDelete,
-		Update: resourceLoggingOrganizationSinkUpdate,
-		Schema: resourceLoggingSinkSchema(),
-		Importer: &schema.ResourceImporter{
-			State: resourceLoggingSinkImportState("org_id"),
-		},
-		UseJSONNumber: true,
-	}
-	schm.Schema["org_id"] = &schema.Schema{
+var organizationLoggingSinkSchema = map[string]*schema.Schema{
+	"org_id": {
 		Type:        schema.TypeString,
 		Required:    true,
-		Description: `The numeric ID of the organization to be exported to the sink.`,
+		ForceNew:    true,
+		Description: `The numeric ID of the organization to be exported to the sink. Note that either [ORG_ID] or "organizations/[ORG_ID]" is accepted.`,
 		StateFunc: func(v interface{}) string {
 			return strings.Replace(v.(string), "organizations/", "", 1)
 		},
-	}
-	schm.Schema["include_children"] = &schema.Schema{
+	},
+	"include_children": {
 		Type:        schema.TypeBool,
 		Optional:    true,
 		ForceNew:    true,
 		Default:     false,
 		Description: `Whether or not to include children organizations in the sink export. If true, logs associated with child projects are also exported; otherwise only logs relating to the provided organization are included.`,
-	}
-
-	return schm
+	},
 }
 
-func resourceLoggingOrganizationSinkCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
+func organizationLoggingSinkID(d *schema.ResourceData, config *Config) (string, error) {
+	organization := d.Get("org_id").(string)
+	sinkName := d.Get("name").(string)
+
+	if !strings.HasPrefix(organization, "organization") {
+		organization = "organizations/" + organization
 	}
 
-	org := d.Get("org_id").(string)
-	id, sink := expandResourceLoggingSink(d, "organizations", org)
-	sink.IncludeChildren = d.Get("include_children").(bool)
-
-	// Must use a unique writer, since all destinations are in projects.
-	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err = config.NewLoggingClient(userAgent).Organizations.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
-	if err != nil {
-		return err
-	}
-
-	d.SetId(id.canonicalId())
-	return resourceLoggingOrganizationSinkRead(d, meta)
+	id := fmt.Sprintf("%s/sinks/%s", organization, sinkName)
+	return id, nil
 }
 
-func resourceLoggingOrganizationSinkRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
+func organizationLoggingSinksPath(d *schema.ResourceData, config *Config) (string, error) {
+	organization := d.Get("org_id").(string)
+
+	if !strings.HasPrefix(organization, "organization") {
+		organization = "organizations/" + organization
+	}
+
+	id := fmt.Sprintf("%s/sinks", organization)
+	return id, nil
+}
+
+func resourceLoggingOrganizationSink() *schema.Resource {
+	organizationLoggingSinkRead := resourceLoggingSinkRead(flattenOrganizationLoggingSink)
+	organizationLoggingSinkCreate := resourceLoggingSinkCreate(organizationLoggingSinksPath, expandOrganizationLoggingSinkForCreate, organizationLoggingSinkRead)
+	organizationLoggingSinkUpdate := resourceLoggingSinkUpdate(expandOrganizationLoggingSinkForUpdate, organizationLoggingSinkRead)
+
+	return &schema.Resource{
+		Create: resourceLoggingSinkAcquireOrCreate(organizationLoggingSinkID, organizationLoggingSinkCreate, organizationLoggingSinkUpdate),
+		Read:   organizationLoggingSinkRead,
+		Update: organizationLoggingSinkUpdate,
+		Delete: resourceLoggingSinkDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceLoggingSinkImportState("org_id"),
+		},
+		Schema:        resourceLoggingSinkSchema(organizationLoggingSinkSchema),
+		UseJSONNumber: true,
+	}
+}
+
+func expandOrganizationLoggingSinkForCreate(d *schema.ResourceData, config *Config) (obj map[string]interface{}, uniqueWriterIdentity bool) {
+	obj = expandLoggingSink(d)
+
+	obj["includeChildren"] = d.Get("include_children").(bool)
+	uniqueWriterIdentity = true
+	return
+}
+
+func flattenOrganizationLoggingSink(d *schema.ResourceData, res map[string]interface{}, config *Config) error {
+	if err := flattenLoggingSinkBase(d, res); err != nil {
 		return err
 	}
 
-	sink, err := config.NewLoggingClient(userAgent).Organizations.Sinks.Get(d.Id()).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Organization Logging Sink %s", d.Get("name").(string)))
-	}
-
-	if err := flattenResourceLoggingSink(d, sink); err != nil {
-		return err
-	}
-
-	if err := d.Set("include_children", sink.IncludeChildren); err != nil {
+	if err := d.Set("include_children", res["includeChildren"]); err != nil {
 		return fmt.Errorf("Error setting include_children: %s", err)
 	}
 
 	return nil
 }
 
-func resourceLoggingOrganizationSinkUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
+func expandOrganizationLoggingSinkForUpdate(d *schema.ResourceData, config *Config) (obj map[string]interface{}, updateMask string, uniqueWriterIdentity bool) {
+	obj, updateFields := expandResourceLoggingSinkForUpdateBase(d)
 
-	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
-	// It seems the API might actually accept an update for include_children; this is not in the list of updatable
-	// properties though and might break in the future. Always include the value to prevent it changing.
-	sink.IncludeChildren = d.Get("include_children").(bool)
-	sink.ForceSendFields = append(sink.ForceSendFields, "IncludeChildren")
+	obj["includeChildren"] = d.Get("include_children").(bool)
+	updateFields = append(updateFields, "include_children")
 
-	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err = config.NewLoggingClient(userAgent).Organizations.Sinks.Patch(d.Id(), sink).
-		UpdateMask(updateMask).UniqueWriterIdentity(true).Do()
-	if err != nil {
-		return err
-	}
-
-	return resourceLoggingOrganizationSinkRead(d, meta)
-}
-
-func resourceLoggingOrganizationSinkDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-
-	_, err = config.NewLoggingClient(userAgent).Projects.Sinks.Delete(d.Id()).Do()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	updateMask = strings.Join(updateFields, ",")
+	uniqueWriterIdentity = true
+	return
 }

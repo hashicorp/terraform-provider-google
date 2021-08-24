@@ -4,65 +4,95 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 const nonUniqueWriterAccount = "serviceAccount:cloud-logs@system.gserviceaccount.com"
 
-func resourceLoggingProjectSink() *schema.Resource {
-	schm := &schema.Resource{
-		Create:        resourceLoggingProjectSinkCreate,
-		Read:          resourceLoggingProjectSinkRead,
-		Delete:        resourceLoggingProjectSinkDelete,
-		Update:        resourceLoggingProjectSinkUpdate,
-		Schema:        resourceLoggingSinkSchema(),
-		CustomizeDiff: resourceLoggingProjectSinkCustomizeDiff,
-		Importer: &schema.ResourceImporter{
-			State: resourceLoggingSinkImportState("project"),
-		},
-		UseJSONNumber: true,
-	}
-	schm.Schema["project"] = &schema.Schema{
+var projectLoggingSinkSchema = map[string]*schema.Schema{
+	"project": {
 		Type:        schema.TypeString,
 		Optional:    true,
 		Computed:    true,
 		ForceNew:    true,
 		Description: `The ID of the project to create the sink in. If omitted, the project associated with the provider is used.`,
-	}
-	schm.Schema["unique_writer_identity"] = &schema.Schema{
+	},
+	"unique_writer_identity": {
 		Type:        schema.TypeBool,
 		Optional:    true,
 		Default:     false,
 		ForceNew:    true,
 		Description: `Whether or not to create a unique identity associated with this sink. If false (the default), then the writer_identity used is serviceAccount:cloud-logs@system.gserviceaccount.com. If true, then a unique service account is created and used for this sink. If you wish to publish logs across projects, you must set unique_writer_identity to true.`,
-	}
-	return schm
+	},
 }
 
-func resourceLoggingProjectSinkCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
+func projectLoggingSinkID(d *schema.ResourceData, config *Config) (string, error) {
+	project, _ := getProject(d, config)
+	sinkName := d.Get("name").(string)
+	id := fmt.Sprintf("projects/%s/sinks/%s", project, sinkName)
+	return id, nil
+}
+
+func projectLoggingSinksPath(d *schema.ResourceData, config *Config) (string, error) {
+	project, _ := getProject(d, config)
+	id := fmt.Sprintf("projects/%s/sinks", project)
+	return id, nil
+}
+
+func resourceLoggingProjectSink() *schema.Resource {
+	projectLoggingSinkRead := resourceLoggingSinkRead(flattenProjectLoggingSink)
+	projectLoggingSinkCreate := resourceLoggingSinkCreate(projectLoggingSinksPath, expandProjectLoggingSinkForCreate, projectLoggingSinkRead)
+	projectLoggingSinkUpdate := resourceLoggingSinkUpdate(expandProjectLoggingSinkForUpdate, projectLoggingSinkRead)
+
+	return &schema.Resource{
+		Create: resourceLoggingSinkAcquireOrCreate(projectLoggingSinkID, projectLoggingSinkCreate, projectLoggingSinkUpdate),
+		Read:   projectLoggingSinkRead,
+		Update: projectLoggingSinkUpdate,
+		Delete: resourceLoggingSinkDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceLoggingSinkImportState("project"),
+		},
+		CustomizeDiff: resourceLoggingProjectSinkCustomizeDiff,
+		Schema:        resourceLoggingSinkSchema(projectLoggingSinkSchema),
+		UseJSONNumber: true,
+	}
+}
+
+func expandProjectLoggingSinkForCreate(d *schema.ResourceData, config *Config) (obj map[string]interface{}, uniqueWriterIdentity bool) {
+	obj = expandLoggingSink(d)
+	uniqueWriterIdentity = d.Get("unique_writer_identity").(bool)
+	return
+}
+
+func flattenProjectLoggingSink(d *schema.ResourceData, res map[string]interface{}, config *Config) error {
+	if err := flattenLoggingSinkBase(d, res); err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
+	project, _ := getProject(d, config)
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
 	}
 
-	id, sink := expandResourceLoggingSink(d, "projects", project)
-	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
-
-	_, err = config.NewLoggingClient(userAgent).Projects.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(uniqueWriterIdentity).Do()
-	if err != nil {
-		return err
+	if res["writerIdentity"] != nonUniqueWriterAccount {
+		if err := d.Set("unique_writer_identity", true); err != nil {
+			return fmt.Errorf("Error setting unique_writer_identity: %s", err)
+		}
+	} else {
+		if err := d.Set("unique_writer_identity", false); err != nil {
+			return fmt.Errorf("Error setting unique_writer_identity: %s", err)
+		}
 	}
+	return nil
+}
 
-	d.SetId(id.canonicalId())
-
-	return resourceLoggingProjectSinkRead(d, meta)
+func expandProjectLoggingSinkForUpdate(d *schema.ResourceData, config *Config) (obj map[string]interface{}, updateMask string, uniqueWriterIdentity bool) {
+	obj, updateFields := expandResourceLoggingSinkForUpdateBase(d)
+	uniqueWriterIdentity = d.Get("unique_writer_identity").(bool)
+	updateMask = strings.Join(updateFields, ",")
+	return
 }
 
 // if bigquery_options is set unique_writer_identity must be true
@@ -83,77 +113,5 @@ func resourceLoggingProjectSinkCustomizeDiffFunc(diff TerraformResourceDiff) err
 			return errors.New("unique_writer_identity must be true when bigquery_options is supplied")
 		}
 	}
-	return nil
-}
-
-func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	sink, err := config.NewLoggingClient(userAgent).Projects.Sinks.Get(d.Id()).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Project Logging Sink %s", d.Get("name").(string)))
-	}
-
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error setting project: %s", err)
-	}
-
-	if err := flattenResourceLoggingSink(d, sink); err != nil {
-		return err
-	}
-
-	if sink.WriterIdentity != nonUniqueWriterAccount {
-		if err := d.Set("unique_writer_identity", true); err != nil {
-			return fmt.Errorf("Error setting unique_writer_identity: %s", err)
-		}
-	} else {
-		if err := d.Set("unique_writer_identity", false); err != nil {
-			return fmt.Errorf("Error setting unique_writer_identity: %s", err)
-		}
-	}
-	return nil
-}
-
-func resourceLoggingProjectSinkUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-
-	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
-	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
-
-	_, err = config.NewLoggingClient(userAgent).Projects.Sinks.Patch(d.Id(), sink).
-		UpdateMask(updateMask).UniqueWriterIdentity(uniqueWriterIdentity).Do()
-	if err != nil {
-		return err
-	}
-
-	return resourceLoggingProjectSinkRead(d, meta)
-}
-
-func resourceLoggingProjectSinkDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-
-	_, err = config.NewLoggingClient(userAgent).Projects.Sinks.Delete(d.Id()).Do()
-	if err != nil {
-		return err
-	}
-
-	d.SetId("")
 	return nil
 }

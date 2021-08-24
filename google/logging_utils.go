@@ -33,11 +33,11 @@ func (l LoggingSinkId) parent() string {
 	return fmt.Sprintf("%s/%s", l.resourceType, l.resourceId)
 }
 
-// parseLoggingSinkId parses a canonical id into a LoggingSinkId, or returns an error on failure.
-func parseLoggingSinkId(id string) (*LoggingSinkId, error) {
+// parseLoggingSinkParentId parses a canonical id to get sink parent resource id
+func parseLoggingSinkParentId(id string) (string, error) {
 	parts := loggingSinkIdRegex.FindStringSubmatch(id)
 	if parts == nil {
-		return nil, fmt.Errorf("unable to parse logging sink id %#v", id)
+		return "", fmt.Errorf("unable to parse logging sink id %#v", id)
 	}
 	// If our resourceType is not a valid logging sink resource type, complain loudly
 	validLoggingSinkResourceType := false
@@ -49,12 +49,8 @@ func parseLoggingSinkId(id string) (*LoggingSinkId, error) {
 	}
 
 	if !validLoggingSinkResourceType {
-		return nil, fmt.Errorf("Logging resource type %s is not valid. Valid resource types: %#v", parts[1],
+		return "", fmt.Errorf("Logging resource type %s is not valid. Valid resource types: %#v", parts[1],
 			loggingSinkResourceTypes)
 	}
-	return &LoggingSinkId{
-		resourceType: parts[1],
-		resourceId:   parts[2],
-		name:         parts[3],
-	}, nil
+	return parts[2], nil
 }

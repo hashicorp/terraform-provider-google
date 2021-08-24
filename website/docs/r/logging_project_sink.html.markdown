@@ -21,6 +21,8 @@ Manages a project-level logging sink. For more information see:
 
 ~> **Note** You must [enable the Cloud Resource Manager API](https://console.cloud.google.com/apis/library/cloudresourcemanager.googleapis.com)
 
+~> **Note:** Logging sinks are automatically created for a given folder, project, organization, billingAccount and cannot be deleted. Creating a resource of this type will acquire and update the resource that already exists at the desired location. These sinks cannot be removed so deleting this resource will remove the sink from your terraform state but will leave the logging bucket unchanged. The sinks that are currently automatically created are "_Default" and "_Required".
+
 ## Example Usage
 
 ```hcl
@@ -93,22 +95,23 @@ The following example uses `exclusions` to filter logs that will not be exported
 
 ```hcl
 resource "google_logging_project_sink" "log-bucket" {
-  name        = "my-logging-sink"
+  name = "my-logging-sink"
   destination = "logging.googleapis.com/projects/my-project/locations/global/buckets/_Default"
 
   exclusions {
-		name = "nsexcllusion1"
-		description = "Exclude logs from namespace-1 in k8s"
-		filter = "resource.type = k8s_container resource.labels.namespace_name=\"namespace-1\" "
-	}
+    name = "nsexcllusion1"
+    description = "Exclude logs from namespace-1 in k8s"
+    filter = "resource.type = k8s_container resource.labels.namespace_name=\"namespace-1\" "
+  }
 
-	exclusions {
-		name = "nsexcllusion2"
-		description = "Exclude logs from namespace-2 in k8s"
-		filter = "resource.type = k8s_container resource.labels.namespace_name=\"namespace-2\" "
-	}
+  exclusions {
+    name = "nsexcllusion2"
+    description = "Exclude logs from namespace-2 in k8s"
+    filter = "resource.type = k8s_container resource.labels.namespace_name=\"namespace-2\" "
+  }
 
   unique_writer_identity = true
+}
 ```
 
 

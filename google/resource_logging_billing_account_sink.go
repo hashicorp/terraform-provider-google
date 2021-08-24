@@ -2,99 +2,67 @@ package google
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceLoggingBillingAccountSink() *schema.Resource {
-	schm := &schema.Resource{
-		Create: resourceLoggingBillingAccountSinkCreate,
-		Read:   resourceLoggingBillingAccountSinkRead,
-		Delete: resourceLoggingBillingAccountSinkDelete,
-		Update: resourceLoggingBillingAccountSinkUpdate,
-		Schema: resourceLoggingSinkSchema(),
-		Importer: &schema.ResourceImporter{
-			State: resourceLoggingSinkImportState("billing_account"),
-		},
-		UseJSONNumber: true,
-	}
-	schm.Schema["billing_account"] = &schema.Schema{
+var billingAccountLoggingSinkSchema = map[string]*schema.Schema{
+	"billing_account": {
 		Type:        schema.TypeString,
 		Required:    true,
 		ForceNew:    true,
 		Description: `The billing account exported to the sink.`,
-	}
-	return schm
+	},
 }
 
-func resourceLoggingBillingAccountSinkCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-
-	id, sink := expandResourceLoggingSink(d, "billingAccounts", d.Get("billing_account").(string))
-
-	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err = config.NewLoggingClient(userAgent).BillingAccounts.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(true).Do()
-	if err != nil {
-		return err
-	}
-
-	d.SetId(id.canonicalId())
-	return resourceLoggingBillingAccountSinkRead(d, meta)
+func billingAccountLoggingSinkID(d *schema.ResourceData, config *Config) (string, error) {
+	billingAccount := d.Get("billing_account").(string)
+	sinkName := d.Get("name").(string)
+	id := fmt.Sprintf("billingAccounts/%s/sinks/%s", billingAccount, sinkName)
+	return id, nil
 }
 
-func resourceLoggingBillingAccountSinkRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
+func billingAccountLoggingSinksPath(d *schema.ResourceData, config *Config) (string, error) {
+	billingAccount := d.Get("billing_account").(string)
+	id := fmt.Sprintf("billingAccounts/%s/sinks", billingAccount)
+	return id, nil
+}
+
+func resourceLoggingBillingAccountSink() *schema.Resource {
+	billingAccountLoggingSinkRead := resourceLoggingSinkRead(flattenBillingAccountLoggingSink)
+	billingAccountLoggingSinkCreate := resourceLoggingSinkCreate(billingAccountLoggingSinksPath, expandBillingAccountLoggingSinkForCreate, billingAccountLoggingSinkRead)
+	billingAccountLoggingSinkUpdate := resourceLoggingSinkUpdate(expandBillingAccountLoggingSinkForUpdate, billingAccountLoggingSinkRead)
+
+	return &schema.Resource{
+		Create: resourceLoggingSinkAcquireOrCreate(billingAccountLoggingSinkID, billingAccountLoggingSinkCreate, billingAccountLoggingSinkUpdate),
+		Read:   billingAccountLoggingSinkRead,
+		Update: billingAccountLoggingSinkUpdate,
+		Delete: resourceLoggingSinkDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceLoggingSinkImportState("billing_account"),
+		},
+		Schema:        resourceLoggingSinkSchema(billingAccountLoggingSinkSchema),
+		UseJSONNumber: true,
+	}
+}
+
+func expandBillingAccountLoggingSinkForCreate(d *schema.ResourceData, config *Config) (obj map[string]interface{}, uniqueWriterIdentity bool) {
+	obj = expandLoggingSink(d)
+	uniqueWriterIdentity = true
+	return
+}
+
+func flattenBillingAccountLoggingSink(d *schema.ResourceData, res map[string]interface{}, config *Config) error {
+	if err := flattenLoggingSinkBase(d, res); err != nil {
 		return err
 	}
-
-	sink, err := config.NewLoggingClient(userAgent).BillingAccounts.Sinks.Get(d.Id()).Do()
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Billing Logging Sink %s", d.Get("name").(string)))
-	}
-
-	if err := flattenResourceLoggingSink(d, sink); err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func resourceLoggingBillingAccountSinkUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-
-	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
-
-	// The API will reject any requests that don't explicitly set 'uniqueWriterIdentity' to true.
-	_, err = config.NewLoggingClient(userAgent).BillingAccounts.Sinks.Patch(d.Id(), sink).
-		UpdateMask(updateMask).UniqueWriterIdentity(true).Do()
-	if err != nil {
-		return err
-	}
-
-	return resourceLoggingBillingAccountSinkRead(d, meta)
-}
-
-func resourceLoggingBillingAccountSinkDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-
-	_, err = config.NewLoggingClient(userAgent).Projects.Sinks.Delete(d.Id()).Do()
-	if err != nil {
-		return err
-	}
-
-	return nil
+func expandBillingAccountLoggingSinkForUpdate(d *schema.ResourceData, config *Config) (obj map[string]interface{}, updateMask string, uniqueWriterIdentity bool) {
+	obj, updateMaskList := expandResourceLoggingSinkForUpdateBase(d)
+	uniqueWriterIdentity = true
+	updateMask = strings.Join(updateMaskList, ",")
+	return
 }

@@ -14,6 +14,8 @@ Manages a organization-level logging sink. For more information see:
 * How-to Guides
     * [Exporting Logs](https://cloud.google.com/logging/docs/export)
 
+~> **Note:** Logging sinks are automatically created for a given folder, project, organization, billingAccount and cannot be deleted. Creating a resource of this type will acquire and update the resource that already exists at the desired location. These sinks cannot be removed so deleting this resource will remove the sink from your terraform state but will leave the logging bucket unchanged. The sinks that are currently automatically created are "_Default" and "_Required".
+
 ## Example Usage
 
 ```hcl
@@ -47,6 +49,7 @@ The following arguments are supported:
 * `name` - (Required) The name of the logging sink.
 
 * `org_id` - (Required) The numeric ID of the organization to be exported to the sink.
+    Note that either [ORG_ID] or "organizations/[ORG_ID]" is accepted.
 
 * `destination` - (Required) The destination of the sink (or, in other words, where logs are written to). Can be a
     Cloud Storage bucket, a PubSub topic, a BigQuery dataset or a Cloud Logging bucket. Examples:
