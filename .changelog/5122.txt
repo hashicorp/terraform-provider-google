@@ -1,0 +1,3 @@
+```release-note:bug
+healthcare: fixed bug where changes to `google_healthcare_hl7_v2_store.parser_config` subfields would error with '...parser_config.version field is immutable...`
+```
