@@ -138,6 +138,7 @@ Fields/functions available for filtering are:
 			},
 			"parser_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `A nested object resource`,
 				MaxItems:    1,
@@ -348,7 +349,9 @@ func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}
 	updateMask := []string{}
 
 	if d.HasChange("parser_config") {
-		updateMask = append(updateMask, "parserConfig")
+		updateMask = append(updateMask, "parser_config.allow_null_header",
+			"parser_config.segment_terminator",
+			"parser_config.schema")
 	}
 
 	if d.HasChange("labels") {
