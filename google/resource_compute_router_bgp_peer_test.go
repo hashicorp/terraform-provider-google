@@ -315,6 +315,7 @@ resource "google_compute_router_peer" "foobar" {
   name                      = "%s"
   router                    = google_compute_router.foobar.name
   region                    = google_compute_router.foobar.region
+  ip_address                = "169.254.3.1"
   peer_ip_address           = "169.254.3.2"
   peer_asn                  = 65515
   advertised_route_priority = 100
