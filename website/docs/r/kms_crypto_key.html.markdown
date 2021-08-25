@@ -125,6 +125,11 @@ The following arguments are supported:
   A template describing settings for new crypto key versions.
   Structure is documented below.
 
+* `destroy_scheduled_duration` -
+  (Optional)
+  The period of time that versions of this key spend in the DESTROY_SCHEDULED state before transitioning to DESTROYED.
+  If not specified at creation time, the default duration is 24 hours.
+
 * `skip_initial_version_creation` -
   (Optional)
   If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 

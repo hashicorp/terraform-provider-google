@@ -300,6 +300,41 @@ func TestAccKmsCryptoKey_template(t *testing.T) {
 	})
 }
 
+func TestAccKmsCryptoKey_destroyDuration(t *testing.T) {
+	t.Parallel()
+
+	projectId := fmt.Sprintf("tf-test-%d", randInt(t))
+	projectOrg := getTestOrgFromEnv(t)
+	location := getTestRegionFromEnv()
+	projectBillingAccount := getTestBillingAccountFromEnv(t)
+	keyRingName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleKmsCryptoKey_destroyDuration(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
+			},
+			{
+				ResourceName:      "google_kms_crypto_key.crypto_key",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
+			{
+				Config: testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),
+					testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(t, projectId, location, keyRingName, cryptoKeyName),
+					testAccCheckGoogleKmsCryptoKeyRotationDisabled(t, projectId, location, keyRingName, cryptoKeyName),
+				),
+			},
+		},
+	})
+}
+
 // KMS KeyRings cannot be deleted. This ensures that the CryptoKey resource was removed from state,
 // even though the server-side resource was not removed.
 func testAccCheckGoogleKmsCryptoKeyWasRemovedFromState(resourceName string) resource.TestCheckFunc {
@@ -501,4 +536,35 @@ resource "google_kms_key_ring" "key_ring" {
   location = "us-central1"
 }
 `, projectId, projectId, projectOrg, projectBillingAccount, keyRingName)
+}
+
+func testGoogleKmsCryptoKey_destroyDuration(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  name            = "%s"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+}
+
+resource "google_project_service" "acceptance" {
+  project = google_project.acceptance.project_id
+  service = "cloudkms.googleapis.com"
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  project  = google_project_service.acceptance.project
+  name     = "%s"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name     = "%s"
+  key_ring = google_kms_key_ring.key_ring.self_link
+  labels = {
+    key = "value"
+  }
+  destroy_scheduled_duration = "129600s"
+}
+`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }
