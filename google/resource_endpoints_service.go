@@ -155,12 +155,7 @@ func predictServiceId(_ context.Context, d *schema.ResourceDiff, meta interface{
 	if !d.HasChange("openapi_config") && !d.HasChange("grpc_config") && !d.HasChange("protoc_output_base64") {
 		return nil
 	}
-	loc, err := time.LoadLocation("America/Los_Angeles")
-	if err != nil {
-		// Timezone data may not be present on some machines, in that case skip
-		return nil
-	}
-	baseDate := time.Now().In(loc).Format("2006-01-02")
+	baseDate := time.Now().Format("2006-01-02")
 	oldConfigId := d.Get("config_id").(string)
 	if match, err := regexp.MatchString(`\d\d\d\d-\d\d-\d\dr\d*`, oldConfigId); !match || err != nil {
 		// If we do not match the expected format, we will guess
