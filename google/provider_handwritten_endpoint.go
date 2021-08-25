@@ -169,6 +169,16 @@ var GkeHubFeatureCustomEndpointEntry = &schema.Schema{
 	}, DefaultBasePaths[GkeHubFeatureBasePathKey]),
 }
 
+var PrivatecaCertificateTemplateEndpointEntryKey = "privateca_custom_endpoint"
+var PrivatecaCertificateTemplateCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_PRIVATECA_CUSTOM_ENDPOINT",
+	}, DefaultBasePaths[PrivatecaBasePathKey]),
+}
+
 func validateCustomEndpoint(v interface{}, k string) (ws []string, errors []error) {
 	re := `.*/[^/]+/$`
 	return validateRegexp(re)(v, k)
