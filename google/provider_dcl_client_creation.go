@@ -22,6 +22,7 @@ import (
 	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
 	dataproc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataproc"
 	eventarc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
+	privateca "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/privateca"
 )
 
 func NewDCLAssuredWorkloadsClient(config *Config, userAgent, billingProject string) *assuredworkloads.Client {
@@ -98,4 +99,23 @@ func NewDCLEventarcClient(config *Config, userAgent, billingProject string) *eve
 
 	dclConfig := dcl.NewConfig(configOptions...)
 	return eventarc.NewClient(dclConfig)
+}
+
+func NewDCLPrivatecaClient(config *Config, userAgent, billingProject string) *privateca.Client {
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.PrivatecaBasePath),
+	}
+
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
+	return privateca.NewClient(dclConfig)
 }

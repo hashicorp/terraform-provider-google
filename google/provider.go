@@ -694,9 +694,10 @@ func Provider() *schema.Provider {
 			BigtableAdminCustomEndpointEntryKey:     BigtableAdminCustomEndpointEntry,
 
 			// dcl
-			AssuredWorkloadsEndpointEntryKey:    AssuredWorkloadsEndpointEntry,
-			EventarcEndpointEntryKey:            EventarcEndpointEntry,
-			GkeHubFeatureCustomEndpointEntryKey: GkeHubFeatureCustomEndpointEntry,
+			AssuredWorkloadsEndpointEntryKey:             AssuredWorkloadsEndpointEntry,
+			EventarcEndpointEntryKey:                     EventarcEndpointEntry,
+			GkeHubFeatureCustomEndpointEntryKey:          GkeHubFeatureCustomEndpointEntry,
+			PrivatecaCertificateTemplateEndpointEntryKey: PrivatecaCertificateTemplateCustomEndpointEntry,
 		},
 
 		ProviderMetaSchema: map[string]*schema.Schema{
@@ -1162,6 +1163,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_eventarc_trigger":                      resourceEventarcTrigger(),
 			"google_folder":                                resourceGoogleFolder(),
 			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
+			"google_privateca_certificate_template":        resourcePrivatecaCertificateTemplate(),
 			"google_logging_billing_account_sink":          resourceLoggingBillingAccountSink(),
 			"google_logging_billing_account_exclusion":     ResourceLoggingExclusion(BillingAccountLoggingExclusionSchema, NewBillingAccountLoggingExclusionUpdater, billingAccountLoggingExclusionIdParseFunc),
 			"google_logging_billing_account_bucket_config": ResourceLoggingBillingAccountBucketConfig(),
@@ -1425,6 +1427,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
 	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
 	config.GkeHubBasePath = d.Get(GkeHubFeatureCustomEndpointEntryKey).(string)
+	config.PrivatecaBasePath = d.Get(PrivatecaCertificateTemplateEndpointEntryKey).(string)
 
 	stopCtx, ok := schema.StopContext(ctx)
 	if !ok {
