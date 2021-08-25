@@ -172,7 +172,7 @@ The following arguments are supported:
   creation time.
 
 * `purpose` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The purpose of the resource. This field can be either PRIVATE
   or INTERNAL_HTTPS_LOAD_BALANCER. A subnetwork with purpose set to
   INTERNAL_HTTPS_LOAD_BALANCER is a user-created subnetwork that is
@@ -181,7 +181,7 @@ The following arguments are supported:
   If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set `role`.
 
 * `role` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The role of subnetwork. Currently, this field is only used when
   purpose = INTERNAL_HTTPS_LOAD_BALANCER. The value can be set to ACTIVE
   or BACKUP. An ACTIVE subnetwork is one that is currently being used
