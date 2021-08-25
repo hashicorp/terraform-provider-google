@@ -24,8 +24,6 @@ description: |-
 
 Represents a ServiceAttachment resource.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about ServiceAttachment, see:
 
@@ -43,8 +41,6 @@ To get more information about ServiceAttachment, see:
 
 ```hcl
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
-  provider = "google-beta"
-
   name        = "my-psc-ilb"
   region      = "us-west2"
   description = "A service attachment configured with Terraform"
@@ -56,8 +52,6 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
 }
 
 resource "google_compute_address" "psc_ilb_consumer_address" {
-  provider = "google-beta"
-
   name   = "psc-ilb-consumer-address"
   region = "us-west2"
 
@@ -67,8 +61,6 @@ resource "google_compute_address" "psc_ilb_consumer_address" {
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
-  provider = "google-beta"
-
   name   = "psc-ilb-consumer-forwarding-rule"
   region = "us-west2"
 
@@ -79,8 +71,6 @@ resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
-  provider = "google-beta"
-
   name   = "producer-forwarding-rule"
   region = "us-west2"
 
@@ -92,8 +82,6 @@ resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
 }
 
 resource "google_compute_region_backend_service" "producer_service_backend" {
-  provider = "google-beta"
-
   name   = "producer-service"
   region = "us-west2"
 
@@ -101,8 +89,6 @@ resource "google_compute_region_backend_service" "producer_service_backend" {
 }
 
 resource "google_compute_health_check" "producer_service_health_check" {
-  provider = "google-beta"
-
   name = "producer-service-health-check"
 
   check_interval_sec = 1
@@ -113,15 +99,11 @@ resource "google_compute_health_check" "producer_service_health_check" {
 }
 
 resource "google_compute_network" "psc_ilb_network" {
-  provider = "google-beta"
-
   name = "psc-ilb-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
-  provider = "google-beta"
-
   name   = "psc-ilb-producer-subnetwork"
   region = "us-west2"
 
@@ -130,8 +112,6 @@ resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
 }
 
 resource "google_compute_subnetwork" "psc_ilb_nat" {
-  provider = "google-beta"
-
   name   = "psc-ilb-nat"
   region = "us-west2"
 
@@ -150,8 +130,6 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 
 ```hcl
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
-  provider = "google-beta"
-
   name        = "my-psc-ilb"
   region      = "us-west2"
   description = "A service attachment configured with Terraform"
@@ -170,8 +148,6 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
 }
 
 resource "google_compute_address" "psc_ilb_consumer_address" {
-  provider = "google-beta"
-
   name   = "psc-ilb-consumer-address"
   region = "us-west2"
 
@@ -181,8 +157,6 @@ resource "google_compute_address" "psc_ilb_consumer_address" {
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
-  provider = "google-beta"
-
   name   = "psc-ilb-consumer-forwarding-rule"
   region = "us-west2"
 
@@ -193,8 +167,6 @@ resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
-  provider = "google-beta"
-
   name   = "producer-forwarding-rule"
   region = "us-west2"
 
@@ -206,8 +178,6 @@ resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
 }
 
 resource "google_compute_region_backend_service" "producer_service_backend" {
-  provider = "google-beta"
-
   name   = "producer-service"
   region = "us-west2"
 
@@ -215,8 +185,6 @@ resource "google_compute_region_backend_service" "producer_service_backend" {
 }
 
 resource "google_compute_health_check" "producer_service_health_check" {
-  provider = "google-beta"
-
   name = "producer-service-health-check"
 
   check_interval_sec = 1
@@ -227,15 +195,11 @@ resource "google_compute_health_check" "producer_service_health_check" {
 }
 
 resource "google_compute_network" "psc_ilb_network" {
-  provider = "google-beta"
-
   name = "psc-ilb-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
-  provider = "google-beta"
-
   name   = "psc-ilb-producer-subnetwork"
   region = "us-west2"
 
@@ -244,8 +208,6 @@ resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
 }
 
 resource "google_compute_subnetwork" "psc_ilb_nat" {
-  provider = "google-beta"
-
   name   = "psc-ilb-nat"
   region = "us-west2"
 
