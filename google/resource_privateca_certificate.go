@@ -59,6 +59,17 @@ running 'gcloud privateca locations list'.`,
 				ForceNew:    true,
 				Description: `The name of the CaPool this Certificate belongs to.`,
 			},
+			"certificate_template": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareResourceNames,
+				Description: `The resource name for a CertificateTemplate used to issue this certificate,
+in the format 'projects/*/locations/*/certificateTemplates/*'. If this is specified,
+the caller must have the necessary permission to use this template. If this is
+omitted, no template will be used. This template must be in the same location
+as the Certificate.`,
+			},
 			"certificate_authority": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -953,6 +964,12 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("lifetime"); !isEmptyValue(reflect.ValueOf(lifetimeProp)) && (ok || !reflect.DeepEqual(v, lifetimeProp)) {
 		obj["lifetime"] = lifetimeProp
 	}
+	certificateTemplateProp, err := expandPrivatecaCertificateCertificateTemplate(d.Get("certificate_template"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("certificate_template"); !isEmptyValue(reflect.ValueOf(certificateTemplateProp)) && (ok || !reflect.DeepEqual(v, certificateTemplateProp)) {
+		obj["certificateTemplate"] = certificateTemplateProp
+	}
 	labelsProp, err := expandPrivatecaCertificateLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
@@ -1068,6 +1085,9 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err := d.Set("update_time", flattenPrivatecaCertificateUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err := d.Set("certificate_template", flattenPrivatecaCertificateCertificateTemplate(res["certificateTemplate"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err := d.Set("labels", flattenPrivatecaCertificateLabels(res["labels"], d, config)); err != nil {
@@ -1662,6 +1682,10 @@ func flattenPrivatecaCertificateUpdateTime(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenPrivatecaCertificateCertificateTemplate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenPrivatecaCertificateLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -1839,6 +1863,10 @@ func flattenPrivatecaCertificateConfigPublicKeyFormat(v interface{}, d *schema.R
 }
 
 func expandPrivatecaCertificateLifetime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPrivatecaCertificateCertificateTemplate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

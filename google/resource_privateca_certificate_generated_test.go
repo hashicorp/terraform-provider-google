@@ -133,6 +133,159 @@ resource "google_privateca_certificate" "default" {
 `, context)
 }
 
+func TestAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       getTestProjectFromEnv(),
+		"pool":          "static-ca-pool",
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(context),
+			},
+			{
+				ResourceName:            "google_privateca_certificate.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority"},
+			},
+		},
+	})
+}
+
+func testAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_privateca_certificate_template" "template" {
+  location    = "us-central1"
+  name = "tf-test-my-certificate-template%{random_suffix}"
+  description = "An updated sample certificate template"
+
+  identity_constraints {
+    allow_subject_alt_names_passthrough = true
+    allow_subject_passthrough           = true
+
+    cel_expression {
+      description = "Always true"
+      expression  = "true"
+      location    = "any.file.anywhere"
+      title       = "Sample expression"
+    }
+  }
+
+  passthrough_extensions {
+    additional_extensions {
+      object_id_path = [1, 6]
+    }
+
+    known_extensions = ["EXTENDED_KEY_USAGE"]
+  }
+
+  predefined_values {
+    additional_extensions {
+      object_id {
+        object_id_path = [1, 6]
+      }
+
+      value    = "c3RyaW5nCg=="
+      critical = true
+    }
+
+    aia_ocsp_servers = ["string"]
+
+    ca_options {
+      is_ca                  = false
+      max_issuer_path_length = 6
+    }
+
+    key_usage {
+      base_key_usage {
+        cert_sign          = false
+        content_commitment = true
+        crl_sign           = false
+        data_encipherment  = true
+        decipher_only      = true
+        digital_signature  = true
+        encipher_only      = true
+        key_agreement      = true
+        key_encipherment   = true
+      }
+
+      extended_key_usage {
+        client_auth      = true
+        code_signing     = true
+        email_protection = true
+        ocsp_signing     = true
+        server_auth      = true
+        time_stamping    = true
+      }
+
+      unknown_extended_key_usages {
+        object_id_path = [1, 6]
+      }
+    }
+
+    policy_ids {
+      object_id_path = [1, 6]
+    }
+  }
+}
+
+resource "google_privateca_certificate_authority" "test-ca" {
+  pool = "%{pool}"
+  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
+  location = "us-central1"
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    x509_config {
+      ca_options {
+        # is_ca *MUST* be true for certificate authorities
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          # cert_sign and crl_sign *MUST* be true for certificate authorities
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+}
+
+
+resource "google_privateca_certificate" "default" {
+  pool = "%{pool}"
+  location = "us-central1"
+  certificate_authority = google_privateca_certificate_authority.test-ca.certificate_authority_id
+  lifetime = "860s"
+  name = "tf-test-my-certificate%{random_suffix}"
+  pem_csr = file("test-fixtures/rsa_csr.pem")
+  certificate_template = google_privateca_certificate_template.template.id
+}
+`, context)
+}
+
 func TestAccPrivatecaCertificate_privatecaCertificateCsrExample(t *testing.T) {
 	t.Parallel()
 
