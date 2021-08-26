@@ -969,20 +969,21 @@ func initializeReleaseDiffTest(c resource.TestCase) resource.TestCase {
 	c.Providers = localProvider
 
 	var replacementSteps []resource.TestStep
-	for _, teststep := range c.Steps {
-		if teststep.Config != "" {
-			ogConfig := teststep.Config
-			teststep.Config = reformConfigWithProvider(ogConfig, localProviderName)
-			replacementSteps = append(replacementSteps, teststep)
-			if teststep.ExpectError == nil && teststep.PlanOnly == false {
+	for _, testStep := range c.Steps {
+		if testStep.Config != "" {
+			ogConfig := testStep.Config
+			testStep.Config = reformConfigWithProvider(ogConfig, localProviderName)
+			if testStep.ExpectError == nil && testStep.PlanOnly == false {
 				newStep := resource.TestStep{
-					Config:   reformConfigWithProvider(ogConfig, releaseProvider),
-					PlanOnly: true,
+					Config: reformConfigWithProvider(ogConfig, releaseProvider),
 				}
+				testStep.PlanOnly = true
+				testStep.ExpectNonEmptyPlan = false
 				replacementSteps = append(replacementSteps, newStep)
 			}
+			replacementSteps = append(replacementSteps, testStep)
 		} else {
-			replacementSteps = append(replacementSteps, teststep)
+			replacementSteps = append(replacementSteps, testStep)
 		}
 	}
 
