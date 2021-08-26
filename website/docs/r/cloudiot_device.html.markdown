@@ -256,5 +256,5 @@ This resource provides the following
 Device can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_cloudiot_device.default {{registry}}/devices/{{name}}
+$ terraform import google_cloudiot_device.default projects/{{project}}/locations/{{location}}/registries/{{registry}}/devices/{{name}}
 ```
