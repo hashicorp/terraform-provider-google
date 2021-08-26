@@ -1,4 +1,24 @@
 ## 3.82.0 (Unreleased)
+FEATURES:
+* **New Resource:** `google_privateca_certificate_template` ([#9905](https://github.com/hashicorp/terraform-provider-google/pull/9905))
+* **New Resource:** `google_compute_firewall_policy` ([#9887](https://github.com/hashicorp/terraform-provider-google/pull/9887))
+* **New Resource:** `google_compute_firewall_policy_association` ([#9887](https://github.com/hashicorp/terraform-provider-google/pull/9887))
+* **New Resource:** `google_compute_firewall_policy_rule` ([#9887](https://github.com/hashicorp/terraform-provider-google/pull/9887))
+
+IMPROVEMENTS:
+* sql: added field `collation` to `google_sql_database_instance` ([#9888](https://github.com/hashicorp/terraform-provider-google/pull/9888))
+
+BUG FIXES:
+* Cloud DNS: fixed not-exists error message on data source `google_dns_managed_zone` ([#9898](https://github.com/hashicorp/terraform-provider-google/pull/9898))
+* apigateway: fixed import functionality for all `apigateway` resources ([#9871](https://github.com/hashicorp/terraform-provider-google/pull/9871))
+* healthcare: fixed bug where changes to `google_healthcare_hl7_v2_store.parser_config` subfields would error with '...parser_config.version field is immutable...` ([#9900](https://github.com/hashicorp/terraform-provider-google/pull/9900))
+* os_config: fixed imports for `google_os_config_guest_policies` ([#9872](https://github.com/hashicorp/terraform-provider-google/pull/9872))
+* privateca: fixed the creation of subordinate `google_privateca_certificate_authority` with `max_issuer_path_length = 0`. ([#9856](https://github.com/hashicorp/terraform-provider-google/pull/9856))
+* pubsub: added polling to `google_pubsub_schema` to deal with eventually consistent deletes ([#9863](https://github.com/hashicorp/terraform-provider-google/pull/9863))
+* secretmanager: fixed an issue where `replication` fields would not update in `google_secret_manager_secret`
+* service_usage: fixed imports on `google_service_usage_consumer_quota_override` ([#9876](https://github.com/hashicorp/terraform-provider-google/pull/9876))
+* sql: fixed a permadiff bug for `type` when BUILT_IN on `google_sql_user` ([#9864](https://github.com/hashicorp/terraform-provider-google/pull/9864))
+* sql: fixed bug in `google_sql_user` with CLOUD_IAM_USERs on POSTGRES. ([#9859](https://github.com/hashicorp/terraform-provider-google/pull/9859))
 
 ## 3.81.0 (August 23, 2021)
 
