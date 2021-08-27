@@ -161,6 +161,7 @@ Default value is 1000. Valid range is 0 through 65535.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Computed:    true,
 				Description: "The zone of the instance specified in next_hop_instance. Omit if next_hop_instance is specified as a URL.",
 			},
 			"project": {
