@@ -434,10 +434,11 @@ An object containing a list of "key": value pairs. Example: { "name": "wrench", 
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"publishing_options": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `The PublishingOptions to follow when issuing Certificates from any CertificateAuthority in this CaPool.`,
-				MaxItems:    1,
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: emptyOrUnsetBlockDiffSuppress,
+				Description:      `The PublishingOptions to follow when issuing Certificates from any CertificateAuthority in this CaPool.`,
+				MaxItems:         1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"publish_ca_cert": {
