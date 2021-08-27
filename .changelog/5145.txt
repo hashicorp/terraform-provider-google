@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a permanent diff for `next_hop_instance_zone` on `google_compute_route` when `next_hop_instance` was set to a self link
+```
