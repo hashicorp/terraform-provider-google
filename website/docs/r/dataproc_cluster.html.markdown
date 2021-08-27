@@ -163,6 +163,7 @@ The `cluster_config` block supports:
         initialization_action     { ... }
         encryption_config         { ... }
         endpoint_config           { ... }
+        metastore_config          { ... }
     }
 ```
 
@@ -213,6 +214,9 @@ The `cluster_config` block supports:
    Structure defined below.
 
 * `endpoint_config` (Optional, Beta) The config settings for port access on the cluster.
+   Structure defined below.
+
+* `metastore_config` (Optional, Beta) The config setting for metastore service with the cluster.
    Structure defined below.
 - - -
 
@@ -649,6 +653,23 @@ cluster_config {
 
 * `enable_http_port_access` - (Optional) The flag to enable http access to specific ports
   on the cluster from external sources (aka Component Gateway). Defaults to false.
+
+
+The `metastore_config` block (Optional, Computed, Beta) supports:
+
+```hcl
+cluster_config {
+  metastore_config {
+    dataproc_metastore_service = "projects/projectId/locations/region/services/serviceName"
+  }
+}
+```
+
+* `dataproc_metastore_service` - (Required) Resource name of an existing Dataproc Metastore service.
+
+Only resource names including projectid and location (region) are valid. Examples:
+
+`projects/[projectId]/locations/[dataproc_region]/services/[service-name]`
 
 ## Attributes Reference
 
