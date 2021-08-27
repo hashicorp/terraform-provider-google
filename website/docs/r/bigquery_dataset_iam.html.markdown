@@ -41,8 +41,12 @@ data "google_iam_policy" "owner" {
 }
 
 resource "google_bigquery_dataset_iam_policy" "dataset" {
-  dataset_id  = "your-dataset-id"
+  dataset_id  = google_bigquery_dataset.dataset.dataset_id
   policy_data = data.google_iam_policy.owner.policy_data
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "example_dataset"
 }
 ```
 
@@ -50,12 +54,16 @@ resource "google_bigquery_dataset_iam_policy" "dataset" {
 
 ```hcl
 resource "google_bigquery_dataset_iam_binding" "reader" {
-  dataset_id = "your-dataset-id"
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
   role       = "roles/bigquery.dataViewer"
 
   members = [
     "user:jane@example.com",
   ]
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "example_dataset"
 }
 ```
 
@@ -63,9 +71,13 @@ resource "google_bigquery_dataset_iam_binding" "reader" {
 
 ```hcl
 resource "google_bigquery_dataset_iam_member" "editor" {
-  dataset_id = "your-dataset-id"
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
   role       = "roles/bigquery.dataEditor"
   member     = "user:jane@example.com"
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "example_dataset"
 }
 ```
 
