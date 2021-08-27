@@ -647,6 +647,9 @@ func resourceSpannerInstanceUpdateEncoder(d *schema.ResourceData, meta interface
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
+	if d.HasChange("processing_units") {
+		updateMask = append(updateMask, "processingUnits")
+	}
 	newObj["fieldMask"] = strings.Join(updateMask, ",")
 	return newObj, nil
 }
