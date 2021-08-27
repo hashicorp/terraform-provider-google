@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -26,6 +27,12 @@ func resourceStorageBucketObject() *schema.Resource {
 		Read:   resourceStorageBucketObjectRead,
 		Update: resourceStorageBucketObjectUpdate,
 		Delete: resourceStorageBucketObjectDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
+			Delete: schema.DefaultTimeout(4 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"bucket": {

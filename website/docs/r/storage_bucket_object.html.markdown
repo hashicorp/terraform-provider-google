@@ -92,6 +92,15 @@ exported:
 
 * `media_link` - (Computed) A url reference to download this object.
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
+
+- `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
+- `delete` - Default is 4 minutes.
+
 ## Import
 
 This resource does not support import.

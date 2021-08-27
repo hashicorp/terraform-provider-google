@@ -1,0 +1,3 @@
+```release-note:bug
+storage: added support for timeouts on `google_storage_bucket_object`
+```
