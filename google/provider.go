@@ -1125,7 +1125,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_workflows_workflow":                                    resourceWorkflowsWorkflow(),
 		},
 		map[string]*schema.Resource{
-			"google_assured_workloads_workload":            resourceAssuredWorkloadsWorkload(),
 			"google_app_engine_application":                resourceAppEngineApplication(),
 			"google_bigquery_table":                        resourceBigQueryTable(),
 			"google_bigtable_gc_policy":                    resourceBigtableGCPolicy(),
@@ -1135,9 +1134,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloudfunctions_function":               resourceCloudFunctionsFunction(),
 			"google_composer_environment":                  resourceComposerEnvironment(),
 			"google_compute_attached_disk":                 resourceComputeAttachedDisk(),
-			"google_compute_firewall_policy_association":   resourceComputeFirewallPolicyAssociation(),
-			"google_compute_firewall_policy":               resourceComputeFirewallPolicy(),
-			"google_compute_firewall_policy_rule":          resourceComputeFirewallPolicyRule(),
 			"google_compute_instance":                      resourceComputeInstance(),
 			"google_compute_instance_from_template":        resourceComputeInstanceFromTemplate(),
 			"google_compute_instance_group":                resourceComputeInstanceGroup(),
@@ -1159,12 +1155,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dataflow_job":                          resourceDataflowJob(),
 			"google_dataproc_cluster":                      resourceDataprocCluster(),
 			"google_dataproc_job":                          resourceDataprocJob(),
-			"google_dataproc_workflow_template":            resourceDataprocWorkflowTemplate(),
 			"google_endpoints_service":                     resourceEndpointsService(),
-			"google_eventarc_trigger":                      resourceEventarcTrigger(),
 			"google_folder":                                resourceGoogleFolder(),
 			"google_folder_organization_policy":            resourceGoogleFolderOrganizationPolicy(),
-			"google_privateca_certificate_template":        resourcePrivatecaCertificateTemplate(),
 			"google_logging_billing_account_sink":          resourceLoggingBillingAccountSink(),
 			"google_logging_billing_account_exclusion":     ResourceLoggingExclusion(BillingAccountLoggingExclusionSchema, NewBillingAccountLoggingExclusionUpdater, billingAccountLoggingExclusionIdParseFunc),
 			"google_logging_billing_account_bucket_config": ResourceLoggingBillingAccountBucketConfig(),
@@ -1202,6 +1195,17 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_storage_notification":                  resourceStorageNotification(),
 			"google_storage_transfer_job":                  resourceStorageTransferJob(),
 		},
+		// resources implemented within tpgtools
+		map[string]*schema.Resource{
+			"google_assured_workloads_workload":          resourceAssuredWorkloadsWorkload(),
+			"google_compute_firewall_policy_association": resourceComputeFirewallPolicyAssociation(),
+			"google_compute_firewall_policy":             resourceComputeFirewallPolicy(),
+			"google_compute_firewall_policy_rule":        resourceComputeFirewallPolicyRule(),
+			"google_dataproc_workflow_template":          resourceDataprocWorkflowTemplate(),
+			"google_eventarc_trigger":                    resourceEventarcTrigger(),
+			"google_privateca_certificate_template":      resourcePrivatecaCertificateTemplate(),
+		},
+		// ------------------------------------
 		map[string]*schema.Resource{
 			"google_bigtable_instance_iam_binding":       ResourceIamBinding(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
 			"google_bigtable_instance_iam_member":        ResourceIamMember(IamBigtableInstanceSchema, NewBigtableInstanceUpdater, BigtableInstanceIdParseFunc),
