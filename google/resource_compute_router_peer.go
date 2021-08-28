@@ -680,6 +680,9 @@ func flattenNestedComputeRouterBgpPeerManagementType(v interface{}, d *schema.Re
 }
 
 func flattenNestedComputeRouterBgpPeerEnable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return true
+	}
 	b, err := strconv.ParseBool(v.(string))
 	if err != nil {
 		// If we can't convert it into a bool return value as is and let caller handle it
