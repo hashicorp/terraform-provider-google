@@ -262,6 +262,34 @@ func TestAccLoggingFolderSink_heredoc(t *testing.T) {
 	})
 }
 
+func TestAccLoggingFolderSink_default(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+	folderName := "tf-test-folder-" + randString(t, 10)
+
+	var sink logging.LogSink
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingFolderSink_default(folderName, bucketName, "organizations/"+org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLoggingFolderSinkExists(t, "google_logging_folder_sink.default", &sink),
+					testAccCheckLoggingFolderSink(&sink, "google_logging_folder_sink.default"),
+				),
+			}, {
+				ResourceName:      "google_logging_folder_sink.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckLoggingFolderSinkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -514,4 +542,25 @@ resource "google_folder" "my-folder" {
   display_name = "%s"
   parent       = "%s"
 }`, sinkName, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID, folderName, folderParent)
+}
+
+func testAccLoggingFolderSink_default(folderName, bucketName, folderParent string) string {
+	return fmt.Sprintf(`
+resource "google_logging_folder_sink" "default" {
+  name             = "_Default"
+  folder           = google_folder.my_folder.name
+  destination      = "storage.googleapis.com/${google_storage_bucket.log_bucket.name}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
+}
+
+resource "google_storage_bucket" "log_bucket" {
+  name = "%s"
+}
+
+resource "google_folder" "my_folder" {
+  display_name = "%s"
+  parent       = "%s"
+}
+`, getTestProjectFromEnv(), bucketName, folderName, folderParent)
 }

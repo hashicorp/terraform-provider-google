@@ -192,6 +192,33 @@ func TestAccLoggingOrganizationSink_heredoc(t *testing.T) {
 	})
 }
 
+func TestAccLoggingOrganizationSink_default(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+
+	var sink logging.LogSink
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingOrganizationSink_default(bucketName, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLoggingOrganizationSinkExists(t, "google_logging_organization_sink.default", &sink),
+					testAccCheckLoggingOrganizationSink(&sink, "google_logging_organization_sink.default"),
+				),
+			}, {
+				ResourceName:      "google_logging_organization_sink.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckLoggingOrganizationSinkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -387,4 +414,20 @@ resource "google_bigquery_dataset" "logging_sink" {
   dataset_id  = "%s"
   description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
 }`, sinkName, orgId, getTestProjectFromEnv(), getTestProjectFromEnv(), bqDatasetID)
+}
+
+func testAccLoggingOrganizationSink_default(bucketName, orgId string) string {
+	return fmt.Sprintf(`
+resource "google_logging_organization_sink" "default" {
+  name             = "_Default"
+  org_id           = "%s"
+  destination      = "storage.googleapis.com/${google_storage_bucket.log_bucket.name}"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
+}
+
+resource "google_storage_bucket" "log_bucket" {
+  name = "%s"
+}
+`, orgId, getTestProjectFromEnv(), bucketName)
 }

@@ -359,8 +359,6 @@ func resourceLoggingSinkUpdate(expandLoggingSinkForUpdate expandLoggingSinkForUp
 }
 
 func expandResourceLoggingSinkForUpdateBase(d *schema.ResourceData) (obj map[string]interface{}, updateFields []string) {
-	// Can only update destination/filter right now. Despite the method below using 'Patch', the API requires both
-	// destination and filter (even if unchanged).
 	obj = make(map[string]interface{})
 	updateFields = []string{}
 	if d.HasChange("destination") {

@@ -289,6 +289,36 @@ func TestAccLoggingProjectSink_disabled_update(t *testing.T) {
 	})
 }
 
+func TestAccLoggingProjectSink_default(t *testing.T) {
+	t.Parallel()
+
+	project := getTestProjectFromEnv()
+	bucketName := "tf-test-sink-bucket-" + randString(t, 10)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingProjectSink_default(project),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingProjectSink_defaultUpdated(project, bucketName),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckLoggingProjectSinkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -497,4 +527,35 @@ resource "google_logging_project_sink" "loggingbucket" {
 }
 
 `, name, project, project)
+}
+
+func testAccLoggingProjectSink_default(project string) string {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "default" {
+  project                = "%s"
+  name                   = "_Default"
+  destination            = "logging.googleapis.com/projects/%s/locations/global/buckets/_Default"
+  filter                 = "NOT LOG_ID(\"cloudaudit.googleapis.com/activity\") AND NOT LOG_ID(\"externalaudit.googleapis.com/activity\") AND NOT LOG_ID(\"cloudaudit.googleapis.com/system_event\") AND NOT LOG_ID(\"externalaudit.googleapis.com/system_event\") AND NOT LOG_ID(\"cloudaudit.googleapis.com/access_transparency\") AND NOT LOG_ID(\"externalaudit.googleapis.com/access_transparency\")"
+  unique_writer_identity = true
+}
+`, project, project)
+}
+
+func testAccLoggingProjectSink_defaultUpdated(project, bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_logging_project_sink" "default" {
+  project                = "%s"
+  name                   = "_Default"
+  destination            = "logging.googleapis.com/${google_logging_project_bucket_config.new_bucket.id}"
+  filter                 = "NOT LOG_ID(\"cloudaudit.googleapis.com/activity\") AND NOT LOG_ID(\"externalaudit.googleapis.com/activity\") AND NOT LOG_ID(\"cloudaudit.googleapis.com/system_event\") AND NOT LOG_ID(\"externalaudit.googleapis.com/system_event\") AND NOT LOG_ID(\"cloudaudit.googleapis.com/access_transparency\") AND NOT LOG_ID(\"externalaudit.googleapis.com/access_transparency\")"
+  unique_writer_identity = true
+}
+
+resource "google_logging_project_bucket_config" "new_bucket" {
+	bucket_id      = "%s"
+	location       = "global"
+	retention_days = 30
+	description    = "test logging bucket"
+}
+`, project, bucketName)
 }
