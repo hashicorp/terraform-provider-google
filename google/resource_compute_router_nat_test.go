@@ -113,6 +113,37 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeRouterNat_removeLogConfig(t *testing.T) {
+	t.Parallel()
+
+	testId := randString(t, 10)
+	routerName := fmt.Sprintf("tf-test-router-nat-%s", testId)
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRouterNatDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterNatLogConfig(routerName),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterNatLogConfigRemoved(routerName),
+			},
+			{
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeRouterNat_withManualIpAndSubnetConfiguration(t *testing.T) {
 	t.Parallel()
 
@@ -585,4 +616,66 @@ resource "google_compute_router" "foobar" {
   network = google_compute_network.foobar.self_link
 }
 `, routerName, routerName, routerName)
+}
+
+func testAccComputeRouterNatLogConfig(routerName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name = "%s-net"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "%s-subnet"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "%s"
+  region  = google_compute_subnetwork.foobar.region
+  network = google_compute_network.foobar.self_link
+}
+
+resource "google_compute_router_nat" "foobar" {
+  name                               = "%s"
+  router                             = google_compute_router.foobar.name
+  region                             = google_compute_router.foobar.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  log_config {
+    enable = false
+    filter = "ALL"
+  }
+}
+`, routerName, routerName, routerName, routerName)
+}
+
+func testAccComputeRouterNatLogConfigRemoved(routerName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name = "%s-net"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "%s-subnet"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "%s"
+  region  = google_compute_subnetwork.foobar.region
+  network = google_compute_network.foobar.self_link
+}
+
+resource "google_compute_router_nat" "foobar" {
+  name                               = "%s"
+  router                             = google_compute_router.foobar.name
+  region                             = google_compute_router.foobar.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+}
+`, routerName, routerName, routerName, routerName)
 }
