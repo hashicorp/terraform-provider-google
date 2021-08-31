@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue in `google_compute_router_nat` where removing `log_config` resulted in a perma-diff
+```
