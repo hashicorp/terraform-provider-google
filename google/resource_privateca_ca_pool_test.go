@@ -257,7 +257,7 @@ resource "google_privateca_ca_pool" "default" {
         critical = false
         value = "asdf"
         object_id {
-          object_id_path = [3, 7]
+          object_id_path = [1, 6]
         }
       }
       ca_options {
