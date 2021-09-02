@@ -1,4 +1,23 @@
 ## 3.83.0 (Unreleased)
+FEATURES:
+* **New Resource:** `google_privateca_certificate_template` ([#9905](https://github.com/hashicorp/terraform-provider-google/pull/9905))
+
+IMPROVEMENTS:
+* privateca: Added `certificate_template` to `google_privateca_certificate`. ([#9915](https://github.com/hashicorp/terraform-provider-google/pull/9915))
+* compute: allowed setting `ip_address` field of `google_compute_router_peer` ([#9913](https://github.com/hashicorp/terraform-provider-google/pull/9913))
+* compute: promoted `google_compute_service_attachment` to ga ([#9914](https://github.com/hashicorp/terraform-provider-google/pull/9914))
+* compute: promoted `role` and `purpose` fields in `google_compute_subnetwork` to ga ([#9914](https://github.com/hashicorp/terraform-provider-google/pull/9914))
+* kms: added support for `destroy_scheduled_duration` to `google_kms_crypto_key` ([#9911](https://github.com/hashicorp/terraform-provider-google/pull/9911))
+
+BUG FIXES:
+* endpoints: fixed a timezone discrepancy in `config_id` on `google_endpoints_service` ([#9912](https://github.com/hashicorp/terraform-provider-google/pull/9912))
+* cloudbuild: marked `google_cloudbuild_trigger` as requiring one of branch_name/tag_name/commit_sha  within build.source.repo_source ([#9952](https://github.com/hashicorp/terraform-provider-google/pull/9952))
+* compute: fixed a crash on `enable` field of `google_compute_router_peer` ([#9940](https://github.com/hashicorp/terraform-provider-google/pull/9940))
+* compute: fixed a permanent diff for `next_hop_instance_zone` on `google_compute_route` when `next_hop_instance` was set to a self link ([#9931](https://github.com/hashicorp/terraform-provider-google/pull/9931))
+* compute: fixed an issue in `google_compute_router_nat` where removing `log_config` resulted in a perma-diff ([#9950](https://github.com/hashicorp/terraform-provider-google/pull/9950))
+* privateca: fixed a permadiff bug for `publishing_options` on `google_privateca_ca_pool` when both attributes set false ([#9926](https://github.com/hashicorp/terraform-provider-google/pull/9926))
+* spanner: fixed instance updates to processing units ([#9933](https://github.com/hashicorp/terraform-provider-google/pull/9933))
+* storage: added support for timeouts on `google_storage_bucket_object` ([#9937](https://github.com/hashicorp/terraform-provider-google/pull/9937))
 
 ## 3.82.0 (August 30, 2021)
 FEATURES:
