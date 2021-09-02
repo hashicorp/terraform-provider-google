@@ -1798,9 +1798,8 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 	client := NewDCLDataprocClient(config, userAgent, billingProject)
 	res, err := client.GetWorkflowTemplate(context.Background(), obj)
 	if err != nil {
-		// Resource not found
-		d.SetId("")
-		return err
+		resourceName := fmt.Sprintf("DataprocWorkflowTemplate %q", d.Id())
+		return handleNotFoundDCLError(err, d, resourceName)
 	}
 
 	if err = d.Set("jobs", flattenDataprocWorkflowTemplateJobsArray(res.Jobs)); err != nil {

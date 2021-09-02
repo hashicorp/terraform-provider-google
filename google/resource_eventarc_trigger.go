@@ -312,9 +312,8 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 	client := NewDCLEventarcClient(config, userAgent, billingProject)
 	res, err := client.GetTrigger(context.Background(), obj)
 	if err != nil {
-		// Resource not found
-		d.SetId("")
-		return err
+		resourceName := fmt.Sprintf("EventarcTrigger %q", d.Id())
+		return handleNotFoundDCLError(err, d, resourceName)
 	}
 
 	if err = d.Set("destination", flattenEventarcTriggerDestination(res.Destination)); err != nil {
