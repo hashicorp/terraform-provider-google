@@ -1,0 +1,4 @@
+```release-note:enhancement
+compute: allow updates for `google_compute_service_attachment`
+
+```

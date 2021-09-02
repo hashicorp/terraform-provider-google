@@ -295,6 +295,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}`
 
+* `fingerprint` -
+  Fingerprint of this resource. This field is used internally during
+  updates of this resource.
+
 * `connected_endpoints` -
   An array of the consumer forwarding rules connected to this service
   attachment.
@@ -317,6 +321,7 @@ This resource provides the following
 [Timeouts](/docs/configuration/resources.html#timeouts) configuration options:
 
 - `create` - Default is 4 minutes.
+- `update` - Default is 4 minutes.
 - `delete` - Default is 4 minutes.
 
 ## Import
