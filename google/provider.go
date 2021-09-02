@@ -780,6 +780,7 @@ func Provider() *schema.Provider {
 			"google_project_organization_policy":                  dataSourceGoogleProjectOrganizationPolicy(),
 			"google_pubsub_topic":                                 dataSourceGooglePubsubTopic(),
 			"google_runtimeconfig_config":                         dataSourceGoogleRuntimeconfigConfig(),
+			"google_secret_manager_secret":                        dataSourceSecretManagerSecret(),
 			"google_secret_manager_secret_version":                dataSourceSecretManagerSecretVersion(),
 			"google_service_account":                              dataSourceGoogleServiceAccount(),
 			"google_service_account_access_token":                 dataSourceGoogleServiceAccountAccessToken(),
