@@ -28,6 +28,7 @@ func resourceComputeServiceAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeServiceAttachmentCreate,
 		Read:   resourceComputeServiceAttachmentRead,
+		Update: resourceComputeServiceAttachmentUpdate,
 		Delete: resourceComputeServiceAttachmentDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -36,6 +37,7 @@ func resourceComputeServiceAttachment() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(4 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
@@ -43,7 +45,6 @@ func resourceComputeServiceAttachment() *schema.Resource {
 			"connection_preference": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				Description: `The connection preference to use for this service attachment. Valid
 values include "ACCEPT_AUTOMATIC", "ACCEPT_MANUAL".`,
 			},
@@ -69,7 +70,6 @@ except the last character, which cannot be a dash.`,
 			"nat_subnets": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: `An array of subnets that is provided for NAT in this service attachment.`,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
@@ -87,7 +87,6 @@ this service attachment.`,
 			"consumer_accept_lists": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `An array of projects that are allowed to connect to this service
 attachment.`,
 				Elem: &schema.Resource{
@@ -95,14 +94,12 @@ attachment.`,
 						"connection_limit": {
 							Type:     schema.TypeInt,
 							Required: true,
-							ForceNew: true,
 							Description: `The number of consumer forwarding rules the consumer project can
 create.`,
 						},
 						"project_id_or_num": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `A project that is allowed to connect to this service attachment.`,
 						},
 					},
@@ -111,7 +108,6 @@ create.`,
 			"consumer_reject_lists": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `An array of projects that are not allowed to connect to this service
 attachment.`,
 				Elem: &schema.Schema{
@@ -121,7 +117,6 @@ attachment.`,
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
 			"region": {
@@ -152,6 +147,12 @@ this service attachment.`,
 						},
 					},
 				},
+			},
+			"fingerprint": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Fingerprint of this resource. This field is used internally during
+updates of this resource.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -188,6 +189,12 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	fingerprintProp, err := expandComputeServiceAttachmentFingerprint(d.Get("fingerprint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("fingerprint"); !isEmptyValue(reflect.ValueOf(fingerprintProp)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
+		obj["fingerprint"] = fingerprintProp
+	}
 	connectionPreferenceProp, err := expandComputeServiceAttachmentConnectionPreference(d.Get("connection_preference"), d, config)
 	if err != nil {
 		return err
@@ -203,7 +210,7 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 	natSubnetsProp, err := expandComputeServiceAttachmentNatSubnets(d.Get("nat_subnets"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("nat_subnets"); !isEmptyValue(reflect.ValueOf(natSubnetsProp)) && (ok || !reflect.DeepEqual(v, natSubnetsProp)) {
+	} else if v, ok := d.GetOkExists("nat_subnets"); ok || !reflect.DeepEqual(v, natSubnetsProp) {
 		obj["natSubnets"] = natSubnetsProp
 	}
 	enableProxyProtocolProp, err := expandComputeServiceAttachmentEnableProxyProtocol(d.Get("enable_proxy_protocol"), d, config)
@@ -215,13 +222,13 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 	consumerRejectListsProp, err := expandComputeServiceAttachmentConsumerRejectLists(d.Get("consumer_reject_lists"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("consumer_reject_lists"); !isEmptyValue(reflect.ValueOf(consumerRejectListsProp)) && (ok || !reflect.DeepEqual(v, consumerRejectListsProp)) {
+	} else if v, ok := d.GetOkExists("consumer_reject_lists"); ok || !reflect.DeepEqual(v, consumerRejectListsProp) {
 		obj["consumerRejectLists"] = consumerRejectListsProp
 	}
 	consumerAcceptListsProp, err := expandComputeServiceAttachmentConsumerAcceptLists(d.Get("consumer_accept_lists"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("consumer_accept_lists"); !isEmptyValue(reflect.ValueOf(consumerAcceptListsProp)) && (ok || !reflect.DeepEqual(v, consumerAcceptListsProp)) {
+	} else if v, ok := d.GetOkExists("consumer_accept_lists"); ok || !reflect.DeepEqual(v, consumerAcceptListsProp) {
 		obj["consumerAcceptLists"] = consumerAcceptListsProp
 	}
 	regionProp, err := expandComputeServiceAttachmentRegion(d.Get("region"), d, config)
@@ -317,6 +324,9 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 	if err := d.Set("description", flattenComputeServiceAttachmentDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
+	if err := d.Set("fingerprint", flattenComputeServiceAttachmentFingerprint(res["fingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
 	if err := d.Set("connection_preference", flattenComputeServiceAttachmentConnectionPreference(res["connectionPreference"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
@@ -346,6 +356,95 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 	}
 
 	return nil
+}
+
+func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userAgent, err := generateUserAgentString(d, config.userAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := getProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for ServiceAttachment: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	descriptionProp, err := expandComputeServiceAttachmentDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	fingerprintProp, err := expandComputeServiceAttachmentFingerprint(d.Get("fingerprint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("fingerprint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fingerprintProp)) {
+		obj["fingerprint"] = fingerprintProp
+	}
+	connectionPreferenceProp, err := expandComputeServiceAttachmentConnectionPreference(d.Get("connection_preference"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("connection_preference"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, connectionPreferenceProp)) {
+		obj["connectionPreference"] = connectionPreferenceProp
+	}
+	natSubnetsProp, err := expandComputeServiceAttachmentNatSubnets(d.Get("nat_subnets"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("nat_subnets"); ok || !reflect.DeepEqual(v, natSubnetsProp) {
+		obj["natSubnets"] = natSubnetsProp
+	}
+	consumerRejectListsProp, err := expandComputeServiceAttachmentConsumerRejectLists(d.Get("consumer_reject_lists"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("consumer_reject_lists"); ok || !reflect.DeepEqual(v, consumerRejectListsProp) {
+		obj["consumerRejectLists"] = consumerRejectListsProp
+	}
+	consumerAcceptListsProp, err := expandComputeServiceAttachmentConsumerAcceptLists(d.Get("consumer_accept_lists"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("consumer_accept_lists"); ok || !reflect.DeepEqual(v, consumerAcceptListsProp) {
+		obj["consumerAcceptLists"] = consumerAcceptListsProp
+	}
+
+	obj, err = resourceComputeServiceAttachmentUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating ServiceAttachment %q: %#v", d.Id(), obj)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return fmt.Errorf("Error updating ServiceAttachment %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating ServiceAttachment %q: %#v", d.Id(), res)
+	}
+
+	err = computeOperationWaitTime(
+		config, res, project, "Updating ServiceAttachment", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return err
+	}
+
+	return resourceComputeServiceAttachmentRead(d, meta)
 }
 
 func resourceComputeServiceAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
@@ -419,6 +518,10 @@ func flattenComputeServiceAttachmentName(v interface{}, d *schema.ResourceData, 
 }
 
 func flattenComputeServiceAttachmentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeServiceAttachmentFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -530,6 +633,10 @@ func expandComputeServiceAttachmentDescription(v interface{}, d TerraformResourc
 	return v, nil
 }
 
+func expandComputeServiceAttachmentFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeServiceAttachmentConnectionPreference(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -609,4 +716,21 @@ func expandComputeServiceAttachmentRegion(v interface{}, d TerraformResourceData
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func resourceComputeServiceAttachmentUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+
+	// need to send value in PATCH due to validation bug on api b/198329756
+	nameProp := d.Get("name")
+	if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
+
+	// need to send value in PATCH due to validation bug on api b/198308475
+	enableProxyProtocolProp := d.Get("enable_proxy_protocol")
+	if v, ok := d.GetOkExists("enable_proxy_protocol"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableProxyProtocolProp)) {
+		obj["enableProxyProtocol"] = enableProxyProtocolProp
+	}
+
+	return obj, nil
 }
