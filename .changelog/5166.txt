@@ -1,0 +1,3 @@
+```release-note:bug
+eventarc: fixed bug where resources could not be deleted out of bounds
+```

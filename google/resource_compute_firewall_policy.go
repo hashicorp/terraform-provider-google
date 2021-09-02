@@ -183,9 +183,8 @@ func resourceComputeFirewallPolicyRead(d *schema.ResourceData, meta interface{})
 	client := NewDCLComputeClient(config, userAgent, billingProject)
 	res, err := client.GetFirewallPolicy(context.Background(), obj)
 	if err != nil {
-		// Resource not found
-		d.SetId("")
-		return err
+		resourceName := fmt.Sprintf("ComputeFirewallPolicy %q", d.Id())
+		return handleNotFoundDCLError(err, d, resourceName)
 	}
 
 	if err = d.Set("parent", res.Parent); err != nil {

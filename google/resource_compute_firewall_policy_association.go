@@ -136,9 +136,8 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 	client := NewDCLComputeClient(config, userAgent, billingProject)
 	res, err := client.GetFirewallPolicyAssociation(context.Background(), obj)
 	if err != nil {
-		// Resource not found
-		d.SetId("")
-		return err
+		resourceName := fmt.Sprintf("ComputeFirewallPolicyAssociation %q", d.Id())
+		return handleNotFoundDCLError(err, d, resourceName)
 	}
 
 	if err = d.Set("attachment_target", res.AttachmentTarget); err != nil {
