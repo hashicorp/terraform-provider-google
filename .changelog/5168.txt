@@ -1,0 +1,3 @@
+```release-note:bug
+logging: fixed the data type for `bucket_options.linear_buckets.width` on `google_logging_metric`
+```

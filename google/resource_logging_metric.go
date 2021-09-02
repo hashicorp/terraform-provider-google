@@ -187,7 +187,7 @@ Each bucket represents a constant absolute uncertainty on the specific value in 
 										AtLeastOneOf: []string{"bucket_options.0.linear_buckets.0.num_finite_buckets", "bucket_options.0.linear_buckets.0.width", "bucket_options.0.linear_buckets.0.offset"},
 									},
 									"width": {
-										Type:         schema.TypeInt,
+										Type:         schema.TypeFloat,
 										Optional:     true,
 										Description:  `Must be greater than 0.`,
 										AtLeastOneOf: []string{"bucket_options.0.linear_buckets.0.num_finite_buckets", "bucket_options.0.linear_buckets.0.width", "bucket_options.0.linear_buckets.0.offset"},
@@ -723,20 +723,7 @@ func flattenLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(v interface{
 }
 
 func flattenLoggingMetricBucketOptionsLinearBucketsWidth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
+	return v
 }
 
 func flattenLoggingMetricBucketOptionsLinearBucketsOffset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
