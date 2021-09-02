@@ -54,7 +54,7 @@ resource "google_vertex_ai_featurestore" "featurestore" {
   }
 }
 
-resource "google_vertex_ai_featurestore_entitytype" "featurestore" {
+resource "google_vertex_ai_featurestore_entitytype" "entity" {
   provider = google-beta
   name     = "terraform"
   labels = {
@@ -149,5 +149,4 @@ FeaturestoreEntitytype can be imported using any of these accepted formats:
 
 ```
 $ terraform import google_vertex_ai_featurestore_entitytype.default {{featurestore}}/entityTypes/{{name}}
-$ terraform import google_vertex_ai_featurestore_entitytype.default {{featurestore}}/{{name}}
 ```
