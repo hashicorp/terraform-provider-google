@@ -552,10 +552,11 @@ resource "google_logging_project_sink" "default" {
 }
 
 resource "google_logging_project_bucket_config" "new_bucket" {
+	project        = "%s"
 	bucket_id      = "%s"
 	location       = "global"
 	retention_days = 30
 	description    = "test logging bucket"
 }
-`, project, bucketName)
+`, project, project, bucketName)
 }
