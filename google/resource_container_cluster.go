@@ -2622,7 +2622,7 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 	}
 	maintenancePolicy := l[0].(map[string]interface{})
 
-	if maintenanceExclusions, ok := maintenancePolicy["maintenance_exclusion"]; ok && len(maintenanceExclusions.(*schema.Set).List()) > 0 {
+	if maintenanceExclusions, ok := maintenancePolicy["maintenance_exclusion"]; ok {
 		for k := range exclusions {
 			delete(exclusions, k)
 		}
