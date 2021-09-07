@@ -95,6 +95,7 @@ resource "google_filestore_instance" "instance" {
   networks {
     network = "default"
     modes   = ["MODE_IPV4"]
+    connect_mode = "DIRECT_PEERING"
   }
 }
 ```
@@ -201,6 +202,14 @@ The `networks` block supports:
 
 * `ip_addresses` -
   A list of IPv4 or IPv6 addresses.
+
+* `connect_mode` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The network connect mode of the Filestore instance.
+  If not provided, the connect mode defaults to
+  DIRECT_PEERING.
+  Default value is `DIRECT_PEERING`.
+  Possible values are `DIRECT_PEERING` and `PRIVATE_SERVICE_ACCESS`.
 
 - - -
 
