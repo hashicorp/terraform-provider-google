@@ -1,0 +1,3 @@
+```release-note:bug
+Container: fixed a bug in failing to remove `maintenance_exclusion` on `google_container_cluster`
+```
