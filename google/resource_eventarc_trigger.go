@@ -48,7 +48,7 @@ func resourceEventarcTrigger() *schema.Resource {
 			"destination": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: ``,
+				Description: "Required. Destination specifies where the events should be sent to.",
 				MaxItems:    1,
 				Elem:        EventarcTriggerDestinationSchema(),
 			},
@@ -57,13 +57,13 @@ func resourceEventarcTrigger() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "The location for the resource",
 			},
 
 			"matching_criteria": {
 				Type:        schema.TypeSet,
 				Required:    true,
-				Description: ``,
+				Description: "Required. null The list of filters that applies to event attributes. Only events that match all the provided filters will be sent to the destination.",
 				Elem:        EventarcTriggerMatchingCriteriaSchema(),
 				Set:         schema.HashResource(EventarcTriggerMatchingCriteriaSchema()),
 			},
@@ -71,13 +71,13 @@ func resourceEventarcTrigger() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: ``,
+				Description: "Required. The resource name of the trigger. Must be unique within the location on the project and must be in `projects/{project}/locations/{location}/triggers/{trigger}` format.",
 			},
 
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: ``,
+				Description: "Optional. User labels attached to the triggers that can be used to group resources.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -87,14 +87,14 @@ func resourceEventarcTrigger() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      ``,
+				Description:      "The project for the resource",
 			},
 
 			"service_account": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      ``,
+				Description:      "Optional. The IAM service account email associated with the trigger. The service account represents the identity of the trigger. The principal who calls this API must have `iam.serviceAccounts.actAs` permission in the service account. See https://cloud.google.com/iam/docs/understanding-service-accounts?hl=en#sa_common for more information. For Cloud Run destinations, this service account is used to generate identity tokens when invoking the service. See https://cloud.google.com/run/docs/triggering/pubsub-push#create-service-account for information on how to invoke authenticated Cloud Run services. In order to create Audit Log triggers, the service account should also have `roles/eventarc.eventReceiver` IAM role.",
 			},
 
 			"transport": {
@@ -102,7 +102,7 @@ func resourceEventarcTrigger() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "Optional. In order to deliver messages, Eventarc may use other GCP products as transport intermediary. This field contains a reference to that transport intermediary. This information can be used for debugging purposes.",
 				MaxItems:    1,
 				Elem:        EventarcTriggerTransportSchema(),
 			},
@@ -110,25 +110,25 @@ func resourceEventarcTrigger() *schema.Resource {
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Output only. The creation time.",
 			},
 
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Output only. This checksum is computed by the server based on the value of other fields, and may be sent only on create requests to ensure the client has an up-to-date value before proceeding.",
 			},
 
 			"uid": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Output only. Server assigned unique identifier for the trigger. The value is a UUID4 string and guaranteed to remain unchanged until the resource is deleted.",
 			},
 
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Output only. The last-modified time.",
 			},
 		},
 	}
@@ -141,13 +141,13 @@ func EventarcTriggerDestinationSchema() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      ``,
+				Description:      "The Cloud Function resource name. Only Cloud Functions V2 is supported. Format: projects/{project}/locations/{location}/functions/{function}",
 			},
 
 			"cloud_run_service": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: ``,
+				Description: "Cloud Run fully-managed service that receives the events. The service should be running in the same project of the trigger.",
 				MaxItems:    1,
 				Elem:        EventarcTriggerDestinationCloudRunServiceSchema(),
 			},
@@ -162,20 +162,20 @@ func EventarcTriggerDestinationCloudRunServiceSchema() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      ``,
+				Description:      "Required. The name of the Cloud Run service being addressed. See https://cloud.google.com/run/docs/reference/rest/v1/namespaces.services. Only services located in the same project of the trigger object can be addressed.",
 			},
 
 			"path": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: ``,
+				Description: "Optional. The relative path on the Cloud Run service the events should be sent to. The value must conform to the definition of URI path segment (section 3.3 of RFC2396). Examples: \"/route\", \"route\", \"route/subroute\".",
 			},
 
 			"region": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
-				Description: ``,
+				Description: "Required. The region the Cloud Run service is deployed in.",
 			},
 		},
 	}
@@ -187,13 +187,13 @@ func EventarcTriggerMatchingCriteriaSchema() *schema.Resource {
 			"attribute": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: ``,
+				Description: "Required. The name of a CloudEvents attribute. Currently, only a subset of attributes are supported for filtering. All triggers MUST provide a filter for the 'type' attribute.",
 			},
 
 			"value": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: ``,
+				Description: "Required. The value for the attribute.",
 			},
 		},
 	}
@@ -206,7 +206,7 @@ func EventarcTriggerTransportSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "The Pub/Sub topic and subscription used by Eventarc as delivery intermediary.",
 				MaxItems:    1,
 				Elem:        EventarcTriggerTransportPubsubSchema(),
 			},
@@ -221,13 +221,13 @@ func EventarcTriggerTransportPubsubSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "Optional. The name of the Pub/Sub topic created and managed by Eventarc system as a transport for the event delivery. Format: `projects/{PROJECT_ID}/topics/{TOPIC_NAME}`. You may set an existing topic for triggers of the type `google.cloud.pubsub.topic.v1.messagePublished` only. The topic you provide here will not be deleted by Eventarc at trigger deletion.",
 			},
 
 			"subscription": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Output only. The name of the Pub/Sub subscription created and managed by Eventarc system as a transport for the event delivery. Format: `projects/{PROJECT_ID}/subscriptions/{SUBSCRIPTION_NAME}`.",
 			},
 		},
 	}

@@ -51,28 +51,28 @@ func resourceAssuredWorkloadsWorkload() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      ``,
+				Description:      "Required. Input only. The billing account used for the resources which are direct children of workload. This billing account is initially associated with the resources created as part of Workload creation. After the initial creation of these resources, the customer can change the assigned billing account. The resource name has the form `billingAccounts/{billing_account_id}`. For example, 'billingAccounts/012345-567890-ABCDEF`.",
 			},
 
 			"compliance_regime": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				Description:  ``,
+				Description:  "Required. Immutable. Compliance Regime associated with this workload. Possible values: COMPLIANCE_REGIME_UNSPECIFIED, IL4, CJIS, FEDRAMP_HIGH, FEDRAMP_MODERATE, US_REGIONAL_ACCESS",
 				ValidateFunc: validation.StringInSlice([]string{"COMPLIANCE_REGIME_UNSPECIFIED", "IL4", "CJIS", "FEDRAMP_HIGH", "FEDRAMP_MODERATE", "US_REGIONAL_ACCESS", ""}, false),
 			},
 
 			"display_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: ``,
+				Description: "Required. The user-assigned display name of the Workload. When present it must be between 4 to 30 characters. Allowed characters are: lowercase and uppercase letters, numbers, hyphen, and spaces. Example: My Workload",
 			},
 
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "The location for the resource",
 			},
 
 			"organization": {
@@ -80,14 +80,14 @@ func resourceAssuredWorkloadsWorkload() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      ``,
+				Description:      "The organization for the resource",
 			},
 
 			"kms_settings": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "Input only. Settings used to create a CMEK crypto key. When set a project with a KMS CMEK key is provisioned. This field is mandatory for a subset of Compliance Regimes.",
 				MaxItems:    1,
 				Elem:        AssuredWorkloadsWorkloadKmsSettingsSchema(),
 			},
@@ -95,7 +95,7 @@ func resourceAssuredWorkloadsWorkload() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: ``,
+				Description: "Optional. Labels applied to the workload.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -103,33 +103,33 @@ func resourceAssuredWorkloadsWorkload() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "Input only. The parent resource for the resources managed by this Assured Workload. May be either an organization or a folder. Must be the same or a child of the Workload parent. If not specified all resources are created under the Workload parent. Formats: folders/{folder_id}, organizations/{organization_id}",
 			},
 
 			"resource_settings": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "Input only. Resource properties that are used to customize workload resources. These properties (such as custom project id) will be used to create workload resources if possible. This field is optional.",
 				Elem:        AssuredWorkloadsWorkloadResourceSettingsSchema(),
 			},
 
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Output only. Immutable. The Workload creation timestamp.",
 			},
 
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Output only. The resource name of the workload.",
 			},
 
 			"resources": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: ``,
+				Description: "Output only. The resources associated with this workload. These resources will be created when creating the workload. If any of the projects already exist, the workload creation will fail. Always read only.",
 				Elem:        AssuredWorkloadsWorkloadResourcesSchema(),
 			},
 		},
@@ -143,14 +143,14 @@ func AssuredWorkloadsWorkloadKmsSettingsSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "Required. Input only. Immutable. The time at which the Key Management Service will automatically create a new version of the crypto key and mark it as the primary.",
 			},
 
 			"rotation_period": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "Required. Input only. Immutable. will be advanced by this period when the Key Management Service automatically rotates a key. Must be at least 24 hours and at most 876,000 hours.",
 			},
 		},
 	}
@@ -163,14 +163,14 @@ func AssuredWorkloadsWorkloadResourceSettingsSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "Resource identifier. For a project this represents project_number. If the project is already taken, the workload creation will fail.",
 			},
 
 			"resource_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Description:  ``,
+				Description:  "Indicates the type of resource. This field should be specified to correspond the id to the right project type (CONSUMER_PROJECT or ENCRYPTION_KEYS_PROJECT) Possible values: RESOURCE_TYPE_UNSPECIFIED, CONSUMER_PROJECT, ENCRYPTION_KEYS_PROJECT, KEYRING, CONSUMER_FOLDER",
 				ValidateFunc: validation.StringInSlice([]string{"RESOURCE_TYPE_UNSPECIFIED", "CONSUMER_PROJECT", "ENCRYPTION_KEYS_PROJECT", "KEYRING", "CONSUMER_FOLDER", ""}, false),
 			},
 		},
@@ -183,13 +183,13 @@ func AssuredWorkloadsWorkloadResourcesSchema() *schema.Resource {
 			"resource_id": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: ``,
+				Description: "Resource identifier. For a project this represents project_number.",
 			},
 
 			"resource_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Indicates the type of resource. Possible values: RESOURCE_TYPE_UNSPECIFIED, CONSUMER_PROJECT, ENCRYPTION_KEYS_PROJECT, KEYRING, CONSUMER_FOLDER",
 			},
 		},
 	}

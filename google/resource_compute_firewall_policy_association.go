@@ -48,7 +48,7 @@ func resourceComputeFirewallPolicyAssociation() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      ``,
+				Description:      "The target that the firewall policy is attached to.",
 			},
 
 			"firewall_policy": {
@@ -56,20 +56,20 @@ func resourceComputeFirewallPolicyAssociation() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      ``,
+				Description:      "The firewall policy ID of the association.",
 			},
 
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "The name for an association.",
 			},
 
 			"short_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "The short name of the firewall policy of the association.",
 			},
 		},
 	}
