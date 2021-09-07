@@ -50,62 +50,62 @@ func resourceComputeFirewallPolicy() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      ``,
+				Description:      "The parent of the firewall policy.",
 			},
 
 			"short_name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "User-provided name of the Organization firewall policy. The name should be unique in the organization in which the firewall policy is created. The name must be 1-63 characters long, and comply with RFC1035. Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])? which means the first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash.",
 			},
 
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: ``,
+				Description: "An optional description of this resource. Provide this property when you create the resource.",
 			},
 
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Creation timestamp in RFC3339 text format.",
 			},
 
 			"fingerprint": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Fingerprint of the resource. This field is used internally during updates of this resource.",
 			},
 
 			"firewall_policy_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "The unique identifier for the resource. This identifier is defined by the server.",
 			},
 
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Name of the resource. It is a numeric ID allocated by GCP which uniquely identifies the Firewall Policy.",
 			},
 
 			"rule_tuple_count": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: ``,
+				Description: "Total count of all firewall policy rule tuples. A firewall policy can not exceed a set number of tuples.",
 			},
 
 			"self_link": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Server-defined URL for the resource.",
 			},
 
 			"self_link_with_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Server-defined URL for this resource with the resource id.",
 			},
 		},
 	}

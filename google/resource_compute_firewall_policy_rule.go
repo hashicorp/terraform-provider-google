@@ -49,13 +49,13 @@ func resourceComputeFirewallPolicyRule() *schema.Resource {
 			"action": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: ``,
+				Description: "The Action to perform when the client connection triggers the rule. Can currently be either \"allow\" or \"deny()\" where valid values for status are 403, 404, and 502.",
 			},
 
 			"direction": {
 				Type:         schema.TypeString,
 				Required:     true,
-				Description:  ``,
+				Description:  "The direction in which this rule applies. Possible values: INGRESS, EGRESS",
 				ValidateFunc: validation.StringInSlice([]string{"INGRESS", "EGRESS", ""}, false),
 			},
 
@@ -64,13 +64,13 @@ func resourceComputeFirewallPolicyRule() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      ``,
+				Description:      "The firewall policy of the resource.",
 			},
 
 			"match": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: ``,
+				Description: "A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding 'action' is enforced.",
 				MaxItems:    1,
 				Elem:        ComputeFirewallPolicyRuleMatchSchema(),
 			},
@@ -79,52 +79,52 @@ func resourceComputeFirewallPolicyRule() *schema.Resource {
 				Type:        schema.TypeInt,
 				Required:    true,
 				ForceNew:    true,
-				Description: ``,
+				Description: "An integer indicating the priority of a rule in the list. The priority must be a positive value between 0 and 2147483647. Rules are evaluated from highest to lowest priority where 0 is the highest priority and 2147483647 is the lowest prority.",
 			},
 
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: ``,
+				Description: "An optional description for this resource.",
 			},
 
 			"disabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: ``,
+				Description: "Denotes whether the firewall policy rule is disabled. When set to true, the firewall policy rule is not enforced and traffic behaves as if it did not exist. If this is unspecified, the firewall policy rule will be enabled.",
 			},
 
 			"enable_logging": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: ``,
+				Description: "Denotes whether to enable logging for a particular rule. If logging is enabled, logs will be exported to the configured export destination in Stackdriver. Logs may be exported to BigQuery or Pub/Sub. Note: you cannot enable logging on \"goto_next\" rules.",
 			},
 
 			"target_resources": {
 				Type:             schema.TypeList,
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      ``,
+				Description:      "A list of network resource URLs to which this rule applies. This field allows you to control which network's VMs get this rule. If this field is left blank, all VMs within the organization will receive the rule.",
 				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 
 			"target_service_accounts": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: ``,
+				Description: "A list of service accounts indicating the sets of instances that are applied with this rule.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"kind": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: ``,
+				Description: "Type of the resource. Always `compute#firewallPolicyRule` for firewall policy rules",
 			},
 
 			"rule_tuple_count": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: ``,
+				Description: "Calculation of the complexity of a single firewall policy rule.",
 			},
 		},
 	}
@@ -136,21 +136,21 @@ func ComputeFirewallPolicyRuleMatchSchema() *schema.Resource {
 			"layer4_configs": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: ``,
+				Description: "Pairs of IP protocols and ports that the rule should match.",
 				Elem:        ComputeFirewallPolicyRuleMatchLayer4ConfigsSchema(),
 			},
 
 			"dest_ip_ranges": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: ``,
+				Description: "CIDR IP address range. Maximum number of destination CIDR IP ranges allowed is 256.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"src_ip_ranges": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: ``,
+				Description: "CIDR IP address range. Maximum number of source CIDR IP ranges allowed is 256.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -163,13 +163,13 @@ func ComputeFirewallPolicyRuleMatchLayer4ConfigsSchema() *schema.Resource {
 			"ip_protocol": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: ``,
+				Description: "The IP protocol to which this rule applies. The protocol type is required when creating a firewall rule. This value can either be one of the following well known protocol strings (`tcp`, `udp`, `icmp`, `esp`, `ah`, `ipip`, `sctp`), or the IP protocol number.",
 			},
 
 			"ports": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: ``,
+				Description: "An optional list of ports to which this rule applies. This field is only applicable for UDP or TCP protocol. Each entry must be either an integer or a range. If not specified, this rule applies to connections through any port. Example inputs include: ``.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
