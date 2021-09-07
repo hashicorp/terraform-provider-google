@@ -176,7 +176,7 @@ The following arguments are supported:
 
 * `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
 
-* `advanced_machine_config` (Optional) - Configure Nested Virtualisation and Simultaneous Hyper Threading  on this VM.
+* `advanced_machine_features` (Optional) - Configure Nested Virtualisation and Simultaneous Hyper Threading  on this VM.
 
 * `network_performance_config` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)
     Configures network performance settings for the instance. Structure is
