@@ -31,9 +31,10 @@ func TestAccComputeGlobalForwardingRule_updateTarget(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_global_forwarding_rule.forwarding_rule",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_global_forwarding_rule.forwarding_rule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"port_range", "target"},
 			},
 			{
 				Config: testAccComputeGlobalForwardingRule_httpProxy(fr, "proxy2", proxy, proxyUpdated, backend, hc, urlmap),
@@ -43,9 +44,10 @@ func TestAccComputeGlobalForwardingRule_updateTarget(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_global_forwarding_rule.forwarding_rule",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_global_forwarding_rule.forwarding_rule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"port_range", "target"},
 			},
 		},
 	})
@@ -73,9 +75,10 @@ func TestAccComputeGlobalForwardingRule_ipv6(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_global_forwarding_rule.forwarding_rule",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_global_forwarding_rule.forwarding_rule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"port_range", "target"},
 			},
 		},
 	})

@@ -19,7 +19,7 @@ func TestAccDataSourceGoogleGlobalForwardingRule(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleGlobalForwardingRuleConfig(poolName, ruleName),
-				Check:  checkDataSourceStateMatchesResourceState("data.google_compute_global_forwarding_rule.my_forwarding_rule", "google_compute_global_forwarding_rule.foobar-fr"),
+				Check:  checkDataSourceStateMatchesResourceStateWithIgnores("data.google_compute_global_forwarding_rule.my_forwarding_rule", "google_compute_global_forwarding_rule.foobar-fr", map[string]struct{}{"port_range": {}, "target": {}}),
 			},
 		},
 	})
