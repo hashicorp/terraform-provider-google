@@ -39,7 +39,6 @@ To get more information about OrganizationSecurityPolicyRule, see:
 ```hcl
 resource "google_compute_organization_security_policy" "policy" {
   provider = google-beta
-
   display_name = "tf-test%{random_suffix}"
   parent       = "organizations/123456789"
 }
@@ -208,5 +207,4 @@ OrganizationSecurityPolicyRule can be imported using any of these accepted forma
 
 ```
 $ terraform import google_compute_organization_security_policy_rule.default {{policy_id}}/priority/{{priority}}
-$ terraform import google_compute_organization_security_policy_rule.default {{policy_id}}/{{priority}}
 ```
