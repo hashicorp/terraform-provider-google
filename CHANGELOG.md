@@ -3,7 +3,7 @@ FEATURES:
 * **New Resource:** `google_privateca_certificate_template` ([#9905](https://github.com/hashicorp/terraform-provider-google/pull/9905))
 
 IMPROVEMENTS:
-* privateca: Added `certificate_template` to `google_privateca_certificate`. ([#9915](https://github.com/hashicorp/terraform-provider-google/pull/9915))
+* privateca: added `certificate_template` to `google_privateca_certificate`. ([#9915](https://github.com/hashicorp/terraform-provider-google/pull/9915))
 * compute: allowed setting `ip_address` field of `google_compute_router_peer` ([#9913](https://github.com/hashicorp/terraform-provider-google/pull/9913))
 * compute: promoted `google_compute_service_attachment` to ga ([#9914](https://github.com/hashicorp/terraform-provider-google/pull/9914))
 * compute: promoted `role` and `purpose` fields in `google_compute_subnetwork` to ga ([#9914](https://github.com/hashicorp/terraform-provider-google/pull/9914))
