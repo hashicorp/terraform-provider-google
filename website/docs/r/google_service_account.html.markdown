@@ -48,6 +48,9 @@ The following arguments are supported:
 * `description` - (Optional) A text description of the service account.
     Must be less than or equal to 256 UTF-8 bytes.
 
+* `disabled` - (Optional) Whether a service account is disabled or not. Defaults to `false`. This field has no effect during creation.
+   Must be set after creation to disable a service account. 
+
 * `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.
 

@@ -84,6 +84,65 @@ func TestAccServiceAccount_basic(t *testing.T) {
 	})
 }
 
+func TestAccServiceAccount_Disabled(t *testing.T) {
+	t.Parallel()
+
+	accountId := "a" + randString(t, 10)
+	uniqueId := ""
+	displayName := "Terraform Test"
+	desc := "test description"
+	project := getTestProjectFromEnv()
+	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			// The first step creates a basic service account
+			{
+				Config: testAccServiceAccountBasic(accountId, displayName, desc),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_service_account.acceptance", "project", project),
+				),
+			},
+			{
+				ResourceName:      "google_service_account.acceptance",
+				ImportStateId:     fmt.Sprintf("projects/%s/serviceAccounts/%s", project, expectedEmail),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// The second step disables the service account
+			{
+				Config: testAccServiceAccountDisabled(accountId, displayName, desc, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_service_account.acceptance", "project", project),
+					testAccStoreServiceAccountUniqueId(&uniqueId),
+				),
+			},
+			{
+				ResourceName:      "google_service_account.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// The third step enables the disabled service account
+			{
+				Config: testAccServiceAccountDisabled(accountId, displayName, desc, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_service_account.acceptance", "project", project),
+					testAccStoreServiceAccountUniqueId(&uniqueId),
+				),
+			},
+			{
+				ResourceName:      "google_service_account.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccStoreServiceAccountUniqueId(uniqueId *string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		*uniqueId = s.RootModule().Resources["google_service_account.acceptance"].Primary.Attributes["unique_id"]
@@ -110,4 +169,15 @@ resource "google_service_account" "acceptance" {
   description  = "foo"
 }
 `, project, account, name)
+}
+
+func testAccServiceAccountDisabled(account, name, desc string, disabled bool) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "acceptance" {
+  account_id   = "%v"
+  display_name = "%v"
+  description  = "%v"
+  disabled      = "%t"
+}
+`, account, name, desc, disabled)
 }
