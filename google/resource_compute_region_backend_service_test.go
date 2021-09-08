@@ -200,6 +200,36 @@ func TestAccComputeRegionBackendService_ilbUpdateBasic(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionBackendService_withBackendAndIAP(t *testing.T) {
+	backendName := fmt.Sprintf("foo-%s", randString(t, 10))
+	checkName := fmt.Sprintf("bar-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_ilbBasicwithIAP(backendName, checkName),
+			},
+			{
+				ResourceName:            "google_compute_region_backend_service.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
+			},
+			{
+				Config: testAccComputeRegionBackendService_ilbBasic(backendName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeRegionBackendService_ilbBasic(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "foobar" {
@@ -762,4 +792,44 @@ resource "google_compute_health_check" "zero" {
   }
 }
 `, serviceName, drainingTimeout, checkName)
+}
+
+func testAccComputeRegionBackendService_ilbBasicwithIAP(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar" {
+  name                  = "%s"
+  health_checks         = [google_compute_health_check.health_check.self_link]
+  port_name             = "http"
+  protocol              = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  locality_lb_policy    = "RING_HASH"
+  circuit_breakers {
+    max_connections = 10
+  }
+  consistent_hash {
+    http_cookie {
+      ttl {
+        seconds = 11
+        nanos   = 1234
+      }
+      name = "mycookie"
+    }
+  }
+  outlier_detection {
+    consecutive_errors = 2
+  }
+
+  iap {
+    oauth2_client_id     = "test"
+    oauth2_client_secret = "test"
+  }
+}
+
+resource "google_compute_health_check" "health_check" {
+  name     = "%s"
+  http_health_check {
+    port = 80
+  }
+}
+`, serviceName, checkName)
 }

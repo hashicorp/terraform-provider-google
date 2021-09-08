@@ -533,6 +533,33 @@ or serverless NEG as a backend.`,
 				},
 				Set: selfLinkRelativePathHash,
 			},
+			"iap": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for enabling Cloud Identity Aware Proxy`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"oauth2_client_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `OAuth2 Client ID for IAP`,
+						},
+						"oauth2_client_secret": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `OAuth2 Client Secret for IAP`,
+							Sensitive:   true,
+						},
+						"oauth2_client_secret_sha256": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `OAuth2 Client Secret SHA-256 for IAP`,
+							Sensitive:   true,
+						},
+					},
+				},
+			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1041,6 +1068,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(healthChecksProp)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
 		obj["healthChecks"] = healthChecksProp
 	}
+	iapProp, err := expandComputeRegionBackendServiceIap(d.Get("iap"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
+		obj["iap"] = iapProp
+	}
 	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
 	if err != nil {
 		return err
@@ -1253,6 +1286,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("health_checks", flattenComputeRegionBackendServiceHealthChecks(res["healthChecks"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("iap", flattenComputeRegionBackendServiceIap(res["iap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("load_balancing_scheme", flattenComputeRegionBackendServiceLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
@@ -1374,6 +1410,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("health_checks"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, healthChecksProp)) {
 		obj["healthChecks"] = healthChecksProp
+	}
+	iapProp, err := expandComputeRegionBackendServiceIap(d.Get("iap"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("iap"); ok || !reflect.DeepEqual(v, iapProp) {
+		obj["iap"] = iapProp
 	}
 	loadBalancingSchemeProp, err := expandComputeRegionBackendServiceLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
 	if err != nil {
@@ -2195,6 +2237,35 @@ func flattenComputeRegionBackendServiceHealthChecks(v interface{}, d *schema.Res
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+}
+
+func flattenComputeRegionBackendServiceIap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["oauth2_client_id"] =
+		flattenComputeRegionBackendServiceIapOauth2ClientId(original["oauth2ClientId"], d, config)
+	transformed["oauth2_client_secret"] =
+		flattenComputeRegionBackendServiceIapOauth2ClientSecret(original["oauth2ClientSecret"], d, config)
+	transformed["oauth2_client_secret_sha256"] =
+		flattenComputeRegionBackendServiceIapOauth2ClientSecretSha256(original["oauth2ClientSecretSha256"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceIapOauth2ClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceIapOauth2ClientSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return d.Get("iap.0.oauth2_client_secret")
+}
+
+func flattenComputeRegionBackendServiceIapOauth2ClientSecretSha256(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenComputeRegionBackendServiceLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -3170,6 +3241,51 @@ func expandComputeRegionBackendServiceHealthChecks(v interface{}, d TerraformRes
 	return v, nil
 }
 
+func expandComputeRegionBackendServiceIap(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedOauth2ClientId, err := expandComputeRegionBackendServiceIapOauth2ClientId(original["oauth2_client_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOauth2ClientId); val.IsValid() && !isEmptyValue(val) {
+		transformed["oauth2ClientId"] = transformedOauth2ClientId
+	}
+
+	transformedOauth2ClientSecret, err := expandComputeRegionBackendServiceIapOauth2ClientSecret(original["oauth2_client_secret"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["oauth2ClientSecret"] = transformedOauth2ClientSecret
+	}
+
+	transformedOauth2ClientSecretSha256, err := expandComputeRegionBackendServiceIapOauth2ClientSecretSha256(original["oauth2_client_secret_sha256"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOauth2ClientSecretSha256); val.IsValid() && !isEmptyValue(val) {
+		transformed["oauth2ClientSecretSha256"] = transformedOauth2ClientSecretSha256
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceIapOauth2ClientId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceIapOauth2ClientSecret(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceIapOauth2ClientSecretSha256(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeRegionBackendServiceLoadBalancingScheme(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -3442,6 +3558,26 @@ func expandComputeRegionBackendServiceRegion(v interface{}, d TerraformResourceD
 }
 
 func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// The RegionBackendService API's Update / PUT API is badly formed and behaves like
+	// a PATCH field for at least IAP. When sent a `null` `iap` field, the API
+	// doesn't disable an existing field. To work around this, we need to emulate
+	// the old Terraform behaviour of always sending the block (at both update and
+	// create), and force sending each subfield as empty when the block isn't
+	// present in config.
+
+	iapVal := obj["iap"]
+	if iapVal == nil {
+		data := map[string]interface{}{}
+		data["enabled"] = false
+		data["oauth2ClientId"] = ""
+		data["oauth2ClientSecret"] = ""
+		obj["iap"] = data
+	} else {
+		iap := iapVal.(map[string]interface{})
+		iap["enabled"] = true
+		obj["iap"] = iap
+	}
+
 	if d.Get("load_balancing_scheme").(string) == "INTERNAL_MANAGED" {
 		return obj, nil
 	}
@@ -3480,6 +3616,18 @@ func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta int
 }
 
 func resourceComputeRegionBackendServiceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	// We need to pretend IAP isn't there if it's disabled for Terraform to maintain
+	// BC behaviour with the handwritten resource.
+	v, ok := res["iap"]
+	if !ok || v == nil {
+		delete(res, "iap")
+		return res, nil
+	}
+	m := v.(map[string]interface{})
+	if ok && m["enabled"] == false {
+		delete(res, "iap")
+	}
+
 	// Requests with consistentHash will error for specific values of
 	// localityLbPolicy. However, the API will not remove it if the backend
 	// service is updated to from supporting to non-supporting localityLbPolicy
