@@ -323,6 +323,9 @@ subnetwork in which the cluster's instances are launched.
 * `default_snat_status` - (Optional)
   [GKE SNAT](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-masquerade-agent#how_ipmasq_works) DefaultSnatStatus contains the desired state of whether default sNAT should be disabled on the cluster, [API doc](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#networkconfig).
 
+* `dns_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configuration for [Using Cloud DNS for GKE](https://cloud.google.com/kubernetes-engine/docs/how-to/cloud-dns). Structure is documented below.
+
 The `default_snat_status` block supports
 
 *  `disabled` - (Required) Whether the cluster disables default in-node sNAT rules. In-node sNAT rules will be disabled when defaultSnatStatus is disabled.When disabled is set to false, default IP masquerade rules will be applied to the nodes to prevent sNAT on cluster internal traffic
@@ -886,6 +889,14 @@ and all pods running on the nodes. Specified as a map from the key, such as
 The `vertical_pod_autoscaling` block supports:
 
 * `enabled` (Required) - Enables vertical pod autoscaling
+
+The `dns_config` block supports:
+
+* `cluster_dns` - (Optional) Which in-cluster DNS provider should be used. `PROVIDER_UNSPECIFIED` (default) or `PLATFORM_DEFAULT` or `CLOUD_DNS`.
+
+* `cluster_dns_scope` - (Optional) The scope of access to cluster DNS records. `DNS_SCOPE_UNSPECIFIED` (default) or `CLUSTER_SCOPE` or `VPC_SCOPE`.
+
+* `cluster_dns_domain` - (Optional) The suffix used for all cluster service records.
 
 ## Attributes Reference
 
