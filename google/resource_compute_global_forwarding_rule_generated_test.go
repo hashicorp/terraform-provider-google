@@ -39,9 +39,10 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleHttpExample(t *testi
 				Config: testAccComputeGlobalForwardingRule_globalForwardingRuleHttpExample(context),
 			},
 			{
-				ResourceName:      "google_compute_global_forwarding_rule.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_global_forwarding_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"port_range", "target"},
 			},
 		},
 	})
