@@ -1,4 +1,4 @@
-## 3.83.0 (Unreleased)
+## 3.83.0 (September 09, 2021)
 FEATURES:
 * **New Resource:** `google_privateca_certificate_template` ([#9905](https://github.com/hashicorp/terraform-provider-google/pull/9905))
 
