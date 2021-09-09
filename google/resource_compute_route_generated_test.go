@@ -42,7 +42,7 @@ func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_route.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "next_hop_instance", "next_hop_vpn_tunnel", "next_hop_ilb"},
+				ImportStateVerifyIgnore: []string{"network", "next_hop_instance", "next_hop_vpn_tunnel"},
 			},
 		},
 	})
@@ -83,7 +83,7 @@ func TestAccComputeRoute_routeIlbExample(t *testing.T) {
 				ResourceName:            "google_compute_route.route-ilb",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "next_hop_instance", "next_hop_vpn_tunnel", "next_hop_ilb"},
+				ImportStateVerifyIgnore: []string{"network", "next_hop_instance", "next_hop_vpn_tunnel"},
 			},
 		},
 	})
