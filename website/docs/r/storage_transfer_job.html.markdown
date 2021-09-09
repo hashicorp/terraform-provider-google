@@ -63,6 +63,7 @@ resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
     }
     gcs_data_sink {
       bucket_name = google_storage_bucket.s3-backup-bucket.name
+      path        = "foo/bar/"
     }
   }
 
@@ -154,9 +155,13 @@ The `gcs_data_sink` block supports:
 
 * `bucket_name` - (Required) Google Cloud Storage bucket name.
 
+* `path` - (Optional) Root path to transfer objects. Must be an empty string or full path name that ends with a '/'. This field is treated as an object prefix. As such, it should generally not begin with a '/'.
+
 The `gcs_data_source` block supports:
 
 * `bucket_name` - (Required) Google Cloud Storage bucket name.
+
+* `path` - (Optional) Root path to transfer objects. Must be an empty string or full path name that ends with a '/'. This field is treated as an object prefix. As such, it should generally not begin with a '/'.
 
 The `aws_s3_data_source` block supports:
 
