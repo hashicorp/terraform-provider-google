@@ -129,6 +129,102 @@ resource "google_compute_route" "route-ilb" {
   priority     = 2000
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=route_ilb_vip&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Route Ilb Vip
+
+
+```hcl
+resource "google_compute_network" "producer" {
+  provider                = google-beta
+  name                    = "producer-vpc"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "producer" {
+  provider      = google-beta
+  name          = "producer-subnet"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.producer.id
+}
+
+resource "google_compute_network" "consumer" {
+  provider                = google-beta
+  name                    = "consumer-vpc"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "consumer" {
+  provider      = google-beta
+  name          = "consumer-subnet"
+  ip_cidr_range = "10.0.2.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.consumer.id
+}
+
+resource "google_compute_network_peering" "peering1" {
+  provider     = google-beta
+  name         = "peering-producer-to-consumer"
+  network      = google_compute_network.consumer.id
+  peer_network = google_compute_network.producer.id
+}
+
+resource "google_compute_network_peering" "peering2" {
+  provider     = google-beta
+  name         = "peering-consumer-to-producer"
+  network      = google_compute_network.producer.id
+  peer_network = google_compute_network.consumer.id
+}
+
+resource "google_compute_health_check" "hc" {
+  provider           = google-beta
+  name               = "proxy-health-check"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  provider      = google-beta
+  name          = "compute-backend"
+  region        = "us-central1"
+  health_checks = [google_compute_health_check.hc.id]
+}
+
+resource "google_compute_forwarding_rule" "default" {
+  provider = google-beta
+  name     = "compute-forwarding-rule"
+  region   = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.backend.id
+  all_ports             = true
+  network               = google_compute_network.producer.name
+  subnetwork            = google_compute_subnetwork.producer.name
+}
+
+resource "google_compute_route" "route-ilb" {
+  provider     = google-beta
+  name         = "route-ilb"
+  dest_range   = "0.0.0.0/0"
+  network      = google_compute_network.consumer.name
+  next_hop_ilb = google_compute_forwarding_rule.default.ip_address
+  priority     = 2000
+  tags         = ["tag1", "tag2"]
+
+  depends_on = [
+    google_compute_network_peering.peering1,
+    google_compute_network_peering.peering2
+  ]
+}
+```
 
 ## Argument Reference
 
@@ -204,11 +300,19 @@ The following arguments are supported:
 
 * `next_hop_ilb` -
   (Optional)
-  The URL to a forwarding rule of type loadBalancingScheme=INTERNAL that should handle matching packets.
-  You can only specify the forwarding rule as a partial or full URL. For example, the following are all valid URLs:
-  https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule
-  regions/region/forwardingRules/forwardingRule
-  Note that this can only be used when the destinationRange is a public (non-RFC 1918) IP CIDR range.
+  The IP address or URL to a forwarding rule of type
+  loadBalancingScheme=INTERNAL that should handle matching
+  packets.
+  With the GA provider you can only specify the forwarding
+  rule as a partial or full URL. For example, the following
+  are all valid values:
+  * 10.128.0.56
+  * https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule
+  * regions/region/forwardingRules/forwardingRule
+  When the beta provider, you can also specify the IP address
+  of a forwarding rule from the same VPC or any peered VPC.
+  Note that this can only be used when the destinationRange is
+  a public (non-RFC 1918) IP CIDR range.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

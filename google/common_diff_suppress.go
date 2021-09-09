@@ -182,3 +182,16 @@ func durationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	}
 	return oDuration == nDuration
 }
+
+// Use this method when the field accepts either an IP address or a
+// self_link referencing a resource (such as google_compute_route's
+// next_hop_ilb)
+func compareIpAddressOrSelfLinkOrResourceName(_, old, new string, _ *schema.ResourceData) bool {
+	// if we can parse `new` as an IP address, then compare as strings
+	if net.ParseIP(new) != nil {
+		return new == old
+	}
+
+	// otherwise compare as self links
+	return compareSelfLinkOrResourceName("", old, new, nil)
+}
