@@ -1,0 +1,3 @@
+```release-note:bug
+serviceusage: fixed an issue in `google_project_service` where users could not reenable services that were disabled outside of Terraform.
+```
