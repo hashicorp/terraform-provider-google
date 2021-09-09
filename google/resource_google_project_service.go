@@ -219,15 +219,8 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 		return nil
 	}
 
-	// If we get here due to eventual consistency, the next apply will fix things
-	// instead of re-creating the resource and if we didn't get here by error,
-	// the next apply will (correctly) remove it from state, anyways. Seeing as
-	// no downstreams can possibly get the result, as we're halting execution,
-	// it's safe to rely on refresh for putting the state back in order.
-	if !d.IsNewResource() {
-		// The service is was not found in enabled services - return an error
-		return fmt.Errorf("service %s not in enabled services for project %s", srv, project)
-	}
+	log.Printf("[DEBUG] service %s not in enabled services for project %s, removing from state", srv, project)
+	d.SetId("")
 	return nil
 }
 
