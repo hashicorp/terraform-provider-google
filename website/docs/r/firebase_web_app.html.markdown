@@ -132,6 +132,8 @@ This resource provides the following
 WebApp can be imported using any of these accepted formats:
 
 ```
+$ terraform import google_firebase_web_app.default {{project}}/{{name}}
+$ terraform import google_firebase_web_app.default {{project}} {{name}}
 $ terraform import google_firebase_web_app.default {{name}}
 ```
 
