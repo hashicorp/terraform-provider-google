@@ -1,9 +1,5 @@
 ## 3.83.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-
-* documentation update: include bigquery_dataset resource in examples ([#9927](https://github.com/hashicorp/terraform-provider-google/pull/9927))
-
 FEATURES:
 * **New Data Source:** `google_secret_manager_secret` ([#9983](https://github.com/hashicorp/terraform-provider-google/pull/9983))
 
