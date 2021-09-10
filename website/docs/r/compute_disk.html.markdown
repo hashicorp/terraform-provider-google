@@ -123,8 +123,6 @@ The following arguments are supported:
 * `interface` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Specifies the disk interface to use for attaching this disk, which is either SCSI or NVME. The default is SCSI.
-  Default value is `SCSI`.
-  Possible values are `SCSI` and `NVME`.
 
 * `type` -
   (Optional)
