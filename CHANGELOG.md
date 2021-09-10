@@ -1,5 +1,32 @@
 ## 3.83.0 (Unreleased)
 
+UNKNOWN CHANGELOG TYPE:
+
+* documentation update: include bigquery_dataset resource in examples ([#9927](https://github.com/hashicorp/terraform-provider-google/pull/9927))
+
+FEATURES:
+* **New Data Source:** `google_secret_manager_secret` ([#9983](https://github.com/hashicorp/terraform-provider-google/pull/9983))
+
+IMPROVEMENTS:
+* compute: added update support to `google_compute_service_attachment` ([#9982](https://github.com/hashicorp/terraform-provider-google/pull/9982))
+
+BUG FIXES:
+* container: fixed a bug in failing to remove `maintenance_exclusion` on `google_container_cluster` ([#10025](https://github.com/hashicorp/terraform-provider-google/pull/10025))
+* cloudbuild: marked `google_cloudbuild_trigger` as requiring one of branch_name/tag_name/commit_sha  within ``build.source.repo_source` ([#9952](https://github.com/hashicorp/terraform-provider-google/pull/9952))
+* compute: fixed a crash on the `enable` field of `google_compute_router_peer` ([#9940](https://github.com/hashicorp/terraform-provider-google/pull/9940))
+* compute: fixed a permanent diff for `next_hop_instance_zone` on `google_compute_route` when `next_hop_instance` was set to a self link ([#9931](https://github.com/hashicorp/terraform-provider-google/pull/9931))
+* compute: fixed an issue in `google_compute_router_nat` where removing `log_config` resulted in a perma-diff ([#9950](https://github.com/hashicorp/terraform-provider-google/pull/9950))
+* compute: fixed `advanced_machine_features` error messages in `google_compute_instance` ([#10023](https://github.com/hashicorp/terraform-provider-google/pull/10023))
+* eventarc: fixed bug where resources deleted outside of Terraform would cause errors ([#9997](https://github.com/hashicorp/terraform-provider-google/pull/9997))
+* functions: fixed a error message on `google_cloudfunctions_function` ([#10011](https://github.com/hashicorp/terraform-provider-google/pull/10011))
+* logging: fixed the data type for `bucket_options.linear_buckets.width` on `google_logging_metric` ([#9985](https://github.com/hashicorp/terraform-provider-google/pull/9985))
+* osconfig: fixed import on `google_os_config_guest_policies` ([#10019](https://github.com/hashicorp/terraform-provider-google/pull/10019))
+* privateca: fixed a permadiff bug for `publishing_options` on `google_privateca_ca_pool` when both attributes are set to false ([#9926](https://github.com/hashicorp/terraform-provider-google/pull/9926))
+* spanner: fixed updates to processing units on `google_spanner_instance` ([#9933](https://github.com/hashicorp/terraform-provider-google/pull/9933))
+* storage: added support for timeouts on `google_storage_bucket_object` ([#9937](https://github.com/hashicorp/terraform-provider-google/pull/9937))
+* storage: fixed a undetected change on `days_since_noncurrent_time` of `google_storage_bucket` ([#10024](https://github.com/hashicorp/terraform-provider-google/pull/10024))
+
+
 ## 3.82.0 (August 30, 2021)
 FEATURES:
 * **New Resource:** `google_privateca_certificate_template` ([#9905](https://github.com/hashicorp/terraform-provider-google/pull/9905))
