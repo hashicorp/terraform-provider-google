@@ -1,0 +1,3 @@
+```release-note:deprecation
+compute: deprecated `interface` field on `google_compute_disk` and `google_compute_region_disk` (beta only)
+```
