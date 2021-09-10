@@ -8,7 +8,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * container: fixed a bug in failing to remove `maintenance_exclusion` on `google_container_cluster` ([#10025](https://github.com/hashicorp/terraform-provider-google/pull/10025))
-* cloudbuild: marked `google_cloudbuild_trigger` as requiring one of branch_name/tag_name/commit_sha  within ``build.source.repo_source` ([#9952](https://github.com/hashicorp/terraform-provider-google/pull/9952))
+* cloudbuild: marked `google_cloudbuild_trigger` as requiring one of branch_name/tag_name/commit_sha  within `build.source.repo_source` ([#9952](https://github.com/hashicorp/terraform-provider-google/pull/9952))
 * compute: fixed a crash on the `enable` field of `google_compute_router_peer` ([#9940](https://github.com/hashicorp/terraform-provider-google/pull/9940))
 * compute: fixed a permanent diff for `next_hop_instance_zone` on `google_compute_route` when `next_hop_instance` was set to a self link ([#9931](https://github.com/hashicorp/terraform-provider-google/pull/9931))
 * compute: fixed an issue in `google_compute_router_nat` where removing `log_config` resulted in a perma-diff ([#9950](https://github.com/hashicorp/terraform-provider-google/pull/9950))
