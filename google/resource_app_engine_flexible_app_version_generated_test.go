@@ -44,7 +44,7 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 				ResourceName:            "google_app_engine_flexible_app_version.myapp_v1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"beta_settings", "env_variables", "deployment", "entrypoint", "service", "noop_on_destroy"},
+				ImportStateVerifyIgnore: []string{"beta_settings", "env_variables", "entrypoint", "service", "noop_on_destroy", "deployment.0.zip"},
 			},
 		},
 	})
