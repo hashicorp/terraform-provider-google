@@ -109,10 +109,10 @@ The following arguments are supported:
   (Required)
   Default admission rule for a cluster without a per-cluster admission
   rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_admission_rule).
 
 
-The `default_admission_rule` block supports:
+<a name="nested_default_admission_rule"></a>The `default_admission_rule` block supports:
 
 * `evaluation_mode` -
   (Required)
@@ -154,7 +154,7 @@ The `default_admission_rule` block supports:
   A whitelist of image patterns to exclude from admission rules. If an
   image's name matches a whitelist pattern, the image's admission
   requests will always be permitted regardless of your admission rules.
-  Structure is documented below.
+  Structure is [documented below](#nested_admission_whitelist_patterns).
 
 * `cluster_admission_rules` -
   (Optional)
@@ -167,13 +167,13 @@ The `default_admission_rule` block supports:
   Identifier format: `{{location}}.{{clusterId}}`.
   A location is either a compute zone (e.g. `us-central1-a`) or a region
   (e.g. `us-central1`).
-  Structure is documented below.
+  Structure is [documented below](#nested_cluster_admission_rules).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `admission_whitelist_patterns` block supports:
+<a name="nested_admission_whitelist_patterns"></a>The `admission_whitelist_patterns` block supports:
 
 * `name_pattern` -
   (Required)
@@ -182,7 +182,7 @@ The `admission_whitelist_patterns` block supports:
   wildcard, but this is allowed only in text after the registry/
   part.
 
-The `cluster_admission_rules` block supports:
+<a name="nested_cluster_admission_rules"></a>The `cluster_admission_rules` block supports:
 
 * `cluster` - (Required) The identifier for this object. Format specified above.
 

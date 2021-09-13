@@ -95,18 +95,18 @@ The following arguments are supported:
   (Optional)
   The default monitoring configuration for all Features under this EntityType.
   If this is populated with [FeaturestoreMonitoringConfig.monitoring_interval] specified, snapshot analysis monitoring is enabled. Otherwise, snapshot analysis monitoring is disabled.
-  Structure is documented below.
+  Structure is [documented below](#nested_monitoring_config).
 
 
-The `monitoring_config` block supports:
+<a name="nested_monitoring_config"></a>The `monitoring_config` block supports:
 
 * `snapshot_analysis` -
   (Optional)
   Configuration of how features in Featurestore are monitored.
-  Structure is documented below.
+  Structure is [documented below](#nested_snapshot_analysis).
 
 
-The `snapshot_analysis` block supports:
+<a name="nested_snapshot_analysis"></a>The `snapshot_analysis` block supports:
 
 * `disabled` -
   (Optional)

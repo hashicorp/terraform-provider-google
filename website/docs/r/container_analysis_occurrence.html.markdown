@@ -117,10 +117,10 @@ The following arguments are supported:
   useful for lookup (how to find this attestation if you already
   know the authority and artifact to be verified) and intent (for
   which authority this attestation was intended to sign.
-  Structure is documented below.
+  Structure is [documented below](#nested_attestation).
 
 
-The `attestation` block supports:
+<a name="nested_attestation"></a>The `attestation` block supports:
 
 * `serialized_payload` -
   (Required)
@@ -134,10 +134,10 @@ The `attestation` block supports:
   message verified if at least one signature verifies
   serializedPayload. See Signature in common.proto for more
   details on signature structure and verification.
-  Structure is documented below.
+  Structure is [documented below](#nested_signatures).
 
 
-The `signatures` block supports:
+<a name="nested_signatures"></a>The `signatures` block supports:
 
 * `signature` -
   (Optional)

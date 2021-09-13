@@ -71,7 +71,7 @@ The following arguments are supported:
 * `telemetry` -
   (Optional)
   Configuration for how to query telemetry on a Service.
-  Structure is documented below.
+  Structure is [documented below](#nested_telemetry).
 
 * `service_id` -
   (Optional)
@@ -82,7 +82,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `telemetry` block supports:
+<a name="nested_telemetry"></a>The `telemetry` block supports:
 
 * `resource_name` -
   (Optional)

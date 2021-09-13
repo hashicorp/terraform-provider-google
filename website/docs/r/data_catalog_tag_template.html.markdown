@@ -93,14 +93,14 @@ The following arguments are supported:
 * `fields` -
   (Required)
   Set of tag template field IDs and the settings for the field. This set is an exhaustive list of the allowed fields. This set must contain at least one field and at most 500 fields.
-  Structure is documented below.
+  Structure is [documented below](#nested_fields).
 
 * `tag_template_id` -
   (Required)
   The id of the tag template to create.
 
 
-The `fields` block supports:
+<a name="nested_fields"></a>The `fields` block supports:
 
 * `field_id` - (Required) The identifier for this object. Format specified above.
 
@@ -118,7 +118,7 @@ The `fields` block supports:
 * `type` -
   (Required)
   The type of value this tag field can contain.
-  Structure is documented below.
+  Structure is [documented below](#nested_type).
 
 * `is_required` -
   (Optional)
@@ -131,7 +131,7 @@ The `fields` block supports:
   Multiple fields can have the same order, and field orders within a tag do not have to be sequential.
 
 
-The `type` block supports:
+<a name="nested_type"></a>The `type` block supports:
 
 * `primitive_type` -
   (Optional)
@@ -143,10 +143,10 @@ The `type` block supports:
   (Optional)
   Represents an enum type.
    Exactly one of `primitive_type` or `enum_type` must be set
-  Structure is documented below.
+  Structure is [documented below](#nested_enum_type).
 
 
-The `enum_type` block supports:
+<a name="nested_enum_type"></a>The `enum_type` block supports:
 
 * `allowed_values` -
   (Required)
@@ -155,10 +155,10 @@ The `enum_type` block supports:
   enum values can only be added to the list of allowed values. Deletion
   and renaming of enum values are not supported.
   Can have up to 500 allowed values.
-  Structure is documented below.
+  Structure is [documented below](#nested_allowed_values).
 
 
-The `allowed_values` block supports:
+<a name="nested_allowed_values"></a>The `allowed_values` block supports:
 
 * `display_name` -
   (Required)

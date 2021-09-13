@@ -119,7 +119,7 @@ The following arguments are supported:
 * `arguments` -
   (Optional)
   Input/output argument of a function or a stored procedure.
-  Structure is documented below.
+  Structure is [documented below](#nested_arguments).
 
 * `return_type` -
   (Optional)
@@ -151,7 +151,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `arguments` block supports:
+<a name="nested_arguments"></a>The `arguments` block supports:
 
 * `name` -
   (Optional)

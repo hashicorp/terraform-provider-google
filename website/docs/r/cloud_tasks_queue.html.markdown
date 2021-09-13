@@ -104,7 +104,7 @@ The following arguments are supported:
   (Optional)
   Overrides for task-level appEngineRouting. These settings apply only
   to App Engine tasks in this queue
-  Structure is documented below.
+  Structure is [documented below](#nested_app_engine_routing_override).
 
 * `rate_limits` -
   (Optional)
@@ -115,23 +115,23 @@ The following arguments are supported:
   * System throttling due to 429 (Too Many Requests) or 503 (Service
     Unavailable) responses from the worker, high error rates, or to
     smooth sudden large traffic spikes.
-  Structure is documented below.
+  Structure is [documented below](#nested_rate_limits).
 
 * `retry_config` -
   (Optional)
   Settings that determine the retry behavior.
-  Structure is documented below.
+  Structure is [documented below](#nested_retry_config).
 
 * `stackdriver_logging_config` -
   (Optional)
   Configuration options for writing logs to Stackdriver Logging.
-  Structure is documented below.
+  Structure is [documented below](#nested_stackdriver_logging_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `app_engine_routing_override` block supports:
+<a name="nested_app_engine_routing_override"></a>The `app_engine_routing_override` block supports:
 
 * `service` -
   (Optional)
@@ -151,7 +151,7 @@ The `app_engine_routing_override` block supports:
 * `host` -
   The host that the task is sent to.
 
-The `rate_limits` block supports:
+<a name="nested_rate_limits"></a>The `rate_limits` block supports:
 
 * `max_dispatches_per_second` -
   (Optional)
@@ -172,7 +172,7 @@ The `rate_limits` block supports:
   rate so processing starts shortly after a task is enqueued, but still limits
   resource usage when many tasks are enqueued in a short period of time.
 
-The `retry_config` block supports:
+<a name="nested_retry_config"></a>The `retry_config` block supports:
 
 * `max_attempts` -
   (Optional)
@@ -212,7 +212,7 @@ The `retry_config` block supports:
   then increases linearly, and finally retries retries at intervals of maxBackoff
   up to maxAttempts times.
 
-The `stackdriver_logging_config` block supports:
+<a name="nested_stackdriver_logging_config"></a>The `stackdriver_logging_config` block supports:
 
 * `sampling_ratio` -
   (Required)

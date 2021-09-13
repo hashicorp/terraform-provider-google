@@ -139,10 +139,10 @@ The following arguments are supported:
 * `attestation_authority_note` -
   (Required)
   A Container Analysis ATTESTATION_AUTHORITY Note, created by the user.
-  Structure is documented below.
+  Structure is [documented below](#nested_attestation_authority_note).
 
 
-The `attestation_authority_note` block supports:
+<a name="nested_attestation_authority_note"></a>The `attestation_authority_note` block supports:
 
 * `note_reference` -
   (Required)
@@ -163,7 +163,7 @@ The `attestation_authority_note` block supports:
   image specified in the admission request.
   If this field is empty, this attestor always returns that no valid
   attestations exist.
-  Structure is documented below.
+  Structure is [documented below](#nested_public_keys).
 
 * `delegation_service_account_email` -
   This field will contain the service account email address that
@@ -177,7 +177,7 @@ The `attestation_authority_note` block supports:
   different naming pattern.
 
 
-The `public_keys` block supports:
+<a name="nested_public_keys"></a>The `public_keys` block supports:
 
 * `comment` -
   (Optional)
@@ -211,10 +211,10 @@ The `public_keys` block supports:
   type of public key, but it MUST be a valid RFC3986 URI. If id is left
   blank, a default one will be computed based on the digest of the DER
   encoding of the public key.
-  Structure is documented below.
+  Structure is [documented below](#nested_pkix_public_key).
 
 
-The `pkix_public_key` block supports:
+<a name="nested_pkix_public_key"></a>The `pkix_public_key` block supports:
 
 * `public_key_pem` -
   (Optional)

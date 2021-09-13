@@ -245,7 +245,7 @@ The following arguments are supported:
 * `instance_filter` -
   (Required)
   VM instances to patch.
-  Structure is documented below.
+  Structure is [documented below](#nested_instance_filter).
 
 * `patch_deployment_id` -
   (Required)
@@ -257,7 +257,7 @@ The following arguments are supported:
   * Must be unique within the project.
 
 
-The `instance_filter` block supports:
+<a name="nested_instance_filter"></a>The `instance_filter` block supports:
 
 * `all` -
   (Optional)
@@ -266,7 +266,7 @@ The `instance_filter` block supports:
 * `group_labels` -
   (Optional)
   Targets VM instances matching ANY of these GroupLabels. This allows targeting of disparate groups of VM instances.
-  Structure is documented below.
+  Structure is [documented below](#nested_group_labels).
 
 * `zones` -
   (Optional)
@@ -284,7 +284,7 @@ The `instance_filter` block supports:
   VMs when targeting configs, for example prefix="prod-".
 
 
-The `group_labels` block supports:
+<a name="nested_group_labels"></a>The `group_labels` block supports:
 
 * `labels` -
   (Required)
@@ -300,7 +300,7 @@ The `group_labels` block supports:
 * `patch_config` -
   (Optional)
   Patch configuration that is applied.
-  Structure is documented below.
+  Structure is [documented below](#nested_patch_config).
 
 * `duration` -
   (Optional)
@@ -310,23 +310,23 @@ The `group_labels` block supports:
 * `one_time_schedule` -
   (Optional)
   Schedule a one-time execution.
-  Structure is documented below.
+  Structure is [documented below](#nested_one_time_schedule).
 
 * `recurring_schedule` -
   (Optional)
   Schedule recurring executions.
-  Structure is documented below.
+  Structure is [documented below](#nested_recurring_schedule).
 
 * `rollout` -
   (Optional)
   Rollout strategy of the patch job.
-  Structure is documented below.
+  Structure is [documented below](#nested_rollout).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `patch_config` block supports:
+<a name="nested_patch_config"></a>The `patch_config` block supports:
 
 * `reboot_config` -
   (Optional)
@@ -336,40 +336,40 @@ The `patch_config` block supports:
 * `apt` -
   (Optional)
   Apt update settings. Use this setting to override the default apt patch rules.
-  Structure is documented below.
+  Structure is [documented below](#nested_apt).
 
 * `yum` -
   (Optional)
   Yum update settings. Use this setting to override the default yum patch rules.
-  Structure is documented below.
+  Structure is [documented below](#nested_yum).
 
 * `goo` -
   (Optional)
   goo update settings. Use this setting to override the default goo patch rules.
-  Structure is documented below.
+  Structure is [documented below](#nested_goo).
 
 * `zypper` -
   (Optional)
   zypper update settings. Use this setting to override the default zypper patch rules.
-  Structure is documented below.
+  Structure is [documented below](#nested_zypper).
 
 * `windows_update` -
   (Optional)
   Windows update settings. Use this setting to override the default Windows patch rules.
-  Structure is documented below.
+  Structure is [documented below](#nested_windows_update).
 
 * `pre_step` -
   (Optional)
   The ExecStep to run before the patch update.
-  Structure is documented below.
+  Structure is [documented below](#nested_pre_step).
 
 * `post_step` -
   (Optional)
   The ExecStep to run after the patch update.
-  Structure is documented below.
+  Structure is [documented below](#nested_post_step).
 
 
-The `apt` block supports:
+<a name="nested_apt"></a>The `apt` block supports:
 
 * `type` -
   (Optional)
@@ -386,7 +386,7 @@ The `apt` block supports:
   If these packages are not installed, they will be ignored. This field cannot be specified with
   any other patch configuration fields.
 
-The `yum` block supports:
+<a name="nested_yum"></a>The `yum` block supports:
 
 * `security` -
   (Optional)
@@ -406,13 +406,13 @@ The `yum` block supports:
   If these packages are not installed, they will be ignored. This field cannot be specified with
   any other patch configuration fields.
 
-The `goo` block supports:
+<a name="nested_goo"></a>The `goo` block supports:
 
 * `enabled` -
   (Required)
   goo update settings. Use this setting to override the default goo patch rules.
 
-The `zypper` block supports:
+<a name="nested_zypper"></a>The `zypper` block supports:
 
 * `with_optional` -
   (Optional)
@@ -439,7 +439,7 @@ The `zypper` block supports:
   An exclusive list of patches to be updated. These are the only patches that will be installed using 'zypper patch patch:' command.
   This field must not be used with any other patch configuration fields.
 
-The `windows_update` block supports:
+<a name="nested_windows_update"></a>The `windows_update` block supports:
 
 * `classifications` -
   (Optional)
@@ -455,56 +455,20 @@ The `windows_update` block supports:
   An exclusive list of kbs to be updated. These are the only patches that will be updated.
   This field must not be used with other patch configurations.
 
-The `pre_step` block supports:
+<a name="nested_pre_step"></a>The `pre_step` block supports:
 
 * `linux_exec_step_config` -
   (Optional)
   The ExecStepConfig for all Linux VMs targeted by the PatchJob.
-  Structure is documented below.
+  Structure is [documented below](#nested_linux_exec_step_config).
 
 * `windows_exec_step_config` -
   (Optional)
   The ExecStepConfig for all Windows VMs targeted by the PatchJob.
-  Structure is documented below.
+  Structure is [documented below](#nested_windows_exec_step_config).
 
 
-The `linux_exec_step_config` block supports:
-
-* `allowed_success_codes` -
-  (Optional)
-  Defaults to [0]. A list of possible return values that the execution can return to indicate a success.
-
-* `interpreter` -
-  (Optional)
-  The script interpreter to use to run the script. If no interpreter is specified the script will
-  be executed directly, which will likely only succeed for scripts with shebang lines.
-  Possible values are `SHELL` and `POWERSHELL`.
-
-* `local_path` -
-  (Optional)
-  An absolute path to the executable on the VM.
-
-* `gcs_object` -
-  (Optional)
-  A Cloud Storage object containing the executable.
-  Structure is documented below.
-
-
-The `gcs_object` block supports:
-
-* `bucket` -
-  (Required)
-  Bucket of the Cloud Storage object.
-
-* `object` -
-  (Required)
-  Name of the Cloud Storage object.
-
-* `generation_number` -
-  (Required)
-  Generation number of the Cloud Storage object. This is used to ensure that the ExecStep specified by this PatchJob does not change.
-
-The `windows_exec_step_config` block supports:
+<a name="nested_linux_exec_step_config"></a>The `linux_exec_step_config` block supports:
 
 * `allowed_success_codes` -
   (Optional)
@@ -523,10 +487,10 @@ The `windows_exec_step_config` block supports:
 * `gcs_object` -
   (Optional)
   A Cloud Storage object containing the executable.
-  Structure is documented below.
+  Structure is [documented below](#nested_gcs_object).
 
 
-The `gcs_object` block supports:
+<a name="nested_gcs_object"></a>The `gcs_object` block supports:
 
 * `bucket` -
   (Required)
@@ -540,56 +504,56 @@ The `gcs_object` block supports:
   (Required)
   Generation number of the Cloud Storage object. This is used to ensure that the ExecStep specified by this PatchJob does not change.
 
-The `post_step` block supports:
+<a name="nested_windows_exec_step_config"></a>The `windows_exec_step_config` block supports:
+
+* `allowed_success_codes` -
+  (Optional)
+  Defaults to [0]. A list of possible return values that the execution can return to indicate a success.
+
+* `interpreter` -
+  (Optional)
+  The script interpreter to use to run the script. If no interpreter is specified the script will
+  be executed directly, which will likely only succeed for scripts with shebang lines.
+  Possible values are `SHELL` and `POWERSHELL`.
+
+* `local_path` -
+  (Optional)
+  An absolute path to the executable on the VM.
+
+* `gcs_object` -
+  (Optional)
+  A Cloud Storage object containing the executable.
+  Structure is [documented below](#nested_gcs_object).
+
+
+<a name="nested_gcs_object"></a>The `gcs_object` block supports:
+
+* `bucket` -
+  (Required)
+  Bucket of the Cloud Storage object.
+
+* `object` -
+  (Required)
+  Name of the Cloud Storage object.
+
+* `generation_number` -
+  (Required)
+  Generation number of the Cloud Storage object. This is used to ensure that the ExecStep specified by this PatchJob does not change.
+
+<a name="nested_post_step"></a>The `post_step` block supports:
 
 * `linux_exec_step_config` -
   (Optional)
   The ExecStepConfig for all Linux VMs targeted by the PatchJob.
-  Structure is documented below.
+  Structure is [documented below](#nested_linux_exec_step_config).
 
 * `windows_exec_step_config` -
   (Optional)
   The ExecStepConfig for all Windows VMs targeted by the PatchJob.
-  Structure is documented below.
+  Structure is [documented below](#nested_windows_exec_step_config).
 
 
-The `linux_exec_step_config` block supports:
-
-* `allowed_success_codes` -
-  (Optional)
-  Defaults to [0]. A list of possible return values that the execution can return to indicate a success.
-
-* `interpreter` -
-  (Optional)
-  The script interpreter to use to run the script. If no interpreter is specified the script will
-  be executed directly, which will likely only succeed for scripts with shebang lines.
-  Possible values are `SHELL` and `POWERSHELL`.
-
-* `local_path` -
-  (Optional)
-  An absolute path to the executable on the VM.
-
-* `gcs_object` -
-  (Optional)
-  A Cloud Storage object containing the executable.
-  Structure is documented below.
-
-
-The `gcs_object` block supports:
-
-* `bucket` -
-  (Required)
-  Bucket of the Cloud Storage object.
-
-* `object` -
-  (Required)
-  Name of the Cloud Storage object.
-
-* `generation_number` -
-  (Required)
-  Generation number of the Cloud Storage object. This is used to ensure that the ExecStep specified by this PatchJob does not change.
-
-The `windows_exec_step_config` block supports:
+<a name="nested_linux_exec_step_config"></a>The `linux_exec_step_config` block supports:
 
 * `allowed_success_codes` -
   (Optional)
@@ -608,10 +572,10 @@ The `windows_exec_step_config` block supports:
 * `gcs_object` -
   (Optional)
   A Cloud Storage object containing the executable.
-  Structure is documented below.
+  Structure is [documented below](#nested_gcs_object).
 
 
-The `gcs_object` block supports:
+<a name="nested_gcs_object"></a>The `gcs_object` block supports:
 
 * `bucket` -
   (Required)
@@ -625,20 +589,56 @@ The `gcs_object` block supports:
   (Required)
   Generation number of the Cloud Storage object. This is used to ensure that the ExecStep specified by this PatchJob does not change.
 
-The `one_time_schedule` block supports:
+<a name="nested_windows_exec_step_config"></a>The `windows_exec_step_config` block supports:
+
+* `allowed_success_codes` -
+  (Optional)
+  Defaults to [0]. A list of possible return values that the execution can return to indicate a success.
+
+* `interpreter` -
+  (Optional)
+  The script interpreter to use to run the script. If no interpreter is specified the script will
+  be executed directly, which will likely only succeed for scripts with shebang lines.
+  Possible values are `SHELL` and `POWERSHELL`.
+
+* `local_path` -
+  (Optional)
+  An absolute path to the executable on the VM.
+
+* `gcs_object` -
+  (Optional)
+  A Cloud Storage object containing the executable.
+  Structure is [documented below](#nested_gcs_object).
+
+
+<a name="nested_gcs_object"></a>The `gcs_object` block supports:
+
+* `bucket` -
+  (Required)
+  Bucket of the Cloud Storage object.
+
+* `object` -
+  (Required)
+  Name of the Cloud Storage object.
+
+* `generation_number` -
+  (Required)
+  Generation number of the Cloud Storage object. This is used to ensure that the ExecStep specified by this PatchJob does not change.
+
+<a name="nested_one_time_schedule"></a>The `one_time_schedule` block supports:
 
 * `execute_time` -
   (Required)
   The desired patch job execution time. A timestamp in RFC3339 UTC "Zulu" format,
   accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
 
-The `recurring_schedule` block supports:
+<a name="nested_recurring_schedule"></a>The `recurring_schedule` block supports:
 
 * `time_zone` -
   (Required)
   Defines the time zone that timeOfDay is relative to. The rules for daylight saving time are
   determined by the chosen time zone.
-  Structure is documented below.
+  Structure is [documented below](#nested_time_zone).
 
 * `start_time` -
   (Optional)
@@ -653,7 +653,7 @@ The `recurring_schedule` block supports:
 * `time_of_day` -
   (Required)
   Time of the day to run a recurring deployment.
-  Structure is documented below.
+  Structure is [documented below](#nested_time_of_day).
 
 * `last_execute_time` -
   The time the last patch job ran successfully.
@@ -666,15 +666,15 @@ The `recurring_schedule` block supports:
 * `weekly` -
   (Optional)
   Schedule with weekly executions.
-  Structure is documented below.
+  Structure is [documented below](#nested_weekly).
 
 * `monthly` -
   (Optional)
   Schedule with monthly executions.
-  Structure is documented below.
+  Structure is [documented below](#nested_monthly).
 
 
-The `time_zone` block supports:
+<a name="nested_time_zone"></a>The `time_zone` block supports:
 
 * `id` -
   (Required)
@@ -684,7 +684,7 @@ The `time_zone` block supports:
   (Optional)
   IANA Time Zone Database version number, e.g. "2019a".
 
-The `time_of_day` block supports:
+<a name="nested_time_of_day"></a>The `time_of_day` block supports:
 
 * `hours` -
   (Optional)
@@ -703,19 +703,19 @@ The `time_of_day` block supports:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-The `weekly` block supports:
+<a name="nested_weekly"></a>The `weekly` block supports:
 
 * `day_of_week` -
   (Required)
   IANA Time Zone Database time zone, e.g. "America/New_York".
   Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
 
-The `monthly` block supports:
+<a name="nested_monthly"></a>The `monthly` block supports:
 
 * `week_day_of_month` -
   (Optional)
   Week day in a month.
-  Structure is documented below.
+  Structure is [documented below](#nested_week_day_of_month).
 
 * `month_day` -
   (Optional)
@@ -724,7 +724,7 @@ The `monthly` block supports:
   will not run in February, April, June, etc.
 
 
-The `week_day_of_month` block supports:
+<a name="nested_week_day_of_month"></a>The `week_day_of_month` block supports:
 
 * `week_ordinal` -
   (Required)
@@ -735,7 +735,7 @@ The `week_day_of_month` block supports:
   A day of the week.
   Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
 
-The `rollout` block supports:
+<a name="nested_rollout"></a>The `rollout` block supports:
 
 * `mode` -
   (Required)
@@ -749,10 +749,10 @@ The `rollout` block supports:
   A VM contributes to the disruption budget if its patching operation fails either when applying the patches, running pre or post patch steps, or if it fails to respond with a success notification before timing out. VMs that are not running or do not have an active agent do not count toward this disruption budget.
   For zone-by-zone rollouts, if the disruption budget in a zone is exceeded, the patch job stops, because continuing to the next zone requires completion of the patch process in the previous zone.
   For example, if the disruption budget has a fixed value of 10, and 8 VMs fail to patch in the current zone, the patch job continues to patch 2 VMs at a time until the zone is completed. When that zone is completed successfully, patching begins with 10 VMs at a time in the next zone. If 10 VMs in the next zone fail to patch, the patch job stops.
-  Structure is documented below.
+  Structure is [documented below](#nested_disruption_budget).
 
 
-The `disruption_budget` block supports:
+<a name="nested_disruption_budget"></a>The `disruption_budget` block supports:
 
 * `fixed` -
   (Optional)

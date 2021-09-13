@@ -98,7 +98,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `nlu_settings` -
   The NLU settings of the flow at version creation.
-  Structure is documented below.
+  Structure is [documented below](#nested_nlu_settings).
 
 * `create_time` -
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
@@ -110,7 +110,7 @@ In addition to the arguments listed above, the following computed attributes are
   * FAILED: Version training failed.
 
 
-The `nlu_settings` block contains:
+<a name="nested_nlu_settings"></a>The `nlu_settings` block contains:
 
 * `model_type` -
   (Optional)

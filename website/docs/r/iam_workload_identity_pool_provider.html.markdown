@@ -262,24 +262,24 @@ The following arguments are supported:
 * `aws` -
   (Optional)
   An Amazon Web Services identity provider. Not compatible with the property oidc.
-  Structure is documented below.
+  Structure is [documented below](#nested_aws).
 
 * `oidc` -
   (Optional)
   An OpenId Connect 1.0 identity provider. Not compatible with the property aws.
-  Structure is documented below.
+  Structure is [documented below](#nested_oidc).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `aws` block supports:
+<a name="nested_aws"></a>The `aws` block supports:
 
 * `account_id` -
   (Required)
   The AWS account ID.
 
-The `oidc` block supports:
+<a name="nested_oidc"></a>The `oidc` block supports:
 
 * `allowed_audiences` -
   (Optional)

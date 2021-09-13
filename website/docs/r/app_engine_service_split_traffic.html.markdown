@@ -107,10 +107,10 @@ The following arguments are supported:
 * `split` -
   (Required)
   Mapping that defines fractional HTTP traffic diversion to different versions within the service.
-  Structure is documented below.
+  Structure is [documented below](#nested_split).
 
 
-The `split` block supports:
+<a name="nested_split"></a>The `split` block supports:
 
 * `shard_by` -
   (Optional)

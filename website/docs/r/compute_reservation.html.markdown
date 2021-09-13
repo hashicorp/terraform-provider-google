@@ -79,14 +79,14 @@ The following arguments are supported:
 * `specific_reservation` -
   (Required)
   Reservation for instances with specific machine shapes.
-  Structure is documented below.
+  Structure is [documented below](#nested_specific_reservation).
 
 * `zone` -
   (Required)
   The zone where the reservation is made.
 
 
-The `specific_reservation` block supports:
+<a name="nested_specific_reservation"></a>The `specific_reservation` block supports:
 
 * `count` -
   (Required)
@@ -98,10 +98,10 @@ The `specific_reservation` block supports:
 * `instance_properties` -
   (Required)
   The instance properties for the reservation.
-  Structure is documented below.
+  Structure is [documented below](#nested_instance_properties).
 
 
-The `instance_properties` block supports:
+<a name="nested_instance_properties"></a>The `instance_properties` block supports:
 
 * `machine_type` -
   (Required)
@@ -117,16 +117,16 @@ The `instance_properties` block supports:
 * `guest_accelerators` -
   (Optional)
   Guest accelerator type and count.
-  Structure is documented below.
+  Structure is [documented below](#nested_guest_accelerators).
 
 * `local_ssds` -
   (Optional)
   The amount of local ssd to reserve with each instance. This
   reserves disks of type `local-ssd`.
-  Structure is documented below.
+  Structure is [documented below](#nested_local_ssds).
 
 
-The `guest_accelerators` block supports:
+<a name="nested_guest_accelerators"></a>The `guest_accelerators` block supports:
 
 * `accelerator_type` -
   (Required)
@@ -140,7 +140,7 @@ The `guest_accelerators` block supports:
   The number of the guest accelerator cards exposed to
   this instance.
 
-The `local_ssds` block supports:
+<a name="nested_local_ssds"></a>The `local_ssds` block supports:
 
 * `interface` -
   (Optional)

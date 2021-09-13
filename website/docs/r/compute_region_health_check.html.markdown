@@ -396,37 +396,37 @@ The following arguments are supported:
 * `http_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_http_health_check).
 
 * `https_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_https_health_check).
 
 * `tcp_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_tcp_health_check).
 
 * `ssl_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_ssl_health_check).
 
 * `http2_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_http2_health_check).
 
 * `grpc_health_check` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_grpc_health_check).
 
 * `log_config` -
   (Optional)
   Configure logging on this health check.
-  Structure is documented below.
+  Structure is [documented below](#nested_log_config).
 
 * `region` -
   (Optional)
@@ -437,7 +437,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `http_health_check` block supports:
+<a name="nested_http_health_check"></a>The `http_health_check` block supports:
 
 * `host` -
   (Optional)
@@ -487,7 +487,7 @@ The `http_health_check` block supports:
   `portName` fields.
   Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
-The `https_health_check` block supports:
+<a name="nested_https_health_check"></a>The `https_health_check` block supports:
 
 * `host` -
   (Optional)
@@ -537,7 +537,7 @@ The `https_health_check` block supports:
   `portName` fields.
   Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
-The `tcp_health_check` block supports:
+<a name="nested_tcp_health_check"></a>The `tcp_health_check` block supports:
 
 * `request` -
   (Optional)
@@ -583,7 +583,7 @@ The `tcp_health_check` block supports:
   `portName` fields.
   Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
-The `ssl_health_check` block supports:
+<a name="nested_ssl_health_check"></a>The `ssl_health_check` block supports:
 
 * `request` -
   (Optional)
@@ -629,7 +629,7 @@ The `ssl_health_check` block supports:
   `portName` fields.
   Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
-The `http2_health_check` block supports:
+<a name="nested_http2_health_check"></a>The `http2_health_check` block supports:
 
 * `host` -
   (Optional)
@@ -679,7 +679,7 @@ The `http2_health_check` block supports:
   `portName` fields.
   Possible values are `USE_FIXED_PORT`, `USE_NAMED_PORT`, and `USE_SERVING_PORT`.
 
-The `grpc_health_check` block supports:
+<a name="nested_grpc_health_check"></a>The `grpc_health_check` block supports:
 
 * `port` -
   (Optional)
@@ -714,7 +714,7 @@ The `grpc_health_check` block supports:
   * Non-empty serviceName means the health of that gRPC service, as defined by the owner of the service.
   The grpcServiceName can only be ASCII.
 
-The `log_config` block supports:
+<a name="nested_log_config"></a>The `log_config` block supports:
 
 * `enable` -
   (Optional)

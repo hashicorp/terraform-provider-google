@@ -81,7 +81,7 @@ The following arguments are supported:
 * `match` -
   (Required)
   A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding 'action' is enforced.
-  Structure is documented below.
+  Structure is [documented below](#nested_match).
 
 * `action` -
   (Required)
@@ -93,7 +93,7 @@ The following arguments are supported:
   The ID of the OrganizationSecurityPolicy this rule applies to.
 
 
-The `match` block supports:
+<a name="nested_match"></a>The `match` block supports:
 
 * `description` -
   (Optional)
@@ -109,10 +109,10 @@ The `match` block supports:
 * `config` -
   (Required)
   The configuration options for matching the rule.
-  Structure is documented below.
+  Structure is [documented below](#nested_config).
 
 
-The `config` block supports:
+<a name="nested_config"></a>The `config` block supports:
 
 * `src_ip_ranges` -
   (Optional)
@@ -127,10 +127,10 @@ The `config` block supports:
 * `layer4_config` -
   (Required)
   Pairs of IP protocols and ports that the rule should match.
-  Structure is documented below.
+  Structure is [documented below](#nested_layer4_config).
 
 
-The `layer4_config` block supports:
+<a name="nested_layer4_config"></a>The `layer4_config` block supports:
 
 * `ip_protocol` -
   (Required)

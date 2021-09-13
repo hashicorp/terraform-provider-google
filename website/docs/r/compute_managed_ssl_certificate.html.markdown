@@ -235,7 +235,7 @@ The following arguments are supported:
   (Optional)
   Properties relevant to a managed certificate.  These will be used if the
   certificate is managed (as indicated by a value of `MANAGED` in `type`).
-  Structure is documented below.
+  Structure is [documented below](#nested_managed).
 
 * `type` -
   (Optional)
@@ -248,7 +248,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `managed` block supports:
+<a name="nested_managed"></a>The `managed` block supports:
 
 * `domains` -
   (Required)

@@ -105,12 +105,12 @@ The following arguments are supported:
 * `training_phrases` -
   (Optional)
   The collection of training phrases the agent is trained on to identify the intent.
-  Structure is documented below.
+  Structure is [documented below](#nested_training_phrases).
 
 * `parameters` -
   (Optional)
   The collection of parameters associated with the intent.
-  Structure is documented below.
+  Structure is [documented below](#nested_parameters).
 
 * `priority` -
   (Optional)
@@ -145,7 +145,7 @@ The following arguments are supported:
   If not specified, the agent's default language is used. Many languages are supported. Note: languages must be enabled in the agent before they can be used.
 
 
-The `training_phrases` block supports:
+<a name="nested_training_phrases"></a>The `training_phrases` block supports:
 
 * `id` -
   The unique identifier of the training phrase.
@@ -159,14 +159,14 @@ The `training_phrases` block supports:
   If you want to annotate the training phrase, you must create multiple parts, where the fields of each part are populated in one of two ways:
   Part.text is set to a part of the phrase that has no parameters.
   Part.text is set to a part of the phrase that you want to annotate, and the parameterId field is set.
-  Structure is documented below.
+  Structure is [documented below](#nested_parts).
 
 * `repeat_count` -
   (Optional)
   Indicates how many times this example was added to the intent.
 
 
-The `parts` block supports:
+<a name="nested_parts"></a>The `parts` block supports:
 
 * `text` -
   (Required)
@@ -176,7 +176,7 @@ The `parts` block supports:
   (Optional)
   The parameter used to annotate this part of the training phrase. This field is required for annotated parts of the training phrase.
 
-The `parameters` block supports:
+<a name="nested_parameters"></a>The `parameters` block supports:
 
 * `id` -
   (Required)

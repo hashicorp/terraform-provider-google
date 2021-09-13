@@ -85,10 +85,10 @@ The following arguments are supported:
 * `version_configs` -
   (Required)
   A list of configurations for flow versions. You should include version configs for all flows that are reachable from [Start Flow][Agent.start_flow] in the agent. Otherwise, an error will be returned.
-  Structure is documented below.
+  Structure is [documented below](#nested_version_configs).
 
 
-The `version_configs` block supports:
+<a name="nested_version_configs"></a>The `version_configs` block supports:
 
 * `version` -
   (Required)

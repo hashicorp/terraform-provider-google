@@ -222,28 +222,28 @@ The following arguments are supported:
   By default, if a job does not complete successfully, 
   meaning that an acknowledgement is not received from the handler, 
   then it will be retried with exponential backoff according to the settings
-  Structure is documented below.
+  Structure is [documented below](#nested_retry_config).
 
 * `pubsub_target` -
   (Optional)
   Pub/Sub target
   If the job providers a Pub/Sub target the cron will publish
   a message to the provided topic
-  Structure is documented below.
+  Structure is [documented below](#nested_pubsub_target).
 
 * `app_engine_http_target` -
   (Optional)
   App Engine HTTP target.
   If the job providers a App Engine HTTP target the cron will 
   send a request to the service instance
-  Structure is documented below.
+  Structure is [documented below](#nested_app_engine_http_target).
 
 * `http_target` -
   (Optional)
   HTTP target.
   If the job providers a http_target the cron will 
   send a request to the targeted url
-  Structure is documented below.
+  Structure is [documented below](#nested_http_target).
 
 * `region` -
   (Optional)
@@ -253,7 +253,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `retry_config` block supports:
+<a name="nested_retry_config"></a>The `retry_config` block supports:
 
 * `retry_count` -
   (Optional)
@@ -284,7 +284,7 @@ The `retry_config` block supports:
   then doubles maxDoublings times, then increases linearly, 
   and finally retries retries at intervals of maxBackoffDuration up to retryCount times.
 
-The `pubsub_target` block supports:
+<a name="nested_pubsub_target"></a>The `pubsub_target` block supports:
 
 * `topic_name` -
   (Required)
@@ -304,7 +304,7 @@ The `pubsub_target` block supports:
   Attributes for PubsubMessage.
   Pubsub message must contain either non-empty data, or at least one attribute.
 
-The `app_engine_http_target` block supports:
+<a name="nested_app_engine_http_target"></a>The `app_engine_http_target` block supports:
 
 * `http_method` -
   (Optional)
@@ -313,7 +313,7 @@ The `app_engine_http_target` block supports:
 * `app_engine_routing` -
   (Optional)
   App Engine Routing setting for the job.
-  Structure is documented below.
+  Structure is [documented below](#nested_app_engine_routing).
 
 * `relative_uri` -
   (Required)
@@ -337,7 +337,7 @@ The `app_engine_http_target` block supports:
   Headers can be set when the job is created.
 
 
-The `app_engine_routing` block supports:
+<a name="nested_app_engine_routing"></a>The `app_engine_routing` block supports:
 
 * `service` -
   (Optional)
@@ -354,7 +354,7 @@ The `app_engine_routing` block supports:
   App instance.
   By default, the job is sent to an instance which is available when the job is attempted.
 
-The `http_target` block supports:
+<a name="nested_http_target"></a>The `http_target` block supports:
 
 * `uri` -
   (Required)
@@ -380,16 +380,16 @@ The `http_target` block supports:
   (Optional)
   Contains information needed for generating an OAuth token.
   This type of authorization should be used when sending requests to a GCP endpoint.
-  Structure is documented below.
+  Structure is [documented below](#nested_oauth_token).
 
 * `oidc_token` -
   (Optional)
   Contains information needed for generating an OpenID Connect token.
   This type of authorization should be used when sending requests to third party endpoints or Cloud Run.
-  Structure is documented below.
+  Structure is [documented below](#nested_oidc_token).
 
 
-The `oauth_token` block supports:
+<a name="nested_oauth_token"></a>The `oauth_token` block supports:
 
 * `service_account_email` -
   (Required)
@@ -401,7 +401,7 @@ The `oauth_token` block supports:
   OAuth scope to be used for generating OAuth access token. If not specified,
   "https://www.googleapis.com/auth/cloud-platform" will be used.
 
-The `oidc_token` block supports:
+<a name="nested_oidc_token"></a>The `oidc_token` block supports:
 
 * `service_account_email` -
   (Required)

@@ -280,7 +280,7 @@ The following arguments are supported:
   ServicePerimeter configuration. Specifies sets of resources,
   restricted services and access levels that determine
   perimeter content and boundaries.
-  Structure is documented below.
+  Structure is [documented below](#nested_status).
 
 * `spec` -
   (Optional)
@@ -288,7 +288,7 @@ The following arguments are supported:
   This configuration allows to specify and test ServicePerimeter configuration
   without enforcing actual access restrictions. Only allowed to be set when
   the `useExplicitDryRunSpec` flag is set.
-  Structure is documented below.
+  Structure is [documented below](#nested_spec).
 
 * `use_explicit_dry_run_spec` -
   (Optional)
@@ -303,7 +303,7 @@ The following arguments are supported:
   bet set to True if any of the fields in the spec are set to non-default values.
 
 
-The `status` block supports:
+<a name="nested_status"></a>The `status` block supports:
 
 * `resources` -
   (Optional)
@@ -335,7 +335,7 @@ The `status` block supports:
   (Optional)
   Specifies how APIs are allowed to communicate within the Service
   Perimeter.
-  Structure is documented below.
+  Structure is [documented below](#nested_vpc_accessible_services).
 
 * `ingress_policies` -
   (Optional)
@@ -343,7 +343,7 @@ The `status` block supports:
   have multiple `IngressPolicies`, each of which is evaluated
   separately. Access is granted if any `Ingress Policy` grants it.
   Must be empty for a perimeter bridge.
-  Structure is documented below.
+  Structure is [documented below](#nested_ingress_policies).
 
 * `egress_policies` -
   (Optional)
@@ -351,10 +351,10 @@ The `status` block supports:
   have multiple EgressPolicies, each of which is evaluated separately.
   Access is granted if any EgressPolicy grants it. Must be empty for 
   a perimeter bridge.
-  Structure is documented below.
+  Structure is [documented below](#nested_egress_policies).
 
 
-The `vpc_accessible_services` block supports:
+<a name="nested_vpc_accessible_services"></a>The `vpc_accessible_services` block supports:
 
 * `enable_restriction` -
   (Optional)
@@ -366,22 +366,22 @@ The `vpc_accessible_services` block supports:
   The list of APIs usable within the Service Perimeter.
   Must be empty unless `enableRestriction` is True.
 
-The `ingress_policies` block supports:
+<a name="nested_ingress_policies"></a>The `ingress_policies` block supports:
 
 * `ingress_from` -
   (Optional)
   Defines the conditions on the source of a request causing this `IngressPolicy`
   to apply.
-  Structure is documented below.
+  Structure is [documented below](#nested_ingress_from).
 
 * `ingress_to` -
   (Optional)
   Defines the conditions on the `ApiOperation` and request destination that cause
   this `IngressPolicy` to apply.
-  Structure is documented below.
+  Structure is [documented below](#nested_ingress_to).
 
 
-The `ingress_from` block supports:
+<a name="nested_ingress_from"></a>The `ingress_from` block supports:
 
 * `identity_type` -
   (Optional)
@@ -399,10 +399,10 @@ The `ingress_from` block supports:
 * `sources` -
   (Optional)
   Sources that this `IngressPolicy` authorizes access from.
-  Structure is documented below.
+  Structure is [documented below](#nested_sources).
 
 
-The `sources` block supports:
+<a name="nested_sources"></a>The `sources` block supports:
 
 * `access_level` -
   (Optional)
@@ -424,7 +424,7 @@ The `sources` block supports:
   organization that the perimeter is defined in. `*` is not allowed, the case 
   of allowing all Google Cloud resources only is not supported.
 
-The `ingress_to` block supports:
+<a name="nested_ingress_to"></a>The `ingress_to` block supports:
 
 * `resources` -
   (Optional)
@@ -441,10 +441,10 @@ The `ingress_to` block supports:
   (Optional)
   A list of `ApiOperations` the sources specified in corresponding `IngressFrom` 
   are allowed to perform in this `ServicePerimeter`.
-  Structure is documented below.
+  Structure is [documented below](#nested_operations).
 
 
-The `operations` block supports:
+<a name="nested_operations"></a>The `operations` block supports:
 
 * `service_name` -
   (Optional)
@@ -458,10 +458,10 @@ The `operations` block supports:
   the service specified by serviceName field. A single `MethodSelector` entry 
   with `*` specified for the method field will allow all methods AND 
   permissions for the service specified in `serviceName`.
-  Structure is documented below.
+  Structure is [documented below](#nested_method_selectors).
 
 
-The `method_selectors` block supports:
+<a name="nested_method_selectors"></a>The `method_selectors` block supports:
 
 * `method` -
   (Optional)
@@ -474,21 +474,21 @@ The `method_selectors` block supports:
   Value for permission should be a valid Cloud IAM permission for the 
   corresponding `serviceName` in `ApiOperation`.
 
-The `egress_policies` block supports:
+<a name="nested_egress_policies"></a>The `egress_policies` block supports:
 
 * `egress_from` -
   (Optional)
   Defines conditions on the source of a request causing this `EgressPolicy` to apply.
-  Structure is documented below.
+  Structure is [documented below](#nested_egress_from).
 
 * `egress_to` -
   (Optional)
   Defines the conditions on the `ApiOperation` and destination resources that 
   cause this `EgressPolicy` to apply.
-  Structure is documented below.
+  Structure is [documented below](#nested_egress_to).
 
 
-The `egress_from` block supports:
+<a name="nested_egress_from"></a>The `egress_from` block supports:
 
 * `identity_type` -
   (Optional)
@@ -503,7 +503,7 @@ The `egress_from` block supports:
   Should be in the format of email address. The email address should 
   represent individual user or service account only.
 
-The `egress_to` block supports:
+<a name="nested_egress_to"></a>The `egress_to` block supports:
 
 * `resources` -
   (Optional)
@@ -517,10 +517,10 @@ The `egress_to` block supports:
   (Optional)
   A list of `ApiOperations` that this egress rule applies to. A request matches 
   if it contains an operation/service in this list.
-  Structure is documented below.
+  Structure is [documented below](#nested_operations).
 
 
-The `operations` block supports:
+<a name="nested_operations"></a>The `operations` block supports:
 
 * `service_name` -
   (Optional)
@@ -534,10 +534,10 @@ The `operations` block supports:
   to the service specified by `serviceName` field. A single MethodSelector 
   entry with `*` specified for the `method` field will allow all methods 
   AND permissions for the service specified in `serviceName`.
-  Structure is documented below.
+  Structure is [documented below](#nested_method_selectors).
 
 
-The `method_selectors` block supports:
+<a name="nested_method_selectors"></a>The `method_selectors` block supports:
 
 * `method` -
   (Optional)
@@ -550,7 +550,7 @@ The `method_selectors` block supports:
   Value for permission should be a valid Cloud IAM permission for the 
   corresponding `serviceName` in `ApiOperation`.
 
-The `spec` block supports:
+<a name="nested_spec"></a>The `spec` block supports:
 
 * `resources` -
   (Optional)
@@ -582,7 +582,7 @@ The `spec` block supports:
   (Optional)
   Specifies how APIs are allowed to communicate within the Service
   Perimeter.
-  Structure is documented below.
+  Structure is [documented below](#nested_vpc_accessible_services).
 
 * `ingress_policies` -
   (Optional)
@@ -590,7 +590,7 @@ The `spec` block supports:
   have multiple `IngressPolicies`, each of which is evaluated
   separately. Access is granted if any `Ingress Policy` grants it.
   Must be empty for a perimeter bridge.
-  Structure is documented below.
+  Structure is [documented below](#nested_ingress_policies).
 
 * `egress_policies` -
   (Optional)
@@ -598,10 +598,10 @@ The `spec` block supports:
   have multiple EgressPolicies, each of which is evaluated separately.
   Access is granted if any EgressPolicy grants it. Must be empty for 
   a perimeter bridge.
-  Structure is documented below.
+  Structure is [documented below](#nested_egress_policies).
 
 
-The `vpc_accessible_services` block supports:
+<a name="nested_vpc_accessible_services"></a>The `vpc_accessible_services` block supports:
 
 * `enable_restriction` -
   (Optional)
@@ -613,22 +613,22 @@ The `vpc_accessible_services` block supports:
   The list of APIs usable within the Service Perimeter.
   Must be empty unless `enableRestriction` is True.
 
-The `ingress_policies` block supports:
+<a name="nested_ingress_policies"></a>The `ingress_policies` block supports:
 
 * `ingress_from` -
   (Optional)
   Defines the conditions on the source of a request causing this `IngressPolicy`
   to apply.
-  Structure is documented below.
+  Structure is [documented below](#nested_ingress_from).
 
 * `ingress_to` -
   (Optional)
   Defines the conditions on the `ApiOperation` and request destination that cause
   this `IngressPolicy` to apply.
-  Structure is documented below.
+  Structure is [documented below](#nested_ingress_to).
 
 
-The `ingress_from` block supports:
+<a name="nested_ingress_from"></a>The `ingress_from` block supports:
 
 * `identity_type` -
   (Optional)
@@ -646,10 +646,10 @@ The `ingress_from` block supports:
 * `sources` -
   (Optional)
   Sources that this `IngressPolicy` authorizes access from.
-  Structure is documented below.
+  Structure is [documented below](#nested_sources).
 
 
-The `sources` block supports:
+<a name="nested_sources"></a>The `sources` block supports:
 
 * `access_level` -
   (Optional)
@@ -671,7 +671,7 @@ The `sources` block supports:
   organization that the perimeter is defined in. `*` is not allowed, the case 
   of allowing all Google Cloud resources only is not supported.
 
-The `ingress_to` block supports:
+<a name="nested_ingress_to"></a>The `ingress_to` block supports:
 
 * `resources` -
   (Optional)
@@ -688,10 +688,10 @@ The `ingress_to` block supports:
   (Optional)
   A list of `ApiOperations` the sources specified in corresponding `IngressFrom` 
   are allowed to perform in this `ServicePerimeter`.
-  Structure is documented below.
+  Structure is [documented below](#nested_operations).
 
 
-The `operations` block supports:
+<a name="nested_operations"></a>The `operations` block supports:
 
 * `service_name` -
   (Optional)
@@ -705,10 +705,10 @@ The `operations` block supports:
   the service specified by serviceName field. A single `MethodSelector` entry 
   with `*` specified for the method field will allow all methods AND 
   permissions for the service specified in `serviceName`.
-  Structure is documented below.
+  Structure is [documented below](#nested_method_selectors).
 
 
-The `method_selectors` block supports:
+<a name="nested_method_selectors"></a>The `method_selectors` block supports:
 
 * `method` -
   (Optional)
@@ -721,21 +721,21 @@ The `method_selectors` block supports:
   Value for permission should be a valid Cloud IAM permission for the 
   corresponding `serviceName` in `ApiOperation`.
 
-The `egress_policies` block supports:
+<a name="nested_egress_policies"></a>The `egress_policies` block supports:
 
 * `egress_from` -
   (Optional)
   Defines conditions on the source of a request causing this `EgressPolicy` to apply.
-  Structure is documented below.
+  Structure is [documented below](#nested_egress_from).
 
 * `egress_to` -
   (Optional)
   Defines the conditions on the `ApiOperation` and destination resources that 
   cause this `EgressPolicy` to apply.
-  Structure is documented below.
+  Structure is [documented below](#nested_egress_to).
 
 
-The `egress_from` block supports:
+<a name="nested_egress_from"></a>The `egress_from` block supports:
 
 * `identity_type` -
   (Optional)
@@ -750,7 +750,7 @@ The `egress_from` block supports:
   Should be in the format of email address. The email address should 
   represent individual user or service account only.
 
-The `egress_to` block supports:
+<a name="nested_egress_to"></a>The `egress_to` block supports:
 
 * `resources` -
   (Optional)
@@ -764,10 +764,10 @@ The `egress_to` block supports:
   (Optional)
   A list of `ApiOperations` that this egress rule applies to. A request matches 
   if it contains an operation/service in this list.
-  Structure is documented below.
+  Structure is [documented below](#nested_operations).
 
 
-The `operations` block supports:
+<a name="nested_operations"></a>The `operations` block supports:
 
 * `service_name` -
   (Optional)
@@ -781,10 +781,10 @@ The `operations` block supports:
   to the service specified by `serviceName` field. A single MethodSelector 
   entry with `*` specified for the `method` field will allow all methods 
   AND permissions for the service specified in `serviceName`.
-  Structure is documented below.
+  Structure is [documented below](#nested_method_selectors).
 
 
-The `method_selectors` block supports:
+<a name="nested_method_selectors"></a>The `method_selectors` block supports:
 
 * `method` -
   (Optional)

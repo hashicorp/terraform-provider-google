@@ -118,13 +118,13 @@ The following arguments are supported:
   The list of ALLOW rules specified by this firewall. Each rule
   specifies a protocol and port-range tuple that describes a permitted
   connection.
-  Structure is documented below.
+  Structure is [documented below](#nested_allow).
 
 * `deny` -
   (Optional)
   The list of DENY rules specified by this firewall. Each rule specifies
   a protocol and port-range tuple that describes a denied connection.
-  Structure is documented below.
+  Structure is [documented below](#nested_deny).
 
 * `description` -
   (Optional)
@@ -156,7 +156,7 @@ The following arguments are supported:
   (Optional)
   This field denotes the logging options for a particular firewall rule.
   If defined, logging is enabled, and logs will be exported to Cloud Logging.
-  Structure is documented below.
+  Structure is [documented below](#nested_log_config).
 
 * `priority` -
   (Optional)
@@ -226,7 +226,7 @@ The following arguments are supported:
 * `enable_logging` - (Optional, Deprecated) This field denotes whether to enable logging for a particular firewall rule.
 If logging is enabled, logs will be exported to Stackdriver. Deprecated in favor of `log_config`
 
-The `allow` block supports:
+<a name="nested_allow"></a>The `allow` block supports:
 
 * `protocol` -
   (Required)
@@ -244,7 +244,7 @@ The `allow` block supports:
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
 
-The `deny` block supports:
+<a name="nested_deny"></a>The `deny` block supports:
 
 * `protocol` -
   (Required)
@@ -262,7 +262,7 @@ The `deny` block supports:
   Example inputs include: ["22"], ["80","443"], and
   ["12345-12349"].
 
-The `log_config` block supports:
+<a name="nested_log_config"></a>The `log_config` block supports:
 
 * `metadata` -
   (Required)

@@ -101,7 +101,7 @@ The following arguments are supported:
 * `speech_to_text_settings` -
   (Optional)
   Settings related to speech recognition.
-  Structure is documented below.
+  Structure is [documented below](#nested_speech_to_text_settings).
 
 * `security_settings` -
   (Optional)
@@ -119,7 +119,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `speech_to_text_settings` block supports:
+<a name="nested_speech_to_text_settings"></a>The `speech_to_text_settings` block supports:
 
 * `enable_speech_adaptation` -
   (Optional)

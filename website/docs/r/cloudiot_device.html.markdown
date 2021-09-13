@@ -97,7 +97,7 @@ The following arguments are supported:
 * `credentials` -
   (Optional)
   The credentials used to authenticate this device.
-  Structure is documented below.
+  Structure is [documented below](#nested_credentials).
 
 * `blocked` -
   (Optional)
@@ -115,10 +115,10 @@ The following arguments are supported:
 * `gateway_config` -
   (Optional)
   Gateway-related configuration and state.
-  Structure is documented below.
+  Structure is [documented below](#nested_gateway_config).
 
 
-The `credentials` block supports:
+<a name="nested_credentials"></a>The `credentials` block supports:
 
 * `expiration_time` -
   (Optional)
@@ -127,10 +127,10 @@ The `credentials` block supports:
 * `public_key` -
   (Required)
   A public key used to verify the signature of JSON Web Tokens (JWTs).
-  Structure is documented below.
+  Structure is [documented below](#nested_public_key).
 
 
-The `public_key` block supports:
+<a name="nested_public_key"></a>The `public_key` block supports:
 
 * `format` -
   (Required)
@@ -141,7 +141,7 @@ The `public_key` block supports:
   (Required)
   The key data.
 
-The `gateway_config` block supports:
+<a name="nested_gateway_config"></a>The `gateway_config` block supports:
 
 * `gateway_type` -
   (Optional)
@@ -190,18 +190,18 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `last_error_status` -
   The error message of the most recent error, such as a failure to publish to Cloud Pub/Sub.
-  Structure is documented below.
+  Structure is [documented below](#nested_last_error_status).
 
 * `config` -
   The most recent device configuration, which is eventually sent from Cloud IoT Core to the device.
-  Structure is documented below.
+  Structure is [documented below](#nested_config).
 
 * `state` -
   The state most recently received from the device.
-  Structure is documented below.
+  Structure is [documented below](#nested_state).
 
 
-The `last_error_status` block contains:
+<a name="nested_last_error_status"></a>The `last_error_status` block contains:
 
 * `number` -
   (Optional)
@@ -215,7 +215,7 @@ The `last_error_status` block contains:
   (Optional)
   A list of messages that carry the error details.
 
-The `config` block contains:
+<a name="nested_config"></a>The `config` block contains:
 
 * `version` -
   The version of this update.
@@ -231,7 +231,7 @@ The `config` block contains:
   (Optional)
   The device configuration data.
 
-The `state` block contains:
+<a name="nested_state"></a>The `state` block contains:
 
 * `update_time` -
   (Optional)

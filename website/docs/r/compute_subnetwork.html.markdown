@@ -200,7 +200,7 @@ The following arguments are supported:
   of zero objects you must use the following syntax:
   `example=[]`
   For more details about this behavior, see [this section](https://www.terraform.io/docs/configuration/attr-as-blocks.html#defining-a-fixed-object-collection-value).
-  Structure is documented below.
+  Structure is [documented below](#nested_secondary_ip_range).
 
 * `private_ip_google_access` -
   (Optional)
@@ -220,13 +220,13 @@ The following arguments are supported:
   Denotes the logging options for the subnetwork flow logs. If logging is enabled
   logs will be exported to Stackdriver. This field cannot be set if the `purpose` of this
   subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER`
-  Structure is documented below.
+  Structure is [documented below](#nested_log_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `secondary_ip_range` block supports:
+<a name="nested_secondary_ip_range"></a>The `secondary_ip_range` block supports:
 
 * `range_name` -
   (Required)
@@ -242,7 +242,7 @@ The `secondary_ip_range` block supports:
   Ranges must be unique and non-overlapping with all primary and
   secondary IP ranges within a network. Only IPv4 is supported.
 
-The `log_config` block supports:
+<a name="nested_log_config"></a>The `log_config` block supports:
 
 * `aggregation_interval` -
   (Optional)

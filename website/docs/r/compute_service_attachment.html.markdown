@@ -268,7 +268,7 @@ The following arguments are supported:
   (Optional)
   An array of projects that are allowed to connect to this service
   attachment.
-  Structure is documented below.
+  Structure is [documented below](#nested_consumer_accept_lists).
 
 * `region` -
   (Optional)
@@ -278,7 +278,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `consumer_accept_lists` block supports:
+<a name="nested_consumer_accept_lists"></a>The `consumer_accept_lists` block supports:
 
 * `project_id_or_num` -
   (Required)
@@ -302,11 +302,11 @@ In addition to the arguments listed above, the following computed attributes are
 * `connected_endpoints` -
   An array of the consumer forwarding rules connected to this service
   attachment.
-  Structure is documented below.
+  Structure is [documented below](#nested_connected_endpoints).
 * `self_link` - The URI of the created resource.
 
 
-The `connected_endpoints` block contains:
+<a name="nested_connected_endpoints"></a>The `connected_endpoints` block contains:
 
 * `endpoint` -
   The URL of the consumer forwarding rule.

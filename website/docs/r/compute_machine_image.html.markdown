@@ -157,13 +157,13 @@ The following arguments are supported:
   After you encrypt a machine image with a customer-supplied key, you must
   provide the same key if you use the machine image later (e.g. to create a
   instance from the image)
-  Structure is documented below.
+  Structure is [documented below](#nested_machine_image_encryption_key).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `machine_image_encryption_key` block supports:
+<a name="nested_machine_image_encryption_key"></a>The `machine_image_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)

@@ -121,20 +121,20 @@ The following arguments are supported:
   (Optional)
   The customer-supplied encryption key of the snapshot. Required if the
   source snapshot is protected by a customer-supplied encryption key.
-  Structure is documented below.
+  Structure is [documented below](#nested_snapshot_encryption_key).
 
 * `source_disk_encryption_key` -
   (Optional)
   The customer-supplied encryption key of the source snapshot. Required
   if the source snapshot is protected by a customer-supplied encryption
   key.
-  Structure is documented below.
+  Structure is [documented below](#nested_source_disk_encryption_key).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `snapshot_encryption_key` block supports:
+<a name="nested_snapshot_encryption_key"></a>The `snapshot_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
@@ -155,7 +155,7 @@ The `snapshot_encryption_key` block supports:
   The service account used for the encryption request for the given KMS key.
   If absent, the Compute Engine Service Agent service account is used.
 
-The `source_disk_encryption_key` block supports:
+<a name="nested_source_disk_encryption_key"></a>The `source_disk_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)

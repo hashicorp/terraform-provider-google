@@ -108,31 +108,31 @@ The following arguments are supported:
   (Required)
   Parameters that define your deployment, including the deployment
   configuration and relevant templates.
-  Structure is documented below.
+  Structure is [documented below](#nested_target).
 
 
-The `target` block supports:
+<a name="nested_target"></a>The `target` block supports:
 
 * `config` -
   (Required)
   The root configuration file to use for this deployment.
-  Structure is documented below.
+  Structure is [documented below](#nested_config).
 
 * `imports` -
   (Optional)
   Specifies import files for this configuration. This can be
   used to import templates or other files. For example, you might
   import a text file in order to use the file in a template.
-  Structure is documented below.
+  Structure is [documented below](#nested_imports).
 
 
-The `config` block supports:
+<a name="nested_config"></a>The `config` block supports:
 
 * `content` -
   (Required)
   The full YAML contents of your configuration file.
 
-The `imports` block supports:
+<a name="nested_imports"></a>The `imports` block supports:
 
 * `content` -
   (Optional)
@@ -153,7 +153,7 @@ The `imports` block supports:
 * `labels` -
   (Optional)
   Key-value pairs to apply to this labels.
-  Structure is documented below.
+  Structure is [documented below](#nested_labels).
 
 * `create_policy` -
   (Optional)
@@ -191,7 +191,7 @@ The `imports` block supports:
     If it is not provided, the provider project is used.
 
 
-The `labels` block supports:
+<a name="nested_labels"></a>The `labels` block supports:
 
 * `key` -
   (Optional)

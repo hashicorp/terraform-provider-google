@@ -64,7 +64,7 @@ The following arguments are supported:
   You must specify at least one (1) key, and may have up to three (3) keys.
   Ed25519 public keys are not secret, and only allow Google to validate a request was signed by your corresponding private key.
   You should ensure that the private key is kept secret, and that only authorized users can add public keys to a keyset.
-  Structure is documented below.
+  Structure is [documented below](#nested_public_key).
 
 * `name` -
   (Required)
@@ -73,7 +73,7 @@ The following arguments are supported:
   and all following characters must be a dash, underscore, letter or digit.
 
 
-The `public_key` block supports:
+<a name="nested_public_key"></a>The `public_key` block supports:
 
 * `id` -
   (Required)

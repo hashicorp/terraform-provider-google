@@ -125,7 +125,7 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   The set of labels that can be used to describe a specific instance of this metric type. In order to delete a label, the entire resource must be deleted, then created with the desired labels.
-  Structure is documented below.
+  Structure is [documented below](#nested_labels).
 
 * `unit` -
   (Optional)
@@ -150,7 +150,7 @@ The following arguments are supported:
 * `metadata` -
   (Optional)
   Metadata which can be used to guide usage of the metric.
-  Structure is documented below.
+  Structure is [documented below](#nested_metadata).
 
 * `launch_stage` -
   (Optional)
@@ -161,7 +161,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `labels` block supports:
+<a name="nested_labels"></a>The `labels` block supports:
 
 * `key` -
   (Required)
@@ -177,7 +177,7 @@ The `labels` block supports:
   (Optional)
   A human-readable description for the label.
 
-The `metadata` block supports:
+<a name="nested_metadata"></a>The `metadata` block supports:
 
 * `sample_period` -
   (Optional)

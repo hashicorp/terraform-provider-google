@@ -347,10 +347,10 @@ The following arguments are supported:
   (Required)
   This maps the ID of a tag field to the value of and additional information about that field.
   Valid field IDs are defined by the tag's template. A tag must have at least 1 field and at most 500 fields.
-  Structure is documented below.
+  Structure is [documented below](#nested_fields).
 
 
-The `fields` block supports:
+<a name="nested_fields"></a>The `fields` block supports:
 
 * `field_name` - (Required) The identifier for this object. Format specified above.
 
@@ -381,7 +381,7 @@ The `fields` block supports:
 * `enum_value` -
   (Optional)
   Holds the value for a tag field with enum type. This value must be one of the allowed values in the definition of this enum.
-  Structure is documented below.
+  Structure is [documented below](#nested_enum_value).
 
 - - -
 

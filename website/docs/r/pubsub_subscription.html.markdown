@@ -174,7 +174,7 @@ The following arguments are supported:
   If push delivery is used with this subscription, this field is used to
   configure it. An empty pushConfig signifies that the subscriber will
   pull and ack messages using API methods.
-  Structure is documented below.
+  Structure is [documented below](#nested_push_config).
 
 * `ack_deadline_seconds` -
   (Optional)
@@ -221,7 +221,7 @@ The following arguments are supported:
   policy with ttl of 31 days will be used.  If it is set but ttl is "", the
   resource never expires.  The minimum allowed value for expirationPolicy.ttl
   is 1 day.
-  Structure is documented below.
+  Structure is [documented below](#nested_expiration_policy).
 
 * `filter` -
   (Optional)
@@ -239,14 +239,14 @@ The following arguments are supported:
   parent project (i.e.,
   service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
   permission to Acknowledge() messages on this subscription.
-  Structure is documented below.
+  Structure is [documented below](#nested_dead_letter_policy).
 
 * `retry_policy` -
   (Optional)
   A policy that specifies how Pub/Sub retries message delivery for this subscription.
   If not set, the default retry policy is applied. This generally implies that messages will be retried as soon as possible for healthy subscribers. 
   RetryPolicy will be triggered on NACKs or acknowledgement deadline exceeded events for a given message
-  Structure is documented below.
+  Structure is [documented below](#nested_retry_policy).
 
 * `enable_message_ordering` -
   (Optional)
@@ -258,13 +258,13 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `push_config` block supports:
+<a name="nested_push_config"></a>The `push_config` block supports:
 
 * `oidc_token` -
   (Optional)
   If specified, Pub/Sub will generate and attach an OIDC JWT token as
   an Authorization header in the HTTP request for every pushed message.
-  Structure is documented below.
+  Structure is [documented below](#nested_oidc_token).
 
 * `push_endpoint` -
   (Required)
@@ -294,7 +294,7 @@ The `push_config` block supports:
   - v1 or v1beta2: uses the push format defined in the v1 Pub/Sub API.
 
 
-The `oidc_token` block supports:
+<a name="nested_oidc_token"></a>The `oidc_token` block supports:
 
 * `service_account_email` -
   (Required)
@@ -312,7 +312,7 @@ The `oidc_token` block supports:
   token audience here: https://tools.ietf.org/html/rfc7519#section-4.1.3
   Note: if not specified, the Push endpoint URL will be used.
 
-The `expiration_policy` block supports:
+<a name="nested_expiration_policy"></a>The `expiration_policy` block supports:
 
 * `ttl` -
   (Required)
@@ -322,7 +322,7 @@ The `expiration_policy` block supports:
   A duration in seconds with up to nine fractional digits, terminated by 's'.
   Example - "3.5s".
 
-The `dead_letter_policy` block supports:
+<a name="nested_dead_letter_policy"></a>The `dead_letter_policy` block supports:
 
 * `dead_letter_topic` -
   (Optional)
@@ -347,7 +347,7 @@ The `dead_letter_policy` block supports:
   This field will be honored on a best effort basis.
   If this parameter is 0, a default value of 5 is used.
 
-The `retry_policy` block supports:
+<a name="nested_retry_policy"></a>The `retry_policy` block supports:
 
 * `minimum_backoff` -
   (Optional)

@@ -131,7 +131,7 @@ The following arguments are supported:
     TransitionRoutes with intent specified.
     TransitionRoutes with only condition specified.
     TransitionRoutes with intent specified are inherited by pages in the flow.
-  Structure is documented below.
+  Structure is [documented below](#nested_transition_routes).
 
 * `event_handlers` -
   (Optional)
@@ -139,7 +139,7 @@ The following arguments are supported:
   They are responsible for handling events (e.g. no match, webhook errors) in the flow.
   They are inherited by every page's [event handlers][Page.event_handlers], which can be used to handle common events regardless of the current page. Event handlers defined in the page have higher priority than those defined in the flow.
   Unlike transitionRoutes, these handlers are evaluated on a first-match basis. The first one that matches the event get executed, with the rest being ignored.
-  Structure is documented below.
+  Structure is [documented below](#nested_event_handlers).
 
 * `transition_route_groups` -
   (Optional)
@@ -151,7 +151,7 @@ The following arguments are supported:
 * `nlu_settings` -
   (Optional)
   NLU related settings of the flow.
-  Structure is documented below.
+  Structure is [documented below](#nested_nlu_settings).
 
 * `parent` -
   (Optional)
@@ -168,7 +168,7 @@ The following arguments are supported:
   If not specified, the agent's default language is used. Many languages are supported. Note: languages must be enabled in the agent before they can be used.
 
 
-The `transition_routes` block supports:
+<a name="nested_transition_routes"></a>The `transition_routes` block supports:
 
 * `name` -
   The unique identifier of this transition route.
@@ -186,7 +186,7 @@ The `transition_routes` block supports:
 * `trigger_fulfillment` -
   (Optional)
   The fulfillment to call when the condition is satisfied. At least one of triggerFulfillment and target must be specified. When both are defined, triggerFulfillment is executed first.
-  Structure is documented below.
+  Structure is [documented below](#nested_trigger_fulfillment).
 
 * `target_page` -
   (Optional)
@@ -199,12 +199,12 @@ The `transition_routes` block supports:
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 
-The `trigger_fulfillment` block supports:
+<a name="nested_trigger_fulfillment"></a>The `trigger_fulfillment` block supports:
 
 * `messages` -
   (Optional)
   The list of rich message responses to present to the user.
-  Structure is documented below.
+  Structure is [documented below](#nested_messages).
 
 * `webhook` -
   (Optional)
@@ -219,15 +219,15 @@ The `trigger_fulfillment` block supports:
   The tag used by the webhook to identify which fulfillment is being called. This field is required if webhook is specified.
 
 
-The `messages` block supports:
+<a name="nested_messages"></a>The `messages` block supports:
 
 * `text` -
   (Optional)
   The text response message.
-  Structure is documented below.
+  Structure is [documented below](#nested_text).
 
 
-The `text` block supports:
+<a name="nested_text"></a>The `text` block supports:
 
 * `text` -
   (Optional)
@@ -236,7 +236,7 @@ The `text` block supports:
 * `allow_playback_interruption` -
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
-The `event_handlers` block supports:
+<a name="nested_event_handlers"></a>The `event_handlers` block supports:
 
 * `name` -
   The unique identifier of this event handler.
@@ -248,7 +248,7 @@ The `event_handlers` block supports:
 * `trigger_fulfillment` -
   (Optional)
   The fulfillment to call when the event occurs. Handling webhook errors with a fulfillment enabled with webhook could cause infinite loop. It is invalid to specify such fulfillment for a handler handling webhooks.
-  Structure is documented below.
+  Structure is [documented below](#nested_trigger_fulfillment).
 
 * `target_page` -
   (Optional)
@@ -261,12 +261,12 @@ The `event_handlers` block supports:
   Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
 
 
-The `trigger_fulfillment` block supports:
+<a name="nested_trigger_fulfillment"></a>The `trigger_fulfillment` block supports:
 
 * `messages` -
   (Optional)
   The list of rich message responses to present to the user.
-  Structure is documented below.
+  Structure is [documented below](#nested_messages).
 
 * `webhook` -
   (Optional)
@@ -281,15 +281,15 @@ The `trigger_fulfillment` block supports:
   The tag used by the webhook to identify which fulfillment is being called. This field is required if webhook is specified.
 
 
-The `messages` block supports:
+<a name="nested_messages"></a>The `messages` block supports:
 
 * `text` -
   (Optional)
   The text response message.
-  Structure is documented below.
+  Structure is [documented below](#nested_text).
 
 
-The `text` block supports:
+<a name="nested_text"></a>The `text` block supports:
 
 * `text` -
   (Optional)
@@ -298,7 +298,7 @@ The `text` block supports:
 * `allow_playback_interruption` -
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
 
-The `nlu_settings` block supports:
+<a name="nested_nlu_settings"></a>The `nlu_settings` block supports:
 
 * `model_type` -
   (Optional)

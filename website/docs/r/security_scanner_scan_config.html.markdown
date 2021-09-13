@@ -89,7 +89,7 @@ The following arguments are supported:
   (Optional)
   The authentication configuration.
   If specified, service will use the authentication configuration during scanning.
-  Structure is documented below.
+  Structure is [documented below](#nested_authentication).
 
 * `user_agent` -
   (Optional)
@@ -105,7 +105,7 @@ The following arguments are supported:
 * `schedule` -
   (Optional)
   The schedule of the ScanConfig
-  Structure is documented below.
+  Structure is [documented below](#nested_schedule).
 
 * `target_platforms` -
   (Optional)
@@ -122,20 +122,20 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `authentication` block supports:
+<a name="nested_authentication"></a>The `authentication` block supports:
 
 * `google_account` -
   (Optional)
   Describes authentication configuration that uses a Google account.
-  Structure is documented below.
+  Structure is [documented below](#nested_google_account).
 
 * `custom_account` -
   (Optional)
   Describes authentication configuration that uses a custom account.
-  Structure is documented below.
+  Structure is [documented below](#nested_custom_account).
 
 
-The `google_account` block supports:
+<a name="nested_google_account"></a>The `google_account` block supports:
 
 * `username` -
   (Required)
@@ -147,7 +147,7 @@ The `google_account` block supports:
   in GCP.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-The `custom_account` block supports:
+<a name="nested_custom_account"></a>The `custom_account` block supports:
 
 * `username` -
   (Required)
@@ -163,7 +163,7 @@ The `custom_account` block supports:
   (Required)
   The login form URL of the website.
 
-The `schedule` block supports:
+<a name="nested_schedule"></a>The `schedule` block supports:
 
 * `schedule_time` -
   (Optional)

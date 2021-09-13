@@ -310,14 +310,14 @@ The following arguments are supported:
 * `backend` -
   (Optional)
   The set of backends that serve this RegionBackendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_backend).
 
 * `circuit_breakers` -
   (Optional)
   Settings controlling the volume of connections to a backend service. This field
   is applicable only when the `load_balancing_scheme` is set to INTERNAL_MANAGED
   and the `protocol` is set to HTTP, HTTPS, or HTTP2.
-  Structure is documented below.
+  Structure is [documented below](#nested_circuit_breakers).
 
 * `consistent_hash` -
   (Optional)
@@ -331,12 +331,12 @@ The following arguments are supported:
     * `load_balancing_scheme` is set to INTERNAL_MANAGED
     * `protocol` is set to HTTP, HTTPS, or HTTP2
     * `locality_lb_policy` is set to MAGLEV or RING_HASH
-  Structure is documented below.
+  Structure is [documented below](#nested_consistent_hash).
 
 * `cdn_policy` -
   (Optional)
   Cloud CDN configuration for this BackendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_cdn_policy).
 
 * `connection_draining_timeout_sec` -
   (Optional)
@@ -350,7 +350,7 @@ The following arguments are supported:
 * `failover_policy` -
   (Optional)
   Policy for failovers.
-  Structure is documented below.
+  Structure is [documented below](#nested_failover_policy).
 
 * `enable_cdn` -
   (Optional)
@@ -367,7 +367,7 @@ The following arguments are supported:
 * `iap` -
   (Optional)
   Settings for enabling Cloud Identity Aware Proxy
-  Structure is documented below.
+  Structure is [documented below](#nested_iap).
 
 * `load_balancing_scheme` -
   (Optional)
@@ -408,7 +408,7 @@ The following arguments are supported:
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
   This field is applicable only when the `load_balancing_scheme` is set
   to INTERNAL_MANAGED and the `protocol` is set to HTTP, HTTPS, or HTTP2.
-  Structure is documented below.
+  Structure is [documented below](#nested_outlier_detection).
 
 * `port_name` -
   (Optional)
@@ -442,7 +442,7 @@ The following arguments are supported:
   (Optional)
   This field denotes the logging options for the load balancer traffic served by this backend service.
   If logging is enabled, logs will be exported to Stackdriver.
-  Structure is documented below.
+  Structure is [documented below](#nested_log_config).
 
 * `network` -
   (Optional)
@@ -458,7 +458,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `backend` block supports:
+<a name="nested_backend"></a>The `backend` block supports:
 
 * `balancing_mode` -
   (Optional)
@@ -566,12 +566,12 @@ The `backend` block supports:
   CPU utilization target for the group. Valid range is [0.0, 1.0].
   Cannot be set for INTERNAL backend services.
 
-The `circuit_breakers` block supports:
+<a name="nested_circuit_breakers"></a>The `circuit_breakers` block supports:
 
 * `connect_timeout` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The timeout for new network connections to hosts.
-  Structure is documented below.
+  Structure is [documented below](#nested_connect_timeout).
 
 * `max_requests_per_connection` -
   (Optional)
@@ -601,7 +601,7 @@ The `circuit_breakers` block supports:
   Defaults to 3.
 
 
-The `connect_timeout` block supports:
+<a name="nested_connect_timeout"></a>The `connect_timeout` block supports:
 
 * `seconds` -
   (Required)
@@ -615,7 +615,7 @@ The `connect_timeout` block supports:
   with a 0 seconds field and a positive nanos field. Must
   be from 0 to 999,999,999 inclusive.
 
-The `consistent_hash` block supports:
+<a name="nested_consistent_hash"></a>The `consistent_hash` block supports:
 
 * `http_cookie` -
   (Optional)
@@ -623,7 +623,7 @@ The `consistent_hash` block supports:
   that will be used as the hash key for the consistent hash load
   balancer. If the cookie is not present, it will be generated.
   This field is applicable if the sessionAffinity is set to HTTP_COOKIE.
-  Structure is documented below.
+  Structure is [documented below](#nested_http_cookie).
 
 * `http_header_name` -
   (Optional)
@@ -640,12 +640,12 @@ The `consistent_hash` block supports:
   Defaults to 1024.
 
 
-The `http_cookie` block supports:
+<a name="nested_http_cookie"></a>The `http_cookie` block supports:
 
 * `ttl` -
   (Optional)
   Lifetime of the cookie.
-  Structure is documented below.
+  Structure is [documented below](#nested_ttl).
 
 * `name` -
   (Optional)
@@ -656,7 +656,7 @@ The `http_cookie` block supports:
   Path to set for the cookie.
 
 
-The `ttl` block supports:
+<a name="nested_ttl"></a>The `ttl` block supports:
 
 * `seconds` -
   (Required)
@@ -670,12 +670,12 @@ The `ttl` block supports:
   with a 0 seconds field and a positive nanos field. Must
   be from 0 to 999,999,999 inclusive.
 
-The `cdn_policy` block supports:
+<a name="nested_cdn_policy"></a>The `cdn_policy` block supports:
 
 * `cache_key_policy` -
   (Optional)
   The CacheKeyPolicy for this CdnPolicy.
-  Structure is documented below.
+  Structure is [documented below](#nested_cache_key_policy).
 
 * `signed_url_cache_max_age_sec` -
   (Optional)
@@ -710,7 +710,7 @@ The `cdn_policy` block supports:
   (Optional)
   Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
   Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.
-  Structure is documented below.
+  Structure is [documented below](#nested_negative_caching_policy).
 
 * `cache_mode` -
   (Optional)
@@ -723,7 +723,7 @@ The `cdn_policy` block supports:
   Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
 
 
-The `cache_key_policy` block supports:
+<a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
 
 * `include_host` -
   (Optional)
@@ -758,7 +758,7 @@ The `cache_key_policy` block supports:
   '&' and '=' will be percent encoded and not treated as
   delimiters.
 
-The `negative_caching_policy` block supports:
+<a name="nested_negative_caching_policy"></a>The `negative_caching_policy` block supports:
 
 * `code` -
   (Optional)
@@ -770,7 +770,7 @@ The `negative_caching_policy` block supports:
   The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
   (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
 
-The `failover_policy` block supports:
+<a name="nested_failover_policy"></a>The `failover_policy` block supports:
 
 * `disable_connection_drain_on_failover` -
   (Optional)
@@ -801,7 +801,7 @@ The `failover_policy` block supports:
   VMs with the best effort, or to all VMs when no VM is healthy.
   This field is only used with l4 load balancing.
 
-The `iap` block supports:
+<a name="nested_iap"></a>The `iap` block supports:
 
 * `oauth2_client_id` -
   (Required)
@@ -816,14 +816,14 @@ The `iap` block supports:
   OAuth2 Client Secret SHA-256 for IAP
   **Note**: This property is sensitive and will not be displayed in the plan.
 
-The `outlier_detection` block supports:
+<a name="nested_outlier_detection"></a>The `outlier_detection` block supports:
 
 * `base_ejection_time` -
   (Optional)
   The base time that a host is ejected for. The real time is equal to the base
   time multiplied by the number of times the host has been ejected. Defaults to
   30000ms or 30s.
-  Structure is documented below.
+  Structure is [documented below](#nested_base_ejection_time).
 
 * `consecutive_errors` -
   (Optional)
@@ -859,7 +859,7 @@ The `outlier_detection` block supports:
   (Optional)
   Time interval between ejection sweep analysis. This can result in both new
   ejections as well as hosts being returned to service. Defaults to 10 seconds.
-  Structure is documented below.
+  Structure is [documented below](#nested_interval).
 
 * `max_ejection_percent` -
   (Optional)
@@ -891,7 +891,7 @@ The `outlier_detection` block supports:
   runtime value should be 1900. Defaults to 1900.
 
 
-The `base_ejection_time` block supports:
+<a name="nested_base_ejection_time"></a>The `base_ejection_time` block supports:
 
 * `seconds` -
   (Required)
@@ -904,7 +904,7 @@ The `base_ejection_time` block supports:
   less than one second are represented with a 0 `seconds` field and a positive
   `nanos` field. Must be from 0 to 999,999,999 inclusive.
 
-The `interval` block supports:
+<a name="nested_interval"></a>The `interval` block supports:
 
 * `seconds` -
   (Required)
@@ -917,7 +917,7 @@ The `interval` block supports:
   less than one second are represented with a 0 `seconds` field and a positive
   `nanos` field. Must be from 0 to 999,999,999 inclusive.
 
-The `log_config` block supports:
+<a name="nested_log_config"></a>The `log_config` block supports:
 
 * `enable` -
   (Optional)

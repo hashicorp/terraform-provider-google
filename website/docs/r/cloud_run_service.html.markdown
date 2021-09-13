@@ -442,7 +442,7 @@ The following arguments are supported:
 
 
 
-The `traffic` block supports:
+<a name="nested_traffic"></a>The `traffic` block supports:
 
 * `revision_name` -
   (Optional)
@@ -459,7 +459,7 @@ The `traffic` block supports:
   provided LatestRevision must be true if RevisionName is empty; it must be
   false when RevisionName is non-empty.
 
-The `template` block supports:
+<a name="nested_template"></a>The `template` block supports:
 
 * `metadata` -
   (Optional)
@@ -470,15 +470,15 @@ The `template` block supports:
   "autoscaling.knative.dev/maxScale" annotation key. To set Cloud SQL
   connections for the revision, use the "run.googleapis.com/cloudsql-instances"
   annotation key.
-  Structure is documented below.
+  Structure is [documented below](#nested_metadata).
 
 * `spec` -
   (Required)
   RevisionSpec holds the desired state of the Revision (from the client).
-  Structure is documented below.
+  Structure is [documented below](#nested_spec).
 
 
-The `metadata` block supports:
+<a name="nested_metadata"></a>The `metadata` block supports:
 
 * `labels` -
   (Optional)
@@ -528,7 +528,7 @@ The `metadata` block supports:
   for creation idempotence and configuration definition. Cannot be updated.
   More info: http://kubernetes.io/docs/user-guide/identifiers#names
 
-The `spec` block supports:
+<a name="nested_spec"></a>The `spec` block supports:
 
 * `containers` -
   (Required)
@@ -537,7 +537,7 @@ The `spec` block supports:
   this Container, including: name, ports, and volumeMounts.
   The runtime contract is documented here:
   https://github.com/knative/serving/blob/master/docs/runtime-contract.md
-  Structure is documented below.
+  Structure is [documented below](#nested_containers).
 
 * `container_concurrency` -
   (Optional)
@@ -562,7 +562,7 @@ The `spec` block supports:
 * `volumes` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Volume represents a named volume in a container.
-  Structure is documented below.
+  Structure is [documented below](#nested_volumes).
 
 * `serving_state` -
   ServingState holds a value describing the state the resources
@@ -571,7 +571,7 @@ The `spec` block supports:
   that the system will manipulate this based on routability and load.
 
 
-The `containers` block supports:
+<a name="nested_containers"></a>The `containers` block supports:
 
 * `working_dir` -
   (Optional, Deprecated)
@@ -598,7 +598,7 @@ The `containers` block supports:
   When a key exists in multiple sources, the value associated with the last source will
   take precedence. Values defined by an Env with a duplicate key will take
   precedence.
-  Structure is documented below.
+  Structure is [documented below](#nested_env_from).
 
 * `image` -
   (Required)
@@ -621,30 +621,30 @@ The `containers` block supports:
 * `env` -
   (Optional)
   List of environment variables to set in the container.
-  Structure is documented below.
+  Structure is [documented below](#nested_env).
 
 * `ports` -
   (Optional)
   List of open ports in the container.
   More Info: 
   https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort
-  Structure is documented below.
+  Structure is [documented below](#nested_ports).
 
 * `resources` -
   (Optional)
   Compute Resources required by this container. Used to set values such as max memory
   More info:
   https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits
-  Structure is documented below.
+  Structure is [documented below](#nested_resources).
 
 * `volume_mounts` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Volume to mount into the container's filesystem.
   Only supports SecretVolumeSources.
-  Structure is documented below.
+  Structure is [documented below](#nested_volume_mounts).
 
 
-The `env_from` block supports:
+<a name="nested_env_from"></a>The `env_from` block supports:
 
 * `prefix` -
   (Optional)
@@ -653,15 +653,15 @@ The `env_from` block supports:
 * `config_map_ref` -
   (Optional)
   The ConfigMap to select from.
-  Structure is documented below.
+  Structure is [documented below](#nested_config_map_ref).
 
 * `secret_ref` -
   (Optional)
   The Secret to select from.
-  Structure is documented below.
+  Structure is [documented below](#nested_secret_ref).
 
 
-The `config_map_ref` block supports:
+<a name="nested_config_map_ref"></a>The `config_map_ref` block supports:
 
 * `optional` -
   (Optional)
@@ -670,10 +670,10 @@ The `config_map_ref` block supports:
 * `local_object_reference` -
   (Optional)
   The ConfigMap to select from.
-  Structure is documented below.
+  Structure is [documented below](#nested_local_object_reference).
 
 
-The `local_object_reference` block supports:
+<a name="nested_local_object_reference"></a>The `local_object_reference` block supports:
 
 * `name` -
   (Required)
@@ -681,19 +681,19 @@ The `local_object_reference` block supports:
   More info:
   https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 
-The `secret_ref` block supports:
+<a name="nested_secret_ref"></a>The `secret_ref` block supports:
 
 * `local_object_reference` -
   (Optional)
   The Secret to select from.
-  Structure is documented below.
+  Structure is [documented below](#nested_local_object_reference).
 
 * `optional` -
   (Optional)
   Specify whether the Secret must be defined
 
 
-The `local_object_reference` block supports:
+<a name="nested_local_object_reference"></a>The `local_object_reference` block supports:
 
 * `name` -
   (Required)
@@ -701,7 +701,7 @@ The `local_object_reference` block supports:
   More info:
   https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 
-The `env` block supports:
+<a name="nested_env"></a>The `env` block supports:
 
 * `name` -
   (Optional)
@@ -721,18 +721,18 @@ The `env` block supports:
 * `value_from` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Source for the environment variable's value. Only supports secret_key_ref.
-  Structure is documented below.
+  Structure is [documented below](#nested_value_from).
 
 
-The `value_from` block supports:
+<a name="nested_value_from"></a>The `value_from` block supports:
 
 * `secret_key_ref` -
   (Required)
   Selects a key (version) of a secret in Secret Manager.
-  Structure is documented below.
+  Structure is [documented below](#nested_secret_key_ref).
 
 
-The `secret_key_ref` block supports:
+<a name="nested_secret_key_ref"></a>The `secret_key_ref` block supports:
 
 * `key` -
   (Required)
@@ -750,7 +750,7 @@ The `secret_key_ref` block supports:
   If multiple alias definitions are needed, they must be separated by 
   commas in the annotation field.
 
-The `ports` block supports:
+<a name="nested_ports"></a>The `ports` block supports:
 
 * `name` -
   (Optional)
@@ -764,7 +764,7 @@ The `ports` block supports:
   (Required)
   Port number.
 
-The `resources` block supports:
+<a name="nested_resources"></a>The `resources` block supports:
 
 * `limits` -
   (Optional)
@@ -780,7 +780,7 @@ The `resources` block supports:
   The values of the map is string form of the 'quantity' k8s type:
   https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go
 
-The `volume_mounts` block supports:
+<a name="nested_volume_mounts"></a>The `volume_mounts` block supports:
 
 * `mount_path` -
   (Required)
@@ -791,7 +791,7 @@ The `volume_mounts` block supports:
   (Required)
   This must match the Name of a Volume.
 
-The `volumes` block supports:
+<a name="nested_volumes"></a>The `volumes` block supports:
 
 * `name` -
   (Required)
@@ -802,10 +802,10 @@ The `volumes` block supports:
   The secret's value will be presented as the content of a file whose
   name is defined in the item path. If no items are defined, the name of
   the file is the secret_name.
-  Structure is documented below.
+  Structure is [documented below](#nested_secret).
 
 
-The `secret` block supports:
+<a name="nested_secret"></a>The `secret` block supports:
 
 * `secret_name` -
   (Required)
@@ -826,10 +826,10 @@ The `secret` block supports:
   If specified, the key will be used as the version to fetch from Cloud
   Secret Manager and the path will be the name of the file exposed in the
   volume. When items are defined, they must specify a key and a path.
-  Structure is documented below.
+  Structure is [documented below](#nested_items).
 
 
-The `items` block supports:
+<a name="nested_items"></a>The `items` block supports:
 
 * `key` -
   (Required)
@@ -850,7 +850,7 @@ The `items` block supports:
   (Optional)
   Traffic specifies how to distribute traffic over a collection of Knative Revisions
   and Configurations
-  Structure is documented below.
+  Structure is [documented below](#nested_traffic).
 
 * `template` -
   (Optional)
@@ -863,13 +863,13 @@ The `items` block supports:
   https://github.com/knative/serving/blob/master/docs/client-conventions.md#associate-modifications-with-revisions
   Cloud Run does not currently support referencing a build that is
   responsible for materializing the container image from source.
-  Structure is documented below.
+  Structure is [documented below](#nested_template).
 
 * `metadata` -
   (Optional)
   Metadata associated with this Service, including name, namespace, labels,
   and annotations.
-  Structure is documented below.
+  Structure is [documented below](#nested_metadata).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -881,7 +881,7 @@ is also set.
 this field is set to false, the revision name will still autogenerate.)
 
 
-The `metadata` block supports:
+<a name="nested_metadata"></a>The `metadata` block supports:
 
 * `labels` -
   (Optional)
@@ -935,14 +935,14 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `status` -
   The current status of the Service.
-  Structure is documented below.
+  Structure is [documented below](#nested_status).
 
 
-The `status` block contains:
+<a name="nested_status"></a>The `status` block contains:
 
 * `conditions` -
   Array of observed Service Conditions, indicating the current ready state of the service.
-  Structure is documented below.
+  Structure is [documented below](#nested_conditions).
 
 * `url` -
   From RouteStatus. URL holds the url that will distribute traffic over the provided traffic
@@ -966,7 +966,7 @@ The `status` block contains:
   "True".
 
 
-The `conditions` block contains:
+<a name="nested_conditions"></a>The `conditions` block contains:
 
 * `message` -
   Human readable message indicating details about the current status.

@@ -93,10 +93,10 @@ The following arguments are supported:
 * `entities` -
   (Required)
   The collection of entity entries associated with the entity type.
-  Structure is documented below.
+  Structure is [documented below](#nested_entities).
 
 
-The `entities` block supports:
+<a name="nested_entities"></a>The `entities` block supports:
 
 * `value` -
   (Optional)
@@ -123,7 +123,7 @@ The `entities` block supports:
   (Optional)
   Collection of exceptional words and phrases that shouldn't be matched. For example, if you have a size entity type with entry giant(an adjective), you might consider adding giants(a noun) as an exclusion. 
   If the kind of entity type is KIND_MAP, then the phrases specified by entities and excluded phrases should be mutually exclusive.
-  Structure is documented below.
+  Structure is [documented below](#nested_excluded_phrases).
 
 * `enable_fuzzy_extraction` -
   (Optional)
@@ -147,7 +147,7 @@ The `entities` block supports:
   If not specified, the agent's default language is used. Many languages are supported. Note: languages must be enabled in the agent before they can be used.
 
 
-The `excluded_phrases` block supports:
+<a name="nested_excluded_phrases"></a>The `excluded_phrases` block supports:
 
 * `value` -
   (Optional)

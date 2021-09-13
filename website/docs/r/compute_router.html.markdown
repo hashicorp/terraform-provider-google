@@ -114,7 +114,7 @@ The following arguments are supported:
 * `bgp` -
   (Optional)
   BGP information specific to this router.
-  Structure is documented below.
+  Structure is [documented below](#nested_bgp).
 
 * `encrypted_interconnect_router` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -130,7 +130,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `bgp` block supports:
+<a name="nested_bgp"></a>The `bgp` block supports:
 
 * `asn` -
   (Required)
@@ -161,10 +161,10 @@ The `bgp` block supports:
   is CUSTOM and is advertised to all peers of the router. These IP
   ranges will be advertised in addition to any specified groups.
   Leave this field blank to advertise no custom IP ranges.
-  Structure is documented below.
+  Structure is [documented below](#nested_advertised_ip_ranges).
 
 
-The `advertised_ip_ranges` block supports:
+<a name="nested_advertised_ip_ranges"></a>The `advertised_ip_ranges` block supports:
 
 * `range` -
   (Required)

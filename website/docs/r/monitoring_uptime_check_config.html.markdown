@@ -144,7 +144,7 @@ The following arguments are supported:
 * `content_matchers` -
   (Optional)
   The expected content on the page the check is run against. Currently, only the first entry in the list is supported, and other entries will be ignored. The server will look for an exact match of the string in the page response's content. This field is optional and should only be specified if a content match is required.
-  Structure is documented below.
+  Structure is [documented below](#nested_content_matchers).
 
 * `selected_regions` -
   (Optional)
@@ -153,28 +153,28 @@ The following arguments are supported:
 * `http_check` -
   (Optional)
   Contains information needed to make an HTTP or HTTPS check.
-  Structure is documented below.
+  Structure is [documented below](#nested_http_check).
 
 * `tcp_check` -
   (Optional)
   Contains information needed to make a TCP check.
-  Structure is documented below.
+  Structure is [documented below](#nested_tcp_check).
 
 * `resource_group` -
   (Optional)
   The group resource associated with the configuration.
-  Structure is documented below.
+  Structure is [documented below](#nested_resource_group).
 
 * `monitored_resource` -
   (Optional)
   The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance  aws_elb_load_balancer
-  Structure is documented below.
+  Structure is [documented below](#nested_monitored_resource).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `content_matchers` block supports:
+<a name="nested_content_matchers"></a>The `content_matchers` block supports:
 
 * `content` -
   (Required)
@@ -186,7 +186,7 @@ The `content_matchers` block supports:
   Default value is `CONTAINS_STRING`.
   Possible values are `CONTAINS_STRING`, `NOT_CONTAINS_STRING`, `MATCHES_REGEX`, and `NON_MATCHES_REGEX`.
 
-The `http_check` block supports:
+<a name="nested_http_check"></a>The `http_check` block supports:
 
 * `request_method` -
   (Optional)
@@ -202,7 +202,7 @@ The `http_check` block supports:
 * `auth_info` -
   (Optional)
   The authentication information. Optional when creating an HTTP check; defaults to empty.
-  Structure is documented below.
+  Structure is [documented below](#nested_auth_info).
 
 * `port` -
   (Optional)
@@ -233,7 +233,7 @@ The `http_check` block supports:
   The request body associated with the HTTP POST request. If contentType is URL_ENCODED, the body passed in must be URL-encoded. Users can provide a Content-Length header via the headers field or the API will do so. If the requestMethod is GET and body is not empty, the API will return an error. The maximum byte size is 1 megabyte. Note - As with all bytes fields JSON representations are base64 encoded. e.g. "foo=bar" in URL-encoded form is "foo%3Dbar" and in base64 encoding is "Zm9vJTI1M0RiYXI=".
 
 
-The `auth_info` block supports:
+<a name="nested_auth_info"></a>The `auth_info` block supports:
 
 * `password` -
   (Required)
@@ -244,13 +244,13 @@ The `auth_info` block supports:
   (Required)
   The username to authenticate.
 
-The `tcp_check` block supports:
+<a name="nested_tcp_check"></a>The `tcp_check` block supports:
 
 * `port` -
   (Required)
   The port to the page to run the check against. Will be combined with host (specified within the MonitoredResource) to construct the full URL.
 
-The `resource_group` block supports:
+<a name="nested_resource_group"></a>The `resource_group` block supports:
 
 * `resource_type` -
   (Optional)
@@ -261,7 +261,7 @@ The `resource_group` block supports:
   (Optional)
   The group of resources being monitored. Should be the `name` of a group
 
-The `monitored_resource` block supports:
+<a name="nested_monitored_resource"></a>The `monitored_resource` block supports:
 
 * `type` -
   (Required)

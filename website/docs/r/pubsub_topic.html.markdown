@@ -140,18 +140,18 @@ The following arguments are supported:
   Policy constraining the set of Google Cloud Platform regions where
   messages published to the topic may be stored. If not present, then no
   constraints are in effect.
-  Structure is documented below.
+  Structure is [documented below](#nested_message_storage_policy).
 
 * `schema_settings` -
   (Optional)
   Settings for validating messages published against a schema.
-  Structure is documented below.
+  Structure is [documented below](#nested_schema_settings).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `message_storage_policy` block supports:
+<a name="nested_message_storage_policy"></a>The `message_storage_policy` block supports:
 
 * `allowed_persistence_regions` -
   (Required)
@@ -162,7 +162,7 @@ The `message_storage_policy` block supports:
   allowed regions. An empty list means that no regions are allowed,
   and is not a valid configuration.
 
-The `schema_settings` block supports:
+<a name="nested_schema_settings"></a>The `schema_settings` block supports:
 
 * `schema` -
   (Required)

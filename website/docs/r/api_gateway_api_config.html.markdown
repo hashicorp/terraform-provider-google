@@ -72,22 +72,22 @@ The following arguments are supported:
 * `openapi_documents` -
   (Required)
   An OpenAPI Specification Document describing an API.
-  Structure is documented below.
+  Structure is [documented below](#nested_openapi_documents).
 
 * `api` -
   (Required)
   The API to attach the config to.
 
 
-The `openapi_documents` block supports:
+<a name="nested_openapi_documents"></a>The `openapi_documents` block supports:
 
 * `document` -
   (Required)
   The OpenAPI Specification document file.
-  Structure is documented below.
+  Structure is [documented below](#nested_document).
 
 
-The `document` block supports:
+<a name="nested_document"></a>The `document` block supports:
 
 * `path` -
   (Required)
@@ -112,7 +112,7 @@ The `document` block supports:
   (Optional)
   Immutable. Gateway specific configuration.
   If not specified, backend authentication will be set to use OIDC authentication using the default compute service account
-  Structure is documented below.
+  Structure is [documented below](#nested_gateway_config).
 
 * `api_config_id` -
   (Optional)
@@ -124,15 +124,15 @@ The `document` block supports:
 * `api_config_id_prefix` - (Optional) Creates a unique name beginning with the
  specified prefix. If this and api_config_id are unspecified, a random value is chosen for the name.
 
-The `gateway_config` block supports:
+<a name="nested_gateway_config"></a>The `gateway_config` block supports:
 
 * `backend_config` -
   (Required)
   Backend settings that are applied to all backends of the Gateway.
-  Structure is documented below.
+  Structure is [documented below](#nested_backend_config).
 
 
-The `backend_config` block supports:
+<a name="nested_backend_config"></a>The `backend_config` block supports:
 
 * `google_service_account` -
   (Required)

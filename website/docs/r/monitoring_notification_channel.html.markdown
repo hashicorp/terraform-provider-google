@@ -114,7 +114,7 @@ The following arguments are supported:
   in the `labels` map in the api request.
   Credentials may not be specified in both locations and will cause an error. Changing from one location
   to a different credential configuration in the config will require an apply to update state.
-  Structure is documented below.
+  Structure is [documented below](#nested_sensitive_labels).
 
 * `user_labels` -
   (Optional)
@@ -136,7 +136,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `sensitive_labels` block supports:
+<a name="nested_sensitive_labels"></a>The `sensitive_labels` block supports:
 
 * `auth_token` -
   (Optional)

@@ -668,31 +668,31 @@ The following arguments are supported:
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. The headerAction specified here take effect after
   headerAction specified under pathMatcher.
-  Structure is documented below.
+  Structure is [documented below](#nested_header_action).
 
 * `host_rule` -
   (Optional)
   The list of HostRules to use against the URL.
-  Structure is documented below.
+  Structure is [documented below](#nested_host_rule).
 
 * `path_matcher` -
   (Optional)
   The list of named PathMatchers to use against the URL.
-  Structure is documented below.
+  Structure is [documented below](#nested_path_matcher).
 
 * `test` -
   (Optional)
   The list of expected URL mapping tests. Request to update this UrlMap will
   succeed only if all of the test cases pass. You can specify a maximum of 100
   tests per UrlMap.
-  Structure is documented below.
+  Structure is [documented below](#nested_test).
 
 * `default_url_redirect` -
   (Optional)
   When none of the specified hostRules match, the request is redirected to a URL specified
   by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService or
   defaultRouteAction must not be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_url_redirect).
 
 * `default_route_action` -
   (Optional)
@@ -701,19 +701,19 @@ The following arguments are supported:
   If defaultRouteAction specifies any weightedBackendServices, defaultService must not be set. Conversely if defaultService
   is set, defaultRouteAction cannot contain any weightedBackendServices.
   Only one of defaultRouteAction or defaultUrlRedirect must be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_route_action).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -723,7 +723,7 @@ The `header_action` block supports:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -731,7 +731,7 @@ The `header_action` block supports:
   prior to sending the response back to the client.
 
 
-The `request_headers_to_add` block supports:
+<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -747,7 +747,7 @@ The `request_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `response_headers_to_add` block supports:
+<a name="nested_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -763,7 +763,7 @@ The `response_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `host_rule` block supports:
+<a name="nested_host_rule"></a>The `host_rule` block supports:
 
 * `description` -
   (Optional)
@@ -781,7 +781,7 @@ The `host_rule` block supports:
   The name of the PathMatcher to use to match the path portion of the URL if the
   hostRule matches the URL's host portion.
 
-The `path_matcher` block supports:
+<a name="nested_path_matcher"></a>The `path_matcher` block supports:
 
 * `default_service` -
   (Optional)
@@ -797,7 +797,7 @@ The `path_matcher` block supports:
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. HeaderAction specified here are applied after the
   matching HttpRouteRule HeaderAction and before the HeaderAction in the UrlMap
-  Structure is documented below.
+  Structure is [documented below](#nested_header_action).
 
 * `name` -
   (Required)
@@ -811,7 +811,7 @@ The `path_matcher` block supports:
   basis. For example: a pathRule with a path /a/b/c/* will match before /a/b/*
   irrespective of the order in which those paths appear in this list. Within a
   given pathMatcher, only one of pathRules or routeRules must be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_path_rule).
 
 * `route_rules` -
   (Optional)
@@ -821,14 +821,14 @@ The `path_matcher` block supports:
   action to take effect. Within a given pathMatcher, only one of pathRules or
   routeRules must be set. routeRules are not supported in UrlMaps intended for
   External load balancers.
-  Structure is documented below.
+  Structure is [documented below](#nested_route_rules).
 
 * `default_url_redirect` -
   (Optional)
   When none of the specified hostRules match, the request is redirected to a URL specified
   by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService or
   defaultRouteAction must not be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_url_redirect).
 
 * `default_route_action` -
   (Optional)
@@ -837,16 +837,16 @@ The `path_matcher` block supports:
   to the selected backend. If defaultRouteAction specifies any weightedBackendServices, defaultService must not be set.
   Conversely if defaultService is set, defaultRouteAction cannot contain any weightedBackendServices.
   Only one of defaultRouteAction or defaultUrlRedirect must be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_route_action).
 
 
-The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -856,7 +856,7 @@ The `header_action` block supports:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -864,7 +864,7 @@ The `header_action` block supports:
   prior to sending the response back to the client.
 
 
-The `request_headers_to_add` block supports:
+<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -880,7 +880,7 @@ The `request_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `response_headers_to_add` block supports:
+<a name="nested_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -896,7 +896,7 @@ The `response_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `path_rule` block supports:
+<a name="nested_path_rule"></a>The `path_rule` block supports:
 
 * `service` -
   (Optional)
@@ -917,23 +917,23 @@ The `path_rule` block supports:
   weightedBackendServices, service must not be set. Conversely if service is set,
   routeAction cannot contain any  weightedBackendServices. Only one of routeAction
   or urlRedirect must be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_route_action).
 
 * `url_redirect` -
   (Optional)
   When a path pattern is matched, the request is redirected to a URL specified
   by urlRedirect. If urlRedirect is specified, service or routeAction must not
   be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_url_redirect).
 
 
-The `route_action` block supports:
+<a name="nested_route_action"></a>The `route_action` block supports:
 
 * `cors_policy` -
   (Optional)
   The specification for allowing client side cross-origin requests. Please see W3C
   Recommendation for Cross Origin Resource Sharing
-  Structure is documented below.
+  Structure is [documented below](#nested_cors_policy).
 
 * `fault_injection_policy` -
   (Optional)
@@ -944,7 +944,7 @@ The `route_action` block supports:
   backend service. Similarly requests from clients can be aborted by the
   Loadbalancer for a percentage of requests. timeout and retry_policy will be
   ignored by clients that are configured with a fault_injection_policy.
-  Structure is documented below.
+  Structure is [documented below](#nested_fault_injection_policy).
 
 * `request_mirror_policy` -
   (Optional)
@@ -952,12 +952,12 @@ The `route_action` block supports:
   shadowed to a separate mirrored backend service. Loadbalancer does not wait for
   responses from the shadow service. Prior to sending traffic to the shadow
   service, the host / authority header is suffixed with -shadow.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_mirror_policy).
 
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
-  Structure is documented below.
+  Structure is [documented below](#nested_retry_policy).
 
 * `timeout` -
   (Optional)
@@ -965,13 +965,13 @@ The `route_action` block supports:
   the request is has been fully processed (i.e. end-of-stream) up until the
   response has been completely processed. Timeout includes all retries. If not
   specified, the default value is 15 seconds.
-  Structure is documented below.
+  Structure is [documented below](#nested_timeout).
 
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to
   the matched service
-  Structure is documented below.
+  Structure is [documented below](#nested_url_rewrite).
 
 * `weighted_backend_services` -
   (Optional)
@@ -983,10 +983,10 @@ The `route_action` block supports:
   the backend service, advanced routing actions like Url rewrites and header
   transformations are applied depending on additional settings specified in this
   HttpRouteAction.
-  Structure is documented below.
+  Structure is [documented below](#nested_weighted_backend_services).
 
 
-The `cors_policy` block supports:
+<a name="nested_cors_policy"></a>The `cors_policy` block supports:
 
 * `allow_credentials` -
   (Optional)
@@ -1026,22 +1026,22 @@ The `cors_policy` block supports:
   Specifies how long the results of a preflight request can be cached. This
   translates to the content for the Access-Control-Max-Age header.
 
-The `fault_injection_policy` block supports:
+<a name="nested_fault_injection_policy"></a>The `fault_injection_policy` block supports:
 
 * `abort` -
   (Optional)
   The specification for how client requests are aborted as part of fault
   injection.
-  Structure is documented below.
+  Structure is [documented below](#nested_abort).
 
 * `delay` -
   (Optional)
   The specification for how client requests are delayed as part of fault
   injection, before being sent to a backend service.
-  Structure is documented below.
+  Structure is [documented below](#nested_delay).
 
 
-The `abort` block supports:
+<a name="nested_abort"></a>The `abort` block supports:
 
 * `http_status` -
   (Required)
@@ -1054,12 +1054,12 @@ The `abort` block supports:
   aborted as part of fault injection. The value must be between 0.0 and 100.0
   inclusive.
 
-The `delay` block supports:
+<a name="nested_delay"></a>The `delay` block supports:
 
 * `fixed_delay` -
   (Required)
   Specifies the value of the fixed delay interval.
-  Structure is documented below.
+  Structure is [documented below](#nested_fixed_delay).
 
 * `percentage` -
   (Required)
@@ -1068,7 +1068,7 @@ The `delay` block supports:
   100.0 inclusive.
 
 
-The `fixed_delay` block supports:
+<a name="nested_fixed_delay"></a>The `fixed_delay` block supports:
 
 * `nanos` -
   (Optional)
@@ -1081,13 +1081,13 @@ The `fixed_delay` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `request_mirror_policy` block supports:
+<a name="nested_request_mirror_policy"></a>The `request_mirror_policy` block supports:
 
 * `backend_service` -
   (Required)
   The BackendService resource being mirrored to.
 
-The `retry_policy` block supports:
+<a name="nested_retry_policy"></a>The `retry_policy` block supports:
 
 * `num_retries` -
   (Optional)
@@ -1096,7 +1096,7 @@ The `retry_policy` block supports:
 * `per_try_timeout` -
   (Optional)
   Specifies a non-zero timeout per retry attempt.
-  Structure is documented below.
+  Structure is [documented below](#nested_per_try_timeout).
 
 * `retry_conditions` -
   (Optional)
@@ -1123,7 +1123,7 @@ The `retry_policy` block supports:
   the gRPC status code in the response header is set to unavailable
 
 
-The `per_try_timeout` block supports:
+<a name="nested_per_try_timeout"></a>The `per_try_timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -1136,7 +1136,7 @@ The `per_try_timeout` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `timeout` block supports:
+<a name="nested_timeout"></a>The `timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -1149,7 +1149,7 @@ The `timeout` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `url_rewrite` block supports:
+<a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `host_rewrite` -
   (Optional)
@@ -1163,7 +1163,7 @@ The `url_rewrite` block supports:
   portion of the request's path is replaced by pathPrefixRewrite. The value must
   be between 1 and 1024 characters.
 
-The `weighted_backend_services` block supports:
+<a name="nested_weighted_backend_services"></a>The `weighted_backend_services` block supports:
 
 * `backend_service` -
   (Required)
@@ -1176,7 +1176,7 @@ The `weighted_backend_services` block supports:
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. headerAction specified here take effect before
   headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.
-  Structure is documented below.
+  Structure is [documented below](#nested_header_action).
 
 * `weight` -
   (Required)
@@ -1188,13 +1188,13 @@ The `weighted_backend_services` block supports:
   The value must be between 0 and 1000
 
 
-The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -1204,7 +1204,7 @@ The `header_action` block supports:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -1212,7 +1212,7 @@ The `header_action` block supports:
   prior to sending the response back to the client.
 
 
-The `request_headers_to_add` block supports:
+<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1228,7 +1228,7 @@ The `request_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `response_headers_to_add` block supports:
+<a name="nested_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1244,7 +1244,7 @@ The `response_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `url_redirect` block supports:
+<a name="nested_url_redirect"></a>The `url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -1295,7 +1295,7 @@ The `url_redirect` block supports:
   portion of the original URL is retained.
    This field is required to ensure an empty block is not set. The normal default value is false.
 
-The `route_rules` block supports:
+<a name="nested_route_rules"></a>The `route_rules` block supports:
 
 * `priority` -
   (Required)
@@ -1329,12 +1329,12 @@ The `route_rules` block supports:
   the selected backendService. The headerAction specified here are applied before
   the matching pathMatchers[].headerAction and after pathMatchers[].routeRules[].r
   outeAction.weightedBackendService.backendServiceWeightAction[].headerAction
-  Structure is documented below.
+  Structure is [documented below](#nested_header_action).
 
 * `match_rules` -
   (Optional)
   The rules for determining a match.
-  Structure is documented below.
+  Structure is [documented below](#nested_match_rules).
 
 * `route_action` -
   (Optional)
@@ -1344,23 +1344,23 @@ The `route_rules` block supports:
   weightedBackendServices, service must not be set. Conversely if service is set,
   routeAction cannot contain any  weightedBackendServices. Only one of routeAction
   or urlRedirect must be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_route_action).
 
 * `url_redirect` -
   (Optional)
   When this rule is matched, the request is redirected to a URL specified by
   urlRedirect. If urlRedirect is specified, service or routeAction must not be
   set.
-  Structure is documented below.
+  Structure is [documented below](#nested_url_redirect).
 
 
-The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -1370,7 +1370,7 @@ The `header_action` block supports:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -1378,7 +1378,7 @@ The `header_action` block supports:
   prior to sending the response back to the client.
 
 
-The `request_headers_to_add` block supports:
+<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1394,7 +1394,7 @@ The `request_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `response_headers_to_add` block supports:
+<a name="nested_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1410,7 +1410,7 @@ The `response_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `match_rules` block supports:
+<a name="nested_match_rules"></a>The `match_rules` block supports:
 
 * `full_path_match` -
   (Optional)
@@ -1424,7 +1424,7 @@ The `match_rules` block supports:
   (Optional)
   Specifies a list of header match criteria, all of which must match corresponding
   headers in the request.
-  Structure is documented below.
+  Structure is [documented below](#nested_header_matches).
 
 * `ignore_case` -
   (Optional)
@@ -1444,7 +1444,7 @@ The `match_rules` block supports:
   here can be overrides those specified in ForwardingRule that refers to this
   UrlMap. metadataFilters only applies to Loadbalancers that have their
   loadBalancingScheme set to INTERNAL_SELF_MANAGED.
-  Structure is documented below.
+  Structure is [documented below](#nested_metadata_filters).
 
 * `prefix_match` -
   (Optional)
@@ -1457,7 +1457,7 @@ The `match_rules` block supports:
   (Optional)
   Specifies a list of query parameter match criteria, all of which must match
   corresponding query parameters in the request.
-  Structure is documented below.
+  Structure is [documented below](#nested_query_parameter_matches).
 
 * `regex_match` -
   (Optional)
@@ -1468,7 +1468,7 @@ The `match_rules` block supports:
   fullPathMatch or regexMatch must be specified.
 
 
-The `header_matches` block supports:
+<a name="nested_header_matches"></a>The `header_matches` block supports:
 
 * `exact_match` -
   (Optional)
@@ -1507,7 +1507,7 @@ The `header_matches` block supports:
   not match.  - 0.25 will not match.  - -3someString will not match.   Only one of
   exactMatch, prefixMatch, suffixMatch, regexMatch, presentMatch or rangeMatch
   must be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_range_match).
 
 * `regex_match` -
   (Optional)
@@ -1526,7 +1526,7 @@ The `header_matches` block supports:
   must be set.
 
 
-The `range_match` block supports:
+<a name="nested_range_match"></a>The `range_match` block supports:
 
 * `range_end` -
   (Required)
@@ -1536,14 +1536,14 @@ The `range_match` block supports:
   (Required)
   The start of the range (inclusive).
 
-The `metadata_filters` block supports:
+<a name="nested_metadata_filters"></a>The `metadata_filters` block supports:
 
 * `filter_labels` -
   (Required)
   The list of label value pairs that must match labels in the provided metadata
   based on filterMatchCriteria  This list must not be empty and can have at the
   most 64 entries.
-  Structure is documented below.
+  Structure is [documented below](#nested_filter_labels).
 
 * `filter_match_criteria` -
   (Required)
@@ -1556,7 +1556,7 @@ The `metadata_filters` block supports:
   Possible values are `MATCH_ALL` and `MATCH_ANY`.
 
 
-The `filter_labels` block supports:
+<a name="nested_filter_labels"></a>The `filter_labels` block supports:
 
 * `name` -
   (Required)
@@ -1568,7 +1568,7 @@ The `filter_labels` block supports:
   The value of the label must match the specified value. value can have a maximum
   length of 1024 characters.
 
-The `query_parameter_matches` block supports:
+<a name="nested_query_parameter_matches"></a>The `query_parameter_matches` block supports:
 
 * `exact_match` -
   (Optional)
@@ -1594,13 +1594,13 @@ The `query_parameter_matches` block supports:
   please see en.cppreference.com/w/cpp/regex/ecmascript  Only one of presentMatch,
   exactMatch and regexMatch must be set.
 
-The `route_action` block supports:
+<a name="nested_route_action"></a>The `route_action` block supports:
 
 * `cors_policy` -
   (Optional)
   The specification for allowing client side cross-origin requests. Please see W3C
   Recommendation for Cross Origin Resource Sharing
-  Structure is documented below.
+  Structure is [documented below](#nested_cors_policy).
 
 * `fault_injection_policy` -
   (Optional)
@@ -1611,7 +1611,7 @@ The `route_action` block supports:
   backend service. Similarly requests from clients can be aborted by the
   Loadbalancer for a percentage of requests. timeout and retry_policy will be
   ignored by clients that are configured with a fault_injection_policy.
-  Structure is documented below.
+  Structure is [documented below](#nested_fault_injection_policy).
 
 * `request_mirror_policy` -
   (Optional)
@@ -1619,12 +1619,12 @@ The `route_action` block supports:
   shadowed to a separate mirrored backend service. Loadbalancer does not wait for
   responses from the shadow service. Prior to sending traffic to the shadow
   service, the host / authority header is suffixed with -shadow.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_mirror_policy).
 
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
-  Structure is documented below.
+  Structure is [documented below](#nested_retry_policy).
 
 * `timeout` -
   (Optional)
@@ -1632,13 +1632,13 @@ The `route_action` block supports:
   the request is has been fully processed (i.e. end-of-stream) up until the
   response has been completely processed. Timeout includes all retries. If not
   specified, the default value is 15 seconds.
-  Structure is documented below.
+  Structure is [documented below](#nested_timeout).
 
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to
   the matched service
-  Structure is documented below.
+  Structure is [documented below](#nested_url_rewrite).
 
 * `weighted_backend_services` -
   (Optional)
@@ -1650,10 +1650,10 @@ The `route_action` block supports:
   the backend service, advanced routing actions like Url rewrites and header
   transformations are applied depending on additional settings specified in this
   HttpRouteAction.
-  Structure is documented below.
+  Structure is [documented below](#nested_weighted_backend_services).
 
 
-The `cors_policy` block supports:
+<a name="nested_cors_policy"></a>The `cors_policy` block supports:
 
 * `allow_credentials` -
   (Optional)
@@ -1694,22 +1694,22 @@ The `cors_policy` block supports:
   Specifies how long the results of a preflight request can be cached. This
   translates to the content for the Access-Control-Max-Age header.
 
-The `fault_injection_policy` block supports:
+<a name="nested_fault_injection_policy"></a>The `fault_injection_policy` block supports:
 
 * `abort` -
   (Optional)
   The specification for how client requests are aborted as part of fault
   injection.
-  Structure is documented below.
+  Structure is [documented below](#nested_abort).
 
 * `delay` -
   (Optional)
   The specification for how client requests are delayed as part of fault
   injection, before being sent to a backend service.
-  Structure is documented below.
+  Structure is [documented below](#nested_delay).
 
 
-The `abort` block supports:
+<a name="nested_abort"></a>The `abort` block supports:
 
 * `http_status` -
   (Optional)
@@ -1722,12 +1722,12 @@ The `abort` block supports:
   aborted as part of fault injection. The value must be between 0.0 and 100.0
   inclusive.
 
-The `delay` block supports:
+<a name="nested_delay"></a>The `delay` block supports:
 
 * `fixed_delay` -
   (Optional)
   Specifies the value of the fixed delay interval.
-  Structure is documented below.
+  Structure is [documented below](#nested_fixed_delay).
 
 * `percentage` -
   (Optional)
@@ -1736,7 +1736,7 @@ The `delay` block supports:
   100.0 inclusive.
 
 
-The `fixed_delay` block supports:
+<a name="nested_fixed_delay"></a>The `fixed_delay` block supports:
 
 * `nanos` -
   (Optional)
@@ -1749,13 +1749,13 @@ The `fixed_delay` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `request_mirror_policy` block supports:
+<a name="nested_request_mirror_policy"></a>The `request_mirror_policy` block supports:
 
 * `backend_service` -
   (Required)
   The BackendService resource being mirrored to.
 
-The `retry_policy` block supports:
+<a name="nested_retry_policy"></a>The `retry_policy` block supports:
 
 * `num_retries` -
   (Required)
@@ -1766,7 +1766,7 @@ The `retry_policy` block supports:
   Specifies a non-zero timeout per retry attempt.
   If not specified, will use the timeout set in HttpRouteAction. If timeout in HttpRouteAction
   is not set, will use the largest timeout among all backend services associated with the route.
-  Structure is documented below.
+  Structure is [documented below](#nested_per_try_timeout).
 
 * `retry_conditions` -
   (Optional)
@@ -1793,7 +1793,7 @@ The `retry_policy` block supports:
     the response header is set to unavailable
 
 
-The `per_try_timeout` block supports:
+<a name="nested_per_try_timeout"></a>The `per_try_timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -1806,7 +1806,7 @@ The `per_try_timeout` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `timeout` block supports:
+<a name="nested_timeout"></a>The `timeout` block supports:
 
 * `nanos` -
   (Optional)
@@ -1819,7 +1819,7 @@ The `timeout` block supports:
   Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
   inclusive.
 
-The `url_rewrite` block supports:
+<a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `host_rewrite` -
   (Optional)
@@ -1833,7 +1833,7 @@ The `url_rewrite` block supports:
   portion of the request's path is replaced by pathPrefixRewrite. The value must
   be between 1 and 1024 characters.
 
-The `weighted_backend_services` block supports:
+<a name="nested_weighted_backend_services"></a>The `weighted_backend_services` block supports:
 
 * `backend_service` -
   (Required)
@@ -1846,7 +1846,7 @@ The `weighted_backend_services` block supports:
   Specifies changes to request and response headers that need to take effect for
   the selected backendService. headerAction specified here take effect before
   headerAction in the enclosing HttpRouteRule, PathMatcher and UrlMap.
-  Structure is documented below.
+  Structure is [documented below](#nested_header_action).
 
 * `weight` -
   (Required)
@@ -1858,13 +1858,13 @@ The `weighted_backend_services` block supports:
   The value must be between 0 and 1000
 
 
-The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the
   backendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_headers_to_add).
 
 * `request_headers_to_remove` -
   (Optional)
@@ -1874,7 +1874,7 @@ The `header_action` block supports:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_response_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -1882,7 +1882,7 @@ The `header_action` block supports:
   prior to sending the response back to the client.
 
 
-The `request_headers_to_add` block supports:
+<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1898,7 +1898,7 @@ The `request_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `response_headers_to_add` block supports:
+<a name="nested_response_headers_to_add"></a>The `response_headers_to_add` block supports:
 
 * `header_name` -
   (Required)
@@ -1914,7 +1914,7 @@ The `response_headers_to_add` block supports:
   header. If true, headerValue is set for the header, discarding any values that
   were set for that header.
 
-The `url_redirect` block supports:
+<a name="nested_url_redirect"></a>The `url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -1954,7 +1954,7 @@ The `url_redirect` block supports:
   prior to redirecting the request. If set to false, the query portion of the
   original URL is retained. Defaults to false.
 
-The `default_url_redirect` block supports:
+<a name="nested_default_url_redirect"></a>The `default_url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -2002,7 +2002,7 @@ The `default_url_redirect` block supports:
   retained.
    This field is required to ensure an empty block is not set. The normal default value is false.
 
-The `default_route_action` block supports:
+<a name="nested_default_route_action"></a>The `default_route_action` block supports:
 
 * `weighted_backend_services` -
   (Optional)
@@ -2013,37 +2013,37 @@ The `default_route_action` block supports:
   Once a backendService is identified and before forwarding the request to the backend service,
   advanced routing actions like Url rewrites and header transformations are applied depending on
   additional settings specified in this HttpRouteAction.
-  Structure is documented below.
+  Structure is [documented below](#nested_weighted_backend_services).
 
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to the matched service.
-  Structure is documented below.
+  Structure is [documented below](#nested_url_rewrite).
 
 * `timeout` -
   (Optional)
   Specifies the timeout for the selected route. Timeout is computed from the time the request has been
   fully processed (i.e. end-of-stream) up until the response has been completely processed. Timeout includes all retries.
   If not specified, will use the largest timeout among all backend services associated with the route.
-  Structure is documented below.
+  Structure is [documented below](#nested_timeout).
 
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
-  Structure is documented below.
+  Structure is [documented below](#nested_retry_policy).
 
 * `request_mirror_policy` -
   (Optional)
   Specifies the policy on how requests intended for the route's backends are shadowed to a separate mirrored backend service.
   Loadbalancer does not wait for responses from the shadow service. Prior to sending traffic to the shadow service,
   the host / authority header is suffixed with -shadow.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_mirror_policy).
 
 * `cors_policy` -
   (Optional)
   The specification for allowing client side cross-origin requests. Please see
   [W3C Recommendation for Cross Origin Resource Sharing](https://www.w3.org/TR/cors/)
-  Structure is documented below.
+  Structure is [documented below](#nested_cors_policy).
 
 * `fault_injection_policy` -
   (Optional)
@@ -2052,10 +2052,10 @@ The `default_route_action` block supports:
   percentage of requests before sending those request to the backend service. Similarly requests from clients can be aborted
   by the Loadbalancer for a percentage of requests.
   timeout and retryPolicy will be ignored by clients that are configured with a faultInjectionPolicy.
-  Structure is documented below.
+  Structure is [documented below](#nested_fault_injection_policy).
 
 
-The `weighted_backend_services` block supports:
+<a name="nested_weighted_backend_services"></a>The `weighted_backend_services` block supports:
 
 * `backend_service` -
   (Optional)
@@ -2078,10 +2078,10 @@ The `weighted_backend_services` block supports:
   the selected backendService.
   headerAction specified here take effect before headerAction in the enclosing
   HttpRouteRule, PathMatcher and UrlMap.
-  Structure is documented below.
+  Structure is [documented below](#nested_header_action).
 
 
-The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_remove` -
   (Optional)
@@ -2091,7 +2091,7 @@ The `header_action` block supports:
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the backendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -2101,25 +2101,10 @@ The `header_action` block supports:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_response_headers_to_add).
 
 
-The `request_headers_to_add` block supports:
-
-* `header_name` -
-  (Optional)
-  The name of the header to add.
-
-* `header_value` -
-  (Optional)
-  The value of the header to add.
-
-* `replace` -
-  (Optional)
-  If false, headerValue is appended to any values that already exist for the header.
-  If true, headerValue is set for the header, discarding any values that were set for that header.
-
-The `response_headers_to_add` block supports:
+<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Optional)
@@ -2134,7 +2119,22 @@ The `response_headers_to_add` block supports:
   If false, headerValue is appended to any values that already exist for the header.
   If true, headerValue is set for the header, discarding any values that were set for that header.
 
-The `url_rewrite` block supports:
+<a name="nested_response_headers_to_add"></a>The `response_headers_to_add` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header to add.
+
+* `header_value` -
+  (Optional)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  If false, headerValue is appended to any values that already exist for the header.
+  If true, headerValue is set for the header, discarding any values that were set for that header.
+
+<a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `path_prefix_rewrite` -
   (Optional)
@@ -2148,7 +2148,7 @@ The `url_rewrite` block supports:
   with contents of hostRewrite.
   The value must be between 1 and 255 characters.
 
-The `timeout` block supports:
+<a name="nested_timeout"></a>The `timeout` block supports:
 
 * `seconds` -
   (Optional)
@@ -2160,7 +2160,7 @@ The `timeout` block supports:
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented
   with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
 
-The `retry_policy` block supports:
+<a name="nested_retry_policy"></a>The `retry_policy` block supports:
 
 * `retry_conditions` -
   (Optional)
@@ -2189,10 +2189,10 @@ The `retry_policy` block supports:
   Specifies a non-zero timeout per retry attempt.
   If not specified, will use the timeout set in HttpRouteAction. If timeout in HttpRouteAction is not set,
   will use the largest timeout among all backend services associated with the route.
-  Structure is documented below.
+  Structure is [documented below](#nested_per_try_timeout).
 
 
-The `per_try_timeout` block supports:
+<a name="nested_per_try_timeout"></a>The `per_try_timeout` block supports:
 
 * `seconds` -
   (Optional)
@@ -2204,13 +2204,13 @@ The `per_try_timeout` block supports:
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
   represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
 
-The `request_mirror_policy` block supports:
+<a name="nested_request_mirror_policy"></a>The `request_mirror_policy` block supports:
 
 * `backend_service` -
   (Required)
   The full or partial URL to the BackendService resource being mirrored to.
 
-The `cors_policy` block supports:
+<a name="nested_cors_policy"></a>The `cors_policy` block supports:
 
 * `allow_origins` -
   (Optional)
@@ -2249,25 +2249,25 @@ The `cors_policy` block supports:
   (Optional)
   If true, specifies the CORS policy is disabled. The default value is false, which indicates that the CORS policy is in effect.
 
-The `fault_injection_policy` block supports:
+<a name="nested_fault_injection_policy"></a>The `fault_injection_policy` block supports:
 
 * `delay` -
   (Optional)
   The specification for how client requests are delayed as part of fault injection, before being sent to a backend service.
-  Structure is documented below.
+  Structure is [documented below](#nested_delay).
 
 * `abort` -
   (Optional)
   The specification for how client requests are aborted as part of fault injection.
-  Structure is documented below.
+  Structure is [documented below](#nested_abort).
 
 
-The `delay` block supports:
+<a name="nested_delay"></a>The `delay` block supports:
 
 * `fixed_delay` -
   (Optional)
   Specifies the value of the fixed delay interval.
-  Structure is documented below.
+  Structure is [documented below](#nested_fixed_delay).
 
 * `percentage` -
   (Optional)
@@ -2275,7 +2275,7 @@ The `delay` block supports:
   The value must be between 0.0 and 100.0 inclusive.
 
 
-The `fixed_delay` block supports:
+<a name="nested_fixed_delay"></a>The `fixed_delay` block supports:
 
 * `seconds` -
   (Optional)
@@ -2287,7 +2287,7 @@ The `fixed_delay` block supports:
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
   represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
 
-The `abort` block supports:
+<a name="nested_abort"></a>The `abort` block supports:
 
 * `http_status` -
   (Optional)
@@ -2299,7 +2299,7 @@ The `abort` block supports:
   The percentage of traffic (connections/operations/requests) which will be aborted as part of fault injection.
   The value must be between 0.0 and 100.0 inclusive.
 
-The `test` block supports:
+<a name="nested_test"></a>The `test` block supports:
 
 * `description` -
   (Optional)
@@ -2317,7 +2317,7 @@ The `test` block supports:
   (Required)
   The backend service or backend bucket link that should be matched by this test.
 
-The `default_url_redirect` block supports:
+<a name="nested_default_url_redirect"></a>The `default_url_redirect` block supports:
 
 * `host_redirect` -
   (Optional)
@@ -2365,7 +2365,7 @@ The `default_url_redirect` block supports:
   retained. The default is set to false.
    This field is required to ensure an empty block is not set. The normal default value is false.
 
-The `default_route_action` block supports:
+<a name="nested_default_route_action"></a>The `default_route_action` block supports:
 
 * `weighted_backend_services` -
   (Optional)
@@ -2376,37 +2376,37 @@ The `default_route_action` block supports:
   Once a backendService is identified and before forwarding the request to the backend service,
   advanced routing actions like Url rewrites and header transformations are applied depending on
   additional settings specified in this HttpRouteAction.
-  Structure is documented below.
+  Structure is [documented below](#nested_weighted_backend_services).
 
 * `url_rewrite` -
   (Optional)
   The spec to modify the URL of the request, prior to forwarding the request to the matched service.
-  Structure is documented below.
+  Structure is [documented below](#nested_url_rewrite).
 
 * `timeout` -
   (Optional)
   Specifies the timeout for the selected route. Timeout is computed from the time the request has been
   fully processed (i.e. end-of-stream) up until the response has been completely processed. Timeout includes all retries.
   If not specified, will use the largest timeout among all backend services associated with the route.
-  Structure is documented below.
+  Structure is [documented below](#nested_timeout).
 
 * `retry_policy` -
   (Optional)
   Specifies the retry policy associated with this route.
-  Structure is documented below.
+  Structure is [documented below](#nested_retry_policy).
 
 * `request_mirror_policy` -
   (Optional)
   Specifies the policy on how requests intended for the route's backends are shadowed to a separate mirrored backend service.
   Loadbalancer does not wait for responses from the shadow service. Prior to sending traffic to the shadow service,
   the host / authority header is suffixed with -shadow.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_mirror_policy).
 
 * `cors_policy` -
   (Optional)
   The specification for allowing client side cross-origin requests. Please see
   [W3C Recommendation for Cross Origin Resource Sharing](https://www.w3.org/TR/cors/)
-  Structure is documented below.
+  Structure is [documented below](#nested_cors_policy).
 
 * `fault_injection_policy` -
   (Optional)
@@ -2415,10 +2415,10 @@ The `default_route_action` block supports:
   percentage of requests before sending those request to the backend service. Similarly requests from clients can be aborted
   by the Loadbalancer for a percentage of requests.
   timeout and retryPolicy will be ignored by clients that are configured with a faultInjectionPolicy.
-  Structure is documented below.
+  Structure is [documented below](#nested_fault_injection_policy).
 
 
-The `weighted_backend_services` block supports:
+<a name="nested_weighted_backend_services"></a>The `weighted_backend_services` block supports:
 
 * `backend_service` -
   (Optional)
@@ -2441,10 +2441,10 @@ The `weighted_backend_services` block supports:
   the selected backendService.
   headerAction specified here take effect before headerAction in the enclosing
   HttpRouteRule, PathMatcher and UrlMap.
-  Structure is documented below.
+  Structure is [documented below](#nested_header_action).
 
 
-The `header_action` block supports:
+<a name="nested_header_action"></a>The `header_action` block supports:
 
 * `request_headers_to_remove` -
   (Optional)
@@ -2454,7 +2454,7 @@ The `header_action` block supports:
 * `request_headers_to_add` -
   (Optional)
   Headers to add to a matching request prior to forwarding the request to the backendService.
-  Structure is documented below.
+  Structure is [documented below](#nested_request_headers_to_add).
 
 * `response_headers_to_remove` -
   (Optional)
@@ -2464,25 +2464,10 @@ The `header_action` block supports:
 * `response_headers_to_add` -
   (Optional)
   Headers to add the response prior to sending the response back to the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_response_headers_to_add).
 
 
-The `request_headers_to_add` block supports:
-
-* `header_name` -
-  (Optional)
-  The name of the header to add.
-
-* `header_value` -
-  (Optional)
-  The value of the header to add.
-
-* `replace` -
-  (Optional)
-  If false, headerValue is appended to any values that already exist for the header.
-  If true, headerValue is set for the header, discarding any values that were set for that header.
-
-The `response_headers_to_add` block supports:
+<a name="nested_request_headers_to_add"></a>The `request_headers_to_add` block supports:
 
 * `header_name` -
   (Optional)
@@ -2497,7 +2482,22 @@ The `response_headers_to_add` block supports:
   If false, headerValue is appended to any values that already exist for the header.
   If true, headerValue is set for the header, discarding any values that were set for that header.
 
-The `url_rewrite` block supports:
+<a name="nested_response_headers_to_add"></a>The `response_headers_to_add` block supports:
+
+* `header_name` -
+  (Optional)
+  The name of the header to add.
+
+* `header_value` -
+  (Optional)
+  The value of the header to add.
+
+* `replace` -
+  (Optional)
+  If false, headerValue is appended to any values that already exist for the header.
+  If true, headerValue is set for the header, discarding any values that were set for that header.
+
+<a name="nested_url_rewrite"></a>The `url_rewrite` block supports:
 
 * `path_prefix_rewrite` -
   (Optional)
@@ -2511,7 +2511,7 @@ The `url_rewrite` block supports:
   with contents of hostRewrite.
   The value must be between 1 and 255 characters.
 
-The `timeout` block supports:
+<a name="nested_timeout"></a>The `timeout` block supports:
 
 * `seconds` -
   (Optional)
@@ -2523,7 +2523,7 @@ The `timeout` block supports:
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are represented
   with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
 
-The `retry_policy` block supports:
+<a name="nested_retry_policy"></a>The `retry_policy` block supports:
 
 * `retry_conditions` -
   (Optional)
@@ -2552,10 +2552,10 @@ The `retry_policy` block supports:
   Specifies a non-zero timeout per retry attempt.
   If not specified, will use the timeout set in HttpRouteAction. If timeout in HttpRouteAction is not set,
   will use the largest timeout among all backend services associated with the route.
-  Structure is documented below.
+  Structure is [documented below](#nested_per_try_timeout).
 
 
-The `per_try_timeout` block supports:
+<a name="nested_per_try_timeout"></a>The `per_try_timeout` block supports:
 
 * `seconds` -
   (Optional)
@@ -2567,13 +2567,13 @@ The `per_try_timeout` block supports:
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
   represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
 
-The `request_mirror_policy` block supports:
+<a name="nested_request_mirror_policy"></a>The `request_mirror_policy` block supports:
 
 * `backend_service` -
   (Required)
   The full or partial URL to the BackendService resource being mirrored to.
 
-The `cors_policy` block supports:
+<a name="nested_cors_policy"></a>The `cors_policy` block supports:
 
 * `allow_origins` -
   (Optional)
@@ -2612,25 +2612,25 @@ The `cors_policy` block supports:
   (Optional)
   If true, specifies the CORS policy is disabled. The default value is false, which indicates that the CORS policy is in effect.
 
-The `fault_injection_policy` block supports:
+<a name="nested_fault_injection_policy"></a>The `fault_injection_policy` block supports:
 
 * `delay` -
   (Optional)
   The specification for how client requests are delayed as part of fault injection, before being sent to a backend service.
-  Structure is documented below.
+  Structure is [documented below](#nested_delay).
 
 * `abort` -
   (Optional)
   The specification for how client requests are aborted as part of fault injection.
-  Structure is documented below.
+  Structure is [documented below](#nested_abort).
 
 
-The `delay` block supports:
+<a name="nested_delay"></a>The `delay` block supports:
 
 * `fixed_delay` -
   (Optional)
   Specifies the value of the fixed delay interval.
-  Structure is documented below.
+  Structure is [documented below](#nested_fixed_delay).
 
 * `percentage` -
   (Optional)
@@ -2638,7 +2638,7 @@ The `delay` block supports:
   The value must be between 0.0 and 100.0 inclusive.
 
 
-The `fixed_delay` block supports:
+<a name="nested_fixed_delay"></a>The `fixed_delay` block supports:
 
 * `seconds` -
   (Optional)
@@ -2650,7 +2650,7 @@ The `fixed_delay` block supports:
   Span of time that's a fraction of a second at nanosecond resolution. Durations less than one second are
   represented with a 0 seconds field and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
 
-The `abort` block supports:
+<a name="nested_abort"></a>The `abort` block supports:
 
 * `http_status` -
   (Optional)

@@ -92,12 +92,12 @@ The following arguments are supported:
   (Optional)
   The one hour maintenance window of the metastore service.
   This specifies when the service can be restarted for maintenance purposes in UTC time.
-  Structure is documented below.
+  Structure is [documented below](#nested_maintenance_window).
 
 * `hive_metastore_config` -
   (Optional)
   Configuration information specific to running Hive metastore software as the metastore service.
-  Structure is documented below.
+  Structure is [documented below](#nested_hive_metastore_config).
 
 * `location` -
   (Optional)
@@ -108,7 +108,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `maintenance_window` block supports:
+<a name="nested_maintenance_window"></a>The `maintenance_window` block supports:
 
 * `hour_of_day` -
   (Required)
@@ -119,7 +119,7 @@ The `maintenance_window` block supports:
   The day of week, when the window starts.
   Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
 
-The `hive_metastore_config` block supports:
+<a name="nested_hive_metastore_config"></a>The `hive_metastore_config` block supports:
 
 * `version` -
   (Required)
@@ -133,15 +133,15 @@ The `hive_metastore_config` block supports:
 * `kerberos_config` -
   (Optional)
   Information used to configure the Hive metastore service as a service principal in a Kerberos realm.
-  Structure is documented below.
+  Structure is [documented below](#nested_kerberos_config).
 
 
-The `kerberos_config` block supports:
+<a name="nested_kerberos_config"></a>The `kerberos_config` block supports:
 
 * `keytab` -
   (Required)
   A Kerberos keytab file that can be used to authenticate a service principal with a Kerberos Key Distribution Center (KDC).
-  Structure is documented below.
+  Structure is [documented below](#nested_keytab).
 
 * `principal` -
   (Required)
@@ -152,7 +152,7 @@ The `kerberos_config` block supports:
   A Cloud Storage URI that specifies the path to a krb5.conf file. It is of the form gs://{bucket_name}/path/to/krb5.conf, although the file does not need to be named krb5.conf explicitly.
 
 
-The `keytab` block supports:
+<a name="nested_keytab"></a>The `keytab` block supports:
 
 * `cloud_secret` -
   (Required)

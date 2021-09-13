@@ -90,13 +90,13 @@ The following arguments are supported:
   (Optional)
   How this repository publishes a change in the repository through Cloud Pub/Sub. 
   Keyed by the topic names.
-  Structure is documented below.
+  Structure is [documented below](#nested_pubsub_configs).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `pubsub_configs` block supports:
+<a name="nested_pubsub_configs"></a>The `pubsub_configs` block supports:
 
 * `topic` - (Required) The identifier for this object. Format specified above.
 

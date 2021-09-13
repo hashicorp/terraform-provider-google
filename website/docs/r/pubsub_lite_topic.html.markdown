@@ -77,12 +77,12 @@ The following arguments are supported:
 * `partition_config` -
   (Optional)
   The settings for this topic's partitions.
-  Structure is documented below.
+  Structure is [documented below](#nested_partition_config).
 
 * `retention_config` -
   (Optional)
   The settings for a topic's message retention.
-  Structure is documented below.
+  Structure is [documented below](#nested_retention_config).
 
 * `region` -
   (Optional)
@@ -96,7 +96,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `partition_config` block supports:
+<a name="nested_partition_config"></a>The `partition_config` block supports:
 
 * `count` -
   (Required)
@@ -105,10 +105,10 @@ The `partition_config` block supports:
 * `capacity` -
   (Optional)
   The capacity configuration.
-  Structure is documented below.
+  Structure is [documented below](#nested_capacity).
 
 
-The `capacity` block supports:
+<a name="nested_capacity"></a>The `capacity` block supports:
 
 * `publish_mib_per_sec` -
   (Required)
@@ -118,7 +118,7 @@ The `capacity` block supports:
   (Required)
   Publish throughput capacity per partition in MiB/s. Must be >= 4 and <= 16.
 
-The `retention_config` block supports:
+<a name="nested_retention_config"></a>The `retention_config` block supports:
 
 * `per_partition_bytes` -
   (Required)

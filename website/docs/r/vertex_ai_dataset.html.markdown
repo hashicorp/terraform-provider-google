@@ -71,7 +71,7 @@ The following arguments are supported:
 * `encryption_spec` -
   (Optional)
   Customer-managed encryption key spec for a Dataset. If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
-  Structure is documented below.
+  Structure is [documented below](#nested_encryption_spec).
 
 * `region` -
   (Optional)
@@ -81,7 +81,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `encryption_spec` block supports:
+<a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
 
 * `kms_key_name` -
   (Optional)

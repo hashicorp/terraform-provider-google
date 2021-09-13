@@ -109,13 +109,13 @@ The following arguments are supported:
   use this node template will create nodes of a type that matches
   these properties. Only one of nodeTypeFlexibility and nodeType can
   be specified.
-  Structure is documented below.
+  Structure is [documented below](#nested_node_type_flexibility).
 
 * `server_binding` -
   (Optional)
   The server binding policy for nodes using this template. Determines
   where the nodes should restart following a maintenance event.
-  Structure is documented below.
+  Structure is [documented below](#nested_server_binding).
 
 * `cpu_overcommit_type` -
   (Optional)
@@ -132,7 +132,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `node_type_flexibility` block supports:
+<a name="nested_node_type_flexibility"></a>The `node_type_flexibility` block supports:
 
 * `cpus` -
   (Optional)
@@ -145,7 +145,7 @@ The `node_type_flexibility` block supports:
 * `local_ssd` -
   Use local SSD
 
-The `server_binding` block supports:
+<a name="nested_server_binding"></a>The `server_binding` block supports:
 
 * `type` -
   (Required)

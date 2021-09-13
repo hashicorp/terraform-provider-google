@@ -86,7 +86,7 @@ The following arguments are supported:
 * `cdn_policy` -
   (Optional)
   Cloud CDN configuration for this Backend Bucket.
-  Structure is documented below.
+  Structure is [documented below](#nested_cdn_policy).
 
 * `custom_response_headers` -
   (Optional)
@@ -105,7 +105,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `cdn_policy` block supports:
+<a name="nested_cdn_policy"></a>The `cdn_policy` block supports:
 
 * `signed_url_cache_max_age_sec` -
   (Optional)
@@ -139,7 +139,7 @@ The `cdn_policy` block supports:
   (Optional)
   Sets a cache TTL for the specified HTTP status code. negativeCaching must be enabled to configure negativeCachingPolicy.
   Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's default cache TTLs.
-  Structure is documented below.
+  Structure is [documented below](#nested_negative_caching_policy).
 
 * `cache_mode` -
   (Optional)
@@ -152,7 +152,7 @@ The `cdn_policy` block supports:
   Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
 
 
-The `negative_caching_policy` block supports:
+<a name="nested_negative_caching_policy"></a>The `negative_caching_policy` block supports:
 
 * `code` -
   (Optional)

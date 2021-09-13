@@ -172,13 +172,13 @@ The following arguments are supported:
 * `interface` -
   (Optional)
   A list of interfaces on this external VPN gateway.
-  Structure is documented below.
+  Structure is [documented below](#nested_interface).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `interface` block supports:
+<a name="nested_interface"></a>The `interface` block supports:
 
 * `id` -
   (Optional)

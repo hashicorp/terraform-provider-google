@@ -70,7 +70,7 @@ The following arguments are supported:
 * `streaming_config` -
   (Required)
   The config for triggering streaming-based notifications.
-  Structure is documented below.
+  Structure is [documented below](#nested_streaming_config).
 
 * `organization` -
   (Required)
@@ -82,7 +82,7 @@ The following arguments are supported:
   This must be unique within the organization.
 
 
-The `streaming_config` block supports:
+<a name="nested_streaming_config"></a>The `streaming_config` block supports:
 
 * `filter` -
   (Required)

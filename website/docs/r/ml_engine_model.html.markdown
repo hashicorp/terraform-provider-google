@@ -91,7 +91,7 @@ The following arguments are supported:
   (Optional)
   The default version of the model. This version will be used to handle
   prediction requests that do not specify a version.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_version).
 
 * `regions` -
   (Optional)
@@ -114,7 +114,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `default_version` block supports:
+<a name="nested_default_version"></a>The `default_version` block supports:
 
 * `name` -
   (Required)

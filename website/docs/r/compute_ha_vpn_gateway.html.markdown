@@ -350,7 +350,7 @@ The following arguments are supported:
 * `vpn_interfaces` -
   (Optional)
   A list of interfaces on this VPN gateway.
-  Structure is documented below.
+  Structure is [documented below](#nested_vpn_interfaces).
 
 * `region` -
   (Optional)
@@ -360,7 +360,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `vpn_interfaces` block supports:
+<a name="nested_vpn_interfaces"></a>The `vpn_interfaces` block supports:
 
 * `id` -
   (Optional)

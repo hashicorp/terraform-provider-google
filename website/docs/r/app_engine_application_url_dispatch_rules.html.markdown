@@ -93,10 +93,10 @@ The following arguments are supported:
 * `dispatch_rules` -
   (Required)
   Rules to match an HTTP request and dispatch that request to a service.
-  Structure is documented below.
+  Structure is [documented below](#nested_dispatch_rules).
 
 
-The `dispatch_rules` block supports:
+<a name="nested_dispatch_rules"></a>The `dispatch_rules` block supports:
 
 * `domain` -
   (Optional)

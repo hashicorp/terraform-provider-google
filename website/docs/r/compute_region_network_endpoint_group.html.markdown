@@ -232,25 +232,25 @@ The following arguments are supported:
   (Optional)
   Only valid when networkEndpointType is "SERVERLESS".
   Only one of cloud_run, app_engine or cloud_function may be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_cloud_run).
 
 * `app_engine` -
   (Optional)
   Only valid when networkEndpointType is "SERVERLESS".
   Only one of cloud_run, app_engine or cloud_function may be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_app_engine).
 
 * `cloud_function` -
   (Optional)
   Only valid when networkEndpointType is "SERVERLESS".
   Only one of cloud_run, app_engine or cloud_function may be set.
-  Structure is documented below.
+  Structure is [documented below](#nested_cloud_function).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `cloud_run` block supports:
+<a name="nested_cloud_run"></a>The `cloud_run` block supports:
 
 * `service` -
   (Optional)
@@ -275,7 +275,7 @@ The `cloud_run` block supports:
   URL mask ".domain.com/". The URL mask will parse them to { service="bar1", tag="foo1" }
   and { service="bar2", tag="foo2" } respectively.
 
-The `app_engine` block supports:
+<a name="nested_app_engine"></a>The `app_engine` block supports:
 
 * `service` -
   (Optional)
@@ -299,7 +299,7 @@ The `app_engine` block supports:
   URL mask "-dot-appname.appspot.com/". The URL mask will parse
   them to { service = "foo1", version = "v1" } and { service = "foo1", version = "v2" } respectively.
 
-The `cloud_function` block supports:
+<a name="nested_cloud_function"></a>The `cloud_function` block supports:
 
 * `function` -
   (Optional)

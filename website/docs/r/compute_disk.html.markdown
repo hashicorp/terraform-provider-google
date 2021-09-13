@@ -166,7 +166,7 @@ The following arguments are supported:
   (Optional)
   The customer-supplied encryption key of the source image. Required if
   the source image is protected by a customer-supplied encryption key.
-  Structure is documented below.
+  Structure is [documented below](#nested_source_image_encryption_key).
 
 * `disk_encryption_key` -
   (Optional)
@@ -179,7 +179,7 @@ The following arguments are supported:
   If you do not provide an encryption key when creating the disk, then
   the disk will be encrypted using an automatically generated key and
   you do not need to provide a key to use the disk later.
-  Structure is documented below.
+  Structure is [documented below](#nested_disk_encryption_key).
 
 * `snapshot` -
   (Optional)
@@ -197,13 +197,13 @@ The following arguments are supported:
   The customer-supplied encryption key of the source snapshot. Required
   if the source snapshot is protected by a customer-supplied encryption
   key.
-  Structure is documented below.
+  Structure is [documented below](#nested_source_snapshot_encryption_key).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `source_image_encryption_key` block supports:
+<a name="nested_source_image_encryption_key"></a>The `source_image_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
@@ -227,7 +227,7 @@ The `source_image_encryption_key` block supports:
   The service account used for the encryption request for the given KMS key.
   If absent, the Compute Engine Service Agent service account is used.
 
-The `disk_encryption_key` block supports:
+<a name="nested_disk_encryption_key"></a>The `disk_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)
@@ -252,7 +252,7 @@ The `disk_encryption_key` block supports:
   The service account used for the encryption request for the given KMS key.
   If absent, the Compute Engine Service Agent service account is used.
 
-The `source_snapshot_encryption_key` block supports:
+<a name="nested_source_snapshot_encryption_key"></a>The `source_snapshot_encryption_key` block supports:
 
 * `raw_key` -
   (Optional)

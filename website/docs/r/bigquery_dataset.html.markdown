@@ -115,7 +115,7 @@ The following arguments are supported:
 * `access` -
   (Optional)
   An array of objects that define dataset access for one or more entities.
-  Structure is documented below.
+  Structure is [documented below](#nested_access).
 
 * `default_table_expiration_ms` -
   (Optional)
@@ -180,7 +180,7 @@ The following arguments are supported:
   The default encryption key for all tables in the dataset. Once this property is set,
   all newly-created partitioned tables in the dataset will have encryption key set to
   this value, unless table creation request (or query) overrides the key.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_encryption_configuration).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -190,7 +190,7 @@ dataset when destroying the resource; otherwise,
 destroying the resource will fail if tables are present.
 
 
-The `access` block supports:
+<a name="nested_access"></a>The `access` block supports:
 
 * `domain` -
   (Optional)
@@ -233,10 +233,10 @@ The `access` block supports:
   this dataset. The role field is not required when this field is
   set. If that view is updated by any user, access to the view
   needs to be granted again via an update operation.
-  Structure is documented below.
+  Structure is [documented below](#nested_view).
 
 
-The `view` block supports:
+<a name="nested_view"></a>The `view` block supports:
 
 * `dataset_id` -
   (Required)
@@ -252,7 +252,7 @@ The `view` block supports:
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 1,024 characters.
 
-The `default_encryption_configuration` block supports:
+<a name="nested_default_encryption_configuration"></a>The `default_encryption_configuration` block supports:
 
 * `kms_key_name` -
   (Required)

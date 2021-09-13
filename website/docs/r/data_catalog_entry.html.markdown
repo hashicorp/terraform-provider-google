@@ -211,10 +211,10 @@ The following arguments are supported:
 * `gcs_fileset_spec` -
   (Optional)
   Specification that applies to a Cloud Storage fileset. This is only valid on entries of type FILESET.
-  Structure is documented below.
+  Structure is [documented below](#nested_gcs_fileset_spec).
 
 
-The `gcs_fileset_spec` block supports:
+<a name="nested_gcs_fileset_spec"></a>The `gcs_fileset_spec` block supports:
 
 * `file_patterns` -
   (Required)
@@ -232,10 +232,10 @@ The `gcs_fileset_spec` block supports:
 
 * `sample_gcs_file_specs` -
   Sample files contained in this fileset, not all files contained in this fileset are represented here.
-  Structure is documented below.
+  Structure is [documented below](#nested_sample_gcs_file_specs).
 
 
-The `sample_gcs_file_specs` block contains:
+<a name="nested_sample_gcs_file_specs"></a>The `sample_gcs_file_specs` block contains:
 
 * `file_path` -
   The full file path
@@ -259,34 +259,34 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `bigquery_table_spec` -
   Specification that applies to a BigQuery table. This is only valid on entries of type TABLE.
-  Structure is documented below.
+  Structure is [documented below](#nested_bigquery_table_spec).
 
 * `bigquery_date_sharded_spec` -
   Specification for a group of BigQuery tables with name pattern [prefix]YYYYMMDD.
   Context: https://cloud.google.com/bigquery/docs/partitioned-tables#partitioning_versus_sharding.
-  Structure is documented below.
+  Structure is [documented below](#nested_bigquery_date_sharded_spec).
 
 
-The `bigquery_table_spec` block contains:
+<a name="nested_bigquery_table_spec"></a>The `bigquery_table_spec` block contains:
 
 * `table_source_type` -
   The table source type.
 
 * `view_spec` -
   Table view specification. This field should only be populated if tableSourceType is BIGQUERY_VIEW.
-  Structure is documented below.
+  Structure is [documented below](#nested_view_spec).
 
 * `table_spec` -
   Spec of a BigQuery table. This field should only be populated if tableSourceType is BIGQUERY_TABLE.
-  Structure is documented below.
+  Structure is [documented below](#nested_table_spec).
 
 
-The `view_spec` block contains:
+<a name="nested_view_spec"></a>The `view_spec` block contains:
 
 * `view_query` -
   The query that defines the table view.
 
-The `table_spec` block contains:
+<a name="nested_table_spec"></a>The `table_spec` block contains:
 
 * `grouped_entry` -
   If the table is a dated shard, i.e., with name pattern [prefix]YYYYMMDD, groupedEntry is the
@@ -294,7 +294,7 @@ The `table_spec` block contains:
   projects/{project_id}/locations/{location}/entrygroups/{entryGroupId}/entries/{entryId}.
   Otherwise, groupedEntry is empty.
 
-The `bigquery_date_sharded_spec` block contains:
+<a name="nested_bigquery_date_sharded_spec"></a>The `bigquery_date_sharded_spec` block contains:
 
 * `dataset` -
   The Data Catalog resource name of the dataset entry the current table belongs to, for example,

@@ -126,7 +126,7 @@ The following arguments are supported:
   (Optional)
   List of configurations for event notifications, such as PubSub topics
   to publish device events to.
-  Structure is documented below.
+  Structure is [documented below](#nested_event_notification_configs).
 
 * `log_level` -
   (Optional)
@@ -180,7 +180,7 @@ The `public_key_certificate` block supports:
 
 * `certificate` - The certificate data.
 
-The `event_notification_configs` block supports:
+<a name="nested_event_notification_configs"></a>The `event_notification_configs` block supports:
 
 * `subfolder_matches` -
   (Optional)

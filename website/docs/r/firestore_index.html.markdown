@@ -78,10 +78,10 @@ The following arguments are supported:
   same direction as that of the last field defined. If the final field
   in a composite index is not directional, the `__name__` will be
   ordered `"ASCENDING"` (unless explicitly specified otherwise).
-  Structure is documented below.
+  Structure is [documented below](#nested_fields).
 
 
-The `fields` block supports:
+<a name="nested_fields"></a>The `fields` block supports:
 
 * `field_path` -
   (Optional)
