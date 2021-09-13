@@ -1,4 +1,4 @@
-## 3.84.0 (Unreleased)
+## 3.84.0 (September 13, 2021)
 
 FEATURES:
 * **New Data Source:** `google_secret_manager_secret` ([#9983](https://github.com/hashicorp/terraform-provider-google/pull/9983))
