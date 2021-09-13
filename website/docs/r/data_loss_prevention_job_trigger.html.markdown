@@ -77,7 +77,7 @@ The following arguments are supported:
 * `triggers` -
   (Required)
   What event needs to occur for a new job to be started.
-  Structure is documented below.
+  Structure is [documented below](#nested_triggers).
 
 * `parent` -
   (Required)
@@ -85,15 +85,15 @@ The following arguments are supported:
   or `projects/{{project}}/locations/{{location}}`
 
 
-The `triggers` block supports:
+<a name="nested_triggers"></a>The `triggers` block supports:
 
 * `schedule` -
   (Optional)
   Schedule for triggered jobs
-  Structure is documented below.
+  Structure is [documented below](#nested_schedule).
 
 
-The `schedule` block supports:
+<a name="nested_schedule"></a>The `schedule` block supports:
 
 * `recurrence_period_duration` -
   (Optional)
@@ -122,10 +122,10 @@ The `schedule` block supports:
 * `inspect_job` -
   (Optional)
   Controls what and how to inspect for findings.
-  Structure is documented below.
+  Structure is [documented below](#nested_inspect_job).
 
 
-The `inspect_job` block supports:
+<a name="nested_inspect_job"></a>The `inspect_job` block supports:
 
 * `inspect_template_name` -
   (Required)
@@ -134,38 +134,38 @@ The `inspect_job` block supports:
 * `storage_config` -
   (Required)
   Information on where to inspect
-  Structure is documented below.
+  Structure is [documented below](#nested_storage_config).
 
 * `actions` -
   (Required)
   A task to execute on the completion of a job.
-  Structure is documented below.
+  Structure is [documented below](#nested_actions).
 
 
-The `storage_config` block supports:
+<a name="nested_storage_config"></a>The `storage_config` block supports:
 
 * `timespan_config` -
   (Optional)
   Information on where to inspect
-  Structure is documented below.
+  Structure is [documented below](#nested_timespan_config).
 
 * `datastore_options` -
   (Optional)
   Options defining a data set within Google Cloud Datastore.
-  Structure is documented below.
+  Structure is [documented below](#nested_datastore_options).
 
 * `cloud_storage_options` -
   (Optional)
   Options defining a file or a set of files within a Google Cloud Storage bucket.
-  Structure is documented below.
+  Structure is [documented below](#nested_cloud_storage_options).
 
 * `big_query_options` -
   (Optional)
   Options defining BigQuery table and row identifiers.
-  Structure is documented below.
+  Structure is [documented below](#nested_big_query_options).
 
 
-The `timespan_config` block supports:
+<a name="nested_timespan_config"></a>The `timespan_config` block supports:
 
 * `start_time` -
   (Optional)
@@ -184,10 +184,10 @@ The `timespan_config` block supports:
 * `timestamp_field` -
   (Required)
   Information on where to inspect
-  Structure is documented below.
+  Structure is [documented below](#nested_timestamp_field).
 
 
-The `timestamp_field` block supports:
+<a name="nested_timestamp_field"></a>The `timestamp_field` block supports:
 
 * `name` -
   (Required)
@@ -198,21 +198,21 @@ The `timestamp_field` block supports:
   For Datastore. Valid data types of the timestamp field are: TIMESTAMP. Datastore entity will be scanned if the
   timestamp property does not exist or its value is empty or invalid.
 
-The `datastore_options` block supports:
+<a name="nested_datastore_options"></a>The `datastore_options` block supports:
 
 * `partition_id` -
   (Required)
   Datastore partition ID. A partition ID identifies a grouping of entities. The grouping
   is always by project and namespace, however the namespace ID may be empty.
-  Structure is documented below.
+  Structure is [documented below](#nested_partition_id).
 
 * `kind` -
   (Required)
   A representation of a Datastore kind.
-  Structure is documented below.
+  Structure is [documented below](#nested_kind).
 
 
-The `partition_id` block supports:
+<a name="nested_partition_id"></a>The `partition_id` block supports:
 
 * `project_id` -
   (Required)
@@ -222,18 +222,18 @@ The `partition_id` block supports:
   (Optional)
   If not empty, the ID of the namespace to which the entities belong.
 
-The `kind` block supports:
+<a name="nested_kind"></a>The `kind` block supports:
 
 * `name` -
   (Required)
   The name of the Datastore kind.
 
-The `cloud_storage_options` block supports:
+<a name="nested_cloud_storage_options"></a>The `cloud_storage_options` block supports:
 
 * `file_set` -
   (Required)
   Set of files to scan.
-  Structure is documented below.
+  Structure is [documented below](#nested_file_set).
 
 * `bytes_limit_per_file` -
   (Optional)
@@ -264,7 +264,7 @@ The `cloud_storage_options` block supports:
   Possible values are `TOP` and `RANDOM_START`.
 
 
-The `file_set` block supports:
+<a name="nested_file_set"></a>The `file_set` block supports:
 
 * `url` -
   (Optional)
@@ -277,10 +277,10 @@ The `file_set` block supports:
 * `regex_file_set` -
   (Optional)
   The regex-filtered set of files to scan.
-  Structure is documented below.
+  Structure is [documented below](#nested_regex_file_set).
 
 
-The `regex_file_set` block supports:
+<a name="nested_regex_file_set"></a>The `regex_file_set` block supports:
 
 * `bucket_name` -
   (Required)
@@ -298,15 +298,15 @@ The `regex_file_set` block supports:
   A list of regular expressions matching file paths to exclude. All files in the bucket that match at
   least one of these regular expressions will be excluded from the scan.
 
-The `big_query_options` block supports:
+<a name="nested_big_query_options"></a>The `big_query_options` block supports:
 
 * `table_reference` -
   (Required)
   Set of files to scan.
-  Structure is documented below.
+  Structure is [documented below](#nested_table_reference).
 
 
-The `table_reference` block supports:
+<a name="nested_table_reference"></a>The `table_reference` block supports:
 
 * `project_id` -
   (Required)
@@ -320,28 +320,28 @@ The `table_reference` block supports:
   (Required)
   The name of the table.
 
-The `actions` block supports:
+<a name="nested_actions"></a>The `actions` block supports:
 
 * `save_findings` -
   (Required)
   Schedule for triggered jobs
-  Structure is documented below.
+  Structure is [documented below](#nested_save_findings).
 
 
-The `save_findings` block supports:
+<a name="nested_save_findings"></a>The `save_findings` block supports:
 
 * `output_config` -
   (Required)
   Information on where to store output
-  Structure is documented below.
+  Structure is [documented below](#nested_output_config).
 
 
-The `output_config` block supports:
+<a name="nested_output_config"></a>The `output_config` block supports:
 
 * `table` -
   (Required)
   Information on the location of the target BigQuery Table.
-  Structure is documented below.
+  Structure is [documented below](#nested_table).
 
 * `output_schema` -
   (Optional)
@@ -355,7 +355,7 @@ The `output_config` block supports:
   Possible values are `BASIC_COLUMNS`, `GCS_COLUMNS`, `DATASTORE_COLUMNS`, `BIG_QUERY_COLUMNS`, and `ALL_COLUMNS`.
 
 
-The `table` block supports:
+<a name="nested_table"></a>The `table` block supports:
 
 * `project_id` -
   (Required)

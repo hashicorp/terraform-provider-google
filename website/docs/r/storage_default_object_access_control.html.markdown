@@ -120,10 +120,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `project_team` -
   The project team associated with the entity
-  Structure is documented below.
+  Structure is [documented below](#nested_project_team).
 
 
-The `project_team` block contains:
+<a name="nested_project_team"></a>The `project_team` block contains:
 
 * `project_number` -
   (Optional)

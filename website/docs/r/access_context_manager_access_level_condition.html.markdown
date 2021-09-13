@@ -157,7 +157,7 @@ The following arguments are supported:
   Device specific restrictions, all restrictions must hold for
   the Condition to be true. If not specified, all devices are
   allowed.
-  Structure is documented below.
+  Structure is [documented below](#nested_device_policy).
 
 * `regions` -
   (Optional)
@@ -166,7 +166,7 @@ The following arguments are supported:
   Format: A valid ISO 3166-1 alpha-2 code.
 
 
-The `device_policy` block supports:
+<a name="nested_device_policy"></a>The `device_policy` block supports:
 
 * `require_screen_lock` -
   (Optional)
@@ -189,7 +189,7 @@ The `device_policy` block supports:
   (Optional)
   A list of allowed OS versions.
   An empty list allows all types and all versions.
-  Structure is documented below.
+  Structure is [documented below](#nested_os_constraints).
 
 * `require_admin_approval` -
   (Optional)
@@ -200,7 +200,7 @@ The `device_policy` block supports:
   Whether the device needs to be corp owned.
 
 
-The `os_constraints` block supports:
+<a name="nested_os_constraints"></a>The `os_constraints` block supports:
 
 * `minimum_version` -
   (Optional)

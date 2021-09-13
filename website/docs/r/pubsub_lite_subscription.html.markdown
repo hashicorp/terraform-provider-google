@@ -90,7 +90,7 @@ The following arguments are supported:
 * `delivery_config` -
   (Optional)
   The settings for this subscription's message delivery.
-  Structure is documented below.
+  Structure is [documented below](#nested_delivery_config).
 
 * `region` -
   (Optional)
@@ -104,7 +104,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `delivery_config` block supports:
+<a name="nested_delivery_config"></a>The `delivery_config` block supports:
 
 * `delivery_requirement` -
   (Required)

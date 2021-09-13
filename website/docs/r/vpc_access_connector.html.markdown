@@ -123,7 +123,7 @@ The following arguments are supported:
 * `subnet` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The subnet in which to house the connector
-  Structure is documented below.
+  Structure is [documented below](#nested_subnet).
 
 * `region` -
   (Optional)
@@ -133,7 +133,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `subnet` block supports:
+<a name="nested_subnet"></a>The `subnet` block supports:
 
 * `name` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))

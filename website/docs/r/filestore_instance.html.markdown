@@ -118,20 +118,20 @@ The following arguments are supported:
   (Required)
   File system shares on the instance. For this version, only a
   single file share is supported.
-  Structure is documented below.
+  Structure is [documented below](#nested_file_shares).
 
 * `networks` -
   (Required)
   VPC networks to which the instance is connected. For this version,
   only a single network is supported.
-  Structure is documented below.
+  Structure is [documented below](#nested_networks).
 
 * `zone` -
   (Required)
   The name of the Filestore zone of the instance.
 
 
-The `file_shares` block supports:
+<a name="nested_file_shares"></a>The `file_shares` block supports:
 
 * `name` -
   (Required)
@@ -145,10 +145,10 @@ The `file_shares` block supports:
 * `nfs_export_options` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Nfs Export Options. There is a limit of 10 export options per file share.
-  Structure is documented below.
+  Structure is [documented below](#nested_nfs_export_options).
 
 
-The `nfs_export_options` block supports:
+<a name="nested_nfs_export_options"></a>The `nfs_export_options` block supports:
 
 * `ip_ranges` -
   (Optional)
@@ -182,7 +182,7 @@ The `nfs_export_options` block supports:
   Anon_gid may only be set with squashMode of ROOT_SQUASH. An error will be returned
   if this field is specified for other squashMode settings.
 
-The `networks` block supports:
+<a name="nested_networks"></a>The `networks` block supports:
 
 * `network` -
   (Required)

@@ -187,28 +187,28 @@ The following arguments are supported:
 * `amount` -
   (Required)
   The budgeted amount for each usage period.
-  Structure is documented below.
+  Structure is [documented below](#nested_amount).
 
 * `threshold_rules` -
   (Required)
   Rules that trigger alerts (notifications of thresholds being
   crossed) when spend exceeds the specified percentages of the
   budget.
-  Structure is documented below.
+  Structure is [documented below](#nested_threshold_rules).
 
 * `billing_account` -
   (Required)
   ID of the billing account to set a budget on.
 
 
-The `amount` block supports:
+<a name="nested_amount"></a>The `amount` block supports:
 
 * `specified_amount` -
   (Optional)
   A specified amount to use as the budget. currencyCode is
   optional. If specified, it must match the currency of the
   billing account. The currencyCode is provided on output.
-  Structure is documented below.
+  Structure is [documented below](#nested_specified_amount).
 
 * `last_period_amount` -
   (Optional)
@@ -218,7 +218,7 @@ The `amount` block supports:
   use the `specified_amount` block.
 
 
-The `specified_amount` block supports:
+<a name="nested_specified_amount"></a>The `specified_amount` block supports:
 
 * `currency_code` -
   (Optional)
@@ -239,7 +239,7 @@ The `specified_amount` block supports:
   zero. For example $-1.75 is represented as units=-1 and
   nanos=-750,000,000.
 
-The `threshold_rules` block supports:
+<a name="nested_threshold_rules"></a>The `threshold_rules` block supports:
 
 * `threshold_percent` -
   (Required)
@@ -264,17 +264,17 @@ The `threshold_rules` block supports:
   (Optional)
   Filters that define which resources are used to compute the actual
   spend against the budget.
-  Structure is documented below.
+  Structure is [documented below](#nested_budget_filter).
 
 * `all_updates_rule` -
   (Optional)
   Defines notifications that are sent on every update to the
   billing account's spend, regardless of the thresholds defined
   using threshold rules.
-  Structure is documented below.
+  Structure is [documented below](#nested_all_updates_rule).
 
 
-The `budget_filter` block supports:
+<a name="nested_budget_filter"></a>The `budget_filter` block supports:
 
 * `projects` -
   (Optional)
@@ -323,7 +323,7 @@ The `budget_filter` block supports:
   A single label and value pair specifying that usage from only
   this set of labeled resources should be included in the budget.
 
-The `all_updates_rule` block supports:
+<a name="nested_all_updates_rule"></a>The `all_updates_rule` block supports:
 
 * `pubsub_topic` -
   (Optional)

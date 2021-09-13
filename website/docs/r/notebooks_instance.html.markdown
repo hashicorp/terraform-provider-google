@@ -210,13 +210,13 @@ The following arguments are supported:
   The hardware accelerator used on this instance. If you use accelerators,
   make sure that your configuration has enough vCPUs and memory to support the
   machineType you have selected.
-  Structure is documented below.
+  Structure is [documented below](#nested_accelerator_config).
 
 * `shielded_instance_config` -
   (Optional)
   A set of Shielded Instance options. Check [Images using supported Shielded VM features]
   Not all combinations are valid
-  Structure is documented below.
+  Structure is [documented below](#nested_shielded_instance_config).
 
 * `nic_type` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -226,7 +226,7 @@ The following arguments are supported:
 * `reservation_affinity` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Reservation Affinity for consuming Zonal reservation.
-  Structure is documented below.
+  Structure is [documented below](#nested_reservation_affinity).
 
 * `install_gpu_driver` -
   (Optional)
@@ -311,18 +311,18 @@ The following arguments are supported:
 * `vm_image` -
   (Optional)
   Use a Compute Engine VM image to start the notebook instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_vm_image).
 
 * `container_image` -
   (Optional)
   Use a container image to start the notebook instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_container_image).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `accelerator_config` block supports:
+<a name="nested_accelerator_config"></a>The `accelerator_config` block supports:
 
 * `type` -
   (Required)
@@ -333,7 +333,7 @@ The `accelerator_config` block supports:
   (Required)
   Count of cores of this accelerator.
 
-The `shielded_instance_config` block supports:
+<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
 * `enable_integrity_monitoring` -
   (Optional)
@@ -354,7 +354,7 @@ The `shielded_instance_config` block supports:
   Defines whether the instance has the vTPM enabled.
   Enabled by default.
 
-The `reservation_affinity` block supports:
+<a name="nested_reservation_affinity"></a>The `reservation_affinity` block supports:
 
 * `consume_reservation_type` -
   (Required)
@@ -369,7 +369,7 @@ The `reservation_affinity` block supports:
   (Optional)
   Corresponds to the label values of reservation resource.
 
-The `vm_image` block supports:
+<a name="nested_vm_image"></a>The `vm_image` block supports:
 
 * `project` -
   (Required)
@@ -384,7 +384,7 @@ The `vm_image` block supports:
   (Optional)
   Use VM image name to find the image.
 
-The `container_image` block supports:
+<a name="nested_container_image"></a>The `container_image` block supports:
 
 * `repository` -
   (Required)

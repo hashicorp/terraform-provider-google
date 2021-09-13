@@ -89,10 +89,10 @@ The following arguments are supported:
   (Required)
   The fleet config contains list of fleet specs. In the Single Cloud, there
   will be only one.
-  Structure is documented below.
+  Structure is [documented below](#nested_fleet_configs).
 
 
-The `fleet_configs` block supports:
+<a name="nested_fleet_configs"></a>The `fleet_configs` block supports:
 
 * `fleet_spec` -
   (Required)
@@ -127,13 +127,13 @@ The `fleet_configs` block supports:
 * `scaling_configs` -
   (Optional)
   Optional. This contains the autoscaling settings.
-  Structure is documented below.
+  Structure is [documented below](#nested_scaling_configs).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `scaling_configs` block supports:
+<a name="nested_scaling_configs"></a>The `scaling_configs` block supports:
 
 * `name` -
   (Required)
@@ -150,21 +150,21 @@ The `scaling_configs` block supports:
   Labels used to identify the clusters to which this scaling config
   applies. A cluster is subject to this scaling config if its labels match
   any of the selector entries.
-  Structure is documented below.
+  Structure is [documented below](#nested_selectors).
 
 * `schedules` -
   (Optional)
   The schedules to which this scaling config applies.
-  Structure is documented below.
+  Structure is [documented below](#nested_schedules).
 
 
-The `selectors` block supports:
+<a name="nested_selectors"></a>The `selectors` block supports:
 
 * `labels` -
   (Optional)
   Set of labels to group by.
 
-The `schedules` block supports:
+<a name="nested_schedules"></a>The `schedules` block supports:
 
 * `start_time` -
   (Optional)

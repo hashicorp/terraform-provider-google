@@ -65,7 +65,7 @@ The following arguments are supported:
 * `group_key` -
   (Required)
   EntityKey of the Group.
-  Structure is documented below.
+  Structure is [documented below](#nested_group_key).
 
 * `parent` -
   (Required)
@@ -82,7 +82,7 @@ The following arguments are supported:
   'system/groups/external': '' if the Group is an external-identity-mapped group.
 
 
-The `group_key` block supports:
+<a name="nested_group_key"></a>The `group_key` block supports:
 
 * `id` -
   (Required)

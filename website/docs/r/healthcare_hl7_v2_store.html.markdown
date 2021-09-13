@@ -219,7 +219,7 @@ The following arguments are supported:
 * `parser_config` -
   (Optional)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_parser_config).
 
 * `labels` -
   (Optional)
@@ -237,15 +237,15 @@ The following arguments are supported:
   A list of notification configs. Each configuration uses a filter to determine whether to publish a
   message (both Ingest & Create) on the corresponding notification destination. Only the message name
   is sent as part of the notification. Supplied by the client.
-  Structure is documented below.
+  Structure is [documented below](#nested_notification_configs).
 
 * `notification_config` -
   (Optional, Deprecated)
   A nested object resource
-  Structure is documented below.
+  Structure is [documented below](#nested_notification_config).
 
 
-The `parser_config` block supports:
+<a name="nested_parser_config"></a>The `parser_config` block supports:
 
 * `allow_null_header` -
   (Optional)
@@ -267,7 +267,7 @@ The `parser_config` block supports:
   Default value is `V1`.
   Possible values are `V1` and `V2`.
 
-The `notification_configs` block supports:
+<a name="nested_notification_configs"></a>The `notification_configs` block supports:
 
 * `pubsub_topic` -
   (Required)
@@ -291,7 +291,7 @@ The `notification_configs` block supports:
   * PatientId(value, type), which matches if the message lists a patient having an ID of the given value and type in the PID-2, PID-3, or PID-4 segments. For example, PatientId("123456", "MRN").
   * labels.x, a string value of the label with key x as set using the Message.labels map. For example, labels."priority"="high". The operator :* can be used to assert the existence of a label. For example, labels."priority":*.
 
-The `notification_config` block supports:
+<a name="nested_notification_config"></a>The `notification_config` block supports:
 
 * `pubsub_topic` -
   (Required)

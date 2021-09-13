@@ -91,25 +91,25 @@ The following arguments are supported:
   overrides. The overrides are processed in the order they are listed. As
   soon as a match is found for a cluster, the rest of the list is not
   processed.
-  Structure is documented below.
+  Structure is [documented below](#nested_game_server_config_overrides).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `game_server_config_overrides` block supports:
+<a name="nested_game_server_config_overrides"></a>The `game_server_config_overrides` block supports:
 
 * `realms_selector` -
   (Optional)
   Selection by realms.
-  Structure is documented below.
+  Structure is [documented below](#nested_realms_selector).
 
 * `config_version` -
   (Optional)
   Version of the configuration.
 
 
-The `realms_selector` block supports:
+<a name="nested_realms_selector"></a>The `realms_selector` block supports:
 
 * `realms` -
   (Optional)

@@ -184,7 +184,7 @@ The following arguments are supported:
   A reachability analysis proceeds even if the source location is
   ambiguous. However, the test result may include endpoints that
   you don't intend to test.
-  Structure is documented below.
+  Structure is [documented below](#nested_source).
 
 * `destination` -
   (Required)
@@ -202,10 +202,10 @@ The following arguments are supported:
   A reachability analysis proceeds even if the destination location
   is ambiguous. However, the result can include endpoints that you
   don't intend to test.
-  Structure is documented below.
+  Structure is [documented below](#nested_destination).
 
 
-The `source` block supports:
+<a name="nested_source"></a>The `source` block supports:
 
 * `ip_address` -
   (Optional)
@@ -243,7 +243,7 @@ The `source` block supports:
      the network that the IP address resides in is defined in the
      host project.
 
-The `destination` block supports:
+<a name="nested_destination"></a>The `destination` block supports:
 
 * `ip_address` -
   (Optional)

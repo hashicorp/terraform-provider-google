@@ -165,7 +165,7 @@ The following arguments are supported:
   (Optional)
   One or more subnetwork NAT configurations. Only used if
   `source_subnetwork_ip_ranges_to_nat` is set to `LIST_OF_SUBNETWORKS`
-  Structure is documented below.
+  Structure is [documented below](#nested_subnetwork).
 
 * `min_ports_per_vm` -
   (Optional)
@@ -192,7 +192,7 @@ The following arguments are supported:
 * `log_config` -
   (Optional)
   Configuration for logging on NAT
-  Structure is documented below.
+  Structure is [documented below](#nested_log_config).
 
 * `enable_endpoint_independent_mapping` -
   (Optional)
@@ -207,7 +207,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `subnetwork` block supports:
+<a name="nested_subnetwork"></a>The `subnetwork` block supports:
 
 * `name` -
   (Required)
@@ -227,7 +227,7 @@ The `subnetwork` block supports:
   `LIST_OF_SECONDARY_IP_RANGES` is one of the values in
   sourceIpRangesToNat
 
-The `log_config` block supports:
+<a name="nested_log_config"></a>The `log_config` block supports:
 
 * `enable` -
   (Required)

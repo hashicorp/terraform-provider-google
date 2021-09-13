@@ -255,7 +255,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `private_interconnect_info` -
   Information specific to an InterconnectAttachment. This property
   is populated if the interconnect that this is attached to is of type DEDICATED.
-  Structure is documented below.
+  Structure is [documented below](#nested_private_interconnect_info).
 
 * `state` -
   [Output Only] The current state of this attachment's functionality.
@@ -269,7 +269,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `self_link` - The URI of the created resource.
 
 
-The `private_interconnect_info` block contains:
+<a name="nested_private_interconnect_info"></a>The `private_interconnect_info` block contains:
 
 * `tag8021q` -
   802.1q encapsulation tag to be used for traffic between

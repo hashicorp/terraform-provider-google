@@ -148,7 +148,7 @@ The following arguments are supported:
 * `network_config` -
   (Optional)
   Network configuration options. These are required when a private Data Fusion instance is to be created.
-  Structure is documented below.
+  Structure is [documented below](#nested_network_config).
 
 * `region` -
   (Optional)
@@ -158,7 +158,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `network_config` block supports:
+<a name="nested_network_config"></a>The `network_config` block supports:
 
 * `ip_allocation` -
   (Required)

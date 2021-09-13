@@ -242,7 +242,7 @@ The following arguments are supported:
 * `dnssec_config` -
   (Optional)
   DNSSEC configuration
-  Structure is documented below.
+  Structure is [documented below](#nested_dnssec_config).
 
 * `labels` -
   (Optional)
@@ -259,20 +259,20 @@ The following arguments are supported:
   (Optional)
   For privately visible zones, the set of Virtual Private Cloud
   resources that the zone is visible from.
-  Structure is documented below.
+  Structure is [documented below](#nested_private_visibility_config).
 
 * `forwarding_config` -
   (Optional)
   The presence for this field indicates that outbound forwarding is enabled
   for this zone. The value of this field contains the set of destinations
   to forward to.
-  Structure is documented below.
+  Structure is [documented below](#nested_forwarding_config).
 
 * `peering_config` -
   (Optional)
   The presence of this field indicates that DNS Peering is enabled for this
   zone. The value of this field contains the network to peer with.
-  Structure is documented below.
+  Structure is [documented below](#nested_peering_config).
 
 * `reverse_lookup` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -283,14 +283,14 @@ The following arguments are supported:
 * `service_directory_config` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The presence of this field indicates that this zone is backed by Service Directory. The value of this field contains information related to the namespace associated with the zone.
-  Structure is documented below.
+  Structure is [documented below](#nested_service_directory_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 * `force_destroy` - (Optional) Set this true to delete all records in the zone.
 
-The `dnssec_config` block supports:
+<a name="nested_dnssec_config"></a>The `dnssec_config` block supports:
 
 * `kind` -
   (Optional)
@@ -313,10 +313,10 @@ The `dnssec_config` block supports:
   for this ManagedZone. If you provide a spec for keySigning or zoneSigning,
   you must also provide one for the other.
   default_key_specs can only be updated when the state is `off`.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_key_specs).
 
 
-The `default_key_specs` block supports:
+<a name="nested_default_key_specs"></a>The `default_key_specs` block supports:
 
 * `algorithm` -
   (Optional)
@@ -341,7 +341,7 @@ The `default_key_specs` block supports:
   (Optional)
   Identifies what kind of resource this is
 
-The `private_visibility_config` block supports:
+<a name="nested_private_visibility_config"></a>The `private_visibility_config` block supports:
 
 * `networks` -
   (Required)
@@ -350,10 +350,10 @@ The `private_visibility_config` block supports:
   add another `networks` block while keeping the old block, Terraform will see an incorrect diff
   and apply an incorrect update to the resource. If you encounter this issue, remove all `networks`
   blocks in an update and then apply another update adding all of them back simultaneously.
-  Structure is documented below.
+  Structure is [documented below](#nested_networks).
 
 
-The `networks` block supports:
+<a name="nested_networks"></a>The `networks` block supports:
 
 * `network_url` -
   (Required)
@@ -361,17 +361,17 @@ The `networks` block supports:
   This should be formatted like `projects/{project}/global/networks/{network}` or
   `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
 
-The `forwarding_config` block supports:
+<a name="nested_forwarding_config"></a>The `forwarding_config` block supports:
 
 * `target_name_servers` -
   (Required)
   List of target name servers to forward to. Cloud DNS will
   select the best available name server if more than
   one target is given.
-  Structure is documented below.
+  Structure is [documented below](#nested_target_name_servers).
 
 
-The `target_name_servers` block supports:
+<a name="nested_target_name_servers"></a>The `target_name_servers` block supports:
 
 * `ipv4_address` -
   (Required)
@@ -384,15 +384,15 @@ The `target_name_servers` block supports:
   to the Internet. When set to `private`, Cloud DNS will always send queries through VPC for this target
   Possible values are `default` and `private`.
 
-The `peering_config` block supports:
+<a name="nested_peering_config"></a>The `peering_config` block supports:
 
 * `target_network` -
   (Required)
   The network with which to peer.
-  Structure is documented below.
+  Structure is [documented below](#nested_target_network).
 
 
-The `target_network` block supports:
+<a name="nested_target_network"></a>The `target_network` block supports:
 
 * `network_url` -
   (Required)
@@ -400,15 +400,15 @@ The `target_network` block supports:
   This should be formatted like `projects/{project}/global/networks/{network}` or
   `https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`
 
-The `service_directory_config` block supports:
+<a name="nested_service_directory_config"></a>The `service_directory_config` block supports:
 
 * `namespace` -
   (Required)
   The namespace associated with the zone.
-  Structure is documented below.
+  Structure is [documented below](#nested_namespace).
 
 
-The `namespace` block supports:
+<a name="nested_namespace"></a>The `namespace` block supports:
 
 * `namespace_url` -
   (Required)

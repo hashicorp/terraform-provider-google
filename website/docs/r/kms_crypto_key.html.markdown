@@ -123,7 +123,7 @@ The following arguments are supported:
 * `version_template` -
   (Optional)
   A template describing settings for new crypto key versions.
-  Structure is documented below.
+  Structure is [documented below](#nested_version_template).
 
 * `destroy_scheduled_duration` -
   (Optional)
@@ -136,7 +136,7 @@ The following arguments are supported:
   You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
 
 
-The `version_template` block supports:
+<a name="nested_version_template"></a>The `version_template` block supports:
 
 * `algorithm` -
   (Required)

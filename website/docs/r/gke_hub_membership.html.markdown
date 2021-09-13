@@ -105,28 +105,28 @@ The following arguments are supported:
 * `endpoint` -
   (Optional)
   If this Membership is a Kubernetes API server hosted on GKE, this is a self link to its GCP resource.
-  Structure is documented below.
+  Structure is [documented below](#nested_endpoint).
 
 * `authority` -
   (Optional)
   Authority encodes how Google will recognize identities from this Membership.
   See the workload identity documentation for more details:
   https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
-  Structure is documented below.
+  Structure is [documented below](#nested_authority).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `endpoint` block supports:
+<a name="nested_endpoint"></a>The `endpoint` block supports:
 
 * `gke_cluster` -
   (Optional)
   If this Membership is a Kubernetes API server hosted on GKE, this is a self link to its GCP resource.
-  Structure is documented below.
+  Structure is [documented below](#nested_gke_cluster).
 
 
-The `gke_cluster` block supports:
+<a name="nested_gke_cluster"></a>The `gke_cluster` block supports:
 
 * `resource_link` -
   (Required)
@@ -136,7 +136,7 @@ The `gke_cluster` block supports:
   this can be `"//container.googleapis.com/${google_container_cluster.my-cluster.id}"` or
   `google_container_cluster.my-cluster.id`.
 
-The `authority` block supports:
+<a name="nested_authority"></a>The `authority` block supports:
 
 * `issuer` -
   (Required)

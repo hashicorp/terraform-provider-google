@@ -343,7 +343,7 @@ The following arguments are supported:
   the UrlMap that this ForwardingRule references.
   metadataFilters only applies to Loadbalancers that have their
   loadBalancingScheme set to INTERNAL_SELF_MANAGED.
-  Structure is documented below.
+  Structure is [documented below](#nested_metadata_filters).
 
 * `network` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -376,7 +376,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `metadata_filters` block supports:
+<a name="nested_metadata_filters"></a>The `metadata_filters` block supports:
 
 * `filter_match_criteria` -
   (Required)
@@ -393,10 +393,10 @@ The `metadata_filters` block supports:
   The list of label value pairs that must match labels in the
   provided metadata based on filterMatchCriteria
   This list must not be empty and can have at the most 64 entries.
-  Structure is documented below.
+  Structure is [documented below](#nested_filter_labels).
 
 
-The `filter_labels` block supports:
+<a name="nested_filter_labels"></a>The `filter_labels` block supports:
 
 * `name` -
   (Required)

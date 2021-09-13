@@ -76,18 +76,18 @@ The following arguments are supported:
 * `features` -
   (Optional)
   The field defines whether the fulfillment is enabled for certain features.
-  Structure is documented below.
+  Structure is [documented below](#nested_features).
 
 * `generic_web_service` -
   (Optional)
   Represents configuration for a generic web service. Dialogflow supports two mechanisms for authentications: - Basic authentication with username and password. - Authentication with additional authentication headers.
-  Structure is documented below.
+  Structure is [documented below](#nested_generic_web_service).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `features` block supports:
+<a name="nested_features"></a>The `features` block supports:
 
 * `type` -
   (Required)
@@ -95,7 +95,7 @@ The `features` block supports:
   * SMALLTALK: Fulfillment is enabled for SmallTalk.
   Possible values are `SMALLTALK`.
 
-The `generic_web_service` block supports:
+<a name="nested_generic_web_service"></a>The `generic_web_service` block supports:
 
 * `uri` -
   (Required)

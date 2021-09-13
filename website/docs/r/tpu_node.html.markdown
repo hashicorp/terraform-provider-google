@@ -159,7 +159,7 @@ The following arguments are supported:
 * `scheduling_config` -
   (Optional)
   Sets the scheduling options for this TPU instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_scheduling_config).
 
 * `labels` -
   (Optional)
@@ -173,7 +173,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `scheduling_config` block supports:
+<a name="nested_scheduling_config"></a>The `scheduling_config` block supports:
 
 * `preemptible` -
   (Required)
@@ -195,10 +195,10 @@ In addition to the arguments listed above, the following computed attributes are
   The network endpoints where TPU workers can be accessed and sent work.
   It is recommended that Tensorflow clients of the node first reach out
   to the first (index 0) entry.
-  Structure is documented below.
+  Structure is [documented below](#nested_network_endpoints).
 
 
-The `network_endpoints` block contains:
+<a name="nested_network_endpoints"></a>The `network_endpoints` block contains:
 
 * `ip_address` -
   The IP address of this network endpoint.

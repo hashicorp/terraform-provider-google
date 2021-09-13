@@ -142,10 +142,10 @@ The following arguments are supported:
 * `metric_descriptor` -
   (Required)
   The metric descriptor associated with the logs-based metric.
-  Structure is documented below.
+  Structure is [documented below](#nested_metric_descriptor).
 
 
-The `metric_descriptor` block supports:
+<a name="nested_metric_descriptor"></a>The `metric_descriptor` block supports:
 
 * `unit` -
   (Optional)
@@ -173,7 +173,7 @@ The `metric_descriptor` block supports:
   example, the appengine.googleapis.com/http/server/response_latencies metric type has a label
   for the HTTP response code, response_code, so you can look at latencies for successful responses
   or just for responses that failed.
-  Structure is documented below.
+  Structure is [documented below](#nested_labels).
 
 * `display_name` -
   (Optional)
@@ -182,7 +182,7 @@ The `metric_descriptor` block supports:
   recommended to be set for any metrics associated with user-visible concepts, such as Quota.
 
 
-The `labels` block supports:
+<a name="nested_labels"></a>The `labels` block supports:
 
 * `key` -
   (Required)
@@ -227,33 +227,33 @@ The `labels` block supports:
   (Optional)
   The bucketOptions are required when the logs-based metric is using a DISTRIBUTION value type and it
   describes the bucket boundaries used to create a histogram of the extracted values.
-  Structure is documented below.
+  Structure is [documented below](#nested_bucket_options).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `bucket_options` block supports:
+<a name="nested_bucket_options"></a>The `bucket_options` block supports:
 
 * `linear_buckets` -
   (Optional)
   Specifies a linear sequence of buckets that all have the same width (except overflow and underflow).
   Each bucket represents a constant absolute uncertainty on the specific value in the bucket.
-  Structure is documented below.
+  Structure is [documented below](#nested_linear_buckets).
 
 * `exponential_buckets` -
   (Optional)
   Specifies an exponential sequence of buckets that have a width that is proportional to the value of
   the lower bound. Each bucket represents a constant relative uncertainty on a specific value in the bucket.
-  Structure is documented below.
+  Structure is [documented below](#nested_exponential_buckets).
 
 * `explicit_buckets` -
   (Optional)
   Specifies a set of buckets with arbitrary widths.
-  Structure is documented below.
+  Structure is [documented below](#nested_explicit_buckets).
 
 
-The `linear_buckets` block supports:
+<a name="nested_linear_buckets"></a>The `linear_buckets` block supports:
 
 * `num_finite_buckets` -
   (Optional)
@@ -267,7 +267,7 @@ The `linear_buckets` block supports:
   (Optional)
   Lower bound of the first bucket.
 
-The `exponential_buckets` block supports:
+<a name="nested_exponential_buckets"></a>The `exponential_buckets` block supports:
 
 * `num_finite_buckets` -
   (Optional)
@@ -281,7 +281,7 @@ The `exponential_buckets` block supports:
   (Optional)
   Must be greater than 0.
 
-The `explicit_buckets` block supports:
+<a name="nested_explicit_buckets"></a>The `explicit_buckets` block supports:
 
 * `bounds` -
   (Required)

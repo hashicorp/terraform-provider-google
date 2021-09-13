@@ -129,13 +129,13 @@ The following arguments are supported:
 * `maintenance_window` -
   (Optional)
   contains properties for the timeframe of maintenance
-  Structure is documented below.
+  Structure is [documented below](#nested_maintenance_window).
 
 * `autoscaling_policy` -
   (Optional)
   If you use sole-tenant nodes for your workloads, you can use the node
   group autoscaler to automatically manage the sizes of your node groups.
-  Structure is documented below.
+  Structure is [documented below](#nested_autoscaling_policy).
 
 * `zone` -
   (Optional)
@@ -145,13 +145,13 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `maintenance_window` block supports:
+<a name="nested_maintenance_window"></a>The `maintenance_window` block supports:
 
 * `start_time` -
   (Required)
   instances.start time of the window. This must be in UTC format that resolves to one of 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example, both 13:00-5 and 08:00 are valid.
 
-The `autoscaling_policy` block supports:
+<a name="nested_autoscaling_policy"></a>The `autoscaling_policy` block supports:
 
 * `mode` -
   (Required)

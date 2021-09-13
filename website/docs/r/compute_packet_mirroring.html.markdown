@@ -135,7 +135,7 @@ The following arguments are supported:
   Specifies the mirrored VPC network. Only packets in this network
   will be mirrored. All mirrored VMs should have a NIC in the given
   network. All mirrored subnetworks should belong to the given network.
-  Structure is documented below.
+  Structure is [documented below](#nested_network).
 
 * `collector_ilb` -
   (Required)
@@ -143,50 +143,50 @@ The following arguments are supported:
   that will be used as collector for mirrored traffic. The
   specified forwarding rule must have is_mirroring_collector
   set to true.
-  Structure is documented below.
+  Structure is [documented below](#nested_collector_ilb).
 
 * `mirrored_resources` -
   (Required)
   A means of specifying which resources to mirror.
-  Structure is documented below.
+  Structure is [documented below](#nested_mirrored_resources).
 
 
-The `network` block supports:
+<a name="nested_network"></a>The `network` block supports:
 
 * `url` -
   (Required)
   The full self_link URL of the network where this rule is active.
 
-The `collector_ilb` block supports:
+<a name="nested_collector_ilb"></a>The `collector_ilb` block supports:
 
 * `url` -
   (Required)
   The URL of the forwarding rule.
 
-The `mirrored_resources` block supports:
+<a name="nested_mirrored_resources"></a>The `mirrored_resources` block supports:
 
 * `subnetworks` -
   (Optional)
   All instances in one of these subnetworks will be mirrored.
-  Structure is documented below.
+  Structure is [documented below](#nested_subnetworks).
 
 * `instances` -
   (Optional)
   All the listed instances will be mirrored.  Specify at most 50.
-  Structure is documented below.
+  Structure is [documented below](#nested_instances).
 
 * `tags` -
   (Optional)
   All instances with these tags will be mirrored.
 
 
-The `subnetworks` block supports:
+<a name="nested_subnetworks"></a>The `subnetworks` block supports:
 
 * `url` -
   (Required)
   The URL of the subnetwork where this rule should be active.
 
-The `instances` block supports:
+<a name="nested_instances"></a>The `instances` block supports:
 
 * `url` -
   (Required)
@@ -213,13 +213,13 @@ The `instances` block supports:
 * `filter` -
   (Optional)
   A filter for mirrored traffic.  If unset, all traffic is mirrored.
-  Structure is documented below.
+  Structure is [documented below](#nested_filter).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `filter` block supports:
+<a name="nested_filter"></a>The `filter` block supports:
 
 * `ip_protocols` -
   (Optional)

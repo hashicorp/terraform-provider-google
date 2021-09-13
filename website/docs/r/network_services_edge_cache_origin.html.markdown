@@ -165,13 +165,13 @@ The following arguments are supported:
 * `timeout` -
   (Optional)
   The connection and HTTP timeout configuration for this origin.
-  Structure is documented below.
+  Structure is [documented below](#nested_timeout).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `timeout` block supports:
+<a name="nested_timeout"></a>The `timeout` block supports:
 
 * `connect_timeout` -
   (Optional)

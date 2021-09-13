@@ -125,14 +125,14 @@ The following arguments are supported:
   (Required)
   The MembershipRoles that apply to the Membership.
   Must not contain duplicate MembershipRoles with the same name.
-  Structure is documented below.
+  Structure is [documented below](#nested_roles).
 
 * `group` -
   (Required)
   The name of the Group to create this membership in.
 
 
-The `roles` block supports:
+<a name="nested_roles"></a>The `roles` block supports:
 
 * `name` -
   (Required)
@@ -145,15 +145,15 @@ The `roles` block supports:
 * `member_key` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   EntityKey of the member.
-  Structure is documented below.
+  Structure is [documented below](#nested_member_key).
 
 * `preferred_member_key` -
   (Optional)
   EntityKey of the member.
-  Structure is documented below.
+  Structure is [documented below](#nested_preferred_member_key).
 
 
-The `member_key` block supports:
+<a name="nested_member_key"></a>The `member_key` block supports:
 
 * `id` -
   (Required)
@@ -173,7 +173,7 @@ The `member_key` block supports:
   The namespace must correspond to an identity source created in Admin Console
   and must be in the form of `identitysources/{identity_source_id}`.
 
-The `preferred_member_key` block supports:
+<a name="nested_preferred_member_key"></a>The `preferred_member_key` block supports:
 
 * `id` -
   (Required)

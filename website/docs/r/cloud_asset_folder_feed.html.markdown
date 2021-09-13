@@ -115,22 +115,22 @@ The following arguments are supported:
 * `feed_output_config` -
   (Required)
   Output configuration for asset feed destination.
-  Structure is documented below.
+  Structure is [documented below](#nested_feed_output_config).
 
 * `folder` -
   (Required)
   The folder this feed should be created in.
 
 
-The `feed_output_config` block supports:
+<a name="nested_feed_output_config"></a>The `feed_output_config` block supports:
 
 * `pubsub_destination` -
   (Required)
   Destination on Cloud Pubsub.
-  Structure is documented below.
+  Structure is [documented below](#nested_pubsub_destination).
 
 
-The `pubsub_destination` block supports:
+<a name="nested_pubsub_destination"></a>The `pubsub_destination` block supports:
 
 * `topic` -
   (Required)
@@ -166,10 +166,10 @@ The `pubsub_destination` block supports:
   must be a valid CEL expression on a TemporalAsset with name temporal_asset. Example: a Feed with
   expression "temporal_asset.deleted == true" will only publish Asset deletions. Other fields of
   condition are optional.
-  Structure is documented below.
+  Structure is [documented below](#nested_condition).
 
 
-The `condition` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Required)

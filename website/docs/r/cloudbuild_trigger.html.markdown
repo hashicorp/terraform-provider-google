@@ -187,38 +187,38 @@ The following arguments are supported:
   expressions. Any branch or tag change that matches that regular
   expression will trigger a build.
   One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
-  Structure is documented below.
+  Structure is [documented below](#nested_trigger_template).
 
 * `github` -
   (Optional)
   Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
   One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
-  Structure is documented below.
+  Structure is [documented below](#nested_github).
 
 * `pubsub_config` -
   (Optional)
   PubsubConfig describes the configuration of a trigger that creates 
   a build whenever a Pub/Sub message is published.
   One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
-  Structure is documented below.
+  Structure is [documented below](#nested_pubsub_config).
 
 * `webhook_config` -
   (Optional)
   WebhookConfig describes the configuration of a trigger that creates 
   a build whenever a webhook is sent to a trigger's webhook URL.
   One of `trigger_template`, `github`, `pubsub_config` or `webhook_config` must be provided.
-  Structure is documented below.
+  Structure is [documented below](#nested_webhook_config).
 
 * `build` -
   (Optional)
   Contents of the build template. Either a filename or build template must be provided.
-  Structure is documented below.
+  Structure is [documented below](#nested_build).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `trigger_template` block supports:
+<a name="nested_trigger_template"></a>The `trigger_template` block supports:
 
 * `project_id` -
   (Optional)
@@ -254,7 +254,7 @@ The `trigger_template` block supports:
   (Optional)
   Explicit commit SHA to build. Exactly one of a branch name, tag, or commit SHA must be provided.
 
-The `github` block supports:
+<a name="nested_github"></a>The `github` block supports:
 
 * `owner` -
   (Optional)
@@ -269,15 +269,15 @@ The `github` block supports:
 * `pull_request` -
   (Optional)
   filter to match changes in pull requests.  Specify only one of pullRequest or push.
-  Structure is documented below.
+  Structure is [documented below](#nested_pull_request).
 
 * `push` -
   (Optional)
   filter to match changes in refs, like branches or tags.  Specify only one of pullRequest or push.
-  Structure is documented below.
+  Structure is [documented below](#nested_push).
 
 
-The `pull_request` block supports:
+<a name="nested_pull_request"></a>The `pull_request` block supports:
 
 * `branch` -
   (Required)
@@ -292,7 +292,7 @@ The `pull_request` block supports:
   (Optional)
   If true, branches that do NOT match the git_ref will trigger a build.
 
-The `push` block supports:
+<a name="nested_push"></a>The `push` block supports:
 
 * `invert_regex` -
   (Optional)
@@ -306,7 +306,7 @@ The `push` block supports:
   (Optional)
   Regex of tags to match.  Specify only one of branch or tag.
 
-The `pubsub_config` block supports:
+<a name="nested_pubsub_config"></a>The `pubsub_config` block supports:
 
 * `subscription` -
   Output only. Name of the subscription.
@@ -323,7 +323,7 @@ The `pubsub_config` block supports:
   Potential issues with the underlying Pub/Sub subscription configuration.
   Only populated on get requests.
 
-The `webhook_config` block supports:
+<a name="nested_webhook_config"></a>The `webhook_config` block supports:
 
 * `secret` -
   (Required)
@@ -333,13 +333,13 @@ The `webhook_config` block supports:
   Potential issues with the underlying Pub/Sub subscription configuration.
   Only populated on get requests.
 
-The `build` block supports:
+<a name="nested_build"></a>The `build` block supports:
 
 * `source` -
   (Optional)
   The location of the source files to build.
   One of `storageSource` or `repoSource` must be provided.
-  Structure is documented below.
+  Structure is [documented below](#nested_source).
 
 * `tags` -
   (Optional)
@@ -379,38 +379,38 @@ The `build` block supports:
 * `secret` -
   (Optional)
   Secrets to decrypt using Cloud Key Management Service.
-  Structure is documented below.
+  Structure is [documented below](#nested_secret).
 
 * `step` -
   (Required)
   The operations to be performed on the workspace.
-  Structure is documented below.
+  Structure is [documented below](#nested_step).
 
 * `artifacts` -
   (Optional)
   Artifacts produced by the build that should be uploaded upon successful completion of all build steps.
-  Structure is documented below.
+  Structure is [documented below](#nested_artifacts).
 
 * `options` -
   (Optional)
   Special options for this build.
-  Structure is documented below.
+  Structure is [documented below](#nested_options).
 
 
-The `source` block supports:
+<a name="nested_source"></a>The `source` block supports:
 
 * `storage_source` -
   (Optional)
   Location of the source in an archive file in Google Cloud Storage.
-  Structure is documented below.
+  Structure is [documented below](#nested_storage_source).
 
 * `repo_source` -
   (Optional)
   Location of the source in a Google Cloud Source Repository.
-  Structure is documented below.
+  Structure is [documented below](#nested_repo_source).
 
 
-The `storage_source` block supports:
+<a name="nested_storage_source"></a>The `storage_source` block supports:
 
 * `bucket` -
   (Required)
@@ -426,7 +426,7 @@ The `storage_source` block supports:
   Google Cloud Storage generation for the object. 
   If the generation is omitted, the latest generation will be used
 
-The `repo_source` block supports:
+<a name="nested_repo_source"></a>The `repo_source` block supports:
 
 * `project_id` -
   (Optional)
@@ -467,7 +467,7 @@ The `repo_source` block supports:
   (Optional)
   Explicit commit SHA to build. Exactly one a of branch name, tag, or commit SHA must be provided.
 
-The `secret` block supports:
+<a name="nested_secret"></a>The `secret` block supports:
 
 * `kms_key_name` -
   (Required)
@@ -480,7 +480,7 @@ The `secret` block supports:
   and must be used by at least one build step. Values can be at most 64 KB in size. 
   There can be at most 100 secret values across all of a build's secrets.
 
-The `step` block supports:
+<a name="nested_step"></a>The `step` block supports:
 
 * `name` -
   (Required)
@@ -563,7 +563,7 @@ The `step` block supports:
   are discarded.
   Using a named volume in only one step is not valid as it is
   indicative of a build request with an incorrect configuration.
-  Structure is documented below.
+  Structure is [documented below](#nested_volumes).
 
 * `wait_for` -
   (Optional)
@@ -574,7 +574,7 @@ The `step` block supports:
   have completed successfully.
 
 
-The `volumes` block supports:
+<a name="nested_volumes"></a>The `volumes` block supports:
 
 * `name` -
   (Required)
@@ -588,7 +588,7 @@ The `volumes` block supports:
   Paths must be absolute and cannot conflict with other volume paths on
   the same build step or with certain reserved volume paths.
 
-The `artifacts` block supports:
+<a name="nested_artifacts"></a>The `artifacts` block supports:
 
 * `images` -
   (Optional)
@@ -604,10 +604,10 @@ The `artifacts` block supports:
   Cloud Storage location using the builder service account's credentials.
   The location and generation of the uploaded objects will be stored in the Build resource's results field.
   If any objects fail to be pushed, the build is marked FAILURE.
-  Structure is documented below.
+  Structure is [documented below](#nested_objects).
 
 
-The `objects` block supports:
+<a name="nested_objects"></a>The `objects` block supports:
 
 * `location` -
   (Optional)
@@ -621,10 +621,10 @@ The `objects` block supports:
 
 * `timing` -
   Output only. Stores timing information for pushing all artifact objects.
-  Structure is documented below.
+  Structure is [documented below](#nested_timing).
 
 
-The `timing` block contains:
+<a name="nested_timing"></a>The `timing` block contains:
 
 * `start_time` -
   (Optional)
@@ -638,7 +638,7 @@ The `timing` block contains:
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
   nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
-The `options` block supports:
+<a name="nested_options"></a>The `options` block supports:
 
 * `source_provenance_hash` -
   (Optional)
@@ -711,10 +711,10 @@ The `options` block supports:
   volume names and paths cannot conflict with the volumes defined a build step.
   Using a global volume in a build with only one step is not valid as it is indicative
   of a build request with an incorrect configuration.
-  Structure is documented below.
+  Structure is [documented below](#nested_volumes).
 
 
-The `volumes` block supports:
+<a name="nested_volumes"></a>The `volumes` block supports:
 
 * `name` -
   (Optional)

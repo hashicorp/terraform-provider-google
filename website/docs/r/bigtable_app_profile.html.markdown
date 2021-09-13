@@ -118,7 +118,7 @@ The following arguments are supported:
 * `single_cluster_routing` -
   (Optional)
   Use a single-cluster routing policy.
-  Structure is documented below.
+  Structure is [documented below](#nested_single_cluster_routing).
 
 * `instance` -
   (Optional)
@@ -132,7 +132,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-The `single_cluster_routing` block supports:
+<a name="nested_single_cluster_routing"></a>The `single_cluster_routing` block supports:
 
 * `cluster_id` -
   (Required)

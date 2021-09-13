@@ -85,13 +85,13 @@ The following arguments are supported:
 * `entities` -
   (Optional)
   The collection of entity entries associated with the entity type.
-  Structure is documented below.
+  Structure is [documented below](#nested_entities).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `entities` block supports:
+<a name="nested_entities"></a>The `entities` block supports:
 
 * `value` -
   (Required)

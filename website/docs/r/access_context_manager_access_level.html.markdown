@@ -101,16 +101,16 @@ The following arguments are supported:
 * `basic` -
   (Optional)
   A set of predefined conditions for the access level and a combining function.
-  Structure is documented below.
+  Structure is [documented below](#nested_basic).
 
 * `custom` -
   (Optional)
   Custom access level conditions are set using the Cloud Common Expression Language to represent the necessary conditions for the level to apply to a request. 
   See CEL spec at: https://github.com/google/cel-spec.
-  Structure is documented below.
+  Structure is [documented below](#nested_custom).
 
 
-The `basic` block supports:
+<a name="nested_basic"></a>The `basic` block supports:
 
 * `combining_function` -
   (Optional)
@@ -125,10 +125,10 @@ The `basic` block supports:
 * `conditions` -
   (Required)
   A set of requirements for the AccessLevel to be granted.
-  Structure is documented below.
+  Structure is [documented below](#nested_conditions).
 
 
-The `conditions` block supports:
+<a name="nested_conditions"></a>The `conditions` block supports:
 
 * `ip_subnetworks` -
   (Optional)
@@ -172,7 +172,7 @@ The `conditions` block supports:
   Device specific restrictions, all restrictions must hold for
   the Condition to be true. If not specified, all devices are
   allowed.
-  Structure is documented below.
+  Structure is [documented below](#nested_device_policy).
 
 * `regions` -
   (Optional)
@@ -181,7 +181,7 @@ The `conditions` block supports:
   Format: A valid ISO 3166-1 alpha-2 code.
 
 
-The `device_policy` block supports:
+<a name="nested_device_policy"></a>The `device_policy` block supports:
 
 * `require_screen_lock` -
   (Optional)
@@ -204,7 +204,7 @@ The `device_policy` block supports:
   (Optional)
   A list of allowed OS versions.
   An empty list allows all types and all versions.
-  Structure is documented below.
+  Structure is [documented below](#nested_os_constraints).
 
 * `require_admin_approval` -
   (Optional)
@@ -215,7 +215,7 @@ The `device_policy` block supports:
   Whether the device needs to be corp owned.
 
 
-The `os_constraints` block supports:
+<a name="nested_os_constraints"></a>The `os_constraints` block supports:
 
 * `minimum_version` -
   (Optional)
@@ -232,17 +232,17 @@ The `os_constraints` block supports:
   The operating system type of the device.
   Possible values are `OS_UNSPECIFIED`, `DESKTOP_MAC`, `DESKTOP_WINDOWS`, `DESKTOP_LINUX`, `DESKTOP_CHROME_OS`, `ANDROID`, and `IOS`.
 
-The `custom` block supports:
+<a name="nested_custom"></a>The `custom` block supports:
 
 * `expr` -
   (Required)
   Represents a textual expression in the Common Expression Language (CEL) syntax. CEL is a C-like expression language.
   This page details the objects and attributes that are used to the build the CEL expressions for 
   custom access levels - https://cloud.google.com/access-context-manager/docs/custom-access-level-spec.
-  Structure is documented below.
+  Structure is [documented below](#nested_expr).
 
 
-The `expr` block supports:
+<a name="nested_expr"></a>The `expr` block supports:
 
 * `expression` -
   (Required)

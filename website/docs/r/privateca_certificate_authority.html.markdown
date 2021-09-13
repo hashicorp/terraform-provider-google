@@ -242,40 +242,40 @@ The following arguments are supported:
 * `config` -
   (Required)
   The config used to create a self-signed X.509 certificate or CSR.
-  Structure is documented below.
+  Structure is [documented below](#nested_config).
 
 * `key_spec` -
   (Required)
   Used when issuing certificates for this CertificateAuthority. If this CertificateAuthority
   is a self-signed CertificateAuthority, this key is also used to sign the self-signed CA
   certificate. Otherwise, it is used to sign a CSR.
-  Structure is documented below.
+  Structure is [documented below](#nested_key_spec).
 
 
-The `config` block supports:
+<a name="nested_config"></a>The `config` block supports:
 
 * `x509_config` -
   (Required)
   Describes how some of the technical X.509 fields in a certificate should be populated.
-  Structure is documented below.
+  Structure is [documented below](#nested_x509_config).
 
 * `subject_config` -
   (Required)
   Specifies some of the values in a certificate that are related to the subject.
-  Structure is documented below.
+  Structure is [documented below](#nested_subject_config).
 
 
-The `x509_config` block supports:
+<a name="nested_x509_config"></a>The `x509_config` block supports:
 
 * `additional_extensions` -
   (Optional)
   Specifies an X.509 extension, which may be used in different parts of X.509 objects like certificates, CSRs, and CRLs.
-  Structure is documented below.
+  Structure is [documented below](#nested_additional_extensions).
 
 * `policy_ids` -
   (Optional)
   Describes the X.509 certificate policy object identifiers, per https://tools.ietf.org/html/rfc5280#section-4.2.1.4.
-  Structure is documented below.
+  Structure is [documented below](#nested_policy_ids).
 
 * `aia_ocsp_servers` -
   (Optional)
@@ -285,15 +285,15 @@ The `x509_config` block supports:
 * `ca_options` -
   (Required)
   Describes values that are relevant in a CA certificate.
-  Structure is documented below.
+  Structure is [documented below](#nested_ca_options).
 
 * `key_usage` -
   (Required)
   Indicates the intended use for keys that correspond to a certificate.
-  Structure is documented below.
+  Structure is [documented below](#nested_key_usage).
 
 
-The `additional_extensions` block supports:
+<a name="nested_additional_extensions"></a>The `additional_extensions` block supports:
 
 * `critical` -
   (Required)
@@ -307,22 +307,22 @@ The `additional_extensions` block supports:
 * `object_id` -
   (Required)
   Describes values that are relevant in a CA certificate.
-  Structure is documented below.
+  Structure is [documented below](#nested_object_id).
 
 
-The `object_id` block supports:
-
-* `object_id_path` -
-  (Required)
-  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
-
-The `policy_ids` block supports:
+<a name="nested_object_id"></a>The `object_id` block supports:
 
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-The `ca_options` block supports:
+<a name="nested_policy_ids"></a>The `policy_ids` block supports:
+
+* `object_id_path` -
+  (Required)
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+<a name="nested_ca_options"></a>The `ca_options` block supports:
 
 * `is_ca` -
   (Required)
@@ -335,25 +335,25 @@ The `ca_options` block supports:
   subordinate CA certificates that are allowed. If this value is less than 0, the request will fail. If this
   value is missing, the max path length will be omitted from the CA certificate.
 
-The `key_usage` block supports:
+<a name="nested_key_usage"></a>The `key_usage` block supports:
 
 * `base_key_usage` -
   (Required)
   Describes high-level ways in which a key may be used.
-  Structure is documented below.
+  Structure is [documented below](#nested_base_key_usage).
 
 * `extended_key_usage` -
   (Required)
   Describes high-level ways in which a key may be used.
-  Structure is documented below.
+  Structure is [documented below](#nested_extended_key_usage).
 
 * `unknown_extended_key_usages` -
   (Optional)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
-  Structure is documented below.
+  Structure is [documented below](#nested_unknown_extended_key_usages).
 
 
-The `base_key_usage` block supports:
+<a name="nested_base_key_usage"></a>The `base_key_usage` block supports:
 
 * `digital_signature` -
   (Optional)
@@ -391,7 +391,7 @@ The `base_key_usage` block supports:
   (Optional)
   The key may be used to decipher only.
 
-The `extended_key_usage` block supports:
+<a name="nested_extended_key_usage"></a>The `extended_key_usage` block supports:
 
 * `server_auth` -
   (Optional)
@@ -417,26 +417,26 @@ The `extended_key_usage` block supports:
   (Optional)
   Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".
 
-The `unknown_extended_key_usages` block supports:
+<a name="nested_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block supports:
 
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
-The `subject_config` block supports:
+<a name="nested_subject_config"></a>The `subject_config` block supports:
 
 * `subject` -
   (Required)
   Contains distinguished name fields such as the location and organization.
-  Structure is documented below.
+  Structure is [documented below](#nested_subject).
 
 * `subject_alt_name` -
   (Optional)
   The subject alternative name fields.
-  Structure is documented below.
+  Structure is [documented below](#nested_subject_alt_name).
 
 
-The `subject` block supports:
+<a name="nested_subject"></a>The `subject` block supports:
 
 * `country_code` -
   (Optional)
@@ -470,7 +470,7 @@ The `subject` block supports:
   (Required)
   The common name of the distinguished name.
 
-The `subject_alt_name` block supports:
+<a name="nested_subject_alt_name"></a>The `subject_alt_name` block supports:
 
 * `dns_names` -
   (Optional)
@@ -488,7 +488,7 @@ The `subject_alt_name` block supports:
   (Optional)
   Contains only valid 32-bit IPv4 addresses or RFC 4291 IPv6 addresses.
 
-The `key_spec` block supports:
+<a name="nested_key_spec"></a>The `key_spec` block supports:
 
 * `cloud_kms_key_version` -
   (Optional)
@@ -563,7 +563,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `access_urls` -
   URLs for accessing content published by this CA, such as the CA certificate and CRLs.
-  Structure is documented below.
+  Structure is [documented below](#nested_access_urls).
 
 * `create_time` -
   The time at which this CertificateAuthority was created.
@@ -576,7 +576,7 @@ In addition to the arguments listed above, the following computed attributes are
   fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
 
-The `access_urls` block contains:
+<a name="nested_access_urls"></a>The `access_urls` block contains:
 
 * `ca_certificate_access_url` -
   The URL where this CertificateAuthority's CA certificate is published. This will only be

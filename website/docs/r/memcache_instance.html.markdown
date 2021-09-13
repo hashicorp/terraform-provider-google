@@ -95,10 +95,10 @@ The following arguments are supported:
 * `node_config` -
   (Required)
   Configuration for memcache nodes.
-  Structure is documented below.
+  Structure is [documented below](#nested_node_config).
 
 
-The `node_config` block supports:
+<a name="nested_node_config"></a>The `node_config` block supports:
 
 * `cpu_count` -
   (Required)
@@ -140,7 +140,7 @@ The `node_config` block supports:
 * `memcache_parameters` -
   (Optional)
   User-specified parameters for this memcache instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_memcache_parameters).
 
 * `region` -
   (Optional)
@@ -150,7 +150,7 @@ The `node_config` block supports:
     If it is not provided, the provider project is used.
 
 
-The `memcache_parameters` block supports:
+<a name="nested_memcache_parameters"></a>The `memcache_parameters` block supports:
 
 * `id` -
   This is a unique ID associated with this set of parameters.
@@ -167,7 +167,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `memcache_nodes` -
   Additional information about the instance state, if available.
-  Structure is documented below.
+  Structure is [documented below](#nested_memcache_nodes).
 
 * `create_time` -
   Creation timestamp in RFC3339 text format.
@@ -179,7 +179,7 @@ In addition to the arguments listed above, the following computed attributes are
   The full version of memcached server running on this instance.
 
 
-The `memcache_nodes` block contains:
+<a name="nested_memcache_nodes"></a>The `memcache_nodes` block contains:
 
 * `node_id` -
   Identifier of the Memcached node. The node id does not include project or location like the Memcached instance name.

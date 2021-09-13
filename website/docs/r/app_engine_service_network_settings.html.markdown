@@ -87,10 +87,10 @@ The following arguments are supported:
 * `network_settings` -
   (Required)
   Ingress settings for this service. Will apply to all versions.
-  Structure is documented below.
+  Structure is [documented below](#nested_network_settings).
 
 
-The `network_settings` block supports:
+<a name="nested_network_settings"></a>The `network_settings` block supports:
 
 * `ingress_traffic_allowed` -
   (Optional)

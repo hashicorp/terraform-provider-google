@@ -187,10 +187,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `followup_intent_info` -
   Information about all followup intents that have this intent as a direct or indirect parent. We populate this field
   only in the output.
-  Structure is documented below.
+  Structure is [documented below](#nested_followup_intent_info).
 
 
-The `followup_intent_info` block contains:
+<a name="nested_followup_intent_info"></a>The `followup_intent_info` block contains:
 
 * `followup_intent_name` -
   (Optional)

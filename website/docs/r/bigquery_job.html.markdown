@@ -382,7 +382,7 @@ The following arguments are supported:
 
 
 
-The `query` block supports:
+<a name="nested_query"></a>The `query` block supports:
 
 * `query` -
   (Required)
@@ -395,12 +395,12 @@ The `query` block supports:
   Describes the table where the query results should be stored.
   This property must be set for large results that exceed the maximum response size.
   For queries that produce anonymous (cached) results, this field will be populated by BigQuery.
-  Structure is documented below.
+  Structure is [documented below](#nested_destination_table).
 
 * `user_defined_function_resources` -
   (Optional)
   Describes user-defined function resources used in the query.
-  Structure is documented below.
+  Structure is [documented below](#nested_user_defined_function_resources).
 
 * `create_disposition` -
   (Optional)
@@ -425,7 +425,7 @@ The `query` block supports:
 * `default_dataset` -
   (Optional)
   Specifies the default dataset to use for unqualified table names in the query. Note that this does not alter behavior of unqualified dataset names.
-  Structure is documented below.
+  Structure is [documented below](#nested_default_dataset).
 
 * `priority` -
   (Optional)
@@ -482,15 +482,15 @@ The `query` block supports:
 * `destination_encryption_configuration` -
   (Optional)
   Custom encryption configuration (e.g., Cloud KMS keys)
-  Structure is documented below.
+  Structure is [documented below](#nested_destination_encryption_configuration).
 
 * `script_options` -
   (Optional)
   Options controlling the execution of scripts.
-  Structure is documented below.
+  Structure is [documented below](#nested_script_options).
 
 
-The `destination_table` block supports:
+<a name="nested_destination_table"></a>The `destination_table` block supports:
 
 * `project_id` -
   (Optional)
@@ -505,7 +505,7 @@ The `destination_table` block supports:
   The table. Can be specified `{{table_id}}` if `project_id` and `dataset_id` are also set,
   or of the form `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}` if not.
 
-The `user_defined_function_resources` block supports:
+<a name="nested_user_defined_function_resources"></a>The `user_defined_function_resources` block supports:
 
 * `resource_uri` -
   (Optional)
@@ -516,7 +516,7 @@ The `user_defined_function_resources` block supports:
   An inline resource that contains code for a user-defined function (UDF).
   Providing a inline code resource is equivalent to providing a URI for a file containing the same code.
 
-The `default_dataset` block supports:
+<a name="nested_default_dataset"></a>The `default_dataset` block supports:
 
 * `dataset_id` -
   (Required)
@@ -527,7 +527,7 @@ The `default_dataset` block supports:
   (Optional)
   The ID of the project containing this table.
 
-The `destination_encryption_configuration` block supports:
+<a name="nested_destination_encryption_configuration"></a>The `destination_encryption_configuration` block supports:
 
 * `kms_key_name` -
   (Required)
@@ -537,7 +537,7 @@ The `destination_encryption_configuration` block supports:
 * `kms_key_version` -
   Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
 
-The `script_options` block supports:
+<a name="nested_script_options"></a>The `script_options` block supports:
 
 * `statement_timeout_ms` -
   (Optional)
@@ -553,7 +553,7 @@ The `script_options` block supports:
   used to populate the schema and query results of the script job.
   Possible values are `LAST` and `FIRST_SELECT`.
 
-The `load` block supports:
+<a name="nested_load"></a>The `load` block supports:
 
 * `source_uris` -
   (Required)
@@ -567,7 +567,7 @@ The `load` block supports:
 * `destination_table` -
   (Required)
   The destination table to load the data into.
-  Structure is documented below.
+  Structure is [documented below](#nested_destination_table).
 
 * `create_disposition` -
   (Optional)
@@ -682,15 +682,15 @@ The `load` block supports:
 * `time_partitioning` -
   (Optional)
   Time-based partitioning specification for the destination table.
-  Structure is documented below.
+  Structure is [documented below](#nested_time_partitioning).
 
 * `destination_encryption_configuration` -
   (Optional)
   Custom encryption configuration (e.g., Cloud KMS keys)
-  Structure is documented below.
+  Structure is [documented below](#nested_destination_encryption_configuration).
 
 
-The `destination_table` block supports:
+<a name="nested_destination_table"></a>The `destination_table` block supports:
 
 * `project_id` -
   (Optional)
@@ -705,7 +705,7 @@ The `destination_table` block supports:
   The table. Can be specified `{{table_id}}` if `project_id` and `dataset_id` are also set,
   or of the form `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}` if not.
 
-The `time_partitioning` block supports:
+<a name="nested_time_partitioning"></a>The `time_partitioning` block supports:
 
 * `type` -
   (Required)
@@ -722,7 +722,7 @@ The `time_partitioning` block supports:
   The field must be a top-level TIMESTAMP or DATE field. Its mode must be NULLABLE or REQUIRED.
   A wrapper is used here because an empty string is an invalid value.
 
-The `destination_encryption_configuration` block supports:
+<a name="nested_destination_encryption_configuration"></a>The `destination_encryption_configuration` block supports:
 
 * `kms_key_name` -
   (Required)
@@ -732,17 +732,17 @@ The `destination_encryption_configuration` block supports:
 * `kms_key_version` -
   Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
 
-The `copy` block supports:
+<a name="nested_copy"></a>The `copy` block supports:
 
 * `source_tables` -
   (Required)
   Source tables to copy.
-  Structure is documented below.
+  Structure is [documented below](#nested_source_tables).
 
 * `destination_table` -
   (Optional)
   The destination table.
-  Structure is documented below.
+  Structure is [documented below](#nested_destination_table).
 
 * `create_disposition` -
   (Optional)
@@ -767,25 +767,10 @@ The `copy` block supports:
 * `destination_encryption_configuration` -
   (Optional)
   Custom encryption configuration (e.g., Cloud KMS keys)
-  Structure is documented below.
+  Structure is [documented below](#nested_destination_encryption_configuration).
 
 
-The `source_tables` block supports:
-
-* `project_id` -
-  (Optional)
-  The ID of the project containing this table.
-
-* `dataset_id` -
-  (Optional)
-  The ID of the dataset containing this table.
-
-* `table_id` -
-  (Required)
-  The table. Can be specified `{{table_id}}` if `project_id` and `dataset_id` are also set,
-  or of the form `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}` if not.
-
-The `destination_table` block supports:
+<a name="nested_source_tables"></a>The `source_tables` block supports:
 
 * `project_id` -
   (Optional)
@@ -800,7 +785,22 @@ The `destination_table` block supports:
   The table. Can be specified `{{table_id}}` if `project_id` and `dataset_id` are also set,
   or of the form `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}` if not.
 
-The `destination_encryption_configuration` block supports:
+<a name="nested_destination_table"></a>The `destination_table` block supports:
+
+* `project_id` -
+  (Optional)
+  The ID of the project containing this table.
+
+* `dataset_id` -
+  (Optional)
+  The ID of the dataset containing this table.
+
+* `table_id` -
+  (Required)
+  The table. Can be specified `{{table_id}}` if `project_id` and `dataset_id` are also set,
+  or of the form `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}` if not.
+
+<a name="nested_destination_encryption_configuration"></a>The `destination_encryption_configuration` block supports:
 
 * `kms_key_name` -
   (Required)
@@ -810,7 +810,7 @@ The `destination_encryption_configuration` block supports:
 * `kms_key_version` -
   Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
 
-The `extract` block supports:
+<a name="nested_extract"></a>The `extract` block supports:
 
 * `destination_uris` -
   (Required)
@@ -843,15 +843,15 @@ The `extract` block supports:
 * `source_table` -
   (Optional)
   A reference to the table being exported.
-  Structure is documented below.
+  Structure is [documented below](#nested_source_table).
 
 * `source_model` -
   (Optional)
   A reference to the model being exported.
-  Structure is documented below.
+  Structure is [documented below](#nested_source_model).
 
 
-The `source_table` block supports:
+<a name="nested_source_table"></a>The `source_table` block supports:
 
 * `project_id` -
   (Optional)
@@ -866,7 +866,7 @@ The `source_table` block supports:
   The table. Can be specified `{{table_id}}` if `project_id` and `dataset_id` are also set,
   or of the form `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}` if not.
 
-The `source_model` block supports:
+<a name="nested_source_model"></a>The `source_model` block supports:
 
 * `project_id` -
   (Required)
@@ -894,22 +894,22 @@ The `source_model` block supports:
 * `query` -
   (Optional)
   Configures a query job.
-  Structure is documented below.
+  Structure is [documented below](#nested_query).
 
 * `load` -
   (Optional)
   Configures a load job.
-  Structure is documented below.
+  Structure is [documented below](#nested_load).
 
 * `copy` -
   (Optional)
   Copies a table.
-  Structure is documented below.
+  Structure is [documented below](#nested_copy).
 
 * `extract` -
   (Optional)
   Configures an extract job.
-  Structure is documented below.
+  Structure is [documented below](#nested_extract).
 
 * `location` -
   (Optional)
@@ -933,26 +933,26 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `status` -
   The status of this job. Examine this value when polling an asynchronous job to see if the job is complete.
-  Structure is documented below.
+  Structure is [documented below](#nested_status).
 
 
-The `status` block contains:
+<a name="nested_status"></a>The `status` block contains:
 
 * `error_result` -
   Final error result of the job. If present, indicates that the job has completed and was unsuccessful.
-  Structure is documented below.
+  Structure is [documented below](#nested_error_result).
 
 * `errors` -
   The first errors encountered during the running of the job. The final message
   includes the number of errors that caused the process to stop. Errors here do
   not necessarily mean that the job has not completed or was unsuccessful.
-  Structure is documented below.
+  Structure is [documented below](#nested_errors).
 
 * `state` -
   Running state of the job. Valid states include 'PENDING', 'RUNNING', and 'DONE'.
 
 
-The `error_result` block contains:
+<a name="nested_error_result"></a>The `error_result` block contains:
 
 * `reason` -
   (Optional)
@@ -966,7 +966,7 @@ The `error_result` block contains:
   (Optional)
   A human-readable description of the error.
 
-The `errors` block contains:
+<a name="nested_errors"></a>The `errors` block contains:
 
 * `reason` -
   (Optional)

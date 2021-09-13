@@ -205,7 +205,7 @@ The following arguments are supported:
   the creation of multiple policies that conflict with each other.
   For more information, see how the service
   [handles assignment conflicts](https://cloud.google.com/compute/docs/os-config-management/create-guest-policy#handle-conflicts).
-  Structure is documented below.
+  Structure is [documented below](#nested_assignment).
 
 * `guest_policy_id` -
   (Required)
@@ -217,13 +217,13 @@ The following arguments are supported:
   * Must be unique within the project.
 
 
-The `assignment` block supports:
+<a name="nested_assignment"></a>The `assignment` block supports:
 
 * `group_labels` -
   (Optional)
   Targets instances matching at least one of these label sets. This allows an assignment to target disparate groups,
   for example "env=prod or env=staging".
-  Structure is documented below.
+  Structure is [documented below](#nested_group_labels).
 
 * `zones` -
   (Optional)
@@ -249,16 +249,16 @@ The `assignment` block supports:
   (Optional)
   Targets VM instances matching at least one of the following OS types.
   VM instances must match all supplied criteria for a given OsType to be included.
-  Structure is documented below.
+  Structure is [documented below](#nested_os_types).
 
 
-The `group_labels` block supports:
+<a name="nested_group_labels"></a>The `group_labels` block supports:
 
 * `labels` -
   (Required)
   Google Compute Engine instance labels that must be present for an instance to be included in this assignment group.
 
-The `os_types` block supports:
+<a name="nested_os_types"></a>The `os_types` block supports:
 
 * `os_short_name` -
   (Optional)
@@ -282,19 +282,19 @@ The `os_types` block supports:
 * `packages` -
   (Optional)
   The software packages to be managed by this policy.
-  Structure is documented below.
+  Structure is [documented below](#nested_packages).
 
 * `package_repositories` -
   (Optional)
   A list of package repositories to configure on the VM instance.
   This is done before any other configs are applied so they can use these repos.
   Package repositories are only configured if the corresponding package manager(s) are available.
-  Structure is documented below.
+  Structure is [documented below](#nested_package_repositories).
 
 * `recipes` -
   (Optional)
   A list of Recipes to install on the VM instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_recipes).
 
 * `etag` -
   (Optional)
@@ -304,7 +304,7 @@ The `os_types` block supports:
     If it is not provided, the provider project is used.
 
 
-The `packages` block supports:
+<a name="nested_packages"></a>The `packages` block supports:
 
 * `name` -
   (Required)
@@ -326,30 +326,30 @@ The `packages` block supports:
   Default value is `ANY`.
   Possible values are `ANY`, `APT`, `YUM`, `ZYPPER`, and `GOO`.
 
-The `package_repositories` block supports:
+<a name="nested_package_repositories"></a>The `package_repositories` block supports:
 
 * `apt` -
   (Optional)
   An Apt Repository.
-  Structure is documented below.
+  Structure is [documented below](#nested_apt).
 
 * `yum` -
   (Optional)
   A Yum Repository.
-  Structure is documented below.
+  Structure is [documented below](#nested_yum).
 
 * `zypper` -
   (Optional)
   A Zypper Repository.
-  Structure is documented below.
+  Structure is [documented below](#nested_zypper).
 
 * `goo` -
   (Optional)
   A Goo Repository.
-  Structure is documented below.
+  Structure is [documented below](#nested_goo).
 
 
-The `apt` block supports:
+<a name="nested_apt"></a>The `apt` block supports:
 
 * `archive_type` -
   (Optional)
@@ -374,7 +374,7 @@ The `apt` block supports:
   URI of the key file for this repository. The agent maintains a keyring at
   /etc/apt/trusted.gpg.d/osconfig_agent_managed.gpg containing all the keys in any applied guest policy.
 
-The `yum` block supports:
+<a name="nested_yum"></a>The `yum` block supports:
 
 * `id` -
   (Required)
@@ -393,7 +393,7 @@ The `yum` block supports:
   (Optional)
   URIs of GPG keys.
 
-The `zypper` block supports:
+<a name="nested_zypper"></a>The `zypper` block supports:
 
 * `id` -
   (Required)
@@ -412,7 +412,7 @@ The `zypper` block supports:
   (Optional)
   URIs of GPG keys.
 
-The `goo` block supports:
+<a name="nested_goo"></a>The `goo` block supports:
 
 * `name` -
   (Required)
@@ -422,7 +422,7 @@ The `goo` block supports:
   (Required)
   The url of the repository.
 
-The `recipes` block supports:
+<a name="nested_recipes"></a>The `recipes` block supports:
 
 * `name` -
   (Required)
@@ -438,19 +438,19 @@ The `recipes` block supports:
 * `artifacts` -
   (Optional)
   Resources available to be used in the steps in the recipe.
-  Structure is documented below.
+  Structure is [documented below](#nested_artifacts).
 
 * `install_steps` -
   (Optional)
   Actions to be taken for installing this recipe. On failure it stops executing steps and does not attempt another installation.
   Any steps taken (including partially completed steps) are not rolled back.
-  Structure is documented below.
+  Structure is [documented below](#nested_install_steps).
 
 * `update_steps` -
   (Optional)
   Actions to be taken for updating this recipe. On failure it stops executing steps and does not attempt another update for this recipe.
   Any steps taken (including partially completed steps) are not rolled back.
-  Structure is documented below.
+  Structure is [documented below](#nested_update_steps).
 
 * `desired_state` -
   (Optional)
@@ -463,7 +463,7 @@ The `recipes` block supports:
   Possible values are `INSTALLED`, `UPDATED`, and `REMOVED`.
 
 
-The `artifacts` block supports:
+<a name="nested_artifacts"></a>The `artifacts` block supports:
 
 * `id` -
   (Required)
@@ -479,15 +479,15 @@ The `artifacts` block supports:
 * `remote` -
   (Optional)
   A generic remote artifact.
-  Structure is documented below.
+  Structure is [documented below](#nested_remote).
 
 * `gcs` -
   (Optional)
   A Google Cloud Storage artifact.
-  Structure is documented below.
+  Structure is [documented below](#nested_gcs).
 
 
-The `remote` block supports:
+<a name="nested_remote"></a>The `remote` block supports:
 
 * `uri` -
   (Optional)
@@ -499,7 +499,7 @@ The `remote` block supports:
   If the checksum is not empty and it doesn't match the artifact then the recipe installation fails before running any
   of the steps.
 
-The `gcs` block supports:
+<a name="nested_gcs"></a>The `gcs` block supports:
 
 * `bucket` -
   (Optional)
@@ -516,45 +516,45 @@ The `gcs` block supports:
   Must be provided if allowInsecure is false. Generation number of the Google Cloud Storage object.
   https://storage.googleapis.com/my-bucket/foo/bar#1234567 this value would be 1234567.
 
-The `install_steps` block supports:
+<a name="nested_install_steps"></a>The `install_steps` block supports:
 
 * `file_copy` -
   (Optional)
   Copies a file onto the instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_file_copy).
 
 * `archive_extraction` -
   (Optional)
   Extracts an archive into the specified directory.
-  Structure is documented below.
+  Structure is [documented below](#nested_archive_extraction).
 
 * `msi_installation` -
   (Optional)
   Installs an MSI file.
-  Structure is documented below.
+  Structure is [documented below](#nested_msi_installation).
 
 * `dpkg_installation` -
   (Optional)
   Installs a deb file via dpkg.
-  Structure is documented below.
+  Structure is [documented below](#nested_dpkg_installation).
 
 * `rpm_installation` -
   (Optional)
   Installs an rpm file via the rpm utility.
-  Structure is documented below.
+  Structure is [documented below](#nested_rpm_installation).
 
 * `file_exec` -
   (Optional)
   Executes an artifact or local file.
-  Structure is documented below.
+  Structure is [documented below](#nested_file_exec).
 
 * `script_run` -
   (Optional)
   Runs commands in a shell.
-  Structure is documented below.
+  Structure is [documented below](#nested_script_run).
 
 
-The `file_copy` block supports:
+<a name="nested_file_copy"></a>The `file_copy` block supports:
 
 * `artifact_id` -
   (Required)
@@ -578,7 +578,7 @@ The `file_copy` block supports:
   Below are some examples of permissions and their associated values:
   read, write, and execute: 7 read and execute: 5 read and write: 6 read only: 4
 
-The `archive_extraction` block supports:
+<a name="nested_archive_extraction"></a>The `archive_extraction` block supports:
 
 * `artifact_id` -
   (Required)
@@ -593,7 +593,7 @@ The `archive_extraction` block supports:
   The type of the archive to extract.
   Possible values are `TAR`, `TAR_GZIP`, `TAR_BZIP`, `TAR_LZMA`, `TAR_XZ`, and `ZIP`.
 
-The `msi_installation` block supports:
+<a name="nested_msi_installation"></a>The `msi_installation` block supports:
 
 * `artifact_id` -
   (Required)
@@ -607,19 +607,19 @@ The `msi_installation` block supports:
   (Optional)
   Return codes that indicate that the software installed or updated successfully. Behaviour defaults to [0]
 
-The `dpkg_installation` block supports:
+<a name="nested_dpkg_installation"></a>The `dpkg_installation` block supports:
 
 * `artifact_id` -
   (Required)
   The id of the relevant artifact in the recipe.
 
-The `rpm_installation` block supports:
+<a name="nested_rpm_installation"></a>The `rpm_installation` block supports:
 
 * `artifact_id` -
   (Required)
   The id of the relevant artifact in the recipe.
 
-The `file_exec` block supports:
+<a name="nested_file_exec"></a>The `file_exec` block supports:
 
 * `args` -
   (Optional)
@@ -637,7 +637,7 @@ The `file_exec` block supports:
   (Optional)
   The absolute path of the file on the local filesystem.
 
-The `script_run` block supports:
+<a name="nested_script_run"></a>The `script_run` block supports:
 
 * `script` -
   (Required)
@@ -653,45 +653,45 @@ The `script_run` block supports:
   which likely only succeed for scripts with shebang lines.
   Possible values are `SHELL` and `POWERSHELL`.
 
-The `update_steps` block supports:
+<a name="nested_update_steps"></a>The `update_steps` block supports:
 
 * `file_copy` -
   (Optional)
   Copies a file onto the instance.
-  Structure is documented below.
+  Structure is [documented below](#nested_file_copy).
 
 * `archive_extraction` -
   (Optional)
   Extracts an archive into the specified directory.
-  Structure is documented below.
+  Structure is [documented below](#nested_archive_extraction).
 
 * `msi_installation` -
   (Optional)
   Installs an MSI file.
-  Structure is documented below.
+  Structure is [documented below](#nested_msi_installation).
 
 * `dpkg_installation` -
   (Optional)
   Installs a deb file via dpkg.
-  Structure is documented below.
+  Structure is [documented below](#nested_dpkg_installation).
 
 * `rpm_installation` -
   (Optional)
   Installs an rpm file via the rpm utility.
-  Structure is documented below.
+  Structure is [documented below](#nested_rpm_installation).
 
 * `file_exec` -
   (Optional)
   Executes an artifact or local file.
-  Structure is documented below.
+  Structure is [documented below](#nested_file_exec).
 
 * `script_run` -
   (Optional)
   Runs commands in a shell.
-  Structure is documented below.
+  Structure is [documented below](#nested_script_run).
 
 
-The `file_copy` block supports:
+<a name="nested_file_copy"></a>The `file_copy` block supports:
 
 * `artifact_id` -
   (Required)
@@ -715,7 +715,7 @@ The `file_copy` block supports:
   Below are some examples of permissions and their associated values:
   read, write, and execute: 7 read and execute: 5 read and write: 6 read only: 4
 
-The `archive_extraction` block supports:
+<a name="nested_archive_extraction"></a>The `archive_extraction` block supports:
 
 * `artifact_id` -
   (Required)
@@ -730,7 +730,7 @@ The `archive_extraction` block supports:
   The type of the archive to extract.
   Possible values are `TAR`, `TAR_GZIP`, `TAR_BZIP`, `TAR_LZMA`, `TAR_XZ`, and `ZIP`.
 
-The `msi_installation` block supports:
+<a name="nested_msi_installation"></a>The `msi_installation` block supports:
 
 * `artifact_id` -
   (Required)
@@ -744,19 +744,19 @@ The `msi_installation` block supports:
   (Optional)
   Return codes that indicate that the software installed or updated successfully. Behaviour defaults to [0]
 
-The `dpkg_installation` block supports:
+<a name="nested_dpkg_installation"></a>The `dpkg_installation` block supports:
 
 * `artifact_id` -
   (Required)
   The id of the relevant artifact in the recipe.
 
-The `rpm_installation` block supports:
+<a name="nested_rpm_installation"></a>The `rpm_installation` block supports:
 
 * `artifact_id` -
   (Required)
   The id of the relevant artifact in the recipe.
 
-The `file_exec` block supports:
+<a name="nested_file_exec"></a>The `file_exec` block supports:
 
 * `args` -
   (Optional)
@@ -774,7 +774,7 @@ The `file_exec` block supports:
   (Optional)
   The absolute path of the file on the local filesystem.
 
-The `script_run` block supports:
+<a name="nested_script_run"></a>The `script_run` block supports:
 
 * `script` -
   (Required)

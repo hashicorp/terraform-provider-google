@@ -76,16 +76,16 @@ The following arguments are supported:
 * `idp_config` -
   (Required)
   SAML IdP configuration when the project acts as the relying party
-  Structure is documented below.
+  Structure is [documented below](#nested_idp_config).
 
 * `sp_config` -
   (Required)
   SAML SP (Service Provider) configuration when the project acts as the relying party to receive
   and accept an authentication assertion issued by a SAML identity provider.
-  Structure is documented below.
+  Structure is [documented below](#nested_sp_config).
 
 
-The `idp_config` block supports:
+<a name="nested_idp_config"></a>The `idp_config` block supports:
 
 * `idp_entity_id` -
   (Required)
@@ -102,16 +102,16 @@ The `idp_config` block supports:
 * `idp_certificates` -
   (Required)
   The IdP's certificate data to verify the signature in the SAMLResponse issued by the IDP.
-  Structure is documented below.
+  Structure is [documented below](#nested_idp_certificates).
 
 
-The `idp_certificates` block supports:
+<a name="nested_idp_certificates"></a>The `idp_certificates` block supports:
 
 * `x509_certificate` -
   (Optional)
   The IdP's x509 certificate.
 
-The `sp_config` block supports:
+<a name="nested_sp_config"></a>The `sp_config` block supports:
 
 * `sp_entity_id` -
   (Optional)
@@ -123,10 +123,10 @@ The `sp_config` block supports:
 
 * `sp_certificates` -
   The IDP's certificate data to verify the signature in the SAMLResponse issued by the IDP.
-  Structure is documented below.
+  Structure is [documented below](#nested_sp_certificates).
 
 
-The `sp_certificates` block contains:
+<a name="nested_sp_certificates"></a>The `sp_certificates` block contains:
 
 * `x509_certificate` -
   The x509 certificate

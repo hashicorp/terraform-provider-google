@@ -78,15 +78,15 @@ The following arguments are supported:
   (Required)
   Game server cluster connection information. This information is used to
   manage game server clusters.
-  Structure is documented below.
+  Structure is [documented below](#nested_connection_info).
 
 
-The `connection_info` block supports:
+<a name="nested_connection_info"></a>The `connection_info` block supports:
 
 * `gke_cluster_reference` -
   (Required)
   Reference of the GKE cluster where the game servers are installed.
-  Structure is documented below.
+  Structure is [documented below](#nested_gke_cluster_reference).
 
 * `namespace` -
   (Required)
@@ -95,7 +95,7 @@ The `connection_info` block supports:
   during creation.
 
 
-The `gke_cluster_reference` block supports:
+<a name="nested_gke_cluster_reference"></a>The `gke_cluster_reference` block supports:
 
 * `cluster` -
   (Required)

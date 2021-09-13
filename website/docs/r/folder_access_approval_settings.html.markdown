@@ -59,14 +59,14 @@ The following arguments are supported:
   Access requests for the resource given by name against any of these services contained here will be required
   to have explicit approval. Enrollment can only be done on an all or nothing basis.
   A maximum of 10 enrolled services will be enforced, to be expanded as the set of supported services is expanded.
-  Structure is documented below.
+  Structure is [documented below](#nested_enrolled_services).
 
 * `folder_id` -
   (Required)
   ID of the folder of the access approval settings.
 
 
-The `enrolled_services` block supports:
+<a name="nested_enrolled_services"></a>The `enrolled_services` block supports:
 
 * `cloud_product` -
   (Required)

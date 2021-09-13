@@ -75,7 +75,7 @@ The following arguments are supported:
 * `online_serving_config` -
   (Optional)
   Config for online serving resources.
-  Structure is documented below.
+  Structure is [documented below](#nested_online_serving_config).
 
 * `region` -
   (Optional)
@@ -86,7 +86,7 @@ The following arguments are supported:
 
 * `force_destroy` - (Optional) If set to true, any EntityTypes and Features for this Featurestore will also be deleted
 
-The `online_serving_config` block supports:
+<a name="nested_online_serving_config"></a>The `online_serving_config` block supports:
 
 * `fixed_node_count` -
   (Required)
