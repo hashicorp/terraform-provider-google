@@ -8,7 +8,6 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * container: fixed a bug in failing to remove `maintenance_exclusion` on `google_container_cluster` ([#10025](https://github.com/hashicorp/terraform-provider-google/pull/10025))
-* cloudbuild: marked `google_cloudbuild_trigger` as requiring one of branch_name/tag_name/commit_sha  within `build.source.repo_source` ([#9952](https://github.com/hashicorp/terraform-provider-google/pull/9952))
 * compute: fixed an issue in `google_compute_router_nat` where removing `log_config` resulted in a perma-diff ([#9950](https://github.com/hashicorp/terraform-provider-google/pull/9950))
 * compute: fixed `advanced_machine_features` error messages in `google_compute_instance` ([#10023](https://github.com/hashicorp/terraform-provider-google/pull/10023))
 * eventarc: fixed bug where resources deleted outside of Terraform would cause errors ([#9997](https://github.com/hashicorp/terraform-provider-google/pull/9997))
