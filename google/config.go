@@ -968,8 +968,10 @@ func (c *Config) NewCloudIdentityClient(userAgent string) *cloudidentity.Service
 
 func (c *Config) BigTableClientFactory(userAgent string) *BigtableClientFactory {
 	bigtableClientFactory := &BigtableClientFactory{
-		UserAgent:   userAgent,
-		TokenSource: c.tokenSource,
+		UserAgent:           userAgent,
+		TokenSource:         c.tokenSource,
+		BillingProject:      c.BillingProject,
+		UserProjectOverride: c.UserProjectOverride,
 	}
 
 	return bigtableClientFactory
