@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed a bug where `destination_encryption_config.kms_key_name` stored the version rather than the key name.
+```
