@@ -1,4 +1,20 @@
-## 3.84.0 (Unreleased)
+## 3.84.0 (September 13, 2021)
+FEATURES:
+* **New Data Source:** `google_secret_manager_secret` ([#9983](https://github.com/hashicorp/terraform-provider-google/pull/9983))
+
+IMPROVEMENTS:
+* compute: added update support to `google_compute_service_attachment` ([#9982](https://github.com/hashicorp/terraform-provider-google/pull/9982))
+
+BUG FIXES:
+* container: fixed a bug in failing to remove `maintenance_exclusion` on `google_container_cluster` ([#10025](https://github.com/hashicorp/terraform-provider-google/pull/10025))
+* compute: fixed an issue in `google_compute_router_nat` where removing `log_config` resulted in a perma-diff ([#9950](https://github.com/hashicorp/terraform-provider-google/pull/9950))
+* compute: fixed `advanced_machine_features` error messages in `google_compute_instance` ([#10023](https://github.com/hashicorp/terraform-provider-google/pull/10023))
+* eventarc: fixed bug where resources deleted outside of Terraform would cause errors ([#9997](https://github.com/hashicorp/terraform-provider-google/pull/9997))
+* functions: fixed an error message on `google_cloudfunctions_function` ([#10011](https://github.com/hashicorp/terraform-provider-google/pull/10011))
+* logging: fixed the data type for `bucket_options.linear_buckets.width` on `google_logging_metric` ([#9985](https://github.com/hashicorp/terraform-provider-google/pull/9985))
+* osconfig: fixed import on `google_os_config_guest_policies` ([#10019](https://github.com/hashicorp/terraform-provider-google/pull/10019))
+* storage: fixed an undetected change on `days_since_noncurrent_time` of `google_storage_bucket` ([#10024](https://github.com/hashicorp/terraform-provider-google/pull/10024))
+
 
 ## 3.83.0 (September 09, 2021)
 FEATURES:
