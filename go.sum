@@ -1577,3 +1577,5 @@ rsc.io/sampler v1.3.0 h1:7uVkIFmeBqHfdjD+gZwtXXI+RODJ2Wc4O7MPEh/QiW4=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
 sigs.k8s.io/yaml v1.1.0 h1:4A07+ZFc2wgJwo8YNlQpr1rVlgUDlxXHhPJciaPY5gs=
 sigs.k8s.io/yaml v1.1.0/go.mod h1:UJmg0vDUVViEyp3mgSv9WPwZCDxu4rQW1olrI1uml+o=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210914194833-2626db3d194d h1:AuiElGGawUNhmdSfJ1hzBa3734LMzRJQQWV6QoPthOI=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210914194833-2626db3d194d/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
