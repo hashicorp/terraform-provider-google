@@ -33,6 +33,10 @@ func TestAccIapWebTypeComputeIamBindingGenerated(t *testing.T) {
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+			"time":   {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapWebTypeComputeIamBinding_basicGenerated(context),
@@ -69,6 +73,10 @@ func TestAccIapWebTypeComputeIamMemberGenerated(t *testing.T) {
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+			"time":   {},
+		},
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -96,6 +104,10 @@ func TestAccIapWebTypeComputeIamPolicyGenerated(t *testing.T) {
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+			"time":   {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapWebTypeComputeIamPolicy_basicGenerated(context),
@@ -127,9 +139,18 @@ resource "google_project" "project" {
   org_id     = "%{org_id}"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_project.project]
+
+  create_duration = "60s"
+}
+
 resource "google_project_service" "project_service" {
   project = google_project.project.project_id
   service = "iap.googleapis.com"
+
+  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
+  depends_on = [time_sleep.wait_60_seconds]
 }
 
 resource "google_iap_web_type_compute_iam_member" "foo" {
@@ -148,9 +169,18 @@ resource "google_project" "project" {
   org_id     = "%{org_id}"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_project.project]
+
+  create_duration = "60s"
+}
+
 resource "google_project_service" "project_service" {
   project = google_project.project.project_id
   service = "iap.googleapis.com"
+
+  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
+  depends_on = [time_sleep.wait_60_seconds]
 }
 
 data "google_iam_policy" "foo" {
@@ -175,9 +205,18 @@ resource "google_project" "project" {
   org_id     = "%{org_id}"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_project.project]
+
+  create_duration = "60s"
+}
+
 resource "google_project_service" "project_service" {
   project = google_project.project.project_id
   service = "iap.googleapis.com"
+
+  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
+  depends_on = [time_sleep.wait_60_seconds]
 }
 
 data "google_iam_policy" "foo" {
@@ -198,9 +237,18 @@ resource "google_project" "project" {
   org_id     = "%{org_id}"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_project.project]
+
+  create_duration = "60s"
+}
+
 resource "google_project_service" "project_service" {
   project = google_project.project.project_id
   service = "iap.googleapis.com"
+
+  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
+  depends_on = [time_sleep.wait_60_seconds]
 }
 
 resource "google_iap_web_type_compute_iam_binding" "foo" {
@@ -219,9 +267,18 @@ resource "google_project" "project" {
   org_id     = "%{org_id}"
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_project.project]
+
+  create_duration = "60s"
+}
+
 resource "google_project_service" "project_service" {
   project = google_project.project.project_id
   service = "iap.googleapis.com"
+
+  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
+  depends_on = [time_sleep.wait_60_seconds]
 }
 
 resource "google_iap_web_type_compute_iam_binding" "foo" {
