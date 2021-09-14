@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
@@ -53,10 +52,9 @@ func resourceComputeFirewallPolicyRule() *schema.Resource {
 			},
 
 			"direction": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  "The direction in which this rule applies. Possible values: INGRESS, EGRESS",
-				ValidateFunc: validation.StringInSlice([]string{"INGRESS", "EGRESS", ""}, false),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The direction in which this rule applies. Possible values: INGRESS, EGRESS",
 			},
 
 			"firewall_policy": {
