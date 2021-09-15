@@ -124,8 +124,8 @@ func TestAccStorageSignedUrl_accTest(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", randInt(t))
 
 	headers := map[string]string{
-		"x-goog-test":                "foo",
-		"x-goog-if-generation-match": "1",
+		"x-goog-test":                    "foo",
+		"x-goog-if-metageneration-match": "1",
 	}
 
 	vcrTest(t, resource.TestCase{
@@ -248,7 +248,7 @@ data "google_storage_object_signed_url" "story_url_w_headers" {
   path   = google_storage_bucket_object.story.name
   extension_headers = {
     x-goog-test                = "foo"
-    x-goog-if-generation-match = 1
+    x-goog-if-metageneration-match = 1
   }
 }
 
