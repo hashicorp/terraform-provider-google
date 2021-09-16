@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	composer "google.golang.org/api/composer/v1beta1"
 )
 
 const (

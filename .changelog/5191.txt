@@ -1,0 +1,6 @@
+```release-note:bug
+dns: fixed an issue in `google_dns_record_set` where creating the resource would result in an 409 error
+```
+```release-note:bug
+dns: fixed an issue in `google_dns_record_set` where `rrdatas` could not be updated
+```
