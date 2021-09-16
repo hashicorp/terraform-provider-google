@@ -25,7 +25,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"google.golang.org/api/dns/v1"
 )
 
 func resourceDNSManagedZone() *schema.Resource {

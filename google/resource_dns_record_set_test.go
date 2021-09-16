@@ -53,6 +53,7 @@ func TestIpv6AddressDiffSuppress(t *testing.T) {
 		}
 	}
 }
+
 func TestAccDNSRecordSet_basic(t *testing.T) {
 	t.Parallel()
 
@@ -157,17 +158,41 @@ func TestAccDNSRecordSet_nestedNS(t *testing.T) {
 	t.Parallel()
 
 	zoneName := fmt.Sprintf("dnszone-test-ns-%s", randString(t, 10))
+	recordSetName := fmt.Sprintf("\"nested.%s.hashicorptest.com.\"", zoneName)
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDnsRecordSet_nestedNS(zoneName, 300),
+				Config: testAccDnsRecordSet_NS(zoneName, recordSetName, 300),
 			},
 			{
 				ResourceName:      "google_dns_record_set.foobar",
 				ImportStateId:     fmt.Sprintf("%s/nested.%s.hashicorptest.com./NS", zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccDNSRecordSet_secondaryNS(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-ns-%s", randString(t, 10))
+	recordSetName := "google_dns_managed_zone.parent-zone.dns_name"
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_NS(zoneName, recordSetName, 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("projects/%s/managedZones/%s/rrsets/%s.hashicorptest.com./NS", getTestProjectFromEnv(), zoneName, zoneName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -271,7 +296,7 @@ resource "google_dns_record_set" "foobar" {
 `, zoneName, zoneName, zoneName, addr2, ttl)
 }
 
-func testAccDnsRecordSet_nestedNS(name string, ttl int) string {
+func testAccDnsRecordSet_NS(name string, recordSetName string, ttl int) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "parent-zone" {
   name        = "%s"
@@ -281,12 +306,12 @@ resource "google_dns_managed_zone" "parent-zone" {
 
 resource "google_dns_record_set" "foobar" {
   managed_zone = google_dns_managed_zone.parent-zone.name
-  name         = "nested.%s.hashicorptest.com."
+  name         = %s
   type         = "NS"
   rrdatas      = ["ns.hashicorp.services.", "ns2.hashicorp.services."]
   ttl          = %d
 }
-`, name, name, name, ttl)
+`, name, name, recordSetName, ttl)
 }
 
 func testAccDnsRecordSet_bigChange(zoneName string, ttl int) string {
