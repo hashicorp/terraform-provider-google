@@ -131,7 +131,7 @@ func TestAccStorageBucket_customAttributes(t *testing.T) {
 }
 
 func TestAccStorageBucket_lifecycleRulesMultiple(t *testing.T) {
-	// Multiple fine-grained resources
+	// multiple fine-grained resources
 	skipIfVcr(t)
 	t.Parallel()
 
