@@ -262,7 +262,7 @@ The following arguments are supported:
   store if schematized parsing is desired.
 
 * `version` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The version of the unschematized parser to be used when a custom `schema` is not set.
   Default value is `V1`.
   Possible values are `V1` and `V2`.

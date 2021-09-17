@@ -1,0 +1,3 @@
+```release-note:enhancement
+healthcare: promoted `google_healthcare_hl7_v2_store.parseConfig.version` to GA
+```
