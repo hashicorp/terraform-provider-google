@@ -412,10 +412,3 @@ func rrdata(
 	}
 	return data
 }
-
-func ipv6AddressDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
-	oldIp := net.ParseIP(old)
-	newIp := net.ParseIP(new)
-
-	return oldIp.Equal(newIp)
-}
