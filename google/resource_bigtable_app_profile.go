@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"google.golang.org/api/bigtableadmin/v2"
 )
 
 func resourceBigtableAppProfile() *schema.Resource {
