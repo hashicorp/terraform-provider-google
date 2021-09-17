@@ -157,7 +157,7 @@ Fields/functions available for filtering are:
 							StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 							Description: `JSON encoded string for schemas used to parse messages in this
 store if schematized parsing is desired.`,
-							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.segment_terminator", "parser_config.0.schema"},
+							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.segment_terminator", "parser_config.0.schema", "parser_config.0.version"},
 						},
 						"segment_terminator": {
 							Type:         schema.TypeString,
@@ -167,6 +167,14 @@ store if schematized parsing is desired.`,
 
 A base64-encoded string.`,
 							AtLeastOneOf: []string{"parser_config.0.allow_null_header", "parser_config.0.segment_terminator", "parser_config.0.schema"},
+						},
+						"version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"V1", "V2", ""}, false),
+							Description:  `The version of the unschematized parser to be used when a custom 'schema' is not set. Default value: "V1" Possible values: ["V1", "V2"]`,
+							Default:      "V1",
 						},
 					},
 				},
@@ -457,6 +465,8 @@ func flattenHealthcareHl7V2StoreParserConfig(v interface{}, d *schema.ResourceDa
 		flattenHealthcareHl7V2StoreParserConfigSegmentTerminator(original["segmentTerminator"], d, config)
 	transformed["schema"] =
 		flattenHealthcareHl7V2StoreParserConfigSchema(original["schema"], d, config)
+	transformed["version"] =
+		flattenHealthcareHl7V2StoreParserConfigVersion(original["version"], d, config)
 	return []interface{}{transformed}
 }
 func flattenHealthcareHl7V2StoreParserConfigAllowNullHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -477,6 +487,10 @@ func flattenHealthcareHl7V2StoreParserConfigSchema(v interface{}, d *schema.Reso
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
+}
+
+func flattenHealthcareHl7V2StoreParserConfigVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func flattenHealthcareHl7V2StoreLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -561,6 +575,13 @@ func expandHealthcareHl7V2StoreParserConfig(v interface{}, d TerraformResourceDa
 		transformed["schema"] = transformedSchema
 	}
 
+	transformedVersion, err := expandHealthcareHl7V2StoreParserConfigVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
 	return transformed, nil
 }
 
@@ -582,6 +603,10 @@ func expandHealthcareHl7V2StoreParserConfigSchema(v interface{}, d TerraformReso
 		return nil, err
 	}
 	return m, nil
+}
+
+func expandHealthcareHl7V2StoreParserConfigVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandHealthcareHl7V2StoreLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
