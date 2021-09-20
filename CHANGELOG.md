@@ -1,14 +1,10 @@
 ## 3.85.0 (Unreleased)
-DEPRECATIONS:
-* compute: deprecated `interface` field on `google_compute_disk` and `google_compute_region_disk` (beta only) ([#10055](https://github.com/hashicorp/terraform-provider-google/pull/10055))
-
 IMPROVEMENTS:
 * bigtable: enabled support for `user_project_override` in `google_bigtable_instance` and `google_bigtable_table` ([#10060](https://github.com/hashicorp/terraform-provider-google/pull/10060))
 * compute: added `iap` fields to `google_compute_region_backend_service` ([#10038](https://github.com/hashicorp/terraform-provider-google/pull/10038))
-* compute: allow passing an IP address to the `nextHopIlb` field of `google_compute_route` resource ([#10048](https://github.com/hashicorp/terraform-provider-google/pull/10048))
-* container: added field `dns_config` to resource `google_container_cluster` (beta) ([#10039](https://github.com/hashicorp/terraform-provider-google/pull/10039))
+* compute: allowed passing an IP address to the `nextHopIlb` field of `google_compute_route` resource ([#10048](https://github.com/hashicorp/terraform-provider-google/pull/10048))
 * iam: added `disabled` field to `google_service_account` resource ([#10033](https://github.com/hashicorp/terraform-provider-google/pull/10033))
-* provider: Added links to nested types documentation within a resource ([#10063](https://github.com/hashicorp/terraform-provider-google/pull/10063))
+* provider: added links to nested types documentation within a resource ([#10063](https://github.com/hashicorp/terraform-provider-google/pull/10063))
 * storage: added field `path` to `google_storage_transfer_job` ([#10047](https://github.com/hashicorp/terraform-provider-google/pull/10047))
 
 BUG FIXES:
