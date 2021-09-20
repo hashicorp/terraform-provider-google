@@ -86,7 +86,7 @@ func resourceComputeFirewallPolicyAssociationCreate(d *schema.ResourceData, meta
 
 	id, err := replaceVarsForId(d, config, "locations/global/firewallPolicies/{{firewall_policy}}/associations/{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 	createDirective := CreateDirective

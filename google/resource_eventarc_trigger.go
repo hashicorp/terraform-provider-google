@@ -253,7 +253,7 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 
 	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 	createDirective := CreateDirective

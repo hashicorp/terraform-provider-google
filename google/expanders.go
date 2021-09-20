@@ -46,3 +46,20 @@ func convertIntegerArr(v []interface{}) []int64 {
 	}
 	return vi
 }
+
+// Returns the DCL representation of a three-state boolean value represented by a string in terraform.
+func expandEnumBool(v interface{}) *bool {
+	s, ok := v.(string)
+	if !ok {
+		return nil
+	}
+	switch s {
+	case "TRUE":
+		b := true
+		return &b
+	case "FALSE":
+		b := false
+		return &b
+	}
+	return nil
+}

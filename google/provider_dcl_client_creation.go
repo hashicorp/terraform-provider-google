@@ -19,9 +19,11 @@ import (
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 
 	assuredworkloads "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/assuredworkloads"
+	cloudresourcemanager "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/cloudresourcemanager"
 	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
 	dataproc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataproc"
 	eventarc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
+	orgpolicy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/orgpolicy"
 	privateca "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/privateca"
 )
 
@@ -42,6 +44,25 @@ func NewDCLAssuredWorkloadsClient(config *Config, userAgent, billingProject stri
 
 	dclConfig := dcl.NewConfig(configOptions...)
 	return assuredworkloads.NewClient(dclConfig)
+}
+
+func NewDCLCloudResourceManagerClient(config *Config, userAgent, billingProject string) *cloudresourcemanager.Client {
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.CloudResourceManagerBasePath),
+	}
+
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
+	return cloudresourcemanager.NewClient(dclConfig)
 }
 
 func NewDCLComputeClient(config *Config, userAgent, billingProject string) *compute.Client {
@@ -99,6 +120,25 @@ func NewDCLEventarcClient(config *Config, userAgent, billingProject string) *eve
 
 	dclConfig := dcl.NewConfig(configOptions...)
 	return eventarc.NewClient(dclConfig)
+}
+
+func NewDCLOrgPolicyClient(config *Config, userAgent, billingProject string) *orgpolicy.Client {
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.OrgPolicyBasePath),
+	}
+
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
+	return orgpolicy.NewClient(dclConfig)
 }
 
 func NewDCLPrivatecaClient(config *Config, userAgent, billingProject string) *privateca.Client {
