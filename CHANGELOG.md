@@ -1,4 +1,4 @@
-## 3.85.0 (Unreleased)
+## 3.85.0 (September 20, 2021)
 IMPROVEMENTS:
 * bigtable: enabled support for `user_project_override` in `google_bigtable_instance` and `google_bigtable_table` ([#10060](https://github.com/hashicorp/terraform-provider-google/pull/10060))
 * compute: added `iap` fields to `google_compute_region_backend_service` ([#10038](https://github.com/hashicorp/terraform-provider-google/pull/10038))
