@@ -1,4 +1,18 @@
 ## 3.85.0 (Unreleased)
+IMPROVEMENTS:
+* bigtable: enabled support for `user_project_override` in `google_bigtable_instance` and `google_bigtable_table` ([#10060](https://github.com/hashicorp/terraform-provider-google/pull/10060))
+* compute: added `iap` fields to `google_compute_region_backend_service` ([#10038](https://github.com/hashicorp/terraform-provider-google/pull/10038))
+* compute: allowed passing an IP address to the `nextHopIlb` field of `google_compute_route` resource ([#10048](https://github.com/hashicorp/terraform-provider-google/pull/10048))
+* iam: added `disabled` field to `google_service_account` resource ([#10033](https://github.com/hashicorp/terraform-provider-google/pull/10033))
+* provider: added links to nested types documentation within a resource ([#10063](https://github.com/hashicorp/terraform-provider-google/pull/10063))
+* storage: added field `path` to `google_storage_transfer_job` ([#10047](https://github.com/hashicorp/terraform-provider-google/pull/10047))
+
+BUG FIXES:
+* appengine: fixed bug where `deployment.container.image` would update to an old version even if in `ignore_changes` ([#10058](https://github.com/hashicorp/terraform-provider-google/pull/10058))
+* bigquery: fixed a bug where `destination_encryption_config.kms_key_name` stored the version rather than the key name. ([#10068](https://github.com/hashicorp/terraform-provider-google/pull/10068))
+* redis: extended the default timeouts on `google_redis_instance` ([#10037](https://github.com/hashicorp/terraform-provider-google/pull/10037))
+* serviceusage: fixed an issue in `google_project_service` where users could not reenable services that were disabled outside of Terraform. ([#10045](https://github.com/hashicorp/terraform-provider-google/pull/10045))
+
 
 ## 3.84.0 (September 13, 2021)
 FEATURES:
