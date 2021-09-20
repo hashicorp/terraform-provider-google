@@ -31,6 +31,15 @@ var AssuredWorkloadsEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
+var CloudResourceManagerEndpointEntryKey = "cloud_resource_manager_custom_endpoint"
+var CloudResourceManagerEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_CLOUD_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
+	}, ""),
+}
+
 var ComputeEndpointEntryKey = "compute_custom_endpoint"
 var ComputeEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -49,6 +58,15 @@ var EventarcEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
+var OrgPolicyEndpointEntryKey = "org_policy_custom_endpoint"
+var OrgPolicyEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_ORG_POLICY_CUSTOM_ENDPOINT",
+	}, ""),
+}
+
 var PrivatecaEndpointEntryKey = "privateca_custom_endpoint"
 var PrivatecaEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -60,18 +78,24 @@ var PrivatecaEndpointEntry = &schema.Schema{
 
 //Add new values to config.go.erb config object declaration
 //AssuredWorkloadsBasePath string
+//CloudResourceManagerBasePath string
 //ComputeBasePath string
 //EventarcBasePath string
+//OrgPolicyBasePath string
 //PrivatecaBasePath string
 
 //Add new values to provider.go.erb schema initialization
 // AssuredWorkloadsEndpointEntryKey:               AssuredWorkloadsEndpointEntry,
+// CloudResourceManagerEndpointEntryKey:               CloudResourceManagerEndpointEntry,
 // ComputeEndpointEntryKey:               ComputeEndpointEntry,
 // EventarcEndpointEntryKey:               EventarcEndpointEntry,
+// OrgPolicyEndpointEntryKey:               OrgPolicyEndpointEntry,
 // PrivatecaEndpointEntryKey:               PrivatecaEndpointEntry,
 
 //Add new values to provider.go.erb - provider block read
 // config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
+// config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
 // config.ComputeBasePath = d.Get(ComputeEndpointEntryKey).(string)
 // config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
+// config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
 // config.PrivatecaBasePath = d.Get(PrivatecaEndpointEntryKey).(string)

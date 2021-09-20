@@ -122,7 +122,7 @@ func resourceComputeFirewallPolicyCreate(d *schema.ResourceData, meta interface{
 
 	id, err := replaceVars(d, config, "locations/global/firewallPolicies/{{name}}")
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmt.Errorf("error constructing id: %s", err)
 	}
 	d.SetId(id)
 	createDirective := CreateDirective
