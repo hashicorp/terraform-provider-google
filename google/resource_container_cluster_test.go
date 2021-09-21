@@ -1420,7 +1420,51 @@ func TestAccContainerCluster_withWorkloadIdentityConfig(t *testing.T) {
 			},
 		},
 	})
+}
 
+func TestAccContainerCluster_withLoggingConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_basic(clusterName),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withLoggingConfigEnabled(clusterName),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withLoggingConfigUpdated(clusterName),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_basic(clusterName),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
@@ -3496,4 +3540,36 @@ resource "google_container_cluster" "with_invalid_location" {
   enable_autopilot	 = true
 }
 `, clusterName, location)
+}
+
+func testAccContainerCluster_withLoggingConfigEnabled(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  logging_config {
+	  enable_components = [ "SYSTEM_COMPONENTS" ]
+  }
+  monitoring_config {
+      enable_components = [ "SYSTEM_COMPONENTS" ]
+  }
+}
+`, name)
+}
+
+func testAccContainerCluster_withLoggingConfigUpdated(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  logging_config {
+	  enable_components = [ "SYSTEM_COMPONENTS", "WORKLOADS" ]
+  }
+  monitoring_config {
+	  enable_components = [ "SYSTEM_COMPONENTS" ]
+  }
+}
+`, name)
 }
