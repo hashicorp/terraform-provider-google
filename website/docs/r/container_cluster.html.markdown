@@ -180,6 +180,9 @@ below.
 Options are `VPC_NATIVE` or `ROUTES`. `VPC_NATIVE` enables [IP aliasing](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases),
 and requires the `ip_allocation_policy` block to be defined. By default when this field is unspecified, GKE will create a `ROUTES`-based cluster.
 
+* `logging_config` - (Optional) Logging configuration for the cluster.
+    Structure is documented below.
+
 * `logging_service` - (Optional) The logging service that the cluster should
     write logs to. Available options include `logging.googleapis.com`(Legacy Stackdriver),
     `logging.googleapis.com/kubernetes`(Stackdriver Kubernetes Engine Logging), and `none`. Defaults to `logging.googleapis.com/kubernetes`
@@ -212,6 +215,9 @@ Structure is documented below. This has been deprecated as of GKE 1.19.
 -> If you are using the `google_container_engine_versions` datasource with a regional cluster, ensure that you have provided a `location`
 to the datasource. A region can have a different set of supported versions than its corresponding zones, and not all zones in a
 region are guaranteed to support the same version.
+
+* `monitoring_config` - (Optional) Monitoring configuration for the cluster.
+    Structure is documented below.
 
 * `monitoring_service` - (Optional) The monitoring service that the cluster
     should write metrics to.
@@ -452,6 +458,16 @@ as "Intel Haswell" or "Intel Sandy Bridge".
 The `authenticator_groups_config` block supports:
 
 * `security_group` - (Required) The name of the RBAC security group for use with Google security groups in Kubernetes RBAC. Group name must be in format `gke-security-groups@yourdomain.com`.
+
+The `logging_config` block supports:
+
+*  `enable_components` - (Required) The GKE components exposing logs. Supported values include:
+`SYSTEM_COMPONENTS` and `WORKLOADS`.
+
+The `monitoring_config` block supports:
+
+*  `enable_components` - (Required) The GKE components exposing logs. Only `SYSTEM_COMPONENTS`
+is supported.
 
 The `maintenance_policy` block supports:
 * `daily_maintenance_window` - (Optional) structure documented below.

@@ -411,6 +411,27 @@ func resourceContainerCluster() *schema.Resource {
 				Description: `The number of nodes to create in this cluster's default node pool. In regional or multi-zonal clusters, this is the number of nodes per zone. Must be set if node_pool is not set. If you're using google_container_node_pool objects with no default node pool, you'll need to set this to a value of at least 1, alongside setting remove_default_node_pool to true.`,
 			},
 
+			"logging_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `Logging configuration for the cluster.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_components": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `GKE components exposing logs. Valid values include SYSTEM_COMPONENTS and WORKLOADS.`,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.StringInSlice([]string{"SYSTEM_COMPONENTS", "WORKLOADS"}, false),
+							},
+						},
+					},
+				},
+			},
+
 			"logging_service": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -501,6 +522,27 @@ func resourceContainerCluster() *schema.Resource {
 										ValidateFunc: validateRFC3339Date,
 									},
 								},
+							},
+						},
+					},
+				},
+			},
+
+			"monitoring_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `Monitoring configuration for the cluster.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_components": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `GKE components exposing metrics. Valid values include SYSTEM_COMPONENTS.`,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.StringInSlice([]string{"SYSTEM_COMPONENTS"}, false),
 							},
 						},
 					},
@@ -1263,6 +1305,14 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.ResourceUsageExportConfig = expandResourceUsageExportConfig(v)
 	}
 
+	if v, ok := d.GetOk("logging_config"); ok {
+		cluster.LoggingConfig = expandContainerClusterLoggingConfig(v)
+	}
+
+	if v, ok := d.GetOk("monitoring_config"); ok {
+		cluster.MonitoringConfig = expandMonitoringConfig(v)
+	}
+
 	req := &containerBeta.CreateClusterRequest{
 		Cluster: cluster,
 	}
@@ -1576,6 +1626,14 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("resource_usage_export_config", flattenResourceUsageExportConfig(cluster.ResourceUsageExportConfig)); err != nil {
+		return err
+	}
+
+	if err := d.Set("logging_config", flattenContainerClusterLoggingConfig(cluster.LoggingConfig)); err != nil {
+		return err
+	}
+
+	if err := d.Set("monitoring_config", flattenMonitoringConfig(cluster.MonitoringConfig)); err != nil {
 		return err
 	}
 
@@ -2241,6 +2299,36 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s workload identity config has been updated", d.Id())
+	}
+
+	if d.HasChange("logging_config") {
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredLoggingConfig: expandContainerClusterLoggingConfig(d.Get("logging_config")),
+			},
+		}
+		updateF := updateFunc(req, "updating GKE cluster logging config")
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s logging config has been updated", d.Id())
+	}
+
+	if d.HasChange("monitoring_config") {
+		req := &containerBeta.UpdateClusterRequest{
+			Update: &containerBeta.ClusterUpdate{
+				DesiredMonitoringConfig: expandMonitoringConfig(d.Get("monitoring_config")),
+			},
+		}
+		updateF := updateFunc(req, "updating GKE cluster monitoring config")
+		// Call update serially.
+		if err := lockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s monitoring config has been updated", d.Id())
 	}
 
 	if d.HasChange("resource_labels") {
@@ -2936,6 +3024,34 @@ func expandResourceUsageExportConfig(configured interface{}) *containerBeta.Reso
 	return result
 }
 
+func expandContainerClusterLoggingConfig(configured interface{}) *containerBeta.LoggingConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	return &containerBeta.LoggingConfig{
+		ComponentConfig: &containerBeta.LoggingComponentConfig{
+			EnableComponents: convertStringArr(config["enable_components"].([]interface{})),
+		},
+	}
+}
+
+func expandMonitoringConfig(configured interface{}) *containerBeta.MonitoringConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	return &containerBeta.MonitoringConfig{
+		ComponentConfig: &containerBeta.MonitoringComponentConfig{
+			EnableComponents: config["enable_components"].([]string),
+		},
+	}
+}
+
 func flattenNetworkPolicy(c *containerBeta.NetworkPolicy) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
@@ -3272,6 +3388,30 @@ func flattenDatabaseEncryption(c *containerBeta.DatabaseEncryption) []map[string
 		{
 			"state":    c.State,
 			"key_name": c.KeyName,
+		},
+	}
+}
+
+func flattenContainerClusterLoggingConfig(c *containerBeta.LoggingConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"enable_components": c.ComponentConfig.EnableComponents,
+		},
+	}
+}
+
+func flattenMonitoringConfig(c *containerBeta.MonitoringConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"enable_components": c.ComponentConfig.EnableComponents,
 		},
 	}
 }
