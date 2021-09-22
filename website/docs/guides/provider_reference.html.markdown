@@ -85,6 +85,14 @@ If you are running terraform outside of Google Cloud, generate an external crede
 
 Terraform can impersonate a Google Service Account as described [here](https://cloud.google.com/iam/docs/creating-short-lived-service-account-credentials). A valid credential must be provided as mentioned in the earlier section and that identity must have the `roles/iam.serviceAccountTokenCreator` role on the service account you are impersonating.
 
+### Using Terraform Cloud as the Backend
+Place your credentials in a Terraform Cloud [environment variable](https://www.terraform.io/docs/cloud/workspaces/variables.html):
+1. Create an environment variable called `GOOGLE_CREDENTIALS` in your Terraform Cloud workspace.
+2. Remove the newline characters from your JSON key file and then paste the credentials into the environment variable value field.
+3. Mark the variable as **Sensitive** and click **Save variable**.
+
+All runs within the workspace will use the `GOOGLE_CREDENTIALS` variable to authenticate with Google Cloud Platform.
+
 ## Configuration Reference
 
 The following attributes can be used to configure the provider. The quick
