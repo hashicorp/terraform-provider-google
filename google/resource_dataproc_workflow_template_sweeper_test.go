@@ -30,8 +30,10 @@ func init() {
 		F:    testSweepDataprocWorkflow_template,
 	})
 }
+
 func testSweepDataprocWorkflow_template(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for DataprocWorkflow_template")
+	resourceName := "DataprocWorkflow_template"
+	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {

@@ -1206,8 +1206,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_firewall_policy_rule":        resourceComputeFirewallPolicyRule(),
 			"google_dataproc_workflow_template":          resourceDataprocWorkflowTemplate(),
 			"google_eventarc_trigger":                    resourceEventarcTrigger(),
-			"google_monitoring_metrics_scope":            resourceMonitoringMetricsScope(),
-			"google_monitoring_monitored_project":        resourceMonitoringMonitoredProject(),
 			"google_org_policy_policy":                   resourceOrgPolicyPolicy(),
 			"google_privateca_certificate_template":      resourcePrivatecaCertificateTemplate(),
 		},

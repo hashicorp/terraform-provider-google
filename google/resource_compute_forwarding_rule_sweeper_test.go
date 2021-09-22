@@ -30,8 +30,10 @@ func init() {
 		F:    testSweepComputeForwarding_rule,
 	})
 }
+
 func testSweepComputeForwarding_rule(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ComputeForwarding_rule")
+	resourceName := "ComputeForwarding_rule"
+	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {

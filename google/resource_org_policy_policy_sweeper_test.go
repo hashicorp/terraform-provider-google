@@ -30,8 +30,10 @@ func init() {
 		F:    testSweepOrgPolicyPolicy,
 	})
 }
+
 func testSweepOrgPolicyPolicy(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for OrgPolicyPolicy")
+	resourceName := "OrgPolicyPolicy"
+	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {

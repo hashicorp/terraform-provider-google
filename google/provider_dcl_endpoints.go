@@ -58,15 +58,6 @@ var EventarcEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
-var MonitoringEndpointEntryKey = "monitoring_custom_endpoint"
-var MonitoringEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_MONITORING_CUSTOM_ENDPOINT",
-	}, ""),
-}
-
 var OrgPolicyEndpointEntryKey = "org_policy_custom_endpoint"
 var OrgPolicyEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -90,7 +81,6 @@ var PrivatecaEndpointEntry = &schema.Schema{
 //CloudResourceManagerBasePath string
 //ComputeBasePath string
 //EventarcBasePath string
-//MonitoringBasePath string
 //OrgPolicyBasePath string
 //PrivatecaBasePath string
 
@@ -99,7 +89,6 @@ var PrivatecaEndpointEntry = &schema.Schema{
 // CloudResourceManagerEndpointEntryKey:               CloudResourceManagerEndpointEntry,
 // ComputeEndpointEntryKey:               ComputeEndpointEntry,
 // EventarcEndpointEntryKey:               EventarcEndpointEntry,
-// MonitoringEndpointEntryKey:               MonitoringEndpointEntry,
 // OrgPolicyEndpointEntryKey:               OrgPolicyEndpointEntry,
 // PrivatecaEndpointEntryKey:               PrivatecaEndpointEntry,
 
@@ -108,6 +97,5 @@ var PrivatecaEndpointEntry = &schema.Schema{
 // config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
 // config.ComputeBasePath = d.Get(ComputeEndpointEntryKey).(string)
 // config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
-// config.MonitoringBasePath = d.Get(MonitoringEndpointEntryKey).(string)
 // config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
 // config.PrivatecaBasePath = d.Get(PrivatecaEndpointEntryKey).(string)

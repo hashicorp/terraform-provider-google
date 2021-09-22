@@ -30,8 +30,10 @@ func init() {
 		F:    testSweepPrivatecaCertificate_template,
 	})
 }
+
 func testSweepPrivatecaCertificate_template(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for PrivatecaCertificate_template")
+	resourceName := "PrivatecaCertificate_template"
+	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
