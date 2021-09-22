@@ -23,6 +23,7 @@ import (
 	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
 	dataproc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataproc"
 	eventarc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
+	monitoring "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/monitoring"
 	orgpolicy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/orgpolicy"
 	privateca "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/privateca"
 )
@@ -120,6 +121,25 @@ func NewDCLEventarcClient(config *Config, userAgent, billingProject string) *eve
 
 	dclConfig := dcl.NewConfig(configOptions...)
 	return eventarc.NewClient(dclConfig)
+}
+
+func NewDCLMonitoringClient(config *Config, userAgent, billingProject string) *monitoring.Client {
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.MonitoringBasePath),
+	}
+
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
+	return monitoring.NewClient(dclConfig)
 }
 
 func NewDCLOrgPolicyClient(config *Config, userAgent, billingProject string) *orgpolicy.Client {
