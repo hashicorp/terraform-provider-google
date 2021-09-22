@@ -360,9 +360,14 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		default:
 			// leaving default case to ensure this is non blocking
 		}
-		// The resource didn't actually create
-		d.SetId("")
-		return waitErr
+		// Check if resource was created but apply timed out.
+		// Common cause for that is GCE_STOCKOUT which will wait for resources and return error after timeout,
+		// but in fact nodepool will be created so we have to capture that in state.
+		_, err = clusterNodePoolsGetCall.Do()
+		if err != nil {
+			d.SetId("")
+			return waitErr
+		}
 	}
 
 	log.Printf("[INFO] GKE NodePool %s has been created", nodePool.Name)
