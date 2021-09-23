@@ -136,7 +136,7 @@ resource "google_storage_bucket" "dest" {
 }
 
 resource "google_network_services_edge_cache_origin" "google" {
-  name                 = "google%{random_suffix}"
+  name                 = "tf-test-origin-google%{random_suffix}"
   origin_address       = "google.com"
   description          = "The default bucket for media edge test"
   max_attempts         = 2
