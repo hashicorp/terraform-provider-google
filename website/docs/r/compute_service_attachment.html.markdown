@@ -57,7 +57,6 @@ resource "google_compute_address" "psc_ilb_consumer_address" {
 
   subnetwork   = "default"
   address_type = "INTERNAL"
-  address      = "10.168.0.17"
 }
 
 resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
