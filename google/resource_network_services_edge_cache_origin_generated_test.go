@@ -51,7 +51,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicEx
 func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_network_services_edge_cache_origin" "default" {
-  name                 = "default%{random_suffix}"
+  name                 = "tf-test-my-origin%{random_suffix}"
   origin_address       = "gs://media-edge-default"
   description          = "The default bucket for media edge test"
 }
@@ -87,7 +87,7 @@ func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvance
 	return Nprintf(`
 
 resource "google_network_services_edge_cache_origin" "fallback" {
-  name                 = "fallback%{random_suffix}"
+  name                 = "tf-test-my-fallback%{random_suffix}"
   origin_address       = "gs://media-edge-fallback"
   description          = "The default bucket for media edge test"
   max_attempts         = 3
@@ -107,7 +107,7 @@ resource "google_network_services_edge_cache_origin" "fallback" {
 }
 
 resource "google_network_services_edge_cache_origin" "default" {
-  name                 = "default%{random_suffix}"
+  name                 = "tf-test-my-origin%{random_suffix}"
   origin_address       = "gs://media-edge-default"
   failover_origin      = google_network_services_edge_cache_origin.fallback.id
   description          = "The default bucket for media edge test"
