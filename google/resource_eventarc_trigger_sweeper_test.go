@@ -30,8 +30,10 @@ func init() {
 		F:    testSweepEventarcTrigger,
 	})
 }
+
 func testSweepEventarcTrigger(region string) error {
-	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for EventarcTrigger")
+	resourceName := "EventarcTrigger"
+	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
