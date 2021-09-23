@@ -277,6 +277,59 @@ resource "google_compute_subnetwork" "default" {
 `, context)
 }
 
+func TestAccComputeRegionBackendService_regionBackendServiceConnectionTrackingExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_regionBackendServiceConnectionTrackingExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionBackendService_regionBackendServiceConnectionTrackingExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_region_backend_service" "default" {
+  name                            = "tf-test-region-service%{random_suffix}"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_region_health_check.health_check.id]
+  connection_draining_timeout_sec = 10
+  session_affinity                = "CLIENT_IP"
+  protocol                        = "TCP"
+  load_balancing_scheme           = "EXTERNAL"
+  connection_tracking_policy {
+    tracking_mode                                = "PER_SESSION"
+    connection_persistence_on_unhealthy_backends = "NEVER_PERSIST"
+    idle_timeout_sec                             = 60
+  }
+}
+
+resource "google_compute_region_health_check" "health_check" {
+  name               = "tf-test-rbs-health-check%{random_suffix}"
+  region             = "us-central1"
+
+  tcp_health_check {
+    port = 22
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeRegionBackendServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -279,6 +279,39 @@ resource "google_compute_subnetwork" "default" {
   network       = google_compute_network.default.id
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_backend_service_connection_tracking&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Backend Service Connection Tracking
+
+
+```hcl
+resource "google_compute_region_backend_service" "default" {
+  name                            = "region-service"
+  region                          = "us-central1"
+  health_checks                   = [google_compute_region_health_check.health_check.id]
+  connection_draining_timeout_sec = 10
+  session_affinity                = "CLIENT_IP"
+  protocol                        = "TCP"
+  load_balancing_scheme           = "EXTERNAL"
+  connection_tracking_policy {
+    tracking_mode                                = "PER_SESSION"
+    connection_persistence_on_unhealthy_backends = "NEVER_PERSIST"
+    idle_timeout_sec                             = 60
+  }
+}
+
+resource "google_compute_region_health_check" "health_check" {
+  name               = "rbs-health-check"
+  region             = "us-central1"
+
+  tcp_health_check {
+    port = 22
+  }
+}
+```
 
 ## Argument Reference
 
@@ -431,7 +464,14 @@ The following arguments are supported:
   (Optional)
   Type of session affinity to use. The default is NONE. Session affinity is
   not applicable if the protocol is UDP.
-  Possible values are `NONE`, `CLIENT_IP`, `CLIENT_IP_PORT_PROTO`, `CLIENT_IP_PROTO`, `GENERATED_COOKIE`, `HEADER_FIELD`, and `HTTP_COOKIE`.
+  Possible values are `NONE`, `CLIENT_IP`, `CLIENT_IP_PORT_PROTO`, `CLIENT_IP_PROTO`, `GENERATED_COOKIE`, `HEADER_FIELD`, `HTTP_COOKIE`, and `CLIENT_IP_NO_DESTINATION`.
+
+* `connection_tracking_policy` -
+  (Optional)
+  Connection Tracking configuration for this BackendService.
+  This is available only for Layer 4 Internal Load Balancing and
+  Network Load Balancing.
+  Structure is [documented below](#nested_connection_tracking_policy).
 
 * `timeout_sec` -
   (Optional)
@@ -916,6 +956,43 @@ The following arguments are supported:
   Span of time that's a fraction of a second at nanosecond resolution. Durations
   less than one second are represented with a 0 `seconds` field and a positive
   `nanos` field. Must be from 0 to 999,999,999 inclusive.
+
+<a name="nested_connection_tracking_policy"></a>The `connection_tracking_policy` block supports:
+
+* `idle_timeout_sec` -
+  (Optional)
+  Specifies how long to keep a Connection Tracking entry while there is
+  no matching traffic (in seconds). 
+  For L4 ILB the minimum(default) is 10 minutes and maximum is 16 hours.
+  For NLB the minimum(default) is 60 seconds and the maximum is 16 hours.
+
+* `tracking_mode` -
+  (Optional)
+  Specifies the key used for connection tracking. There are two options:
+  `PER_CONNECTION`: The Connection Tracking is performed as per the
+  Connection Key (default Hash Method) for the specific protocol.
+  `PER_SESSION`: The Connection Tracking is performed as per the
+  configured Session Affinity. It matches the configured Session Affinity.
+  Default value is `PER_CONNECTION`.
+  Possible values are `PER_CONNECTION` and `PER_SESSION`.
+
+* `connection_persistence_on_unhealthy_backends` -
+  (Optional)
+  Specifies connection persistence when backends are unhealthy.
+  If set to `DEFAULT_FOR_PROTOCOL`, the existing connections persist on
+  unhealthy backends only for connection-oriented protocols (TCP and SCTP)
+  and only if the Tracking Mode is PER_CONNECTION (default tracking mode)
+  or the Session Affinity is configured for 5-tuple. They do not persist
+  for UDP.
+  If set to `NEVER_PERSIST`, after a backend becomes unhealthy, the existing
+  connections on the unhealthy backend are never persisted on the unhealthy
+  backend. They are always diverted to newly selected healthy backends
+  (unless all backends are unhealthy).
+  If set to `ALWAYS_PERSIST`, existing connections always persist on
+  unhealthy backends regardless of protocol and session affinity. It is
+  generally not recommended to use this mode overriding the default.
+  Default value is `DEFAULT_FOR_PROTOCOL`.
+  Possible values are `DEFAULT_FOR_PROTOCOL`, `NEVER_PERSIST`, and `ALWAYS_PERSIST`.
 
 <a name="nested_log_config"></a>The `log_config` block supports:
 
