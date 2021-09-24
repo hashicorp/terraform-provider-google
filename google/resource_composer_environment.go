@@ -42,6 +42,7 @@ var (
 		"config.0.software_config.0.env_variables",
 		"config.0.software_config.0.image_version",
 		"config.0.software_config.0.python_version",
+		"config.0.software_config.0.scheduler_count",
 	}
 
 	composerConfigKeys = []string{
@@ -283,6 +284,13 @@ func resourceComposerEnvironment() *schema.Resource {
 										Computed:     true,
 										ForceNew:     true,
 										Description:  `The major version of Python used to run the Apache Airflow scheduler, worker, and webserver processes. Can be set to '2' or '3'. If not specified, the default is '2'. Cannot be updated.`,
+									},
+									"scheduler_count": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										AtLeastOneOf: composerSoftwareConfigKeys,
+										Computed:     true,
+										Description:  `The number of schedulers for Airflow. This field is supported for Cloud Composer environments in versions composer-1.*.*-airflow-2.*.*.`,
 									},
 								},
 							},
@@ -788,6 +796,7 @@ func flattenComposerEnvironmentConfigSoftwareConfig(softwareCfg *composer.Softwa
 	transformed["airflow_config_overrides"] = softwareCfg.AirflowConfigOverrides
 	transformed["pypi_packages"] = softwareCfg.PypiPackages
 	transformed["env_variables"] = softwareCfg.EnvVariables
+	transformed["scheduler_count"] = softwareCfg.SchedulerCount
 	return []interface{}{transformed}
 }
 
@@ -1070,6 +1079,7 @@ func expandComposerEnvironmentConfigSoftwareConfig(v interface{}, d *schema.Reso
 	transformed.AirflowConfigOverrides = expandComposerEnvironmentConfigSoftwareConfigStringMap(original, "airflow_config_overrides")
 	transformed.PypiPackages = expandComposerEnvironmentConfigSoftwareConfigStringMap(original, "pypi_packages")
 	transformed.EnvVariables = expandComposerEnvironmentConfigSoftwareConfigStringMap(original, "env_variables")
+	transformed.SchedulerCount = int64(original["scheduler_count"].(int))
 	return transformed, nil
 }
 
