@@ -1,4 +1,5 @@
 module github.com/hashicorp/terraform-provider-google
+
 require (
 	cloud.google.com/go/bigtable v1.10.1
 	github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210923224644-6d2562f679ca
@@ -23,7 +24,7 @@ require (
 	golang.org/x/net v0.0.0-20210503060351-7fd8e65b6420
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
 	golang.org/x/sys v0.0.0-20210915083310-ed5796bab164 // indirect
-	google.golang.org/api v0.56.0
+	google.golang.org/api v0.57.0
 	google.golang.org/grpc v1.40.0
 )
 
