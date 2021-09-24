@@ -124,6 +124,43 @@ resource "google_cloudbuild_trigger" "build-trigger" {
   }  
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_service_account&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Service Account
+
+
+```hcl
+resource "google_cloudbuild_trigger" "service-account-trigger" {
+  trigger_template {
+    branch_name = "master"
+    repo_name   = "my-repo"
+  }
+
+  service_account = google_service_account.cloudbuild_service_account.id
+  filename        = "cloudbuild.yaml"
+  depends_on = [
+    google_project_iam_member.act_as,
+    google_project_iam_member.logs_writer
+  ]
+}
+
+resource "google_service_account" "cloudbuild_service_account" {
+  account_id = "my-service-account"
+}
+
+resource "google_project_iam_member" "act_as" {
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+
+resource "google_project_iam_member" "logs_writer" {
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+```
 
 ## Argument Reference
 
@@ -153,6 +190,14 @@ The following arguments are supported:
 * `substitutions` -
   (Optional)
   Substitutions data for Build resource.
+
+* `service_account` -
+  (Optional)
+  The service account used for all user-controlled operations including
+  triggers.patch, triggers.run, builds.create, and builds.cancel.
+  If no service account is set, then the standard Cloud Build service account
+  ([PROJECT_NUM]@system.gserviceaccount.com) will be used instead.
+  Format: projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT_ID_OR_EMAIL}
 
 * `filename` -
   (Optional)

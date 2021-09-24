@@ -152,6 +152,62 @@ resource "google_cloudbuild_trigger" "build-trigger" {
 `, context)
 }
 
+func TestAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample(context),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.service-account-trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_cloudbuild_trigger" "service-account-trigger" {
+  trigger_template {
+    branch_name = "master"
+    repo_name   = "my-repo"
+  }
+
+  service_account = google_service_account.cloudbuild_service_account.id
+  filename        = "cloudbuild.yaml"
+  depends_on = [
+    google_project_iam_member.act_as,
+    google_project_iam_member.logs_writer
+  ]
+}
+
+resource "google_service_account" "cloudbuild_service_account" {
+  account_id = "my-service-account"
+}
+
+resource "google_project_iam_member" "act_as" {
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+
+resource "google_project_iam_member" "logs_writer" {
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+`, context)
+}
+
 func testAccCheckCloudBuildTriggerDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
