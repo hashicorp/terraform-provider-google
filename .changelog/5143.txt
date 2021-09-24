@@ -1,0 +1,3 @@
+```release-note:enhancement
+kms: added support for `import_only` to `google_kms_crypto_key`
+```

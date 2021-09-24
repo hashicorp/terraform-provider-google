@@ -130,6 +130,10 @@ The following arguments are supported:
   The period of time that versions of this key spend in the DESTROY_SCHEDULED state before transitioning to DESTROYED.
   If not specified at creation time, the default duration is 24 hours.
 
+* `import_only` -
+  (Optional)
+  Whether this key may contain imported versions only.
+
 * `skip_initial_version_creation` -
   (Optional)
   If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 
