@@ -239,6 +239,38 @@ func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
 	})
 }
 
+func TestAccComposerEnvironmentAirflow2_withSoftwareConfig(t *testing.T) {
+	t.Parallel()
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, randInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, randInt(t))
+	subnetwork := network + "-1"
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironment_airflow2SoftwareCfg(envName, network, subnetwork),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO(emilyye): Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_airflow2SoftwareCfg(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
+			},
+		},
+	})
+}
+
 // Checks behavior of config for creation for attributes that must
 // be updated during create.
 func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
@@ -374,6 +406,16 @@ resource "google_compute_subnetwork" "test" {
 
 func testAccComposerEnvironment_update(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
+data "google_composer_image_versions" "all" {
+}
+
+locals {
+	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,  
+	airflow_version = "1"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
+	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
+	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
+}
+
 resource "google_composer_environment" "test" {
 	name   = "%s"
 	region = "us-central1"
@@ -387,7 +429,7 @@ resource "google_composer_environment" "test" {
 		}
 
 		software_config {
-			image_version = "composer-1.16.14-airflow-1.10.15"
+			image_version = local.matching_images[0]
 
 			airflow_config_overrides = {
 				core-load_example = "True"
@@ -472,6 +514,16 @@ resource "google_project_iam_member" "composer-worker" {
 
 func testAccComposerEnvironment_softwareCfg(name, network, subnetwork string) string {
 	return fmt.Sprintf(`
+data "google_composer_image_versions" "all" {
+}
+
+locals {
+	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,  
+	airflow_version = "1"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
+	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
+	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
+}
+
 resource "google_composer_environment" "test" {
 	name   = "%s"
 	region = "us-central1"
@@ -482,7 +534,7 @@ resource "google_composer_environment" "test" {
 			zone       = "us-central1-a"
 		}
 		software_config {
-			image_version  = "composer-1.16.14-airflow-1.10.15"
+			image_version  = local.matching_images[0]
 			python_version = "3"
 		}
 	}
@@ -519,6 +571,51 @@ resource "google_composer_environment" "test" {
 			pypi_packages = {
 				numpy = ""
 			}
+		}
+	}
+}
+
+// use a separate network to avoid conflicts with other tests running in parallel
+// that use the default network/subnet
+resource "google_compute_network" "test" {
+	name                    = "%s"
+	auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+	name          = "%s"
+	ip_cidr_range = "10.2.0.0/16"
+	region        = "us-central1"
+	network       = google_compute_network.test.self_link
+}
+`, name, network, subnetwork)
+}
+
+func testAccComposerEnvironment_airflow2SoftwareCfg(name, network, subnetwork string) string {
+	return fmt.Sprintf(`
+data "google_composer_image_versions" "all" {
+}
+
+locals {
+	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,  
+	airflow_version = "2"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
+	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
+	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
+}
+
+
+resource "google_composer_environment" "test" {
+	name   = "%s"
+	region = "us-central1"
+	config {
+		node_config {
+			network    = google_compute_network.test.self_link
+			subnetwork = google_compute_subnetwork.test.self_link
+			zone       = "us-central1-a"
+		}
+		software_config {
+			image_version  = local.matching_images[0]
+			scheduler_count = 2
 		}
 	}
 }
