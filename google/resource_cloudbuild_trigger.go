@@ -801,6 +801,17 @@ Only populated on get requests.`,
 				},
 				ExactlyOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config"},
 			},
+			"service_account": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The service account used for all user-controlled operations including
+triggers.patch, triggers.run, builds.create, and builds.cancel.
+
+If no service account is set, then the standard Cloud Build service account
+([PROJECT_NUM]@system.gserviceaccount.com) will be used instead.
+
+Format: projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT_ID_OR_EMAIL}`,
+			},
 			"substitutions": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -963,6 +974,12 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("substitutions"); !isEmptyValue(reflect.ValueOf(substitutionsProp)) && (ok || !reflect.DeepEqual(v, substitutionsProp)) {
 		obj["substitutions"] = substitutionsProp
 	}
+	serviceAccountProp, err := expandCloudBuildTriggerServiceAccount(d.Get("service_account"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_account"); !isEmptyValue(reflect.ValueOf(serviceAccountProp)) && (ok || !reflect.DeepEqual(v, serviceAccountProp)) {
+		obj["serviceAccount"] = serviceAccountProp
+	}
 	filenameProp, err := expandCloudBuildTriggerFilename(d.Get("filename"), d, config)
 	if err != nil {
 		return err
@@ -1120,6 +1137,9 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("substitutions", flattenCloudBuildTriggerSubstitutions(res["substitutions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
+	if err := d.Set("service_account", flattenCloudBuildTriggerServiceAccount(res["serviceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Trigger: %s", err)
+	}
 	if err := d.Set("filename", flattenCloudBuildTriggerFilename(res["filename"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Trigger: %s", err)
 	}
@@ -1193,6 +1213,12 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("substitutions"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, substitutionsProp)) {
 		obj["substitutions"] = substitutionsProp
+	}
+	serviceAccountProp, err := expandCloudBuildTriggerServiceAccount(d.Get("service_account"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_account"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceAccountProp)) {
+		obj["serviceAccount"] = serviceAccountProp
 	}
 	filenameProp, err := expandCloudBuildTriggerFilename(d.Get("filename"), d, config)
 	if err != nil {
@@ -1349,6 +1375,10 @@ func flattenCloudBuildTriggerCreateTime(v interface{}, d *schema.ResourceData, c
 }
 
 func flattenCloudBuildTriggerSubstitutions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2053,6 +2083,10 @@ func expandCloudBuildTriggerSubstitutions(v interface{}, d TerraformResourceData
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandCloudBuildTriggerServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCloudBuildTriggerFilename(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
