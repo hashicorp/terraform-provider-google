@@ -1411,3 +1411,5 @@ github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-202109
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210918014849-ef8e2b337288/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210923164710-b8734d273ffb h1:by1flCMHI4mpQYSUN5RIGUVv8FhVS+vgpzOqP/jgIVY=
 github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210923164710-b8734d273ffb/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210923224644-6d2562f679ca h1:mFy2An6ybqX6BTi0J2l2/sdqVF6EJW5AmqSeXC0L0sc=
+github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210923224644-6d2562f679ca/go.mod h1:oEeBHikdF/NrnUy0ornVaY1OT+jGvTqm+LQS0+ZDKzU=
