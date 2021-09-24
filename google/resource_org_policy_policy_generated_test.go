@@ -168,8 +168,9 @@ resource "google_org_policy_policy" "primary" {
 }
 
 resource "google_project" "basic" {
-  name   = "tf-test-id-test%{random_suffix}"
-  parent = "organizations/%{org_id}"
+  project_id = "tf-test-id-test%{random_suffix}"
+  name       = "tf-test-id-test%{random_suffix}"
+  org_id     = "%{org_id}"
 }
 
 
@@ -299,8 +300,9 @@ resource "google_org_policy_policy" "primary" {
 }
 
 resource "google_project" "basic" {
-  name   = "tf-test-id-test%{random_suffix}"
-  parent = "organizations/%{org_id}"
+  project_id = "tf-test-id-test%{random_suffix}"
+  name       = "tf-test-id-test%{random_suffix}"
+  org_id     = "%{org_id}"
 }
 
 
@@ -335,8 +337,9 @@ resource "google_org_policy_policy" "primary" {
 }
 
 resource "google_project" "basic" {
-  name   = "tf-test-id-test%{random_suffix}"
-  parent = "organizations/%{org_id}"
+  project_id = "tf-test-id-test%{random_suffix}"
+  name       = "tf-test-id-test%{random_suffix}"
+  org_id     = "%{org_id}"
 }
 
 
