@@ -32,8 +32,7 @@ func init() {
 }
 
 func testSweepComputeGlobal_forwarding_rule(region string) error {
-	resourceName := "ComputeGlobal_forwarding_rule"
-	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
+	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ComputeGlobal_forwarding_rule")
 
 	config, err := sharedConfigForRegion(region)
 	if err != nil {
