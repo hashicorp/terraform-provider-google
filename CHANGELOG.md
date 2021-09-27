@@ -1,4 +1,14 @@
-## 3.86.0 (Unreleased)
+## 3.87.0 (Unreleased)
+
+## 3.86.0 (September 27, 2021)
+
+IMPROVEMENTS:
+* healthcare: promoted `google_healthcare_hl7_v2_store.parseConfig.version` to GA ([#10099](https://github.com/hashicorp/terraform-provider-google/pull/10099))
+
+BUG FIXES:
+* dns: fixed an issue in `google_dns_record_set` where `rrdatas` could not be updated ([#10089](https://github.com/hashicorp/terraform-provider-google/pull/10089))
+* dns: fixed an issue in `google_dns_record_set` where creating the resource would result in an 409 error ([#10089](https://github.com/hashicorp/terraform-provider-google/pull/10089))
+* platform: fixed a bug in wrongly writing to state when creation failed on `google_organization_policy` ([#10082](https://github.com/hashicorp/terraform-provider-google/pull/10082))
 
 ## 3.85.0 (September 20, 2021)
 IMPROVEMENTS:
