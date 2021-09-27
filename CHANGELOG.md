@@ -1,4 +1,4 @@
-## 3.86.0 (Unreleased)
+## 3.86.0 (September 27, 2021)
 
 IMPROVEMENTS:
 * healthcare: promoted `google_healthcare_hl7_v2_store.parseConfig.version` to GA ([#10099](https://github.com/hashicorp/terraform-provider-google/pull/10099))
