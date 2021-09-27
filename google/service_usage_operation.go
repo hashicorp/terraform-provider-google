@@ -16,13 +16,18 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"strings"
 	"time"
+
+	"google.golang.org/api/googleapi"
 )
 
 type ServiceUsageOperationWaiter struct {
-	Config    *Config
-	UserAgent string
-	Project   string
+	Config     *Config
+	UserAgent  string
+	Project    string
+	retryCount int
 	CommonOperationWaiter
 }
 
@@ -34,6 +39,20 @@ func (w *ServiceUsageOperationWaiter) QueryOp() (interface{}, error) {
 	url := fmt.Sprintf("https://serviceusage.googleapis.com/v1/%s", w.CommonOperationWaiter.Op.Name)
 
 	return sendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+}
+
+func (w *ServiceUsageOperationWaiter) IsRetryable(err error) bool {
+	// Retries errors on 403 3 times if the error message
+	// returned contains `has not been used in project`
+	maxRetries := 3
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 403 {
+		if w.retryCount < maxRetries && strings.Contains(gerr.Body, "has not been used in project") {
+			w.retryCount += 1
+			log.Printf("[DEBUG] retrying on 403 %v more times", w.retryCount-maxRetries-1)
+			return true
+		}
+	}
+	return false
 }
 
 func createServiceUsageWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*ServiceUsageOperationWaiter, error) {
