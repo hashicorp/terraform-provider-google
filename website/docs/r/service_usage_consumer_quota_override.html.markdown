@@ -50,8 +50,8 @@ resource "google_service_usage_consumer_quota_override" "override" {
   provider       = google-beta
   project        = google_project.my_project.project_id
   service        = "servicemanagement.googleapis.com"
-  metric         = "servicemanagement.googleapis.com%2Fdefault_requests"
-  limit          = "%2Fmin%2Fproject"
+  metric         = urlencode("servicemanagement.googleapis.com/default_requests")
+  limit          = urlencode("/min/project")
   override_value = "95"
   force          = true
 }
@@ -74,8 +74,8 @@ resource "google_service_usage_consumer_quota_override" "override" {
   }
   project        = google_project.my_project.project_id
   service        = "compute.googleapis.com"
-  metric         = "compute.googleapis.com%2Fn2_cpus"
-  limit          = "%2Fproject%2Fregion"
+  metric         = urlencode("compute.googleapis.com/n2_cpus")
+  limit          = urlencode("/project/region")
   override_value = "8"
   force          = true
 }
