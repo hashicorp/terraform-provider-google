@@ -341,8 +341,9 @@ Response headers are only sent to the client, and do not have an effect on the c
 													},
 												},
 												"origin": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:             schema.TypeString,
+													Optional:         true,
+													DiffSuppressFunc: compareSelfLinkOrResourceName,
 													Description: `The Origin resource that requests to this route should fetch from when a matching response is not in cache. Origins can be defined as short names ("my-origin") or fully-qualified resource URLs - e.g. "networkservices.googleapis.com/projects/my-project/global/edgecacheorigins/my-origin"
 
 Only one of origin or urlRedirect can be set.`,

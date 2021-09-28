@@ -68,8 +68,9 @@ If a Cloud Storage bucket is provided, it must be in the canonical "gs://bucketn
 				Description: `A human-readable description of the resource.`,
 			},
 			"failover_origin": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: compareResourceNames,
 				Description: `The Origin resource to try when the current origin cannot be reached.
 After maxAttempts is reached, the configured failoverOrigin will be used to fulfil the request.
 
