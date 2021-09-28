@@ -419,6 +419,58 @@ func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_resourcePolicyUpdate(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var scheduleName1 = fmt.Sprintf("tf-tests-%s", randString(t, 10))
+	var scheduleName2 = fmt.Sprintf("tf-tests-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_instanceSchedule(instanceName, scheduleName1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeResourcePolicy(&instance, "", 0),
+				),
+			},
+			// check adding
+			{
+				Config: testAccComputeInstance_addResourcePolicy(instanceName, scheduleName1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeResourcePolicy(&instance, scheduleName1, 1),
+				),
+			},
+			// check updating
+			{
+				Config: testAccComputeInstance_updateResourcePolicy(instanceName, scheduleName1, scheduleName2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeResourcePolicy(&instance, scheduleName2, 1),
+				),
+			},
+			// check removing
+			{
+				Config: testAccComputeInstance_removeResourcePolicy(instanceName, scheduleName1, scheduleName2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeResourcePolicy(&instance, "", 0),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_attachedDisk(t *testing.T) {
 	t.Parallel()
 
@@ -2413,6 +2465,21 @@ func testAccCheckComputeInstanceAccessConfigHasPTR(instance *compute.Instance) r
 	}
 }
 
+func testAccCheckComputeResourcePolicy(instance *compute.Instance, scheduleName string, resourcePolicyCountWant int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		resourcePoliciesCountHave := len(instance.ResourcePolicies)
+		if resourcePoliciesCountHave != resourcePolicyCountWant {
+			return fmt.Errorf("number of resource polices does not match: have: %d; want: %d", resourcePoliciesCountHave, resourcePolicyCountWant)
+		}
+
+		if resourcePoliciesCountHave == 1 && !strings.Contains(instance.ResourcePolicies[0], scheduleName) {
+			return fmt.Errorf("got the wrong schedule: have: %s; want: %s", instance.ResourcePolicies[0], scheduleName)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceDisk(instance *compute.Instance, source string, delete bool, boot bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.Disks == nil {
@@ -3601,6 +3668,196 @@ resource "google_compute_instance" "foobar" {
 		"tf-testd-"+suffix,
 		instance, bootEncryptionKey,
 		diskNameToEncryptionKey[diskNames[0]].KmsKeyName, diskNameToEncryptionKey[diskNames[1]].KmsKeyName)
+}
+
+func testAccComputeInstance_instanceSchedule(instance, schedule string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_resource_policy" "instance_schedule" {
+  name        = "%s"
+  region      = "us-central1"
+  instance_schedule_policy {
+    vm_start_schedule {
+      schedule = "1 1 1 1 1"
+    }
+    vm_stop_schedule {
+      schedule = "2 2 2 2 2"
+    }
+    time_zone = "UTC"
+  }
+}
+`, instance, schedule)
+}
+
+func testAccComputeInstance_addResourcePolicy(instance, schedule string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  resource_policies = [google_compute_resource_policy.instance_schedule.self_link]
+}
+
+resource "google_compute_resource_policy" "instance_schedule" {
+  name        = "%s"
+  region      = "us-central1"
+  instance_schedule_policy {
+    vm_start_schedule {
+      schedule = "1 1 1 1 1"
+    }
+    vm_stop_schedule {
+      schedule = "2 2 2 2 2"
+    }
+    time_zone = "UTC"
+  }
+}
+`, instance, schedule)
+}
+
+func testAccComputeInstance_updateResourcePolicy(instance, schedule1, schedule2 string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  resource_policies = [google_compute_resource_policy.instance_schedule2.self_link]
+}
+
+resource "google_compute_resource_policy" "instance_schedule" {
+  name        = "%s"
+  region      = "us-central1"
+  instance_schedule_policy {
+    vm_start_schedule {
+      schedule = "1 1 1 1 1"
+    }
+    vm_stop_schedule {
+      schedule = "2 2 2 2 2"
+    }
+    time_zone = "UTC"
+  }
+}
+
+resource "google_compute_resource_policy" "instance_schedule2" {
+  name        = "%s"
+  region      = "us-central1"
+  instance_schedule_policy {
+    vm_start_schedule {
+      schedule = "2 2 2 2 2"
+    }
+    vm_stop_schedule {
+      schedule = "3 3 3 3 3"
+    }
+    time_zone = "UTC"
+  }
+}
+`, instance, schedule1, schedule2)
+}
+
+func testAccComputeInstance_removeResourcePolicy(instance, schedule1, schedule2 string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  resource_policies = null
+}
+
+resource "google_compute_resource_policy" "instance_schedule" {
+  name        = "%s"
+  region      = "us-central1"
+  instance_schedule_policy {
+    vm_start_schedule {
+      schedule = "1 1 1 1 1"
+    }
+    vm_stop_schedule {
+      schedule = "2 2 2 2 2"
+    }
+    time_zone = "UTC"
+  }
+}
+
+resource "google_compute_resource_policy" "instance_schedule2" {
+  name        = "%s"
+  region      = "us-central1"
+  instance_schedule_policy {
+    vm_start_schedule {
+      schedule = "2 2 2 2 2"
+    }
+    vm_stop_schedule {
+      schedule = "3 3 3 3 3"
+    }
+    time_zone = "UTC"
+  }
+}
+`, instance, schedule1, schedule2)
 }
 
 func testAccComputeInstance_attachedDisk(disk, instance string) string {

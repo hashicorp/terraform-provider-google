@@ -754,9 +754,8 @@ func resourceComputeInstance() *schema.Resource {
 				Elem:             &schema.Schema{Type: schema.TypeString},
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 				Optional:         true,
-				ForceNew:         true,
 				MaxItems:         1,
-				Description:      `A list of short names or self_links of resource policies to attach to the instance. Modifying this list will cause the instance to recreate. Currently a max of 1 resource policy is supported.`,
+				Description:      `A list of short names or self_links of resource policies to attach to the instance. Currently a max of 1 resource policy is supported.`,
 			},
 
 			"reservation_affinity": {
@@ -1419,6 +1418,37 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		opErr := computeOperationWaitTime(config, op, project, "labels to update", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if opErr != nil {
 			return opErr
+		}
+	}
+
+	if d.HasChange("resource_policies") {
+		if len(instance.ResourcePolicies) > 0 {
+			req := compute.InstancesRemoveResourcePoliciesRequest{ResourcePolicies: instance.ResourcePolicies}
+
+			op, err := config.NewComputeClient(userAgent).Instances.RemoveResourcePolicies(project, zone, instance.Name, &req).Do()
+			if err != nil {
+				return fmt.Errorf("Error removing existing resource policies: %s", err)
+			}
+
+			opErr := computeOperationWaitTime(config, op, project, "resource policies to remove", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
+		}
+
+		resourcePolicies := convertStringArr(d.Get("resource_policies").([]interface{}))
+		if len(resourcePolicies) > 0 {
+			req := compute.InstancesAddResourcePoliciesRequest{ResourcePolicies: resourcePolicies}
+
+			op, err := config.NewComputeClient(userAgent).Instances.AddResourcePolicies(project, zone, instance.Name, &req).Do()
+			if err != nil {
+				return fmt.Errorf("Error adding resource policies: %s", err)
+			}
+
+			opErr := computeOperationWaitTime(config, op, project, "resource policies to add", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
 		}
 	}
 
