@@ -74,11 +74,18 @@ func resourceDataprocWorkflowTemplate() *schema.Resource {
 				Elem:        DataprocWorkflowTemplatePlacementSchema(),
 			},
 
+			"dag_timeout": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Timeout duration for the DAG of jobs, expressed in seconds (see [JSON representation of duration](https://developers.google.com/protocol-buffers/docs/proto3#json)). The timeout duration must be from 10 minutes (\"600s\") to 24 hours (\"86400s\"). The timer begins when the first job is submitted. If the workflow is running at the end of the timeout period, any remaining jobs are cancelled, the workflow is ended, and if the workflow was running on a [managed cluster](/dataproc/docs/concepts/workflows/using-workflows#configuring_or_selecting_a_cluster), the cluster is deleted.",
+			},
+
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The labels to associate with this template. These labels will be propagated to all jobs and clusters created by the workflow instance. Label **keys** must contain 1 to 63 characters, and must conform to (https://www.ietf.org/rfc/rfc1035.txt). No more than 32 labels can be associated with a template.",
+				Description: "Optional. The labels to associate with this template. These labels will be propagated to all jobs and clusters created by the workflow instance. Label **keys** must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). Label **values** may be empty, but, if present, must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). No more than 32 labels can be associated with a template.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -104,7 +111,8 @@ func resourceDataprocWorkflowTemplate() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Used to perform a consistent read-modify-write. This field should be left blank for a `CreateWorkflowTemplate` request. It is required for an `UpdateWorkflowTemplate` request, and must match the current server version. A typical update template flow would fetch the current template with a `GetWorkflowTemplate` request, which will return the current template with the `version` field filled in with the current server version. The user updates other fields in the template, then returns it as part of the `UpdateWorkflowTemplate` request.",
+				Description: "Output only. The current version of this workflow template.",
+				Deprecated:  "version is not useful as a configurable field, and will be removed in the future.",
 			},
 
 			"create_time": {
@@ -129,7 +137,7 @@ func DataprocWorkflowTemplateJobsSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The step id. The id must be unique among all jobs within the template. The step id is used as prefix for job id, as job `goog-dataproc-workflow-step-id` label, and in field from other steps. The id must contain only letters (a-z, A-Z), numbers (0-9), underscores (_), and hyphens (-). Cannot begin or end with underscore or hyphen. Must consist of between 3 and 50 characters.",
+				Description: "Required. The step id. The id must be unique among all jobs within the template. The step id is used as prefix for job id, as job `goog-dataproc-workflow-step-id` label, and in prerequisiteStepIds field from other steps. The id must contain only letters (a-z, A-Z), numbers (0-9), underscores (_), and hyphens (-). Cannot begin or end with underscore or hyphen. Must consist of between 3 and 50 characters.",
 			},
 
 			"hadoop_job": {
@@ -154,7 +162,7 @@ func DataprocWorkflowTemplateJobsSchema() *schema.Resource {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The labels to associate with this job. Label keys must be between 1 and 63 characters long, and must conform to the following regular expression: {0,63} No more than 32 labels can be associated with a given job.",
+				Description: "Optional. The labels to associate with this job. Label keys must be between 1 and 63 characters long, and must conform to the following regular expression: p{Ll}p{Lo}{0,62} Label values must be between 1 and 63 characters long, and must conform to the following regular expression: [p{Ll}p{Lo}p{N}_-]{0,63} No more than 32 labels can be associated with a given job.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -375,7 +383,7 @@ func DataprocWorkflowTemplateJobsHiveJobQueryListSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The queries to execute. You do not need to end a query expression with a semicolon. Multiple queries can be specified in one string by separating each with a semicolon. Here is an example of a Dataproc API snippet that uses a QueryList to specify a HiveJob: \"hiveJob\": { \"queryList\": { \"queries\": } }",
+				Description: "Required. The queries to execute. You do not need to end a query expression with a semicolon. Multiple queries can be specified in one string by separating each with a semicolon. Here is an example of a Dataproc API snippet that uses a QueryList to specify a HiveJob: \"hiveJob\": { \"queryList\": { \"queries\": [ \"query1\", \"query2\", \"query3;query4\", ] } }",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -437,7 +445,7 @@ func DataprocWorkflowTemplateJobsPigJobSchema() *schema.Resource {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Mapping of query variable names to values (equivalent to the Pig command: `name=`).",
+				Description: "Optional. Mapping of query variable names to values (equivalent to the Pig command: `name=[value]`).",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -465,7 +473,7 @@ func DataprocWorkflowTemplateJobsPigJobQueryListSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The queries to execute. You do not need to end a query expression with a semicolon. Multiple queries can be specified in one string by separating each with a semicolon. Here is an example of a Dataproc API snippet that uses a QueryList to specify a HiveJob: \"hiveJob\": { \"queryList\": { \"queries\": } }",
+				Description: "Required. The queries to execute. You do not need to end a query expression with a semicolon. Multiple queries can be specified in one string by separating each with a semicolon. Here is an example of a Dataproc API snippet that uses a QueryList to specify a HiveJob: \"hiveJob\": { \"queryList\": { \"queries\": [ \"query1\", \"query2\", \"query3;query4\", ] } }",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -510,7 +518,7 @@ func DataprocWorkflowTemplateJobsPrestoJobSchema() *schema.Resource {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. A mapping of property names to values. Used to set Presto (https://prestodb.io/docs/current/sql/set-session.html) Equivalent to using the --session flag in the Presto CLI",
+				Description: "Optional. A mapping of property names to values. Used to set Presto [session properties](https://prestodb.io/docs/current/sql/set-session.html) Equivalent to using the --session flag in the Presto CLI",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -554,7 +562,7 @@ func DataprocWorkflowTemplateJobsPrestoJobQueryListSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The queries to execute. You do not need to end a query expression with a semicolon. Multiple queries can be specified in one string by separating each with a semicolon. Here is an example of a Dataproc API snippet that uses a QueryList to specify a HiveJob: \"hiveJob\": { \"queryList\": { \"queries\": } }",
+				Description: "Required. The queries to execute. You do not need to end a query expression with a semicolon. Multiple queries can be specified in one string by separating each with a semicolon. Here is an example of a Dataproc API snippet that uses a QueryList to specify a HiveJob: \"hiveJob\": { \"queryList\": { \"queries\": [ \"query1\", \"query2\", \"query3;query4\", ] } }",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -659,7 +667,7 @@ func DataprocWorkflowTemplateJobsSchedulingSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Maximum number of times in total a driver may be restarted as a result of driver exiting with non-zero code before job is reported failed. Maximum value is 240",
+				Description: "Optional. Maximum number of times in total a driver may be restarted as a result of driver exiting with non-zero code before job is reported failed. Maximum value is 240.",
 			},
 		},
 	}
@@ -892,7 +900,7 @@ func DataprocWorkflowTemplateJobsSparkSqlJobQueryListSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. The queries to execute. You do not need to end a query expression with a semicolon. Multiple queries can be specified in one string by separating each with a semicolon. Here is an example of a Dataproc API snippet that uses a QueryList to specify a HiveJob: \"hiveJob\": { \"queryList\": { \"queries\": } }",
+				Description: "Required. The queries to execute. You do not need to end a query expression with a semicolon. Multiple queries can be specified in one string by separating each with a semicolon. Here is an example of a Dataproc API snippet that uses a QueryList to specify a HiveJob: \"hiveJob\": { \"queryList\": { \"queries\": [ \"query1\", \"query2\", \"query3;query4\", ] } }",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -968,7 +976,7 @@ func DataprocWorkflowTemplatePlacementManagedClusterSchema() *schema.Resource {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The labels to associate with this cluster. Label keys must be between 1 and 63 characters long, and must conform to the following PCRE regular expression: {0,63} No more than 32 labels can be associated with a given cluster.",
+				Description: "Optional. The labels to associate with this cluster. Label keys must be between 1 and 63 characters long, and must conform to the following PCRE regular expression: p{Ll}p{Lo}{0,62} Label values must be between 1 and 63 characters long, and must conform to the following PCRE regular expression: [p{Ll}p{Lo}p{N}_-]{0,63} No more than 32 labels can be associated with a given cluster.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -982,7 +990,7 @@ func DataprocWorkflowTemplateParametersSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. Paths to all fields that the parameter replaces. A field is allowed to appear in at most one parameter's list of field paths. A field path is similar in syntax to a .sparkJob.args",
+				Description: "Required. Paths to all fields that the parameter replaces. A field is allowed to appear in at most one parameter's list of field paths. A field path is similar in syntax to a google.protobuf.FieldMask. For example, a field path that references the zone field of a workflow template's cluster selector would be specified as `placement.clusterSelector.zone`. Also, field paths can reference fields using the following syntax: * Values in maps can be referenced by key: * labels['key'] * placement.clusterSelector.clusterLabels['key'] * placement.managedCluster.labels['key'] * placement.clusterSelector.clusterLabels['key'] * jobs['step-id'].labels['key'] * Jobs in the jobs list can be referenced by step-id: * jobs['step-id'].hadoopJob.mainJarFileUri * jobs['step-id'].hiveJob.queryFileUri * jobs['step-id'].pySparkJob.mainPythonFileUri * jobs['step-id'].hadoopJob.jarFileUris[0] * jobs['step-id'].hadoopJob.archiveUris[0] * jobs['step-id'].hadoopJob.fileUris[0] * jobs['step-id'].pySparkJob.pythonFileUris[0] * Items in repeated fields can be referenced by a zero-based index: * jobs['step-id'].sparkJob.args[0] * Other examples: * jobs['step-id'].hadoopJob.properties['key'] * jobs['step-id'].hadoopJob.args[0] * jobs['step-id'].hiveJob.scriptVariables['key'] * jobs['step-id'].hadoopJob.mainJarFileUri * placement.clusterSelector.zone It may not be possible to parameterize maps and repeated fields in their entirety since only individual map values and individual items in repeated fields can be referenced. For example, the following field paths are invalid: - placement.clusterSelector.clusterLabels - jobs['step-id'].sparkJob.args",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -1069,6 +1077,7 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigSchema() *schema.Resource
 		Schema: map[string]*schema.Schema{
 			"accelerators": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: "Optional. The Compute Engine accelerator configuration for these instances.",
@@ -1077,6 +1086,7 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigSchema() *schema.Resource
 
 			"disk_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: "Optional. Disk option config settings.",
@@ -1089,28 +1099,29 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigSchema() *schema.Resource
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. The Compute Engine image resource used for cluster instances. The URI can represent an image or image family. Image examples: * `https://www.googleapis.com/compute/beta/projects/` If the URI is unspecified, it will be inferred from `SoftwareConfig.image_version` or the system default.",
+				Description:      "Optional. The Compute Engine image resource used for cluster instances. The URI can represent an image or image family. Image examples: * `https://www.googleapis.com/compute/beta/projects/[project_id]/global/images/[image-id]` * `projects/[project_id]/global/images/[image-id]` * `image-id` Image family examples. Dataproc will use the most recent image from the family: * `https://www.googleapis.com/compute/beta/projects/[project_id]/global/images/family/[custom-image-family-name]` * `projects/[project_id]/global/images/family/[custom-image-family-name]` If the URI is unspecified, it will be inferred from `SoftwareConfig.image_version` or the system default.",
 			},
 
 			"machine_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The Compute Engine machine type used for cluster instances. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/(https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/auto-zone#using_auto_zone_placement) feature, you must use the short name of the machine type resource, for example, `n1-standard-2`.",
+				Description: "Optional. The Compute Engine machine type used for cluster instances. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/zones/us-east1-a/machineTypes/n1-standard-2` * `projects/[project_id]/zones/us-east1-a/machineTypes/n1-standard-2` * `n1-standard-2` **Auto Zone Exception**: If you are using the Dataproc [Auto Zone Placement](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/auto-zone#using_auto_zone_placement) feature, you must use the short name of the machine type resource, for example, `n1-standard-2`.",
 			},
 
 			"min_cpu_platform": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Specifies the minimum cpu platform for the Instance Group. See (https://cloud.google.com/dataproc/docs/concepts/compute/dataproc-min-cpu).",
+				Description: "Optional. Specifies the minimum cpu platform for the Instance Group. See [Dataproc -> Minimum CPU Platform](https://cloud.google.com/dataproc/docs/concepts/compute/dataproc-min-cpu).",
 			},
 
 			"num_instances": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The number of VM instances in the instance group. For master instance groups, must be set to 1.",
+				Description: "Optional. The number of VM instances in the instance group. For [HA cluster](/dataproc/docs/concepts/configuring-clusters/high-availability) [master_config](#FIELDS.master_config) groups, **must be set to 3**. For standard cluster [master_config](#FIELDS.master_config) groups, **must be set to 1**.",
 			},
 
 			"preemptibility": {
@@ -1157,7 +1168,7 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigAcceleratorsSchema() *sch
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Full URL, partial URI, or short name of the accelerator type resource to expose to this instance. See (https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/auto-zone#using_auto_zone_placement) feature, you must use the short name of the accelerator type resource, for example, `nvidia-tesla-k80`.",
+				Description: "Full URL, partial URI, or short name of the accelerator type resource to expose to this instance. See [Compute Engine AcceleratorTypes](https://cloud.google.com/compute/docs/reference/beta/acceleratorTypes). Examples: * `https://www.googleapis.com/compute/beta/projects/[project_id]/zones/us-east1-a/acceleratorTypes/nvidia-tesla-k80` * `projects/[project_id]/zones/us-east1-a/acceleratorTypes/nvidia-tesla-k80` * `nvidia-tesla-k80` **Auto Zone Exception**: If you are using the Dataproc [Auto Zone Placement](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/auto-zone#using_auto_zone_placement) feature, you must use the short name of the accelerator type resource, for example, `nvidia-tesla-k80`.",
 			},
 		},
 	}
@@ -1177,7 +1188,7 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigDiskConfigSchema() *schem
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Type of the boot disk (default is \"pd-standard\"). Valid values: \"pd-ssd\" (Persistent Disk Solid State Drive) or \"pd-standard\" (Persistent Disk Hard Disk Drive).",
+				Description: "Optional. Type of the boot disk (default is \"pd-standard\"). Valid values: \"pd-balanced\" (Persistent Disk Balanced Solid State Drive), \"pd-ssd\" (Persistent Disk Solid State Drive), or \"pd-standard\" (Persistent Disk Hard Disk Drive). See [Disk types](https://cloud.google.com/compute/docs/disks#disk-types).",
 			},
 
 			"num_local_ssds": {
@@ -1185,7 +1196,7 @@ func DataprocWorkflowTemplateClusterInstanceGroupConfigDiskConfigSchema() *schem
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Number of attached SSDs, from 0 to 4 (default is 0). If SSDs are not attached, the boot disk is used to store runtime logs and (https://hadoop.apache.org/docs/r1.2.1/hdfs_user_guide.html) data. If one or more SSDs are attached, this runtime bulk data is spread across them, and the boot disk contains only basic config and installed binaries.",
+				Description: "Optional. Number of attached SSDs, from 0 to 4 (default is 0). If SSDs are not attached, the boot disk is used to store runtime logs and [HDFS](https://hadoop.apache.org/docs/r1.2.1/hdfs_user_guide.html) data. If one or more SSDs are attached, this runtime bulk data is spread across them, and the boot disk contains only basic config and installed binaries.",
 			},
 		},
 	}
@@ -1252,7 +1263,7 @@ func DataprocWorkflowTemplateClusterClusterConfigSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Commands to execute on each node after config is completed. By default, executables are run on master and all worker nodes. You can test a node's `role` metadata to run an executable on a master or worker node, as shown below using `curl` (you can also use `wget`): ROLE=$(curl -H Metadata-Flavor:Google http://metadata/computeMetadata/v1/instance/attributes/dataproc-role) if ; then ... master specific actions ... else ... worker specific actions ... fi",
+				Description: "Optional. Commands to execute on each node after config is completed. By default, executables are run on master and all worker nodes. You can test a node's `role` metadata to run an executable on a master or worker node, as shown below using `curl` (you can also use `wget`): ROLE=$(curl -H Metadata-Flavor:Google http://metadata/computeMetadata/v1/instance/attributes/dataproc-role) if [[ \"${ROLE}\" == 'Master' ]]; then ... master specific actions ... else ... worker specific actions ... fi",
 				Elem:        DataprocWorkflowTemplateClusterClusterConfigInitializationActionsSchema(),
 			},
 
@@ -1267,18 +1278,20 @@ func DataprocWorkflowTemplateClusterClusterConfigSchema() *schema.Resource {
 
 			"master_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The Compute Engine config settings for additional worker instances in a cluster.",
+				Description: "Optional. The Compute Engine config settings for worker instances in a cluster.",
 				MaxItems:    1,
 				Elem:        DataprocWorkflowTemplateClusterInstanceGroupConfigSchema(),
 			},
 
 			"secondary_worker_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The Compute Engine config settings for additional worker instances in a cluster.",
+				Description: "Optional. The Compute Engine config settings for worker instances in a cluster.",
 				MaxItems:    1,
 				Elem:        DataprocWorkflowTemplateClusterInstanceGroupConfigSchema(),
 			},
@@ -1306,7 +1319,7 @@ func DataprocWorkflowTemplateClusterClusterConfigSchema() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. A Cloud Storage bucket used to stage job dependencies, config files, and job driver console output. If you do not specify a staging bucket, Cloud Dataproc will determine a Cloud Storage location (US, ASIA, or EU) for your cluster's staging bucket according to the Compute Engine zone where your cluster is deployed, and then create and manage this project-level, per-location bucket (see (https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/staging-bucket)).",
+				Description:      "Optional. A Cloud Storage bucket used to stage job dependencies, config files, and job driver console output. If you do not specify a staging bucket, Cloud Dataproc will determine a Cloud Storage location (US, ASIA, or EU) for your cluster's staging bucket according to the Compute Engine zone where your cluster is deployed, and then create and manage this project-level, per-location bucket (see [Dataproc staging bucket](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/staging-bucket)). **This field requires a Cloud Storage bucket name, not a URI to a Cloud Storage bucket.**",
 			},
 
 			"temp_bucket": {
@@ -1314,14 +1327,15 @@ func DataprocWorkflowTemplateClusterClusterConfigSchema() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. A Cloud Storage bucket used to store ephemeral cluster and jobs data, such as Spark and MapReduce history files. If you do not specify a temp bucket, Dataproc will determine a Cloud Storage location (US, ASIA, or EU) for your cluster's temp bucket according to the Compute Engine zone where your cluster is deployed, and then create and manage this project-level, per-location bucket. The default bucket has a TTL of 90 days, but you can use any TTL (or none) if you specify a bucket.",
+				Description:      "Optional. A Cloud Storage bucket used to store ephemeral cluster and jobs data, such as Spark and MapReduce history files. If you do not specify a temp bucket, Dataproc will determine a Cloud Storage location (US, ASIA, or EU) for your cluster's temp bucket according to the Compute Engine zone where your cluster is deployed, and then create and manage this project-level, per-location bucket. The default bucket has a TTL of 90 days, but you can use any TTL (or none) if you specify a bucket. **This field requires a Cloud Storage bucket name, not a URI to a Cloud Storage bucket.**",
 			},
 
 			"worker_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The Compute Engine config settings for additional worker instances in a cluster.",
+				Description: "Optional. The Compute Engine config settings for worker instances in a cluster.",
 				MaxItems:    1,
 				Elem:        DataprocWorkflowTemplateClusterInstanceGroupConfigSchema(),
 			},
@@ -1337,7 +1351,7 @@ func DataprocWorkflowTemplateClusterClusterConfigAutoscalingConfigSchema() *sche
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. The autoscaling policy used by the cluster. Only resource names including projectid and location (region) are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/` Note that the policy must be in the same project and Dataproc region.",
+				Description:      "Optional. The autoscaling policy used by the cluster. Only resource names including projectid and location (region) are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/locations/[dataproc_region]/autoscalingPolicies/[policy_id]` * `projects/[project_id]/locations/[dataproc_region]/autoscalingPolicies/[policy_id]` Note that the policy must be in the same project and Dataproc region.",
 			},
 		},
 	}
@@ -1392,7 +1406,7 @@ func DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigSchema() *schem
 				Type:        schema.TypeMap,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "The Compute Engine metadata entries to add to all instances (see (https://cloud.google.com/compute/docs/storing-retrieving-metadata#project_and_instance_metadata)).",
+				Description: "The Compute Engine metadata entries to add to all instances (see [Project and instance metadata](https://cloud.google.com/compute/docs/storing-retrieving-metadata#project_and_instance_metadata)).",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -1401,7 +1415,7 @@ func DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigSchema() *schem
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. The Compute Engine network to be used for machine communications. Cannot be specified with subnetwork_uri. If neither `network_uri` nor `subnetwork_uri` is specified, the \"default\" network of the project is used, if it exists. Cannot be a \"Custom Subnet Network\" (see /regions/global/default` * `default`",
+				Description:      "Optional. The Compute Engine network to be used for machine communications. Cannot be specified with subnetwork_uri. If neither `network_uri` nor `subnetwork_uri` is specified, the \"default\" network of the project is used, if it exists. Cannot be a \"Custom Subnet Network\" (see [Using Subnetworks](https://cloud.google.com/compute/docs/subnetworks) for more information). A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/regions/global/default` * `projects/[project_id]/regions/global/default` * `default`",
 			},
 
 			"node_group_affinity": {
@@ -1434,7 +1448,7 @@ func DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigSchema() *schem
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. The (https://cloud.google.com/compute/docs/access/service-accounts#default_service_account) is used.",
+				Description:      "Optional. The [Dataproc service account](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/service-accounts#service_accounts_in_dataproc) (also see [VM Data Plane identity](https://cloud.google.com/dataproc/docs/concepts/iam/dataproc-principals#vm_service_account_data_plane_identity)) used by Dataproc cluster VM instances to access Google Cloud Platform services. If not specified, the [Compute Engine default service account](https://cloud.google.com/compute/docs/access/service-accounts#default_service_account) is used.",
 			},
 
 			"service_account_scopes": {
@@ -1450,13 +1464,14 @@ func DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigSchema() *schem
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Optional. The Compute Engine subnetwork to be used for machine communications. Cannot be specified with network_uri. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects//regions/us-east1/subnetworks/sub0` * `sub0`",
+				Description:      "Optional. The Compute Engine subnetwork to be used for machine communications. Cannot be specified with network_uri. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/regions/us-east1/subnetworks/sub0` * `projects/[project_id]/regions/us-east1/subnetworks/sub0` * `sub0`",
 			},
 
 			"tags": {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Description: "The Compute Engine tags to add to all instances (see (https://cloud.google.com/compute/docs/label-or-tag-resources#tags)).",
+				ForceNew:    true,
+				Description: "The Compute Engine tags to add to all instances (see [Tagging instances](https://cloud.google.com/compute/docs/label-or-tag-resources#tags)).",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         schema.HashString,
 			},
@@ -1466,7 +1481,7 @@ func DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigSchema() *schem
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The zone where the Compute Engine cluster will be located. On a create request, it is required in the \"global\" region. If omitted in a non-global Dataproc region, the service will pick a zone in the corresponding Compute Engine region. On a get request, zone will always be present. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/` * `us-central1-f`",
+				Description: "Optional. The zone where the Compute Engine cluster will be located. On a create request, it is required in the \"global\" region. If omitted in a non-global Dataproc region, the service will pick a zone in the corresponding Compute Engine region. On a get request, zone will always be present. A full URL, partial URI, or short name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/zones/[zone]` * `projects/[project_id]/zones/[zone]` * `us-central1-f`",
 			},
 		},
 	}
@@ -1480,7 +1495,7 @@ func DataprocWorkflowTemplateClusterClusterConfigGceClusterConfigNodeGroupAffini
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
-				Description:      "Required. The URI of a sole-tenant /zones/us-central1-a/nodeGroups/node-group-1` * `node-group-1`",
+				Description:      "Required. The URI of a sole-tenant [node group resource](https://cloud.google.com/compute/docs/reference/rest/v1/nodeGroups) that the cluster will be created on. A full URL, partial URI, or node group name are valid. Examples: * `https://www.googleapis.com/compute/v1/projects/[project_id]/zones/us-central1-a/nodeGroups/node-group-1` * `projects/[project_id]/zones/us-central1-a/nodeGroups/node-group-1` * `node-group-1`",
 			},
 		},
 	}
@@ -1528,7 +1543,7 @@ func DataprocWorkflowTemplateClusterClusterConfigInitializationActionsSchema() *
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Amount of time executable has to complete. Default is 10 minutes (see JSON representation of (https://developers.google.com/protocol-buffers/docs/proto3#json)). Cluster creation fails with an explanatory error message (the name of the executable that caused the error and the exceeded timeout period) if the executable is not completed at end of the timeout period.",
+				Description: "Optional. Amount of time executable has to complete. Default is 10 minutes (see JSON representation of [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)). Cluster creation fails with an explanatory error message (the name of the executable that caused the error and the exceeded timeout period) if the executable is not completed at end of the timeout period.",
 			},
 		},
 	}
@@ -1541,27 +1556,27 @@ func DataprocWorkflowTemplateClusterClusterConfigLifecycleConfigSchema() *schema
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The time when cluster will be auto-deleted (see JSON representation of (https://developers.google.com/protocol-buffers/docs/proto3#json)).",
+				Description: "Optional. The time when cluster will be auto-deleted (see JSON representation of [Timestamp](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
 			},
 
 			"auto_delete_ttl": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The lifetime duration of cluster. The cluster will be auto-deleted at the end of this period. Minimum value is 10 minutes; maximum value is 14 days (see JSON representation of (https://developers.google.com/protocol-buffers/docs/proto3#json)).",
+				Description: "Optional. The lifetime duration of cluster. The cluster will be auto-deleted at the end of this period. Minimum value is 10 minutes; maximum value is 14 days (see JSON representation of [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
 			},
 
 			"idle_delete_ttl": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The duration to keep the cluster alive while idling (when no jobs are running). Passing this threshold will cause the cluster to be deleted. Minimum value is 5 minutes; maximum value is 14 days (see JSON representation of (https://developers.google.com/protocol-buffers/docs/proto3#json).",
+				Description: "Optional. The duration to keep the cluster alive while idling (when no jobs are running). Passing this threshold will cause the cluster to be deleted. Minimum value is 5 minutes; maximum value is 14 days (see JSON representation of [Duration](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
 			},
 
 			"idle_start_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Output only. The time when cluster became idle (most recent job finished) and became eligible for deletion due to idleness (see JSON representation of (https://developers.google.com/protocol-buffers/docs/proto3#json)).",
+				Description: "Output only. The time when cluster became idle (most recent job finished) and became eligible for deletion due to idleness (see JSON representation of [Timestamp](https://developers.google.com/protocol-buffers/docs/proto3#json)).",
 			},
 		},
 	}
@@ -1574,7 +1589,7 @@ func DataprocWorkflowTemplateClusterClusterConfigSecurityConfigSchema() *schema.
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Kerberos related configuration.",
+				Description: "Optional. Kerberos related configuration.",
 				MaxItems:    1,
 				Elem:        DataprocWorkflowTemplateClusterClusterConfigSecurityConfigKerberosConfigSchema(),
 			},
@@ -1701,14 +1716,22 @@ func DataprocWorkflowTemplateClusterClusterConfigSoftwareConfigSchema() *schema.
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The version of software inside the cluster. It must be one of the supported (https://cloud.google.com/dataproc/docs/concepts/versioning/dataproc-versions#other_versions). If unspecified, it defaults to the latest Debian version.",
+				Description: "Optional. The version of software inside the cluster. It must be one of the supported [Dataproc Versions](https://cloud.google.com/dataproc/docs/concepts/versioning/dataproc-versions#supported_dataproc_versions), such as \"1.2\" (including a subminor version, such as \"1.2.29\"), or the [\"preview\" version](https://cloud.google.com/dataproc/docs/concepts/versioning/dataproc-versions#other_versions). If unspecified, it defaults to the latest Debian version.",
+			},
+
+			"optional_components": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The set of components to activate on the cluster.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"properties": {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The properties to set on daemon config files. Property keys are specified in `prefix:property` format, for example `core:hadoop.tmp.dir`. The following are supported prefixes and their mappings: * capacity-scheduler: `capacity-scheduler.xml` * core: `core-site.xml` * distcp: `distcp-default.xml` * hdfs: `hdfs-site.xml` * hive: `hive-site.xml` * mapred: `mapred-site.xml` * pig: `pig.properties` * spark: `spark-defaults.conf` * yarn: `yarn-site.xml` For more information, see (https://cloud.google.com/dataproc/docs/concepts/cluster-properties).",
+				Description: "Optional. The properties to set on daemon config files. Property keys are specified in `prefix:property` format, for example `core:hadoop.tmp.dir`. The following are supported prefixes and their mappings: * capacity-scheduler: `capacity-scheduler.xml` * core: `core-site.xml` * distcp: `distcp-default.xml` * hdfs: `hdfs-site.xml` * hive: `hive-site.xml` * mapred: `mapred-site.xml` * pig: `pig.properties` * spark: `spark-defaults.conf` * yarn: `yarn-site.xml` For more information, see [Cluster properties](https://cloud.google.com/dataproc/docs/concepts/cluster-properties).",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -1727,6 +1750,7 @@ func resourceDataprocWorkflowTemplateCreate(d *schema.ResourceData, meta interfa
 		Location:   dcl.String(d.Get("location").(string)),
 		Name:       dcl.String(d.Get("name").(string)),
 		Placement:  expandDataprocWorkflowTemplatePlacement(d.Get("placement")),
+		DagTimeout: dcl.String(d.Get("dag_timeout").(string)),
 		Labels:     checkStringMap(d.Get("labels")),
 		Parameters: expandDataprocWorkflowTemplateParametersArray(d.Get("parameters")),
 		Project:    dcl.String(project),
@@ -1776,6 +1800,7 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 		Location:   dcl.String(d.Get("location").(string)),
 		Name:       dcl.String(d.Get("name").(string)),
 		Placement:  expandDataprocWorkflowTemplatePlacement(d.Get("placement")),
+		DagTimeout: dcl.String(d.Get("dag_timeout").(string)),
 		Labels:     checkStringMap(d.Get("labels")),
 		Parameters: expandDataprocWorkflowTemplateParametersArray(d.Get("parameters")),
 		Project:    dcl.String(project),
@@ -1809,6 +1834,9 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 	}
 	if err = d.Set("placement", flattenDataprocWorkflowTemplatePlacement(res.Placement)); err != nil {
 		return fmt.Errorf("error setting placement in state: %s", err)
+	}
+	if err = d.Set("dag_timeout", res.DagTimeout); err != nil {
+		return fmt.Errorf("error setting dag_timeout in state: %s", err)
 	}
 	if err = d.Set("labels", res.Labels); err != nil {
 		return fmt.Errorf("error setting labels in state: %s", err)
@@ -1844,6 +1872,7 @@ func resourceDataprocWorkflowTemplateDelete(d *schema.ResourceData, meta interfa
 		Location:   dcl.String(d.Get("location").(string)),
 		Name:       dcl.String(d.Get("name").(string)),
 		Placement:  expandDataprocWorkflowTemplatePlacement(d.Get("placement")),
+		DagTimeout: dcl.String(d.Get("dag_timeout").(string)),
 		Labels:     checkStringMap(d.Get("labels")),
 		Parameters: expandDataprocWorkflowTemplateParametersArray(d.Get("parameters")),
 		Project:    dcl.String(project),
@@ -2814,11 +2843,11 @@ func flattenDataprocWorkflowTemplateParametersValidationValues(obj *dataproc.Wor
 
 func expandDataprocWorkflowTemplateClusterInstanceGroupConfig(o interface{}) *dataproc.ClusterInstanceGroupConfig {
 	if o == nil {
-		return dataproc.EmptyClusterInstanceGroupConfig
+		return nil
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 {
-		return dataproc.EmptyClusterInstanceGroupConfig
+		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &dataproc.ClusterInstanceGroupConfig{
@@ -2826,7 +2855,7 @@ func expandDataprocWorkflowTemplateClusterInstanceGroupConfig(o interface{}) *da
 		DiskConfig:     expandDataprocWorkflowTemplateClusterInstanceGroupConfigDiskConfig(obj["disk_config"]),
 		Image:          dcl.String(obj["image"].(string)),
 		MachineType:    dcl.String(obj["machine_type"].(string)),
-		MinCpuPlatform: dcl.String(obj["min_cpu_platform"].(string)),
+		MinCpuPlatform: dcl.StringOrNil(obj["min_cpu_platform"].(string)),
 		NumInstances:   dcl.Int64(int64(obj["num_instances"].(int))),
 		Preemptibility: dataproc.ClusterInstanceGroupConfigPreemptibilityEnumRef(obj["preemptibility"].(string)),
 	}
@@ -2873,7 +2902,7 @@ func expandDataprocWorkflowTemplateClusterInstanceGroupConfigAcceleratorsArray(o
 
 func expandDataprocWorkflowTemplateClusterInstanceGroupConfigAccelerators(o interface{}) *dataproc.ClusterInstanceGroupConfigAccelerators {
 	if o == nil {
-		return dataproc.EmptyClusterInstanceGroupConfigAccelerators
+		return nil
 	}
 
 	obj := o.(map[string]interface{})
@@ -2912,11 +2941,11 @@ func flattenDataprocWorkflowTemplateClusterInstanceGroupConfigAccelerators(obj *
 
 func expandDataprocWorkflowTemplateClusterInstanceGroupConfigDiskConfig(o interface{}) *dataproc.ClusterInstanceGroupConfigDiskConfig {
 	if o == nil {
-		return dataproc.EmptyClusterInstanceGroupConfigDiskConfig
+		return nil
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 {
-		return dataproc.EmptyClusterInstanceGroupConfigDiskConfig
+		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &dataproc.ClusterInstanceGroupConfigDiskConfig{
@@ -3362,8 +3391,9 @@ func expandDataprocWorkflowTemplateClusterClusterConfigSoftwareConfig(o interfac
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &dataproc.ClusterClusterConfigSoftwareConfig{
-		ImageVersion: dcl.String(obj["image_version"].(string)),
-		Properties:   checkStringMap(obj["properties"]),
+		ImageVersion:       dcl.String(obj["image_version"].(string)),
+		OptionalComponents: expandDataprocWorkflowTemplateClusterClusterConfigSoftwareConfigOptionalComponentsArray(obj["optional_components"]),
+		Properties:         checkStringMap(obj["properties"]),
 	}
 }
 
@@ -3372,10 +3402,31 @@ func flattenDataprocWorkflowTemplateClusterClusterConfigSoftwareConfig(obj *data
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"image_version": obj.ImageVersion,
-		"properties":    obj.Properties,
+		"image_version":       obj.ImageVersion,
+		"optional_components": flattenDataprocWorkflowTemplateClusterClusterConfigSoftwareConfigOptionalComponentsArray(obj.OptionalComponents),
+		"properties":          obj.Properties,
 	}
 
 	return []interface{}{transformed}
 
+}
+func flattenDataprocWorkflowTemplateClusterClusterConfigSoftwareConfigOptionalComponentsArray(obj []dataproc.ClusterClusterConfigSoftwareConfigOptionalComponentsEnum) interface{} {
+	if obj == nil {
+		return nil
+	}
+	items := []string{}
+	for _, item := range obj {
+		items = append(items, string(item))
+	}
+	return items
+}
+
+func expandDataprocWorkflowTemplateClusterClusterConfigSoftwareConfigOptionalComponentsArray(o interface{}) []dataproc.ClusterClusterConfigSoftwareConfigOptionalComponentsEnum {
+	objs := o.([]interface{})
+	items := make([]dataproc.ClusterClusterConfigSoftwareConfigOptionalComponentsEnum, 0, len(objs))
+	for _, item := range objs {
+		i := dataproc.ClusterClusterConfigSoftwareConfigOptionalComponentsEnumRef(item.(string))
+		items = append(items, *i)
+	}
+	return items
 }

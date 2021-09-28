@@ -1,0 +1,3 @@
+```release-note:deprecation
+dataproc: deprecated the `google_dataproc_workflow_template.version` field, as it wasn't actually useful. The field is used during updates, but updates aren't currently possible with the resource.
+```
