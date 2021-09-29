@@ -45,29 +45,35 @@ https://cloud.google.com/compute/docs/load-balancing/http/
 # and custom request and response headers
 
 # VPC
-resource "google_compute_network" "xlb_network" {
+resource "google_compute_network" "default" {
   name                    = "l7-xlb-network"
   provider                = google
   auto_create_subnetworks = false
 }
 
 # backend subnet
-resource "google_compute_subnetwork" "xlb_subnet" {
+resource "google_compute_subnetwork" "default" {
   name          = "l7-xlb-subnet"
   provider      = google
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
-  network       = google_compute_network.xlb_network.id
+  network       = google_compute_network.default.id
+}
+
+# reserved IP address
+resource "google_compute_global_address" "default" {
+  name = "l7-xlb-static-ip"
 }
 
 # forwarding rule
-resource "google_compute_global_forwarding_rule" "google_compute_global_forwarding_rule" {
+resource "google_compute_global_forwarding_rule" "default" {
   name                  = "l7-xlb-forwarding-rule"
   provider              = google
   ip_protocol           = "TCP"
   load_balancing_scheme = "EXTERNAL"
   port_range            = "80"
   target                = google_compute_target_http_proxy.default.id
+  ip_address            = google_compute_global_address.default.id
 }
 
 # http proxy
@@ -97,22 +103,22 @@ resource "google_compute_backend_service" "default" {
   custom_response_headers  = ["X-Cache-Hit: {cdn_cache_status}"]
   health_checks            = [google_compute_health_check.default.id]
   backend {
-    group           = google_compute_instance_group_manager.mig.instance_group
+    group           = google_compute_instance_group_manager.default.instance_group
     balancing_mode  = "UTILIZATION"
     capacity_scaler = 1.0
   }
 }
 
 # instance template
-resource "google_compute_instance_template" "instance_template" {
+resource "google_compute_instance_template" "default" {
   name         = "l7-xlb-mig-template"
   provider     = google
   machine_type = "e2-small"
   tags         = ["allow-health-check"]
 
   network_interface {
-    network    = google_compute_network.xlb_network.id
-    subnetwork = google_compute_subnetwork.xlb_subnet.id
+    network    = google_compute_network.default.id
+    subnetwork = google_compute_subnetwork.default.id
     access_config {
       # add external ip to fetch packages
     }
@@ -161,7 +167,7 @@ resource "google_compute_health_check" "default" {
 }
 
 # MIG
-resource "google_compute_instance_group_manager" "mig" {
+resource "google_compute_instance_group_manager" "default" {
   name     = "l7-xlb-mig1"
   provider = google
   zone     = "us-central1-c"
@@ -170,7 +176,7 @@ resource "google_compute_instance_group_manager" "mig" {
     port = 8080
   }
   version {
-    instance_template = google_compute_instance_template.instance_template.id
+    instance_template = google_compute_instance_template.default.id
     name              = "primary"
   }
   base_instance_name = "vm"
@@ -178,11 +184,11 @@ resource "google_compute_instance_group_manager" "mig" {
 }
 
 # allow access from health check ranges
-resource "google_compute_firewall" "fw_health_check" {
+resource "google_compute_firewall" "default" {
   name          = "l7-xlb-fw-allow-hc"
   provider      = google
   direction     = "INGRESS"
-  network       = google_compute_network.xlb_network.id
+  network       = google_compute_network.default.id
   source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
   allow {
     protocol = "tcp"
