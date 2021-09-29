@@ -377,6 +377,12 @@ The `network_interface` block supports:
 
 * `nic_type` - (Optional) The type of vNIC to be used on this interface. Possible values: GVNIC, VIRTIO_NET.
 
+* `stack_type` - (Optional) The stack type for this network interface to identify whether the IPv6 feature is enabled or not. Values are IPV4_IPV6 or IPV4_ONLY. If not specified, IPV4_ONLY will be used.
+
+* `ipv6_access_config` - (Optional) An array of IPv6 access configurations for this interface.
+Currently, only one IPv6 access config, DIRECT_IPV6, is supported. If there is no ipv6AccessConfig
+specified, then this instance will have no external IPv6 Internet access. Structure documented below.
+
 The `access_config` block supports:
 
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
@@ -385,6 +391,11 @@ The `access_config` block supports:
 * `network_tier` - (Optional) The [networking tier][network-tier] used for configuring
     this instance template. This field can take the following values: PREMIUM or
     STANDARD. If this field is not specified, it is assumed to be PREMIUM.
+
+The `ipv6_access_config` block supports:
+
+* `network_tier` - (Optional) The service-level to be provided for IPv6 traffic when the
+    subnet has an external subnet. Only PREMIUM tier is valid for IPv6.
 
 The `alias_ip_range` block supports:
 

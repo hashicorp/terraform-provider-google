@@ -350,6 +350,51 @@ func resourceComputeInstance() *schema.Resource {
 								},
 							},
 						},
+
+						"stack_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"IPV4_ONLY", "IPV4_IPV6", ""}, false),
+							Description:  `The stack type for this network interface to identify whether the IPv6 feature is enabled or not. If not specified, IPV4_ONLY will be used.`,
+						},
+
+						"ipv6_access_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `One of EXTERNAL, INTERNAL to indicate whether the IP can be accessed from the Internet. This field is always inherited from its subnetwork.`,
+						},
+
+						"ipv6_access_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `An array of IPv6 access configurations for this interface. Currently, only one IPv6 access config, DIRECT_IPV6, is supported. If there is no ipv6AccessConfig specified, then this instance will have no external IPv6 Internet access.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"network_tier": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.StringInSlice([]string{"PREMIUM"}, false),
+										Description:  `The service-level to be provided for IPv6 traffic when the subnet has an external subnet. Only PREMIUM tier is valid for IPv6`,
+									},
+									"public_ptr_domain_name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The domain name to be used when creating DNSv6 records for the external IPv6 ranges.`,
+									},
+									"external_ipv6": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The first IPv6 address of the external IPv6 range associated with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig. The field is output only, an IPv6 address from a subnetwork associated with the instance will be allocated dynamically.`,
+									},
+									"external_ipv6_prefix_length": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The prefix length of the external IPv6 range.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
