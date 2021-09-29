@@ -133,6 +133,32 @@ resource "google_compute_network" "custom-test" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=subnetwork_ipv6&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Subnetwork Ipv6
+
+
+```hcl
+resource "google_compute_subnetwork" "subnetwork-ipv6" {
+  name          = "ipv6-test-subnetwork"
+  
+  ip_cidr_range = "10.0.0.0/22"
+  region        = "us-west2"
+  
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "EXTERNAL"
+
+  network       = google_compute_network.custom-test.id
+}
+
+resource "google_compute_network" "custom-test" {
+  name                    = "ipv6-test-network"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -222,6 +248,19 @@ The following arguments are supported:
   subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER`
   Structure is [documented below](#nested_log_config).
 
+* `stack_type` -
+  (Optional)
+  The stack type for this subnet to identify whether the IPv6 feature is enabled or not.
+  If not specified IPV4_ONLY will be used.
+  Possible values are `IPV4_ONLY` and `IPV4_IPV6`.
+
+* `ipv6_access_type` -
+  (Optional)
+  The access type of IPv6 address this subnet holds. It's immutable and can only be specified during creation
+  or the first time the subnet is updated into IPV4_IPV6 dual stack. If the ipv6_type is EXTERNAL then this subnet
+  cannot enable direct path.
+  Possible values are `EXTERNAL`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -292,6 +331,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `gateway_address` -
   The gateway address for default routes to reach destination addresses
   outside this subnetwork.
+
+* `ipv6_cidr_range` -
+  The range of internal IPv6 addresses that are owned by this subnetwork.
+
+* `external_ipv6_prefix` -
+  The range of external IPv6 addresses that are owned by this subnetwork.
 * `self_link` - The URI of the created resource.
 
 

@@ -246,6 +246,35 @@ func TestAccComputeInstance_IP(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_IPv6(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var ipName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+	var ptrName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_ipv6(ipName, instanceName, ptrName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_PTRRecord(t *testing.T) {
 	t.Parallel()
 
@@ -3282,6 +3311,62 @@ resource "google_compute_instance" "foobar" {
   }
 }
 `, ip, instance)
+}
+
+func testAccComputeInstance_ipv6(ip, instance, record string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_subnetwork" "subnetwork-ipv6" {
+  name          = "%s-subnetwork"
+
+  ip_cidr_range = "10.0.0.0/22"
+  region        = "us-west2"
+
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "EXTERNAL"
+
+  network       = google_compute_network.custom-test.id
+}
+
+resource "google_compute_network" "custom-test" {
+  name                    = "%s-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_address" "foo" {
+  name = "%s"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-west2-a"
+  tags         = ["foo", "bar"]
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnetwork-ipv6.name
+    stack_type = "IPV4_IPV6"
+    ipv6_access_config {
+      network_tier = "PREMIUM"
+      public_ptr_domain_name = "%s.gcp.tfacc.hashicorptest.com."
+    }
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+}
+`, instance, instance, ip, instance, record)
 }
 
 func testAccComputeInstance_PTRRecord(record, instance string) string {

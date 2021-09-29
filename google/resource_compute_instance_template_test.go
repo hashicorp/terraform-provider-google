@@ -320,6 +320,32 @@ func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_IPv6(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_ipv6(randString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_networkTier(t *testing.T) {
 	t.Parallel()
 
@@ -1583,6 +1609,59 @@ resource "google_compute_instance_template" "foobar" {
   }
 }
 `, suffix, suffix)
+}
+
+func testAccComputeInstanceTemplate_ipv6(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_address" "foo" {
+  name = "tf-test-instance-template-%s"
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-9"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "foo" {
+  name                    = "tf-test-network-%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork-ipv6" {
+  name          = "tf-test-subnetwork-%s"
+
+  ip_cidr_range = "10.0.0.0/22"
+  region        = "us-west2"
+
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "EXTERNAL"
+
+  network       = google_compute_network.foo.id
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "tf-test-instance-template-%s"
+  machine_type = "e2-medium"
+  region       = "us-west2"
+  tags         = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnetwork-ipv6.name
+    stack_type = "IPV4_IPV6"
+    ipv6_access_config {
+      network_tier = "PREMIUM"
+    }
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+}
+`, suffix, suffix, suffix, suffix)
 }
 
 func testAccComputeInstanceTemplate_networkTier(suffix string) string {

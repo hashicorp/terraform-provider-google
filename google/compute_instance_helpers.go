@@ -163,6 +163,17 @@ func flattenAccessConfigs(accessConfigs []*computeBeta.AccessConfig) ([]map[stri
 	return flattened, natIP
 }
 
+func flattenIpv6AccessConfigs(ipv6AccessConfigs []*computeBeta.AccessConfig) []map[string]interface{} {
+	flattened := make([]map[string]interface{}, len(ipv6AccessConfigs))
+	for i, ac := range ipv6AccessConfigs {
+		flattened[i] = map[string]interface{}{
+			"network_tier": ac.NetworkTier,
+		}
+		flattened[i]["public_ptr_domain_name"] = ac.PublicPtrDomainName
+	}
+	return flattened
+}
+
 func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInterfaces []*computeBeta.NetworkInterface) ([]map[string]interface{}, string, string, string, error) {
 	flattened := make([]map[string]interface{}, len(networkInterfaces))
 	var region, internalIP, externalIP string
@@ -185,6 +196,8 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInt
 			"access_config":      ac,
 			"alias_ip_range":     flattenAliasIpRange(iface.AliasIpRanges),
 			"nic_type":           iface.NicType,
+			"stack_type":         iface.StackType,
+			"ipv6_access_config": flattenIpv6AccessConfigs(iface.Ipv6AccessConfigs),
 		}
 		// Instance template interfaces never have names, so they're absent
 		// in the instance template network_interface schema. We want to use the
@@ -218,6 +231,22 @@ func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
 	return acs
 }
 
+func expandIpv6AccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
+	iacs := make([]*computeBeta.AccessConfig, len(configs))
+	for i, raw := range configs {
+		iacs[i] = &computeBeta.AccessConfig{}
+		if raw != nil {
+			data := raw.(map[string]interface{})
+			iacs[i].NetworkTier = data["network_tier"].(string)
+			if ptr, ok := data["public_ptr_domain_name"]; ok && ptr != "" {
+				iacs[i].PublicPtrDomainName = ptr.(string)
+			}
+			iacs[i].Type = "DIRECT_IPV6" // Currently only type supported
+		}
+	}
+	return iacs
+}
+
 func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*computeBeta.NetworkInterface, error) {
 	configs := d.Get("network_interface").([]interface{})
 	ifaces := make([]*computeBeta.NetworkInterface, len(configs))
@@ -242,12 +271,14 @@ func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*comput
 		}
 
 		ifaces[i] = &computeBeta.NetworkInterface{
-			NetworkIP:     data["network_ip"].(string),
-			Network:       nf.RelativeLink(),
-			Subnetwork:    sf.RelativeLink(),
-			AccessConfigs: expandAccessConfigs(data["access_config"].([]interface{})),
-			AliasIpRanges: expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
-			NicType:       data["nic_type"].(string),
+			NetworkIP:         data["network_ip"].(string),
+			Network:           nf.RelativeLink(),
+			Subnetwork:        sf.RelativeLink(),
+			AccessConfigs:     expandAccessConfigs(data["access_config"].([]interface{})),
+			AliasIpRanges:     expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
+			NicType:           data["nic_type"].(string),
+			StackType:         data["stack_type"].(string),
+			Ipv6AccessConfigs: expandIpv6AccessConfigs(data["ipv6_access_config"].([]interface{})),
 		}
 	}
 	return ifaces, nil

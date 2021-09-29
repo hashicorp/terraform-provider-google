@@ -109,6 +109,15 @@ Only networks that are in the distributed mode can have subnetworks.`,
 you create the resource. This field can be set only at resource
 creation time.`,
 			},
+			"ipv6_access_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", ""}, false),
+				Description: `The access type of IPv6 address this subnet holds. It's immutable and can only be specified during creation
+or the first time the subnet is updated into IPV4_IPV6 dual stack. If the ipv6_type is EXTERNAL then this subnet
+cannot enable direct path. Possible values: ["EXTERNAL"]`,
+			},
 			"log_config": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -253,16 +262,34 @@ must be unique within the subnetwork.`,
 					},
 				},
 			},
+			"stack_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"IPV4_ONLY", "IPV4_IPV6", ""}, false),
+				Description: `The stack type for this subnet to identify whether the IPv6 feature is enabled or not.
+If not specified IPV4_ONLY will be used. Possible values: ["IPV4_ONLY", "IPV4_IPV6"]`,
+			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Creation timestamp in RFC3339 text format.`,
+			},
+			"external_ipv6_prefix": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The range of external IPv6 addresses that are owned by this subnetwork.`,
 			},
 			"gateway_address": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `The gateway address for default routes to reach destination addresses
 outside this subnetwork.`,
+			},
+			"ipv6_cidr_range": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The range of internal IPv6 addresses that are owned by this subnetwork.`,
 			},
 			"fingerprint": {
 				Type:        schema.TypeString,
@@ -401,6 +428,18 @@ func resourceComputeSubnetworkCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
 		obj["logConfig"] = logConfigProp
 	}
+	stackTypeProp, err := expandComputeSubnetworkStackType(d.Get("stack_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("stack_type"); !isEmptyValue(reflect.ValueOf(stackTypeProp)) && (ok || !reflect.DeepEqual(v, stackTypeProp)) {
+		obj["stackType"] = stackTypeProp
+	}
+	ipv6AccessTypeProp, err := expandComputeSubnetworkIpv6AccessType(d.Get("ipv6_access_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ipv6_access_type"); !isEmptyValue(reflect.ValueOf(ipv6AccessTypeProp)) && (ok || !reflect.DeepEqual(v, ipv6AccessTypeProp)) {
+		obj["ipv6AccessType"] = ipv6AccessTypeProp
+	}
 
 	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks")
 	if err != nil {
@@ -521,6 +560,18 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("log_config", flattenComputeSubnetworkLogConfig(res["logConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
+	if err := d.Set("stack_type", flattenComputeSubnetworkStackType(res["stackType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err := d.Set("ipv6_access_type", flattenComputeSubnetworkIpv6AccessType(res["ipv6AccessType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err := d.Set("ipv6_cidr_range", flattenComputeSubnetworkIpv6CidrRange(res["ipv6CidrRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
+	if err := d.Set("external_ipv6_prefix", flattenComputeSubnetworkExternalIpv6Prefix(res["externalIpv6Prefix"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
@@ -613,7 +664,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 	}
-	if d.HasChange("private_ipv6_google_access") {
+	if d.HasChange("private_ipv6_google_access") || d.HasChange("stack_type") {
 		obj := make(map[string]interface{})
 
 		getUrl, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
@@ -638,6 +689,12 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		} else if v, ok := d.GetOkExists("private_ipv6_google_access"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateIpv6GoogleAccessProp)) {
 			obj["privateIpv6GoogleAccess"] = privateIpv6GoogleAccessProp
+		}
+		stackTypeProp, err := expandComputeSubnetworkStackType(d.Get("stack_type"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("stack_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, stackTypeProp)) {
+			obj["stackType"] = stackTypeProp
 		}
 
 		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
@@ -999,6 +1056,22 @@ func flattenComputeSubnetworkLogConfig(v interface{}, d *schema.ResourceData, co
 	return []interface{}{transformed}
 }
 
+func flattenComputeSubnetworkStackType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeSubnetworkIpv6AccessType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeSubnetworkIpv6CidrRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenComputeSubnetworkExternalIpv6Prefix(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandComputeSubnetworkDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1109,4 +1182,12 @@ func expandComputeSubnetworkLogConfig(v interface{}, d TerraformResourceData, co
 	transformed["metadataFields"] = original["metadata_fields"].(*schema.Set).List()
 
 	return transformed, nil
+}
+
+func expandComputeSubnetworkStackType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSubnetworkIpv6AccessType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
