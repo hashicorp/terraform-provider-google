@@ -1,0 +1,3 @@
+```release-note:note
+Minor docs reorganization to group all Compute Engine and Monitoring (Stackdriver) resources together.
+```
