@@ -599,19 +599,7 @@ func resourcePrivatecaCertificateTemplateUpdate(d *schema.ResourceData, meta int
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
 	}
-	// Construct state hint from old values
-	old := &privateca.CertificateTemplate{
-		Location:              dcl.String(oldValue(d.GetChange("location")).(string)),
-		Name:                  dcl.String(oldValue(d.GetChange("name")).(string)),
-		Description:           dcl.String(oldValue(d.GetChange("description")).(string)),
-		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(oldValue(d.GetChange("identity_constraints"))),
-		Labels:                checkStringMap(oldValue(d.GetChange("labels"))),
-		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(oldValue(d.GetChange("passthrough_extensions"))),
-		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(oldValue(d.GetChange("predefined_values"))),
-		Project:               dcl.StringOrNil(oldValue(d.GetChange("project")).(string)),
-	}
 	directive := UpdateDirective
-	directive = append(directive, dcl.WithStateHint(old))
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
