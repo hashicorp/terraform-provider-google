@@ -13,7 +13,7 @@
 #     are required, please file an issue at https:#github.com/hashicorp/terraform-provider-google/issues/new/choose
 #
 # ----------------------------------------------------------------------------
-subcategory: "Compute"
+subcategory: "Compute Engine"
 layout: "google"
 page_title: "Google: google_compute_firewall_policy_association"
 sidebar_current: "docs-google-compute-firewall-policy-association"
