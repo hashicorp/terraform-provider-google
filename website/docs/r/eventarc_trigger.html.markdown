@@ -87,7 +87,7 @@ The following arguments are supported:
   
 * `matching_criteria` -
   (Required)
-  Required. The criteria by which events are filtered. Only events that match with this criteria will be sent to the destination.
+  Required. null The list of filters that applies to event attributes. Only events that match all the provided filters will be sent to the destination.
   
 * `name` -
   (Required)
@@ -97,15 +97,19 @@ The following arguments are supported:
 
 The `destination` block supports:
     
+* `cloud_function` -
+  (Optional)
+  The Cloud Function resource name. Only Cloud Functions V2 is supported. Format: projects/{project}/locations/{location}/functions/{function}
+    
 * `cloud_run_service` -
   (Optional)
-  Cloud Run fully-managed service that receives the events. The service should be running in the same project as the trigger.
+  Cloud Run fully-managed service that receives the events. The service should be running in the same project of the trigger.
     
 The `matching_criteria` block supports:
     
 * `attribute` -
   (Required)
-  Required. The name of a CloudEvents attribute. Currently, only a subset of attributes can be specified. All triggers MUST provide a matching criteria for the 'type' attribute.
+  Required. The name of a CloudEvents attribute. Currently, only a subset of attributes are supported for filtering. All triggers MUST provide a filter for the 'type' attribute.
     
 * `value` -
   (Required)
@@ -143,7 +147,7 @@ The `cloud_run_service` block supports:
     
 * `service` -
   (Required)
-  Required. The name of the Cloud run service being addressed (see https://cloud.google.com/run/docs/reference/rest/v1/namespaces.services). Only services located in the same project of the trigger object can be addressed.
+  Required. The name of the Cloud Run service being addressed. See https://cloud.google.com/run/docs/reference/rest/v1/namespaces.services. Only services located in the same project of the trigger object can be addressed.
     
 The `transport` block supports:
     
@@ -158,7 +162,7 @@ The `pubsub` block supports:
     
 * `topic` -
   (Optional)
-  Optional. The name of the Pub/Sub topic created and managed by Eventarc system as a transport for the event delivery. Format: `projects/{PROJECT_ID}/topics/{TOPIC_NAME}`. You may set an existing topic for triggers of the type `google.cloud.pubsub.topic.v1.messagePublished` only. The topic you provide here will not be deleted by Eventarc at trigger deletion.
+  Optional. The name of the Pub/Sub topic created and managed by Eventarc system as a transport for the event delivery. Format: `projects/{PROJECT_ID}/topics/{TOPIC_NAME You may set an existing topic for triggers of the type google.cloud.pubsub.topic.v1.messagePublished` only. The topic you provide here will not be deleted by Eventarc at trigger deletion.
     
 ## Attributes Reference
 
@@ -171,6 +175,9 @@ In addition to the arguments listed above, the following computed attributes are
   
 * `etag` -
   Output only. This checksum is computed by the server based on the value of other fields, and may be sent only on create requests to ensure the client has an up-to-date value before proceeding.
+  
+* `uid` -
+  Output only. Server assigned unique identifier for the trigger. The value is a UUID4 string and guaranteed to remain unchanged until the resource is deleted.
   
 * `update_time` -
   Output only. The last-modified time.
