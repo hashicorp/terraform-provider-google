@@ -13,8 +13,9 @@ func dataSourceGoogleRuntimeconfigConfig() *schema.Resource {
 	addOptionalFieldsToSchema(dsSchema, "project")
 
 	return &schema.Resource{
-		Read:   dataSourceGoogleRuntimeconfigConfigRead,
-		Schema: dsSchema,
+		Read:               dataSourceGoogleRuntimeconfigConfigRead,
+		Schema:             dsSchema,
+		DeprecationMessage: "This datasource has been deprecated in the google (GA) provider, and will only be available in the google-beta provider in a future release.",
 	}
 }
 

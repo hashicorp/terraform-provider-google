@@ -1,0 +1,3 @@
+```release-note:deprecation
+runtimeconfig: deprecated the Runtime Configurator service in the `google` (GA) provider including `google_runtimeconfig_config`, `google_runtimeconfig_variable`, `google_runtimeconfig_config_iam_policy`, `google_runtimeconfig_config_iam_binding`, `google_runtimeconfig_config_iam_member`, `data.google_runtimeconfig_config`. They will only be available in the `google-beta` provider in a future release, as the underlying service is in beta.
+```

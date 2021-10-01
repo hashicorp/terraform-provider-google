@@ -106,9 +106,45 @@ terraform {
 
 ## Provider
 
-### Provider-level change example
+### Runtime Configurator (`runtimeconfig`) resources have been removed from the GA provider
 
-Description of the change and how users should adjust their configuration (if needed).
+Earlier versions of the provider accidentally included the Runtime Configurator
+service at GA. `4.0.0` has corrected that error, and Runtime Configurator is
+only available in `google-beta`.
+
+Affected Resources:
+
+    * `google_runtimeconfig_config`
+    * `google_runtimeconfig_variable`
+    * `google_runtimeconfig_config_iam_policy`
+    * `google_runtimeconfig_config_iam_binding`
+    * `google_runtimeconfig_config_iam_member`
+
+Affected Datasources:
+
+    * `google_runtimeconfig_config`
+
+
+If you have a configuration using the `google` provider like the following:
+
+```
+resource "google_runtimeconfig_config" "my-runtime-config" {
+  name        = "my-service-runtime-config"
+  description = "Runtime configuration values for my service"
+}
+```
+
+Add the `google-beta` provider to your configuration:
+
+```
+resource "google_runtimeconfig_config" "my-runtime-config" {
+  provider = google-beta
+
+  name        = "my-service-runtime-config"
+  description = "Runtime configuration values for my service"
+}
+```
+
 
 ## Datasource: `google_product_resource`
 
