@@ -62,17 +62,27 @@ var iamBindingSchema = map[string]*schema.Schema{
 	},
 }
 
-func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
-	return ResourceIamBindingWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled)
+func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, options ...func(*IamSettings)) *schema.Resource {
+	return ResourceIamBindingWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled, options...)
 }
 
 // Resource that batches requests to the same IAM policy across multiple IAM fine-grained resources
-func ResourceIamBindingWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool) *schema.Resource {
+func ResourceIamBindingWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool, options ...func(*IamSettings)) *schema.Resource {
+	settings := &IamSettings{}
+	for _, o := range options {
+		o(settings)
+	}
+
 	return &schema.Resource{
 		Create: resourceIamBindingCreateUpdate(newUpdaterFunc, enableBatching),
 		Read:   resourceIamBindingRead(newUpdaterFunc),
 		Update: resourceIamBindingCreateUpdate(newUpdaterFunc, enableBatching),
 		Delete: resourceIamBindingDelete(newUpdaterFunc, enableBatching),
+
+		// if non-empty, this will be used to send a deprecation message when the
+		// resource is used.
+		DeprecationMessage: settings.DeprecationMessage,
+
 		Schema: mergeSchemas(iamBindingSchema, parentSpecificSchema),
 		Importer: &schema.ResourceImporter{
 			State: iamBindingImport(newUpdaterFunc, resourceIdParser),

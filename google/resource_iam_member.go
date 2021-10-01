@@ -147,15 +147,25 @@ func iamMemberImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser 
 	}
 }
 
-func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
-	return ResourceIamMemberWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled)
+func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, options ...func(*IamSettings)) *schema.Resource {
+	return ResourceIamMemberWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled, options...)
 }
 
-func ResourceIamMemberWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool) *schema.Resource {
+func ResourceIamMemberWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool, options ...func(*IamSettings)) *schema.Resource {
+	settings := &IamSettings{}
+	for _, o := range options {
+		o(settings)
+	}
+
 	return &schema.Resource{
 		Create: resourceIamMemberCreate(newUpdaterFunc, enableBatching),
 		Read:   resourceIamMemberRead(newUpdaterFunc),
 		Delete: resourceIamMemberDelete(newUpdaterFunc, enableBatching),
+
+		// if non-empty, this will be used to send a deprecation message when the
+		// resource is used.
+		DeprecationMessage: settings.DeprecationMessage,
+
 		Schema: mergeSchemas(IamMemberBaseSchema, parentSpecificSchema),
 		Importer: &schema.ResourceImporter{
 			State: iamMemberImport(newUpdaterFunc, resourceIdParser),

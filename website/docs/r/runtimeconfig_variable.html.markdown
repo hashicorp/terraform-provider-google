@@ -14,6 +14,8 @@ Manages a RuntimeConfig variable in Google Cloud. For more information, see the
 or the
 [JSON API](https://cloud.google.com/deployment-manager/runtime-configurator/reference/rest/).
 
+!> This resource has been deprecated in the google (GA) provider, and will only be available in the google-beta provider in a future release.
+
 ## Example Usage
 
 Example creating a RuntimeConfig variable.
