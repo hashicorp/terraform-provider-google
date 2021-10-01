@@ -103,7 +103,7 @@ resource "google_apigee_environment" "apigee_env" {
 }
 
 resource "google_apigee_envgroup_attachment" "" {
-  envgroup_id  = google_apigee_envgroup.apigee_envgroup.name
+  envgroup_id  = google_apigee_envgroup.apigee_envgroup.id
   environment  = google_apigee_environment.apigee_env.name
 }
 ```
