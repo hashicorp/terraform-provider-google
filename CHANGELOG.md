@@ -1,9 +1,5 @@
 ## 3.87.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Added go:build tools line ([#10178](https://github.com/hashicorp/terraform-provider-google/pull/10178))
-* Added monitoring metrics scope and monitored project resources. ([#10126](https://github.com/hashicorp/terraform-provider-google/pull/10126))
-* Revert "Added monitoring metrics scope and monitored project resource… ([#10139](https://github.com/hashicorp/terraform-provider-google/pull/10139))
 DEPRECATIONS:
 * dataproc: deprecated the `google_dataproc_workflow_template.version` field, as it wasn't actually useful. The field is used during updates, but updates aren't currently possible with the resource. ([#10183](https://github.com/hashicorp/terraform-provider-google/pull/10183))
 
@@ -14,15 +10,14 @@ FEATURES:
 IMPROVEMENTS:
 * cloudbuild: added field `service_account` to `google_cloudbuild_trigger` ([#10159](https://github.com/hashicorp/terraform-provider-google/pull/10159))
 * composer: added field `scheduler_count` to `google_composer_environment` ([#10158](https://github.com/hashicorp/terraform-provider-google/pull/10158))
-* compute: Fixed recreation of GCE instances when updating `resource_policies` property ([#10173](https://github.com/hashicorp/terraform-provider-google/pull/10173))
-* compute: added NetLB support for Connection Tracking as `connectionTrackingPolicy` in `RegionBackendService` ([#10150](https://github.com/hashicorp/terraform-provider-google/pull/10150))
-* container: added support for `logging_config` and `monitoring_config` to google_container_cluster ([#10125](https://github.com/hashicorp/terraform-provider-google/pull/10125))
+* compute: Disabled recreation of GCE instances when updating `resource_policies` property ([#10173](https://github.com/hashicorp/terraform-provider-google/pull/10173))
+* container: added support for `logging_config` and `monitoring_config` to `google_container_cluster` ([#10125](https://github.com/hashicorp/terraform-provider-google/pull/10125))
 * kms: added support for `import_only` to `google_kms_crypto_key` ([#10157](https://github.com/hashicorp/terraform-provider-google/pull/10157))
-* networkservices: boosted the default timeout for google_network_services_edge_cache_origin from 30m to 60m ([#10182](https://github.com/hashicorp/terraform-provider-google/pull/10182))
+* networkservices: boosted the default timeout for `google_network_services_edge_cache_origin` from 30m to 60m ([#10182](https://github.com/hashicorp/terraform-provider-google/pull/10182))
 
 BUG FIXES:
 * container: fixed an issue where a node pool created with error (eg. GKE_STOCKOUT) would not be captured in state ([#10137](https://github.com/hashicorp/terraform-provider-google/pull/10137))
-* filestore: fixed `reserved_ip_range` can't be updated on `google_filestore_instance` ([#10146](https://github.com/hashicorp/terraform-provider-google/pull/10146))
+* filestore: Allowed updating `reserved_ip_range` on `google_filestore_instance` via recreation of the instance ([#10146](https://github.com/hashicorp/terraform-provider-google/pull/10146))
 * serviceusage: enabled the service api to retry on failed operation calls in anticipation of transient errors that occur when first enabling the service. ([#10171](https://github.com/hashicorp/terraform-provider-google/pull/10171))
 
 ## 3.86.0 (September 27, 2021)
