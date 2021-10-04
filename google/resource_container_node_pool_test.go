@@ -206,6 +206,45 @@ func TestAccContainerNodePool_withWorkloadIdentityConfig(t *testing.T) {
 				Config: testAccContainerNodePool_withWorkloadMetadataConfig(cluster, np),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_node_pool.with_workload_metadata_config",
+						"node_config.0.workload_metadata_config.0.mode", "GCE_METADATA"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_workload_metadata_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_withWorkloadMetadataConfig_gkeMetadata(pid, cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_workload_metadata_config",
+						"node_config.0.workload_metadata_config.0.mode", "GKE_METADATA"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_workload_metadata_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withWorkloadIdentityConfigDeprecated(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withWorkloadMetadataConfigNodeMetadata(cluster, np),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_workload_metadata_config",
 						"node_config.0.workload_metadata_config.0.node_metadata", "SECURE"),
 				),
 			},
@@ -213,17 +252,12 @@ func TestAccContainerNodePool_withWorkloadIdentityConfig(t *testing.T) {
 				ResourceName:      "google_container_node_pool.with_workload_metadata_config",
 				ImportState:       true,
 				ImportStateVerify: true,
-				// Import always uses the v1 API, so beta features don't get imported.
-				ImportStateVerifyIgnore: []string{
-					"node_config.0.workload_metadata_config.#",
-					"node_config.0.workload_metadata_config.0.node_metadata",
-				},
 			},
 			{
-				Config: testAccContainerNodePool_withWorkloadMetadataConfig_gkeMetadataServer(pid, cluster, np),
+				Config: testAccContainerNodePool_withWorkloadMetadataConfig(cluster, np),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_node_pool.with_workload_metadata_config",
-						"node_config.0.workload_metadata_config.0.node_metadata", "GKE_METADATA_SERVER"),
+						"node_config.0.workload_metadata_config.0.mode", "GCE_METADATA"),
 				),
 			},
 			{
@@ -1178,6 +1212,38 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
     ]
 
     workload_metadata_config {
+      mode = "GCE_METADATA"
+    }
+  }
+}
+`, cluster, np)
+}
+
+func testAccContainerNodePool_withWorkloadMetadataConfigNodeMetadata(cluster, np string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+}
+
+resource "google_container_node_pool" "with_workload_metadata_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    workload_metadata_config {
       node_metadata = "SECURE"
     }
   }
@@ -1185,7 +1251,7 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
 `, cluster, np)
 }
 
-func testAccContainerNodePool_withWorkloadMetadataConfig_gkeMetadataServer(projectID, cluster, np string) string {
+func testAccContainerNodePool_withWorkloadMetadataConfig_gkeMetadata(projectID, cluster, np string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {
   project_id = "%s"
@@ -1218,7 +1284,7 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
     ]
 
     workload_metadata_config {
-      node_metadata = "GKE_METADATA_SERVER"
+      mode = "GKE_METADATA"
     }
   }
 }

@@ -717,7 +717,7 @@ func TestAccContainerCluster_withWorkloadMetadataConfig(t *testing.T) {
 				Config: testAccContainerCluster_withWorkloadMetadataConfig(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.with_workload_metadata_config",
-						"node_config.0.workload_metadata_config.0.node_metadata", "SECURE"),
+						"node_config.0.workload_metadata_config.0.mode", "GCE_METADATA"),
 				),
 			},
 			{
@@ -2486,7 +2486,7 @@ resource "google_container_cluster" "with_workload_metadata_config" {
     ]
 
     workload_metadata_config {
-      node_metadata = "SECURE"
+      mode = "GCE_METADATA"
     }
   }
 }
