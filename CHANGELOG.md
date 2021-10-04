@@ -1,4 +1,4 @@
-## 3.87.0 (Unreleased)
+## 3.87.0 (October 04, 2021)
 
 DEPRECATIONS:
 * dataproc: deprecated the `google_dataproc_workflow_template.version` field, as it wasn't actually useful. The field is used during updates, but updates aren't currently possible with the resource. ([#10183](https://github.com/hashicorp/terraform-provider-google/pull/10183))
