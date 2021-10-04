@@ -132,7 +132,7 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 	})
 }
 
-// Checks environment creation with minimum required information.
+// Checks private environment creation.
 func TestAccComposerEnvironment_private(t *testing.T) {
 	t.Parallel()
 
@@ -383,7 +383,7 @@ resource "google_composer_environment" "test" {
 		}
 		private_environment_config {
 			enable_private_endpoint = true
-		}
+	}
 	}
 }
 

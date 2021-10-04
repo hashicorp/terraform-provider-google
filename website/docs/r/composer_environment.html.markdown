@@ -338,6 +338,11 @@ See [documentation](https://cloud.google.com/composer/docs/how-to/managing/confi
   (Optional)
   The CIDR block from which IP range for web server will be reserved. Needs to be disjoint from `master_ipv4_cidr_block` and `cloud_sql_ipv4_cidr_block`.
 
+* `enable_privately_used_public_ips` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  When enabled, IPs from public (non-RFC1918) ranges can be used for 
+  `ip_allocation_policy.cluster_ipv4_cidr_block` and `ip_allocation_policy.service_ipv4_cidr_block`.
+
 The `web_server_network_access_control` supports:
 
 * `allowed_ip_range` -
