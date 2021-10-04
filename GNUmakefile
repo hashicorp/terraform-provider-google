@@ -1,4 +1,4 @@
-TEST?=$$(go list ./...)
+TEST?=$$(go list ./... | grep -v github.com/hashicorp/terraform-provider-google/scripts)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=google
 
