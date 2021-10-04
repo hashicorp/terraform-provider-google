@@ -1,0 +1,4 @@
+```release-note:enhancement
+composer: added field `enable_privately_used_public_ips` to resource `google_composer_environment` (beta)
+
+```
