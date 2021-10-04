@@ -4,7 +4,6 @@ DEPRECATIONS:
 * dataproc: deprecated the `google_dataproc_workflow_template.version` field, as it wasn't actually useful. The field is used during updates, but updates aren't currently possible with the resource. ([#10183](https://github.com/hashicorp/terraform-provider-google/pull/10183))
 
 FEATURES:
-* **New Resource:** `google_monitoring_monitored_project` ([#10153](https://github.com/hashicorp/terraform-provider-google/pull/10153))
 * **New Resource:** `google_org_policy_policy` ([#10111](https://github.com/hashicorp/terraform-provider-google/pull/10111))
 
 IMPROVEMENTS:
