@@ -868,14 +868,20 @@ The `taint` block supports:
 
 * `effect` (Required) Effect for taint. Accepted values are `NO_SCHEDULE`, `PREFER_NO_SCHEDULE`, and `NO_EXECUTE`.
 
-The `workload_metadata_config` block supports:
+The `workload_metadata_config` must have exactly one of `node_metadata` (deprecated) or `mode` set. This block supports:
 
-* `node_metadata` (Required) How to expose the node metadata to the workload running on the node.
+* `node_metadata` (Optional, Deprecated) How to expose the node metadata to the workload running on the node. This is deprecated in favor of `mode`
     Accepted values are:
     * UNSPECIFIED: Not Set
     * SECURE: Prevent workloads not in hostNetwork from accessing certain VM metadata, specifically kube-env, which contains Kubelet credentials, and the instance identity token. See [Metadata Concealment](https://cloud.google.com/kubernetes-engine/docs/how-to/metadata-proxy) documentation.
     * EXPOSE: Expose all VM metadata to pods.
     * GKE_METADATA_SERVER: Enables [workload identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) on the node.
+
+* `mode` (Optional) How to expose the node metadata to the workload running on the node.
+    Accepted values are:
+    * UNSPECIFIED: Not Set
+    * GCE_METADATA: Expose all Compute Engine metadata to pods.
+    * GKE_METADATA: Run the GKE Metadata Server on this node. The GKE Metadata Server exposes a metadata API to workloads that is compatible with the V1 Compute Metadata APIs exposed by the Compute Engine and App Engine Metadata Servers. This feature can only be enabled if [workload identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) is enabled at the cluster level.
 
 The `kubelet_config` block supports:
 

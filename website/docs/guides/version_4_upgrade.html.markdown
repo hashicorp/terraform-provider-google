@@ -15,8 +15,8 @@ description: |-
     - [Provider-level change example](#provider-level-change-example)
   - [Datasource: `google_product_resource`](#datasource-google_product_resource)
     - [Datasource-level change example](#datasource-level-change-example)
-  - [Resource: `google_product_resource`](#resource-google_product_resource)
-    - [Resource-level change example](#resource-level-change-example)
+  - [Resource: `google_container_cluster`](#resource-google_container_cluster)
+    - [`node_config.workload_metadata_config.node_metadata` is now removed](#node_configworkload_metadata_confignode_metadata-is-now-removed)
 
 <!-- /TOC -->
 
@@ -152,8 +152,8 @@ resource "google_runtimeconfig_config" "my-runtime-config" {
 
 Description of the change and how users should adjust their configuration (if needed).
 
-## Resource: `google_product_resource`
+## Resource: `google_container_cluster`
 
-### Resource-level change example
+### `node_config.workload_metadata_config.node_metadata` is now removed
 
-Description of the change and how users should adjust their configuration (if needed).
+Removed in favor of `node_config.workload_metadata_config.mode`.
