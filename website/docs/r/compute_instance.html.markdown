@@ -266,12 +266,16 @@ The `network_performance_config` block supports:
 The `network_interface` block supports:
 
 * `network` - (Optional) The name or self_link of the network to attach this interface to.
-    Either `network` or `subnetwork` must be provided.
+    Either `network` or `subnetwork` must be provided. If network isn't provided it will
+    be inferred from the subnetwork.
 
 *  `subnetwork` - (Optional) The name or self_link of the subnetwork to attach this
-    interface to. The subnetwork must exist in the same region this instance will be
-    created in. If network isn't provided it will be inferred from the subnetwork.
-    Either `network` or `subnetwork` must be provided.
+    interface to. Either `network` or `subnetwork` must be provided. If network isn't provided
+    it will be inferred from the subnetwork. The subnetwork must exist in the same region this
+    instance will be created in. If the network resource is in
+    [legacy](https://cloud.google.com/vpc/docs/legacy) mode, do not specify this field. If the
+    network is in auto subnet mode, specifying the subnetwork is optional. If the network is
+    in custom subnet mode, specifying the subnetwork is required.
 
 *  `subnetwork_project` - (Optional) The project in which the subnetwork belongs.
    If the `subnetwork` is a self_link, this field is ignored in favor of the project
