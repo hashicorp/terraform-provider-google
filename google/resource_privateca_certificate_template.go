@@ -774,12 +774,12 @@ func flattenPrivatecaCertificateTemplatePassthroughExtensions(obj *privateca.Cer
 }
 func expandPrivatecaCertificateTemplatePassthroughExtensionsAdditionalExtensionsArray(o interface{}) []privateca.CertificateTemplatePassthroughExtensionsAdditionalExtensions {
 	if o == nil {
-		return nil
+		return make([]privateca.CertificateTemplatePassthroughExtensionsAdditionalExtensions, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]privateca.CertificateTemplatePassthroughExtensionsAdditionalExtensions, 0)
 	}
 
 	items := make([]privateca.CertificateTemplatePassthroughExtensionsAdditionalExtensions, 0, len(objs))
@@ -863,12 +863,12 @@ func flattenPrivatecaCertificateTemplatePredefinedValues(obj *privateca.Certific
 }
 func expandPrivatecaCertificateTemplatePredefinedValuesAdditionalExtensionsArray(o interface{}) []privateca.CertificateTemplatePredefinedValuesAdditionalExtensions {
 	if o == nil {
-		return nil
+		return make([]privateca.CertificateTemplatePredefinedValuesAdditionalExtensions, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]privateca.CertificateTemplatePredefinedValuesAdditionalExtensions, 0)
 	}
 
 	items := make([]privateca.CertificateTemplatePredefinedValuesAdditionalExtensions, 0, len(objs))
@@ -1084,12 +1084,12 @@ func flattenPrivatecaCertificateTemplatePredefinedValuesKeyUsageExtendedKeyUsage
 }
 func expandPrivatecaCertificateTemplatePredefinedValuesKeyUsageUnknownExtendedKeyUsagesArray(o interface{}) []privateca.CertificateTemplatePredefinedValuesKeyUsageUnknownExtendedKeyUsages {
 	if o == nil {
-		return nil
+		return make([]privateca.CertificateTemplatePredefinedValuesKeyUsageUnknownExtendedKeyUsages, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]privateca.CertificateTemplatePredefinedValuesKeyUsageUnknownExtendedKeyUsages, 0)
 	}
 
 	items := make([]privateca.CertificateTemplatePredefinedValuesKeyUsageUnknownExtendedKeyUsages, 0, len(objs))
@@ -1139,12 +1139,12 @@ func flattenPrivatecaCertificateTemplatePredefinedValuesKeyUsageUnknownExtendedK
 }
 func expandPrivatecaCertificateTemplatePredefinedValuesPolicyIdsArray(o interface{}) []privateca.CertificateTemplatePredefinedValuesPolicyIds {
 	if o == nil {
-		return nil
+		return make([]privateca.CertificateTemplatePredefinedValuesPolicyIds, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]privateca.CertificateTemplatePredefinedValuesPolicyIds, 0)
 	}
 
 	items := make([]privateca.CertificateTemplatePredefinedValuesPolicyIds, 0, len(objs))

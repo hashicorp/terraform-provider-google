@@ -458,12 +458,12 @@ func flattenAssuredWorkloadsWorkloadKmsSettings(obj *assuredworkloads.WorkloadKm
 }
 func expandAssuredWorkloadsWorkloadResourceSettingsArray(o interface{}) []assuredworkloads.WorkloadResourceSettings {
 	if o == nil {
-		return nil
+		return make([]assuredworkloads.WorkloadResourceSettings, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]assuredworkloads.WorkloadResourceSettings, 0)
 	}
 
 	items := make([]assuredworkloads.WorkloadResourceSettings, 0, len(objs))

@@ -381,12 +381,12 @@ func flattenOrgPolicyPolicySpec(obj *orgpolicy.PolicySpec) interface{} {
 }
 func expandOrgPolicyPolicySpecRulesArray(o interface{}) []orgpolicy.PolicySpecRules {
 	if o == nil {
-		return nil
+		return make([]orgpolicy.PolicySpecRules, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]orgpolicy.PolicySpecRules, 0)
 	}
 
 	items := make([]orgpolicy.PolicySpecRules, 0, len(objs))
