@@ -259,6 +259,13 @@ The `node_config` block supports:
   The range of possible values is 8-110, and the default is 32.
   Cannot be updated.
 
+* `enable_ip_masq_agent` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Deploys 'ip-masq-agent' daemon set in the GKE cluster and defines
+  nonMasqueradeCIDRs equals to pod IP range so IP masquerading is used for
+  all destination addresses, except between pods traffic.
+  See the [documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-masquerade-agent).
+
 The `software_config` block supports:
 
 * `airflow_config_overrides` -
