@@ -47,7 +47,7 @@ resource "google_runtimeconfig_config" "my-runtime-config" {
 resource "google_runtimeconfig_variable" "my-secret" {
   parent = google_runtimeconfig_config.my-runtime-config.name
   name   = "secret"
-  value  = base64encode(file("my-encrypted-secret.dat"))
+  value  = filebase64("my-encrypted-secret.dat")
 }
 ```
 
