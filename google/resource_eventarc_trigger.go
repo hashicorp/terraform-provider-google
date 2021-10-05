@@ -515,14 +515,14 @@ func flattenEventarcTriggerDestinationCloudRunService(obj *eventarc.TriggerDesti
 }
 func expandEventarcTriggerMatchingCriteriaArray(o interface{}) []eventarc.TriggerMatchingCriteria {
 	if o == nil {
-		return nil
+		return make([]eventarc.TriggerMatchingCriteria, 0)
 	}
 
 	o = o.(*schema.Set).List()
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]eventarc.TriggerMatchingCriteria, 0)
 	}
 
 	items := make([]eventarc.TriggerMatchingCriteria, 0, len(objs))

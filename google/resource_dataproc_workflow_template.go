@@ -1920,12 +1920,12 @@ func resourceDataprocWorkflowTemplateImport(d *schema.ResourceData, meta interfa
 
 func expandDataprocWorkflowTemplateJobsArray(o interface{}) []dataproc.WorkflowTemplateJobs {
 	if o == nil {
-		return nil
+		return make([]dataproc.WorkflowTemplateJobs, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]dataproc.WorkflowTemplateJobs, 0)
 	}
 
 	items := make([]dataproc.WorkflowTemplateJobs, 0, len(objs))
@@ -2701,12 +2701,12 @@ func flattenDataprocWorkflowTemplatePlacementManagedCluster(obj *dataproc.Workfl
 }
 func expandDataprocWorkflowTemplateParametersArray(o interface{}) []dataproc.WorkflowTemplateParameters {
 	if o == nil {
-		return nil
+		return make([]dataproc.WorkflowTemplateParameters, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]dataproc.WorkflowTemplateParameters, 0)
 	}
 
 	items := make([]dataproc.WorkflowTemplateParameters, 0, len(objs))
@@ -3214,12 +3214,12 @@ func flattenDataprocWorkflowTemplateClusterClusterConfigGceClusterConfigReservat
 }
 func expandDataprocWorkflowTemplateClusterClusterConfigInitializationActionsArray(o interface{}) []dataproc.ClusterClusterConfigInitializationActions {
 	if o == nil {
-		return nil
+		return make([]dataproc.ClusterClusterConfigInitializationActions, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]dataproc.ClusterClusterConfigInitializationActions, 0)
 	}
 
 	items := make([]dataproc.ClusterClusterConfigInitializationActions, 0, len(objs))

@@ -445,12 +445,12 @@ func resourceComputeGlobalForwardingRuleImport(d *schema.ResourceData, meta inte
 
 func expandComputeGlobalForwardingRuleMetadataFilterArray(o interface{}) []compute.ForwardingRuleMetadataFilter {
 	if o == nil {
-		return nil
+		return make([]compute.ForwardingRuleMetadataFilter, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]compute.ForwardingRuleMetadataFilter, 0)
 	}
 
 	items := make([]compute.ForwardingRuleMetadataFilter, 0, len(objs))
@@ -502,12 +502,12 @@ func flattenComputeGlobalForwardingRuleMetadataFilter(obj *compute.ForwardingRul
 }
 func expandComputeGlobalForwardingRuleMetadataFilterFilterLabelArray(o interface{}) []compute.ForwardingRuleMetadataFilterFilterLabel {
 	if o == nil {
-		return nil
+		return make([]compute.ForwardingRuleMetadataFilterFilterLabel, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]compute.ForwardingRuleMetadataFilterFilterLabel, 0)
 	}
 
 	items := make([]compute.ForwardingRuleMetadataFilterFilterLabel, 0, len(objs))

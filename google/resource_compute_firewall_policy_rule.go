@@ -419,12 +419,12 @@ func flattenComputeFirewallPolicyRuleMatch(obj *compute.FirewallPolicyRuleMatch)
 }
 func expandComputeFirewallPolicyRuleMatchLayer4ConfigsArray(o interface{}) []compute.FirewallPolicyRuleMatchLayer4Configs {
 	if o == nil {
-		return nil
+		return make([]compute.FirewallPolicyRuleMatchLayer4Configs, 0)
 	}
 
 	objs := o.([]interface{})
 	if len(objs) == 0 {
-		return nil
+		return make([]compute.FirewallPolicyRuleMatchLayer4Configs, 0)
 	}
 
 	items := make([]compute.FirewallPolicyRuleMatchLayer4Configs, 0, len(objs))
