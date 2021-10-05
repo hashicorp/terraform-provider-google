@@ -24,7 +24,7 @@ resource "google_endpoints_service" "grpc_service" {
   service_name         = "api-name.endpoints.project-id.cloud.goog"
   project              = "project-id"
   grpc_config          = file("service_spec.yml")
-  protoc_output_base64 = base64encode(file("compiled_descriptor_file.pb"))
+  protoc_output_base64 = filebase64("compiled_descriptor_file.pb")
 }
 ```
 
