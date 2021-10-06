@@ -1,0 +1,3 @@
+```release-note:enhancement
+composer: added support for composer v2 fields `workloads_config` and `cloud_composer_network_ipv4_cidr_block` to `composer_environment`
+```
