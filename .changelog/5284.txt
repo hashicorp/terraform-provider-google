@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_pubsub_lite_reservation`
+```
+```release-note:enhancement
+pubsub:  Added support for references to `google_pubsub_lite_reservation` to `google_pubsub_lite_topic`.
+```

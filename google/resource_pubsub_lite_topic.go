@@ -90,6 +90,22 @@ func resourcePubsubLiteTopic() *schema.Resource {
 				Optional:    true,
 				Description: `The region of the pubsub lite topic.`,
 			},
+			"reservation_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The settings for this topic's Reservation usage.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"throughput_reservation": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							Description:      `The Reservation to use for this topic's throughput capacity.`,
+						},
+					},
+				},
+			},
 			"retention_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -148,6 +164,12 @@ func resourcePubsubLiteTopicCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("retention_config"); !isEmptyValue(reflect.ValueOf(retentionConfigProp)) && (ok || !reflect.DeepEqual(v, retentionConfigProp)) {
 		obj["retentionConfig"] = retentionConfigProp
+	}
+	reservationConfigProp, err := expandPubsubLiteTopicReservationConfig(d.Get("reservation_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("reservation_config"); !isEmptyValue(reflect.ValueOf(reservationConfigProp)) && (ok || !reflect.DeepEqual(v, reservationConfigProp)) {
+		obj["reservationConfig"] = reservationConfigProp
 	}
 
 	obj, err = resourcePubsubLiteTopicEncoder(d, meta, obj)
@@ -231,6 +253,9 @@ func resourcePubsubLiteTopicRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("retention_config", flattenPubsubLiteTopicRetentionConfig(res["retentionConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
+	if err := d.Set("reservation_config", flattenPubsubLiteTopicReservationConfig(res["reservationConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Topic: %s", err)
+	}
 
 	return nil
 }
@@ -263,6 +288,12 @@ func resourcePubsubLiteTopicUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("retention_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retentionConfigProp)) {
 		obj["retentionConfig"] = retentionConfigProp
 	}
+	reservationConfigProp, err := expandPubsubLiteTopicReservationConfig(d.Get("reservation_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("reservation_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, reservationConfigProp)) {
+		obj["reservationConfig"] = reservationConfigProp
+	}
 
 	obj, err = resourcePubsubLiteTopicEncoder(d, meta, obj)
 	if err != nil {
@@ -283,6 +314,10 @@ func resourcePubsubLiteTopicUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("retention_config") {
 		updateMask = append(updateMask, "retentionConfig")
+	}
+
+	if d.HasChange("reservation_config") {
+		updateMask = append(updateMask, "reservationConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
@@ -469,6 +504,26 @@ func flattenPubsubLiteTopicRetentionConfigPeriod(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenPubsubLiteTopicReservationConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["throughput_reservation"] =
+		flattenPubsubLiteTopicReservationConfigThroughputReservation(original["throughputReservation"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubLiteTopicReservationConfigThroughputReservation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return ConvertSelfLinkToV1(v.(string))
+}
+
 func expandPubsubLiteTopicPartitionConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -565,6 +620,34 @@ func expandPubsubLiteTopicRetentionConfigPerPartitionBytes(v interface{}, d Terr
 
 func expandPubsubLiteTopicRetentionConfigPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandPubsubLiteTopicReservationConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedThroughputReservation, err := expandPubsubLiteTopicReservationConfigThroughputReservation(original["throughput_reservation"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedThroughputReservation); val.IsValid() && !isEmptyValue(val) {
+		transformed["throughputReservation"] = transformedThroughputReservation
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubLiteTopicReservationConfigThroughputReservation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	f, err := parseRegionalFieldValue("reservations", v.(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for throughput_reservation: %s", err)
+	}
+	// Custom due to "locations" rather than "regions".
+	return fmt.Sprintf("projects/%s/locations/%s/reservations/%s", f.Project, f.Region, f.Name), nil
 }
 
 func resourcePubsubLiteTopicEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {

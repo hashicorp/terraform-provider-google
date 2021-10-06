@@ -27,9 +27,9 @@ A named resource to which messages are sent by publishers.
 
 To get more information about Topic, see:
 
-* [API documentation](https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics)
+* [API documentation](https://cloud.google.com/pubsub/lite/docs/reference/rest/v1/admin.projects.locations.topics)
 * How-to Guides
-    * [Managing Topics](https://cloud.google.com/pubsub/docs/admin#managing_topics)
+    * [Managing Topics](https://cloud.google.com/pubsub/lite/docs/topics)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_lite_topic_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -40,6 +40,12 @@ To get more information about Topic, see:
 
 
 ```hcl
+resource "google_pubsub_lite_reservation" "example" {
+  name = "example-reservation"
+  project = data.google_project.project.number
+  throughput_capacity = 2
+}
+
 resource "google_pubsub_lite_topic" "example" {
   name = "example-topic"
   project = data.google_project.project.number
@@ -54,6 +60,10 @@ resource "google_pubsub_lite_topic" "example" {
 
   retention_config {
     per_partition_bytes = 32212254720
+  }
+
+  reservation_config {
+    throughput_reservation = google_pubsub_lite_reservation.example.name
   }
 }
 
@@ -83,6 +93,11 @@ The following arguments are supported:
   (Optional)
   The settings for a topic's message retention.
   Structure is [documented below](#nested_retention_config).
+
+* `reservation_config` -
+  (Optional)
+  The settings for this topic's Reservation usage.
+  Structure is [documented below](#nested_reservation_config).
 
 * `region` -
   (Optional)
@@ -130,6 +145,12 @@ The following arguments are supported:
   (Optional)
   How long a published message is retained. If unset, messages will be retained as
   long as the bytes retained for each partition is below perPartitionBytes.
+
+<a name="nested_reservation_config"></a>The `reservation_config` block supports:
+
+* `throughput_reservation` -
+  (Optional)
+  The Reservation to use for this topic's throughput capacity.
 
 ## Attributes Reference
 

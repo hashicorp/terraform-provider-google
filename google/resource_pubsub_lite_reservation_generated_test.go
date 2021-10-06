@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccPubsubLiteTopic_pubsubLiteTopicBasicExample(t *testing.T) {
+func TestAccPubsubLiteReservation_pubsubLiteReservationBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -33,22 +33,22 @@ func TestAccPubsubLiteTopic_pubsubLiteTopicBasicExample(t *testing.T) {
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPubsubLiteTopicDestroyProducer(t),
+		CheckDestroy: testAccCheckPubsubLiteReservationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPubsubLiteTopic_pubsubLiteTopicBasicExample(context),
+				Config: testAccPubsubLiteReservation_pubsubLiteReservationBasicExample(context),
 			},
 			{
-				ResourceName:            "google_pubsub_lite_topic.example",
+				ResourceName:            "google_pubsub_lite_reservation.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "zone", "name"},
+				ImportStateVerifyIgnore: []string{"region", "name"},
 			},
 		},
 	})
 }
 
-func testAccPubsubLiteTopic_pubsubLiteTopicBasicExample(context map[string]interface{}) string {
+func testAccPubsubLiteReservation_pubsubLiteReservationBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_pubsub_lite_reservation" "example" {
   name = "tf-test-example-reservation%{random_suffix}"
@@ -56,36 +56,15 @@ resource "google_pubsub_lite_reservation" "example" {
   throughput_capacity = 2
 }
 
-resource "google_pubsub_lite_topic" "example" {
-  name = "tf-test-example-topic%{random_suffix}"
-  project = data.google_project.project.number
-
-  partition_config {
-    count = 1
-    capacity {
-      publish_mib_per_sec = 4
-      subscribe_mib_per_sec = 8
-    }
-  }
-
-  retention_config {
-    per_partition_bytes = 32212254720
-  }
-
-  reservation_config {
-    throughput_reservation = google_pubsub_lite_reservation.example.name
-  }
-}
-
 data "google_project" "project" {
 }
 `, context)
 }
 
-func testAccCheckPubsubLiteTopicDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckPubsubLiteReservationDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_pubsub_lite_topic" {
+			if rs.Type != "google_pubsub_lite_reservation" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
@@ -94,7 +73,7 @@ func testAccCheckPubsubLiteTopicDestroyProducer(t *testing.T) func(s *terraform.
 
 			config := googleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics/{{name}}")
+			url, err := replaceVarsForTest(config, rs, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{region}}/reservations/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -107,7 +86,7 @@ func testAccCheckPubsubLiteTopicDestroyProducer(t *testing.T) func(s *terraform.
 
 			_, err = sendRequest(config, "GET", billingProject, url, config.userAgent, nil)
 			if err == nil {
-				return fmt.Errorf("PubsubLiteTopic still exists at %s", url)
+				return fmt.Errorf("PubsubLiteReservation still exists at %s", url)
 			}
 		}
 
