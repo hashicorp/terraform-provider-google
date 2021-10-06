@@ -15,6 +15,7 @@ Creates and manages service account keys, which allow the use of a service accou
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/iam/docs/creating-managing-service-account-keys)
 
+~> **Warning:** If the `project` field in the google provider configuration is absent and the `service_account_id` field is not specified using the `{ACCOUNT}` syntax, then this resource will produce the following error: `Error: project: required field is not set`. Ensure the `service_account_id` is specified using the `{ACCOUNT}` syntax so that the project is inferred from the account.
 
 ## Example Usage, creating a new Key
 
