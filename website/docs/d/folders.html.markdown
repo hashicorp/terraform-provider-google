@@ -42,10 +42,10 @@ The `folders` block supports:
 
 * `name` - The id of the folder
 * `parent` - The parent id of the folder
-* `displayName` - The display name of the folder
+* `display_name` - The display name of the folder
 * `state` - The lifecycle state of the folder
-* `createTime` - The timestamp of when the folder was created
-* `updateTime` - The timestamp of when the folder was last modified
-* `deleteTime` - The timestamp of when the folder was requested to be deleted (if applicable)
+* `create_time` - The timestamp of when the folder was created
+* `update_time` - The timestamp of when the folder was last modified
+* `delete_time` - The timestamp of when the folder was requested to be deleted (if applicable)
 * `etag` - Entity tag identifier of the folder
 
