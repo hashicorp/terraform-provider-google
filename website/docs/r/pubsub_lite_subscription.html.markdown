@@ -29,9 +29,9 @@ specific topic, to be delivered to the subscribing application.
 
 To get more information about Subscription, see:
 
-* [API documentation](https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions)
+* [API documentation](https://cloud.google.com/pubsub/lite/docs/reference/rest/v1/admin.projects.locations.subscriptions)
 * How-to Guides
-    * [Managing Subscriptions](https://cloud.google.com/pubsub/docs/admin#managing_subscriptions)
+    * [Managing Subscriptions](https://cloud.google.com/pubsub/lite/docs/subscriptions)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_lite_subscription_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
