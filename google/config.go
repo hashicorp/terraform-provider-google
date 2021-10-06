@@ -630,6 +630,30 @@ func (c *Config) NewStorageClient(userAgent string) *storage.Service {
 	return clientStorage
 }
 
+// For object uploads, we need to override the specific timeout because they are long, synchronous operations.
+func (c *Config) NewStorageClientWithTimeoutOverride(userAgent string, timeout time.Duration) *storage.Service {
+	storageClientBasePath := c.StorageBasePath
+	log.Printf("[INFO] Instantiating Google Storage client for path %s", storageClientBasePath)
+	// Copy the existing HTTP client (which has no unexported fields [as of Oct 2021 at least], so this is safe).
+	// We have to do this because otherwise we will accidentally change the timeout for all other
+	// synchronous operations, which would not be desirable.
+	httpClient := &http.Client{
+		Transport:     c.client.Transport,
+		CheckRedirect: c.client.CheckRedirect,
+		Jar:           c.client.Jar,
+		Timeout:       timeout,
+	}
+	clientStorage, err := storage.NewService(c.context, option.WithHTTPClient(httpClient))
+	if err != nil {
+		log.Printf("[WARN] Error creating client storage: %s", err)
+		return nil
+	}
+	clientStorage.UserAgent = userAgent
+	clientStorage.BasePath = storageClientBasePath
+
+	return clientStorage
+}
+
 func (c *Config) NewSqlAdminClient(userAgent string) *sqladmin.Service {
 	sqlClientBasePath := removeBasePathVersion(removeBasePathVersion(c.SQLBasePath))
 	log.Printf("[INFO] Instantiating Google SqlAdmin client for path %s", sqlClientBasePath)
