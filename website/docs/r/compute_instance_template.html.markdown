@@ -277,8 +277,8 @@ The following arguments are supported:
 * `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is documented below.
 	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
 
-* `enable_display` - (Optional) Enable [Virtual Displays](https://cloud.google.com/compute/docs/instances/enable-instance-virtual-display#verify_display_driver) on this instance.
-**Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field.
+* `enable_display` - (Optional)) Enable [Virtual Displays](https://cloud.google.com/compute/docs/instances/enable-instance-virtual-display#verify_display_driver) on this instance.
+**Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this field. Note: This attribute is currently in beta and will be removed from the google provider. Please use the google-beta provider to continue using this attribute.
 
 * `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
 

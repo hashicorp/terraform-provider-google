@@ -250,6 +250,7 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				ForceNew:    true,
+				Deprecated:  "This attribute is currently in beta and will be removed from the google provider. Please use the google-beta provider to continue using this attribute.",
 				Description: `Enable Virtual Displays on this instance. Note: allow_stopping_for_update must be set to true in order to update this field.`,
 			},
 

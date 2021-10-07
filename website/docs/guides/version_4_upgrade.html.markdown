@@ -173,6 +173,13 @@ This field was incorrectly included in the GA `google` provider in past releases
 In order to continue to use the feature, add `provider = google-beta` to your
 resource definition.
 
+## Resource: `google_compute_instance_template`
+
+### `enable_display` is removed from the GA provider
+
+This field was incorrectly included in the GA `google` provider in past releases.
+In order to continue to use the feature, add `provider = google-beta` to your
+resource definition.
 
 ## Resource: `google_container_cluster`
 
