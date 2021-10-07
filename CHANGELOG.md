@@ -17,6 +17,7 @@ FEATURES:
 * **New Resource:** `google_service_networking_peered_dns_domain` ([#10229](https://github.com/hashicorp/terraform-provider-google/pull/10229))
 
 IMPROVEMENTS:
+* composer: added support for composer v2 fields `workloads_config` and `cloud_composer_network_ipv4_cidr_block` to `composer_environment` ([10269](https://github.com/hashicorp/terraform-provider-google/pull/10269))
 * compute: added external IPv6 support on `google_compute_subnetwork` and `google_compute_instance.network_interfaces` ([#10189](https://github.com/hashicorp/terraform-provider-google/pull/10189))
 * container: added support for `workload_metadata_configuration.mode` in `google_container_cluster` ([#10238](https://github.com/hashicorp/terraform-provider-google/pull/10238))
 * eventarc: added support for `uid` output field, `cloud_function` destination to `google_eventarc_trigger` ([#10199](https://github.com/hashicorp/terraform-provider-google/pull/10199))
