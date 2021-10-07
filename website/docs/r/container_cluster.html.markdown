@@ -61,6 +61,10 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 }
 ```
 
+~> **Note:** It is recommended that node pools be created and managed as separate resources as in the example above.
+This allows node pools to be added and removed without recreating the cluster.  Node pools defined directly in the
+`google_container_cluster` resource cannot be removed without re-creating the cluster.
+
 ## Example Usage - with the default node pool
 
 ```hcl

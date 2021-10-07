@@ -1,4 +1,5 @@
 ## 3.88.0 (Unreleased)
+
 NOTES:
 * reorganized documentation to group all Compute Engine and Monitoring (Stackdriver) resources together. ([#10205](https://github.com/hashicorp/terraform-provider-google/pull/10205))
 DEPRECATIONS:
@@ -48,8 +49,6 @@ BUG FIXES:
 * container: fixed an issue where a node pool created with error (eg. GKE_STOCKOUT) would not be captured in state ([#10137](https://github.com/hashicorp/terraform-provider-google/pull/10137))
 * filestore: Allowed updating `reserved_ip_range` on `google_filestore_instance` via recreation of the instance ([#10146](https://github.com/hashicorp/terraform-provider-google/pull/10146))
 * serviceusage: enabled the service api to retry on failed operation calls in anticipation of transient errors that occur when first enabling the service. ([#10171](https://github.com/hashicorp/terraform-provider-google/pull/10171))
-
-
 
 ## 3.86.0 (September 27, 2021)
 
