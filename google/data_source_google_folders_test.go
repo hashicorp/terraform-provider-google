@@ -10,14 +10,16 @@ import (
 func TestAccDataSourceGoogleFolders_basic(t *testing.T) {
 	t.Parallel()
 
-	org_id := getTestOrgFromEnv()
+	org := getTestOrgFromEnv(t)
+	parent := fmt.Sprintf("organizations/%s", org)
+	displayName := "terraform-test-" + randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckGoogleFoldersConfig(org_id),
+				Config: testAccCheckGoogleFoldersConfig(parent, displayName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.google_folders.my-folder", "folders.0.name"),
 					resource.TestCheckResourceAttrSet("data.google_folders.my-folder", "folders.0.display_name"),
@@ -35,10 +37,15 @@ func TestAccDataSourceGoogleFolders_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckGoogleFoldersConfig(org_id string) string {
+func testAccCheckGoogleFoldersConfig(parent string, displayName string) string {
 	return fmt.Sprintf(`
-data "google_folders" "my-folder" {
-  parent_id = "organizations/%s"
+resource "google_folder" "foobar" {
+		parent       = "%s"
+		display_name = "%s"
 }
-`, org_id)
+
+data "google_folders" "root-test" {
+  parent_id = "%s"
+}
+`, parent, displayName, parent)
 }
