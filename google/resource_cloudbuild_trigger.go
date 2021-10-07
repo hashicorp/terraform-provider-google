@@ -651,7 +651,7 @@ Default time is ten minutes (600s).`,
 				Optional: true,
 				Description: `Describes the configuration of a trigger that creates a build whenever a GitHub event is received.
 
-One of 'trigger_template', 'github', 'pubsub_config' or 'webhook_config' must be provided.`,
+One of 'trigger_template' or 'github' must be provided.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -724,7 +724,7 @@ https://github.com/googlecloudplatform/cloud-builders is "googlecloudplatform".`
 						},
 					},
 				},
-				ExactlyOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config"},
+				ExactlyOneOf: []string{"trigger_template", "github"},
 			},
 			"ignored_files": {
 				Type:     schema.TypeList,
@@ -772,7 +772,7 @@ a build.`,
 				Description: `PubsubConfig describes the configuration of a trigger that creates 
 a build whenever a Pub/Sub message is published.
 
-One of 'trigger_template', 'github', 'pubsub_config' or 'webhook_config' must be provided.`,
+One of 'trigger_template' or 'github' must be provided.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -799,7 +799,7 @@ Only populated on get requests.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config"},
+				ExactlyOneOf: []string{"trigger_template", "github"},
 			},
 			"service_account": {
 				Type:     schema.TypeString,
@@ -835,7 +835,7 @@ Branch and tag names in trigger templates are interpreted as regular
 expressions. Any branch or tag change that matches that regular
 expression will trigger a build.
 
-One of 'trigger_template', 'github', 'pubsub_config' or 'webhook_config' must be provided.`,
+One of 'trigger_template' or 'github' must be provided.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -888,7 +888,7 @@ This field is a regular expression.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config"},
+				ExactlyOneOf: []string{"trigger_template", "github"},
 			},
 			"webhook_config": {
 				Type:     schema.TypeList,
@@ -896,7 +896,7 @@ This field is a regular expression.`,
 				Description: `WebhookConfig describes the configuration of a trigger that creates 
 a build whenever a webhook is sent to a trigger's webhook URL.
 
-One of 'trigger_template', 'github', 'pubsub_config' or 'webhook_config' must be provided.`,
+One of 'trigger_template' or 'github' must be provided.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -913,7 +913,7 @@ Only populated on get requests.`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"trigger_template", "github", "pubsub_config", "webhook_config"},
+				ExactlyOneOf: []string{"trigger_template", "github"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
