@@ -466,6 +466,17 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Created bucket %v at location %v\n\n", res.Name, res.SelfLink)
 	d.SetId(res.Id)
 
+	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
+	// to make sure it exists before moving on
+	err = retryTimeDuration(func() (operr error) {
+		_, retryErr := config.NewStorageClient(userAgent).Buckets.Get(res.Name).Do()
+		return retryErr
+	}, d.Timeout(schema.TimeoutCreate), isNotFoundRetryableError("bucket creation"))
+
+	if err != nil {
+		return fmt.Errorf("Error reading bucket after creation: %s", err)
+	}
+
 	// If the retention policy is not already locked, check if it
 	// needs to be locked.
 	if v, ok := d.GetOk("retention_policy"); ok && !res.RetentionPolicy.IsLocked {
@@ -601,6 +612,17 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
 
+	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
+	// to make sure it exists before moving on
+	err = retryTimeDuration(func() (operr error) {
+		_, retryErr := config.NewStorageClient(userAgent).Buckets.Get(res.Name).Do()
+		return retryErr
+	}, d.Timeout(schema.TimeoutUpdate), isNotFoundRetryableError("bucket update"))
+
+	if err != nil {
+		return fmt.Errorf("Error reading bucket after update: %s", err)
+	}
+
 	if d.HasChange("retention_policy") {
 		if v, ok := d.GetOk("retention_policy"); ok {
 			retention_policies := v.([]interface{})
@@ -634,7 +656,16 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 
 	// Get the bucket and acl
 	bucket := d.Get("name").(string)
-	res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
+
+	var res *storage.Bucket
+	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
+	// to make sure it exists before moving on
+	err = retryTimeDuration(func() (operr error) {
+		var retryErr error
+		res, retryErr = config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
+		return retryErr
+	}, d.Timeout(schema.TimeoutCreate), isNotFoundRetryableError("bucket creation"))
+
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
 	}
