@@ -730,6 +730,40 @@ entries in this field is
 					Type: schema.TypeString,
 				},
 			},
+			"alert_strategy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `Control over how this alert policy's notification channels are notified.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auto_close": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `If an alert policy that was active has no data for this long, any open incidents will close`,
+						},
+
+						"notification_rate_limit": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Computed:    true,
+							Description: `Required for alert policies with a LogMatch condition. This limit is not implemented for alert policies that are not log-based.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"period": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: `Not more than one notification per period.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"user_labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -922,6 +956,7 @@ func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringAlertPolicy %q", d.Id()))
 	}
+	log.Printf("[INFO] FOOOOO AlertPolicy %q, %#v", url, res)
 
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
@@ -951,9 +986,14 @@ func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("user_labels", flattenMonitoringAlertPolicyUserLabels(res["userLabels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
+	if err := d.Set("alert_strategy", flattenMonitoringAlertPolicyAlertStrategy(res["alertStrategy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AlertPolicy: %s", err)
+	}
 	if err := d.Set("documentation", flattenMonitoringAlertPolicyDocumentation(res["documentation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
+
+	log.Printf("[INFO] FAAAAA resource %#v", d)
 
 	return nil
 }
@@ -1199,6 +1239,20 @@ func flattenMonitoringAlertPolicyConditions(v interface{}, d *schema.ResourceDat
 	}
 	return transformed
 }
+func flattenMonitoringAlertPolicyAlertStrategy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.(map[string]interface{})
+	transformed := make([]interface{}, 0)
+
+	transformed = append(transformed, map[string]interface{}{
+		"auto_close":              flattenMonitoringAlertPolicyAlertStrategyAutoClose(l["autoClose"], d, config),
+		"notification_rate_limit": flattenMonitoringAlertPolicyConditionsAlertStrategyNotificationRateLimit(l["notificationRateLimit"], d, config),
+	})
+
+	return transformed
+}
 func flattenMonitoringAlertPolicyConditionsConditionAbsent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
@@ -1217,6 +1271,19 @@ func flattenMonitoringAlertPolicyConditionsConditionAbsent(v interface{}, d *sch
 	transformed["filter"] =
 		flattenMonitoringAlertPolicyConditionsConditionAbsentFilter(original["filter"], d, config)
 	return []interface{}{transformed}
+}
+func flattenMonitoringAlertPolicyConditionsAlertStrategyNotificationRateLimit(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.(map[string]interface{})
+	transformed := make([]interface{}, 0)
+
+	transformed = append(transformed, map[string]interface{}{
+		"period": flattenMonitoringAlertPolicyConditionsAlertStrategyNotificationRateLimitPeriod(l["period"], d, config),
+	})
+
+	return transformed
 }
 func flattenMonitoringAlertPolicyConditionsConditionAbsentAggregations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
@@ -1292,6 +1359,10 @@ func flattenMonitoringAlertPolicyConditionsConditionAbsentTriggerCount(v interfa
 }
 
 func flattenMonitoringAlertPolicyConditionsConditionAbsentDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsAlertStrategyNotificationRateLimitPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1522,6 +1593,10 @@ func flattenMonitoringAlertPolicyConditionsConditionThresholdFilter(v interface{
 }
 
 func flattenMonitoringAlertPolicyConditionsDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyAlertStrategyAutoClose(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
