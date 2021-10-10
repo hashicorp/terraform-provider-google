@@ -820,6 +820,12 @@ func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	obj := make(map[string]interface{})
+	alertStrategy, err := expandMonitoringAlertPolicyAlertStrategy(d.Get("alert_strategy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("alert_strategy"); !isEmptyValue(reflect.ValueOf(alertStrategy)) && (ok || !reflect.DeepEqual(v, alertStrategy)) {
+		obj["alertStrategy"] = alertStrategy
+	}
 	displayNameProp, err := expandMonitoringAlertPolicyDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -1011,6 +1017,12 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	alertStrategy, err := expandMonitoringAlertPolicyAlertStrategy(d.Get("alert_strategy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("alert_strategy"); !isEmptyValue(reflect.ValueOf(alertStrategy)) && (ok || !reflect.DeepEqual(v, alertStrategy)) {
+		obj["alertStrategy"] = alertStrategy
+	}
 	displayNameProp, err := expandMonitoringAlertPolicyDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -1069,6 +1081,10 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Updating AlertPolicy %q: %#v", d.Id(), obj)
 	updateMask := []string{}
 
+	if d.HasChange("alert_strategy") {
+		updateMask = append(updateMask, "alertStrategy")
+	}
+
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
 	}
@@ -1108,6 +1124,7 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
+	log.Printf("[WARN] FOO url %q  obj %#v", url, obj)
 	res, err := sendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
 
 	if err != nil {
@@ -1625,6 +1642,56 @@ func flattenMonitoringAlertPolicyDocumentationContent(v interface{}, d *schema.R
 
 func flattenMonitoringAlertPolicyDocumentationMimeType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func expandMonitoringAlertPolicyAlertStrategy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAutoClose, err := expandMonitoringAlertPolicyAlertStrategyAutoClose(original["auto_close"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAutoClose); val.IsValid() && !isEmptyValue(val) {
+		transformed["autoClose"] = transformedAutoClose
+	}
+
+	transformedNotificationRateLimit, err := expandMonitoringAlertPolicyAlertStrategyNotificationRateLimit(original["notification_rate_limit"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNotificationRateLimit); val.IsValid() && !isEmptyValue(val) {
+		transformed["notificationRateLimit"] = transformedNotificationRateLimit
+	}
+
+	return transformed, nil
+}
+func expandMonitoringAlertPolicyAlertStrategyAutoClose(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+func expandMonitoringAlertPolicyAlertStrategyNotificationRateLimit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPeriod, err := expandMonitoringAlertPolicyAlertStrategyNotificationPeriod(original["period"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPeriod); val.IsValid() && !isEmptyValue(val) {
+		transformed["period"] = transformedPeriod
+	}
+
+	return transformed, nil
+}
+func expandMonitoringAlertPolicyAlertStrategyNotificationPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandMonitoringAlertPolicyDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
