@@ -575,7 +575,7 @@ resource "google_compute_router_peer" "foobar" {
   region                    = google_compute_router.foobar.region
   peer_ip_address           = "169.254.3.3"
   peer_asn                  = 65516
-  advertised_route_priority = 100
+  advertised_route_priority = 0
   advertise_mode            = "CUSTOM"
   advertised_groups         = ["ALL_SUBNETS"]
   advertised_ip_ranges {

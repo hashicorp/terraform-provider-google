@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: fixed bug where `google_compute_router_peer` could not set an advertised route priority of 0, causing permadiff.
+```
