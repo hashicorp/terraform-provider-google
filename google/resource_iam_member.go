@@ -203,7 +203,7 @@ func resourceIamMemberCreate(newUpdaterFunc newResourceIamUpdaterFunc, enableBat
 		}
 		if enableBatching {
 			err = BatchRequestModifyIamPolicy(updater, modifyF, config,
-				fmt.Sprintf("Create IAM Members %s %+v for %q", memberBind.Role, memberBind.Members[0], updater.DescribeResource()))
+				fmt.Sprintf("Create IAM Members %s %+v for %s", memberBind.Role, memberBind.Members[0], updater.DescribeResource()))
 		} else {
 			err = iamPolicyReadModifyWrite(updater, modifyF)
 		}

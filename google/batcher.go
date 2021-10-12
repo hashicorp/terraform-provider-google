@@ -3,10 +3,11 @@ package google
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/errwrap"
 	"log"
 	"sync"
 	"time"
+
+	"github.com/hashicorp/errwrap"
 )
 
 const defaultBatchSendIntervalSec = 3
@@ -177,7 +178,7 @@ func (b *RequestBatcher) SendRequestWithTimeout(batchKey string, request *BatchR
 	case resp := <-respCh:
 		if resp.err != nil {
 			return nil, errwrap.Wrapf(
-				fmt.Sprintf("Request %q returned error: {{err}}", request.DebugId),
+				fmt.Sprintf("Request `%s` returned error: {{err}}", request.DebugId),
 				resp.err)
 		}
 		return resp.body, nil
