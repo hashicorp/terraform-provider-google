@@ -1,4 +1,35 @@
-## 3.88.0 (Unreleased)
+## 3.89.0 (Unreleased)
+
+## 3.88.0 (October 11, 2021)
+
+NOTES:
+* reorganized documentation to group all Compute Engine and Monitoring (Stackdriver) resources together. ([#10205](https://github.com/hashicorp/terraform-provider-google/pull/10205))
+DEPRECATIONS:
+* container: deprecated `workload_metadata_configuration.node_metadata` in favor of `workload_metadata_configuration.mode` in `google_container_cluster` ([#10238](https://github.com/hashicorp/terraform-provider-google/pull/10238))
+* dataproc: deprecated the `google_dataproc_workflow_template.version` field, as it wasn't actually useful. The field is used during updates, but updates aren't currently possible with the resource. ([#10183](https://github.com/hashicorp/terraform-provider-google/pull/10183))
+* runtimeconfig: deprecated the Runtime Configurator service in the `google` (GA) provider including `google_runtimeconfig_config`, `google_runtimeconfig_variable`, `google_runtimeconfig_config_iam_policy`, `google_runtimeconfig_config_iam_binding`, `google_runtimeconfig_config_iam_member`, `data.google_runtimeconfig_config`. They will only be available in the `google-beta` provider in a future release, as the underlying service is in beta. ([#10232](https://github.com/hashicorp/terraform-provider-google/pull/10232))
+BREAKING CHANGES:
+* gke_hub: made the `config_membership` field in `google_gke_hub_feature` required, disallowing invalid configurations ([#10199](https://github.com/hashicorp/terraform-provider-google/pull/10199))
+* gke_hub: made the `configmanagement`, `feature`, `location`, `membership` fields in `google_gke_hub_feature_membership` required, disallowing invalid configurations ([#10199](https://github.com/hashicorp/terraform-provider-google/pull/10199))
+
+FEATURES:
+* **New Data Source:** `google_service_networking_peered_dns_domain` ([#10229](https://github.com/hashicorp/terraform-provider-google/pull/10229))
+* **New Data Source:** `google_sourcerepo_repository` ([#10203](https://github.com/hashicorp/terraform-provider-google/pull/10203))
+* **New Data Source:** `google_storage_bucket` ([#10190](https://github.com/hashicorp/terraform-provider-google/pull/10190))
+* **New Resource:** `google_pubsub_lite_reservation` ([#10263](https://github.com/hashicorp/terraform-provider-google/pull/10263))
+* **New Resource:** `google_service_networking_peered_dns_domain` ([#10229](https://github.com/hashicorp/terraform-provider-google/pull/10229))
+
+IMPROVEMENTS:
+* composer: added support for composer v2 fields `workloads_config` and `cloud_composer_network_ipv4_cidr_block` to `composer_environment` ([10269](https://github.com/hashicorp/terraform-provider-google/pull/10269))
+* compute: added external IPv6 support on `google_compute_subnetwork` and `google_compute_instance.network_interfaces` ([#10189](https://github.com/hashicorp/terraform-provider-google/pull/10189))
+* container: added support for `workload_metadata_configuration.mode` in `google_container_cluster` ([#10238](https://github.com/hashicorp/terraform-provider-google/pull/10238))
+* eventarc: added support for `uid` output field, `cloud_function` destination to `google_eventarc_trigger` ([#10199](https://github.com/hashicorp/terraform-provider-google/pull/10199))
+* gke_hub: added support for `gcp_service_account_email` when configuring Git sync in `google_gke_hub_feature_membership` ([#10199](https://github.com/hashicorp/terraform-provider-google/pull/10199))
+* gke_hub: added support for `resource_state`, `state` outputs to `google_gke_hub_feature` ([#10199](https://github.com/hashicorp/terraform-provider-google/pull/10199))
+* pubsub:  Added support for references to `google_pubsub_lite_reservation` to `google_pubsub_lite_topic`. ([#10263](https://github.com/hashicorp/terraform-provider-google/pull/10263))
+
+BUG FIXES:
+* monitoring: fixed typo in `google_monitoring_uptime_check_config` where `NOT_MATCHES_REGEX` could not be specified. ([#10249](https://github.com/hashicorp/terraform-provider-google/pull/10249))
 
 ## 3.87.0 (October 04, 2021)
 
