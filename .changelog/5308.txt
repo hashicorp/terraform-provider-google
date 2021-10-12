@@ -1,0 +1,3 @@
+```release-note:enhancement
+iam: fixed request batching bug where failed requests would show unnecessary backslash escaping to the user.
+```
