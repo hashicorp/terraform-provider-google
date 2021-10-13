@@ -103,7 +103,7 @@ resource "google_container_cluster" "primary" {
 
 ## Argument Reference
 
-* `cluster` - (Required) The cluster to create the node pool for. Cluster must be present in `location` provided for zonal clusters. May be specified in the format `projects/{{project}}/locations/{{location}}/clusters/{{cluster}}` or as just the name of the cluster.
+* `cluster` - (Required) The cluster to create the node pool for. Cluster must be present in `location` provided for clusters. May be specified in the format `projects/{{project}}/locations/{{location}}/clusters/{{cluster}}` or as just the name of the cluster.
 
 - - -
 
@@ -199,7 +199,7 @@ The `upgrade_settings` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{project}}/{{zone}}/{{cluster}}/{{name}}`
+* `id` - an identifier for the resource with format `{{project}}/{{location}}/{{cluster}}/{{name}}`
 
 * `instance_group_urls` - The resource URLs of the managed instance groups associated with this node pool.
 
@@ -215,11 +215,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Import
 
-Node pools can be imported using the `project`, `zone`, `cluster` and `name`. If
-the project is omitted, the default provider value will be used. Examples:
+Node pools can be imported using the `project`, `location`, `cluster` and `name`. If
+the project is omitted, the project value in the provider configuration will be used. Examples:
 
 ```
 $ terraform import google_container_node_pool.mainpool my-gcp-project/us-east1-a/my-cluster/main-pool
 
-$ terraform import google_container_node_pool.mainpool us-east1-a/my-cluster/main-pool
+$ terraform import google_container_node_pool.mainpool us-east1/my-cluster/main-pool
 ```
