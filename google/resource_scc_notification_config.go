@@ -291,7 +291,7 @@ func resourceSecurityCenterNotificationConfigUpdate(d *schema.ResourceData, meta
 	}
 
 	if d.HasChange("streaming_config") {
-		updateMask = append(updateMask, "streamingConfig")
+		updateMask = append(updateMask, "streamingConfig.filter")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it

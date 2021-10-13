@@ -1,0 +1,3 @@
+```release-note:bug
+securitycenter: fixed bug where `google_scc_notification_config.streaming_config.filter` was not updating.
+```
