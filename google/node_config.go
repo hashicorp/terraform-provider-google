@@ -246,6 +246,7 @@ func schemaNodeConfig() *schema.Schema {
 							"mode": {
 								Type:         schema.TypeString,
 								Optional:     true,
+								Computed:     true,
 								ValidateFunc: validation.StringInSlice([]string{"MODE_UNSPECIFIED", "GCE_METADATA", "GKE_METADATA"}, false),
 								Description:  `Mode is the configuration for how to expose metadata to workloads running on the node.`,
 							},
