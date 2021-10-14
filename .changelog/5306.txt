@@ -1,0 +1,3 @@
+```release-note:TYPE
+Updated node_config docs to remove misleading word that indicated the node_config would only apply to `default` node pools and not any node pool. 
+```
