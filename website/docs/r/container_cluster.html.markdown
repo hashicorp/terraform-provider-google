@@ -738,11 +738,13 @@ The `guest_accelerator` block supports:
 
 The `workload_identity_config` block supports:
 
-* `identity_namespace` (Required) - Currently, the only supported identity namespace is the project's default.
+* `identity_namespace` (Optional, Deprecated) - Currently, the only supported identity namespace is the project's default.
+
+* `workload_pool` (Optional) - The workload pool to attach all Kubernetes service accounts to. Currently, the only supported identity namespace is the project's default.
 
 ```hcl
 workload_identity_config {
-  identity_namespace = "${data.google_project.project.project_id}.svc.id.goog"
+  workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
 }
 ```
 

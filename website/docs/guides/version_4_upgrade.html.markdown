@@ -187,6 +187,24 @@ resource definition.
 
 Removed in favor of `node_config.workload_metadata_config.mode`.
 
+### `workload_identity_config.0.identity_namespace` is now removed
+
+Removed in favor of `workload_identity_config.0.workload_pool`. Switching your
+configuration from one value to the other will trigger a diff at plan time, and
+a spurious update.
+
+```diff
+resource "google_container_cluster" "cluster" {
+  name               = "your-cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  workload_identity_config {
+-    identity_namespace = "your-project.svc.id.goog"
++   workload_pool = "your-project.svc.id.goog"
+  }
+````
+
 ### `pod_security_policy_config` is removed from the GA provider
 
 This field was incorrectly included in the GA `google` provider in past releases.

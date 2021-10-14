@@ -1268,7 +1268,7 @@ resource "google_container_cluster" "cluster" {
   min_master_version = data.google_container_engine_versions.central1a.latest_master_version
 
   workload_identity_config {
-    identity_namespace = "${data.google_project.project.project_id}.svc.id.goog"
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
   }
 }
 
