@@ -143,6 +143,8 @@ The following arguments are supported:
 * `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
 in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
 
+### external_data_configuration
+
 The `external_data_configuration` block supports:
 
 * `autodetect` - (Required) - Let BigQuery try to autodetect the schema
@@ -194,6 +196,8 @@ The `external_data_configuration` block supports:
 * `source_uris` - (Required) A list of the fully-qualified URIs that point to
     your data in Google Cloud.
 
+### csv_options
+
 The `csv_options` block supports:
 
 * `quote` (Required) - The value that is used to quote data sections in a
@@ -219,6 +223,8 @@ The `csv_options` block supports:
 * `skip_leading_rows` (Optional) - The number of rows at the top of a CSV
     file that BigQuery will skip when reading the data.
 
+### google_sheets_options
+
 The `google_sheets_options` block supports:
 
 * `range` (Optional) - Range of a sheet to query from. Only used when
@@ -229,6 +235,8 @@ The `google_sheets_options` block supports:
 * `skip_leading_rows` (Optional) - The number of rows at the top of the sheet
     that BigQuery will skip when reading the data. At least one of `range` or
     `skip_leading_rows` must be set.
+
+### hive_partitioning_options
 
 The `hive_partitioning_options` block supports:
 
@@ -254,6 +262,8 @@ The `hive_partitioning_options` block supports:
     can be either of `gs://bucket/path_to_table` or `gs://bucket/path_to_table/`.
     Note that when `mode` is set to `CUSTOM`, you must encode the partition key schema within the `source_uri_prefix` by setting `source_uri_prefix` to `gs://bucket/path_to_table/{key1:TYPE1}/{key2:TYPE2}/{key3:TYPE3}`.
 
+### time_partitioning
+
 The `time_partitioning` block supports:
 
 * `expiration_ms` -  (Optional) Number of milliseconds for which to keep the
@@ -270,6 +280,8 @@ The `time_partitioning` block supports:
     require a partition filter that can be used for partition elimination to be
     specified.
 
+### range_partitioning
+
 The `range_partitioning` block supports:
 
 * `field` - (Required) The field used to determine how to create a range-based
@@ -277,6 +289,8 @@ The `range_partitioning` block supports:
 
 * `range` - (Required) Information required to partition based on ranges.
     Structure is documented below.
+
+### range
 
 The `range` block supports:
 
@@ -286,12 +300,16 @@ The `range` block supports:
 
 * `interval` - (Required) The width of each range within the partition.
 
+### view
+
 The `view` block supports:
 
 * `query` - (Required) A query that BigQuery executes when the view is referenced.
 
 * `use_legacy_sql` - (Optional) Specifies whether to use BigQuery's legacy SQL for this view.
     The default value is true. If set to false, the view will use BigQuery's standard SQL.
+
+### materialized_view
 
 The `materialized_view` block supports:
 
@@ -302,6 +320,8 @@ The `materialized_view` block supports:
 
 * `refresh_interval_ms` - (Optional) The maximum frequency at which this materialized view will be refreshed.
     The default value is 1800000
+
+### encryption_configuration
 
 The `encryption_configuration` block supports the following arguments:
 
