@@ -64,7 +64,7 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
   workload_identity_config {
-    identity_namespace = "my-project-name.svc.id.goog"
+    workload_pool = "my-project-name.svc.id.goog"
   }
 }
 
