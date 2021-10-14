@@ -100,7 +100,6 @@ func resourceComputeInstanceGroupManager() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `An optional textual description of the instance group manager.`,
 			},
 
@@ -669,6 +668,12 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		Fingerprint: d.Get("fingerprint").(string),
 	}
 	var change bool
+
+	if d.HasChange("description") {
+		updatedManager.Description = d.Get("description").(string)
+		updatedManager.ForceSendFields = append(updatedManager.ForceSendFields, "Description")
+		change = true
+	}
 
 	if d.HasChange("target_pools") {
 		updatedManager.TargetPools = convertStringSet(d.Get("target_pools").(*schema.Set))

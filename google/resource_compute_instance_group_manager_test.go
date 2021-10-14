@@ -131,6 +131,8 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 	target2 := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
 	template2 := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
 	igm := fmt.Sprintf("tf-test-igm-%s", randString(t, 10))
+	description := "Manager 1"
+	description2 := "Manager 2"
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -138,7 +140,7 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstanceGroupManager_update(template1, target1, igm),
+				Config: testAccInstanceGroupManager_update(template1, target1, description, igm),
 			},
 			{
 				ResourceName:            "google_compute_instance_group_manager.igm-update",
@@ -147,7 +149,7 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
-				Config: testAccInstanceGroupManager_update2(template1, target1, target2, template2, igm),
+				Config: testAccInstanceGroupManager_update2(template1, target1, target2, template2, description, igm),
 			},
 			{
 				ResourceName:            "google_compute_instance_group_manager.igm-update",
@@ -156,7 +158,7 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
-				Config: testAccInstanceGroupManager_update3(template1, target1, target2, template2, igm),
+				Config: testAccInstanceGroupManager_update3(template1, target1, target2, template2, description2, igm),
 			},
 			{
 				ResourceName:            "google_compute_instance_group_manager.igm-update",
@@ -555,7 +557,7 @@ resource "google_compute_instance_group_manager" "igm-basic" {
 `, template, igm)
 }
 
-func testAccInstanceGroupManager_update(template, target, igm string) string {
+func testAccInstanceGroupManager_update(template, target, description, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -590,7 +592,7 @@ resource "google_compute_target_pool" "igm-update" {
 }
 
 resource "google_compute_instance_group_manager" "igm-update" {
-  description = "Terraform test instance group manager"
+  description = "%s"
   name        = "%s"
 
   version {
@@ -607,11 +609,11 @@ resource "google_compute_instance_group_manager" "igm-update" {
     port = 8080
   }
 }
-`, template, target, igm)
+`, template, target, description, igm)
 }
 
 // Change IGM's instance template and target size
-func testAccInstanceGroupManager_update2(template1, target1, target2, template2, igm string) string {
+func testAccInstanceGroupManager_update2(template1, target1, target2, template2, description, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -673,7 +675,7 @@ resource "google_compute_instance_template" "igm-update2" {
 }
 
 resource "google_compute_instance_group_manager" "igm-update" {
-  description = "Terraform test instance group manager"
+  description = "%s"
   name        = "%s"
 
   version {
@@ -697,11 +699,11 @@ resource "google_compute_instance_group_manager" "igm-update" {
     port = 8443
   }
 }
-`, template1, target1, target2, template2, igm)
+`, template1, target1, target2, template2, description, igm)
 }
 
 // Remove target pools
-func testAccInstanceGroupManager_update3(template1, target1, target2, template2, igm string) string {
+func testAccInstanceGroupManager_update3(template1, target1, target2, template2, description2, igm string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-9"
@@ -763,7 +765,7 @@ resource "google_compute_instance_template" "igm-update2" {
 }
 
 resource "google_compute_instance_group_manager" "igm-update" {
-  description = "Terraform test instance group manager"
+  description = "%s"
   name        = "%s"
 
   version {
@@ -783,7 +785,7 @@ resource "google_compute_instance_group_manager" "igm-update" {
     port = 8443
   }
 }
-`, template1, target1, target2, template2, igm)
+`, template1, target1, target2, template2, description2, igm)
 }
 
 func testAccInstanceGroupManager_updateLifecycle(tag, igm string) string {
