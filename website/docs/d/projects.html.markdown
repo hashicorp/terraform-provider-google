@@ -36,9 +36,9 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `projects` - A list of projects matching the provided filter. Structure is defined below.
+* `projects` - A list of projects matching the provided filter. Structure is [defined below](#nested_projects).
 
-The `projects` block supports:
+<a name="nested_projects"></a>The `projects` block supports:
 
 * `project_id` - The project id of the project.
 

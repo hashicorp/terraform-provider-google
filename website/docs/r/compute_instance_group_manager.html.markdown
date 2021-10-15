@@ -96,7 +96,7 @@ The following arguments are supported:
 
 * `version` - (Required) Application versions managed by this instance group. Each
     version deals with a specific instance template, allowing canary release scenarios.
-    Structure is documented below.
+    Structure is [documented below](#nested_version).
 
 * `name` - (Required) The name of the instance group manager. Must be 1-63
     characters long and comply with
@@ -111,7 +111,7 @@ The following arguments are supported:
 * `description` - (Optional) An optional textual description of the instance
     group manager.
 
-* `named_port` - (Optional) The named port configuration. See the section below
+* `named_port` - (Optional) The named port configuration. See the [section below](#nested_named_port)
     for details on configuration.
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
@@ -137,15 +137,15 @@ The following arguments are supported:
 ---
 
 * `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
-group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
+group. You can specify only one value. Structure is [documented below](#nested_auto_healing_policies). For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
-* `stateful_disk` - (Optional)) Disks created on the instances that will be preserved on instance delete, update, etc. Structure is documented below. For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/configuring-stateful-disks-in-migs).
+* `stateful_disk` - (Optional)) Disks created on the instances that will be preserved on instance delete, update, etc. Structure is [documented below](#nested_stateful_disk). For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/configuring-stateful-disks-in-migs).
 
-* `update_policy` - (Optional) The update policy for this managed instance group. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/v1/instanceGroupManagers/patch)
+* `update_policy` - (Optional) The update policy for this managed instance group. Structure is [documented below](#nested_update_policy). For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups) and [API](https://cloud.google.com/compute/docs/reference/rest/v1/instanceGroupManagers/patch)
 
 - - -
 
-The `update_policy` block supports:
+<a name="nested_update_policy"></a>The `update_policy` block supports:
 
 ```hcl
 update_policy {
@@ -175,21 +175,21 @@ update_policy {
 * `replacement_method` - (Optional), The instance replacement method for managed instance groups. Valid values are: "RECREATE", "SUBSTITUTE". If SUBSTITUTE (default), the group replaces VM instances with new instances that have randomly generated names. If RECREATE, instance names are preserved.  You must also set max_unavailable_fixed or max_unavailable_percent to be greater than 0.
 - - -
 
-The `named_port` block supports: (Include a `named_port` block for each named-port required).
+<a name="nested_named_port"></a>The `named_port` block supports: (Include a `named_port` block for each named-port required).
 
 * `name` - (Required) The name of the port.
 
 * `port` - (Required) The port number.
 - - -
 
-The `auto_healing_policies` block supports:
+<a name="nested_auto_healing_policies"></a>The `auto_healing_policies` block supports:
 
 * `health_check` - (Required) The health check resource that signals autohealing.
 
 * `initial_delay_sec` - (Required) The number of seconds that the managed instance group waits before
  it applies autohealing policies to new instances or recently recreated instances. Between 0 and 3600.
 
-The `version` block supports:
+<a name="nested_version"></a>The `version` block supports:
 
 ```hcl
 version {
@@ -217,13 +217,13 @@ version {
 
 * `instance_template` - (Required) - The full URL to an instance template from which all new instances of this version will be created.
 
-* `target_size` - (Optional) - The number of instances calculated as a fixed number or a percentage depending on the settings. Structure is documented below.
+* `target_size` - (Optional) - The number of instances calculated as a fixed number or a percentage depending on the settings. Structure is [documented below](#nested_target_size).
 
 -> Exactly one `version` you specify must not have a `target_size` specified. During a rolling update, the instance group manager will fulfill the `target_size`
 constraints of every other `version`, and any remaining instances will be provisioned with the version where `target_size` is unset.
 
 
-The `target_size` block supports:
+<a name="nested_target_size"></a>The `target_size` block supports:
 
 * `fixed` - (Optional), The number of instances which are managed for this version. Conflicts with `percent`.
 
@@ -231,7 +231,7 @@ The `target_size` block supports:
 Note that when using `percent`, rounding will be in favor of explicitly set `target_size` values; a managed instance group with 2 instances and 2 `version`s,
 one of which has a `target_size.percent` of `60` will create 2 instances of that `version`.
 
-The `stateful_disk` block supports: (Include a `stateful_disk` block for each stateful disk required).
+<a name="nested_stateful_disk"></a>The `stateful_disk` block supports: (Include a `stateful_disk` block for each stateful disk required).
 
 * `device_name` - (Required), The device name of the disk to be attached.
 

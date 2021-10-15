@@ -78,18 +78,18 @@ The following arguments are supported:
 * `include_children` - (Optional) Whether or not to include children folders in the sink export. If true, logs
     associated with child projects are also exported; otherwise only logs relating to the provided folder are included.
 
-* `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure documented below.
+* `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure [documented below](#nested_bigquery_options).
 
-* `exclusions` - (Optional) Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both filter and one of exclusion_filters it will not be exported.  Can be repeated multiple times for multiple exclusions. Structure is documented below.
+* `exclusions` - (Optional) Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both filter and one of exclusion_filters it will not be exported.  Can be repeated multiple times for multiple exclusions. Structure is [documented below](#nested_exclusions).
 
-The `bigquery_options` block supports:
+<a name="nested_bigquery_options"></a>The `bigquery_options` block supports:
 
 * `use_partitioned_tables` - (Required) Whether to use [BigQuery's partition tables](https://cloud.google.com/bigquery/docs/partitioned-tables).
     By default, Logging creates dated tables based on the log entries' timestamps, e.g. syslog_20170523. With partitioned
     tables the date suffix is no longer present and [special query syntax](https://cloud.google.com/bigquery/docs/querying-partitioned-tables)
     has to be used instead. In both cases, tables are sharded based on UTC timezone.
 
-The `exclusions` block support:
+<a name="nested_exclusions"></a>The `exclusions` block supports:
 
 * `name` - (Required) A client-assigned identifier, such as `load-balancer-exclusion`. Identifiers are limited to 100 characters and can include only letters, digits, underscores, hyphens, and periods. First character has to be alphanumeric.
 * `description` - (Optional) A description of this exclusion.

@@ -45,21 +45,21 @@ In addition to the arguments listed above, the following attributes are exported
   The game_server_config_overrides contains the per game server config
   overrides. The overrides are processed in the order they are listed. As
   soon as a match is found for a cluster, the rest of the list is not
-  processed.  Structure is documented below.
+  processed.  Structure is [documented below](#nested_game_server_config_overrides).
 
 * `project` - The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 
-The `game_server_config_overrides` block contains:
+<a name="nested_game_server_config_overrides"></a>The `game_server_config_overrides` block contains:
 
 * `realms_selector` -
-  Selection by realms.  Structure is documented below.
+  Selection by realms.  Structure is [documented below](#nested_realms_selector).
 
 * `config_version` -
   Version of the configuration.
 
-The `realms_selector` block contains:
+<a name="nested_realms_selector"></a>The `realms_selector` block contains:
 
 * `realms` -
   List of realms to match against.

@@ -59,7 +59,7 @@ One of the following is required:
 
 * `content_type` - (Optional) [Content-Type](https://tools.ietf.org/html/rfc7231#section-3.1.1.5) of the object data. Defaults to "application/octet-stream" or "text/plain; charset=utf-8".
 
-* `customer_encryption` - (Optional) Enables object encryption with Customer-Supplied Encryption Key (CSEK). [Google documentation about CSEK.](https://cloud.google.com/storage/docs/encryption/customer-supplied-keys)
+* `customer_encryption` - (Optional) Enables object encryption with Customer-Supplied Encryption Key (CSEK). [Google [documentation about](#nested_customer_encryption) CSEK.](https://cloud.google.com/storage/docs/encryption/customer-supplied-keys)
     Structure is documented below.
 
 * `storage_class` - (Optional) The [StorageClass](https://cloud.google.com/storage/docs/storage-classes) of the new bucket object.
@@ -70,7 +70,7 @@ One of the following is required:
 
 ---
 
-The `customer_encryption` block supports:
+<a name="nested_customer_encryption"></a>The `customer_encryption` block supports:
 
 * `encryption_algorithm` - (Optional) Encryption algorithm. Default: AES256
 

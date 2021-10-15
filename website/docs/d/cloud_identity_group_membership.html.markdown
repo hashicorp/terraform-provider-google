@@ -29,29 +29,29 @@ data "google_cloud_identity_group_memberships" "members" {
 
 In addition to the arguments listed above, the following attributes are exported:
 
-* `memberships` - The list of memberships under the given group. Structure is documented below.
+* `memberships` - The list of memberships under the given group. Structure is [documented below](#nested_memberships).
 
-The `memberships` block contains:
+<a name="nested_memberships"></a>The `memberships` block contains:
 
 * `name` -
   The resource name of the Membership, of the form groups/{group_id}/memberships/{membership_id}.
 
-* `roles` - The MembershipRoles that apply to the Membership. Structure is documented below.
+* `roles` - The MembershipRoles that apply to the Membership. Structure is [documented below](#nested_roles).
 
 * `member_key` -
   (Optional)
-  EntityKey of the member.  Structure is documented below.
+  EntityKey of the member.  Structure is [documented below](#nested_member_key).
 
 * `preferred_member_key` -
   (Optional)
-  EntityKey of the member.  Structure is documented below.
+  EntityKey of the member.  Structure is [documented below](#nested_preferred_member_key).
 
-The `roles` block supports:
+<a name="nested_roles"></a>The `roles` block supports:
 
 * `name` - The name of the MembershipRole. One of OWNER, MANAGER, MEMBER.
 
 
-The `member_key` block supports:
+<a name="nested_member_key"></a>The `member_key` block supports:
 
 * `id` - The ID of the entity. For Google-managed entities, the id is the email address of an existing
   group or user. For external-identity-mapped entities, the id is a string conforming
@@ -62,7 +62,7 @@ The `member_key` block supports:
   such as a Google user or a Google Group.
   If populated, the EntityKey represents an external-identity-mapped group.
 
-The `preferred_member_key` block supports:
+<a name="nested_preferred_member_key"></a>The `preferred_member_key` block supports:
 
 * `id` - The ID of the entity. For Google-managed entities, the id is the email address of an existing
   group or user. For external-identity-mapped entities, the id is a string conforming

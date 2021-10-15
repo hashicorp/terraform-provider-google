@@ -52,7 +52,7 @@ The following arguments are supported:
 * `name` - (Required) The name (also called Instance Id in the Cloud Console) of the Cloud Bigtable instance.
 
 * `cluster` - (Required) A block of cluster configuration options. This can be specified at least once, and up to 4 times.
-See structure below.
+See [structure below](#nested_cluster).
 
 -----
 
@@ -75,7 +75,7 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 
 -----
 
-The `cluster` block supports the following arguments:
+<a name="nested_cluster"></a>The `cluster` block supports the following arguments:
 
 * `cluster_id` - (Required) The ID of the Cloud Bigtable cluster.
 

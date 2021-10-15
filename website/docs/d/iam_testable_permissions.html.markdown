@@ -34,9 +34,9 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `permissions` - A list of permissions matching the provided input. Structure is defined below.
+* `permissions` - A list of permissions matching the provided input. Structure is [defined below](#nested_permissions).
 
-The `permissions` block supports:
+<a name="nested_permissions"></a>The `permissions` block supports:
 
 * `name` - Name of the permission.
 * `title` - Human readable title of the permission.

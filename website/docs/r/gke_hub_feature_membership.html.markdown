@@ -82,7 +82,7 @@ The following arguments are supported:
 
 * `configmanagement` -
   (Optional)
-  Config Management-specific spec.
+  Config Management-specific spec. Structure is [documented below](#nested_configmanagement).
   
 * `feature` -
   (Optional)
@@ -102,45 +102,45 @@ The following arguments are supported:
   
 
 
-The `configmanagement` block supports:
+<a name="nested_configmanagement"></a>The `configmanagement` block supports:
     
 * `binauthz` -
   (Optional)
-  Binauthz configuration for the cluster.
+  Binauthz configuration for the cluster. Structure is [documented below](#nested_binauthz).
     
 * `config_sync` -
   (Optional)
-  Config Sync configuration for the cluster.
+  Config Sync configuration for the cluster. Structure is [documented below](#nested_config_sync).
     
 * `hierarchy_controller` -
   (Optional)
-  Hierarchy Controller configuration for the cluster.
+  Hierarchy Controller configuration for the cluster. Structure is [documented below](#nested_hierarchy_controller).
     
 * `policy_controller` -
   (Optional)
-  Policy Controller configuration for the cluster.
+  Policy Controller configuration for the cluster. Structure is [documented below](#nested_policy_controller).
     
 * `version` -
   (Optional)
   Version of ACM installed.
     
-The `binauthz` block supports:
+<a name="nested_binauthz"></a>The `binauthz` block supports:
     
 * `enabled` -
   (Optional)
   Whether binauthz is enabled in this cluster.
     
-The `config_sync` block supports:
+<a name="nested_config_sync"></a>The `config_sync` block supports:
     
 * `git` -
-  (Optional)
+  (Optional) Structure is [documented below](#nested_git).
   
     
 * `source_format` -
   (Optional)
   Specifies whether the Config Sync Repo is in "hierarchical" or "unstructured" mode.
     
-The `git` block supports:
+<a name="nested_git"></a>The `git` block supports:
     
 * `https_proxy` -
   (Optional)
@@ -170,7 +170,7 @@ The `git` block supports:
   (Optional)
   Period in seconds between consecutive syncs. Default: 15.
     
-The `hierarchy_controller` block supports:
+<a name="nested_hierarchy_controller"></a>The `hierarchy_controller` block supports:
     
 * `enable_hierarchical_resource_quota` -
   (Optional)
@@ -184,7 +184,7 @@ The `hierarchy_controller` block supports:
   (Optional)
   Whether Hierarchy Controller is enabled in this cluster.
     
-The `policy_controller` block supports:
+<a name="nested_policy_controller"></a>The `policy_controller` block supports:
     
 * `audit_interval_seconds` -
   (Optional)

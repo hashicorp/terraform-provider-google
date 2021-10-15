@@ -72,7 +72,7 @@ The following arguments are supported:
   
 * `match` -
   (Required)
-  A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding 'action' is enforced.
+  A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding 'action' is enforced. Structure is [documented below](#nested_match).
   
 * `priority` -
   (Required)
@@ -80,7 +80,7 @@ The following arguments are supported:
   
 
 
-The `match` block supports:
+<a name="nested_match"></a>The `match` block supports:
     
 * `dest_ip_ranges` -
   (Optional)
@@ -88,13 +88,13 @@ The `match` block supports:
     
 * `layer4_configs` -
   (Required)
-  Pairs of IP protocols and ports that the rule should match.
+  Pairs of IP protocols and ports that the rule should match. Structure is [documented below](#nested_layer4_configs).
     
 * `src_ip_ranges` -
   (Optional)
   CIDR IP address range. Maximum number of source CIDR IP ranges allowed is 256.
     
-The `layer4_configs` block supports:
+<a name="nested_layer4_configs"></a>The `layer4_configs` block supports:
     
 * `ip_protocol` -
   (Required)

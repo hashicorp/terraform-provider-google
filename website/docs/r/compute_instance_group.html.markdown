@@ -140,7 +140,7 @@ The following arguments are supported:
     network and zone as the instance group.
 
 * `named_port` - (Optional) The named port configuration. See the section below
-    for details on configuration.
+    for details on configuration. Structure is [documented below](#nested_named_port).
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -150,7 +150,7 @@ The following arguments are supported:
     fails. Defaults to the network where the instances are in (if neither
     `network` nor `instances` is specified, this field will be blank).
 
-The `named_port` block supports:
+<a name="nested_named_port"></a>The `named_port` block supports:
 
 * `name` - (Required) The name which the port will be mapped to.
 

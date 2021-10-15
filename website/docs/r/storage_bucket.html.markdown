@@ -81,21 +81,21 @@ The following arguments are supported:
 
 * `storage_class` - (Optional, Default: 'STANDARD') The [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of the new bucket. Supported values include: `STANDARD`, `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`.
 
-* `lifecycle_rule` - (Optional) The bucket's [Lifecycle Rules](https://cloud.google.com/storage/docs/lifecycle#configuration) configuration. Multiple blocks of this type are permitted. Structure is documented below.
+* `lifecycle_rule` - (Optional) The bucket's [Lifecycle Rules](https://cloud.google.com/storage/docs/lifecycle#configuration) configuration. Multiple blocks of this type are permitted. Structure is [documented below](#nested_lifecycle_rule).
 
-* `versioning` - (Optional) The bucket's [Versioning](https://cloud.google.com/storage/docs/object-versioning) configuration.
+* `versioning` - (Optional) The bucket's [Versioning](https://cloud.google.com/storage/docs/object-versioning) configuration.  Structure is [documented below](#nested_versioning).
 
-* `website` - (Optional) Configuration if the bucket acts as a website. Structure is documented below.
+* `website` - (Optional) Configuration if the bucket acts as a website. Structure is [documented below](#nested_website).
 
-* `cors` - (Optional) The bucket's [Cross-Origin Resource Sharing (CORS)](https://www.w3.org/TR/cors/) configuration. Multiple blocks of this type are permitted. Structure is documented below.
+* `cors` - (Optional) The bucket's [Cross-Origin Resource Sharing (CORS)](https://www.w3.org/TR/cors/) configuration. Multiple blocks of this type are permitted. Structure is [documented below](#nested_cors).
 
-* `retention_policy` - (Optional) Configuration of the bucket's data retention policy for how long objects in the bucket should be retained. Structure is documented below.
+* `retention_policy` - (Optional) Configuration of the bucket's data retention policy for how long objects in the bucket should be retained. Structure is [documented below](#nested_retention_policy).
 
 * `labels` - (Optional) A map of key/value label pairs to assign to the bucket.
 
-* `logging` - (Optional) The bucket's [Access & Storage Logs](https://cloud.google.com/storage/docs/access-logs) configuration.
+* `logging` - (Optional) The bucket's [Access & Storage Logs](https://cloud.google.com/storage/docs/access-logs) configuration. Structure is [documented below](#nested_logging).
 
-* `encryption` - (Optional) The bucket's encryption configuration.
+* `encryption` - (Optional) The bucket's encryption configuration. Structure is [documented below](#nested_encryption).
 
 * `requester_pays` - (Optional, Default: false) Enables [Requester Pays](https://cloud.google.com/storage/docs/requester-pays) on a storage bucket.
 
@@ -103,19 +103,19 @@ The following arguments are supported:
 
 * `uniform_bucket_level_access` - (Optional, Default: false) Enables [Uniform bucket-level access](https://cloud.google.com/storage/docs/uniform-bucket-level-access) access to a bucket.
 
-The `lifecycle_rule` block supports:
+<a name="nested_lifecycle_rule"></a>The `lifecycle_rule` block supports:
 
-* `action` - (Required) The Lifecycle Rule's action configuration. A single block of this type is supported. Structure is documented below.
+* `action` - (Required) The Lifecycle Rule's action configuration. A single block of this type is supported. Structure is [documented below](#nested_action).
 
-* `condition` - (Required) The Lifecycle Rule's condition configuration. A single block of this type is supported. Structure is documented below.
+* `condition` - (Required) The Lifecycle Rule's condition configuration. A single block of this type is supported. Structure is [documented below](#nested_condition).
 
-The `action` block supports:
+<a name="nested_action"></a>The `action` block supports:
 
 * `type` - The type of the action of this Lifecycle Rule. Supported values include: `Delete` and `SetStorageClass`.
 
 * `storage_class` - (Required if action type is `SetStorageClass`) The target [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of objects affected by this Lifecycle Rule. Supported values include: `STANDARD`, `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`.
 
-The `condition` block supports the following elements, and requires at least one to be defined. If you specify multiple conditions in a rule, an object has to match all of the conditions for the action to be taken:
+<a name="nested_condition"></a>The `condition` block supports the following elements, and requires at least one to be defined. If you specify multiple conditions in a rule, an object has to match all of the conditions for the action to be taken:
 
 * `age` - (Optional) Minimum age of an object in days to satisfy this condition.
 
@@ -135,11 +135,11 @@ The `condition` block supports the following elements, and requires at least one
 
 * `noncurrent_time_before` - (Optional) Relevant only for versioned objects. The date in RFC 3339 (e.g. `2017-06-13`) when the object became nonconcurrent.
 
-The `versioning` block supports:
+<a name="nested_versioning"></a>The `versioning` block supports:
 
 * `enabled` - (Required) While set to `true`, versioning is fully enabled for this bucket.
 
-The `website` block supports the following elements, and requires at least one to be defined:
+<a name="nested_website"></a>The `website` block supports the following elements, and requires at least one to be defined:
 
 * `main_page_suffix` - (Optional) Behaves as the bucket's directory index where
     missing objects are treated as potential directories.
@@ -147,7 +147,7 @@ The `website` block supports the following elements, and requires at least one t
 * `not_found_page` - (Optional) The custom object to return when a requested
     resource is not found.
 
-The `cors` block supports:
+<a name="nested_cors"></a>The `cors` block supports:
 
 * `origin` - (Optional) The list of [Origins](https://tools.ietf.org/html/rfc6454) eligible to receive CORS response headers. Note: "*" is permitted in the list of origins, and means "any Origin".
 
@@ -157,20 +157,20 @@ The `cors` block supports:
 
 * `max_age_seconds` - (Optional) The value, in seconds, to return in the [Access-Control-Max-Age header](https://www.w3.org/TR/cors/#access-control-max-age-response-header) used in preflight responses.
 
-The `retention_policy` block supports:
+<a name="nested_retention_policy"></a>The `retention_policy` block supports:
 
 * `is_locked` - (Optional) If set to `true`, the bucket will be [locked](https://cloud.google.com/storage/docs/using-bucket-lock#lock-bucket) and permanently restrict edits to the bucket's retention policy.  Caution: Locking a bucket is an irreversible action.
 
 * `retention_period` - (Required) The period of time, in seconds, that objects in the bucket must be retained and cannot be deleted, overwritten, or archived. The value must be less than 2,147,483,647 seconds.
 
-The `logging` block supports:
+<a name="nested_logging"></a>The `logging` block supports:
 
 * `log_bucket` - (Required) The bucket that will receive log objects.
 
 * `log_object_prefix` - (Optional, Computed) The object prefix for log objects. If it's not provided,
     by default GCS sets this to this bucket's name.
 
-The `encryption` block supports:
+<a name="nested_encryption"></a>The `encryption` block supports:
 
 * `default_kms_key_name`: The `id` of a Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no encryption method is specified.
   You must pay attention to whether the crypto key is available in the location that this bucket is created in.
