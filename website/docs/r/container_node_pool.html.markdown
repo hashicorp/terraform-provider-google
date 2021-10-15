@@ -112,7 +112,7 @@ resource "google_container_cluster" "primary" {
 - - -
 
 * `autoscaling` - (Optional) Configuration required by cluster autoscaler to adjust
-    the size of the node pool to the current cluster usage. Structure is documented below.
+    the size of the node pool to the current cluster usage. Structure is [documented below](#nested_autoscaling).
 
 * `initial_node_count` - (Optional) The initial number of nodes for the pool. In
     regional or multi-zonal clusters, this is the number of nodes per zone. Changing
@@ -123,7 +123,7 @@ resource "google_container_cluster" "primary" {
     ignore subsequent changes to this field](https://github.com/hashicorp/terraform-provider-google/issues/6901#issuecomment-667369691).
 
 * `management` - (Optional) Node management configuration, wherein auto-repair and
-    auto-upgrade is configured. Structure is documented below.
+    auto-upgrade is configured. Structure is [documented below](#nested_management).
 
 * `max_pods_per_node` - (Optional) The maximum number of pods per node in this node pool.
     Note that this does not work on node pools which are "route-based" - that is, node
@@ -161,7 +161,7 @@ cluster.
 
 * `upgrade_settings` (Optional) Specify node upgrade settings to change how many nodes GKE attempts to
     upgrade at once. The number of nodes upgraded simultaneously is the sum of `max_surge` and `max_unavailable`.
-    The maximum number of nodes upgraded simultaneously is limited to 20.
+    The maximum number of nodes upgraded simultaneously is limited to 20. Structure is [documented below](#nested_upgrade_settings).
 
 * `version` - (Optional) The Kubernetes version for the nodes in this pool. Note that if this field
     and `auto_upgrade` are both specified, they will fight each other for what the node version should
@@ -170,20 +170,20 @@ cluster.
     when fuzzy versions are used. See the `google_container_engine_versions` data source's
     `version_prefix` field to approximate fuzzy versions in a Terraform-compatible way.
 
-The `autoscaling` block supports:
+<a name="nested_autoscaling"></a>The `autoscaling` block supports:
 
 * `min_node_count` - (Required) Minimum number of nodes in the NodePool. Must be >=0 and
     <= `max_node_count`.
 
 * `max_node_count` - (Required) Maximum number of nodes in the NodePool. Must be >= min_node_count.
 
-The `management` block supports:
+<a name="nested_management"></a>The `management` block supports:
 
 * `auto_repair` - (Optional) Whether the nodes will be automatically repaired.
 
 * `auto_upgrade` - (Optional) Whether the nodes will be automatically upgraded.
 
-The `upgrade_settings` block supports:
+<a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:
 
 * `max_surge` - (Required) The number of additional nodes that can be added to the node pool during
     an upgrade. Increasing `max_surge` raises the number of nodes that can be upgraded simultaneously.

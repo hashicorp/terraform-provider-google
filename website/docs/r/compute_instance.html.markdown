@@ -67,7 +67,7 @@ resource "google_compute_instance" "default" {
 The following arguments are supported:
 
 * `boot_disk` - (Required) The boot disk for the instance.
-    Structure is documented below.
+    Structure is [documented below](#nested_boot_disk).
 
 * `machine_type` - (Required) The machine type to create.
 
@@ -83,14 +83,14 @@ The following arguments are supported:
 * `zone` - (Optional) The zone that the machine should be created in. If it is not provided, the provider zone is used.
 
 * `network_interface` - (Required) Networks to attach to the instance. This can
-    be specified multiple times. Structure is documented below.
+    be specified multiple times. Structure is [documented below](#nested_network_interface).
 
 - - -
 
 * `allow_stopping_for_update` - (Optional) If true, allows Terraform to stop the instance to update its properties.
   If you try to update a property that requires stopping the instance without setting this field, the update will fail.
 
-* `attached_disk` - (Optional) Additional disks to attach to the instance. Can be repeated multiple times for multiple disks. Structure is documented below.
+* `attached_disk` - (Optional) Additional disks to attach to the instance. Can be repeated multiple times for multiple disks. Structure is [documented below](#nested_attached_disk).
 
 * `can_ip_forward` - (Optional) Whether to allow sending and receiving of
     packets with non-matching source or destination IPs.
@@ -108,7 +108,7 @@ The following arguments are supported:
   Valid format is a series of labels 1-63 characters long matching the regular expression `[a-z]([-a-z0-9]*[a-z0-9])`, concatenated with periods.
   The entire hostname must not exceed 253 characters. Changing this forces a new resource to be created.
 
-* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure documented below.
+* `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance. Structure [documented below](#nested_guest_accelerator).
     **Note:** GPU accelerators can only be used with [`on_host_maintenance`](#on_host_maintenance) option set to TERMINATE.
     **Note**: This field uses [attr-as-block mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html) to avoid
     breaking users during the 0.12 upgrade. To explicitly send a list
@@ -151,18 +151,18 @@ The following arguments are supported:
     is not provided, the provider project is used.
 
 * `scheduling` - (Optional) The scheduling strategy to use. More details about
-    this configuration option are detailed below.
+    this configuration option are [detailed below](#nested_scheduling).
 
 * `scratch_disk` - (Optional) Scratch disks to attach to the instance. This can be
-    specified multiple times for multiple scratch disks. Structure is documented below.
+    specified multiple times for multiple scratch disks. Structure is [documented below](#nested_scratch_disk).
 
 * `service_account` - (Optional) Service account to attach to the instance.
-    Structure is documented below.
+    Structure is [documented below](#nested_service_account).
     **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
 * `tags` - (Optional) A list of network tags to attach to the instance.
 
-* `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is documented below.
+* `shielded_instance_config` - (Optional) Enable [Shielded VM](https://cloud.google.com/security/shielded-cloud/shielded-vm) on this instance. Shielded VM provides verifiable integrity to prevent against malware and rootkits. Defaults to disabled. Structure is [documented below](#nested_shielded_instance_config).
 	**Note**: [`shielded_instance_config`](#shielded_instance_config) can only be used with boot images with shielded vm support. See the complete list [here](https://cloud.google.com/compute/docs/images#shielded-images).
   **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
@@ -172,22 +172,22 @@ The following arguments are supported:
 * `resource_policies` (Optional) -- A list of short names or self_links of resource policies to attach to the instance. Modifying this list will cause the instance to recreate. Currently a max of 1 resource policy is supported.
 
 * `reservation_affinity` - (Optional) Specifies the reservations that this instance can consume from.
-    Structure is documented below.
+    Structure is [documented below](#nested_reservation_affinity).
 
-* `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM.
+* `confidential_instance_config` (Optional) - Enable [Confidential Mode](https://cloud.google.com/compute/confidential-vm/docs/about-cvm) on this VM. Structure is [documented below](#nested_confidential_instance_config)
 
-* `advanced_machine_features` (Optional) - Configure Nested Virtualisation and Simultaneous Hyper Threading  on this VM.
+* `advanced_machine_features` (Optional) - Configure Nested Virtualisation and Simultaneous Hyper Threading  on this VM. Structure is [documented below](#nested_advanced_machine_features)
 
 * `network_performance_config` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)
     Configures network performance settings for the instance. Structure is
-    documented below. **Note**: [`machine_type`](#machine_type) must be a [supported type](https://cloud.google.com/compute/docs/networking/configure-vm-with-high-bandwidth-configuration),
+    [documented below](#nested_network_performance_config). **Note**: [`machine_type`](#machine_type) must be a [supported type](https://cloud.google.com/compute/docs/networking/configure-vm-with-high-bandwidth-configuration),
     the [`image`](#image) used must include the [`GVNIC`](https://cloud.google.com/compute/docs/networking/using-gvnic#create-instance-gvnic-image)
     in `guest-os-features`, and `network_interface.0.nic-type` must be `GVNIC`
     in order for this setting to take effect.
 
 ---
 
-The `boot_disk` block supports:
+<a name="nested_boot_disk"></a>The `boot_disk` block supports:
 
 * `auto_delete` - (Optional) Whether the disk will be auto-deleted when the instance
     is deleted. Defaults to true.
@@ -210,13 +210,13 @@ The `boot_disk` block supports:
 
 * `initialize_params` - (Optional) Parameters for a new disk that will be created
     alongside the new instance. Either `initialize_params` or `source` must be set.
-    Structure is documented below.
+    Structure is [documented below](#nested_initialize_params).
 
 * `source` - (Optional) The name or self_link of the existing disk (such as those managed by
     `google_compute_disk`) or disk image. To create an instance from a snapshot, first create a
     `google_compute_disk` from a snapshot and reference it here.
 
-The `initialize_params` block supports:
+<a name="nested_initialize_params"></a>The `initialize_params` block supports:
 
 * `size` - (Optional) The size of the image in gigabytes. If not specified, it
     will inherit the size of its base image.
@@ -233,11 +233,11 @@ The `initialize_params` block supports:
     For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
     These images can be referred by family name here.
 
-The `scratch_disk` block supports:
+<a name="nested_scratch_disk"></a>The `scratch_disk` block supports:
 
 * `interface` - (Required) The disk interface to use for attaching this disk; either SCSI or NVME.
 
-The `attached_disk` block supports:
+<a name="nested_attached_disk"></a>The `attached_disk` block supports:
 
 * `source` - (Required) The name or self_link of the disk to attach to this instance.
 
@@ -258,12 +258,12 @@ The `attached_disk` block supports:
     stored in Google Cloud KMS to encrypt this disk. Only one of `kms_key_self_link`
     and `disk_encryption_key_raw` may be set.
 
-The `network_performance_config` block supports:
+<a name="nested_network_performance_config"></a>The `network_performance_config` block supports:
 
 * `total_egress_bandwidth_tier` - (Optional) The egress bandwidth tier to enable.
     Possible values: TIER_1, DEFAULT
 
-The `network_interface` block supports:
+<a name="nested_network_interface"></a>The `network_interface` block supports:
 
 * `network` - (Optional) The name or self_link of the network to attach this interface to.
     Either `network` or `subnetwork` must be provided. If network isn't provided it will
@@ -290,11 +290,11 @@ The `network_interface` block supports:
     is not accessible from the Internet. If omitted, ssh provisioners will not
     work unless Terraform can send traffic to the instance's network (e.g. via
     tunnel or because it is running on another cloud instance on that network).
-    This block can be repeated multiple times. Structure documented below.
+    This block can be repeated multiple times. Structure [documented below](#nested_access_config).
 
 * `alias_ip_range` - (Optional) An
     array of alias IP ranges for this network interface. Can only be specified for network
-    interfaces on subnet-mode networks. Structure documented below.
+    interfaces on subnet-mode networks. Structure [documented below](#nested_alias_ip_range).
 
 * `nic_type` - (Optional) The type of vNIC to be used on this interface. Possible values: GVNIC, VIRTIO_NET.
 
@@ -302,10 +302,10 @@ The `network_interface` block supports:
 
 * `ipv6_access_config` - (Optional) An array of IPv6 access configurations for this interface.
 Currently, only one IPv6 access config, DIRECT_IPV6, is supported. If there is no ipv6AccessConfig
-specified, then this instance will have no external IPv6 Internet access. Structure documented below.
+specified, then this instance will have no external IPv6 Internet access. Structure [documented below](#nested_ipv6_access_config).
 
 
-The `access_config` block supports:
+<a name="nested_access_config"></a>The `access_config` block supports:
 
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
     network ip. If not given, one will be generated.
@@ -319,7 +319,7 @@ The `access_config` block supports:
     This field can take the following values: PREMIUM or STANDARD. If this field is
     not specified, it is assumed to be PREMIUM.
 
-The `ipv6_access_config` block supports:
+<a name="nested_ipv6_access_config"></a>The `ipv6_access_config` block supports:
 
 * `public_ptr_domain_name` - (Optional) The domain name to be used when creating DNSv6
     records for the external IPv6 ranges..
@@ -327,7 +327,7 @@ The `ipv6_access_config` block supports:
 * `network_tier` - (Optional) The service-level to be provided for IPv6 traffic when the
     subnet has an external subnet. Only PREMIUM tier is valid for IPv6.
 
-The `alias_ip_range` block supports:
+<a name="nested_alias_ip_range"></a>The `alias_ip_range` block supports:
 
 * `ip_cidr_range` - The IP CIDR range represented by this alias IP range. This IP CIDR range
     must belong to the specified subnetwork and cannot contain IP addresses reserved by
@@ -338,7 +338,7 @@ The `alias_ip_range` block supports:
     the secondary range from which to allocate the IP CIDR range for this alias IP
     range. If left unspecified, the primary range of the subnetwork will be used.
 
-The `service_account` block supports:
+<a name="nested_service_account"></a>The `service_account` block supports:
 
 * `email` - (Optional) The service account e-mail address. If not given, the
     default Google Compute Engine service account is used.
@@ -349,7 +349,7 @@ The `service_account` block supports:
     `cloud-platform` scope. See a complete list of scopes [here](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes).
     **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
-The `scheduling` block supports:
+<a name="nested_scheduling"></a>The `scheduling` block supports:
 
 * `preemptible` - (Optional) Specifies if the instance is preemptible.
     If this field is set to true, then `automatic_restart` must be
@@ -367,17 +367,17 @@ The `scheduling` block supports:
    to determine which sole-tenant nodes your instances and managed instance
    groups will use as host systems. Read more on sole-tenant node creation
    [here](https://cloud.google.com/compute/docs/nodes/create-nodes).
-   Structure documented below.
+   Structure [documented below](#nested_node_affinities).
 
 * `min_node_cpus` - (Optional) The minimum number of virtual CPUs this instance will consume when running on a sole-tenant node.
 
-The `guest_accelerator` block supports:
+<a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
 
 * `count` (Required) - The number of the guest accelerator cards exposed to this instance.
 
-The `node_affinities` block supports:
+<a name="nested_node_affinities"></a>The `node_affinities` block supports:
 
 * `key` (Required) - The key for the node affinity label.
 
@@ -386,7 +386,7 @@ The `node_affinities` block supports:
 
 * `values` (Required) - The values for the node affinity label.
 
-The `shielded_instance_config` block supports:
+<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
 * `enable_secure_boot` (Optional) -- Verify the digital signature of all boot components, and halt the boot process if signature verification fails. Defaults to false.
   **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
@@ -397,24 +397,24 @@ The `shielded_instance_config` block supports:
 * `enable_integrity_monitoring` (Optional) -- Compare the most recent boot measurements to the integrity policy baseline and return a pair of pass/fail results depending on whether they match or not. Defaults to true.
   **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
-The `confidential_instance_config` block supports:
+<a name="nested_confidential_instance_config"></a>The `confidential_instance_config` block supports:
 
 * `enable_confidential_compute` (Optional) Defines whether the instance should have confidential compute enabled. [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
 
-The `advanced_machine_features` block supports:
+<a name="nested_advanced_machine_features"></a>The `advanced_machine_features` block supports:
 
 * `enable_nested_virtualization` (Optional) Defines whether the instance should have [nested virtualization](#on_host_maintenance)  enabled. Defaults to false.
 
 * `threads_per_core` (Optional) he number of threads per physical core. To disable [simultaneous multithreading (SMT)](https://cloud.google.com/compute/docs/instances/disabling-smt) set this to 1.
 
-The `reservation_affinity` block supports:
+<a name="nested_reservation_affinity"></a>The `reservation_affinity` block supports:
 
 * `type` - (Required) The type of reservation from which this instance can consume resources.
 
 * `specific_reservation` - (Optional) Specifies the label selector for the reservation to use..
-    Structure is documented below.
+    Structure is [documented below](#nested_specific_reservation).
 
-The `specific_reservation` block supports:
+<a name="nested_specific_reservation"></a>The `specific_reservation` block supports:
 
 * `key` - (Required) Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify compute.googleapis.com/reservation-name as the key and specify the name of your reservation as the only value.
 

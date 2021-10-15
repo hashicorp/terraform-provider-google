@@ -121,7 +121,7 @@ Eg. `"nodejs10"`, `"nodejs12"`, `"nodejs14"`, `"python37"`, `"python38"`, `"pyth
 
 * `entry_point` - (Optional) Name of the function that will be executed when the Google Cloud Function is triggered.
 
-* `event_trigger` - (Optional) A source that fires events in response to a condition in another service. Structure is documented below. Cannot be used with `trigger_http`.
+* `event_trigger` - (Optional) A source that fires events in response to a condition in another service. Structure is [documented below](#nested_event_trigger). Cannot be used with `trigger_http`.
 
 * `trigger_http` - (Optional) Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as `https_trigger_url`. Cannot be used with `event_trigger`.
 
@@ -144,11 +144,11 @@ Eg. `"nodejs10"`, `"nodejs12"`, `"nodejs14"`, `"python37"`, `"python38"`, `"pyth
 * `source_archive_object` - (Optional) The source archive object (file) in archive bucket.
 
 * `source_repository` - (Optional) Represents parameters related to source repository where a function is hosted.
-  Cannot be set alongside `source_archive_bucket` or `source_archive_object`. Structure is documented below.
+  Cannot be set alongside `source_archive_bucket` or `source_archive_object`. Structure is [documented below](#nested_source_repository).
 
 * `max_instances` - (Optional) The limit on the maximum number of function instances that may coexist at a given time.
 
-The `event_trigger` block supports:
+<a name="nested_event_trigger"></a>The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.
 See the documentation on [calling Cloud Functions](https://cloud.google.com/functions/docs/calling/) for a
@@ -157,13 +157,13 @@ full reference of accepted triggers.
 * `resource` - (Required) Required. The name or partial URI of the resource from
 which to observe events. For example, `"myBucket"` or `"projects/my-project/topics/my-topic"`
 
-* `failure_policy` - (Optional) Specifies policy for failed executions. Structure is documented below.
+* `failure_policy` - (Optional) Specifies policy for failed executions. Structure is [documented below](#nested_failure_policy).
 
-The `failure_policy` block supports:
+<a name="nested_failure_policy"></a>The `failure_policy` block supports:
 
 * `retry` - (Required) Whether the function should be retried on failure. Defaults to `false`.
 
-The `source_repository` block supports:
+<a name="nested_source_repository"></a>The `source_repository` block supports:
 
 * `url` - (Required) The URL pointing to the hosted repository where the function is defined. There are supported Cloud Source Repository URLs in the following formats:
 

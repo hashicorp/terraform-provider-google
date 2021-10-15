@@ -29,15 +29,15 @@ data "google_cloud_identity_groups" "groups" {
 
 In addition to the arguments listed above, the following attributes are exported:
 
-* `groups` - The list of groups under the provided customer or namespace. Structure is documented below.
+* `groups` - The list of groups under the provided customer or namespace. Structure is [documented below](#nested_groups).
 
-The `groups` block contains:
+<a name="nested_groups"></a>The `groups` block contains:
 
 * `name` -
   Resource name of the Group in the format: groups/{group_id}, where `group_id` is the unique ID assigned to the Group.
 
 * `group_key` -
-  EntityKey of the Group.  Structure is documented below.
+  EntityKey of the Group.  Structure is [documented below](#nested_group_key).
 
 * `display_name` -
   The display name of the Group.
@@ -49,7 +49,7 @@ The `groups` block contains:
   Contains 'cloudidentity.googleapis.com/groups.discussion_forum': '' if the Group is a Google Group or
   'system/groups/external': '' if the Group is an external-identity-mapped group.
 
-The `group_key` block supports:
+<a name="nested_group_key"></a>The `group_key` block supports:
 
 * `id` -
   The ID of the entity.

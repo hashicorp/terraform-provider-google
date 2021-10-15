@@ -84,12 +84,12 @@ output "pyspark_status" {
    as shown in the example above, or by setting the `count` attribute.
    The following job configs are supported:
 
-       * pyspark_config  - Submits a PySpark job to the cluster
-       * spark_config    - Submits a Spark job to the cluster
-       * hadoop_config   - Submits a Hadoop job to the cluster
-       * hive_config     - Submits a Hive job to the cluster
-       * hpig_config     - Submits a Pig job to the cluster
-       * sparksql_config - Submits a Spark SQL job to the cluster
+       * [pyspark_config](#nested_pyspark_config)  - Submits a PySpark job to the cluster
+       * [spark_config](#nested_spark_config)    - Submits a Spark job to the cluster
+       * [hadoop_config](#nested_hadoop_config)   - Submits a Hadoop job to the cluster
+       * [hive_config](#nested_hive_config)     - Submits a Hive job to the cluster
+       * [hpig_config](#nested_hpig_config)     - Submits a Pig job to the cluster
+       * [sparksql_config](#nested_sparksql_config) - Submits a Spark SQL job to the cluster
 
 - - -
 
@@ -109,7 +109,7 @@ output "pyspark_status" {
 
 * `scheduling.max_failures_total` - (Required) Maximum number of times in total a driver may be restarted as a result of driver exiting with non-zero code before job is reported failed.
 
-The `pyspark_config` block supports:
+<a name="nested_pyspark_config"></a>The `pyspark_config` block supports:
 
 Submitting a pyspark job to the cluster. Below is an example configuration:
 
@@ -149,7 +149,7 @@ are generally applicable:
 
 * `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
-The `spark_config` block supports:
+<a name="nested_spark_config"></a>The `spark_config` block supports:
 
 ```hcl
 # Submit a spark job to the cluster
@@ -192,7 +192,7 @@ resource "google_dataproc_job" "spark" {
 * `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 
-The `hadoop_config` block supports:
+<a name="nested_hadoop_config"></a>The `hadoop_config` block supports:
 
 ```hcl
 # Submit a hadoop job to the cluster
@@ -225,7 +225,7 @@ resource "google_dataproc_job" "hadoop" {
 
 * `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
-The `hive_config` block supports:
+<a name="nested_hive_config"></a>The `hive_config` block supports:
 
 ```hcl
 # Submit a hive job to the cluster
@@ -255,7 +255,7 @@ resource "google_dataproc_job" "hive" {
 
 * `jar_file_uris` - (Optional) HCFS URIs of jar files to add to the CLASSPATH of the Hive server and Hadoop MapReduce (MR) tasks. Can contain Hive SerDes and UDFs.
 
-The `pig_config` block supports:
+<a name="nested_pig_config"></a>The `pig_config` block supports:
 
 ```hcl
 # Submit a pig job to the cluster
@@ -290,7 +290,7 @@ resource "google_dataproc_job" "pig" {
 * `logging_config.driver_log_levels`- (Required) The per-package log levels for the driver. This may include 'root' package name to configure rootLogger. Examples: 'com.google = FATAL', 'root = INFO', 'org.apache = DEBUG'
 
 
-The `sparksql_config` block supports:
+<a name="nested_sparksql_config"></a>The `sparksql_config` block supports:
 
 ```hcl
 # Submit a spark SQL job to the cluster

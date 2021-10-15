@@ -55,9 +55,9 @@ In addition to the arguments listed above, the following attributes are exported
     addresses.
 
 * `secondary_ip_range` - An array of configurations for secondary IP ranges for
-    VM instances contained in this subnetwork. Structure is documented below.
+    VM instances contained in this subnetwork. Structure is [documented below](#nested_secondary_ip_range).
 
-The `secondary_ip_range` block supports:
+<a name="nested_secondary_ip_range"></a>The `secondary_ip_range` block supports:
 
 * `range_name` - The name associated with this subnetwork secondary range, used
     when adding an alias IP range to a VM instance.

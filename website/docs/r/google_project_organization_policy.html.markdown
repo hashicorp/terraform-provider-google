@@ -93,22 +93,22 @@ The following arguments are supported:
 
 * `version` - (Optional) Version of the Policy. Default version is 0.
 
-* `boolean_policy` - (Optional) A boolean policy is a constraint that is either enforced or not. Structure is documented below.
+* `boolean_policy` - (Optional) A boolean policy is a constraint that is either enforced or not. Structure is [documented below](#nested_boolean_policy).
 
-* `list_policy` - (Optional) A policy that can define specific values that are allowed or denied for the given constraint. It can also be used to allow or deny all values. Structure is documented below.
+* `list_policy` - (Optional) A policy that can define specific values that are allowed or denied for the given constraint. It can also be used to allow or deny all values. Structure is [documented below](#nested_list_policy).
 
-* `restore_policy` - (Optional) A restore policy is a constraint to restore the default policy. Structure is documented below.
+* `restore_policy` - (Optional) A restore policy is a constraint to restore the default policy. Structure is [documented below](#nested_restore_policy).
 
 ~> **Note:** If none of [`boolean_policy`, `list_policy`, `restore_policy`] are defined the policy for a given constraint will
 effectively be unset. This is represented in the UI as the constraint being 'Inherited'.
 
 - - -
 
-The `boolean_policy` block supports:
+<a name="nested_boolean_policy"></a>The `boolean_policy` block supports:
 
 * `enforced` - (Required) If true, then the Policy is enforced. If false, then any configuration is acceptable.
 
-The `list_policy` block supports:
+<a name="nested_list_policy"></a>The `list_policy` block supports:
 
 * `allow` or `deny` - (Optional) One or the other must be set.
 
@@ -123,7 +123,7 @@ The `allow` or `deny` blocks support:
 
 * `values` - (Optional) The policy can define specific values that are allowed or denied.
 
-The `restore_policy` block supports:
+<a name="nested_restore_policy"></a>The `restore_policy` block supports:
 
 * `default` - (Required) May only be set to true. If set, then the default Policy is restored.
 
