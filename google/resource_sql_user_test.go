@@ -311,7 +311,7 @@ resource "google_sql_database_instance" "instance" {
 }
 
 resource "google_sql_user" "user" {
-  name     = "admin"
+  name     = "admin@example.com"
   instance = google_sql_database_instance.instance.name
   type     = "CLOUD_IAM_USER"
 }
