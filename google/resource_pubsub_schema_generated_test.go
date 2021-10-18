@@ -58,6 +58,52 @@ resource "google_pubsub_schema" "example" {
 `, context)
 }
 
+func TestAccPubsubSchema_pubsubSchemaProtobufExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":  getTestProjectFromEnv(),
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPubsubSchemaDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSchema_pubsubSchemaProtobufExample(context),
+			},
+			{
+				ResourceName:            "google_pubsub_schema.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"definition"},
+			},
+		},
+	})
+}
+
+func testAccPubsubSchema_pubsubSchemaProtobufExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_pubsub_schema" "example" {
+  name = "example%{random_suffix}"
+  type = "PROTOCOL_BUFFER"
+  definition = "syntax = \"proto3\";\nmessage Results {\nstring message_request = 1;\nstring message_response = 2;\nstring timestamp_request = 3;\nstring timestamp_response = 4;\n}"
+}
+
+resource "google_pubsub_topic" "example" {
+  name = "example%{random_suffix}-topic"
+
+  depends_on = [google_pubsub_schema.example]
+  schema_settings {
+    schema = "projects/%{project_name}/schemas/example%{random_suffix}"
+    encoding = "JSON"
+  }
+}
+`, context)
+}
+
 func testAccCheckPubsubSchemaDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
