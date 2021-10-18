@@ -68,6 +68,12 @@ func schemaNodeConfig() *schema.Schema {
 								DiffSuppressFunc: compareSelfLinkOrResourceName,
 								Description:      `The accelerator type resource name.`,
 							},
+							"gpu_partition_size": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								ForceNew:    true,
+								Description: `Size of partitions to create on the GPU. Valid values are described in the NVIDIA mig user guide (https://docs.nvidia.com/datacenter/tesla/mig-user-guide/#partitioning)`,
+							},
 						},
 					},
 				},
@@ -285,6 +291,7 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 			guestAccelerators = append(guestAccelerators, &containerBeta.AcceleratorConfig{
 				AcceleratorCount: int64(data["count"].(int)),
 				AcceleratorType:  data["type"].(string),
+				GpuPartitionSize: data["gpu_partition_size"].(string),
 			})
 		}
 		nc.Accelerators = guestAccelerators
@@ -443,8 +450,9 @@ func flattenContainerGuestAccelerators(c []*containerBeta.AcceleratorConfig) []m
 	result := []map[string]interface{}{}
 	for _, accel := range c {
 		result = append(result, map[string]interface{}{
-			"count": accel.AcceleratorCount,
-			"type":  accel.AcceleratorType,
+			"count":              accel.AcceleratorCount,
+			"type":               accel.AcceleratorType,
+			"gpu_partition_size": accel.GpuPartitionSize,
 		})
 	}
 	return result
