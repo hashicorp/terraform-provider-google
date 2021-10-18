@@ -1,4 +1,4 @@
-## 3.89.0 (Unreleased)
+## 3.89.0 (October 18, 2021)
 
 DEPRECATIONS:
 * compute: deprecated the `enable_display` field in `google_compute_instance_template` in the `google` (GA) provider. It will only be available in the `google-beta` provider in a future release, as the underlying feature is in beta. ([#10281](https://github.com/hashicorp/terraform-provider-google/pull/10281))
