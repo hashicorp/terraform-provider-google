@@ -1338,7 +1338,7 @@ resource "google_container_node_pool" "np_with_gpu" {
   initial_node_count = 1
 
   node_config {
-    machine_type = "n1-standard-1"  // can't be e2 because of accelerator
+    machine_type = "a2-highgpu-1g"  // can't be e2 because of accelerator
     disk_size_gb = 32
 
     oauth_scopes = [
@@ -1355,7 +1355,8 @@ resource "google_container_node_pool" "np_with_gpu" {
     image_type      = "COS"
 
     guest_accelerator {
-      type  = "nvidia-tesla-k80"
+      type  = "nvidia-tesla-a100"
+      gpu_partition_size = "1g.5gb"
       count = 1
     }
   }

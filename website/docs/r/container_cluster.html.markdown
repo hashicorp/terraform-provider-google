@@ -738,11 +738,13 @@ linux_node_config {
 
 * `count` (Required) - The number of the guest accelerator cards exposed to this instance.
 
-<a name="nested_workload_identity_config"></a>The `workload_identity_config` block supports:
+* `gpu_partition_size` (Optional) - Size of partitions to create on the GPU. Valid values are described in the NVIDIA mig [user guide](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/#partitioning).
+
+<a name="nested_workload_identity_config"></a> The `workload_identity_config` block supports:
 
 * `identity_namespace` (Optional, Deprecated) - Currently, the only supported identity namespace is the project's default.
 
-* `workload_pool` (Optional) - The workload pool to attach all Kubernetes service accounts to. Currently, the only supported identity namespace is the project's default.
+* `workload_pool` (Optional) - The workload pool to attach all Kubernetes service accounts to. Currently, the only supported identity namespace is the project of the cluster.
 
 ```hcl
 workload_identity_config {
