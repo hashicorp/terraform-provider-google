@@ -3,13 +3,10 @@
 DEPRECATIONS:
 * compute: deprecated the `enable_display` field in `google_compute_instance_template` in the `google` (GA) provider. It will only be available in the `google-beta` provider in a future release, as the underlying feature is in beta. ([#10281](https://github.com/hashicorp/terraform-provider-google/pull/10281))
 
-IMPROVEMENTS:
-* compute: fixed bug where `google_compute_router_peer` could not set an advertised route priority of 0, causing permadiff. ([#10292](https://github.com/hashicorp/terraform-provider-google/pull/10292))
-* iam: Added `projectOwner`, `projectEditor` and `projectViewer` as possible values for members field in documentation. ([#10274](https://github.com/hashicorp/terraform-provider-google/pull/10274))
-* iam: fixed request batching bug where failed requests would show unnecessary backslash escaping to the user. ([#10303](https://github.com/hashicorp/terraform-provider-google/pull/10303))
-
 BUG FIXES:
+* compute: fixed bug where `google_compute_router_peer` could not set an advertised route priority of 0, causing permadiff. ([#10292](https://github.com/hashicorp/terraform-provider-google/pull/10292))
 * container: fixed a crash on `monitoring_config` of `google_container_cluster` ([#10290](https://github.com/hashicorp/terraform-provider-google/pull/10290))
+* iam: fixed request batching bug where failed requests would show unnecessary backslash escaping to the user. ([#10303](https://github.com/hashicorp/terraform-provider-google/pull/10303))
 * storage: fixed a bug to better handle eventual consistency among `google_storage_bucket` resources. ([#10287](https://github.com/hashicorp/terraform-provider-google/pull/10287))
 
 ## 3.88.0 (October 11, 2021)
