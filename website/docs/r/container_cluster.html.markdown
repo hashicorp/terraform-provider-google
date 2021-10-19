@@ -290,7 +290,7 @@ clusters with private nodes. Structure is [documented below](#nested_private_clu
 Configuration options for the [Release channel](https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels)
 feature, which provide more control over automatic upgrades of your GKE clusters.
 When updating this field, GKE imposes specific version requirements. See
-[Migrating between release channels](https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels#migrating_between_release_channels)
+[Selecting a new release channel](https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels#selecting_a_new_release_channel)
 for more details; the `google_container_engine_versions` datasource can provide
 the default version for a channel. Note that removing the `release_channel`
 field from your config will cause Terraform to stop managing your cluster's
