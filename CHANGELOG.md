@@ -1,5 +1,24 @@
 ## 3.90.0 (Unreleased)
 
+DEPRECATIONS:
+* container: deprecated `workload_identity_config.0.identity_namespace` and it will be removed in a future major release as it has been deprecated in the API. Use `workload_identity_config.0.workload_pool` instead. Switching your configuration from one value to the other will trigger a diff at plan time, and a spurious update. ([#10327](https://github.com/hashicorp/terraform-provider-google/pull/10327))
+* container: deprecated the following `google_container_cluster` fields: `instance_group_urls` and `master_auth` ([#10356](https://github.com/hashicorp/terraform-provider-google/pull/10356))
+
+IMPROVEMENTS:
+* cloudrun: fixed a permadiff on the field `template.spec.containers.ports.name` of the `google_cloud_run_service` resource ([#10340](https://github.com/hashicorp/terraform-provider-google/pull/10340))
+* container: added `node_config.0.guest_accelerator.0.gpu_partition_size` field to google_container_node_pool ([#10339](https://github.com/hashicorp/terraform-provider-google/pull/10339))
+* container: added `workload_identity_config.0.workload_pool` to `google_container_cluster` ([#10327](https://github.com/hashicorp/terraform-provider-google/pull/10327))
+* container_cluster: Updated `monitoring_config` to accept `WORKLOAD` ([#10321](https://github.com/hashicorp/terraform-provider-google/pull/10321))
+* iam: fixed request batching bug where failed requests would show unnecessary backslash escaping to the user. ([#10303](https://github.com/hashicorp/terraform-provider-google/pull/10303))
+* provider: Added links to nested types documentation for manually generated pages ([#10333](https://github.com/hashicorp/terraform-provider-google/pull/10333))
+
+BUG FIXES:
+* composer: removed `config.node_config.zone` requirement on `google_composer_environment` ([#10353](https://github.com/hashicorp/terraform-provider-google/pull/10353))
+* compute: fixed permadiff for `failover_policy` on `google_compute_region_backend_service` ([#10316](https://github.com/hashicorp/terraform-provider-google/pull/10316))
+* compute: fixed to make `description` updatable without recreation on `google_compute_instance_group_manager` ([#10329](https://github.com/hashicorp/terraform-provider-google/pull/10329))
+* container: fixed a permadiff on `google_container_node_pool.workload_metadata_config.mode` ([#10313](https://github.com/hashicorp/terraform-provider-google/pull/10313))
+* securitycenter: fixed bug where `google_scc_notification_config.streaming_config.filter` was not updating. ([#10315](https://github.com/hashicorp/terraform-provider-google/pull/10315))
+
 ## 3.89.0 (October 18, 2021)
 
 DEPRECATIONS:
