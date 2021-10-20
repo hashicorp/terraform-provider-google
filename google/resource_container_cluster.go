@@ -554,6 +554,7 @@ func resourceContainerCluster() *schema.Resource {
 				Optional:    true,
 				MaxItems:    1,
 				Computed:    true,
+				Deprecated:  `Basic authentication was removed for GKE cluster versions >= 1.19.`,
 				Description: `The authentication information for accessing the Kubernetes master. Some values in this block are only returned by the API if your service account has permission to get credentials for your GKE cluster. If you see an unexpected diff removing a username/password or unsetting your client cert, ensure you have the container.clusters.getCredentials permission.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -745,6 +746,7 @@ func resourceContainerCluster() *schema.Resource {
 			"instance_group_urls": {
 				Type:        schema.TypeList,
 				Computed:    true,
+				Deprecated:  `Please use node_pool.instance_group_urls instead.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `List of instance group URLs which have been assigned to the cluster.`,
 			},

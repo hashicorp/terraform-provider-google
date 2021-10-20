@@ -12,15 +12,21 @@ description: |-
   - [I accidentally upgraded to 4.0.0, how do I downgrade to `3.X`?](#i-accidentally-upgraded-to-400-how-do-i-downgrade-to-3x)
   - [Provider Version Configuration](#provider-version-configuration)
   - [Provider](#provider)
-    - [Provider-level change example](#provider-level-change-example)
+    - [Runtime Configurator (`runtimeconfig`) resources have been removed from the GA provider](#runtime-configurator-runtimeconfig-resources-have-been-removed-from-the-ga-provider)
   - [Datasource: `google_product_resource`](#datasource-google_product_resource)
     - [Datasource-level change example](#datasource-level-change-example)
-- [Resource: `google_compute_instance_group_manager`](#resource-google_compute_instance_group_manager)
-    - [`update_policy.min_ready_sec` is removed from the GA provider](#update_policymin_ready_sec-is-removed-from-the-GA-provider)
-- [Resource: `google_compute_region_instance_group_manager`](#resource-google_compute_region_instance_group_manager)
-    - [`update_policy.min_ready_sec` is removed from the GA provider](#update_policymin_ready_sec-is-removed-from-the-GA-provider)
+  - [Resource: `google_compute_instance_group_manager`](#resource-google_compute_instance_group_manager)
+    - [`update_policy.min_ready_sec` is removed from the GA provider](#update_policymin_ready_sec-is-removed-from-the-ga-provider)
+  - [Resource: `google_compute_region_instance_group_manager`](#resource-google_compute_region_instance_group_manager)
+    - [`update_policy.min_ready_sec` is removed from the GA provider](#update_policymin_ready_sec-is-removed-from-the-ga-provider-1)
+  - [Resource: `google_compute_instance_template`](#resource-google_compute_instance_template)
+    - [`enable_display` is removed from the GA provider](#enable_display-is-removed-from-the-ga-provider)
   - [Resource: `google_container_cluster`](#resource-google_container_cluster)
+    - [`instance_group_urls` is now removed](#instance_group_urls-is-now-removed)
+    - [`master_auth` is now removed](#master_auth-is-now-removed)
     - [`node_config.workload_metadata_config.node_metadata` is now removed](#node_configworkload_metadata_confignode_metadata-is-now-removed)
+    - [`workload_identity_config.0.identity_namespace` is now removed](#workload_identity_config0identity_namespace-is-now-removed)
+    - [`pod_security_policy_config` is removed from the GA provider](#pod_security_policy_config-is-removed-from-the-ga-provider)
 
 <!-- /TOC -->
 
@@ -183,6 +189,15 @@ resource definition.
 
 ## Resource: `google_container_cluster`
 
+### `instance_group_urls` is now removed
+
+`instance_group_urls` has been removed in favor of `node_pool.instance_group_urls`
+
+### `master_auth` is now removed
+
+`master_auth` and its subfields have been removed. 
+Basic authentication was removed for GKE cluster versions >= 1.19. The cluster cannot be created with basic authentication enabled. Instructions for choosing an alternative authentication method can be found at: cloud.google.com/kubernetes-engine/docs/how-to/api-server-authentication.
+
 ### `node_config.workload_metadata_config.node_metadata` is now removed
 
 Removed in favor of `node_config.workload_metadata_config.mode`.
@@ -203,7 +218,7 @@ resource "google_container_cluster" "cluster" {
 -    identity_namespace = "your-project.svc.id.goog"
 +   workload_pool = "your-project.svc.id.goog"
   }
-````
+```
 
 ### `pod_security_policy_config` is removed from the GA provider
 
