@@ -119,7 +119,8 @@ func resourceComposerEnvironment() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"zone": {
 										Type:             schema.TypeString,
-										Required:         true,
+										Optional:         true,
+										Computed:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: compareSelfLinkOrResourceName,
 										Description:      `The Compute Engine zone in which to deploy the VMs running the Apache Airflow software, specified as the zone name or relative resource name (e.g. "projects/{project}/zones/{zone}"). Must belong to the enclosing environment's project and region. This field is supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*.`,
@@ -1016,9 +1017,6 @@ func expandComposerEnvironmentMachineType(v interface{}, d *schema.ResourceData,
 
 	fv, err := ParseMachineTypesFieldValue(v.(string), d, config)
 	if err != nil {
-		if requiredZone == "" {
-			return "", err
-		}
 
 		// Try to construct machine type with zone/project given in config.
 		project, err := getProject(d, config)
