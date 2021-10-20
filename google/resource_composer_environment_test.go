@@ -342,9 +342,10 @@ resource "google_composer_environment" "test" {
 	region = "us-central1"
 	config {
 		node_config {
-			network    = google_compute_network.test.self_link
-			subnetwork = google_compute_subnetwork.test.self_link
-			zone       = "us-central1-a"
+			network    		= google_compute_network.test.self_link
+			subnetwork 		= google_compute_subnetwork.test.self_link
+			zone       		= "us-central1-a"
+			machine_type  = "n1-standard-1"
 		}
 	}
 }
