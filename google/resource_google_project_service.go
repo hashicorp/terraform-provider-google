@@ -44,9 +44,7 @@ var bannedProjectServices = []string{"bigquery-json.googleapis.com"}
 // "DEPRECATED FOR {{version}} next to entries slated for removal in {{version}}
 // upon removal, we should disallow the old name from being used even if it's
 // not gone from the underlying API yet
-var renamedServices = map[string]string{
-	"bigquery-json.googleapis.com": "bigquery.googleapis.com", // DEPRECATED FOR 4.0.0. Originally for 3.0.0, but the migration did not happen server-side yet.
-}
+var renamedServices = map[string]string{}
 
 // renamedServices in reverse (new -> old)
 var renamedServicesByNewServiceNames = reverseStringMap(renamedServices)

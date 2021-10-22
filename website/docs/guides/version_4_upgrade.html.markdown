@@ -29,6 +29,8 @@ description: |-
     - [`node_config.workload_metadata_config.node_metadata` is now removed](#node_configworkload_metadata_confignode_metadata-is-now-removed)
     - [`workload_identity_config.0.identity_namespace` is now removed](#workload_identity_config0identity_namespace-is-now-removed)
     - [`pod_security_policy_config` is removed from the GA provider](#pod_security_policy_config-is-removed-from-the-ga-provider)
+  - [Resource: `google_project_service`](#resource-google_project_service)
+    - [`bigquery-json.googleapis.com` is no longer a valid service name](#bigquery-json.googleapis.com-is-no-longer-a-valid-service-name)
 
 <!-- /TOC -->
 
@@ -232,4 +234,12 @@ resource "google_container_cluster" "cluster" {
 This field was incorrectly included in the GA `google` provider in past releases.
 In order to continue to use the feature, add `provider = google-beta` to your
 resource definition.
+
+## Resource: `google_project_service`
+
+### `bigquery-json.googleapis.com` is no longer a valid service name
+
+`bigquery-json.googleapis.com` was deprecated in the `3.0.0` release, however, at that point the provider
+converted it while the upstream API migration was in progress. Now that the API migration has finished,
+the provider will no longer convert the service name. Use `bigquery.googleapis.com` instead.
 
