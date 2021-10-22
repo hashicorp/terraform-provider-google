@@ -218,7 +218,7 @@ Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.2
 															},
 														},
 													},
-													AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.delay.0.percentage"},
+													AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay", "default_route_action.0.fault_injection_policy.0.delay.0.percentage"},
 												},
 												"percentage": {
 													Type:         schema.TypeFloat,
@@ -226,7 +226,7 @@ Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.2
 													ValidateFunc: validation.FloatBetween(0, 100),
 													Description: `The percentage of traffic (connections/operations/requests) on which delay will be introduced as part of fault injection.
 The value must be between 0.0 and 100.0 inclusive.`,
-													AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.delay.0.percentage"},
+													AtLeastOneOf: []string{"default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay", "default_route_action.0.fault_injection_policy.0.delay.0.percentage"},
 												},
 											},
 										},

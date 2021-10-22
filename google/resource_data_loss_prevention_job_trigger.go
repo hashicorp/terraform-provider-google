@@ -261,7 +261,7 @@ match all files by default (this is equivalent to including .* in the list)`,
 																		},
 																	},
 																},
-																ExactlyOneOf: []string{},
+																ExactlyOneOf: []string{"inspect_job.0.storage_config.0.cloud_storage_options.0.file_set.0.url", "inspect_job.0.storage_config.0.cloud_storage_options.0.file_set.0.regex_file_set"},
 															},
 															"url": {
 																Type:     schema.TypeString,
@@ -272,7 +272,7 @@ in the path is allowed.
 If the url ends in a trailing slash, the bucket or directory represented by the url will be scanned
 non-recursively (content in sub-directories will not be scanned). This means that 'gs://mybucket/' is
 equivalent to 'gs://mybucket/*', and 'gs://mybucket/directory/' is equivalent to 'gs://mybucket/directory/*'.`,
-																ExactlyOneOf: []string{},
+																ExactlyOneOf: []string{"inspect_job.0.storage_config.0.cloud_storage_options.0.file_set.0.url", "inspect_job.0.storage_config.0.cloud_storage_options.0.file_set.0.regex_file_set"},
 															},
 														},
 													},
@@ -397,17 +397,18 @@ timestamp property does not exist or its value is empty or invalid.`,
 													Description: `When the job is started by a JobTrigger we will automatically figure out a valid startTime to avoid
 scanning files that have not been modified since the last time the JobTrigger executed. This will
 be based on the time of the execution of the last run of the JobTrigger.`,
-													AtLeastOneOf: []string{},
 												},
 												"end_time": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: `Exclude files or rows newer than this value. If set to zero, no upper time limit is applied.`,
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `Exclude files or rows newer than this value. If set to zero, no upper time limit is applied.`,
+													AtLeastOneOf: []string{"inspect_job.0.storage_config.0.timespan_config.0.start_time", "inspect_job.0.storage_config.0.timespan_config.0.end_time"},
 												},
 												"start_time": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: `Exclude files or rows older than this value.`,
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `Exclude files or rows older than this value.`,
+													AtLeastOneOf: []string{"inspect_job.0.storage_config.0.timespan_config.0.start_time", "inspect_job.0.storage_config.0.timespan_config.0.end_time"},
 												},
 											},
 										},

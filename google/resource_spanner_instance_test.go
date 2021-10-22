@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -81,15 +82,8 @@ func TestAccSpannerInstance_noNodeCountSpecified(t *testing.T) {
 		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSpannerInstance_noNodeCountSpecified(idName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("google_spanner_instance.basic", "state"),
-				),
-			},
-			{
-				ResourceName:      "google_spanner_instance.basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				Config:      testAccSpannerInstance_noNodeCountSpecified(idName),
+				ExpectError: regexp.MustCompile("one of `num_nodes,processing_units` must be specified"),
 			},
 		},
 	})

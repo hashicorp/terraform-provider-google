@@ -171,7 +171,6 @@ you create the resource.`,
 							Description: `A reference to a RegionBackendService resource. This will be used if
 none of the pathRules defined by this PathMatcher is matched by
 the URL's path portion.`,
-							ExactlyOneOf: []string{},
 						},
 						"default_url_redirect": {
 							Type:     schema.TypeList,
@@ -243,7 +242,6 @@ the request method will be retained. Possible values: ["FOUND", "MOVED_PERMANENT
 									},
 								},
 							},
-							ExactlyOneOf: []string{},
 						},
 						"description": {
 							Type:        schema.TypeString,

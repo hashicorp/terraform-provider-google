@@ -124,6 +124,7 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 				Optional: true,
 				Description: `The number of nodes allocated to this instance. At most one of either node_count or processing_units
 can be present in terraform.`,
+				ExactlyOneOf: []string{"num_nodes", "processing_units"},
 			},
 			"processing_units": {
 				Type:     schema.TypeInt,
@@ -131,6 +132,7 @@ can be present in terraform.`,
 				Optional: true,
 				Description: `The number of processing units allocated to this instance. At most one of processing_units 
 or node_count can be present in terraform.`,
+				ExactlyOneOf: []string{"num_nodes", "processing_units"},
 			},
 			"state": {
 				Type:        schema.TypeString,
