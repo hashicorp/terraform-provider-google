@@ -30,7 +30,7 @@ data "google_kms_crypto_key" "my_crypto_key" {
 }
 
 data "google_kms_crypto_key_version" "my_crypto_key_version" {
-  crypto_key = data.google_kms_key.my_key.id
+  crypto_key = data.google_kms_crypto_key.my_key.id
 }
 ```
 
