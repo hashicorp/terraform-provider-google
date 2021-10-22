@@ -1,0 +1,3 @@
+```release-note:breaking-change
+provider: removed redundant default scopes. The provider's default scopes when authenticating with credentials are now exclusively "https://www.googleapis.com/auth/cloud-platform" and "https://www.googleapis.com/auth/userinfo.email".
+```

@@ -12,6 +12,7 @@ description: |-
   - [I accidentally upgraded to 4.0.0, how do I downgrade to `3.X`?](#i-accidentally-upgraded-to-400-how-do-i-downgrade-to-3x)
   - [Provider Version Configuration](#provider-version-configuration)
   - [Provider](#provider)
+    - [Redundant default scopes are removed](#redundant-default-scopes-are-removed)
     - [Runtime Configurator (`runtimeconfig`) resources have been removed from the GA provider](#runtime-configurator-runtimeconfig-resources-have-been-removed-from-the-ga-provider)
   - [Datasource: `google_product_resource`](#datasource-google_product_resource)
     - [Datasource-level change example](#datasource-level-change-example)
@@ -153,6 +154,26 @@ terraform {
 ```
 
 ## Provider
+
+### Redundant default scopes are removed
+
+Several default scopes are removed from the provider:
+
+* "https://www.googleapis.com/auth/compute"
+* "https://www.googleapis.com/auth/ndev.clouddns.readwrite"
+* "https://www.googleapis.com/auth/devstorage.full_control"
+* "https://www.googleapis.com/auth/cloud-identity"
+
+They are redundant with the "https://www.googleapis.com/auth/cloud-platform"
+scope per [Access scopes](https://cloud.google.com/compute/docs/access/service-accounts#accesscopesiam).
+After this change the following scopes are enabled, in line with `gcloud`'s
+[list of scopes](https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login):
+
+* "https://www.googleapis.com/auth/cloud-platform"
+* "https://www.googleapis.com/auth/userinfo.email"
+
+This change is believed to have no user impact. If you find that Terraform
+behaves incorrectly as a result of this change, please report a [bug](https://github.com/hashicorp/terraform-provider-google/issues/new?assignees=&labels=bug&template=bug.md).
 
 ### Runtime Configurator (`runtimeconfig`) resources have been removed from the GA provider
 
