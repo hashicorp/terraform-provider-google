@@ -30,6 +30,15 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// suppress changes on sample_rate if log_config is set to disabled.
+func suppressWhenDisabled(k, old, new string, d *schema.ResourceData) bool {
+	_, n := d.GetChange("log_config.0.enable")
+	if isEmptyValue(reflect.ValueOf(n)) {
+		return true
+	}
+	return false
+}
+
 // Whether the backend is a global or regional NEG
 func isNegBackend(backend map[string]interface{}) bool {
 	backendGroup, ok := backend["group"]
@@ -652,8 +661,9 @@ If logging is enabled, logs will be exported to Stackdriver.`,
 							AtLeastOneOf: []string{"log_config.0.enable", "log_config.0.sample_rate"},
 						},
 						"sample_rate": {
-							Type:     schema.TypeFloat,
-							Optional: true,
+							Type:             schema.TypeFloat,
+							Optional:         true,
+							DiffSuppressFunc: suppressWhenDisabled,
 							Description: `This field can only be specified if logging is enabled for this backend service. The value of
 the field must be in [0, 1]. This configures the sampling rate of requests to the load balancer
 where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
@@ -3525,7 +3535,7 @@ func expandComputeBackendServiceLogConfig(v interface{}, d TerraformResourceData
 	transformedEnable, err := expandComputeBackendServiceLogConfigEnable(original["enable"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnable); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["enable"] = transformedEnable
 	}
 

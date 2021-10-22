@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed perma-diff bug on `log_config.enable` of both `google_compute_backend_service` and `google_compute_region_backend_service`
+```
