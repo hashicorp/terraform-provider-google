@@ -14,6 +14,7 @@ description: |-
   - [Provider](#provider)
     - [Redundant default scopes are removed](#redundant-default-scopes-are-removed)
     - [Runtime Configurator (`runtimeconfig`) resources have been removed from the GA provider](#runtime-configurator-runtimeconfig-resources-have-been-removed-from-the-ga-provider)
+    - [Service account scopes no longer accept `trace-append` or `trace-ro`, use `trace` instead](#service-account-scopes-no-longer-accept-trace-append-or-trace-ro-use-trace-instead)
   - [Datasource: `google_product_resource`](#datasource-google_product_resource)
     - [Datasource-level change example](#datasource-level-change-example)
   - [Resource: `google_bigquery_job`](#resource-google_bigquery_job)
@@ -214,6 +215,11 @@ resource "google_runtimeconfig_config" "my-runtime-config" {
 }
 ```
 
+### Service account scopes no longer accept `trace-append` or `trace-ro`, use `trace` instead
+
+Previously users could specify `trace-append` or `trace-ro` as scopes for a given service account.
+However, to better align with [Google documentation](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes), `trace` will now be the only valid scope, as it's an alias for `trace.append` and
+`trace-ro` is no longer a documented option.
 
 ## Datasource: `google_product_resource`
 
