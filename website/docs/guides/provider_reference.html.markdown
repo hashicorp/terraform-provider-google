@@ -265,10 +265,7 @@ an access token using the service account key specified in `credentials`.
 
     By default, the following scopes are configured:
 
-    * https://www.googleapis.com/auth/compute
     * https://www.googleapis.com/auth/cloud-platform
-    * https://www.googleapis.com/auth/ndev.clouddns.readwrite
-    * https://www.googleapis.com/auth/devstorage.full_control
     * https://www.googleapis.com/auth/userinfo.email
 
 * `request_reason` - (Optional) Send a Request Reason [System Parameter](https://cloud.google.com/apis/docs/system-parameters) for each API call made by the provider.  The `X-Goog-Request-Reason` header value is used to provide a user-supplied justification into GCP AuditLogs. Alternatively, this can be specified using the `CLOUDSDK_CORE_REQUEST_REASON` environment variable.
