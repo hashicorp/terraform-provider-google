@@ -529,13 +529,13 @@ One of 'storageSource' or 'repoSource' must be provided.`,
 													Description: `Regex matching branches to build. Exactly one a of branch name, tag, or commit SHA must be provided.
 The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
 described at https://github.com/google/re2/wiki/Syntax`,
-													ExactlyOneOf: []string{},
+													ExactlyOneOf: []string{"build.0.source.0.repo_source.0.branch_name", "build.0.source.0.repo_source.0.commit_sha", "build.0.source.0.repo_source.0.tag_name"},
 												},
 												"commit_sha": {
 													Type:         schema.TypeString,
 													Optional:     true,
 													Description:  `Explicit commit SHA to build. Exactly one a of branch name, tag, or commit SHA must be provided.`,
-													ExactlyOneOf: []string{},
+													ExactlyOneOf: []string{"build.0.source.0.repo_source.0.branch_name", "build.0.source.0.repo_source.0.commit_sha", "build.0.source.0.repo_source.0.tag_name"},
 												},
 												"dir": {
 													Type:     schema.TypeString,
@@ -567,7 +567,7 @@ If omitted, the project ID requesting the build is assumed.`,
 													Description: `Regex matching tags to build. Exactly one a of branch name, tag, or commit SHA must be provided.
 The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
 described at https://github.com/google/re2/wiki/Syntax`,
-													ExactlyOneOf: []string{},
+													ExactlyOneOf: []string{"build.0.source.0.repo_source.0.branch_name", "build.0.source.0.repo_source.0.commit_sha", "build.0.source.0.repo_source.0.tag_name"},
 												},
 											},
 										},

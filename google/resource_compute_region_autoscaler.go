@@ -207,26 +207,28 @@ and outages due to abrupt scale-in events`,
 													Optional: true,
 													Description: `Specifies a fixed number of VM instances. This must be a positive
 integer.`,
+													AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.fixed", "autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.percent"},
 												},
 												"percent": {
 													Type:     schema.TypeInt,
 													Optional: true,
 													Description: `Specifies a percentage of instances between 0 to 100%, inclusive.
 For example, specify 80 for 80%.`,
+													AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.fixed", "autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.percent"},
 												},
 											},
 										},
-										AtLeastOneOf: []string{},
+										AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas", "autoscaling_policy.0.scale_in_control.0.time_window_sec"},
 									},
 									"time_window_sec": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Description: `How long back autoscaling should look when computing recommendations
 to include directives regarding slower scale down, as described above.`,
+										AtLeastOneOf: []string{"autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas", "autoscaling_policy.0.scale_in_control.0.time_window_sec"},
 									},
 								},
 							},
-							AtLeastOneOf: []string{},
 						},
 						"scaling_schedules": {
 							Type:        schema.TypeSet,
