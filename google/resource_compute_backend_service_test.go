@@ -583,7 +583,7 @@ func TestAccComputeBackendService_withLogConfig(t *testing.T) {
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.7),
+				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.7, true),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -591,7 +591,31 @@ func TestAccComputeBackendService_withLogConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.4),
+				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.4, true),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.4, false),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withLogConfig2(serviceName, checkName, false),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withLogConfig(serviceName, checkName, 0.7, false),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -1407,14 +1431,14 @@ resource "google_compute_instance_template" "foobar" {
 `, fr, proxy, backend, hc, urlmap)
 }
 
-func testAccComputeBackendService_withLogConfig(serviceName, checkName string, sampleRate float64) string {
+func testAccComputeBackendService_withLogConfig(serviceName, checkName string, sampleRate float64, enabled bool) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
   name          = "%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 
   log_config {
-    enable      = true
+    enable      = %t
     sample_rate = %v
   }
 }
@@ -1425,5 +1449,25 @@ resource "google_compute_http_health_check" "zero" {
   check_interval_sec = 1
   timeout_sec        = 1
 }
-`, serviceName, sampleRate, checkName)
+`, serviceName, enabled, sampleRate, checkName)
+}
+
+func testAccComputeBackendService_withLogConfig2(serviceName, checkName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+
+  log_config {
+	enable      = %t
+  }
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, enabled, checkName)
 }
