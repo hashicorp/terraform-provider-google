@@ -176,6 +176,15 @@ func TestAccProjectService_handleNotFound(t *testing.T) {
 func TestAccProjectService_renamedService(t *testing.T) {
 	t.Parallel()
 
+	if len(renamedServices) == 0 {
+		t.Skip()
+	}
+
+	var newName string
+	for _, new := range renamedServices {
+		newName = new
+	}
+
 	org := getTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", randInt(t))
 	vcrTest(t, resource.TestCase{
@@ -183,7 +192,7 @@ func TestAccProjectService_renamedService(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProjectService_single("bigquery.googleapis.com", pid, pname, org),
+				Config: testAccProjectService_single(newName, pid, pname, org),
 			},
 			{
 				ResourceName:            "google_project_service.test",
