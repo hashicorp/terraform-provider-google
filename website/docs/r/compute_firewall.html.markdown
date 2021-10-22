@@ -86,6 +86,8 @@ resource "google_compute_firewall" "rules" {
     protocol  = "tcp"
     ports     = ["80", "8080", "1000-2000"]
   }
+
+  source_tags = ["foo"]
   target_tags = ["web"]
 }
 ```
@@ -142,7 +144,8 @@ The following arguments are supported:
   Direction of traffic to which this firewall applies; default is
   INGRESS. Note: For INGRESS traffic, it is NOT supported to specify
   destinationRanges; For EGRESS traffic, it is NOT supported to specify
-  sourceRanges OR sourceTags.
+  `source_ranges` OR `source_tags`. For INGRESS traffic, one of `source_ranges`,
+  `source_tags` or `source_service_accounts` is required.
   Possible values are `INGRESS` and `EGRESS`.
 
 * `disabled` -

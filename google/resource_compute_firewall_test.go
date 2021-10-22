@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -81,12 +82,8 @@ func TestAccComputeFirewall_noSource(t *testing.T) {
 		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeFirewall_noSource(networkName, firewallName),
-			},
-			{
-				ResourceName:      "google_compute_firewall.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				Config:      testAccComputeFirewall_noSource(networkName, firewallName),
+				ExpectError: regexp.MustCompile("one of source_tags, source_ranges, or source_service_accounts must be defined"),
 			},
 		},
 	})

@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -76,6 +77,28 @@ func resourceComputeFirewallEnableLoggingCustomizeDiff(_ context.Context, diff *
 	return nil
 }
 
+// Per https://github.com/hashicorp/terraform-provider-google/issues/2924
+// Make one of the source_ parameters Required in ingress google_compute_firewall
+func resourceComputeFirewallSourceFieldsCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	direction := diff.Get("direction").(string)
+
+	if direction != "EGRESS" {
+		_, tagsOk := diff.GetOk("source_tags")
+		_, rangesOk := diff.GetOk("source_ranges")
+		_, sasOk := diff.GetOk("source_service_accounts")
+
+		_, tagsExist := diff.GetOkExists("source_tags")
+		// ranges is computed, but this is what we're trying to avoid, so we're not going to check this
+		_, sasExist := diff.GetOkExists("source_service_accounts")
+
+		if !tagsOk && !rangesOk && !sasOk && !tagsExist && !sasExist {
+			return fmt.Errorf("one of source_tags, source_ranges, or source_service_accounts must be defined")
+		}
+	}
+
+	return nil
+}
+
 func resourceComputeFirewall() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeFirewallCreate,
@@ -95,7 +118,10 @@ func resourceComputeFirewall() *schema.Resource {
 
 		SchemaVersion: 1,
 		MigrateState:  resourceComputeFirewallMigrateState,
-		CustomizeDiff: resourceComputeFirewallEnableLoggingCustomizeDiff,
+		CustomizeDiff: customdiff.All(
+			resourceComputeFirewallEnableLoggingCustomizeDiff,
+			resourceComputeFirewallSourceFieldsCustomizeDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -164,7 +190,8 @@ must be expressed in CIDR format. Only IPv4 is supported.`,
 				Description: `Direction of traffic to which this firewall applies; default is
 INGRESS. Note: For INGRESS traffic, it is NOT supported to specify
 destinationRanges; For EGRESS traffic, it is NOT supported to specify
-sourceRanges OR sourceTags. Possible values: ["INGRESS", "EGRESS"]`,
+'source_ranges' OR 'source_tags'. For INGRESS traffic, one of 'source_ranges',
+'source_tags' or 'source_service_accounts' is required. Possible values: ["INGRESS", "EGRESS"]`,
 			},
 			"disabled": {
 				Type:     schema.TypeBool,
