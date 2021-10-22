@@ -1,0 +1,3 @@
+```release-note:breaking-change
+compute: required one of `source_tags`, `source_ranges` or `source_service_accounts` on INGRESS `google_compute_firewall` resources
+```
