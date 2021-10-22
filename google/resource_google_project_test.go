@@ -240,6 +240,47 @@ func TestAccProject_parentFolder(t *testing.T) {
 	})
 }
 
+func TestAccProject_migrateParent(t *testing.T) {
+	t.Parallel()
+
+	org := getTestOrgFromEnv(t)
+	pid := fmt.Sprintf("%s-%d", testPrefix, randInt(t))
+	folderDisplayName := testPrefix + randString(t, 10)
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProject_migrateParentFolder(pid, pname, folderDisplayName, org),
+			},
+			{
+				ResourceName:            "google_project.acceptance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"skip_delete"},
+			},
+			{
+				Config: testAccProject_migrateParentOrg(pid, pname, folderDisplayName, org),
+			},
+			{
+				ResourceName:            "google_project.acceptance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"skip_delete"},
+			},
+			{
+				Config: testAccProject_migrateParentFolder(pid, pname, folderDisplayName, org),
+			},
+			{
+				ResourceName:            "google_project.acceptance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"skip_delete"},
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleProjectExists(r, pid string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
@@ -412,8 +453,6 @@ resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
 
-  # ensures we can set both org_id and folder_id as long as only one is not empty.
-  org_id    = ""
   folder_id = google_folder.folder1.id
 }
 
@@ -422,6 +461,38 @@ resource "google_folder" "folder1" {
   parent       = "organizations/%s"
 }
 `, pid, projectName, folderName, org)
+}
+
+func testAccProject_migrateParentFolder(pid, projectName, folderName, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+
+  folder_id = google_folder.folder1.id
+}
+
+resource "google_folder" "folder1" {
+  display_name = "%s"
+  parent       = "organizations/%s"
+}
+`, pid, projectName, folderName, org)
+}
+
+func testAccProject_migrateParentOrg(pid, projectName, folderName, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+
+  org_id = "%s"
+}
+
+resource "google_folder" "folder1" {
+  display_name = "%s"
+  parent       = "organizations/%s"
+}
+`, pid, projectName, org, folderName, org)
 }
 
 func skipIfEnvNotSet(t *testing.T, envs ...string) {

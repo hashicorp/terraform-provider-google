@@ -1,0 +1,6 @@
+```release-note:breaking-change
+resourcemanager: added conflict between `org_id`, `folder_id` at plan time in `google_project`
+```
+```release-note:breaking-change
+resourcemanager: `org_id`, `folder_id` are unset when removed from config in `google_project`
+```

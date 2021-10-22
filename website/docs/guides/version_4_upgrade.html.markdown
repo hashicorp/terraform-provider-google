@@ -47,6 +47,9 @@ description: |-
     - [`node_config.workload_metadata_config.node_metadata` is now removed](#node_configworkload_metadata_confignode_metadata-is-now-removed)
     - [`workload_identity_config.0.identity_namespace` is now removed](#workload_identity_config0identity_namespace-is-now-removed)
     - [`pod_security_policy_config` is removed from the GA provider](#pod_security_policy_config-is-removed-from-the-ga-provider)
+  - [Resource: `google_project`](#resource-google_project)
+    - [`org_id`, `folder_id` now conflict at plan time](#org_id-folder_id-now-confict-at-plan-time)
+    - [`org_id`, `folder_id` are unset when removed from config](#org_id-folder_id-are-unset-when-removed-from-config)
   - [Resource: `google_project_service`](#resource-google_project_service)
     - [`bigquery-json.googleapis.com` is no longer a valid service name](#bigquery-json.googleapis.com-is-no-longer-a-valid-service-name)
   - [Resource: `google_data_loss_prevention_trigger`](#resource-google_data_loss_prevention_trigger)
@@ -344,6 +347,20 @@ The provider will now enforce at plan time that one of these fields be set.
 
 ### At least one of `patch_config.0.post_step.0.linux_exec_step_config` or `patch_config.0.post_step.0.windows_exec_step_config` is required
 The provider will now enforce at plan time that one of these fields be set.
+
+## Resource: `google_project`
+
+### `org_id`, `folder_id` now conflict at plan time
+
+Previously, they were only checked for conflicts at apply time. Terraform will
+now report an error at plan time.
+
+### `org_id`, `folder_id` are unset when removed from config
+
+Previously, these fields kept their old value in state when they were removed
+from config, changing the value on next refresh. Going forward, removing one of
+the values or switching values will generate a correct plan that removes the
+value.
 
 ## Resource: `google_project_service`
 
