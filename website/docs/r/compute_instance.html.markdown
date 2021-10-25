@@ -132,16 +132,16 @@ The following arguments are supported:
    we provide a special attribute, `metadata_startup_script`, which is documented below.
 
 * `metadata_startup_script` - (Optional) An alternative to using the
-    startup-script metadata key, except this one forces the instance to be
-    recreated (thus re-running the script) if it is changed. This replaces the
-    startup-script metadata key on the created instance and thus the two
-    mechanisms are not allowed to be used simultaneously.  Users are free to use
-    either mechanism - the only distinction is that this separate attribute
-    will cause a recreate on modification.  On import, `metadata_startup_script`
-    will be set, but `metadata.startup-script` will not - if you choose to use the
-    other mechanism, you will see a diff immediately after import, which will cause a
-    destroy/recreate operation.  You may want to modify your state file manually
-    using `terraform state` commands, depending on your use case.
+startup-script metadata key, except this one forces the instance to be recreated
+(thus re-running the script) if it is changed. This replaces the startup-script
+metadata key on the created instance and thus the two mechanisms are not
+allowed to be used simultaneously.  Users are free to use either mechanism - the
+only distinction is that this separate attribute will cause a recreate on
+modification.  On import, `metadata_startup_script` will not be set - if you
+choose to specify it you will see a diff immediately after import causing a
+destroy/recreate operation. If importing an instance and specifying this value
+is desired, you will need to modify your state file manually using
+`terraform state` commands.
 
 * `min_cpu_platform` - (Optional) Specifies a minimum CPU platform for the VM instance. Applicable values are the friendly names of CPU platforms, such as
 `Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
