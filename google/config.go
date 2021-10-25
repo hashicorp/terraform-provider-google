@@ -1043,14 +1043,13 @@ type staticTokenSource struct {
 // If initialCredentialsOnly is true, don't follow the impersonation settings and return the initial set of creds
 // instead.
 func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bool) (googleoauth.Credentials, error) {
-
 	if c.AccessToken != "" {
 		contents, _, err := pathOrContents(c.AccessToken)
 		if err != nil {
 			return googleoauth.Credentials{}, fmt.Errorf("Error loading access token: %s", err)
 		}
-		token := &oauth2.Token{AccessToken: contents}
 
+		token := &oauth2.Token{AccessToken: contents}
 		if c.ImpersonateServiceAccount != "" && !initialCredentialsOnly {
 			opts := []option.ClientOption{option.WithTokenSource(oauth2.StaticTokenSource(token)), option.ImpersonateCredentials(c.ImpersonateServiceAccount, c.ImpersonateServiceAccountDelegates...), option.WithScopes(clientScopes...)}
 			creds, err := transport.Creds(context.TODO(), opts...)
@@ -1062,7 +1061,6 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 
 		log.Printf("[INFO] Authenticating using configured Google JSON 'access_token'...")
 		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-
 		return googleoauth.Credentials{
 			TokenSource: staticTokenSource{oauth2.StaticTokenSource(token)},
 		}, nil
@@ -1073,6 +1071,7 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 		if err != nil {
 			return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
 		}
+
 		if c.ImpersonateServiceAccount != "" && !initialCredentialsOnly {
 			opts := []option.ClientOption{option.WithCredentialsJSON([]byte(contents)), option.ImpersonateCredentials(c.ImpersonateServiceAccount, c.ImpersonateServiceAccountDelegates...), option.WithScopes(clientScopes...)}
 			creds, err := transport.Creds(context.TODO(), opts...)
@@ -1081,6 +1080,7 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 			}
 			return *creds, nil
 		}
+
 		creds, err := googleoauth.CredentialsFromJSON(c.context, []byte(contents), clientScopes...)
 		if err != nil {
 			return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials from '%s': %s", contents, err)
@@ -1097,17 +1097,17 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 		if err != nil {
 			return googleoauth.Credentials{}, err
 		}
-		return *creds, nil
 
+		return *creds, nil
 	}
 
 	log.Printf("[INFO] Authenticating using DefaultClient...")
 	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-
 	defaultTS, err := googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
 	if err != nil {
 		return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
 	}
+
 	return googleoauth.Credentials{
 		TokenSource: defaultTS,
 	}, err
