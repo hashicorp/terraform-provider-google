@@ -847,8 +847,10 @@ resource "google_cloudfunctions_function" "function" {
 
 func testAccCloudFunctionsFunction_vpcConnector(projectNumber, networkName, functionName, bucketName, zipFilePath, vpcIp, vpcConnectorName string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
 
 resource "google_project_iam_member" "gcfadmin" {
+  project = data.google_project.project.project_id
   role     = "roles/editor"
   member   = "serviceAccount:service-%s@gcf-admin-robot.iam.gserviceaccount.com"
 }

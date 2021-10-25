@@ -34,9 +34,9 @@ resource "google_storage_bucket" "log-bucket" {
 }
 
 resource "google_project_iam_member" "log-writer" {
-  role = "roles/storage.objectCreator"
-
-  member = google_logging_organization_sink.my-sink.writer_identity
+  project = "your-project-id"
+  role    = "roles/storage.objectCreator"
+  member  = google_logging_organization_sink.my-sink.writer_identity
 }
 ```
 

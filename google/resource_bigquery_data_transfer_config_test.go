@@ -190,6 +190,8 @@ func testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, schedule, s
 data "google_project" "project" {}
 
 resource "google_project_iam_member" "permissions" {
+  project = data.google_project.project.project_id
+
   role   = "roles/iam.serviceAccountShortTermTokenMinter"
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
 }
@@ -243,6 +245,8 @@ resource "google_service_account" "bqwriter" {
 }
 
 resource "google_project_iam_member" "data_editor" {
+  project = data.google_project.project.project_id
+
   role   = "roles/bigquery.dataEditor"
   member = "serviceAccount:${google_service_account.bqwriter.email}"
 }
@@ -277,6 +281,7 @@ func testAccBigqueryDataTransferConfig_scheduledQueryNoDestination(random_suffix
 data "google_project" "project" {}
 
 resource "google_project_iam_member" "permissions" {
+  project = data.google_project.project.project_id
   role   = "roles/iam.serviceAccountShortTermTokenMinter"
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
 }
@@ -315,6 +320,7 @@ func testAccBigqueryDataTransferConfig_booleanParam(random_suffix string) string
 data "google_project" "project" {}
 
 resource "google_project_iam_member" "permissions" {
+  project = data.google_project.project.project_id
   role   = "roles/iam.serviceAccountShortTermTokenMinter"
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
 }

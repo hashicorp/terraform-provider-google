@@ -474,6 +474,8 @@ resource "google_compute_subnetwork" "test" {
 
 func testAccComposerEnvironment_nodeCfg(environment, network, subnetwork, serviceAccount string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
 resource "google_composer_environment" "test" {
 	name   = "%s"
 	region = "us-east1"  # later should be changed to us-central1, when ip_masq_agent feature is accessible globally
@@ -511,6 +513,7 @@ resource "google_service_account" "test" {
 }
 
 resource "google_project_iam_member" "composer-worker" {
+	project = data.google_project.project.project_id
 	role   = "roles/composer.worker"
 	member = "serviceAccount:${google_service_account.test.email}"
 }

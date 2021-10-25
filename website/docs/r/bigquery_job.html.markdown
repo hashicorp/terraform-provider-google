@@ -271,6 +271,7 @@ data "google_project" "project" {
 }
 
 resource "google_project_iam_member" "encrypt_role" {
+  project = data.google_project.project.project_id
   role = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member = "serviceAccount:bq-${data.google_project.project.number}@bigquery-encryption.iam.gserviceaccount.com"
 }

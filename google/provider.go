@@ -1268,7 +1268,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_organization_iam_member":             ResourceIamMember(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_iam_policy":             ResourceIamPolicy(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
 			"google_organization_iam_audit_config":       ResourceIamAuditConfig(IamOrganizationSchema, NewOrganizationIamUpdater, OrgIdParseFunc),
-			"google_project_iam_policy":                  ResourceIamPolicy(IamPolicyProjectSchema, NewProjectIamPolicyUpdater, ProjectIdParseFunc),
+			"google_project_iam_policy":                  ResourceIamPolicy(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc),
 			"google_project_iam_binding":                 ResourceIamBindingWithBatching(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, IamBatchingEnabled),
 			"google_project_iam_member":                  ResourceIamMemberWithBatching(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, IamBatchingEnabled),
 			"google_project_iam_audit_config":            ResourceIamAuditConfigWithBatching(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, IamBatchingEnabled),

@@ -41,11 +41,14 @@ func TestAccDialogflowCXFlow_update(t *testing.T) {
 
 func testAccDialogflowCXFlow_basic(context map[string]interface{}) string {
 	return Nprintf(`
+	data "google_project" "project" {}
+
 	resource "google_service_account" "dialogflowcx_service_account" {
 		account_id = "tf-test-dialogflow-%{random_suffix}"
 	}
-	  
+
 	resource "google_project_iam_member" "agent_create" {
+		project = data.google_project.project.project_id
 		role    = "roles/dialogflow.admin"
 		member  = "serviceAccount:${google_service_account.dialogflowcx_service_account.email}"
 	}
@@ -75,11 +78,14 @@ func testAccDialogflowCXFlow_basic(context map[string]interface{}) string {
 
 func testAccDialogflowCXFlow_full(context map[string]interface{}) string {
 	return Nprintf(`
-    resource "google_service_account" "dialogflowcx_service_account" {
+	data "google_project" "project" {}
+
+	resource "google_service_account" "dialogflowcx_service_account" {
 		account_id = "tf-test-dialogflow-%{random_suffix}"
 	}
-	  
+
 	resource "google_project_iam_member" "agent_create" {
+		project = data.google_project.project.project_id
 		role    = "roles/dialogflow.admin"
 		member  = "serviceAccount:${google_service_account.dialogflowcx_service_account.email}"
 	}

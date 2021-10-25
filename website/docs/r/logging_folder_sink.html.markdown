@@ -35,6 +35,7 @@ resource "google_storage_bucket" "log-bucket" {
 }
 
 resource "google_project_iam_binding" "log-writer" {
+  project = "your-project-id"
   role = "roles/storage.objectCreator"
 
   members = [

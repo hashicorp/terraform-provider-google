@@ -53,6 +53,8 @@ description: |-
   - [Resource: `google_project`](#resource-google_project)
     - [`org_id`, `folder_id` now conflict at plan time](#org_id-folder_id-now-confict-at-plan-time)
     - [`org_id`, `folder_id` are unset when removed from config](#org_id-folder_id-are-unset-when-removed-from-config)
+  - [Resource: `google_project_iam`](#resource-google_project_iam)
+    - [`project` field is now required](#project-field-is-now-required)
   - [Resource: `google_project_service`](#resource-google_project_service)
     - [`bigquery-json.googleapis.com` is no longer a valid service name](#bigquery-json.googleapis.com-is-no-longer-a-valid-service-name)
   - [Resource: `google_data_loss_prevention_trigger`](#resource-google_data_loss_prevention_trigger)
@@ -427,6 +429,19 @@ from config, changing the value on next refresh. Going forward, removing one of
 the values or switching values will generate a correct plan that removes the
 value.
 
+## Resource: `google_project_iam`
+
+### `project` field is now required
+
+The `project` field is now required for all `google_project_iam_*` resources.
+Previously, it was only required for `google_project_iam_policy`. This will make
+configuration of the project IAM resources more explicit, given that the project
+is the targeted resource.
+
+`terraform plan` will indicate any project IAM resources that had drawn a value
+with a provider, and you are able to specify the project explicitly to remove
+the proposed diff.
+
 ## Resource: `google_project_service`
 
 ### `bigquery-json.googleapis.com` is no longer a valid service name
@@ -438,4 +453,5 @@ the provider will no longer convert the service name. Use `bigquery.googleapis.c
 ## Resource: `google_spanner_instance`
 
 ### Exactly one of `num_nodes` or `processing_units` is required
+
 The provider will now enforce at plan time that one of these fields be set.
