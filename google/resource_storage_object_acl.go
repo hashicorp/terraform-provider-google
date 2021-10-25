@@ -80,7 +80,10 @@ func resourceStorageObjectAclDiff(_ context.Context, diff *schema.ResourceDiff, 
 		return nil
 	}
 
-	objectOwner := sObject.Owner.Entity
+	objectOwner := ""
+	if sObject.Owner != nil {
+		objectOwner = sObject.Owner.Entity
+	}
 	ownerRole := fmt.Sprintf("%s:%s", "OWNER", objectOwner)
 	oldRoleEntity, newRoleEntity := diff.GetChange("role_entity")
 
