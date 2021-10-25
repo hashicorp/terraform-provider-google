@@ -357,6 +357,8 @@ resource "google_sql_database_instance" "instance" {
 
 func testGoogleSqlUser_iamUser(instance string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
 resource "google_sql_database_instance" "instance" {
   database_version = "MYSQL_8_0"
   name             = "%s"
@@ -401,11 +403,13 @@ resource "google_sql_user" "user1" {
 }
 
 resource "google_project_iam_member" "instance_user" {
+  project = data.google_project.project.project_id
   role    = "roles/cloudsql.instanceUser"
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 
 resource "google_project_iam_member" "sa_user" {
+  project = data.google_project.project.project_id
   role    = "roles/iam.serviceAccountUser"
   member  = "serviceAccount:${google_service_account.sa.email}"
 }

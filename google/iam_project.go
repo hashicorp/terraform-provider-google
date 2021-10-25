@@ -11,18 +11,6 @@ import (
 var IamProjectSchema = map[string]*schema.Schema{
 	"project": {
 		Type:             schema.TypeString,
-		Optional:         true,
-		Computed:         true,
-		ForceNew:         true,
-		DiffSuppressFunc: compareProjectName,
-	},
-}
-
-// In google_project_iam_policy, project is required and not inferred by
-// getProject.
-var IamPolicyProjectSchema = map[string]*schema.Schema{
-	"project": {
-		Type:             schema.TypeString,
 		Required:         true,
 		ForceNew:         true,
 		DiffSuppressFunc: compareProjectName,
@@ -36,25 +24,6 @@ type ProjectIamUpdater struct {
 }
 
 func NewProjectIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
-	pid, err := getProject(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := d.Set("project", pid); err != nil {
-		return nil, fmt.Errorf("Error setting project: %s", err)
-	}
-
-	return &ProjectIamUpdater{
-		resourceId: pid,
-		d:          d,
-		Config:     config,
-	}, nil
-}
-
-// NewProjectIamPolicyUpdater is similar to NewProjectIamUpdater, except that it
-// doesn't call getProject and only uses an explicitly set project.
-func NewProjectIamPolicyUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &ProjectIamUpdater{
 		resourceId: d.Get("project").(string),
 		d:          d,

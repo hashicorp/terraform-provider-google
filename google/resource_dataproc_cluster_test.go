@@ -1352,11 +1352,14 @@ resource "google_dataproc_cluster" "with_opt_components" {
 
 func testAccDataprocCluster_withServiceAcc(sa string, rnd string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
 resource "google_service_account" "service_account" {
   account_id = "%s"
 }
 
 resource "google_project_iam_member" "service_account" {
+  project = data.google_project.project.project_id
   role   = "roles/dataproc.worker"
   member = "serviceAccount:${google_service_account.service_account.email}"
 }
