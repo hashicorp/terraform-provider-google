@@ -877,16 +877,9 @@ Enables monitoring and attestation of the boot integrity of the instance. The at
 
 * `effect` (Required) Effect for taint. Accepted values are `NO_SCHEDULE`, `PREFER_NO_SCHEDULE`, and `NO_EXECUTE`.
 
-<a name="nested_workload_metadata_config"></a>The `workload_metadata_config` must have exactly one of `node_metadata` (deprecated) or `mode` set. This block supports:
+<a name="nested_workload_metadata_config"></a>The `workload_metadata_config` block supports:
 
-* `node_metadata` (Optional, Deprecated) How to expose the node metadata to the workload running on the node. This is deprecated in favor of `mode`
-    Accepted values are:
-    * UNSPECIFIED: Not Set
-    * SECURE: Prevent workloads not in hostNetwork from accessing certain VM metadata, specifically kube-env, which contains Kubelet credentials, and the instance identity token. See [Metadata Concealment](https://cloud.google.com/kubernetes-engine/docs/how-to/metadata-proxy) documentation.
-    * EXPOSE: Expose all VM metadata to pods.
-    * GKE_METADATA_SERVER: Enables [workload identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) on the node.
-
-* `mode` (Optional) How to expose the node metadata to the workload running on the node.
+* `mode` (Required) How to expose the node metadata to the workload running on the node.
     Accepted values are:
     * UNSPECIFIED: Not Set
     * GCE_METADATA: Expose all Compute Engine metadata to pods.

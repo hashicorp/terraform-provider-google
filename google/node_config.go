@@ -231,8 +231,6 @@ func schemaNodeConfig() *schema.Schema {
 					},
 				},
 
-				// Note that ExactlyOneOf can't be set because this schema is reused by
-				// two different resources.
 				"workload_metadata_config": {
 					Computed:    true,
 					Type:        schema.TypeList,
@@ -241,18 +239,9 @@ func schemaNodeConfig() *schema.Schema {
 					Description: `The workload metadata configuration for this node.`,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
-							"node_metadata": {
-								Type:         schema.TypeString,
-								Optional:     true,
-								Computed:     true,
-								Deprecated:   "Deprecated in favor of mode.",
-								ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "SECURE", "EXPOSE", "GKE_METADATA_SERVER"}, false),
-								Description:  `NodeMetadata is the configuration for how to expose metadata to the workloads running on the node.`,
-							},
 							"mode": {
 								Type:         schema.TypeString,
-								Optional:     true,
-								Computed:     true,
+								Required:     true,
 								ValidateFunc: validation.StringInSlice([]string{"MODE_UNSPECIFIED", "GCE_METADATA", "GKE_METADATA"}, false),
 								Description:  `Mode is the configuration for how to expose metadata to workloads running on the node.`,
 							},
@@ -407,10 +396,6 @@ func expandWorkloadMetadataConfig(v interface{}) *containerBeta.WorkloadMetadata
 		wmc.Mode = v.(string)
 	}
 
-	if v, ok := cfg["node_metadata"]; ok {
-		wmc.NodeMetadata = v.(string)
-	}
-
 	return wmc
 }
 
@@ -485,8 +470,7 @@ func flattenWorkloadMetadataConfig(c *containerBeta.WorkloadMetadataConfig) []ma
 	result := []map[string]interface{}{}
 	if c != nil {
 		result = append(result, map[string]interface{}{
-			"mode":          c.Mode,
-			"node_metadata": c.NodeMetadata,
+			"mode": c.Mode,
 		})
 	}
 	return result
