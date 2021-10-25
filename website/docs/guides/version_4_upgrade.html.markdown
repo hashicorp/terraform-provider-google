@@ -70,6 +70,8 @@ description: |-
     - [At least one of `patch_config.0.post_step.0.linux_exec_step_config` or `patch_config.0.post_step.0.windows_exec_step_config` is required](#at-least-one-of-patch_config0post_step0linux_exec_step_config-or-patch_config0post_step0windows_exec_step_config-is-required)
   - [Resource: `google_spanner_instance`](#resource-google_spanner_instance)
     - [Exactly one of `num_nodes` or `processing_units` is required](#exactly-one-of-num_nodes-or-processing_units-is-required)
+  - [Resource: `google_storage_bucket`](#resource-google_storage_bucket)
+    - [`bucket_policy_only` is now removed](#bucket_policy_only-is-now-removed)
 
 <!-- /TOC -->
 
@@ -455,3 +457,9 @@ the provider will no longer convert the service name. Use `bigquery.googleapis.c
 ### Exactly one of `num_nodes` or `processing_units` is required
 
 The provider will now enforce at plan time that one of these fields be set.
+
+## Resource: `google_storage_bucket`
+
+### `bucket_policy_only` field is now removed
+
+`bucket_policy_only` field is now removed in favor of `uniform_bucket_level_access`.
