@@ -149,9 +149,7 @@ The following arguments are supported:
 
 * `protection_level` -
   (Optional)
-  The protection level to use when creating a version based on this template.
-  Default value is `SOFTWARE`.
-  Possible values are `SOFTWARE` and `HSM`.
+  The protection level to use when creating a version based on this template. Possible values include "SOFTWARE", "HSM", "EXTERNAL". Defaults to "SOFTWARE".
 
 ## Attributes Reference
 
