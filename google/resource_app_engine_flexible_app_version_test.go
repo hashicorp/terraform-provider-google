@@ -130,8 +130,9 @@ resource "google_app_engine_flexible_app_version" "foo" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_project.my_project.project_id
-  name = "tf-test-%{random_suffix}-flex-ae-bucket"
+  project  = google_project.my_project.project_id
+  name     = "tf-test-%{random_suffix}-flex-ae-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "yaml" {
@@ -242,8 +243,9 @@ resource "google_app_engine_flexible_app_version" "foo" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_project.my_project.project_id
-  name = "tf-test-%{random_suffix}-flex-ae-bucket"
+  project  = google_project.my_project.project_id
+  name     = "tf-test-%{random_suffix}-flex-ae-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "yaml" {

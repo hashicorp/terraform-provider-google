@@ -228,7 +228,8 @@ data "google_storage_object_signed_url" "blerg" {
 func testAccTestGoogleStorageObjectSignedURL(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "story" {

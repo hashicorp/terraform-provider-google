@@ -1145,6 +1145,7 @@ func testAccDataprocCluster_withInitAction(rnd, bucket, objName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "init_bucket" {
   name          = "%s"
+  location      = "US"
   force_destroy = "true"
 }
 
@@ -1229,6 +1230,7 @@ func testAccDataprocCluster_withStagingBucketOnly(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name          = "%s"
+  location      = "US"
   force_destroy = "true"
 }
 `, bucketName)
@@ -1238,6 +1240,7 @@ func testAccDataprocCluster_withTempBucketOnly(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name          = "%s"
+  location      = "US"
   force_destroy = "true"
 }
 `, bucketName)
@@ -1524,7 +1527,8 @@ resource "google_dataproc_cluster" "kms" {
 func testAccDataprocCluster_withKerberos(rnd, kmsKey string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-dproc-%s"
+  name     = "tf-test-dproc-%s"
+  location = "US"
 }
 resource "google_storage_bucket_object" "password" {
   name = "dataproc-password-%s"

@@ -46,7 +46,8 @@ func TestAccAppEngineServiceNetworkSettings_appEngineServiceNetworkSettingsExamp
 func testAccAppEngineServiceNetworkSettings_appEngineServiceNetworkSettingsExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "bucket" {
-	name = "tf-test-appengine-static-content%{random_suffix}"
+	name     = "tf-test-appengine-static-content%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

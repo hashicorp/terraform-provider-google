@@ -83,6 +83,7 @@ resource "google_data_loss_prevention_stored_info_type" "large" {
 
 resource "google_storage_bucket" "bucket" {
   name          = "tf-test-bucket"
+  location      = "US"
   force_destroy = true
 }
 

@@ -34,7 +34,8 @@ To get more information about ServiceSplitTraffic, see:
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
-	name = "appengine-static-content"
+	name     = "appengine-static-content"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

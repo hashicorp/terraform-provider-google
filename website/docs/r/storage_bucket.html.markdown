@@ -74,7 +74,7 @@ The following arguments are supported:
     boolean option will delete all contained objects. If you try to delete a
     bucket that contains objects, Terraform will fail that run.
 
-* `location` - (Optional, Default: 'US') The [GCS location](https://cloud.google.com/storage/docs/bucket-locations)
+* `location` - (Required) The [GCS location](https://cloud.google.com/storage/docs/bucket-locations)
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.

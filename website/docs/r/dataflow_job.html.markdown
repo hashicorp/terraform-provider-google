@@ -32,11 +32,13 @@ resource "google_pubsub_topic" "topic" {
 	name     = "dataflow-job1"
 }
 resource "google_storage_bucket" "bucket1" {
-	name = "tf-test-bucket1"
+	name          = "tf-test-bucket1"
+	location      = "US"
 	force_destroy = true
 }
 resource "google_storage_bucket" "bucket2" {
-	name = "tf-test-bucket2"
+	name          = "tf-test-bucket2"
+	location      = "US"
 	force_destroy = true
 }
 resource "google_dataflow_job" "pubsub_stream" {

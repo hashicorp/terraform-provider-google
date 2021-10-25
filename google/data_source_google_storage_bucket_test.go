@@ -30,7 +30,8 @@ func TestAccDataSourceGoogleStorageBucket_basic(t *testing.T) {
 func testAccDataSourceGoogleStorageBucketConfig(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "foo" {
-  name               = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 data "google_storage_bucket" "bar" {

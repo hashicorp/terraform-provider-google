@@ -51,8 +51,8 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasic
 func testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "dest" {
-  name = "tf-test-my-bucket%{random_suffix}"
-
+  name          = "tf-test-my-bucket%{random_suffix}"
+  location      = "US"
   force_destroy = true
 }
 
@@ -132,6 +132,7 @@ func testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvan
 	return Nprintf(`
 resource "google_storage_bucket" "dest" {
   name          = "tf-test-my-bucket%{random_suffix}"
+  location      = "US"
   force_destroy = true
 }
 

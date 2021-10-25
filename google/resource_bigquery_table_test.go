@@ -1323,6 +1323,7 @@ func testAccBigQueryTableHivePartitioning(bucketName, datasetID, tableID string)
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "test" {
   name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -1362,6 +1363,7 @@ func testAccBigQueryTableHivePartitioningCustomSchema(bucketName, datasetID, tab
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "test" {
   name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -1717,6 +1719,7 @@ resource "google_bigquery_dataset" "test" {
 
 resource "google_storage_bucket" "test" {
   name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 

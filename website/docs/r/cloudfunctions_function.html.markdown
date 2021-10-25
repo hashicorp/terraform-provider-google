@@ -26,7 +26,8 @@ for Cloud Functions.
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
-  name = "test-bucket"
+  name     = "test-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -62,7 +63,8 @@ resource "google_cloudfunctions_function_iam_member" "invoker" {
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
-  name = "test-bucket"
+  name     = "test-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {

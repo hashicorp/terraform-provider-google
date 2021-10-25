@@ -72,6 +72,7 @@ description: |-
     - [Exactly one of `num_nodes` or `processing_units` is required](#exactly-one-of-num_nodes-or-processing_units-is-required)
   - [Resource: `google_storage_bucket`](#resource-google_storage_bucket)
     - [`bucket_policy_only` is now removed](#bucket_policy_only-is-now-removed)
+    - [`location` is now required](#location-is-now-required)
   - [Resource: `google_sql_database_instance`](#resource-google_sql_database_instance)
     - [`database_version` field is now required](#database_version-field-is-now-required)
 
@@ -465,6 +466,11 @@ The provider will now enforce at plan time that one of these fields be set.
 ### `bucket_policy_only` field is now removed
 
 `bucket_policy_only` field is now removed in favor of `uniform_bucket_level_access`.
+
+### `location` field is now required.
+
+Previously, the default value of `location` was `US`. In an attempt to avoid allowing invalid 
+conbination of `storageClass` value and default `location` value, `location` field is now required.
 
 ## Resource: `google_sql_database_instance`
 

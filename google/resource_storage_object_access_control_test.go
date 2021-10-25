@@ -89,7 +89,8 @@ func TestAccStorageObjectAccessControl_updateWithSlashes(t *testing.T) {
 func testGoogleStorageObjectAccessControlBasic(bucketName, objectName, role, entity string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

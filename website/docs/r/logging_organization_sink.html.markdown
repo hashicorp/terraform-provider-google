@@ -30,7 +30,8 @@ resource "google_logging_organization_sink" "my-sink" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "organization-logging-bucket"
+  name     = "organization-logging-bucket"
+  location = "US"
 }
 
 resource "google_project_iam_member" "log-writer" {

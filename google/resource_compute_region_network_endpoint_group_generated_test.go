@@ -75,13 +75,14 @@ resource "google_cloudfunctions_function" "function_neg" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name       = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
+  name     = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" { 
-  name       = "index.zip"
-  bucket     = google_storage_bucket.bucket.name
-  source     = "%{zip_path}"
+  name   = "index.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "%{zip_path}"
 }
 `, context)
 }
@@ -231,13 +232,14 @@ resource "google_app_engine_flexible_app_version" "appengine_neg" {
 }
 
 resource "google_storage_bucket" "appengine_neg" {
-  name       = "tf-test-appengine-neg%{random_suffix}"
+  name     = "tf-test-appengine-neg%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "appengine_neg" {
-  name      = "hello-world.zip"
-  bucket    = google_storage_bucket.appengine_neg.name
-  source    = "./test-fixtures/appengine/hello-world.zip"
+  name   = "hello-world.zip"
+  bucket = google_storage_bucket.appengine_neg.name
+  source = "./test-fixtures/appengine/hello-world.zip"
 }
 `, context)
 }

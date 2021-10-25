@@ -266,7 +266,8 @@ func testAccStorageBucketAclDestroyProducer(t *testing.T) func(s *terraform.Stat
 func testGoogleStorageBucketsAclBasic1_reader(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_acl" "acl" {
@@ -279,7 +280,8 @@ resource "google_storage_bucket_acl" "acl" {
 func testGoogleStorageBucketsAclBasic1(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_acl" "acl" {
@@ -292,7 +294,8 @@ resource "google_storage_bucket_acl" "acl" {
 func testGoogleStorageBucketsAclBasic2(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_acl" "acl" {
@@ -305,7 +308,8 @@ resource "google_storage_bucket_acl" "acl" {
 func testGoogleStorageBucketsAclBasicDelete(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_acl" "acl" {
@@ -318,7 +322,8 @@ resource "google_storage_bucket_acl" "acl" {
 func testGoogleStorageBucketsAclBasic3(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_acl" "acl" {
@@ -331,7 +336,8 @@ resource "google_storage_bucket_acl" "acl" {
 func testGoogleStorageBucketsAclUnordered(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_acl" "acl" {
@@ -344,7 +350,8 @@ resource "google_storage_bucket_acl" "acl" {
 func testGoogleStorageBucketsAclPredefined(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_acl" "acl" {
@@ -358,7 +365,8 @@ resource "google_storage_bucket_acl" "acl" {
 func testGoogleStorageBucketsAclRemoveOwner(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_acl" "acl" {

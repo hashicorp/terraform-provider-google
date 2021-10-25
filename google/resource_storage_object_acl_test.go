@@ -340,7 +340,8 @@ func testAccStorageObjectAclDestroyProducer(t *testing.T) func(s *terraform.Stat
 func testGoogleStorageObjectsAclBasicDelete(bucketName string, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -360,7 +361,8 @@ resource "google_storage_object_acl" "acl" {
 func testGoogleStorageObjectsAclBasic1(bucketName string, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -381,7 +383,8 @@ resource "google_storage_object_acl" "acl" {
 func testGoogleStorageObjectsAclBasic2(bucketName string, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -402,7 +405,8 @@ resource "google_storage_object_acl" "acl" {
 func testGoogleStorageObjectsAclBasic3(bucketName string, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -423,7 +427,8 @@ resource "google_storage_object_acl" "acl" {
 func testGoogleStorageObjectsAclPredefined(bucketName string, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -443,7 +448,8 @@ resource "google_storage_object_acl" "acl" {
 func testGoogleStorageObjectAclUnordered(bucketName, objectName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

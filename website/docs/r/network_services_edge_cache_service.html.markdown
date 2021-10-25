@@ -38,8 +38,8 @@ EdgeCacheService defines the IP addresses, protocols, security policies, cache p
 
 ```hcl
 resource "google_storage_bucket" "dest" {
-  name = "my-bucket"
-
+  name          = "my-bucket"
+  location      = "US"
   force_destroy = true
 }
 
@@ -99,6 +99,7 @@ resource "google_network_services_edge_cache_service" "instance" {
 ```hcl
 resource "google_storage_bucket" "dest" {
   name          = "my-bucket"
+  location      = "US"
   force_destroy = true
 }
 

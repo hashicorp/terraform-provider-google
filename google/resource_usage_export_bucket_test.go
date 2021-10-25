@@ -45,8 +45,9 @@ resource "google_project_service" "service" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name    = "b-${google_project.base.project_id}"
-  project = google_project_service.service.project
+  name     = "b-${google_project.base.project_id}"
+  project  = google_project_service.service.project
+  location = "US"
 }
 
 resource "google_project_usage_export_bucket" "ueb" {
