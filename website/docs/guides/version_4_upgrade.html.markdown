@@ -12,6 +12,7 @@ description: |-
   - [I accidentally upgraded to 4.0.0, how do I downgrade to `3.X`?](#i-accidentally-upgraded-to-400-how-do-i-downgrade-to-3x)
   - [Provider Version Configuration](#provider-version-configuration)
   - [Provider](#provider)
+    - [`credentials`, `access_token` precedence has changed](#credentials-access_token-precedence-has-changed)
     - [Redundant default scopes are removed](#redundant-default-scopes-are-removed)
     - [Runtime Configurator (`runtimeconfig`) resources have been removed from the GA provider](#runtime-configurator-runtimeconfig-resources-have-been-removed-from-the-ga-provider)
     - [Service account scopes no longer accept `trace-append` or `trace-ro`, use `trace` instead](#service-account-scopes-no-longer-accept-trace-append-or-trace-ro-use-trace-instead)
@@ -155,6 +156,21 @@ terraform {
 ```
 
 ## Provider
+
+### `credentials`, `access_token` precedence has changed
+
+Terraform can draw values for both the `credentials` and `access_token` from the
+config directly or from environment variables. 
+
+In earlier versions of the provider, `access_token` values specified through
+environment variables took precedence over `credentials` values specified in
+config. From `4.0.0` onwards, config takes precedence over environment variables,
+and the `access_token` environment variable takes precedence over the
+`credential` environment variable.
+
+Service account impersonation is unchanged. Terraform will continue to use
+the service account if it is specified through an environment variable, even
+if `credentials` or `access_token` are specified in config.
 
 ### Redundant default scopes are removed
 
