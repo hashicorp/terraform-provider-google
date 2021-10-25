@@ -185,7 +185,13 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 	// Verify project for services still exists
 	projectGetCall := config.NewResourceManagerClient(userAgent).Projects.Get(project)
 	if config.UserProjectOverride {
-		projectGetCall.Header().Add("X-Goog-User-Project", project)
+		billingProject := project
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := getBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+		projectGetCall.Header().Add("X-Goog-User-Project", billingProject)
 	}
 	p, err := projectGetCall.Do()
 
@@ -256,24 +262,28 @@ func resourceGoogleProjectServiceUpdate(d *schema.ResourceData, meta interface{}
 // Disables a project service.
 func disableServiceUsageProjectService(service, project string, d *schema.ResourceData, config *Config, disableDependentServices bool) error {
 	err := retryTimeDuration(func() error {
+		billingProject := project
 		userAgent, err := generateUserAgentString(d, config.userAgent)
 		if err != nil {
 			return err
 		}
-
 		name := fmt.Sprintf("projects/%s/services/%s", project, service)
 		servicesDisableCall := config.NewServiceUsageClient(userAgent).Services.Disable(name, &serviceusage.DisableServiceRequest{
 			DisableDependentServices: disableDependentServices,
 		})
 		if config.UserProjectOverride {
-			servicesDisableCall.Header().Add("X-Goog-User-Project", project)
+			// err == nil indicates that the billing_project value was found
+			if bp, err := getBillingProject(d, config); err == nil {
+				billingProject = bp
+			}
+			servicesDisableCall.Header().Add("X-Goog-User-Project", billingProject)
 		}
 		sop, err := servicesDisableCall.Do()
 		if err != nil {
 			return err
 		}
 		// Wait for the operation to complete
-		waitErr := serviceUsageOperationWait(config, sop, project, "api to disable", userAgent, d.Timeout(schema.TimeoutDelete))
+		waitErr := serviceUsageOperationWait(config, sop, billingProject, "api to disable", userAgent, d.Timeout(schema.TimeoutDelete))
 		if waitErr != nil {
 			return waitErr
 		}
