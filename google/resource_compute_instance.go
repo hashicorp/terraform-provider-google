@@ -1118,19 +1118,15 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	md := flattenMetadataBeta(instance.Metadata)
-	existingMetadata := d.Get("metadata").(map[string]interface{})
 
-	// If the existing config specifies "metadata.startup-script" instead of "metadata_startup_script",
-	// we shouldn't move the remote metadata.startup-script to metadata_startup_script.  Otherwise,
-	// we should.
-	if _, ok := existingMetadata["startup-script"]; !ok {
+	// If the existing state contains "metadata_startup_script" instead of "metadata.startup-script",
+	// we should move the remote metadata.startup-script to metadata_startup_script to avoid
+	// specifying it in two places.
+	if _, ok := d.GetOk("metadata_startup_script"); ok {
 		if err := d.Set("metadata_startup_script", md["startup-script"]); err != nil {
 			return fmt.Errorf("Error setting metadata_startup_script: %s", err)
 		}
-		// Note that here we delete startup-script from our metadata list. This is to prevent storing the startup-script
-		// as a value in the metadata since the config specifically tracks it under 'metadata_startup_script'
-		delete(md, "startup-script")
-	} else if _, ok := d.GetOk("metadata_startup_script"); ok {
+
 		delete(md, "startup-script")
 	}
 

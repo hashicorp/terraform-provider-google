@@ -76,8 +76,8 @@ func testSweepComputeInstance(region string) error {
 
 func computeInstanceImportStep(zone, instanceName string, additionalImportIgnores []string) resource.TestStep {
 	// metadata is only read into state if set in the config
-	// since importing doesn't know whether metadata.startup_script vs metadata_startup_script is set in the config,
-	// it guesses metadata_startup_script
+	// importing doesn't know whether metadata.startup_script vs metadata_startup_script is set in the config,
+	// it always takes metadata.startup-script
 	ignores := []string{"metadata.%", "metadata.startup-script", "metadata_startup_script"}
 
 	return resource.TestStep{

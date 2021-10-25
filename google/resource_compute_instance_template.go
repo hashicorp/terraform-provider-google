@@ -1291,8 +1291,10 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			if err = d.Set("metadata_startup_script", script); err != nil {
 				return fmt.Errorf("Error setting metadata_startup_script: %s", err)
 			}
+
 			delete(_md, "startup-script")
 		}
+
 		if err = d.Set("metadata", _md); err != nil {
 			return fmt.Errorf("Error setting metadata: %s", err)
 		}
