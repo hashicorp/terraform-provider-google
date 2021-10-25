@@ -30,18 +30,57 @@ description: |-
     - [At least one of `autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas` or `autoscaling_policy.0.scale_in_control.0.time_window_sec` is required](#at-least-one-of-autoscaling_policy0scale_in_control0max_scaled_in_replicas-or-autoscaling_policy0scale_in_control0time_window_sec-is-required)
     - [At least one of `autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.fixed` or `autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.percent` is required](#at-least-one-of-autoscaling_policy0scale_in_control0max_scaled_in_replicas0fixed-or-autoscaling_policy0scale_in_control0max_scaled_in_replicas0percent-is-required)
   - [Resource: `google_compute_region_autoscaler`](#resource-google_compute_region_autoscaler)
-    - [At least one of `autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas` or `autoscaling_policy.0.scale_down_control.0.time_window_sec` is required](#at-least-one-of-autoscaling_policy0scale_down_control0max_scaled_down_replicas-or-autoscaling_policy0scale_down_control0time_window_sec-is-required)
-    - [At least one of `autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas.0.fixed` or `autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas.0.percent` is required](#at-least-one-of-autoscaling_policy0scale_down_control0max_scaled_down_replicas0fixed-or-autoscaling_policy0scale_down_control0max_scaled_down_replicas0percent-is-required)
-    - [At least one of `autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas` or `autoscaling_policy.0.scale_in_control.0.time_window_sec` is required](#at-least-one-of-autoscaling_policy0scale_in_control0max_scaled_in_replicas-or-autoscaling_policy0scale_in_control0time_window_sec-is-required)
-    - [At least one of `autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.fixed` or `autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.percent` is required](#at-least-one-of-autoscaling_policy0scale_in_control0max_scaled_in_replicas0fixed-or-autoscaling_policy0scale_in_control0max_scaled_in_replicas0percent-is-required)
+    - [At least one of `autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas` or `autoscaling_policy.0.scale_down_control.0.time_window_sec` is required](#at-least-one-of-autoscaling_policy0scale_down_control0max_scaled_down_replicas-or-autoscaling_policy0scale_down_control0time_window_sec-is-required-1)
+    - [At least one of `autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas.0.fixed` or `autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas.0.percent` is required](#at-least-one-of-autoscaling_policy0scale_down_control0max_scaled_down_replicas0fixed-or-autoscaling_policy0scale_down_control0max_scaled_down_replicas0percent-is-required-1)
+    - [At least one of `autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas` or `autoscaling_policy.0.scale_in_control.0.time_window_sec` is required](#at-least-one-of-autoscaling_policy0scale_in_control0max_scaled_in_replicas-or-autoscaling_policy0scale_in_control0time_window_sec-is-required-1)
+    - [At least one of `autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.fixed` or `autoscaling_policy.0.scale_in_control.0.max_scaled_in_replicas.0.percent` is required](#at-least-one-of-autoscaling_policy0scale_in_control0max_scaled_in_replicas0fixed-or-autoscaling_policy0scale_in_control0max_scaled_in_replicas0percent-is-required-1)
   - [Resource: `google_compute_firewall`](#resource-google_compute_firewall)
     - [One of `source_tags`, `source_ranges` or `source_service_accounts` are required on INGRESS firewalls](#one-of-source_tags-source_ranges-or-source_service_accounts-are-required-on-ingress-firewalls)
+  - [Resource: `google_compute_instance`](#resource-google_compute_instance)
+    - [`metadata_startup_script` is no longer set on import](#metadata_startup_script-is-no-longer-set-on-import)
   - [Resource: `google_compute_instance_group_manager`](#resource-google_compute_instance_group_manager)
     - [`update_policy.min_ready_sec` is removed from the GA provider](#update_policymin_ready_sec-is-removed-from-the-ga-provider)
   - [Resource: `google_compute_region_instance_group_manager`](#resource-google_compute_region_instance_group_manager)
     - [`update_policy.min_ready_sec` is removed from the GA provider](#update_policymin_ready_sec-is-removed-from-the-ga-provider-1)
   - [Resource: `google_compute_instance_template`](#resource-google_compute_instance_template)
     - [`enable_display` is removed from the GA provider](#enable_display-is-removed-from-the-ga-provider)
+  - [Resource: `google_compute_url_map`](#resource-google_compute_url_map)
+    - [At least one of `default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay` or `default_route_action.0.fault_injection_policy.0.delay.0.percentage` is required](#at-least-one-of-default_route_action0fault_injection_policy0delay0fixed_delay-or-default_route_action0fault_injection_policy0delay0percentage-is-required)
+  - [Resource: `google_container_cluster`](#resource-google_container_cluster)
+    - [`enable_shielded_nodes` now defaults to `true`](#enable_shielded_nodes-now-defaults-to-true)
+    - [`instance_group_urls` is now removed](#instance_group_urls-is-now-removed)
+    - [`master_auth` is now removed](#master_auth-is-now-removed)
+    - [`node_config.workload_metadata_config.node_metadata` is now removed](#node_configworkload_metadata_confignode_metadata-is-now-removed)
+    - [`workload_identity_config.0.identity_namespace` is now removed](#workload_identity_config0identity_namespace-is-now-removed)
+    - [`pod_security_policy_config` is removed from the GA provider](#pod_security_policy_config-is-removed-from-the-ga-provider)
+  - [Resource: `google_data_loss_prevention_trigger`](#resource-google_data_loss_prevention_trigger)
+    - [Exactly one of `inspect_job.0.storage_config.0.cloud_storage_options.0.file_set.0.url` or `inspect_job.0.storage_config.0.cloud_storage_options.0.file_set.0.regex_file_set` is required](#exactly-one-of-inspect_job0storage_config0cloud_storage_options0file_set0url-or-inspect_job0storage_config0cloud_storage_options0file_set0regex_file_set-is-required)
+    - [At least one of `inspect_job.0.storage_config.0.timespan_config.0.start_time` or `inspect_job.0.storage_config.0.timespan_config.0.end_time` is required](#at-least-one-of-inspect_job0storage_config0timespan_config0start_time-or-inspect_job0storage_config0timespan_config0end_time-is-required)
+  - [Resource: `google_os_config_patch_deployment`](#resource-google_os_config_patch_deployment)
+    - [At least one of `patch_config.0.reboot_config`, `patch_config.0.apt`, `patch_config.0.yum`, `patch_config.0.goo` `patch_config.0.zypper`, `patch_config.0.windows_update`, `patch_config.0.pre_step` or `patch_config.0.pre_step` is required](#at-least-one-of-patch_config0reboot_config-patch_config0apt-patch_config0yum-patch_config0goo-patch_config0zypper-patch_config0windows_update-patch_config0pre_step-or-patch_config0pre_step-is-required)
+    - [At least one of `patch_config.0.apt.0.type`, `patch_config.0.apt.0.excludes` or `patch_config.0.apt.0.exclusive_packages` is required](#at-least-one-of-patch_config0apt0type-patch_config0apt0excludes-or-patch_config0apt0exclusive_packages-is-required)
+    - [At least one of `patch_config.0.yum.0.security`, `patch_config.0.yum.0.minimal`, `patch_config.0.yum.0.excludes` or `patch_config.0.yum.0.exclusive_packages` is required](#at-least-one-of-patch_config0yum0security-patch_config0yum0minimal-patch_config0yum0excludes-or-patch_config0yum0exclusive_packages-is-required)
+    - [At least one of `patch_config.0.zypper.0.with_optional`, `patch_config.0.zypper.0.with_update`, `patch_config.0.zypper.0.categories`, `patch_config.0.zypper.0.severities`, `patch_config.0.zypper.0.excludes` or `patch_config.0.zypper.0.exclusive_patches` is required](#at-least-one-of-patch_config0zypper0with_optional-patch_config0zypper0with_update-patch_config0zypper0categories-patch_config0zypper0severities-patch_config0zypper0excludes-or-patch_config0zypper0exclusive_patches-is-required)
+    - [Exactly one of `patch_config.0.windows_update.0.classifications`, `patch_config.0.windows_update.0.excludes` or `patch_config.0.windows_update.0.exclusive_patches` is required](#exactly-one-of-patch_config0windows_update0classifications-patch_config0windows_update0excludes-or-patch_config0windows_update0exclusive_patches-is-required)
+    - [At least one of `patch_config.0.pre_step.0.linux_exec_step_config` or `patch_config.0.pre_step.0.windows_exec_step_config` is required](#at-least-one-of-patch_config0pre_step0linux_exec_step_config-or-patch_config0pre_step0windows_exec_step_config-is-required)
+    - [At least one of `patch_config.0.post_step.0.linux_exec_step_config` or `patch_config.0.post_step.0.windows_exec_step_config` is required](#at-least-one-of-patch_config0post_step0linux_exec_step_config-or-patch_config0post_step0windows_exec_step_config-is-required)
+  - [Resource: `google_project`](#resource-google_project)
+    - [`org_id`, `folder_id` now conflict at plan time](#org_id-folder_id-now-conflict-at-plan-time)
+    - [`org_id`, `folder_id` are unset when removed from config](#org_id-folder_id-are-unset-when-removed-from-config)
+  - [Resource: `google_project_iam`](#resource-google_project_iam)
+    - [`project` field is now required](#project-field-is-now-required)
+  - [Resource: `google_project_service`](#resource-google_project_service)
+    - [`bigquery-json.googleapis.com` is no longer a valid service name](#bigquery-jsongoogleapiscom-is-no-longer-a-valid-service-name)
+  - [Resource: `google_spanner_instance`](#resource-google_spanner_instance)
+    - [Exactly one of `num_nodes` or `processing_units` is required](#exactly-one-of-num_nodes-or-processing_units-is-required)
+  - [Resource: `google_storage_bucket`](#resource-google_storage_bucket)
+    - [`bucket_policy_only` field is now removed](#bucket_policy_only-field-is-now-removed)
+    - [`location` field is now required.](#location-field-is-now-required)
+  - [Resource: `google_sql_database_instance`](#resource-google_sql_database_instance)
+    - [`database_version` field is now required](#database_version-field-is-now-required)
+- [Previously, it was an optional field and the default value was `MYSQL_5_6`.](#previously-it-was-an-optional-field-and-the-default-value-was-mysql_5_6)
+- [>>>>>>> Default `enable_shielded_nodes` to true](#-default-enable_shielded_nodes-to-true)
+<<<<<<< HEAD
   - [Resource: `google_compute_url_map`](#resource-google_compute_url_map)
     - [At least one of `default_route_action.0.fault_injection_policy.0.delay.0.fixed_delay` or `default_route_action.0.fault_injection_policy.0.delay.0.percentage` is required](#at-least-one-of-default_route_action0fault_injection_policy0delay0fixed_delay-or-default_route_action0fault_injection_policy0delay0percentage-is-required)
   - [Resource: `google_container_cluster`](#resource-google_container_cluster)
@@ -75,6 +114,13 @@ description: |-
     - [`location` is now required](#location-is-now-required)
   - [Resource: `google_sql_database_instance`](#resource-google_sql_database_instance)
     - [`database_version` field is now required](#database_version-field-is-now-required)
+=======
+  - [Resource: `google_container_cluster`](#resource-google_container_cluster)
+    - [`enable_shielded_nodes` now defaults to `true`](#enable_shielded_nodes-now-defaults-to-true)
+    - [`node_config.workload_metadata_config.node_metadata` is now removed](#node_configworkload_metadata_confignode_metadata-is-now-removed)
+    - [`workload_identity_config.0.identity_namespace` is now removed](#workload_identity_config0identity_namespace-is-now-removed)
+    - [`pod_security_policy_config` is removed from the GA provider](#pod_security_policy_config-is-removed-from-the-ga-provider)
+>>>>>>> Default `enable_shielded_nodes` to true
 
 <!-- /TOC -->
 
@@ -352,6 +398,11 @@ The provider will now enforce at plan time that one of these fields be set.
 
 ## Resource: `google_container_cluster`
 
+### `enable_shielded_nodes` now defaults to `true`
+
+Previously the provider defaulted `enable_shielded_nodes` to false, despite the API default of `true`.
+Unless explicitly configured, users may see a diff changing `enable_shielded_nodes` to `true`.
+
 ### `instance_group_urls` is now removed
 
 `instance_group_urls` has been removed in favor of `node_pool.instance_group_urls`
@@ -388,6 +439,8 @@ resource "google_container_cluster" "cluster" {
 This field was incorrectly included in the GA `google` provider in past releases.
 In order to continue to use the feature, add `provider = google-beta` to your
 resource definition.
+<<<<<<< HEAD
+<<<<<<< HEAD
 
 ## Resource: `google_data_loss_prevention_trigger`
 
@@ -478,3 +531,8 @@ conbination of `storageClass` value and default `location` value, `location` fie
 
 The `database_version` field is now required.
 Previously, it was an optional field and the default value was `MYSQL_5_6`.
+=======
+Description of the change and how users should adjust their configuration (if needed).
+>>>>>>> Default `enable_shielded_nodes` to true
+=======
+>>>>>>> remove added line
