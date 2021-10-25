@@ -122,8 +122,9 @@ resource "google_cloud_run_service" "default" {
 }
 
 resource "google_sql_database_instance" "instance" {
-  name   = "tf-test-cloudrun-sql%{random_suffix}"
-  region = "us-east1"
+  name             = "tf-test-cloudrun-sql%{random_suffix}"
+  region           = "us-east1"
+  database_version = "MYSQL_5_7"
   settings {
     tier = "db-f1-micro"
   }

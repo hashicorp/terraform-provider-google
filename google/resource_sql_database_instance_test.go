@@ -906,7 +906,8 @@ func TestAccSqlDatabaseInstance_insights(t *testing.T) {
 
 var testGoogleSqlDatabaseInstance_basic2 = `
 resource "google_sql_database_instance" "instance" {
-  region = "us-central1"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"
@@ -916,8 +917,9 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_basic3 = `
 resource "google_sql_database_instance" "instance" {
-  name   = "%s"
-  region = "us-central1"
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"
@@ -927,9 +929,9 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_basic_mssql = `
 resource "google_sql_database_instance" "instance" {
-  name             = "%s"
-  database_version = "SQLSERVER_2017_STANDARD"
-  root_password    = "%s"
+  name                = "%s"
+  database_version    = "SQLSERVER_2019_STANDARD"
+  root_password       = "%s"
   deletion_protection = false
   settings {
     tier = "db-custom-1-3840"
@@ -941,9 +943,9 @@ resource "google_sql_database_instance" "instance" {
 func testGoogleSqlDatabaseInstanceConfig_withoutReplica(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
-  name             = "%s"
-  region           = "us-central1"
-  database_version = "MYSQL_5_7"
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
 
   settings {
@@ -962,9 +964,9 @@ resource "google_sql_database_instance" "instance" {
 func testGoogleSqlDatabaseInstanceConfig_withReplica(instanceName, failoverName string) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
-  name             = "%s"
-  region           = "us-central1"
-  database_version = "MYSQL_5_7"
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
 
   settings {
@@ -983,7 +985,7 @@ resource "google_sql_database_instance" "instance-failover" {
   region               = "us-central1"
   database_version     = "MYSQL_5_7"
   master_instance_name = google_sql_database_instance.instance.name
-  deletion_protection = false
+  deletion_protection  = false
 
   replica_configuration {
     failover_target = "true"
@@ -998,8 +1000,9 @@ resource "google_sql_database_instance" "instance-failover" {
 
 var testGoogleSqlDatabaseInstance_settings = `
 resource "google_sql_database_instance" "instance" {
-  name   = "%s"
-  region = "us-central1"
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier                   = "db-f1-micro"
@@ -1027,8 +1030,9 @@ resource "google_sql_database_instance" "instance" {
 `
 var testGoogleSqlDatabaseInstance_settings_deletionProtection = `
 resource "google_sql_database_instance" "instance" {
-  name   = "%s"
-  region = "us-central1"
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = %s
   settings {
     tier                   = "db-f1-micro"
@@ -1061,8 +1065,9 @@ resource "google_compute_network" "servicenet" {
 }
 
 resource "google_sql_database_instance" "instance" {
-  name       = "%s"
-  region     = "us-central1"
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"
@@ -1076,9 +1081,9 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_replica = `
 resource "google_sql_database_instance" "instance_master" {
-  name             = "tf-lw-%d"
-  database_version = "MYSQL_5_7"
-  region           = "us-central1"
+  name                = "tf-lw-%d"
+  database_version    = "MYSQL_5_7"
+  region              = "us-central1"
   deletion_protection = false
 
   settings {
@@ -1093,9 +1098,9 @@ resource "google_sql_database_instance" "instance_master" {
 }
 
 resource "google_sql_database_instance" "replica1" {
-  name             = "tf-lw-%d-1"
-  database_version = "MYSQL_5_7"
-  region           = "us-central1"
+  name                = "tf-lw-%d-1"
+  database_version    = "MYSQL_5_7"
+  region              = "us-central1"
   deletion_protection = false
 
   settings {
@@ -1118,9 +1123,9 @@ resource "google_sql_database_instance" "replica1" {
 }
 
 resource "google_sql_database_instance" "replica2" {
-  name             = "tf-lw-%d-2"
-  database_version = "MYSQL_5_7"
-  region           = "us-central1"
+  name                = "tf-lw-%d-2"
+  database_version    = "MYSQL_5_7"
+  region              = "us-central1"
   deletion_protection = false
 
   settings {
@@ -1142,8 +1147,9 @@ resource "google_sql_database_instance" "replica2" {
 
 var testGoogleSqlDatabaseInstance_slave = `
 resource "google_sql_database_instance" "instance_master" {
-  name   = "tf-lw-%d"
-  region = "us-central1"
+  name                = "tf-lw-%d"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
 
   settings {
@@ -1157,8 +1163,9 @@ resource "google_sql_database_instance" "instance_master" {
 }
 
 resource "google_sql_database_instance" "instance_slave" {
-  name   = "tf-lw-%d"
-  region = "us-central1"
+  name                = "tf-lw-%d"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
 
   master_instance_name = google_sql_database_instance.instance_master.name
@@ -1171,9 +1178,9 @@ resource "google_sql_database_instance" "instance_slave" {
 
 var testGoogleSqlDatabaseInstance_highAvailability = `
 resource "google_sql_database_instance" "instance" {
-  name             = "tf-lw-%d"
-  region           = "us-central1"
-  database_version = "POSTGRES_9_6"
+  name                = "tf-lw-%d"
+  region              = "us-central1"
+  database_version    = "POSTGRES_9_6"
   deletion_protection = false
 
   settings {
@@ -1191,8 +1198,9 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_diskspecs = `
 resource "google_sql_database_instance" "instance" {
-  name   = "tf-lw-%d"
-  region = "us-central1"
+  name                = "tf-lw-%d"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
 
   settings {
@@ -1207,8 +1215,9 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_maintenance = `
 resource "google_sql_database_instance" "instance" {
-  name   = "tf-lw-%d"
-  region = "us-central1"
+  name                = "tf-lw-%d"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
 
   settings {
@@ -1225,8 +1234,9 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_authNets_step1 = `
 resource "google_sql_database_instance" "instance" {
-  name   = "tf-lw-%d"
-  region = "us-central1"
+  name                = "tf-lw-%d"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier                   = "db-f1-micro"
@@ -1244,8 +1254,9 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_authNets_step2 = `
 resource "google_sql_database_instance" "instance" {
-  name   = "tf-lw-%d"
-  region = "us-central1"
+  name                = "tf-lw-%d"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier                   = "db-f1-micro"
@@ -1259,8 +1270,9 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_multipleOperations = `
 resource "google_sql_database_instance" "instance" {
-  name   = "tf-test-%s"
-  region = "us-central1"
+  name                = "tf-test-%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier                   = "db-f1-micro"
@@ -1282,8 +1294,9 @@ resource "google_sql_user" "user" {
 
 var testGoogleSqlDatabaseInstance_basic_with_user_labels = `
 resource "google_sql_database_instance" "instance" {
-  name   = "%s"
-  region = "us-central1"
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"
@@ -1296,8 +1309,9 @@ resource "google_sql_database_instance" "instance" {
 `
 var testGoogleSqlDatabaseInstance_basic_with_user_labels_update = `
 resource "google_sql_database_instance" "instance" {
-  name   = "%s"
-  region = "us-central1"
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"
@@ -1310,9 +1324,9 @@ resource "google_sql_database_instance" "instance" {
 
 var testGoogleSqlDatabaseInstance_insights = `
 resource "google_sql_database_instance" "instance" {
-  name   = "tf-test-%d"
-  region = "us-central1"
-  database_version = "POSTGRES_9_6"
+  name                = "tf-test-%d"
+  region              = "us-central1"
+  database_version    = "POSTGRES_9_6"
   deletion_protection = false
 
   settings {
@@ -1331,9 +1345,9 @@ resource "google_sql_database_instance" "instance" {
 func testGoogleSqlDatabaseInstance_PointInTimeRecoveryEnabled(masterID int, pointInTimeRecoveryEnabled bool) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-%d"
-  region           = "us-central1"
-  database_version = "POSTGRES_9_6"
+  name                = "tf-test-%d"
+  region              = "us-central1"
+  database_version    = "POSTGRES_9_6"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"
@@ -1350,9 +1364,9 @@ resource "google_sql_database_instance" "instance" {
 func testGoogleSqlDatabaseInstance_BackupRetention(masterID int) string {
 	return fmt.Sprintf(`
 resource "google_sql_database_instance" "instance" {
-  name             = "tf-test-%d"
-  region           = "us-central1"
-  database_version = "MYSQL_8_0"
+  name                = "tf-test-%d"
+  region              = "us-central1"
+  database_version    = "MYSQL_8_0"
   deletion_protection = false
   settings {
     tier = "db-f1-micro"

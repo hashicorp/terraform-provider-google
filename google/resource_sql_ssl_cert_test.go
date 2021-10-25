@@ -98,9 +98,10 @@ func testAccSqlClientCertDestroyProducer(t *testing.T) func(s *terraform.State) 
 func testGoogleSqlClientCert_mysql(instance string) string {
 	return fmt.Sprintf(`
 	resource "google_sql_database_instance" "instance" {
-		name = "%s"
-		region = "us-central1"
-	  deletion_protection = false
+		name                = "%s"
+		region              = "us-central1"
+		database_version    = "MYSQL_5_7"
+		deletion_protection = false
 		settings {
 			tier = "db-f1-micro"
 		}
@@ -124,7 +125,7 @@ func testGoogleSqlClientCert_postgres(instance string) string {
 		name = "%s"
 		region = "us-central1"
 		database_version = "POSTGRES_9_6"
-	  deletion_protection = false
+		deletion_protection = false
 		settings {
 			tier = "db-f1-micro"
 		}

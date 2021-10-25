@@ -160,8 +160,9 @@ resource "random_id" "db_name_suffix" {
 resource "google_sql_database_instance" "instance" {
   provider = google-beta
 
-  name   = "private-instance-${random_id.db_name_suffix.hex}"
-  region = "us-central1"
+  name             = "private-instance-${random_id.db_name_suffix.hex}"
+  region           = "us-central1"
+  database_version = "MYSQL_5_7"
 
   depends_on = [google_service_networking_connection.private_vpc_connection]
 
@@ -196,11 +197,13 @@ The following arguments are supported:
 * `settings` - (Optional) The settings to use for the database. The
     configuration is detailed below. Required if `clone` is not set.
 
-* `database_version` - (Optional, Default: `MYSQL_5_6`) The MySQL, PostgreSQL or
-SQL Server (beta) version to use. Supported values include `MYSQL_5_6`,
+* `database_version` - (Required) The MySQL, PostgreSQL or
+SQL Server version to use. Supported values include `MYSQL_5_6`,
 `MYSQL_5_7`, `MYSQL_8_0`, `POSTGRES_9_6`,`POSTGRES_10`, `POSTGRES_11`,
 `POSTGRES_12`, `POSTGRES_13`, `SQLSERVER_2017_STANDARD`,
 `SQLSERVER_2017_ENTERPRISE`, `SQLSERVER_2017_EXPRESS`, `SQLSERVER_2017_WEB`.
+`SQLSERVER_2019_STANDARD`, `SQLSERVER_2019_ENTERPRISE`, `SQLSERVER_2019_EXPRESS`,
+`SQLSERVER_2019_WEB`.
 [Database Version Policies](https://cloud.google.com/sql/docs/db-versions)
 includes an up-to-date reference of supported versions.
 
