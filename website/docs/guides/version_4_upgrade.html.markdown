@@ -72,6 +72,8 @@ description: |-
     - [Exactly one of `num_nodes` or `processing_units` is required](#exactly-one-of-num_nodes-or-processing_units-is-required)
   - [Resource: `google_storage_bucket`](#resource-google_storage_bucket)
     - [`bucket_policy_only` is now removed](#bucket_policy_only-is-now-removed)
+  - [Resource: `google_sql_database_instance`](#resource-google_sql_database_instance)
+    - [`database_version` field is now required](#database_version-field-is-now-required)
 
 <!-- /TOC -->
 
@@ -463,3 +465,10 @@ The provider will now enforce at plan time that one of these fields be set.
 ### `bucket_policy_only` field is now removed
 
 `bucket_policy_only` field is now removed in favor of `uniform_bucket_level_access`.
+
+## Resource: `google_sql_database_instance`
+
+### `database_version` field is now required
+
+The `database_version` field is now required.
+Previously, it was an optional field and the default value was `MYSQL_5_6`.
