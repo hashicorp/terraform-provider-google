@@ -45,7 +45,8 @@ func TestAccStorageBucketIamPolicy(t *testing.T) {
 func testAccStorageBucketIamPolicy_update(bucket, account, serviceAcct string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_service_account" "test-account-1" {
@@ -86,7 +87,8 @@ resource "google_storage_bucket_iam_policy" "bucket-binding" {
 func testAccStorageBucketIamPolicy_basic(bucket, account, serviceAcct string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_service_account" "test-account-1" {

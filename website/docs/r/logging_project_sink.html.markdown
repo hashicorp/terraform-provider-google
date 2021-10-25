@@ -66,7 +66,8 @@ resource "google_compute_instance" "my-logged-instance" {
 
 # A bucket to store logs in
 resource "google_storage_bucket" "log-bucket" {
-  name = "my-unique-logging-bucket"
+  name     = "my-unique-logging-bucket"
+  location = "US"
 }
 
 # Our sink; this logs all activity related to our "my-logged-instance" instance

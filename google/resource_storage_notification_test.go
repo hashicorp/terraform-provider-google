@@ -179,7 +179,8 @@ func testAccCheckStorageNotificationCheckAttributes(notification *storage.Notifi
 func testGoogleStorageNotificationBasic(bucketName, topicName, topic string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_pubsub_topic" "topic" {
@@ -219,7 +220,8 @@ resource "google_storage_notification" "notification_with_prefix" {
 func testGoogleStorageNotificationOptionalEventsAttributes(bucketName, topicName, topic, eventType1, eventType2 string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_pubsub_topic" "topic" {

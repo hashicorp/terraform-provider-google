@@ -150,8 +150,9 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_app_engine_application.app.project
-  name    = "appengine-static-content-%{random_suffix}"
+  project  = google_app_engine_application.app.project
+  name     = "appengine-static-content-%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -214,8 +215,9 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_app_engine_application.app.project
-  name    = "appengine-static-content-%{random_suffix}"
+  project  = google_app_engine_application.app.project
+  name     = "appengine-static-content-%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -284,8 +286,9 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_app_engine_application.app.project
-  name    = "appengine-static-content-%{random_suffix}"
+  project  = google_app_engine_application.app.project
+  name     = "appengine-static-content-%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -350,8 +353,9 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_app_engine_application.app.project
-  name    = "appengine-static-content-%{random_suffix}"
+  project  = google_app_engine_application.app.project
+  name     = "appengine-static-content-%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -414,8 +418,9 @@ resource "google_app_engine_application" "app" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_app_engine_application.app.project
-  name    = "appengine-static-content-%{random_suffix}"
+  project  = google_app_engine_application.app.project
+  name     = "appengine-static-content-%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

@@ -39,7 +39,8 @@ func TestAccNetworkServicesEdgeCacheService_updateAndImport(t *testing.T) {
 func testAccNetworkServicesEdgeCacheService_update_0(bktName, originName, serviceName string) string {
 	return fmt.Sprintf(`
 	resource "google_storage_bucket" "dest" {
-		name = "%s"
+		name          = "%s"
+		location      = "US"
 		force_destroy = true
 	}
 	resource "google_network_services_edge_cache_origin" "instance" {
@@ -90,7 +91,8 @@ func testAccNetworkServicesEdgeCacheService_update_0(bktName, originName, servic
 func testAccNetworkServicesEdgeCacheService_update_1(bktName, originName, serviceName string) string {
 	return fmt.Sprintf(`
 	resource "google_storage_bucket" "dest" {
-		name = "%s"
+		name          = "%s"
+		location      = "US"
 		force_destroy = true
 	}
 	resource "google_network_services_edge_cache_origin" "instance" {

@@ -592,7 +592,8 @@ func sweepCloudFunctionSourceZipArchives(_ string) error {
 func testAccCloudFunctionsFunction_basic(functionName string, bucketName string, zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -629,7 +630,8 @@ resource "google_cloudfunctions_function" "function" {
 func testAccCloudFunctionsFunction_updated(functionName string, bucketName string, zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -670,7 +672,8 @@ func testAccCloudFunctionsFunction_pubsub(functionName string, bucketName string
 	topic string, zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -709,7 +712,8 @@ data "google_client_config" "current" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -741,7 +745,8 @@ func testAccCloudFunctionsFunction_bucketNoRetry(functionName string, bucketName
 	zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -770,7 +775,8 @@ func testAccCloudFunctionsFunction_firestore(functionName string, bucketName str
 	zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -818,7 +824,8 @@ resource "google_cloudfunctions_function" "function" {
 func testAccCloudFunctionsFunction_serviceAccountEmail(functionName, bucketName, zipFilePath string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {
@@ -869,6 +876,7 @@ resource "google_vpc_access_connector" "%s" {
 
 resource "google_storage_bucket" "bucket" {
   name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "archive" {

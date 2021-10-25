@@ -86,7 +86,8 @@ resource "google_app_engine_standard_app_version" "admin_v3" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-appengine-test-bucket%{random_suffix}"
+  name     = "tf-test-appengine-test-bucket%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

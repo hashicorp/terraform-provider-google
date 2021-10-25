@@ -128,8 +128,9 @@ resource "google_app_engine_flexible_app_version" "myapp_v1" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  project = google_project.my_project.project_id
-  name = "tf-test-appengine-static-content%{random_suffix}"
+  project  = google_project.my_project.project_id
+  name     = "tf-test-appengine-static-content%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

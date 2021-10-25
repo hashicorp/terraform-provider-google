@@ -60,7 +60,8 @@ resource "google_storage_object_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "static-content-bucket"
+  name     = "static-content-bucket"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

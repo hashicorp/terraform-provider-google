@@ -455,7 +455,8 @@ func testAccStorageObjectDestroyProducer(t *testing.T) func(s *terraform.State) 
 func testGoogleStorageBucketsObjectContent(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -470,7 +471,8 @@ resource "google_storage_bucket_object" "object" {
 func testGoogleStorageBucketsObjectDynamicContent(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -484,7 +486,8 @@ resource "google_storage_bucket_object" "object" {
 func testGoogleStorageBucketsObjectBasic(bucketName, sourceFilename string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -499,7 +502,8 @@ func testGoogleStorageBucketsObjectOptionalContentFields(
 	bucketName, disposition, encoding, language, content_type string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -517,7 +521,8 @@ resource "google_storage_bucket_object" "object" {
 func testGoogleStorageBucketsObjectCacheControl(bucketName, sourceFilename, cacheControl string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -532,7 +537,8 @@ resource "google_storage_bucket_object" "object" {
 func testGoogleStorageBucketsObjectStorageClass(bucketName string, storageClass string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -547,7 +553,8 @@ resource "google_storage_bucket_object" "object" {
 func testGoogleStorageBucketsObjectMetadata(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -565,7 +572,8 @@ resource "google_storage_bucket_object" "object" {
 func testGoogleStorageBucketsObjectCustomerEncryption(bucketName string, customerEncryptionKey string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {
@@ -582,7 +590,8 @@ resource "google_storage_bucket_object" "object" {
 func testGoogleStorageBucketsObjectHolds(bucketName string, eventBasedHold bool, temporaryHold bool) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name          = "%s"
+  location      = "US"
   force_destroy = true
 }
 
@@ -600,7 +609,8 @@ func testGoogleStorageBucketsObjectKms(bucketName, sourceFilename, kmsKey string
 	return fmt.Sprintf(`
 
 resource "google_storage_bucket" "bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 data "google_storage_project_service_account" "gcs" {

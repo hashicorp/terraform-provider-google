@@ -101,7 +101,8 @@ resource "google_app_engine_standard_app_version" "myapp_v2" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "appengine-static-content"
+  name     = "appengine-static-content"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

@@ -650,8 +650,8 @@ resource "google_bigquery_dataset" "source-one" {
 }
 
 resource "google_storage_bucket" "dest" {
-  name = "tf_test_job_extract%{random_suffix}_bucket"
-
+  name          = "tf_test_job_extract%{random_suffix}_bucket"
+  location      = "US"
   force_destroy = true
 }
 
@@ -734,8 +734,8 @@ resource "google_bigquery_dataset" "source-one" {
 }
 
 resource "google_storage_bucket" "dest" {
-  name = "tf_test_job_extract%{random_suffix}_bucket"
-
+  name          = "tf_test_job_extract%{random_suffix}_bucket"
+  location      = "US"
   force_destroy = true
 }
 

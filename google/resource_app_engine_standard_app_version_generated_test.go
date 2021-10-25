@@ -114,7 +114,8 @@ resource "google_app_engine_standard_app_version" "myapp_v2" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name = "tf-test-appengine-static-content%{random_suffix}"
+  name     = "tf-test-appengine-static-content%{random_suffix}"
+  location = "US"
 }
 
 resource "google_storage_bucket_object" "object" {

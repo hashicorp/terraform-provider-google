@@ -50,7 +50,8 @@ resource "google_storage_bucket_access_control" "default" {
 }
 
 resource "google_storage_bucket" "bucket" {
-	name = "%s"
+	name     = "%s"
+	location = "US"
 }
 `, role, entity, bucketName)
 }

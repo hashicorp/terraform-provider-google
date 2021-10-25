@@ -346,7 +346,8 @@ resource "google_logging_folder_sink" "basic" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_folder" "my-folder" {
@@ -368,7 +369,8 @@ resource "google_logging_folder_sink" "described" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_folder" "my-folder" {
@@ -390,7 +392,8 @@ resource "google_logging_folder_sink" "disabled" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_folder" "my-folder" {
@@ -411,7 +414,8 @@ resource "google_logging_folder_sink" "basic" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_folder" "my-folder" {
@@ -431,7 +435,8 @@ resource "google_logging_folder_sink" "basic" {
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_folder" "my-folder" {
@@ -460,7 +465,8 @@ EOS
 }
 
 resource "google_storage_bucket" "log-bucket" {
-  name = "%s"
+  name     = "%s"
+  location = "US"
 }
 
 resource "google_folder" "my-folder" {

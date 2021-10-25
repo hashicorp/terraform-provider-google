@@ -126,6 +126,7 @@ func testAccStorageBucketIamMember_basicGenerated(context map[string]interface{}
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
+  location                    = "US"
   uniform_bucket_level_access = true
 }
 
@@ -141,6 +142,7 @@ func testAccStorageBucketIamPolicy_basicGenerated(context map[string]interface{}
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
+  location                    = "US"
   uniform_bucket_level_access = true
 }
 
@@ -166,6 +168,7 @@ func testAccStorageBucketIamPolicy_emptyBinding(context map[string]interface{}) 
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
+  location                    = "US"
   uniform_bucket_level_access = true
 }
 
@@ -183,6 +186,7 @@ func testAccStorageBucketIamBinding_basicGenerated(context map[string]interface{
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
+  location                    = "US"
   uniform_bucket_level_access = true
 }
 
@@ -198,6 +202,7 @@ func testAccStorageBucketIamBinding_updateGenerated(context map[string]interface
 	return Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
+  location                    = "US"
   uniform_bucket_level_access = true
 }
 

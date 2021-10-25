@@ -31,6 +31,7 @@ resource "google_storage_bucket" "s3-backup-bucket" {
   name          = "${var.aws_s3_bucket}-backup"
   storage_class = "NEARLINE"
   project       = var.project
+  location      = "US"
 }
 
 resource "google_storage_bucket_iam_member" "s3-backup-bucket" {
