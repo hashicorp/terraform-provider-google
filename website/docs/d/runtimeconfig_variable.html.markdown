@@ -15,6 +15,9 @@ To get more information about RuntimeConfigs, see:
 * How-to Guides
     * [Runtime Configurator Fundamentals](https://cloud.google.com/deployment-manager/runtime-configurator/)
 
+~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta datasources.
+
 ## Example Usage
 
 ```hcl

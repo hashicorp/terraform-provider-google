@@ -697,23 +697,6 @@ func resourceContainerCluster() *schema.Resource {
 				Description: `The Kubernetes version on the nodes. Must either be unset or set to the same value as min_master_version on create. Defaults to the default version set by GKE which is not necessarily the latest version. This only affects nodes in the default node pool. While a fuzzy version can be specified, it's recommended that you specify explicit versions as Terraform will see spurious diffs when fuzzy versions are used. See the google_container_engine_versions data source's version_prefix field to approximate fuzzy versions in a Terraform-compatible way. To update nodes in other node pools, use the version attribute on the node pool.`,
 			},
 
-			"pod_security_policy_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				MaxItems:    1,
-				Description: `Configuration for the PodSecurityPolicy feature.`,
-				Deprecated:  `This attribute is currently in beta and will be removed from the google provider. Please use the google-beta provider to continue using this attribute.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"enabled": {
-							Type:        schema.TypeBool,
-							Required:    true,
-							Description: `Enable the PodSecurityPolicy controller for this cluster. If enabled, pods must be valid under a PodSecurityPolicy to be created.`,
-						},
-					},
-				},
-			},
-
 			"project": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -946,13 +929,6 @@ func resourceContainerCluster() *schema.Resource {
 				ConflictsWith: []string{"enable_autopilot"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"identity_namespace": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Enables workload identity.`,
-							Deprecated:  "This field will be removed in a future major release as it has been deprecated in the API. Use `workload_pool` instead.",
-						},
-
 						"workload_pool": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -1187,14 +1163,13 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			Enabled:         d.Get("enable_legacy_abac").(bool),
 			ForceSendFields: []string{"Enabled"},
 		},
-		LoggingService:          d.Get("logging_service").(string),
-		MonitoringService:       d.Get("monitoring_service").(string),
-		NetworkPolicy:           expandNetworkPolicy(d.Get("network_policy")),
-		AddonsConfig:            expandClusterAddonsConfig(d.Get("addons_config")),
-		EnableKubernetesAlpha:   d.Get("enable_kubernetes_alpha").(bool),
-		IpAllocationPolicy:      ipAllocationBlock,
-		PodSecurityPolicyConfig: expandPodSecurityPolicyConfig(d.Get("pod_security_policy_config")),
-		Autoscaling:             expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
+		LoggingService:        d.Get("logging_service").(string),
+		MonitoringService:     d.Get("monitoring_service").(string),
+		NetworkPolicy:         expandNetworkPolicy(d.Get("network_policy")),
+		AddonsConfig:          expandClusterAddonsConfig(d.Get("addons_config")),
+		EnableKubernetesAlpha: d.Get("enable_kubernetes_alpha").(bool),
+		IpAllocationPolicy:    ipAllocationBlock,
+		Autoscaling:           expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
 		BinaryAuthorization: &containerBeta.BinaryAuthorization{
 			Enabled:         d.Get("enable_binary_authorization").(bool),
 			ForceSendFields: []string{"Enabled"},
@@ -2988,15 +2963,8 @@ func expandWorkloadIdentityConfig(configured interface{}) *containerBeta.Workloa
 	}
 
 	config := l[0].(map[string]interface{})
-	v.IdentityNamespace = config["identity_namespace"].(string)
 	v.WorkloadPool = config["workload_pool"].(string)
 	return v
-}
-
-func expandPodSecurityPolicyConfig(configured interface{}) *containerBeta.PodSecurityPolicyConfig {
-	// Removing lists is hard - the element count (#) will have a diff from nil -> computed
-	// If we set this to empty on Read, it will be stable.
-	return nil
 }
 
 func expandDefaultMaxPodsConstraint(v interface{}) *containerBeta.MaxPodsConstraint {
@@ -3218,30 +3186,9 @@ func flattenWorkloadIdentityConfig(c *containerBeta.WorkloadIdentityConfig, d *s
 		return nil
 	}
 
-	_, identityNamespaceSet := d.GetOk("workload_identity_config.0.identity_namespace")
-	_, workloadPoolSet := d.GetOk("workload_identity_config.0.workload_pool")
-
-	if identityNamespaceSet && workloadPoolSet {
-		// if both are set, set both
-		return []map[string]interface{}{
-			{
-				"identity_namespace": c.IdentityNamespace,
-				"workload_pool":      c.WorkloadPool,
-			},
-		}
-	} else if workloadPoolSet {
-		// if the new value is set, set it
-		return []map[string]interface{}{
-			{
-				"workload_pool": c.WorkloadPool,
-			},
-		}
-	}
-
-	// otherwise, set the old value (incl. import)
 	return []map[string]interface{}{
 		{
-			"identity_namespace": c.IdentityNamespace,
+			"workload_pool": c.WorkloadPool,
 		},
 	}
 }

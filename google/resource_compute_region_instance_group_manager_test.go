@@ -1133,7 +1133,6 @@ resource "google_compute_region_instance_group_manager" "igm-rolling-update-poli
     minimal_action        = "REPLACE"
     max_surge_fixed       = 2
     max_unavailable_fixed = 2
-    min_ready_sec         = 20
   }
 
   named_port {
@@ -1193,7 +1192,6 @@ resource "google_compute_region_instance_group_manager" "igm-rolling-update-poli
     minimal_action               = "REPLACE"
     max_surge_fixed              = 2
     max_unavailable_fixed        = 2
-    min_ready_sec                = 20
   }
 
   named_port {
@@ -1248,7 +1246,6 @@ resource "google_compute_region_instance_group_manager" "igm-rolling-update-poli
     minimal_action               = "REPLACE"
     max_surge_fixed              = 2
     max_unavailable_fixed        = 0
-    min_ready_sec                = 10
   }
   named_port {
     name = "customhttp"
@@ -1302,7 +1299,6 @@ resource "google_compute_region_instance_group_manager" "igm-rolling-update-poli
     minimal_action               = "REPLACE"
     max_surge_fixed              = 0
     max_unavailable_fixed        = 2
-    min_ready_sec                = 10
     replacement_method           = "RECREATE"
   }
   named_port {
@@ -1359,7 +1355,6 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
     minimal_action               = "REPLACE"
     max_surge_fixed              = 0
     max_unavailable_fixed        = 6
-    min_ready_sec                = 20
   }
   stateful_disk {
     device_name = "stateful-disk"
@@ -1416,7 +1411,6 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
     minimal_action               = "REPLACE"
     max_surge_fixed              = 0
     max_unavailable_fixed        = 6
-    min_ready_sec                = 20
   }
   stateful_disk {
     device_name = "stateful-disk"

@@ -565,14 +565,6 @@ func Provider() *schema.Provider {
 					"GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[ResourceManagerBasePathKey]),
 			},
-			"runtime_config_custom_endpoint": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
-				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"GOOGLE_RUNTIME_CONFIG_CUSTOM_ENDPOINT",
-				}, DefaultBasePaths[RuntimeConfigBasePathKey]),
-			},
 			"secret_manager_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -688,7 +680,6 @@ func Provider() *schema.Provider {
 			DataflowCustomEndpointEntryKey:          DataflowCustomEndpointEntry,
 			IamCredentialsCustomEndpointEntryKey:    IamCredentialsCustomEndpointEntry,
 			ResourceManagerV2CustomEndpointEntryKey: ResourceManagerV2CustomEndpointEntry,
-			RuntimeConfigCustomEndpointEntryKey:     RuntimeConfigCustomEndpointEntry,
 			IAMCustomEndpointEntryKey:               IAMCustomEndpointEntry,
 			ServiceNetworkingCustomEndpointEntryKey: ServiceNetworkingCustomEndpointEntry,
 			ServiceUsageCustomEndpointEntryKey:      ServiceUsageCustomEndpointEntry,
@@ -783,7 +774,6 @@ func Provider() *schema.Provider {
 			"google_projects":                                     dataSourceGoogleProjects(),
 			"google_project_organization_policy":                  dataSourceGoogleProjectOrganizationPolicy(),
 			"google_pubsub_topic":                                 dataSourceGooglePubsubTopic(),
-			"google_runtimeconfig_config":                         dataSourceGoogleRuntimeconfigConfig(),
 			"google_secret_manager_secret":                        dataSourceSecretManagerSecret(),
 			"google_secret_manager_secret_version":                dataSourceSecretManagerSecretVersion(),
 			"google_service_account":                              dataSourceGoogleServiceAccount(),
@@ -817,8 +807,8 @@ func Provider() *schema.Provider {
 }
 
 // Generated resources: 214
-// Generated IAM resources: 90
-// Total generated resources: 304
+// Generated IAM resources: 87
+// Total generated resources: 301
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1090,9 +1080,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_pubsub_lite_subscription":                              resourcePubsubLiteSubscription(),
 			"google_redis_instance":                                        resourceRedisInstance(),
 			"google_resource_manager_lien":                                 resourceResourceManagerLien(),
-			"google_runtimeconfig_config_iam_binding":                      ResourceIamBinding(RuntimeConfigConfigIamSchema, RuntimeConfigConfigIamUpdaterProducer, RuntimeConfigConfigIdParseFunc, IamWithGAResourceDeprecation()),
-			"google_runtimeconfig_config_iam_member":                       ResourceIamMember(RuntimeConfigConfigIamSchema, RuntimeConfigConfigIamUpdaterProducer, RuntimeConfigConfigIdParseFunc, IamWithGAResourceDeprecation()),
-			"google_runtimeconfig_config_iam_policy":                       ResourceIamPolicy(RuntimeConfigConfigIamSchema, RuntimeConfigConfigIamUpdaterProducer, RuntimeConfigConfigIdParseFunc, IamWithGAResourceDeprecation()),
 			"google_secret_manager_secret":                                 resourceSecretManagerSecret(),
 			"google_secret_manager_secret_iam_binding":                     ResourceIamBinding(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc),
 			"google_secret_manager_secret_iam_member":                      ResourceIamMember(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc),
@@ -1192,8 +1179,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_project_iam_custom_role":               resourceGoogleProjectIamCustomRole(),
 			"google_project_organization_policy":           resourceGoogleProjectOrganizationPolicy(),
 			"google_project_usage_export_bucket":           resourceProjectUsageBucket(),
-			"google_runtimeconfig_config":                  resourceRuntimeconfigConfig(),
-			"google_runtimeconfig_variable":                resourceRuntimeconfigVariable(),
 			"google_service_account":                       resourceGoogleServiceAccount(),
 			"google_service_account_key":                   resourceGoogleServiceAccountKey(),
 			"google_service_networking_peered_dns_domain":  resourceGoogleServiceNetworkingPeeredDNSDomain(),
@@ -1415,7 +1400,6 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.PubsubLiteBasePath = d.Get("pubsub_lite_custom_endpoint").(string)
 	config.RedisBasePath = d.Get("redis_custom_endpoint").(string)
 	config.ResourceManagerBasePath = d.Get("resource_manager_custom_endpoint").(string)
-	config.RuntimeConfigBasePath = d.Get("runtime_config_custom_endpoint").(string)
 	config.SecretManagerBasePath = d.Get("secret_manager_custom_endpoint").(string)
 	config.SecurityCenterBasePath = d.Get("security_center_custom_endpoint").(string)
 	config.ServiceManagementBasePath = d.Get("service_management_custom_endpoint").(string)
@@ -1441,7 +1425,6 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DataflowBasePath = d.Get(DataflowCustomEndpointEntryKey).(string)
 	config.IamCredentialsBasePath = d.Get(IamCredentialsCustomEndpointEntryKey).(string)
 	config.ResourceManagerV2BasePath = d.Get(ResourceManagerV2CustomEndpointEntryKey).(string)
-	config.RuntimeConfigBasePath = d.Get(RuntimeConfigCustomEndpointEntryKey).(string)
 	config.IAMBasePath = d.Get(IAMCustomEndpointEntryKey).(string)
 	config.ServiceNetworkingBasePath = d.Get(ServiceNetworkingCustomEndpointEntryKey).(string)
 	config.ServiceUsageBasePath = d.Get(ServiceUsageCustomEndpointEntryKey).(string)

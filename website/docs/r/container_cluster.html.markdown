@@ -742,8 +742,6 @@ linux_node_config {
 
 <a name="nested_workload_identity_config"></a> The `workload_identity_config` block supports:
 
-* `identity_namespace` (Optional, Deprecated) - Currently, the only supported identity namespace is the project's default.
-
 * `workload_pool` (Optional) - The workload pool to attach all Kubernetes service accounts to. Currently, the only supported identity namespace is the project of the cluster.
 
 ```hcl

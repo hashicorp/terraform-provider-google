@@ -11,14 +11,15 @@ description: |-
 
 Manages a RuntimeConfig resource in Google Cloud.
 
-!> This resource has been deprecated in the google (GA) provider, and will only be available in the google-beta provider in a future release.
-
 To get more information about RuntimeConfigs, see:
 
 * [API documentation](https://cloud.google.com/deployment-manager/runtime-configurator/reference/rest/v1beta1/projects.configs)
 * How-to Guides
     * [Runtime Configurator Fundamentals](https://cloud.google.com/deployment-manager/runtime-configurator/)
-    
+
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
+
 ## Example Usage
 
 Example creating a RuntimeConfig resource.

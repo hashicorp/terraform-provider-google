@@ -246,14 +246,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Description: `A brief description of this resource.`,
 			},
 
-			"enable_display": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				ForceNew:    true,
-				Deprecated:  "This attribute is currently in beta and will be removed from the google provider. Please use the google-beta provider to continue using this attribute.",
-				Description: `Enable Virtual Displays on this instance. Note: allow_stopping_for_update must be set to true in order to update this field.`,
-			},
-
 			"instance_description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -1008,7 +1000,6 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		ConfidentialInstanceConfig: expandConfidentialInstanceConfig(d),
 		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
 		AdvancedMachineFeatures:    expandAdvancedMachineFeatures(d),
-		DisplayDevice:              expandDisplayDevice(d),
 		ReservationAffinity:        reservationAffinity,
 	}
 
@@ -1404,11 +1395,6 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	if instanceTemplate.Properties.AdvancedMachineFeatures != nil {
 		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(instanceTemplate.Properties.AdvancedMachineFeatures)); err != nil {
 			return fmt.Errorf("Error setting advanced_machine_features: %s", err)
-		}
-	}
-	if instanceTemplate.Properties.DisplayDevice != nil {
-		if err = d.Set("enable_display", flattenEnableDisplay(instanceTemplate.Properties.DisplayDevice)); err != nil {
-			return fmt.Errorf("Error setting enable_display: %s", err)
 		}
 	}
 

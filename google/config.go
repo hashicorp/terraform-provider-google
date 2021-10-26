@@ -39,7 +39,6 @@ import (
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	cloudlogging "google.golang.org/api/logging/v2"
 	"google.golang.org/api/pubsub/v1"
-	runtimeconfig "google.golang.org/api/runtimeconfig/v1beta1"
 	"google.golang.org/api/servicemanagement/v1"
 	"google.golang.org/api/servicenetworking/v1"
 	"google.golang.org/api/serviceusage/v1"
@@ -133,7 +132,6 @@ type Config struct {
 	PubsubLiteBasePath           string
 	RedisBasePath                string
 	ResourceManagerBasePath      string
-	RuntimeConfigBasePath        string
 	SecretManagerBasePath        string
 	SecurityCenterBasePath       string
 	ServiceManagementBasePath    string
@@ -227,7 +225,6 @@ const PubsubBasePathKey = "Pubsub"
 const PubsubLiteBasePathKey = "PubsubLite"
 const RedisBasePathKey = "Redis"
 const ResourceManagerBasePathKey = "ResourceManager"
-const RuntimeConfigBasePathKey = "RuntimeConfig"
 const SecretManagerBasePathKey = "SecretManager"
 const SecurityCenterBasePathKey = "SecurityCenter"
 const ServiceManagementBasePathKey = "ServiceManagement"
@@ -310,7 +307,6 @@ var DefaultBasePaths = map[string]string{
 	PubsubLiteBasePathKey:           "https://{{region}}-pubsublite.googleapis.com/v1/admin/",
 	RedisBasePathKey:                "https://redis.googleapis.com/v1/",
 	ResourceManagerBasePathKey:      "https://cloudresourcemanager.googleapis.com/v1/",
-	RuntimeConfigBasePathKey:        "https://runtimeconfig.googleapis.com/v1beta1/",
 	SecretManagerBasePathKey:        "https://secretmanager.googleapis.com/v1/",
 	SecurityCenterBasePathKey:       "https://securitycenter.googleapis.com/v1/",
 	ServiceManagementBasePathKey:    "https://servicemanagement.googleapis.com/v1/",
@@ -719,20 +715,6 @@ func (c *Config) NewResourceManagerV2Client(userAgent string) *resourceManagerV2
 	clientResourceManagerV2.BasePath = resourceManagerV2BasePath
 
 	return clientResourceManagerV2
-}
-
-func (c *Config) NewRuntimeconfigClient(userAgent string) *runtimeconfig.Service {
-	runtimeConfigClientBasePath := removeBasePathVersion(c.RuntimeConfigBasePath)
-	log.Printf("[INFO] Instantiating Google Cloud Runtimeconfig client for path %s", runtimeConfigClientBasePath)
-	clientRuntimeconfig, err := runtimeconfig.NewService(c.context, option.WithHTTPClient(c.client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client runtime config: %s", err)
-		return nil
-	}
-	clientRuntimeconfig.UserAgent = userAgent
-	clientRuntimeconfig.BasePath = runtimeConfigClientBasePath
-
-	return clientRuntimeconfig
 }
 
 func (c *Config) NewIamClient(userAgent string) *iam.Service {
@@ -1176,7 +1158,6 @@ func ConfigureBasePaths(c *Config) {
 	c.PubsubLiteBasePath = DefaultBasePaths[PubsubLiteBasePathKey]
 	c.RedisBasePath = DefaultBasePaths[RedisBasePathKey]
 	c.ResourceManagerBasePath = DefaultBasePaths[ResourceManagerBasePathKey]
-	c.RuntimeConfigBasePath = DefaultBasePaths[RuntimeConfigBasePathKey]
 	c.SecretManagerBasePath = DefaultBasePaths[SecretManagerBasePathKey]
 	c.SecurityCenterBasePath = DefaultBasePaths[SecurityCenterBasePathKey]
 	c.ServiceManagementBasePath = DefaultBasePaths[ServiceManagementBasePathKey]
