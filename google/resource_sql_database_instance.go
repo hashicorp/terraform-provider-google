@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -139,28 +138,15 @@ func resourceSqlDatabaseInstance() *schema.Resource {
 							Description: `The machine type to use. See tiers for more details and supported versions. Postgres supports only shared-core machine types, and custom machine types such as db-custom-2-13312. See the Custom Machine Type Documentation to learn about specifying custom machine types.`,
 						},
 						"activation_policy": {
-							Type:     schema.TypeString,
-							Optional: true,
-							// Defaults differ between first and second gen instances
-							Computed:    true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "ALWAYS",
 							Description: `This specifies when the instance should be active. Can be either ALWAYS, NEVER or ON_DEMAND.`,
 						},
-						"authorized_gae_applications": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Computed:    true,
-							Elem:        &schema.Schema{Type: schema.TypeString},
-							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
-							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see https://cloud.google.com/sql/docs/mysql/deprecation-notice for information on how to upgrade to Second Generation instances. A list of Google App Engine project names that are allowed to access this instance.`,
-						},
 						"availability_type": {
-							Type:             schema.TypeString,
-							Optional:         true,
-							DiffSuppressFunc: suppressFirstGen,
-							// Set computed instead of default because this property is for second-gen
-							// only. The default when not provided is ZONAL, which means no explicit HA
-							// configuration.
-							Computed:     true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "ZONAL",
 							ValidateFunc: validation.StringInSlice([]string{"REGIONAL", "ZONAL"}, false),
 							Description: `The availability type of the Cloud SQL instance, high availability
 (REGIONAL) or single zone (ZONAL). For MySQL instances, ensure that
@@ -243,13 +229,6 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Optional:    true,
 							Description: `The name of server instance collation.`,
 						},
-						"crash_safe_replication": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Computed:    true,
-							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
-							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see here for information on how to upgrade to Second Generation instances. Specific to read instances, indicates when crash-safe replication flags are enabled.`,
-						},
 						"database_flags": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -269,31 +248,28 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							},
 						},
 						"disk_autoresize": {
-							Type:             schema.TypeBool,
-							Optional:         true,
-							Default:          true,
-							DiffSuppressFunc: suppressFirstGen,
-							Description:      `Configuration to increase storage size automatically.  Note that future terraform apply calls will attempt to resize the disk to the value specified in disk_size - if this is set, do not set disk_size.`,
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: `Configuration to increase storage size automatically.  Note that future terraform apply calls will attempt to resize the disk to the value specified in disk_size - if this is set, do not set disk_size.`,
 						},
 						"disk_autoresize_limit": {
-							Type:             schema.TypeInt,
-							Optional:         true,
-							Default:          0,
-							DiffSuppressFunc: suppressFirstGen,
-							Description:      `The maximum size, in GB, to which storage capacity can be automatically increased. The default value is 0, which specifies that there is no limit.`,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     0,
+							Description: `The maximum size, in GB, to which storage capacity can be automatically increased. The default value is 0, which specifies that there is no limit.`,
 						},
 						"disk_size": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							// Defaults differ between first and second gen instances
+							// Default is likely 10gb, but it is undocumented and may change.
 							Computed:    true,
 							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased.`,
 						},
 						"disk_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							// Set computed instead of default because this property is for second-gen only.
-							Computed:    true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "PD_SSD",
 							Description: `The type of data disk: PD_SSD or PD_HDD.`,
 						},
 						"ip_configuration": {
@@ -390,13 +366,6 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 							Optional:    true,
 							Default:     "PER_USE",
 							Description: `Pricing plan for this instance, can only be PER_USE.`,
-						},
-						"replication_type": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Deprecated:  "This property is only applicable to First Generation instances, and First Generation instances are now deprecated.",
-							Computed:    true,
-							Description: `This property is only applicable to First Generation instances. First Generation instances are now deprecated, see here for information on how to upgrade to Second Generation instances. Replication type for this instance, can be one of ASYNCHRONOUS or SYNCHRONOUS.`,
 						},
 						"user_labels": {
 							Type:        schema.TypeMap,
@@ -715,31 +684,6 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 	}
 }
 
-// Suppress diff with any attribute value that is not supported on 1st Generation
-// Instances
-func suppressFirstGen(k, old, new string, d *schema.ResourceData) bool {
-	if isFirstGen(d) {
-		log.Printf("[DEBUG] suppressing diff on %s due to 1st gen instance type", k)
-		return true
-	}
-
-	return false
-}
-
-// Detects whether a database is 1st Generation by inspecting the tier name
-func isFirstGen(d *schema.ResourceData) bool {
-	settingsList := d.Get("settings").([]interface{})
-	if len(settingsList) == 0 {
-		return false
-	}
-	settings := settingsList[0].(map[string]interface{})
-	tier := settings["tier"].(string)
-
-	// 1st Generation databases have tiers like 'D0', as opposed to 2nd Generation which are
-	// prefixed with 'db'
-	return !regexp.MustCompile("db*").Match([]byte(tier))
-}
-
 // Makes private_network ForceNew if it is changing from set to nil. The API returns an error
 // if this change is attempted in-place.
 func privateNetworkCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
@@ -825,7 +769,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	cloneContext, cloneSource := expandCloneContext(d.Get("clone").([]interface{}))
 
 	s, ok := d.GetOk("settings")
-	desiredSettings := expandSqlDatabaseInstanceSettings(s.([]interface{}), !isFirstGen(d))
+	desiredSettings := expandSqlDatabaseInstanceSettings(s.([]interface{}))
 	if ok {
 		instance.Settings = desiredSettings
 	}
@@ -969,7 +913,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool) *sqladmin.Settings {
+func expandSqlDatabaseInstanceSettings(configured []interface{}) *sqladmin.Settings {
 	if len(configured) == 0 || configured[0] == nil {
 		return nil
 	}
@@ -977,34 +921,27 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, secondGen bool)
 	_settings := configured[0].(map[string]interface{})
 	settings := &sqladmin.Settings{
 		// Version is unset in Create but is set during update
-		SettingsVersion:             int64(_settings["version"].(int)),
-		Tier:                        _settings["tier"].(string),
-		ForceSendFields:             []string{"StorageAutoResize"},
-		ActivationPolicy:            _settings["activation_policy"].(string),
-		AvailabilityType:            _settings["availability_type"].(string),
-		Collation:                   _settings["collation"].(string),
-		CrashSafeReplicationEnabled: _settings["crash_safe_replication"].(bool),
-		DataDiskSizeGb:              int64(_settings["disk_size"].(int)),
-		DataDiskType:                _settings["disk_type"].(string),
-		PricingPlan:                 _settings["pricing_plan"].(string),
-		ReplicationType:             _settings["replication_type"].(string),
-		UserLabels:                  convertStringMap(_settings["user_labels"].(map[string]interface{})),
-		BackupConfiguration:         expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
-		DatabaseFlags:               expandDatabaseFlags(_settings["database_flags"].([]interface{})),
-		AuthorizedGaeApplications:   expandAuthorizedGaeApplications(_settings["authorized_gae_applications"].([]interface{})),
-		IpConfiguration:             expandIpConfiguration(_settings["ip_configuration"].([]interface{})),
-		LocationPreference:          expandLocationPreference(_settings["location_preference"].([]interface{})),
-		MaintenanceWindow:           expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
-		InsightsConfig:              expandInsightsConfig(_settings["insights_config"].([]interface{})),
+		SettingsVersion:     int64(_settings["version"].(int)),
+		Tier:                _settings["tier"].(string),
+		ForceSendFields:     []string{"StorageAutoResize"},
+		ActivationPolicy:    _settings["activation_policy"].(string),
+		AvailabilityType:    _settings["availability_type"].(string),
+		Collation:           _settings["collation"].(string),
+		DataDiskSizeGb:      int64(_settings["disk_size"].(int)),
+		DataDiskType:        _settings["disk_type"].(string),
+		PricingPlan:         _settings["pricing_plan"].(string),
+		UserLabels:          convertStringMap(_settings["user_labels"].(map[string]interface{})),
+		BackupConfiguration: expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
+		DatabaseFlags:       expandDatabaseFlags(_settings["database_flags"].([]interface{})),
+		IpConfiguration:     expandIpConfiguration(_settings["ip_configuration"].([]interface{})),
+		LocationPreference:  expandLocationPreference(_settings["location_preference"].([]interface{})),
+		MaintenanceWindow:   expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),
+		InsightsConfig:      expandInsightsConfig(_settings["insights_config"].([]interface{})),
 	}
 
-	// 1st Generation instances don't support the disk_autoresize parameter
-	// and it defaults to true - so we shouldn't set it if this is first gen
-	if secondGen {
-		resize := _settings["disk_autoresize"].(bool)
-		settings.StorageAutoResize = &resize
-		settings.StorageAutoResizeLimit = int64(_settings["disk_autoresize_limit"].(int))
-	}
+	resize := _settings["disk_autoresize"].(bool)
+	settings.StorageAutoResize = &resize
+	settings.StorageAutoResizeLimit = int64(_settings["disk_autoresize_limit"].(int))
 
 	return settings
 }
@@ -1100,14 +1037,6 @@ func expandAuthorizedNetworks(configured []interface{}) []*sqladmin.AclEntry {
 	}
 
 	return an
-}
-
-func expandAuthorizedGaeApplications(configured []interface{}) []string {
-	aga := make([]string, 0, len(configured))
-	for _, app := range configured {
-		aga = append(aga, app.(string))
-	}
-	return aga
 }
 
 func expandDatabaseFlags(configured []interface{}) []*sqladmin.DatabaseFlags {
@@ -1273,7 +1202,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	// Update only updates the settings, so they are all we need to set.
 	instance := &sqladmin.DatabaseInstance{
-		Settings: expandSqlDatabaseInstanceSettings(d.Get("settings").([]interface{}), !isFirstGen(d)),
+		Settings: expandSqlDatabaseInstanceSettings(d.Get("settings").([]interface{})),
 	}
 
 	// Lock on the master_instance_name just in case updating any replica
@@ -1378,18 +1307,15 @@ func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{})
 
 func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 	data := map[string]interface{}{
-		"version":                     settings.SettingsVersion,
-		"tier":                        settings.Tier,
-		"activation_policy":           settings.ActivationPolicy,
-		"authorized_gae_applications": settings.AuthorizedGaeApplications,
-		"availability_type":           settings.AvailabilityType,
-		"collation":                   settings.Collation,
-		"crash_safe_replication":      settings.CrashSafeReplicationEnabled,
-		"disk_type":                   settings.DataDiskType,
-		"disk_size":                   settings.DataDiskSizeGb,
-		"pricing_plan":                settings.PricingPlan,
-		"replication_type":            settings.ReplicationType,
-		"user_labels":                 settings.UserLabels,
+		"version":           settings.SettingsVersion,
+		"tier":              settings.Tier,
+		"activation_policy": settings.ActivationPolicy,
+		"availability_type": settings.AvailabilityType,
+		"collation":         settings.Collation,
+		"disk_type":         settings.DataDiskType,
+		"disk_size":         settings.DataDiskSizeGb,
+		"pricing_plan":      settings.PricingPlan,
+		"user_labels":       settings.UserLabels,
 	}
 
 	if settings.BackupConfiguration != nil {

@@ -12,28 +12,6 @@ description: |-
 Creates a new Google SQL Database Instance. For more information, see the [official documentation](https://cloud.google.com/sql/),
 or the [JSON API](https://cloud.google.com/sql/docs/admin-api/v1beta4/instances).
 
-~> **NOTE on `google_sql_database_instance`:** - First-generation instances have been
-deprecated and should no longer be created, see [upgrade docs](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
-for more details.
-To upgrade your First-generation instance, update your Terraform config that the instance has
-* `settings.ip_configuration.ipv4_enabled=true`
-* `settings.backup_configuration.enabled=true`
-* `settings.backup_configuration.binary_log_enabled=true`.
-Apply the terraform config, then upgrade the instance in the console as described in the documentation.
-Once upgraded, update the following attributes in your Terraform config to the correct value according to
-the above documentation:
-* `region`
-* `database_version` (if applicable)
-* `tier`
-Remove any fields that are not applicable to Second-generation instances:
-* `settings.crash_safe_replication`
-* `settings.replication_type`
-* `settings.authorized_gae_applications`
-And change values to appropriate values for Second-generation instances for:
-* `activation_policy` ("ON_DEMAND" is no longer an option)
-* `pricing_plan` ("PER_USE" is now the only valid option)
-Change `settings.backup_configuration.enabled` attribute back to its desired value and apply as necessary.
-
 ~> **NOTE on `google_sql_database_instance`:** - Second-generation instances include a
 default 'root'@'%' user with no password. This user will be deleted by Terraform on
 instance creation. You should use `google_sql_user` to define a custom user with
@@ -255,23 +233,12 @@ The `settings` block supports:
 * `activation_policy` - (Optional) This specifies when the instance should be
     active. Can be either `ALWAYS`, `NEVER` or `ON_DEMAND`.
 
-* `authorized_gae_applications` - (Optional, Deprecated) This property is only applicable to First Generation instances.
-    First Generation instances are now deprecated, see [here](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
-    for information on how to upgrade to Second Generation instances.
-    A list of Google App Engine (GAE) project names that are allowed to access this instance.
-
 * `availability_type` - (Optional) The availability type of the Cloud SQL
 instance, high availability (`REGIONAL`) or single zone (`ZONAL`).' For MySQL
 instances, ensure that `settings.backup_configuration.enabled` and
 `settings.backup_configuration.binary_log_enabled` are both set to `true`.
 
 * `collation` - (Optional) The name of server instance collation.
-
-* `crash_safe_replication` - (Optional, Deprecated) This property is only applicable to First Generation instances.
-    First Generation instances are now deprecated, see [here](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
-    for information on how to upgrade to Second Generation instances.
-    Specific to read instances, indicates
-    when crash-safe replication flags are enabled.
 
 * `disk_autoresize` - (Optional, Default: `true`) Configuration to increase storage size automatically.  Note that future `terraform apply` calls will attempt to resize the disk to the value specified in `disk_size` - if this is set, do not set `disk_size`.
 
@@ -280,11 +247,6 @@ instances, ensure that `settings.backup_configuration.enabled` and
 * `disk_type` - (Optional, Default: `PD_SSD`) The type of data disk: PD_SSD or PD_HDD.
 
 * `pricing_plan` - (Optional) Pricing plan for this instance, can only be `PER_USE`.
-
-* `replication_type` - (Optional, Deprecated) This property is only applicable to First Generation instances.
-    First Generation instances are now deprecated, see [here](https://cloud.google.com/sql/docs/mysql/upgrade-2nd-gen)
-    for information on how to upgrade to Second Generation instances.
-    Replication type for this instance, can be one of `ASYNCHRONOUS` or `SYNCHRONOUS`.
 
 * `user_labels` - (Optional) A set of key/value user label pairs to assign to the instance.
 
