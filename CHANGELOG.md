@@ -1,4 +1,4 @@
-## 3.90.0 (Unreleased)
+## 3.90.0 (October 26, 2021)
 
 DEPRECATIONS:
 * container: deprecated `workload_identity_config.0.identity_namespace` and it will be removed in a future major release as it has been deprecated in the API. Use `workload_identity_config.0.workload_pool` instead. Switching your configuration from one value to the other will trigger a diff at plan time, and a spurious update. ([#10327](https://github.com/hashicorp/terraform-provider-google/pull/10327))
