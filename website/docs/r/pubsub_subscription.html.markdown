@@ -366,8 +366,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/subscriptions/{{name}}`
 
 
-* `path`: Deprecated in favor of `id`, which contains an identical value. This field will be removed in the next major release of the provider.
-
 ## Timeouts
 
 This resource provides the following
