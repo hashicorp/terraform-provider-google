@@ -1,0 +1,15 @@
+```release-note:breaking-change
+compute: removed the `update_policy.min_ready_sec` field from `google_compute_instance_group_manager`, `google_compute_region_instance_group_manager` in the GA provider
+```
+```release-note:breaking-change
+compute: removed the `enable_display` field from `google_compute_instance_template` in the GA provider
+```
+```release-note:breaking-change
+container: removed the `pod_security_policy_config` field from `google_container_cluster` in the GA provider
+```
+```release-note:breaking-change
+container: removed the `workload_identity_config.0.identity_namespace` field from `google_container_cluster`, use `workload_identity_config.0.workload_pool` instead
+```
+```release-note:breaking-change
+runtimeconfig: removed the Runtime Configurator service from the `google` (GA) provider including `google_runtimeconfig_config`, `google_runtimeconfig_variable`, `google_runtimeconfig_config_iam_policy`, `google_runtimeconfig_config_iam_binding`, `google_runtimeconfig_config_iam_member`, `data.google_runtimeconfig_config`. They are only available in the `google-beta` provider, as the underlying service is in beta.
+```

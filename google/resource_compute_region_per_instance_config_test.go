@@ -298,7 +298,6 @@ resource "google_compute_region_instance_group_manager" "rigm" {
     minimal_action               = "REPLACE"
     max_surge_fixed              = 0
     max_unavailable_fixed        = 6
-    min_ready_sec                = 20
   }
 }
 `, context)
