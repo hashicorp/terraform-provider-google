@@ -199,11 +199,6 @@ snapshot using a customer-supplied encryption key.`,
 storage, this number is expected to change with snapshot
 creation/deletion.`,
 			},
-			"source_disk_link": {
-				Type:       schema.TypeString,
-				Computed:   true,
-				Deprecated: "Deprecated in favor of source_disk, which contains a compatible value. This field will be removed in the next major release of the provider.",
-			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -843,8 +838,5 @@ func resourceComputeSnapshotDecoder(d *schema.ResourceData, meta interface{}, re
 		res["sourceDiskEncryptionKey"] = transformed
 	}
 
-	if err := d.Set("source_disk_link", ConvertSelfLinkToV1(res["sourceDisk"].(string))); err != nil {
-		return nil, fmt.Errorf("Error setting source_disk_link: %s", err)
-	}
 	return res, nil
 }

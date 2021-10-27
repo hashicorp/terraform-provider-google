@@ -22,7 +22,7 @@ func TestAccDataSourceGoogleKmsCryptoKey_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleKmsCryptoKey_basic(kms.KeyRing.Name, cryptoKeyId),
-				Check:  resource.TestMatchResourceAttr("data.google_kms_crypto_key.kms_crypto_key", "self_link", regexp.MustCompile(kms.CryptoKey.Name)),
+				Check:  resource.TestMatchResourceAttr("data.google_kms_crypto_key.kms_crypto_key", "id", regexp.MustCompile(kms.CryptoKey.Name)),
 			},
 		},
 	})
