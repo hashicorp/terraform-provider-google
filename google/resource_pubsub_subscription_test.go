@@ -78,9 +78,6 @@ func TestAccPubsubSubscription_update(t *testing.T) {
 			},
 			{
 				Config: testAccPubsubSubscription_basic(topic, subscriptionShort, "baz", 30),
-				Check: resource.TestCheckResourceAttr(
-					"google_pubsub_subscription.foo", "id", subscriptionLong,
-				),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
