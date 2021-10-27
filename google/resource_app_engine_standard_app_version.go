@@ -99,6 +99,21 @@ All files must be readable using the credentials supplied with this call.`,
 					},
 				},
 			},
+			"entrypoint": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: `The entrypoint for the application.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"shell": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The format should be a shell command that can be fed to bash -c.`,
+						},
+					},
+				},
+			},
 			"runtime": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -202,21 +217,6 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 					},
 				},
 				ConflictsWith: []string{"automatic_scaling", "manual_scaling"},
-			},
-			"entrypoint": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `The entrypoint for the application.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"shell": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The format should be a shell command that can be fed to bash -c.`,
-						},
-					},
-				},
 			},
 			"env_variables": {
 				Type:        schema.TypeMap,

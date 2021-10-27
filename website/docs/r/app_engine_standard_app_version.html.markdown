@@ -126,6 +126,11 @@ The following arguments are supported:
   Code and application artifacts that make up this version.
   Structure is [documented below](#nested_deployment).
 
+* `entrypoint` -
+  (Required)
+  The entrypoint for the application.
+  Structure is [documented below](#nested_entrypoint).
+
 * `service` -
   (Required)
   AppEngine service resource
@@ -167,6 +172,12 @@ The following arguments are supported:
   (Required)
   Source URL
 
+<a name="nested_entrypoint"></a>The `entrypoint` block supports:
+
+* `shell` -
+  (Required)
+  The format should be a shell command that can be fed to bash -c.
+
 - - -
 
 
@@ -197,11 +208,6 @@ The following arguments are supported:
 * `env_variables` -
   (Optional)
   Environment variables available to the application.
-
-* `entrypoint` -
-  (Optional)
-  The entrypoint for the application.
-  Structure is [documented below](#nested_entrypoint).
 
 * `vpc_access_connector` -
   (Optional)
@@ -332,12 +338,6 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Version of the library to select, or "latest".
-
-<a name="nested_entrypoint"></a>The `entrypoint` block supports:
-
-* `shell` -
-  (Required)
-  The format should be a shell command that can be fed to bash -c.
 
 <a name="nested_vpc_access_connector"></a>The `vpc_access_connector` block supports:
 
