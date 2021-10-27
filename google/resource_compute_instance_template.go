@@ -603,7 +603,6 @@ func resourceComputeInstanceTemplate() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
-				Computed:    true,
 				ForceNew:    true,
 				Description: `Controls for advanced machine-related behavior features.`,
 				Elem: &schema.Resource{
