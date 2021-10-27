@@ -195,3 +195,13 @@ func compareIpAddressOrSelfLinkOrResourceName(_, old, new string, _ *schema.Reso
 	// otherwise compare as self links
 	return compareSelfLinkOrResourceName("", old, new, nil)
 }
+
+// Use this method when subnet is optioanl and auto_create_subnetworks = true
+// API sometimes choose a subnet so the diff needs to be ignored
+func compareOptionalSubnet(_, old, new string, _ *schema.ResourceData) bool {
+	if isEmptyValue(reflect.ValueOf(new)) {
+		return true
+	}
+	// otherwise compare as self links
+	return compareSelfLinkOrResourceName("", old, new, nil)
+}
