@@ -796,7 +796,7 @@ resource "google_kms_key_ring" "project-2-keyring" {
 resource "google_kms_crypto_key" "project-2-key" {
 	provider = google.project-1-token
 	name     = "%s"
-	key_ring = google_kms_key_ring.project-2-keyring.self_link
+	key_ring = google_kms_key_ring.project-2-keyring.id
 }
 
 data "google_kms_secret_ciphertext" "project-2-ciphertext" {

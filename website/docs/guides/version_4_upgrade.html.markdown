@@ -402,6 +402,32 @@ This field was incorrectly included in the GA `google` provider in past releases
 In order to continue to use the feature, add `provider = google-beta` to your
 resource definition.
 
+## Resource: `google_compute_snapshot`
+
+### `source_disk_link` is now removed
+
+Removed in favor of `source_disk`.
+
+## Resource: `google_kms_crypto_key`
+
+### `self_link` is now removed
+
+Removed in favor of `id`.
+
+## Resource: `google_kms_key_ring`
+
+### `self_link` is now removed
+
+Removed in favor of `id`.
+
+## Datasource: `google_kms_key_ring`
+
+### `id` now matches the `google_kms_key_ring` id format
+
+The format has changed to better match the resource's ID format.
+
+Interpolations based on the `id` of the datasource may require updates.
+
 ## Resource: `google_data_loss_prevention_trigger`
 
 ### Exactly one of `inspect_job.0.storage_config.0.cloud_storage_options.0.file_set.0.url` or `inspect_job.0.storage_config.0.cloud_storage_options.0.file_set.0.regex_file_set` is required

@@ -1,0 +1,9 @@
+```release-note:breaking-change
+pubsub: removed `path` field from `google_pubsub_subscription`
+```
+```release-note:breaking-change
+kms: removed `self_link` field from `google_kms_crypto_key` and `google_kms_key_ring`
+```
+```release-note:breaking-change
+compute: removed `source_disk_link` field from `google_compute_snapshot`
+```

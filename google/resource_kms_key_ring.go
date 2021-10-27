@@ -52,12 +52,6 @@ A full list of valid locations can be found by running 'gcloud kms locations lis
 				ForceNew:    true,
 				Description: `The resource name for the KeyRing.`,
 			},
-			"self_link": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Deprecated:  "Deprecated in favor of id, which contains an identical value. This field will be removed in the next major release of the provider.",
-				Description: "The self link of the created KeyRing in the format projects/{project}/locations/{location}/keyRings/{name}.",
-			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -230,14 +224,10 @@ func resourceKMSKeyRingEncoder(d *schema.ResourceData, meta interface{}, obj map
 }
 
 func resourceKMSKeyRingDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	// Take the returned long form of the name and use it as `self_link`.
-	// Then modify the name to be the user specified form.
+	// Modify the name to be the user specified form.
 	// We can't just ignore_read on `name` as the linter will
 	// complain that the returned `res` is never used afterwards.
 	// Some field needs to be actually set, and we chose `name`.
-	if err := d.Set("self_link", res["name"].(string)); err != nil {
-		return nil, fmt.Errorf("Error setting self_link: %s", err)
-	}
 	res["name"] = d.Get("name").(string)
 	return res, nil
 }

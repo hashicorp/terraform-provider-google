@@ -27,7 +27,7 @@ data "google_kms_key_ring" "my_key_ring" {
 
 data "google_kms_crypto_key" "my_crypto_key" {
   name     = "my-crypto-key"
-  key_ring = data.google_kms_key_ring.my_key_ring.self_link
+  key_ring = data.google_kms_key_ring.my_key_ring.id
 }
 ```
 

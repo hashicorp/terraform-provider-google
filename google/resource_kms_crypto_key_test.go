@@ -457,7 +457,7 @@ resource "google_kms_key_ring" "key_ring" {
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "%s"
-  key_ring = google_kms_key_ring.key_ring.self_link
+  key_ring = google_kms_key_ring.key_ring.id
   labels = {
     key = "value"
   }
@@ -487,7 +487,7 @@ resource "google_kms_key_ring" "key_ring" {
 
 resource "google_kms_crypto_key" "crypto_key" {
   name            = "%s"
-  key_ring        = google_kms_key_ring.key_ring.self_link
+  key_ring        = google_kms_key_ring.key_ring.id
   rotation_period = "%s"
 }
 `, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, rotationPeriod)
@@ -515,7 +515,7 @@ resource "google_kms_key_ring" "key_ring" {
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "%s"
-  key_ring = google_kms_key_ring.key_ring.self_link
+  key_ring = google_kms_key_ring.key_ring.id
 }
 `, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
 }
@@ -542,7 +542,7 @@ resource "google_kms_key_ring" "key_ring" {
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "%s"
-  key_ring = google_kms_key_ring.key_ring.self_link
+  key_ring = google_kms_key_ring.key_ring.id
   purpose  = "ASYMMETRIC_SIGN"
 
   version_template {
@@ -596,7 +596,7 @@ resource "google_kms_key_ring" "key_ring" {
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "%s"
-  key_ring = google_kms_key_ring.key_ring.self_link
+  key_ring = google_kms_key_ring.key_ring.id
   labels = {
     key = "value"
   }
@@ -627,7 +627,7 @@ resource "google_kms_key_ring" "key_ring" {
 
 resource "google_kms_crypto_key" "crypto_key" {
   name     = "%s"
-  key_ring = google_kms_key_ring.key_ring.self_link
+  key_ring = google_kms_key_ring.key_ring.id
   labels = {
     key = "value"
   }
