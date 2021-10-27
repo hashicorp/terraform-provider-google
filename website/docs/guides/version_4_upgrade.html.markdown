@@ -402,6 +402,13 @@ This field was incorrectly included in the GA `google` provider in past releases
 In order to continue to use the feature, add `provider = google-beta` to your
 resource definition.
 
+## Resource: `google_app_engine_standard_app_version`
+
+### `entrypoint` is now required
+
+This resource would fail to deploy without this field defined. Specify the
+`entrypoint` block to fix any issues
+
 ## Resource: `google_compute_snapshot`
 
 ### `source_disk_link` is now removed
