@@ -1,10 +1,9 @@
 name: "Pull Request Reviewer"
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, ready_for_review, reopened]
 
 permissions:
-  contents: read
   pull-requests: write
 
 jobs:
@@ -12,7 +11,7 @@ jobs:
     if: ${{ github.actor != 'modular-magician' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
-    - uses: uesteibar/reviewer-lottery@5e584a0455eb063a623b7fd949f006fc7dbcf8bf
+    - uses: actions/checkout@v2
+    - uses: uesteibar/reviewer-lottery@5531ef7fe55d814c8f8fbab12de4ff74d15b41ed
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
