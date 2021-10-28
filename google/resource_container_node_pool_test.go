@@ -709,7 +709,7 @@ func testAccCheckContainerNodePoolDestroyProducer(t *testing.T) func(s *terrafor
 					attributes["cluster"],
 					attributes["name"],
 				)
-				_, err = config.NewContainerBetaClient(config.userAgent).Projects.Locations.Clusters.NodePools.Get(name).Do()
+				_, err = config.NewContainerClient(config.userAgent).Projects.Locations.Clusters.NodePools.Get(name).Do()
 			}
 
 			if err == nil {

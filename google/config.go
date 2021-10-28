@@ -29,7 +29,6 @@ import (
 	composer "google.golang.org/api/composer/v1beta1"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
-	containerBeta "google.golang.org/api/container/v1beta1"
 	dataflow "google.golang.org/api/dataflow/v1b3"
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/dns/v1"
@@ -148,7 +147,6 @@ type Config struct {
 	CloudBillingBasePath      string
 	ComposerBasePath          string
 	ContainerBasePath         string
-	ContainerBetaBasePath     string
 	DataprocBetaBasePath      string
 	DataflowBasePath          string
 	IamCredentialsBasePath    string
@@ -240,7 +238,6 @@ const CloudBillingBasePathKey = "CloudBilling"
 const ComposerBasePathKey = "Composer"
 const ContainerBasePathKey = "Container"
 const DataprocBetaBasePathKey = "DataprocBeta"
-const ContainerBetaBasePathKey = "ContainerBeta"
 const DataflowBasePathKey = "Dataflow"
 const IAMBasePathKey = "IAM"
 const IamCredentialsBasePathKey = "IamCredentials"
@@ -320,7 +317,6 @@ var DefaultBasePaths = map[string]string{
 	CloudBillingBasePathKey:         "https://cloudbilling.googleapis.com/v1/",
 	ComposerBasePathKey:             "https://composer.googleapis.com/v1/",
 	ContainerBasePathKey:            "https://container.googleapis.com/v1/",
-	ContainerBetaBasePathKey:        "https://container.googleapis.com/v1beta1/",
 	DataprocBetaBasePathKey:         "https://dataproc.googleapis.com/v1beta2/",
 	DataflowBasePathKey:             "https://dataflow.googleapis.com/v1b3/",
 	IAMBasePathKey:                  "https://iam.googleapis.com/v1/",
@@ -528,20 +524,6 @@ func (c *Config) NewContainerClient(userAgent string) *container.Service {
 	clientContainer.BasePath = containerClientBasePath
 
 	return clientContainer
-}
-
-func (c *Config) NewContainerBetaClient(userAgent string) *containerBeta.Service {
-	containerBetaClientBasePath := removeBasePathVersion(c.ContainerBetaBasePath)
-	log.Printf("[INFO] Instantiating GKE Beta client for path %s", containerBetaClientBasePath)
-	clientContainerBeta, err := containerBeta.NewService(c.context, option.WithHTTPClient(c.client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client container beta: %s", err)
-		return nil
-	}
-	clientContainerBeta.UserAgent = userAgent
-	clientContainerBeta.BasePath = containerBetaClientBasePath
-
-	return clientContainerBeta
 }
 
 func (c *Config) NewDnsClient(userAgent string) *dns.Service {
@@ -1159,7 +1141,6 @@ func ConfigureBasePaths(c *Config) {
 	c.CloudBillingBasePath = DefaultBasePaths[CloudBillingBasePathKey]
 	c.ComposerBasePath = DefaultBasePaths[ComposerBasePathKey]
 	c.ContainerBasePath = DefaultBasePaths[ContainerBasePathKey]
-	c.ContainerBetaBasePath = DefaultBasePaths[ContainerBetaBasePathKey]
 	c.DataprocBasePath = DefaultBasePaths[DataprocBasePathKey]
 	c.DataflowBasePath = DefaultBasePaths[DataflowBasePathKey]
 	c.IamCredentialsBasePath = DefaultBasePaths[IamCredentialsBasePathKey]
