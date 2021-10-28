@@ -7,8 +7,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/googleapi"
+
+	"google.golang.org/api/compute/v1"
 )
 
 func instanceSchedulingNodeAffinitiesElemSchema() *schema.Resource {
@@ -33,11 +34,11 @@ func instanceSchedulingNodeAffinitiesElemSchema() *schema.Resource {
 	}
 }
 
-func expandAliasIpRanges(ranges []interface{}) []*computeBeta.AliasIpRange {
-	ipRanges := make([]*computeBeta.AliasIpRange, 0, len(ranges))
+func expandAliasIpRanges(ranges []interface{}) []*compute.AliasIpRange {
+	ipRanges := make([]*compute.AliasIpRange, 0, len(ranges))
 	for _, raw := range ranges {
 		data := raw.(map[string]interface{})
-		ipRanges = append(ipRanges, &computeBeta.AliasIpRange{
+		ipRanges = append(ipRanges, &compute.AliasIpRange{
 			IpCidrRange:         data["ip_cidr_range"].(string),
 			SubnetworkRangeName: data["subnetwork_range_name"].(string),
 		})
@@ -45,7 +46,7 @@ func expandAliasIpRanges(ranges []interface{}) []*computeBeta.AliasIpRange {
 	return ipRanges
 }
 
-func flattenAliasIpRange(ranges []*computeBeta.AliasIpRange) []map[string]interface{} {
+func flattenAliasIpRange(ranges []*compute.AliasIpRange) []map[string]interface{} {
 	rangesSchema := make([]map[string]interface{}, 0, len(ranges))
 	for _, ipRange := range ranges {
 		rangesSchema = append(rangesSchema, map[string]interface{}{
@@ -56,10 +57,10 @@ func flattenAliasIpRange(ranges []*computeBeta.AliasIpRange) []map[string]interf
 	return rangesSchema
 }
 
-func expandScheduling(v interface{}) (*computeBeta.Scheduling, error) {
+func expandScheduling(v interface{}) (*compute.Scheduling, error) {
 	if v == nil {
 		// We can't set default values for lists.
-		return &computeBeta.Scheduling{
+		return &compute.Scheduling{
 			AutomaticRestart: googleapi.Bool(true),
 		}, nil
 	}
@@ -67,7 +68,7 @@ func expandScheduling(v interface{}) (*computeBeta.Scheduling, error) {
 	ls := v.([]interface{})
 	if len(ls) == 0 {
 		// We can't set default values for lists
-		return &computeBeta.Scheduling{
+		return &compute.Scheduling{
 			AutomaticRestart: googleapi.Bool(true),
 		}, nil
 	}
@@ -77,7 +78,7 @@ func expandScheduling(v interface{}) (*computeBeta.Scheduling, error) {
 	}
 
 	original := ls[0].(map[string]interface{})
-	scheduling := &computeBeta.Scheduling{
+	scheduling := &compute.Scheduling{
 		ForceSendFields: make([]string, 0, 4),
 	}
 
@@ -98,14 +99,14 @@ func expandScheduling(v interface{}) (*computeBeta.Scheduling, error) {
 
 	if v, ok := original["node_affinities"]; ok && v != nil {
 		naSet := v.(*schema.Set).List()
-		scheduling.NodeAffinities = make([]*computeBeta.SchedulingNodeAffinity, len(ls))
+		scheduling.NodeAffinities = make([]*compute.SchedulingNodeAffinity, len(ls))
 		scheduling.ForceSendFields = append(scheduling.ForceSendFields, "NodeAffinities")
 		for _, nodeAffRaw := range naSet {
 			if nodeAffRaw == nil {
 				continue
 			}
 			nodeAff := nodeAffRaw.(map[string]interface{})
-			transformed := &computeBeta.SchedulingNodeAffinity{
+			transformed := &compute.SchedulingNodeAffinity{
 				Key:      nodeAff["key"].(string),
 				Operator: nodeAff["operator"].(string),
 				Values:   convertStringArr(nodeAff["values"].(*schema.Set).List()),
@@ -121,7 +122,7 @@ func expandScheduling(v interface{}) (*computeBeta.Scheduling, error) {
 	return scheduling, nil
 }
 
-func flattenScheduling(resp *computeBeta.Scheduling) []map[string]interface{} {
+func flattenScheduling(resp *compute.Scheduling) []map[string]interface{} {
 	schedulingMap := map[string]interface{}{
 		"on_host_maintenance": resp.OnHostMaintenance,
 		"preemptible":         resp.Preemptible,
@@ -145,7 +146,7 @@ func flattenScheduling(resp *computeBeta.Scheduling) []map[string]interface{} {
 	return []map[string]interface{}{schedulingMap}
 }
 
-func flattenAccessConfigs(accessConfigs []*computeBeta.AccessConfig) ([]map[string]interface{}, string) {
+func flattenAccessConfigs(accessConfigs []*compute.AccessConfig) ([]map[string]interface{}, string) {
 	flattened := make([]map[string]interface{}, len(accessConfigs))
 	natIP := ""
 	for i, ac := range accessConfigs {
@@ -163,7 +164,7 @@ func flattenAccessConfigs(accessConfigs []*computeBeta.AccessConfig) ([]map[stri
 	return flattened, natIP
 }
 
-func flattenIpv6AccessConfigs(ipv6AccessConfigs []*computeBeta.AccessConfig) []map[string]interface{} {
+func flattenIpv6AccessConfigs(ipv6AccessConfigs []*compute.AccessConfig) []map[string]interface{} {
 	flattened := make([]map[string]interface{}, len(ipv6AccessConfigs))
 	for i, ac := range ipv6AccessConfigs {
 		flattened[i] = map[string]interface{}{
@@ -174,7 +175,7 @@ func flattenIpv6AccessConfigs(ipv6AccessConfigs []*computeBeta.AccessConfig) []m
 	return flattened
 }
 
-func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInterfaces []*computeBeta.NetworkInterface) ([]map[string]interface{}, string, string, string, error) {
+func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInterfaces []*compute.NetworkInterface) ([]map[string]interface{}, string, string, string, error) {
 	flattened := make([]map[string]interface{}, len(networkInterfaces))
 	var region, internalIP, externalIP string
 
@@ -213,10 +214,10 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInt
 	return flattened, region, internalIP, externalIP, nil
 }
 
-func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
-	acs := make([]*computeBeta.AccessConfig, len(configs))
+func expandAccessConfigs(configs []interface{}) []*compute.AccessConfig {
+	acs := make([]*compute.AccessConfig, len(configs))
 	for i, raw := range configs {
-		acs[i] = &computeBeta.AccessConfig{}
+		acs[i] = &compute.AccessConfig{}
 		acs[i].Type = "ONE_TO_ONE_NAT"
 		if raw != nil {
 			data := raw.(map[string]interface{})
@@ -231,10 +232,10 @@ func expandAccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
 	return acs
 }
 
-func expandIpv6AccessConfigs(configs []interface{}) []*computeBeta.AccessConfig {
-	iacs := make([]*computeBeta.AccessConfig, len(configs))
+func expandIpv6AccessConfigs(configs []interface{}) []*compute.AccessConfig {
+	iacs := make([]*compute.AccessConfig, len(configs))
 	for i, raw := range configs {
-		iacs[i] = &computeBeta.AccessConfig{}
+		iacs[i] = &compute.AccessConfig{}
 		if raw != nil {
 			data := raw.(map[string]interface{})
 			iacs[i].NetworkTier = data["network_tier"].(string)
@@ -247,9 +248,9 @@ func expandIpv6AccessConfigs(configs []interface{}) []*computeBeta.AccessConfig 
 	return iacs
 }
 
-func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*computeBeta.NetworkInterface, error) {
+func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*compute.NetworkInterface, error) {
 	configs := d.Get("network_interface").([]interface{})
-	ifaces := make([]*computeBeta.NetworkInterface, len(configs))
+	ifaces := make([]*compute.NetworkInterface, len(configs))
 	for i, raw := range configs {
 		data := raw.(map[string]interface{})
 
@@ -270,7 +271,7 @@ func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*comput
 			return nil, fmt.Errorf("cannot determine self_link for subnetwork %q: %s", subnetwork, err)
 		}
 
-		ifaces[i] = &computeBeta.NetworkInterface{
+		ifaces[i] = &compute.NetworkInterface{
 			NetworkIP:         data["network_ip"].(string),
 			Network:           nf.RelativeLink(),
 			Subnetwork:        sf.RelativeLink(),
@@ -284,7 +285,7 @@ func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*comput
 	return ifaces, nil
 }
 
-func flattenServiceAccounts(serviceAccounts []*computeBeta.ServiceAccount) []map[string]interface{} {
+func flattenServiceAccounts(serviceAccounts []*compute.ServiceAccount) []map[string]interface{} {
 	result := make([]map[string]interface{}, len(serviceAccounts))
 	for i, serviceAccount := range serviceAccounts {
 		result[i] = map[string]interface{}{
@@ -295,12 +296,12 @@ func flattenServiceAccounts(serviceAccounts []*computeBeta.ServiceAccount) []map
 	return result
 }
 
-func expandServiceAccounts(configs []interface{}) []*computeBeta.ServiceAccount {
-	accounts := make([]*computeBeta.ServiceAccount, len(configs))
+func expandServiceAccounts(configs []interface{}) []*compute.ServiceAccount {
+	accounts := make([]*compute.ServiceAccount, len(configs))
 	for i, raw := range configs {
 		data := raw.(map[string]interface{})
 
-		accounts[i] = &computeBeta.ServiceAccount{
+		accounts[i] = &compute.ServiceAccount{
 			Email:  data["email"].(string),
 			Scopes: canonicalizeServiceScopes(convertStringSet(data["scopes"].(*schema.Set))),
 		}
@@ -312,7 +313,7 @@ func expandServiceAccounts(configs []interface{}) []*computeBeta.ServiceAccount 
 	return accounts
 }
 
-func flattenGuestAccelerators(accelerators []*computeBeta.AcceleratorConfig) []map[string]interface{} {
+func flattenGuestAccelerators(accelerators []*compute.AcceleratorConfig) []map[string]interface{} {
 	acceleratorsSchema := make([]map[string]interface{}, len(accelerators))
 	for i, accelerator := range accelerators {
 		acceleratorsSchema[i] = map[string]interface{}{
@@ -323,12 +324,12 @@ func flattenGuestAccelerators(accelerators []*computeBeta.AcceleratorConfig) []m
 	return acceleratorsSchema
 }
 
-func resourceInstanceTags(d TerraformResourceData) *computeBeta.Tags {
+func resourceInstanceTags(d TerraformResourceData) *compute.Tags {
 	// Calculate the tags
-	var tags *computeBeta.Tags
+	var tags *compute.Tags
 	if v := d.Get("tags"); v != nil {
 		vs := v.(*schema.Set)
-		tags = new(computeBeta.Tags)
+		tags = new(compute.Tags)
 		tags.Items = make([]string, vs.Len())
 		for i, v := range vs.List() {
 			tags.Items[i] = v.(string)
@@ -340,13 +341,13 @@ func resourceInstanceTags(d TerraformResourceData) *computeBeta.Tags {
 	return tags
 }
 
-func expandShieldedVmConfigs(d TerraformResourceData) *computeBeta.ShieldedInstanceConfig {
+func expandShieldedVmConfigs(d TerraformResourceData) *compute.ShieldedInstanceConfig {
 	if _, ok := d.GetOk("shielded_instance_config"); !ok {
 		return nil
 	}
 
 	prefix := "shielded_instance_config.0"
-	return &computeBeta.ShieldedInstanceConfig{
+	return &compute.ShieldedInstanceConfig{
 		EnableSecureBoot:          d.Get(prefix + ".enable_secure_boot").(bool),
 		EnableVtpm:                d.Get(prefix + ".enable_vtpm").(bool),
 		EnableIntegrityMonitoring: d.Get(prefix + ".enable_integrity_monitoring").(bool),
@@ -354,18 +355,18 @@ func expandShieldedVmConfigs(d TerraformResourceData) *computeBeta.ShieldedInsta
 	}
 }
 
-func expandConfidentialInstanceConfig(d TerraformResourceData) *computeBeta.ConfidentialInstanceConfig {
+func expandConfidentialInstanceConfig(d TerraformResourceData) *compute.ConfidentialInstanceConfig {
 	if _, ok := d.GetOk("confidential_instance_config"); !ok {
 		return nil
 	}
 
 	prefix := "confidential_instance_config.0"
-	return &computeBeta.ConfidentialInstanceConfig{
+	return &compute.ConfidentialInstanceConfig{
 		EnableConfidentialCompute: d.Get(prefix + ".enable_confidential_compute").(bool),
 	}
 }
 
-func flattenConfidentialInstanceConfig(ConfidentialInstanceConfig *computeBeta.ConfidentialInstanceConfig) []map[string]bool {
+func flattenConfidentialInstanceConfig(ConfidentialInstanceConfig *compute.ConfidentialInstanceConfig) []map[string]bool {
 	if ConfidentialInstanceConfig == nil {
 		return nil
 	}
@@ -375,19 +376,19 @@ func flattenConfidentialInstanceConfig(ConfidentialInstanceConfig *computeBeta.C
 	}}
 }
 
-func expandAdvancedMachineFeatures(d TerraformResourceData) *computeBeta.AdvancedMachineFeatures {
+func expandAdvancedMachineFeatures(d TerraformResourceData) *compute.AdvancedMachineFeatures {
 	if _, ok := d.GetOk("advanced_machine_features"); !ok {
 		return nil
 	}
 
 	prefix := "advanced_machine_features.0"
-	return &computeBeta.AdvancedMachineFeatures{
+	return &compute.AdvancedMachineFeatures{
 		EnableNestedVirtualization: d.Get(prefix + ".enable_nested_virtualization").(bool),
 		ThreadsPerCore:             int64(d.Get(prefix + ".threads_per_core").(int)),
 	}
 }
 
-func flattenAdvancedMachineFeatures(AdvancedMachineFeatures *computeBeta.AdvancedMachineFeatures) []map[string]interface{} {
+func flattenAdvancedMachineFeatures(AdvancedMachineFeatures *compute.AdvancedMachineFeatures) []map[string]interface{} {
 	if AdvancedMachineFeatures == nil {
 		return nil
 	}
@@ -397,7 +398,7 @@ func flattenAdvancedMachineFeatures(AdvancedMachineFeatures *computeBeta.Advance
 	}}
 }
 
-func flattenShieldedVmConfig(shieldedVmConfig *computeBeta.ShieldedInstanceConfig) []map[string]bool {
+func flattenShieldedVmConfig(shieldedVmConfig *compute.ShieldedInstanceConfig) []map[string]bool {
 	if shieldedVmConfig == nil {
 		return nil
 	}
@@ -409,17 +410,17 @@ func flattenShieldedVmConfig(shieldedVmConfig *computeBeta.ShieldedInstanceConfi
 	}}
 }
 
-func expandDisplayDevice(d TerraformResourceData) *computeBeta.DisplayDevice {
+func expandDisplayDevice(d TerraformResourceData) *compute.DisplayDevice {
 	if _, ok := d.GetOk("enable_display"); !ok {
 		return nil
 	}
-	return &computeBeta.DisplayDevice{
+	return &compute.DisplayDevice{
 		EnableDisplay:   d.Get("enable_display").(bool),
 		ForceSendFields: []string{"EnableDisplay"},
 	}
 }
 
-func flattenEnableDisplay(displayDevice *computeBeta.DisplayDevice) interface{} {
+func flattenEnableDisplay(displayDevice *compute.DisplayDevice) interface{} {
 	if displayDevice == nil {
 		return nil
 	}
@@ -496,7 +497,7 @@ func hasNodeAffinitiesChanged(oScheduling, newScheduling map[string]interface{})
 	return false
 }
 
-func expandReservationAffinity(d *schema.ResourceData) (*computeBeta.ReservationAffinity, error) {
+func expandReservationAffinity(d *schema.ResourceData) (*compute.ReservationAffinity, error) {
 	_, ok := d.GetOk("reservation_affinity")
 	if !ok {
 		return nil, nil
@@ -505,7 +506,7 @@ func expandReservationAffinity(d *schema.ResourceData) (*computeBeta.Reservation
 	prefix := "reservation_affinity.0"
 	reservationAffinityType := d.Get(prefix + ".type").(string)
 
-	affinity := computeBeta.ReservationAffinity{
+	affinity := compute.ReservationAffinity{
 		ConsumeReservationType: reservationAffinityType,
 		ForceSendFields:        []string{"ConsumeReservationType"},
 	}
@@ -528,7 +529,7 @@ func expandReservationAffinity(d *schema.ResourceData) (*computeBeta.Reservation
 	return &affinity, nil
 }
 
-func flattenReservationAffinity(affinity *computeBeta.ReservationAffinity) []map[string]interface{} {
+func flattenReservationAffinity(affinity *compute.ReservationAffinity) []map[string]interface{} {
 	if affinity == nil {
 		return nil
 	}

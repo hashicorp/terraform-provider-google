@@ -28,16 +28,6 @@ var ComposerCustomEndpointEntry = &schema.Schema{
 	}, DefaultBasePaths[ComposerBasePathKey]),
 }
 
-var ComputeBetaCustomEndpointEntryKey = "compute_beta_custom_endpoint"
-var ComputeBetaCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_COMPUTE_BETA_CUSTOM_ENDPOINT",
-	}, DefaultBasePaths[ComputeBetaBasePathKey]),
-}
-
 var ContainerCustomEndpointEntryKey = "container_custom_endpoint"
 var ContainerCustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,

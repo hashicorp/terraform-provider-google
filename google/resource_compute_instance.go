@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mitchellh/hashstructure"
-	computeBeta "google.golang.org/api/compute/v0.beta"
+
 	"google.golang.org/api/compute/v1"
 )
 
@@ -863,7 +863,7 @@ func resourceComputeInstance() *schema.Resource {
 	}
 }
 
-func getInstance(config *Config, d *schema.ResourceData) (*computeBeta.Instance, error) {
+func getInstance(config *Config, d *schema.ResourceData) (*compute.Instance, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -876,7 +876,7 @@ func getInstance(config *Config, d *schema.ResourceData) (*computeBeta.Instance,
 	if err != nil {
 		return nil, err
 	}
-	instance, err := config.NewComputeBetaClient(userAgent).Instances.Get(project, zone, d.Get("name").(string)).Do()
+	instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, d.Get("name").(string)).Do()
 	if err != nil {
 		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", d.Get("name").(string)))
 	}
@@ -902,7 +902,7 @@ func getDisk(diskUri string, d *schema.ResourceData, config *Config) (*compute.D
 	return disk, err
 }
 
-func expandComputeInstance(project string, d *schema.ResourceData, config *Config) (*computeBeta.Instance, error) {
+func expandComputeInstance(project string, d *schema.ResourceData, config *Config) (*compute.Instance, error) {
 	// Get the machine type
 	var machineTypeUrl string
 	if mt, ok := d.GetOk("machine_type"); ok {
@@ -917,7 +917,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 
 	// Build up the list of disks
 
-	disks := []*computeBeta.AttachedDisk{}
+	disks := []*compute.AttachedDisk{}
 	if _, hasBootDisk := d.GetOk("boot_disk"); hasBootDisk {
 		bootDisk, err := expandBootDisk(d, config, project)
 		if err != nil {
@@ -971,7 +971,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *Confi
 	}
 
 	// Create the instance information
-	return &computeBeta.Instance{
+	return &compute.Instance{
 		CanIpForward:               d.Get("can_ip_forward").(bool),
 		Description:                d.Get("description").(string),
 		Disks:                      disks,
@@ -1080,7 +1080,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
-	op, err := config.NewComputeBetaClient(userAgent).Instances.Insert(project, zone.Name, instance).Do()
+	op, err := config.NewComputeClient(userAgent).Instances.Insert(project, zone.Name, instance).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance: %s", err)
 	}
@@ -1378,7 +1378,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	// Use beta api directly in order to read network_interface.fingerprint without having to put it in the schema.
 	// Change back to getInstance(config, d) once updating alias ips is GA.
-	instance, err := config.NewComputeBetaClient(userAgent).Instances.Get(project, zone, d.Get("name").(string)).Do()
+	instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, d.Get("name").(string)).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance %s", instance.Name))
 	}
@@ -1402,7 +1402,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			func() error {
 				// retrieve up-to-date metadata from the API in case several updates hit simultaneously. instances
 				// sometimes but not always share metadata fingerprints.
-				instance, err := config.NewComputeBetaClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
+				instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
 				if err != nil {
 					return fmt.Errorf("Error retrieving metadata: %s", err)
 				}
@@ -1501,7 +1501,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error creating request data to update scheduling: %s", err)
 		}
 
-		op, err := config.NewComputeBetaClient(userAgent).Instances.SetScheduling(
+		op, err := config.NewComputeClient(userAgent).Instances.SetScheduling(
 			project, zone, instance.Name, scheduling).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating scheduling policy: %s", err)
@@ -1525,7 +1525,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Instance had unexpected number of network interfaces: %d", len(instance.NetworkInterfaces))
 	}
 
-	var updatesToNIWhileStopped []func(inst *computeBeta.Instance) error
+	var updatesToNIWhileStopped []func(inst *compute.Instance) error
 	for i := 0; i < len(networkInterfaces); i++ {
 		prefix := fmt.Sprintf("network_interface.%d", i)
 		networkInterface := networkInterfaces[i]
@@ -1586,7 +1586,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 
 			// re-read fingerprint
-			instance, err = config.NewComputeBetaClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
+			instance, err = config.NewComputeClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
 			if err != nil {
 				return err
 			}
@@ -1597,11 +1597,11 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			// Alias IP ranges cannot be updated; they must be removed and then added
 			// unless you are changing subnetwork/network
 			if len(instNetworkInterface.AliasIpRanges) > 0 {
-				ni := &computeBeta.NetworkInterface{
+				ni := &compute.NetworkInterface{
 					Fingerprint:     instNetworkInterface.Fingerprint,
 					ForceSendFields: []string{"AliasIpRanges"},
 				}
-				op, err := config.NewComputeBetaClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, ni).Do()
+				op, err := config.NewComputeClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, ni).Do()
 				if err != nil {
 					return errwrap.Wrapf("Error removing alias_ip_range: {{err}}", err)
 				}
@@ -1610,18 +1610,18 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return opErr
 				}
 				// re-read fingerprint
-				instance, err = config.NewComputeBetaClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
+				instance, err = config.NewComputeClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
 				if err != nil {
 					return err
 				}
 				instNetworkInterface = instance.NetworkInterfaces[i]
 			}
 
-			networkInterfacePatchObj := &computeBeta.NetworkInterface{
+			networkInterfacePatchObj := &compute.NetworkInterface{
 				AliasIpRanges: networkInterface.AliasIpRanges,
 				Fingerprint:   instNetworkInterface.Fingerprint,
 			}
-			updateCall := config.NewComputeBetaClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, networkInterfacePatchObj).Do
+			updateCall := config.NewComputeClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, networkInterfacePatchObj).Do
 			op, err := updateCall()
 			if err != nil {
 				return errwrap.Wrapf("Error updating network interface: {{err}}", err)
@@ -1634,7 +1634,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 		if updateDuringStop {
 			// Lets be explicit about what we are changing in the patch call
-			networkInterfacePatchObj := &computeBeta.NetworkInterface{
+			networkInterfacePatchObj := &compute.NetworkInterface{
 				Network:       networkInterface.Network,
 				Subnetwork:    networkInterface.Subnetwork,
 				AliasIpRanges: networkInterface.AliasIpRanges,
@@ -1907,7 +1907,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if d.HasChange("shielded_instance_config") {
 			shieldedVmConfig := expandShieldedVmConfigs(d)
 
-			op, err := config.NewComputeBetaClient(userAgent).Instances.UpdateShieldedInstanceConfig(project, zone, instance.Name, shieldedVmConfig).Do()
+			op, err := config.NewComputeClient(userAgent).Instances.UpdateShieldedInstanceConfig(project, zone, instance.Name, shieldedVmConfig).Do()
 			if err != nil {
 				return fmt.Errorf("Error updating shielded vm config: %s", err)
 			}
@@ -1925,7 +1925,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return fmt.Errorf("Error creating request data to update scheduling: %s", err)
 			}
 
-			op, err := config.NewComputeBetaClient(userAgent).Instances.SetScheduling(
+			op, err := config.NewComputeClient(userAgent).Instances.SetScheduling(
 				project, zone, instance.Name, scheduling).Do()
 			if err != nil {
 				return fmt.Errorf("Error updating scheduling policy: %s", err)
@@ -1944,14 +1944,14 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				func() error {
 					// retrieve up-to-date instance from the API in case several updates hit simultaneously. instances
 					// sometimes but not always share metadata fingerprints.
-					instance, err := config.NewComputeBetaClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
+					instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
 					if err != nil {
 						return fmt.Errorf("Error retrieving instance: %s", err)
 					}
 
 					instance.AdvancedMachineFeatures = expandAdvancedMachineFeatures(d)
 
-					op, err := config.NewComputeBetaClient(userAgent).Instances.Update(project, zone, instance.Name, instance).Do()
+					op, err := config.NewComputeClient(userAgent).Instances.Update(project, zone, instance.Name, instance).Do()
 					if err != nil {
 						return fmt.Errorf("Error updating instance: %s", err)
 					}
@@ -1973,7 +1973,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		// If the instance stops it can invalidate the fingerprint for network interface.
 		// refresh the instance to get a new fingerprint
 		if len(updatesToNIWhileStopped) > 0 {
-			instance, err = config.NewComputeBetaClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
+			instance, err = config.NewComputeClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
 			if err != nil {
 				return err
 			}
@@ -2024,7 +2024,7 @@ func startInstanceOperation(d *schema.ResourceData, config *Config) (*compute.Op
 
 	// Use beta api directly in order to read network_interface.fingerprint without having to put it in the schema.
 	// Change back to getInstance(config, d) once updating alias ips is GA.
-	instance, err := config.NewComputeBetaClient(userAgent).Instances.Get(project, zone, d.Get("name").(string)).Do()
+	instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, d.Get("name").(string)).Do()
 	if err != nil {
 		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance %s", instance.Name))
 	}
@@ -2056,7 +2056,7 @@ func startInstanceOperation(d *schema.ResourceData, config *Config) (*compute.Op
 	return op, err
 }
 
-func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*computeBeta.AttachedDisk, error) {
+func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*compute.AttachedDisk, error) {
 	config := meta.(*Config)
 
 	s := diskConfig["source"].(string)
@@ -2075,7 +2075,7 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 		sourceLink = source.RelativeLink()
 	}
 
-	disk := &computeBeta.AttachedDisk{
+	disk := &compute.AttachedDisk{
 		Source: sourceLink,
 	}
 
@@ -2090,7 +2090,7 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 	keyValue, keyOk := diskConfig["disk_encryption_key_raw"]
 	if keyOk {
 		if keyValue != "" {
-			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
+			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
 				RawKey: keyValue.(string),
 			}
 		}
@@ -2102,7 +2102,7 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 			return nil, errors.New("Only one of kms_key_self_link and disk_encryption_key_raw can be set")
 		}
 		if kmsValue != "" {
-			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
+			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
 				KmsKeyName: kmsValue.(string),
 			}
 		}
@@ -2112,13 +2112,13 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 
 // See comment on expandInstanceTemplateGuestAccelerators regarding why this
 // code is duplicated.
-func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([]*computeBeta.AcceleratorConfig, error) {
+func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([]*compute.AcceleratorConfig, error) {
 	configs, ok := d.GetOk("guest_accelerator")
 	if !ok {
 		return nil, nil
 	}
 	accels := configs.([]interface{})
-	guestAccelerators := make([]*computeBeta.AcceleratorConfig, 0, len(accels))
+	guestAccelerators := make([]*compute.AcceleratorConfig, 0, len(accels))
 	for _, raw := range accels {
 		data := raw.(map[string]interface{})
 		if data["count"].(int) == 0 {
@@ -2128,7 +2128,7 @@ func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([
 		if err != nil {
 			return nil, fmt.Errorf("cannot parse accelerator type: %v", err)
 		}
-		guestAccelerators = append(guestAccelerators, &computeBeta.AcceleratorConfig{
+		guestAccelerators = append(guestAccelerators, &compute.AcceleratorConfig{
 			AcceleratorCount: int64(data["count"].(int)),
 			AcceleratorType:  at.RelativeLink(),
 		})
@@ -2260,13 +2260,13 @@ func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func expandBootDisk(d *schema.ResourceData, config *Config, project string) (*computeBeta.AttachedDisk, error) {
+func expandBootDisk(d *schema.ResourceData, config *Config, project string) (*compute.AttachedDisk, error) {
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return nil, err
 	}
 
-	disk := &computeBeta.AttachedDisk{
+	disk := &compute.AttachedDisk{
 		AutoDelete: d.Get("boot_disk.0.auto_delete").(bool),
 		Boot:       true,
 	}
@@ -2277,7 +2277,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, project string) (*co
 
 	if v, ok := d.GetOk("boot_disk.0.disk_encryption_key_raw"); ok {
 		if v != "" {
-			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
+			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
 				RawKey: v.(string),
 			}
 		}
@@ -2285,7 +2285,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, project string) (*co
 
 	if v, ok := d.GetOk("boot_disk.0.kms_key_self_link"); ok {
 		if v != "" {
-			disk.DiskEncryptionKey = &computeBeta.CustomerEncryptionKey{
+			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
 				KmsKeyName: v.(string),
 			}
 		}
@@ -2300,7 +2300,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, project string) (*co
 	}
 
 	if _, ok := d.GetOk("boot_disk.0.initialize_params"); ok {
-		disk.InitializeParams = &computeBeta.AttachedDiskInitializeParams{}
+		disk.InitializeParams = &compute.AttachedDiskInitializeParams{}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.size"); ok {
 			disk.InitializeParams.DiskSizeGb = int64(v.(int))
@@ -2337,7 +2337,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, project string) (*co
 	return disk, nil
 }
 
-func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, config *Config) []map[string]interface{} {
+func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config *Config) []map[string]interface{} {
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
@@ -2383,20 +2383,20 @@ func flattenBootDisk(d *schema.ResourceData, disk *computeBeta.AttachedDisk, con
 	return []map[string]interface{}{result}
 }
 
-func expandScratchDisks(d *schema.ResourceData, config *Config, project string) ([]*computeBeta.AttachedDisk, error) {
+func expandScratchDisks(d *schema.ResourceData, config *Config, project string) ([]*compute.AttachedDisk, error) {
 	diskType, err := readDiskType(config, d, "local-ssd")
 	if err != nil {
 		return nil, fmt.Errorf("Error loading disk type 'local-ssd': %s", err)
 	}
 
 	n := d.Get("scratch_disk.#").(int)
-	scratchDisks := make([]*computeBeta.AttachedDisk, 0, n)
+	scratchDisks := make([]*compute.AttachedDisk, 0, n)
 	for i := 0; i < n; i++ {
-		scratchDisks = append(scratchDisks, &computeBeta.AttachedDisk{
+		scratchDisks = append(scratchDisks, &compute.AttachedDisk{
 			AutoDelete: true,
 			Type:       "SCRATCH",
 			Interface:  d.Get(fmt.Sprintf("scratch_disk.%d.interface", i)).(string),
-			InitializeParams: &computeBeta.AttachedDiskInitializeParams{
+			InitializeParams: &compute.AttachedDiskInitializeParams{
 				DiskType: diskType.RelativeLink(),
 			},
 		})
@@ -2405,7 +2405,7 @@ func expandScratchDisks(d *schema.ResourceData, config *Config, project string) 
 	return scratchDisks, nil
 }
 
-func flattenScratchDisk(disk *computeBeta.AttachedDisk) map[string]interface{} {
+func flattenScratchDisk(disk *compute.AttachedDisk) map[string]interface{} {
 	result := map[string]interface{}{
 		"interface": disk.Interface,
 	}

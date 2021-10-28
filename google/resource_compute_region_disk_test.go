@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	computeBeta "google.golang.org/api/compute/v0.beta"
+	"google.golang.org/api/compute/v1"
 )
 
 func TestAccComputeRegionDisk_basic(t *testing.T) {
@@ -15,7 +15,7 @@ func TestAccComputeRegionDisk_basic(t *testing.T) {
 
 	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	var disk computeBeta.Disk
+	var disk compute.Disk
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -55,7 +55,7 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 
 	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 
-	var disk computeBeta.Disk
+	var disk compute.Disk
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -98,7 +98,7 @@ func TestAccComputeRegionDisk_encryption(t *testing.T) {
 	t.Parallel()
 
 	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var disk computeBeta.Disk
+	var disk compute.Disk
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -125,7 +125,7 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 	regionDiskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	regionDiskName2 := fmt.Sprintf("tf-test-%s", randString(t, 10))
 	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	var disk computeBeta.Disk
+	var disk compute.Disk
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -174,7 +174,7 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeRegionDiskExists(t *testing.T, n string, disk *computeBeta.Disk) resource.TestCheckFunc {
+func testAccCheckComputeRegionDiskExists(t *testing.T, n string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		p := getTestProjectFromEnv()
 		rs, ok := s.RootModule().Resources[n]
@@ -188,7 +188,7 @@ func testAccCheckComputeRegionDiskExists(t *testing.T, n string, disk *computeBe
 
 		config := googleProviderConfig(t)
 
-		found, err := config.NewComputeBetaClient(config.userAgent).RegionDisks.Get(
+		found, err := config.NewComputeClient(config.userAgent).RegionDisks.Get(
 			p, rs.Primary.Attributes["region"], rs.Primary.Attributes["name"]).Do()
 		if err != nil {
 			return err
@@ -204,7 +204,7 @@ func testAccCheckComputeRegionDiskExists(t *testing.T, n string, disk *computeBe
 	}
 }
 
-func testAccCheckComputeRegionDiskHasLabel(disk *computeBeta.Disk, key, value string) resource.TestCheckFunc {
+func testAccCheckComputeRegionDiskHasLabel(disk *compute.Disk, key, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		val, ok := disk.Labels[key]
 		if !ok {
@@ -218,7 +218,7 @@ func testAccCheckComputeRegionDiskHasLabel(disk *computeBeta.Disk, key, value st
 	}
 }
 
-func testAccCheckComputeRegionDiskHasLabelFingerprint(disk *computeBeta.Disk, resourceName string) resource.TestCheckFunc {
+func testAccCheckComputeRegionDiskHasLabelFingerprint(disk *compute.Disk, resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		state := s.RootModule().Resources[resourceName]
 		if state == nil {
@@ -235,7 +235,7 @@ func testAccCheckComputeRegionDiskHasLabelFingerprint(disk *computeBeta.Disk, re
 	}
 }
 
-func testAccCheckRegionDiskEncryptionKey(n string, disk *computeBeta.Disk) resource.TestCheckFunc {
+func testAccCheckRegionDiskEncryptionKey(n string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -253,7 +253,7 @@ func testAccCheckRegionDiskEncryptionKey(n string, disk *computeBeta.Disk) resou
 	}
 }
 
-func testAccCheckComputeRegionDiskInstances(n string, disk *computeBeta.Disk) resource.TestCheckFunc {
+func testAccCheckComputeRegionDiskInstances(n string, disk *compute.Disk) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {

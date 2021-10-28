@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -370,11 +369,11 @@ func getNamedPorts(nps []interface{}) []*compute.NamedPort {
 	return namedPorts
 }
 
-func getNamedPortsBeta(nps []interface{}) []*computeBeta.NamedPort {
-	namedPorts := make([]*computeBeta.NamedPort, 0, len(nps))
+func getNamedPortsBeta(nps []interface{}) []*compute.NamedPort {
+	namedPorts := make([]*compute.NamedPort, 0, len(nps))
 	for _, v := range nps {
 		np := v.(map[string]interface{})
-		namedPorts = append(namedPorts, &computeBeta.NamedPort{
+		namedPorts = append(namedPorts, &compute.NamedPort{
 			Name: np["name"].(string),
 			Port: int64(np["port"].(int)),
 		})
@@ -401,7 +400,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Build the parameter
-	manager := &computeBeta.InstanceGroupManager{
+	manager := &compute.InstanceGroupManager{
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		BaseInstanceName:    d.Get("base_instance_name").(string),
@@ -417,7 +416,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] InstanceGroupManager insert request: %#v", manager)
-	op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Insert(
+	op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Insert(
 		project, zone, manager).Do()
 
 	if err != nil {
@@ -461,7 +460,7 @@ func resourceComputeInstanceGroupManagerCreate(d *schema.ResourceData, meta inte
 	return resourceComputeInstanceGroupManagerRead(d, meta)
 }
 
-func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]interface{} {
+func flattenNamedPortsBeta(namedPorts []*compute.NamedPort) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(namedPorts))
 	for _, namedPort := range namedPorts {
 		namedPortMap := make(map[string]interface{})
@@ -473,7 +472,7 @@ func flattenNamedPortsBeta(namedPorts []*computeBeta.NamedPort) []map[string]int
 
 }
 
-func flattenVersions(versions []*computeBeta.InstanceGroupManagerVersion) []map[string]interface{} {
+func flattenVersions(versions []*compute.InstanceGroupManagerVersion) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(versions))
 	for _, version := range versions {
 		versionMap := make(map[string]interface{})
@@ -486,7 +485,7 @@ func flattenVersions(versions []*computeBeta.InstanceGroupManagerVersion) []map[
 	return result
 }
 
-func flattenFixedOrPercent(fixedOrPercent *computeBeta.FixedOrPercent) []map[string]interface{} {
+func flattenFixedOrPercent(fixedOrPercent *compute.FixedOrPercent) []map[string]interface{} {
 	result := make(map[string]interface{})
 	if value := fixedOrPercent.Percent; value > 0 {
 		result["percent"] = value
@@ -498,7 +497,7 @@ func flattenFixedOrPercent(fixedOrPercent *computeBeta.FixedOrPercent) []map[str
 	return []map[string]interface{}{result}
 }
 
-func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.InstanceGroupManager, error) {
+func getManager(d *schema.ResourceData, meta interface{}) (*compute.InstanceGroupManager, error) {
 	config := meta.(*Config)
 
 	project, err := getProject(d, config)
@@ -514,7 +513,7 @@ func getManager(d *schema.ResourceData, meta interface{}) (*computeBeta.Instance
 	zone, _ := getZone(d, config)
 	name := d.Get("name").(string)
 
-	manager, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Get(project, zone, name).Do()
+	manager, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Get(project, zone, name).Do()
 	if err != nil {
 		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance Group Manager %q", name))
 	}
@@ -546,7 +545,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if operation != "" {
 		log.Printf("[DEBUG] in progress operation detected at %v, attempting to resume", operation)
 		zone, _ := getZone(d, config)
-		op := &computeBeta.Operation{
+		op := &compute.Operation{
 			Name: operation,
 			Zone: zone,
 		}
@@ -657,7 +656,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	updatedManager := &computeBeta.InstanceGroupManager{
+	updatedManager := &compute.InstanceGroupManager{
 		Fingerprint: d.Get("fingerprint").(string),
 	}
 	var change bool
@@ -696,7 +695,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 	}
 
 	if change {
-		op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Patch(project, zone, d.Get("name").(string), updatedManager).Do()
+		op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Patch(project, zone, d.Get("name").(string), updatedManager).Do()
 		if err != nil {
 			return fmt.Errorf("Error updating managed group instances: %s", err)
 		}
@@ -714,12 +713,12 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 		// Build the parameters for a "SetNamedPorts" request:
 		namedPorts := getNamedPortsBeta(d.Get("named_port").(*schema.Set).List())
-		setNamedPorts := &computeBeta.InstanceGroupsSetNamedPortsRequest{
+		setNamedPorts := &compute.InstanceGroupsSetNamedPortsRequest{
 			NamedPorts: namedPorts,
 		}
 
 		// Make the request:
-		op, err := config.NewComputeBetaClient(userAgent).InstanceGroups.SetNamedPorts(
+		op, err := config.NewComputeClient(userAgent).InstanceGroups.SetNamedPorts(
 			project, zone, d.Get("name").(string), setNamedPorts).Do()
 
 		if err != nil {
@@ -738,7 +737,7 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 		d.Partial(true)
 
 		targetSize := int64(d.Get("target_size").(int))
-		op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Resize(
+		op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Resize(
 			project, zone, d.Get("name").(string), targetSize).Do()
 
 		if err != nil {
@@ -787,12 +786,12 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	zone, _ := getZone(d, config)
 	name := d.Get("name").(string)
 
-	op, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
+	op, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
 	attempt := 0
 	for err != nil && attempt < 20 {
 		attempt++
 		time.Sleep(2000 * time.Millisecond)
-		op, err = config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
+		op, err = config.NewComputeClient(userAgent).InstanceGroupManagers.Delete(project, zone, name).Do()
 	}
 
 	if err != nil {
@@ -809,7 +808,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 			return err
 		}
 
-		instanceGroup, igErr := config.NewComputeBetaClient(userAgent).InstanceGroups.Get(
+		instanceGroup, igErr := config.NewComputeClient(userAgent).InstanceGroups.Get(
 			project, zone, name).Do()
 		if igErr != nil {
 			return fmt.Errorf("Error getting instance group size: %s", err)
@@ -845,11 +844,11 @@ func computeIGMWaitForInstanceStatus(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func expandAutoHealingPolicies(configured []interface{}) []*computeBeta.InstanceGroupManagerAutoHealingPolicy {
-	autoHealingPolicies := make([]*computeBeta.InstanceGroupManagerAutoHealingPolicy, 0, len(configured))
+func expandAutoHealingPolicies(configured []interface{}) []*compute.InstanceGroupManagerAutoHealingPolicy {
+	autoHealingPolicies := make([]*compute.InstanceGroupManagerAutoHealingPolicy, 0, len(configured))
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
-		autoHealingPolicy := computeBeta.InstanceGroupManagerAutoHealingPolicy{
+		autoHealingPolicy := compute.InstanceGroupManagerAutoHealingPolicy{
 			HealthCheck:     data["health_check"].(string),
 			InitialDelaySec: int64(data["initial_delay_sec"].(int)),
 		}
@@ -859,27 +858,27 @@ func expandAutoHealingPolicies(configured []interface{}) []*computeBeta.Instance
 	return autoHealingPolicies
 }
 
-func expandStatefulPolicy(configured []interface{}) *computeBeta.StatefulPolicy {
-	disks := make(map[string]computeBeta.StatefulPolicyPreservedStateDiskDevice)
+func expandStatefulPolicy(configured []interface{}) *compute.StatefulPolicy {
+	disks := make(map[string]compute.StatefulPolicyPreservedStateDiskDevice)
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
-		disk := computeBeta.StatefulPolicyPreservedStateDiskDevice{
+		disk := compute.StatefulPolicyPreservedStateDiskDevice{
 			AutoDelete: data["delete_rule"].(string),
 		}
 		disks[data["device_name"].(string)] = disk
 	}
 	if len(disks) > 0 {
-		return &computeBeta.StatefulPolicy{PreservedState: &computeBeta.StatefulPolicyPreservedState{Disks: disks}}
+		return &compute.StatefulPolicy{PreservedState: &compute.StatefulPolicyPreservedState{Disks: disks}}
 	}
 	return nil
 }
 
-func expandVersions(configured []interface{}) []*computeBeta.InstanceGroupManagerVersion {
-	versions := make([]*computeBeta.InstanceGroupManagerVersion, 0, len(configured))
+func expandVersions(configured []interface{}) []*compute.InstanceGroupManagerVersion {
+	versions := make([]*compute.InstanceGroupManagerVersion, 0, len(configured))
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
 
-		version := computeBeta.InstanceGroupManagerVersion{
+		version := compute.InstanceGroupManagerVersion{
 			Name:             data["name"].(string),
 			InstanceTemplate: data["instance_template"].(string),
 			TargetSize:       expandFixedOrPercent(data["target_size"].([]interface{})),
@@ -890,8 +889,8 @@ func expandVersions(configured []interface{}) []*computeBeta.InstanceGroupManage
 	return versions
 }
 
-func expandFixedOrPercent(configured []interface{}) *computeBeta.FixedOrPercent {
-	fixedOrPercent := &computeBeta.FixedOrPercent{}
+func expandFixedOrPercent(configured []interface{}) *compute.FixedOrPercent {
+	fixedOrPercent := &compute.FixedOrPercent{}
 
 	for _, raw := range configured {
 		if raw != nil {
@@ -907,8 +906,8 @@ func expandFixedOrPercent(configured []interface{}) *computeBeta.FixedOrPercent 
 	return fixedOrPercent
 }
 
-func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupManagerUpdatePolicy {
-	updatePolicy := &computeBeta.InstanceGroupManagerUpdatePolicy{}
+func expandUpdatePolicy(configured []interface{}) *compute.InstanceGroupManagerUpdatePolicy {
+	updatePolicy := &compute.InstanceGroupManagerUpdatePolicy{}
 
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
@@ -920,12 +919,12 @@ func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupMana
 		// percent and fixed values are conflicting
 		// when the percent values are set, the fixed values will be ignored
 		if v := data["max_surge_percent"]; v.(int) > 0 {
-			updatePolicy.MaxSurge = &computeBeta.FixedOrPercent{
+			updatePolicy.MaxSurge = &compute.FixedOrPercent{
 				Percent:    int64(v.(int)),
 				NullFields: []string{"Fixed"},
 			}
 		} else {
-			updatePolicy.MaxSurge = &computeBeta.FixedOrPercent{
+			updatePolicy.MaxSurge = &compute.FixedOrPercent{
 				Fixed: int64(data["max_surge_fixed"].(int)),
 				// allow setting this value to 0
 				ForceSendFields: []string{"Fixed"},
@@ -934,12 +933,12 @@ func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupMana
 		}
 
 		if v := data["max_unavailable_percent"]; v.(int) > 0 {
-			updatePolicy.MaxUnavailable = &computeBeta.FixedOrPercent{
+			updatePolicy.MaxUnavailable = &compute.FixedOrPercent{
 				Percent:    int64(v.(int)),
 				NullFields: []string{"Fixed"},
 			}
 		} else {
-			updatePolicy.MaxUnavailable = &computeBeta.FixedOrPercent{
+			updatePolicy.MaxUnavailable = &compute.FixedOrPercent{
 				Fixed: int64(data["max_unavailable_fixed"].(int)),
 				// allow setting this value to 0
 				ForceSendFields: []string{"Fixed"},
@@ -951,7 +950,7 @@ func expandUpdatePolicy(configured []interface{}) *computeBeta.InstanceGroupMana
 	return updatePolicy
 }
 
-func flattenAutoHealingPolicies(autoHealingPolicies []*computeBeta.InstanceGroupManagerAutoHealingPolicy) []map[string]interface{} {
+func flattenAutoHealingPolicies(autoHealingPolicies []*compute.InstanceGroupManagerAutoHealingPolicy) []map[string]interface{} {
 	autoHealingPoliciesSchema := make([]map[string]interface{}, 0, len(autoHealingPolicies))
 	for _, autoHealingPolicy := range autoHealingPolicies {
 		data := map[string]interface{}{
@@ -964,7 +963,7 @@ func flattenAutoHealingPolicies(autoHealingPolicies []*computeBeta.InstanceGroup
 	return autoHealingPoliciesSchema
 }
 
-func flattenStatefulPolicy(statefulPolicy *computeBeta.StatefulPolicy) []map[string]interface{} {
+func flattenStatefulPolicy(statefulPolicy *compute.StatefulPolicy) []map[string]interface{} {
 	if statefulPolicy == nil || statefulPolicy.PreservedState == nil || statefulPolicy.PreservedState.Disks == nil {
 		return make([]map[string]interface{}, 0, 0)
 	}
@@ -980,7 +979,7 @@ func flattenStatefulPolicy(statefulPolicy *computeBeta.StatefulPolicy) []map[str
 	return result
 }
 
-func flattenUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpdatePolicy) []map[string]interface{} {
+func flattenUpdatePolicy(updatePolicy *compute.InstanceGroupManagerUpdatePolicy) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	if updatePolicy != nil {
 		up := map[string]interface{}{}
@@ -1006,7 +1005,7 @@ func flattenUpdatePolicy(updatePolicy *computeBeta.InstanceGroupManagerUpdatePol
 	return results
 }
 
-func flattenStatus(status *computeBeta.InstanceGroupManagerStatus) []map[string]interface{} {
+func flattenStatus(status *compute.InstanceGroupManagerStatus) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	data := map[string]interface{}{
 		"is_stable":      status.IsStable,
@@ -1017,7 +1016,7 @@ func flattenStatus(status *computeBeta.InstanceGroupManagerStatus) []map[string]
 	return results
 }
 
-func flattenStatusStateful(stateful *computeBeta.InstanceGroupManagerStatusStateful) []map[string]interface{} {
+func flattenStatusStateful(stateful *compute.InstanceGroupManagerStatusStateful) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	data := map[string]interface{}{
 		"has_stateful_config":  stateful.HasStatefulConfig,
@@ -1027,7 +1026,7 @@ func flattenStatusStateful(stateful *computeBeta.InstanceGroupManagerStatusState
 	return results
 }
 
-func flattenStatusStatefulConfigs(statefulConfigs *computeBeta.InstanceGroupManagerStatusStatefulPerInstanceConfigs) []map[string]interface{} {
+func flattenStatusStatefulConfigs(statefulConfigs *compute.InstanceGroupManagerStatusStatefulPerInstanceConfigs) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	data := map[string]interface{}{
 		"all_effective": statefulConfigs.AllEffective,
@@ -1036,7 +1035,7 @@ func flattenStatusStatefulConfigs(statefulConfigs *computeBeta.InstanceGroupMana
 	return results
 }
 
-func flattenStatusVersionTarget(versionTarget *computeBeta.InstanceGroupManagerStatusVersionTarget) []map[string]interface{} {
+func flattenStatusVersionTarget(versionTarget *compute.InstanceGroupManagerStatusVersionTarget) []map[string]interface{} {
 	results := []map[string]interface{}{}
 	data := map[string]interface{}{
 		"is_reached": versionTarget.IsReached,

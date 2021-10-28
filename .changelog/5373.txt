@@ -1,0 +1,3 @@
+```release-note:note
+compute: Google Compute Engine resources will now call the endpoint appropriate to the provider version rather than the beta endpoint by default
+```

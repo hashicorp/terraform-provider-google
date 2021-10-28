@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	computeBeta "google.golang.org/api/compute/v0.beta"
+
 	"google.golang.org/api/compute/v1"
 )
 
@@ -212,7 +212,7 @@ func TestComputeInstanceTemplate_scratchDiskSizeCustomizeDiff(t *testing.T) {
 func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate computeBeta.InstanceTemplate
+	var instanceTemplate compute.InstanceTemplate
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -763,7 +763,7 @@ func TestAccComputeInstanceTemplate_soleTenantNodeAffinities(t *testing.T) {
 func TestAccComputeInstanceTemplate_reservationAffinities(t *testing.T) {
 	t.Parallel()
 
-	var template computeBeta.InstanceTemplate
+	var template compute.InstanceTemplate
 	var templateName = randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
@@ -814,7 +814,7 @@ func TestAccComputeInstanceTemplate_reservationAffinities(t *testing.T) {
 func TestAccComputeInstanceTemplate_shieldedVmConfig1(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate computeBeta.InstanceTemplate
+	var instanceTemplate compute.InstanceTemplate
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -840,7 +840,7 @@ func TestAccComputeInstanceTemplate_shieldedVmConfig1(t *testing.T) {
 func TestAccComputeInstanceTemplate_shieldedVmConfig2(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate computeBeta.InstanceTemplate
+	var instanceTemplate compute.InstanceTemplate
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -866,7 +866,7 @@ func TestAccComputeInstanceTemplate_shieldedVmConfig2(t *testing.T) {
 func TestAccComputeInstanceTemplate_ConfidentialInstanceConfigMain(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate computeBeta.InstanceTemplate
+	var instanceTemplate compute.InstanceTemplate
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -887,7 +887,7 @@ func TestAccComputeInstanceTemplate_ConfidentialInstanceConfigMain(t *testing.T)
 func TestAccComputeInstanceTemplate_AdvancedMachineFeatures(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate computeBeta.InstanceTemplate
+	var instanceTemplate compute.InstanceTemplate
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -998,7 +998,7 @@ func TestAccComputeInstanceTemplate_imageResourceTest(t *testing.T) {
 func TestAccComputeInstanceTemplate_resourcePolicies(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate computeBeta.InstanceTemplate
+	var instanceTemplate compute.InstanceTemplate
 	policyName := "tf-test-policy-" + randString(t, 10)
 
 	vcrTest(t, resource.TestCase{
@@ -1025,7 +1025,7 @@ func TestAccComputeInstanceTemplate_resourcePolicies(t *testing.T) {
 func TestAccComputeInstanceTemplate_nictype_update(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate computeBeta.InstanceTemplate
+	var instanceTemplate compute.InstanceTemplate
 	var instanceTemplateName = fmt.Sprintf("tf-test-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
@@ -1077,14 +1077,7 @@ func testAccCheckComputeInstanceTemplateExists(t *testing.T, n string, instanceT
 		panic("Attempted to check existence of Instance template that was nil.")
 	}
 
-	switch instanceTemplate.(type) {
-	case *compute.InstanceTemplate:
-		return testAccCheckComputeInstanceTemplateExistsInProject(t, n, getTestProjectFromEnv(), instanceTemplate.(*compute.InstanceTemplate))
-	case *computeBeta.InstanceTemplate:
-		return testAccCheckComputeBetaInstanceTemplateExistsInProject(t, n, getTestProjectFromEnv(), instanceTemplate.(*computeBeta.InstanceTemplate))
-	default:
-		panic("Attempted to check existence of an Instance template of unknown type.")
-	}
+	return testAccCheckComputeInstanceTemplateExistsInProject(t, n, getTestProjectFromEnv(), instanceTemplate.(*compute.InstanceTemplate))
 }
 
 func testAccCheckComputeInstanceTemplateExistsInProject(t *testing.T, n, p string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
@@ -1118,39 +1111,8 @@ func testAccCheckComputeInstanceTemplateExistsInProject(t *testing.T, n, p strin
 	}
 }
 
-func testAccCheckComputeBetaInstanceTemplateExistsInProject(t *testing.T, n, p string, instanceTemplate *computeBeta.InstanceTemplate) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := googleProviderConfig(t)
-
-		splits := strings.Split(rs.Primary.ID, "/")
-		templateName := splits[len(splits)-1]
-		found, err := config.NewComputeBetaClient(config.userAgent).InstanceTemplates.Get(
-			p, templateName).Do()
-		if err != nil {
-			return err
-		}
-
-		if found.Name != templateName {
-			return fmt.Errorf("Instance template not found")
-		}
-
-		*instanceTemplate = *found
-
-		return nil
-	}
-}
-
 func testAccCheckComputeInstanceTemplateMetadata(
-	instanceTemplate *computeBeta.InstanceTemplate,
+	instanceTemplate *compute.InstanceTemplate,
 	k string, v string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.Metadata == nil {
@@ -1211,7 +1173,7 @@ func testAccCheckComputeInstanceTemplateSubnetwork(instanceTemplate *compute.Ins
 	}
 }
 
-func testAccCheckComputeInstanceTemplateTag(instanceTemplate *computeBeta.InstanceTemplate, n string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateTag(instanceTemplate *compute.InstanceTemplate, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.Tags == nil {
 			return fmt.Errorf("no tags")
@@ -1296,7 +1258,7 @@ func testAccCheckComputeInstanceTemplateNetworkIPAddress(n, ipAddress string, in
 	}
 }
 
-func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *computeBeta.InstanceTemplate, key string, value string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *compute.InstanceTemplate, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		v, ok := instanceTemplate.Properties.Labels[key]
 		if !ok {
@@ -1361,7 +1323,7 @@ func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *comp
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasReservationAffinity(instanceTemplate *computeBeta.InstanceTemplate, consumeReservationType string, specificReservationNames ...string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasReservationAffinity(instanceTemplate *compute.InstanceTemplate, consumeReservationType string, specificReservationNames ...string) resource.TestCheckFunc {
 	if len(specificReservationNames) > 1 {
 		panic("too many specificReservationNames in test")
 	}
@@ -1391,25 +1353,25 @@ func testAccCheckComputeInstanceTemplateHasReservationAffinity(instanceTemplate 
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasShieldedVmConfig(instanceTemplate *computeBeta.InstanceTemplate, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasShieldedVmConfig(instanceTemplate *compute.InstanceTemplate, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.ShieldedVmConfig.EnableSecureBoot != enableSecureBoot {
-			return fmt.Errorf("Wrong shieldedVmConfig enableSecureBoot: expected %t, got, %t", enableSecureBoot, instanceTemplate.Properties.ShieldedVmConfig.EnableSecureBoot)
+		if instanceTemplate.Properties.ShieldedInstanceConfig.EnableSecureBoot != enableSecureBoot {
+			return fmt.Errorf("Wrong shieldedVmConfig enableSecureBoot: expected %t, got, %t", enableSecureBoot, instanceTemplate.Properties.ShieldedInstanceConfig.EnableSecureBoot)
 		}
 
-		if instanceTemplate.Properties.ShieldedVmConfig.EnableVtpm != enableVtpm {
-			return fmt.Errorf("Wrong shieldedVmConfig enableVtpm: expected %t, got, %t", enableVtpm, instanceTemplate.Properties.ShieldedVmConfig.EnableVtpm)
+		if instanceTemplate.Properties.ShieldedInstanceConfig.EnableVtpm != enableVtpm {
+			return fmt.Errorf("Wrong shieldedVmConfig enableVtpm: expected %t, got, %t", enableVtpm, instanceTemplate.Properties.ShieldedInstanceConfig.EnableVtpm)
 		}
 
-		if instanceTemplate.Properties.ShieldedVmConfig.EnableIntegrityMonitoring != enableIntegrityMonitoring {
-			return fmt.Errorf("Wrong shieldedVmConfig enableIntegrityMonitoring: expected %t, got, %t", enableIntegrityMonitoring, instanceTemplate.Properties.ShieldedVmConfig.EnableIntegrityMonitoring)
+		if instanceTemplate.Properties.ShieldedInstanceConfig.EnableIntegrityMonitoring != enableIntegrityMonitoring {
+			return fmt.Errorf("Wrong shieldedVmConfig enableIntegrityMonitoring: expected %t, got, %t", enableIntegrityMonitoring, instanceTemplate.Properties.ShieldedInstanceConfig.EnableIntegrityMonitoring)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(instanceTemplate *computeBeta.InstanceTemplate, EnableConfidentialCompute bool) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(instanceTemplate *compute.InstanceTemplate, EnableConfidentialCompute bool) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.ConfidentialInstanceConfig.EnableConfidentialCompute != EnableConfidentialCompute {
@@ -1420,9 +1382,9 @@ func testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(instanceTe
 	}
 }
 
-func testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(instanceTemplate *computeBeta.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.ShieldedVmConfig != nil {
+		if instanceTemplate.Properties.ShieldedInstanceConfig != nil {
 			return fmt.Errorf("Expected no shielded vm config")
 		}
 
@@ -1430,7 +1392,7 @@ func testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(instanceTemplate *
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasDiskResourcePolicy(instanceTemplate *computeBeta.InstanceTemplate, resourcePolicy string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasDiskResourcePolicy(instanceTemplate *compute.InstanceTemplate, resourcePolicy string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		resourcePolicyActual := instanceTemplate.Properties.Disks[0].InitializeParams.ResourcePolicies[0]
 		if resourcePolicyActual != resourcePolicy {

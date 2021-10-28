@@ -26,7 +26,6 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
 
@@ -1214,10 +1213,10 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
 		}
-		op, err := config.NewComputeClient(userAgent).BackendServices.SetSecurityPolicy(
-			project, obj["name"].(string), &compute.SecurityPolicyReference{
-				SecurityPolicy: pol.RelativeLink(),
-			}).Do()
+
+		spr := emptySecurityPolicyReference()
+		spr.SecurityPolicy = pol.RelativeLink()
+		op, err := config.NewComputeClient(userAgent).BackendServices.SetSecurityPolicy(project, obj["name"].(string), spr).Do()
 		if err != nil {
 			return errwrap.Wrapf("Error setting Backend Service security policy: {{err}}", err)
 		}
@@ -1564,10 +1563,10 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
 		}
-		op, err := config.NewComputeClient(userAgent).BackendServices.SetSecurityPolicy(
-			project, obj["name"].(string), &compute.SecurityPolicyReference{
-				SecurityPolicy: pol.RelativeLink(),
-			}).Do()
+
+		spr := emptySecurityPolicyReference()
+		spr.SecurityPolicy = pol.RelativeLink()
+		op, err := config.NewComputeClient(userAgent).BackendServices.SetSecurityPolicy(project, obj["name"].(string), spr).Do()
 		if err != nil {
 			return errwrap.Wrapf("Error setting Backend Service security policy: {{err}}", err)
 		}

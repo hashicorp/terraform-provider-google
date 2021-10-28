@@ -6,7 +6,8 @@ import (
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	compute "google.golang.org/api/compute/v1"
+
+	"google.golang.org/api/compute/v1"
 )
 
 func dataSourceGoogleComputeImage() *schema.Resource {
