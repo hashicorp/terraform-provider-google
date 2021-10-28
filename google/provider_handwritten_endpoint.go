@@ -38,16 +38,6 @@ var ContainerCustomEndpointEntry = &schema.Schema{
 	}, DefaultBasePaths[ContainerBasePathKey]),
 }
 
-var ContainerBetaCustomEndpointEntryKey = "container_beta_custom_endpoint"
-var ContainerBetaCustomEndpointEntry = &schema.Schema{
-	Type:         schema.TypeString,
-	Optional:     true,
-	ValidateFunc: validateCustomEndpoint,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_CONTAINER_BETA_CUSTOM_ENDPOINT",
-	}, DefaultBasePaths[ContainerBetaBasePathKey]),
-}
-
 var DataprocBetaCustomEndpointEntryKey = "dataproc_beta_custom_endpoint"
 var DataprocBetaCustomEndpointEntry = &schema.Schema{
 	Type:         schema.TypeString,

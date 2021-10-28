@@ -3,7 +3,7 @@ package google
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	containerBeta "google.golang.org/api/container/v1beta1"
+	"google.golang.org/api/container/v1"
 )
 
 // Matches gke-default scope from https://cloud.google.com/sdk/gcloud/reference/container/clusters/create
@@ -253,9 +253,9 @@ func schemaNodeConfig() *schema.Schema {
 	}
 }
 
-func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
+func expandNodeConfig(v interface{}) *container.NodeConfig {
 	nodeConfigs := v.([]interface{})
-	nc := &containerBeta.NodeConfig{
+	nc := &container.NodeConfig{
 		// Defaults can't be set on a list/set in the schema, so set the default on create here.
 		OauthScopes: defaultOauthScopes,
 	}
@@ -271,13 +271,13 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 
 	if v, ok := nodeConfig["guest_accelerator"]; ok {
 		accels := v.([]interface{})
-		guestAccelerators := make([]*containerBeta.AcceleratorConfig, 0, len(accels))
+		guestAccelerators := make([]*container.AcceleratorConfig, 0, len(accels))
 		for _, raw := range accels {
 			data := raw.(map[string]interface{})
 			if data["count"].(int) == 0 {
 				continue
 			}
-			guestAccelerators = append(guestAccelerators, &containerBeta.AcceleratorConfig{
+			guestAccelerators = append(guestAccelerators, &container.AcceleratorConfig{
 				AcceleratorCount: int64(data["count"].(int)),
 				AcceleratorType:  data["type"].(string),
 				GpuPartitionSize: data["gpu_partition_size"].(string),
@@ -345,7 +345,7 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 
 	if v, ok := nodeConfig["shielded_instance_config"]; ok && len(v.([]interface{})) > 0 {
 		conf := v.([]interface{})[0].(map[string]interface{})
-		nc.ShieldedInstanceConfig = &containerBeta.ShieldedInstanceConfig{
+		nc.ShieldedInstanceConfig = &container.ShieldedInstanceConfig{
 			EnableSecureBoot:          conf["enable_secure_boot"].(bool),
 			EnableIntegrityMonitoring: conf["enable_integrity_monitoring"].(bool),
 		}
@@ -360,10 +360,10 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 
 	if v, ok := nodeConfig["taint"]; ok && len(v.([]interface{})) > 0 {
 		taints := v.([]interface{})
-		nodeTaints := make([]*containerBeta.NodeTaint, 0, len(taints))
+		nodeTaints := make([]*container.NodeTaint, 0, len(taints))
 		for _, raw := range taints {
 			data := raw.(map[string]interface{})
-			taint := &containerBeta.NodeTaint{
+			taint := &container.NodeTaint{
 				Key:    data["key"].(string),
 				Value:  data["value"].(string),
 				Effect: data["effect"].(string),
@@ -380,7 +380,7 @@ func expandNodeConfig(v interface{}) *containerBeta.NodeConfig {
 	return nc
 }
 
-func expandWorkloadMetadataConfig(v interface{}) *containerBeta.WorkloadMetadataConfig {
+func expandWorkloadMetadataConfig(v interface{}) *container.WorkloadMetadataConfig {
 	if v == nil {
 		return nil
 	}
@@ -388,7 +388,7 @@ func expandWorkloadMetadataConfig(v interface{}) *containerBeta.WorkloadMetadata
 	if len(ls) == 0 {
 		return nil
 	}
-	wmc := &containerBeta.WorkloadMetadataConfig{}
+	wmc := &container.WorkloadMetadataConfig{}
 
 	cfg := ls[0].(map[string]interface{})
 
@@ -399,7 +399,7 @@ func expandWorkloadMetadataConfig(v interface{}) *containerBeta.WorkloadMetadata
 	return wmc
 }
 
-func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
+func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 	config := make([]map[string]interface{}, 0, 1)
 
 	if c == nil {
@@ -431,7 +431,7 @@ func flattenNodeConfig(c *containerBeta.NodeConfig) []map[string]interface{} {
 	return config
 }
 
-func flattenContainerGuestAccelerators(c []*containerBeta.AcceleratorConfig) []map[string]interface{} {
+func flattenContainerGuestAccelerators(c []*container.AcceleratorConfig) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	for _, accel := range c {
 		result = append(result, map[string]interface{}{
@@ -443,7 +443,7 @@ func flattenContainerGuestAccelerators(c []*containerBeta.AcceleratorConfig) []m
 	return result
 }
 
-func flattenShieldedInstanceConfig(c *containerBeta.ShieldedInstanceConfig) []map[string]interface{} {
+func flattenShieldedInstanceConfig(c *container.ShieldedInstanceConfig) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
 		result = append(result, map[string]interface{}{
@@ -454,7 +454,7 @@ func flattenShieldedInstanceConfig(c *containerBeta.ShieldedInstanceConfig) []ma
 	return result
 }
 
-func flattenTaints(c []*containerBeta.NodeTaint) []map[string]interface{} {
+func flattenTaints(c []*container.NodeTaint) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	for _, taint := range c {
 		result = append(result, map[string]interface{}{
@@ -466,7 +466,7 @@ func flattenTaints(c []*containerBeta.NodeTaint) []map[string]interface{} {
 	return result
 }
 
-func flattenWorkloadMetadataConfig(c *containerBeta.WorkloadMetadataConfig) []map[string]interface{} {
+func flattenWorkloadMetadataConfig(c *container.WorkloadMetadataConfig) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
 		result = append(result, map[string]interface{}{
