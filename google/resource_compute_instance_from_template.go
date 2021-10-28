@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	computeBeta "google.golang.org/api/compute/v0.beta"
-	compute "google.golang.org/api/compute/v1"
+
+	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeInstanceFromTemplate() *schema.Resource {
@@ -121,7 +121,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	it, err := config.NewComputeBetaClient(userAgent).InstanceTemplates.Get(project, tpl.Name).Do()
+	it, err := config.NewComputeClient(userAgent).InstanceTemplates.Get(project, tpl.Name).Do()
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
-	op, err := config.NewComputeBetaClient(userAgent).Instances.Insert(project, zone.Name, instance).SourceInstanceTemplate(tpl.RelativeLink()).Do()
+	op, err := config.NewComputeClient(userAgent).Instances.Insert(project, zone.Name, instance).SourceInstanceTemplate(tpl.RelativeLink()).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance: %s", err)
 	}
@@ -180,8 +180,8 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 
 // Instances have disks spread across multiple schema properties. This function
 // ensures that overriding one of these properties does not override the others.
-func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it *computeBeta.InstanceTemplate, zone *compute.Zone, project string) ([]*computeBeta.AttachedDisk, error) {
-	disks := []*computeBeta.AttachedDisk{}
+func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it *compute.InstanceTemplate, zone *compute.Zone, project string) ([]*compute.AttachedDisk, error) {
+	disks := []*compute.AttachedDisk{}
 	if _, hasBootDisk := d.GetOk("boot_disk"); hasBootDisk {
 		bootDisk, err := expandBootDisk(d, config, project)
 		if err != nil {

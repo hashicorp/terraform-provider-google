@@ -5,10 +5,10 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	computeBeta "google.golang.org/api/compute/v0.beta"
+	"google.golang.org/api/compute/v1"
 )
 
-func computeInstanceDeleteAccessConfigs(d *schema.ResourceData, config *Config, instNetworkInterface *computeBeta.NetworkInterface, project, zone, userAgent, instanceName string) error {
+func computeInstanceDeleteAccessConfigs(d *schema.ResourceData, config *Config, instNetworkInterface *compute.NetworkInterface, project, zone, userAgent, instanceName string) error {
 	// Delete any accessConfig that currently exists in instNetworkInterface
 	for _, ac := range instNetworkInterface.AccessConfigs {
 		op, err := config.NewComputeClient(userAgent).Instances.DeleteAccessConfig(
@@ -24,10 +24,10 @@ func computeInstanceDeleteAccessConfigs(d *schema.ResourceData, config *Config, 
 	return nil
 }
 
-func computeInstanceAddAccessConfigs(d *schema.ResourceData, config *Config, instNetworkInterface *computeBeta.NetworkInterface, accessConfigs []*computeBeta.AccessConfig, project, zone, userAgent, instanceName string) error {
+func computeInstanceAddAccessConfigs(d *schema.ResourceData, config *Config, instNetworkInterface *compute.NetworkInterface, accessConfigs []*compute.AccessConfig, project, zone, userAgent, instanceName string) error {
 	// Create new ones
 	for _, ac := range accessConfigs {
-		op, err := config.NewComputeBetaClient(userAgent).Instances.AddAccessConfig(project, zone, instanceName, instNetworkInterface.Name, ac).Do()
+		op, err := config.NewComputeClient(userAgent).Instances.AddAccessConfig(project, zone, instanceName, instNetworkInterface.Name, ac).Do()
 		if err != nil {
 			return fmt.Errorf("Error adding new access_config: %s", err)
 		}
@@ -39,12 +39,12 @@ func computeInstanceAddAccessConfigs(d *schema.ResourceData, config *Config, ins
 	return nil
 }
 
-func computeInstanceCreateUpdateWhileStoppedCall(d *schema.ResourceData, config *Config, networkInterfacePatchObj *computeBeta.NetworkInterface, accessConfigs []*computeBeta.AccessConfig, accessConfigsHaveChanged bool, index int, project, zone, userAgent, instanceName string) func(inst *computeBeta.Instance) error {
+func computeInstanceCreateUpdateWhileStoppedCall(d *schema.ResourceData, config *Config, networkInterfacePatchObj *compute.NetworkInterface, accessConfigs []*compute.AccessConfig, accessConfigsHaveChanged bool, index int, project, zone, userAgent, instanceName string) func(inst *compute.Instance) error {
 
 	// Access configs' ip changes when the instance stops invalidating our fingerprint
 	// expect caller to re-validate instance before calling patch this is why we expect
 	// instance to be passed in
-	return func(instance *computeBeta.Instance) error {
+	return func(instance *compute.Instance) error {
 
 		instNetworkInterface := instance.NetworkInterfaces[index]
 		networkInterfacePatchObj.Fingerprint = instNetworkInterface.Fingerprint
@@ -61,7 +61,7 @@ func computeInstanceCreateUpdateWhileStoppedCall(d *schema.ResourceData, config 
 			}
 		}
 
-		op, err := config.NewComputeBetaClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instanceName, instNetworkInterface.Name, networkInterfacePatchObj).Do()
+		op, err := config.NewComputeClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instanceName, instNetworkInterface.Name, networkInterfacePatchObj).Do()
 		if err != nil {
 			return errwrap.Wrapf("Error updating network interface: {{err}}", err)
 		}

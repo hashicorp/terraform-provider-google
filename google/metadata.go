@@ -6,7 +6,6 @@ import (
 	"log"
 	"sort"
 
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 )
 
@@ -69,7 +68,7 @@ func MetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]interfa
 
 // Update the beta metadata (serverMD) according to the provided diff (oldMDMap v
 // newMDMap).
-func BetaMetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]interface{}, serverMD *computeBeta.Metadata) {
+func BetaMetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]interface{}, serverMD *compute.Metadata) {
 	curMDMap := make(map[string]string)
 	// Load metadata on server into map
 	for _, kv := range serverMD.Items {
@@ -93,7 +92,7 @@ func BetaMetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]int
 	serverMD.Items = nil
 	for key, val := range curMDMap {
 		v := val
-		serverMD.Items = append(serverMD.Items, &computeBeta.MetadataItems{
+		serverMD.Items = append(serverMD.Items, &compute.MetadataItems{
 			Key:   key,
 			Value: &v,
 		})
@@ -119,7 +118,7 @@ func expandComputeMetadata(m map[string]interface{}) []*compute.MetadataItems {
 	return metadata
 }
 
-func flattenMetadataBeta(metadata *computeBeta.Metadata) map[string]string {
+func flattenMetadataBeta(metadata *compute.Metadata) map[string]string {
 	metadataMap := make(map[string]string)
 	for _, item := range metadata.Items {
 		metadataMap[item.Key] = *item.Value
@@ -128,7 +127,7 @@ func flattenMetadataBeta(metadata *computeBeta.Metadata) map[string]string {
 }
 
 // This function differs from flattenMetadataBeta only in that it takes
-// compute.metadata rather than computeBeta.metadata as an argument. It should
+// compute.metadata rather than compute.metadata as an argument. It should
 // be removed in favour of flattenMetadataBeta if/when all resources using it get
 // beta support.
 func flattenMetadata(metadata *compute.Metadata) map[string]interface{} {
@@ -139,8 +138,8 @@ func flattenMetadata(metadata *compute.Metadata) map[string]interface{} {
 	return metadataMap
 }
 
-func resourceInstanceMetadata(d TerraformResourceData) (*computeBeta.Metadata, error) {
-	m := &computeBeta.Metadata{}
+func resourceInstanceMetadata(d TerraformResourceData) (*compute.Metadata, error) {
+	m := &compute.Metadata{}
 	mdMap := d.Get("metadata").(map[string]interface{})
 	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
 		if _, ok := mdMap["startup-script"]; ok {
@@ -149,7 +148,7 @@ func resourceInstanceMetadata(d TerraformResourceData) (*computeBeta.Metadata, e
 		mdMap["startup-script"] = v
 	}
 	if len(mdMap) > 0 {
-		m.Items = make([]*computeBeta.MetadataItems, 0, len(mdMap))
+		m.Items = make([]*compute.MetadataItems, 0, len(mdMap))
 		var keys []string
 		for k := range mdMap {
 			keys = append(keys, k)
@@ -157,7 +156,7 @@ func resourceInstanceMetadata(d TerraformResourceData) (*computeBeta.Metadata, e
 		sort.Strings(keys)
 		for _, k := range keys {
 			v := mdMap[k].(string)
-			m.Items = append(m.Items, &computeBeta.MetadataItems{
+			m.Items = append(m.Items, &compute.MetadataItems{
 				Key:   k,
 				Value: &v,
 			})

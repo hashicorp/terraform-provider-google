@@ -2,15 +2,14 @@ package google
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
-	"google.golang.org/api/compute/v1"
-
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
+
+	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeSharedVpcServiceProject() *schema.Resource {

@@ -27,7 +27,6 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2 "google.golang.org/api/cloudresourcemanager/v2"
 	composer "google.golang.org/api/composer/v1beta1"
-	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
 	containerBeta "google.golang.org/api/container/v1beta1"
@@ -148,7 +147,6 @@ type Config struct {
 
 	CloudBillingBasePath      string
 	ComposerBasePath          string
-	ComputeBetaBasePath       string
 	ContainerBasePath         string
 	ContainerBetaBasePath     string
 	DataprocBetaBasePath      string
@@ -240,7 +238,6 @@ const VPCAccessBasePathKey = "VPCAccess"
 const WorkflowsBasePathKey = "Workflows"
 const CloudBillingBasePathKey = "CloudBilling"
 const ComposerBasePathKey = "Composer"
-const ComputeBetaBasePathKey = "ComputeBeta"
 const ContainerBasePathKey = "Container"
 const DataprocBetaBasePathKey = "DataprocBeta"
 const ContainerBetaBasePathKey = "ContainerBeta"
@@ -322,7 +319,6 @@ var DefaultBasePaths = map[string]string{
 	WorkflowsBasePathKey:            "https://workflows.googleapis.com/v1/",
 	CloudBillingBasePathKey:         "https://cloudbilling.googleapis.com/v1/",
 	ComposerBasePathKey:             "https://composer.googleapis.com/v1/",
-	ComputeBetaBasePathKey:          "https://www.googleapis.com/compute/beta/",
 	ContainerBasePathKey:            "https://container.googleapis.com/v1/",
 	ContainerBetaBasePathKey:        "https://container.googleapis.com/v1beta1/",
 	DataprocBetaBasePathKey:         "https://dataproc.googleapis.com/v1beta2/",
@@ -518,19 +514,6 @@ func (c *Config) NewComputeClient(userAgent string) *compute.Service {
 	clientCompute.BasePath = c.ComputeBasePath
 
 	return clientCompute
-}
-
-func (c *Config) NewComputeBetaClient(userAgent string) *computeBeta.Service {
-	log.Printf("[INFO] Instantiating GCE Beta client for path %s", c.ComputeBetaBasePath)
-	clientComputeBeta, err := computeBeta.NewService(c.context, option.WithHTTPClient(c.client))
-	if err != nil {
-		log.Printf("[WARN] Error creating client compute beta: %s", err)
-		return nil
-	}
-	clientComputeBeta.UserAgent = userAgent
-	clientComputeBeta.BasePath = c.ComputeBetaBasePath
-
-	return clientComputeBeta
 }
 
 func (c *Config) NewContainerClient(userAgent string) *container.Service {
@@ -1175,7 +1158,6 @@ func ConfigureBasePaths(c *Config) {
 	// Handwritten Products / Versioned / Atypical Entries
 	c.CloudBillingBasePath = DefaultBasePaths[CloudBillingBasePathKey]
 	c.ComposerBasePath = DefaultBasePaths[ComposerBasePathKey]
-	c.ComputeBetaBasePath = DefaultBasePaths[ComputeBetaBasePathKey]
 	c.ContainerBasePath = DefaultBasePaths[ContainerBasePathKey]
 	c.ContainerBetaBasePath = DefaultBasePaths[ContainerBetaBasePathKey]
 	c.DataprocBasePath = DefaultBasePaths[DataprocBasePathKey]

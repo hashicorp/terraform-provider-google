@@ -747,7 +747,7 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *containerBeta.N
 		if len(matches) < 4 {
 			return nil, fmt.Errorf("Error reading instance group manage URL '%q'", url)
 		}
-		igm, err := config.NewComputeBetaClient(userAgent).InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
+		igm, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
 		if isGoogleApiErrorWithCode(err, 404) {
 			// The IGM URL in is stale; don't include it
 			continue

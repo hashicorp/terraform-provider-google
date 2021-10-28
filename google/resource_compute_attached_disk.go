@@ -8,7 +8,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	compute "google.golang.org/api/compute/v1"
+
+	"google.golang.org/api/compute/v1"
 )
 
 func resourceComputeAttachedDisk() *schema.Resource {
