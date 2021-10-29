@@ -117,7 +117,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_bgp).
 
 * `encrypted_interconnect_router` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Field to indicate if a router is dedicated to use with encrypted
   Interconnect Attachment (IPsec-encrypted Cloud Interconnect feature).
   Not currently available publicly.
