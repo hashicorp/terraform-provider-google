@@ -704,14 +704,6 @@ func resourceContainerCluster() *schema.Resource {
 				Description: `The IP address of this cluster's Kubernetes master.`,
 			},
 
-			"instance_group_urls": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Deprecated:  `Please use node_pool.instance_group_urls instead.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `List of instance group URLs which have been assigned to the cluster.`,
-			},
-
 			"master_version": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1556,14 +1548,6 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("private_cluster_config", flattenPrivateClusterConfig(cluster.PrivateClusterConfig)); err != nil {
-		return err
-	}
-
-	igUrls, err := getInstanceGroupUrlsFromManagerUrls(config, userAgent, cluster.InstanceGroupUrls)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("instance_group_urls", igUrls); err != nil {
 		return err
 	}
 
@@ -2488,30 +2472,6 @@ func containerClusterAwaitRestingState(config *Config, project, location, cluste
 	})
 
 	return state, err
-}
-
-// container engine's API returns the instance group manager's URL instead of the instance
-// group's URL in its responses, while the field is named as if it should have been the group
-// and not the manager. This shim should be supported for backwards compatibility reasons.
-func getInstanceGroupUrlsFromManagerUrls(config *Config, userAgent string, igmUrls []string) ([]string, error) {
-	instanceGroupURLs := make([]string, 0, len(igmUrls))
-	for _, u := range igmUrls {
-		if !instanceGroupManagerURL.MatchString(u) {
-			instanceGroupURLs = append(instanceGroupURLs, u)
-			continue
-		}
-		matches := instanceGroupManagerURL.FindStringSubmatch(u)
-		instanceGroupManager, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
-		if isGoogleApiErrorWithCode(err, 404) {
-			// The IGM URL is stale; don't include it
-			continue
-		}
-		if err != nil {
-			return nil, fmt.Errorf("Error reading instance group manager returned as an instance group URL: %s", err)
-		}
-		instanceGroupURLs = append(instanceGroupURLs, instanceGroupManager.InstanceGroup)
-	}
-	return instanceGroupURLs, nil
 }
 
 func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {

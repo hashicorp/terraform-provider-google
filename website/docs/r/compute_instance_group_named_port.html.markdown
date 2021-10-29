@@ -45,7 +45,7 @@ To get more information about InstanceGroupNamedPort, see:
 
 ```hcl
 resource "google_compute_instance_group_named_port" "my_port" {
-  group = google_container_cluster.my_cluster.instance_group_urls[0]
+  group = google_container_cluster.my_cluster.node_pool[0].instance_group_urls[0]
   zone = "us-central1-a"
 
   name = "http"
@@ -53,7 +53,7 @@ resource "google_compute_instance_group_named_port" "my_port" {
 }
 
 resource "google_compute_instance_group_named_port" "my_ports" {
-  group = google_container_cluster.my_cluster.instance_group_urls[0]
+  group = google_container_cluster.my_cluster.node_pool[0].instance_group_urls[0]
   zone = "us-central1-a"
 
   name = "https"
