@@ -1504,7 +1504,7 @@ resource "google_storage_bucket" "bucket" {
   location      = "US"
   force_destroy = true
   encryption {
-    default_kms_key_name = google_kms_crypto_key.crypto_key.self_link
+    default_kms_key_name = google_kms_crypto_key.crypto_key.id
   }
 
   depends_on = [google_kms_crypto_key_iam_member.iam]
