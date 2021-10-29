@@ -42,7 +42,7 @@ resource "google_spanner_instance" "bar" {
 }
 
 data "google_spanner_instance" "foo" {
-    name = google_spanner_instance.bar.name
+	name = google_spanner_instance.bar.name
 }
 `, context)
 }
