@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	composer "google.golang.org/api/composer/v1beta1"
+	"google.golang.org/api/composer/v1"
 )
 
 type ComposerOperationWaiter struct {
