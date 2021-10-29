@@ -37,7 +37,7 @@ func TestAccComputeFirewallPolicyRule_update(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
-				ImportStateVerifyIgnore: []string{"firewall_policy"},
+				ImportStateVerifyIgnore: []string{"firewall_policy", "target_resources"},
 			},
 			{
 				Config: testAccComputeFirewallPolicyRule_removeConfigs(context),
@@ -47,7 +47,7 @@ func TestAccComputeFirewallPolicyRule_update(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				// Referencing using ID causes import to fail
-				ImportStateVerifyIgnore: []string{"firewall_policy"},
+				ImportStateVerifyIgnore: []string{"firewall_policy", "target_resources"},
 			},
 			{
 				Config: testAccComputeFirewallPolicyRule_start(context),
