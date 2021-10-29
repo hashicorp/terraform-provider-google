@@ -945,7 +945,6 @@ func expandUpdatePolicy(configured []interface{}) *compute.InstanceGroupManagerU
 				NullFields:      []string{"Percent"},
 			}
 		}
-
 	}
 	return updatePolicy
 }

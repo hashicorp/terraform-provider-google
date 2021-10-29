@@ -802,7 +802,6 @@ func expandRegionUpdatePolicy(configured []interface{}) *compute.InstanceGroupMa
 				NullFields:      []string{"Percent"},
 			}
 		}
-
 	}
 	return updatePolicy
 }
