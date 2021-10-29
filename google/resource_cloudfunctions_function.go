@@ -617,7 +617,7 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if d.HasChange("build_environment_variables") {
-		function.EnvironmentVariables = expandEnvironmentVariables(d)
+		function.BuildEnvironmentVariables = expandBuildEnvironmentVariables(d)
 		updateMaskArr = append(updateMaskArr, "buildEnvironmentVariables")
 	}
 
