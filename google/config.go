@@ -26,7 +26,7 @@ import (
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV2 "google.golang.org/api/cloudresourcemanager/v2"
-	composer "google.golang.org/api/composer/v1beta1"
+	"google.golang.org/api/composer/v1"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
 	dataflow "google.golang.org/api/dataflow/v1b3"
@@ -147,7 +147,6 @@ type Config struct {
 	CloudBillingBasePath      string
 	ComposerBasePath          string
 	ContainerBasePath         string
-	DataprocBetaBasePath      string
 	DataflowBasePath          string
 	IamCredentialsBasePath    string
 	ResourceManagerV2BasePath string
@@ -237,7 +236,6 @@ const WorkflowsBasePathKey = "Workflows"
 const CloudBillingBasePathKey = "CloudBilling"
 const ComposerBasePathKey = "Composer"
 const ContainerBasePathKey = "Container"
-const DataprocBetaBasePathKey = "DataprocBeta"
 const DataflowBasePathKey = "Dataflow"
 const IAMBasePathKey = "IAM"
 const IamCredentialsBasePathKey = "IamCredentials"
@@ -317,7 +315,6 @@ var DefaultBasePaths = map[string]string{
 	CloudBillingBasePathKey:         "https://cloudbilling.googleapis.com/v1/",
 	ComposerBasePathKey:             "https://composer.googleapis.com/v1/",
 	ContainerBasePathKey:            "https://container.googleapis.com/v1/",
-	DataprocBetaBasePathKey:         "https://dataproc.googleapis.com/v1beta2/",
 	DataflowBasePathKey:             "https://dataflow.googleapis.com/v1b3/",
 	IAMBasePathKey:                  "https://iam.googleapis.com/v1/",
 	IamCredentialsBasePathKey:       "https://iamcredentials.googleapis.com/v1/",
