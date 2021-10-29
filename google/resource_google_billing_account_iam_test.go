@@ -50,6 +50,12 @@ func TestAccBillingAccountIam(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				// Remove the binding from state before adding a member.
+				// Otherwise, we'll process the delete and create in an arbitrary order
+				// and may have inconsistent results
+				Config: testAccBillingAccountNoBindings(account),
+			},
+			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccBillingAccountIamMember_basic(account, billing, role),
 				Check: testAccCheckGoogleBillingAccountIamMemberExists(t, "foo", "roles/billing.viewer",
@@ -123,6 +129,15 @@ func testAccCheckGoogleBillingAccountIamMemberExists(t *testing.T, n, role, memb
 
 		return fmt.Errorf("No binding for role %q", role)
 	}
+}
+
+func testAccBillingAccountNoBindings(account string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "test-account" {
+  account_id   = "%s"
+  display_name = "Billing Account Iam Testing Account"
+}
+`, account)
 }
 
 func testAccBillingAccountIamBinding_basic(account, billingAccountId, role string) string {
