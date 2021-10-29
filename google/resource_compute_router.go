@@ -152,6 +152,15 @@ CIDR-formatted string.`,
 				Optional:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"encrypted_interconnect_router": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `Field to indicate if a router is dedicated to use with encrypted
+Interconnect Attachment (IPsec-encrypted Cloud Interconnect feature).
+
+Not currently available publicly.`,
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -211,6 +220,12 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("bgp"); ok || !reflect.DeepEqual(v, bgpProp) {
 		obj["bgp"] = bgpProp
+	}
+	encryptedInterconnectRouterProp, err := expandComputeRouterEncryptedInterconnectRouter(d.Get("encrypted_interconnect_router"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encrypted_interconnect_router"); !isEmptyValue(reflect.ValueOf(encryptedInterconnectRouterProp)) && (ok || !reflect.DeepEqual(v, encryptedInterconnectRouterProp)) {
+		obj["encryptedInterconnectRouter"] = encryptedInterconnectRouterProp
 	}
 	regionProp, err := expandComputeRouterRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -319,6 +334,9 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
 	if err := d.Set("bgp", flattenComputeRouterBgp(res["bgp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Router: %s", err)
+	}
+	if err := d.Set("encrypted_interconnect_router", flattenComputeRouterEncryptedInterconnectRouter(res["encryptedInterconnectRouter"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
 	if err := d.Set("region", flattenComputeRouterRegion(res["region"], d, config)); err != nil {
@@ -561,6 +579,10 @@ func flattenComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d *sche
 	return v
 }
 
+func flattenComputeRouterEncryptedInterconnectRouter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeRouterRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -670,6 +692,10 @@ func expandComputeRouterBgpAdvertisedIpRangesRange(v interface{}, d TerraformRes
 }
 
 func expandComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRouterEncryptedInterconnectRouter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
