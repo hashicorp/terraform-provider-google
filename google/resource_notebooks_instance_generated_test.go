@@ -208,12 +208,6 @@ resource "google_notebooks_instance" "instance" {
   metadata = {
     terraform = "true"
   }
-
-  nic_type = "VIRTIO_NET"
-
-  reservation_affinity {
-    consume_reservation_type = "NO_RESERVATION"
-  } 
 }
 
 data "google_compute_network" "my_network" {
