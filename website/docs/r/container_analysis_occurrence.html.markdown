@@ -71,7 +71,7 @@ data "google_kms_crypto_key" "crypto-key" {
 }
 
 data "google_kms_crypto_key_version" "version" {
-  crypto_key = data.google_kms_crypto_key.crypto-key.self_link
+  crypto_key = data.google_kms_crypto_key.crypto-key.id
 }
 
 resource "google_container_analysis_occurrence" "occurrence" {

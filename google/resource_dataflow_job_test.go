@@ -862,7 +862,7 @@ resource "google_dataflow_job" "big_data" {
   machine_type      = "e2-standard-2"
   template_gcs_path = "%s"
   temp_gcs_location = google_storage_bucket.temp.url
-  kms_key_name		= google_kms_crypto_key.crypto_key.self_link
+  kms_key_name		= google_kms_crypto_key.crypto_key.id
   parameters = {
     inputFile = "%s"
     output    = "${google_storage_bucket.temp.url}/output"
