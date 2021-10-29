@@ -99,6 +99,40 @@ func resourceComputeFirewallSourceFieldsCustomizeDiff(_ context.Context, diff *s
 	return nil
 }
 
+func diffSuppressSourceRanges(k, old, new string, d *schema.ResourceData) bool {
+	if k == "source_ranges.#" {
+		if old == "1" && new == "0" {
+			// Allow diffing on the individual element if we are going from 1 -> 0
+			// this allows for diff suppress on ["0.0.0.0/0"] -> []
+			return true
+		}
+		return old == new
+	}
+	kLength := "source_ranges.#"
+	oldLength, newLength := d.GetChange(kLength)
+	oldInt, ok := oldLength.(int)
+
+	if !ok {
+		return false
+	}
+
+	newInt, ok := newLength.(int)
+	if !ok {
+		return false
+	}
+
+	// Diff suppress only should suppress removing the default range
+	// This should probably be newInt == 0, but due to Terraform core internals
+	// (bug?) values found via GetChange may not have the correct new value
+	// in some circumstances
+	if oldInt == 1 && newInt == 1 {
+		if old == "0.0.0.0/0" && new == "" {
+			return true
+		}
+	}
+	return old == new
+}
+
 func resourceComputeFirewall() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeFirewallCreate,
@@ -232,9 +266,9 @@ precedence over ALLOW rules having equal priority.`,
 				Default: 1000,
 			},
 			"source_ranges": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Optional: true,
+				Type:             schema.TypeSet,
+				Optional:         true,
+				DiffSuppressFunc: diffSuppressSourceRanges,
 				Description: `If source ranges are specified, the firewall will apply only to
 traffic that has source IP address in these ranges. These ranges must
 be expressed in CIDR format. One or both of sourceRanges and
