@@ -801,7 +801,7 @@ resource "google_kms_crypto_key" "project-2-key" {
 
 data "google_kms_secret_ciphertext" "project-2-ciphertext" {
 	provider   = google.project-1-token
-	crypto_key = google_kms_crypto_key.project-2-key.self_link
+	crypto_key = google_kms_crypto_key.project-2-key.id
 	plaintext  = "my-secret"
 }
 `, testAccProviderIndirectUserProjectOverride_step3(pid, name, org, billing, sa, override), pid, pid)
