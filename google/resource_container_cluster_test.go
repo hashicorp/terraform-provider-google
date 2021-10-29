@@ -2567,7 +2567,7 @@ resource "google_compute_backend_service" "my-backend-service" {
   protocol  = "HTTP"
 
   backend {
-    group = element(google_container_cluster.primary.instance_group_urls, 1)
+    group = element(google_container_cluster.primary.node_pool[0].instance_group_urls, 1)
   }
 
   health_checks = [google_compute_http_health_check.default.self_link]

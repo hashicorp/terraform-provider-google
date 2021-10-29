@@ -24,7 +24,7 @@ output "endpoint" {
 }
 
 output "instance_group_urls" {
-  value = data.google_container_cluster.my_cluster.instance_group_urls
+  value = data.google_container_cluster.my_cluster.node_pool[0].instance_group_urls
 }
 
 output "node_config" {
