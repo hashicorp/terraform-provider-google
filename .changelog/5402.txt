@@ -1,0 +1,6 @@
+```release-note:bug
+compute: fixed the `google_compute_instance_group_manager.update_policy.0.min_ready_sec` field so that updating it to `0` works
+```
+```release-note:bug
+compute: fixed the `google_compute_region_instance_group_manager.update_policy.0.min_ready_sec` field so that updating it to `0` works
+```
