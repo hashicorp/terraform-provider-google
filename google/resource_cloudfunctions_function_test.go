@@ -620,7 +620,7 @@ resource "google_cloudfunctions_function" "function" {
     TEST_ENV_VARIABLE = "test-env-variable-value"
   }
   build_environment_variables = {
-    TEST_ENV_VARIABLE = "test-env-variable-value"
+    TEST_ENV_VARIABLE = "test-build-env-variable-value"
   }
   max_instances = 10
 }
@@ -660,8 +660,8 @@ resource "google_cloudfunctions_function" "function" {
     NEW_ENV_VARIABLE  = "new-env-variable-value"
   }
   build_environment_variables = {
-    TEST_ENV_VARIABLE = "test-env-variable-value"
-    NEW_ENV_VARIABLE  = "new-env-variable-value"
+    TEST_ENV_VARIABLE = "test-build-env-variable-value"
+    NEW_ENV_VARIABLE  = "new-build-env-variable-value"
   }
   max_instances = 15
 }
