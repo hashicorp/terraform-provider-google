@@ -49,7 +49,8 @@ description: |-
   - [Resource: `google_container_cluster`](#resource-google_container_cluster)
     - [`enable_shielded_nodes` now defaults to `true`](#enable_shielded_nodes-now-defaults-to-true)
     - [`instance_group_urls` is now removed](#instance_group_urls-is-now-removed)
-    - [`master_auth` is now removed](#master_auth-is-now-removed)
+    - [`master_auth.username` and `master_auth.password` are now removed](#master_authusername-and-master_authpassword-are-now-removed)
+    - [`master_auth.client_certificate_config` is now required](#master_authclient_certificate_config-is-now-required)
     - [`node_config.workload_metadata_config.node_metadata` is now removed](#node_configworkload_metadata_confignode_metadata-is-now-removed)
     - [`workload_identity_config.0.identity_namespace` is now removed](#workload_identity_config0identity_namespace-is-now-removed)
     - [`pod_security_policy_config` is removed from the GA provider](#pod_security_policy_config-is-removed-from-the-ga-provider)
@@ -73,13 +74,13 @@ description: |-
     - [`bigquery-json.googleapis.com` is no longer a valid service name](#bigquery-jsongoogleapiscom-is-no-longer-a-valid-service-name)
   - [Resource: `google_spanner_instance`](#resource-google_spanner_instance)
     - [Exactly one of `num_nodes` or `processing_units` is required](#exactly-one-of-num_nodes-or-processing_units-is-required)
-  - [Resource: `google_sql_database_instance`](#resource-google_sql_database_instance)
+    - [Resource: `google_sql_database_instance`](#resource-google_sql_database_instance)
     - [First-generation fields have been removed](#first-generation-fields-have-been-removed)
     - [Drift detection and defaults enabled on fields](#drift-detection-and-defaults-enabled-on-fields)
   - [Resource: `google_storage_bucket`](#resource-google_storage_bucket)
     - [`bucket_policy_only` field is now removed](#bucket_policy_only-field-is-now-removed)
     - [`location` field is now required.](#location-field-is-now-required)
-  - [Resource: `google_sql_database_instance`](#resource-google_sql_database_instance)
+  - [Resource: `google_sql_database_instance`](#resource-google_sql_database_instance-1)
     - [`database_version` field is now required](#database_version-field-is-now-required)
   - [Resource: `google_pubsub_subscription`](#resource-google_pubsub_subscription)
     - [`path` is now removed](#path-is-now-removed)
@@ -375,10 +376,16 @@ Unless explicitly configured, users may see a diff changing `enable_shielded_nod
 
 `instance_group_urls` has been removed in favor of `node_pool.instance_group_urls`
 
-### `master_auth` is now removed
+### `master_auth.username` and `master_auth.password` are now removed
 
-`master_auth` and its subfields have been removed. 
+`master_auth.username` and `master_auth.password` have been removed. 
 Basic authentication was removed for GKE cluster versions >= 1.19. The cluster cannot be created with basic authentication enabled. Instructions for choosing an alternative authentication method can be found at: cloud.google.com/kubernetes-engine/docs/how-to/api-server-authentication.
+
+### `master_auth.client_certificate_config` is now required
+
+With the removal of `master_auth.username` and `master_auth.password`, `master_auth.client_certificate_config` is now
+the only configurable field in `master_auth`. If you do not wish to configure `master_auth.client_certificate_config`, 
+remove the `master_auth` block from your configuration entirely. You will still be able to reference the outputted fields under `master_auth` without the block defined.
 
 ### `node_config.workload_metadata_config.node_metadata` is now removed
 

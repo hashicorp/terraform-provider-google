@@ -174,6 +174,31 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withMasterAuthConfig_NoCert(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withMasterAuthNoCert(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_master_auth_no_cert", "master_auth.0.client_certificate", ""),
+				),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_master_auth_no_cert",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withAuthenticatorGroupsConfig(t *testing.T) {
 	t.Parallel()
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
@@ -2294,6 +2319,21 @@ resource "google_container_cluster" "with_version" {
   location           = "us-central1-a"
   min_master_version = data.google_container_engine_versions.central1a.valid_master_versions[2]
   initial_node_count = 1
+}
+`, clusterName)
+}
+
+func testAccContainerCluster_withMasterAuthNoCert(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_master_auth_no_cert" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+  master_auth {
+    client_certificate_config {
+      issue_client_certificate = false
+    }
+  }
 }
 `, clusterName)
 }

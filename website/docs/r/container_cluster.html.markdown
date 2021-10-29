@@ -197,9 +197,9 @@ and requires the `ip_allocation_policy` block to be defined. By default when thi
 * `master_auth` - (Optional) The authentication information for accessing the
 Kubernetes master. Some values in this block are only returned by the API if
 your service account has permission to get credentials for your GKE cluster. If
-you see an unexpected diff removing a username/password or unsetting your client
-cert, ensure you have the `container.clusters.getCredentials` permission.
-Structure is [documented below](#nested_master_auth). This has been deprecated as of GKE 1.19.
+you see an unexpected diff unsetting your client cert, ensure you have the 
+`container.clusters.getCredentials` permission.
+Structure is [documented below](#nested_master_auth).
 
 * `master_authorized_networks_config` - (Optional) The desired
     configuration options for master authorized networks. Omit the
@@ -576,13 +576,7 @@ pick a specific range to use.
 
 <a name="nested_master_auth"></a>The `master_auth` block supports:
 
-* `password` - (Optional) The password to use for HTTP basic authentication when accessing
-    the Kubernetes master endpoint. This has been deprecated as of GKE 1.19.
-
-* `username` - (Optional) The username to use for HTTP basic authentication when accessing
-    the Kubernetes master endpoint. If not present basic auth will be disabled. This has been deprecated as of GKE 1.19.
-
-* `client_certificate_config` - (Optional) Whether client certificate authorization is enabled for this cluster.  For example:
+* `client_certificate_config` - (Required) Whether client certificate authorization is enabled for this cluster.  For example:
 
 ```hcl
 master_auth {

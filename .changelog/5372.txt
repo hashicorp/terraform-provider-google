@@ -1,0 +1,6 @@
+```release-note:breaking-change
+container: removed `master_auth.username` and `master_auth.password` from `google_container_cluster`
+```
+```release-note:breaking-change
+container: made `master_auth.client_certificate_config` required
+```
