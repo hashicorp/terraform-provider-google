@@ -518,7 +518,31 @@ the provider will no longer convert the service name. Use `bigquery.googleapis.c
 
 ### Exactly one of `num_nodes` or `processing_units` is required
 
-The provider will now enforce at plan time that one of these fields be set.
+The provider will now enforce that you've set one of these fields at plan time.
+Earlier versions of the provider set a default value of `1` for `num_nodes`. If
+neither field is present in your config, it's likely you can add `num_nodes = 1`
+to resolve this change. If that is incorrect, `terraform plan` should inform you
+of the correct value.
+
+
+For example, for a configuration like the following:
+
+```tf
+resource "google_spanner_instance" "default" {
+  display_name = "main-instance"
+  config       = "regional-europe-west1"
+}
+```
+
+You would amend it to:
+
+```tf
+resource "google_spanner_instance" "default" {
+  display_name = "main-instance"
+  config       = "regional-europe-west1"
+  num_nodes    = 1
+}
+```
 
 ### Resource: `google_sql_database_instance`
 
