@@ -31,11 +31,6 @@ resource "google_container_cluster" "foo" {
   location           = "us-central1-b"
   node_version       = data.google_container_engine_versions.central1b.latest_node_version
   initial_node_count = 1
-
-  master_auth {
-    username = "mr.yoda"
-    password = "adoy.rm"
-  }
 }
 
 output "stable_channel_version" {

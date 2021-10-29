@@ -554,37 +554,15 @@ func resourceContainerCluster() *schema.Resource {
 				Optional:    true,
 				MaxItems:    1,
 				Computed:    true,
-				Deprecated:  `Basic authentication was removed for GKE cluster versions >= 1.19.`,
-				Description: `The authentication information for accessing the Kubernetes master. Some values in this block are only returned by the API if your service account has permission to get credentials for your GKE cluster. If you see an unexpected diff removing a username/password or unsetting your client cert, ensure you have the container.clusters.getCredentials permission.`,
+				Description: `The authentication information for accessing the Kubernetes master. Some values in this block are only returned by the API if your service account has permission to get credentials for your GKE cluster. If you see an unexpected diff unsetting your client cert, ensure you have the container.clusters.getCredentials permission.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"password": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							AtLeastOneOf: []string{"master_auth.0.password", "master_auth.0.username", "master_auth.0.client_certificate_config"},
-							Sensitive:    true,
-							Description:  `The password to use for HTTP basic authentication when accessing the Kubernetes master endpoint.`,
-						},
-
-						"username": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							AtLeastOneOf: []string{"master_auth.0.password", "master_auth.0.username", "master_auth.0.client_certificate_config"},
-							Description:  `The username to use for HTTP basic authentication when accessing the Kubernetes master endpoint. If not present basic auth will be disabled.`,
-						},
-
-						// Ideally, this would be Optional (and not Computed).
-						// In past versions (incl. 2.X series) of the provider
-						// though, being unset was considered identical to set
-						// and the issue_client_certificate value being true.
 						"client_certificate_config": {
-							Type:         schema.TypeList,
-							MaxItems:     1,
-							Optional:     true,
-							Computed:     true,
-							AtLeastOneOf: []string{"master_auth.0.password", "master_auth.0.username", "master_auth.0.client_certificate_config"},
-							ForceNew:     true,
-							Description:  `Whether client certificate authorization is enabled for this cluster.`,
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Whether client certificate authorization is enabled for this cluster.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"issue_client_certificate": {
@@ -2173,45 +2151,6 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	if d.HasChange("master_auth") {
-		var req *container.SetMasterAuthRequest
-		if ma, ok := d.GetOk("master_auth"); ok {
-			req = &container.SetMasterAuthRequest{
-				Action: "SET_USERNAME",
-				Update: expandMasterAuth(ma),
-			}
-		} else {
-			req = &container.SetMasterAuthRequest{
-				Action: "SET_USERNAME",
-				Update: &container.MasterAuth{
-					Username: "admin",
-				},
-			}
-		}
-
-		updateF := func() error {
-			name := containerClusterFullName(project, location, clusterName)
-			clusterSetMasterAuthCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.SetMasterAuth(name, req)
-			if config.UserProjectOverride {
-				clusterSetMasterAuthCall.Header().Add("X-Goog-User-Project", project)
-			}
-			op, err := clusterSetMasterAuthCall.Do()
-			if err != nil {
-				return err
-			}
-
-			// Wait until it's updated
-			return containerOperationWait(config, op, project, location, "updating master auth", userAgent, d.Timeout(schema.TimeoutUpdate))
-		}
-
-		// Call update serially.
-		if err := lockedCall(lockKey, updateF); err != nil {
-			return err
-		}
-
-		log.Printf("[INFO] GKE cluster %s: master auth has been updated", d.Id())
-	}
-
 	if d.HasChange("vertical_pod_autoscaling") {
 		if ac, ok := d.GetOk("vertical_pod_autoscaling"); ok {
 			req := &container.UpdateClusterRequest{
@@ -2817,10 +2756,7 @@ func expandMasterAuth(configured interface{}) *container.MasterAuth {
 	}
 
 	masterAuth := l[0].(map[string]interface{})
-	result := &container.MasterAuth{
-		Username: masterAuth["username"].(string),
-		Password: masterAuth["password"].(string),
-	}
+	result := &container.MasterAuth{}
 
 	if v, ok := masterAuth["client_certificate_config"]; ok {
 		if len(v.([]interface{})) > 0 {
@@ -3269,8 +3205,6 @@ func flattenMasterAuth(ma *container.MasterAuth) []map[string]interface{} {
 	}
 	masterAuth := []map[string]interface{}{
 		{
-			"username":               ma.Username,
-			"password":               ma.Password,
 			"client_certificate":     ma.ClientCertificate,
 			"client_key":             ma.ClientKey,
 			"cluster_ca_certificate": ma.ClusterCaCertificate,
