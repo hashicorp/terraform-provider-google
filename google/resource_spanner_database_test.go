@@ -245,6 +245,7 @@ func testAccSpannerDatabase_deletionProtection(context map[string]interface{}) s
 resource "google_spanner_instance" "main" {
   config       = "regional-europe-west1"
   display_name = "main-instance"
+  num_nodes    = 1
 }
 
 resource "google_spanner_database" "database" {
