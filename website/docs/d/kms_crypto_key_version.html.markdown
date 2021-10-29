@@ -38,7 +38,7 @@ data "google_kms_crypto_key_version" "my_crypto_key_version" {
 
 The following arguments are supported:
 
-* `crypto_key` - (Required) The `self_link` of the Google Cloud Platform CryptoKey to which the key version belongs. This is also the `id` field of the 
+* `crypto_key` - (Required) The `id` of the Google Cloud Platform CryptoKey to which the key version belongs. This is also the `id` field of the 
 `google_kms_crypto_key` resource/datasource.
 
 * `version` - (Optional) The version number for this CryptoKeyVersion. Defaults to `1`.

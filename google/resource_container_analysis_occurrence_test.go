@@ -249,11 +249,11 @@ data "google_kms_crypto_key" "crypto-key2" {
 }
 
 data "google_kms_crypto_key_version" "version-key1" {
-  crypto_key = data.google_kms_crypto_key.crypto-key1.self_link
+  crypto_key = data.google_kms_crypto_key.crypto-key1.id
 }
 
 data "google_kms_crypto_key_version" "version-key2" {
-  crypto_key = data.google_kms_crypto_key.crypto-key2.self_link
+  crypto_key = data.google_kms_crypto_key.crypto-key2.id
 }
 
 resource "google_container_analysis_occurrence" "occurrence" {
