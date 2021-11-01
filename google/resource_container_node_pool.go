@@ -155,6 +155,13 @@ var schemaNodePool = map[string]*schema.Schema{
 		Description: `The resource URLs of the managed instance groups associated with this node pool.`,
 	},
 
+	"managed_instance_group_urls": {
+		Type:        schema.TypeList,
+		Computed:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString},
+		Description: `List of instance group URLs which have been assigned to this node pool.`,
+	},
+
 	"management": {
 		Type:        schema.TypeList,
 		Optional:    true,
@@ -741,6 +748,7 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 	// failed or something else strange happened, we'll just use the average size.
 	size := 0
 	igmUrls := []string{}
+	managedIgmUrls := []string{}
 	for _, url := range np.InstanceGroupUrls {
 		// retrieve instance group manager (InstanceGroupUrls are actually URLs for InstanceGroupManagers)
 		matches := instanceGroupManagerURL.FindStringSubmatch(url)
@@ -757,20 +765,22 @@ func flattenNodePool(d *schema.ResourceData, config *Config, np *container.NodeP
 		}
 		size += int(igm.TargetSize)
 		igmUrls = append(igmUrls, url)
+		managedIgmUrls = append(managedIgmUrls, igm.InstanceGroup)
 	}
 	nodeCount := 0
 	if len(igmUrls) > 0 {
 		nodeCount = size / len(igmUrls)
 	}
 	nodePool := map[string]interface{}{
-		"name":                np.Name,
-		"name_prefix":         d.Get(prefix + "name_prefix"),
-		"initial_node_count":  np.InitialNodeCount,
-		"node_locations":      schema.NewSet(schema.HashString, convertStringArrToInterface(np.Locations)),
-		"node_count":          nodeCount,
-		"node_config":         flattenNodeConfig(np.Config),
-		"instance_group_urls": igmUrls,
-		"version":             np.Version,
+		"name":                        np.Name,
+		"name_prefix":                 d.Get(prefix + "name_prefix"),
+		"initial_node_count":          np.InitialNodeCount,
+		"node_locations":              schema.NewSet(schema.HashString, convertStringArrToInterface(np.Locations)),
+		"node_count":                  nodeCount,
+		"node_config":                 flattenNodeConfig(np.Config),
+		"instance_group_urls":         igmUrls,
+		"managed_instance_group_urls": managedIgmUrls,
+		"version":                     np.Version,
 	}
 
 	if np.Autoscaling != nil {
