@@ -904,26 +904,6 @@ func TestAccComputeInstanceTemplate_AdvancedMachineFeatures(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstanceTemplate_enableDisplay(t *testing.T) {
-	t.Parallel()
-
-	vcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeInstanceTemplate_enableDisplay(randString(t, 10)),
-			},
-			{
-				ResourceName:      "google_compute_instance_template.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func TestAccComputeInstanceTemplate_invalidDiskType(t *testing.T) {
 	t.Parallel()
 
@@ -2438,30 +2418,6 @@ resource "google_compute_instance_template" "foobar" {
 	  on_host_maintenance = "TERMINATE"
   }
 
-}
-`, suffix)
-}
-
-func testAccComputeInstanceTemplate_enableDisplay(suffix string) string {
-	return fmt.Sprintf(`
-data "google_compute_image" "my_image" {
-  family  = "centos-7"
-  project = "centos-cloud"
-}
-
-resource "google_compute_instance_template" "foobar" {
-  name           = "tf-test-instance-template-%s"
-  machine_type   = "e2-medium"
-  can_ip_forward = false
-  disk {
-    source_image = data.google_compute_image.my_image.self_link
-    auto_delete  = true
-    boot         = true
-  }
-  network_interface {
-    network = "default"
-  }
-  enable_display = true
 }
 `, suffix)
 }
