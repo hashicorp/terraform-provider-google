@@ -172,11 +172,13 @@ Previously users could specify `trace-append` or `trace-ro` as scopes for a give
 However, to better align with [Google documentation](https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes), `trace` will now be the only valid scope, as it's an alias for `trace.append` and
 `trace-ro` is no longer a documented option.
 
-## Datasource: `google_product_resource`
+## Datasource: `google_kms_key_ring`
 
-### Datasource-level change example
+### `id` now matches the `google_kms_key_ring` id format
 
-Description of the change and how users should adjust their configuration (if needed).
+The format has changed to better match the resource's ID format.
+
+Interpolations based on the `id` of the datasource may require updates.
 
 ## Resource: `google_bigquery_job`
 
@@ -345,7 +347,19 @@ This resource would fail to deploy without this field defined. Specify the
 
 ### `source_disk_link` is now removed
 
-Removed in favor of `source_disk`.
+Removed, as the information available was redundant. You can reconstruct a
+compatible value based on `source_disk` and `zone`. With a reference such as the
+following:
+
+```
+google_compute_snapshot.my_snapshot.source_disk_link
+```
+
+Substitute the following:
+
+```
+"projects/${google_compute_snapshot.my_snapshot.project}/zones/${google_compute_snapshot.my_snapshot.zone}/disks/${google_compute_snapshot.my_snapshot.source_disk}"
+```
 
 ## Resource: `google_kms_crypto_key`
 
@@ -358,14 +372,6 @@ Removed in favor of `id`.
 ### `self_link` is now removed
 
 Removed in favor of `id`.
-
-## Datasource: `google_kms_key_ring`
-
-### `id` now matches the `google_kms_key_ring` id format
-
-The format has changed to better match the resource's ID format.
-
-Interpolations based on the `id` of the datasource may require updates.
 
 ## Resource: `google_data_loss_prevention_trigger`
 
@@ -433,6 +439,12 @@ the proposed diff.
 converted it while the upstream API migration was in progress. Now that the API migration has finished,
 the provider will no longer convert the service name. Use `bigquery.googleapis.com` instead.
 
+## Resource: `google_pubsub_subscription`
+
+### `path` is now removed
+
+`path` has been removed in favor of `id` which has an identical value.
+
 ## Resource: `google_spanner_instance`
 
 ### Exactly one of `num_nodes` or `processing_units` is required
@@ -463,12 +475,18 @@ resource "google_spanner_instance" "default" {
 }
 ```
 
-### Resource: `google_sql_database_instance`
+## Resource: `google_sql_database_instance`
 
 ### First-generation fields have been removed
 
 Removed fields specific to first-generation SQL instances:
 `authorized_gae_applications`, `crash_safe_replication`, `replication_type`
+
+### `database_version` field is now required
+
+The `database_version` field is now required.
+Previously, it was an optional field and the default value was `MYSQL_5_6`.
+Description of the change and how users should adjust their configuration (if needed).
 
 ### Drift detection and defaults enabled on fields
 
@@ -503,17 +521,3 @@ Terraform only detected drift when the field had been set in config explicitly.
 
 Previously, the default value of `location` was `US`. In an attempt to avoid allowing invalid 
 conbination of `storageClass` value and default `location` value, `location` field is now required.
-
-## Resource: `google_sql_database_instance`
-
-### `database_version` field is now required
-
-The `database_version` field is now required.
-Previously, it was an optional field and the default value was `MYSQL_5_6`.
-Description of the change and how users should adjust their configuration (if needed).
-
-## Resource: `google_pubsub_subscription`
-
-### `path` is now removed
-
-`path` has been removed in favor of `id` which has an identical value.
