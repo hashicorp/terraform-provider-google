@@ -203,6 +203,8 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `instance_group_urls` - The resource URLs of the managed instance groups associated with this node pool.
 
+* `managed_instance_group_urls` - List of instance group URLs which have been assigned to this node pool.
+
 <a id="timeouts"></a>
 ## Timeouts
 

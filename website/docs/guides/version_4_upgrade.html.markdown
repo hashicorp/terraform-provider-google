@@ -293,7 +293,7 @@ Unless explicitly configured, users may see a diff changing `enable_shielded_nod
 
 ### `instance_group_urls` is now removed
 
-`instance_group_urls` has been removed in favor of `node_pool.instance_group_urls`
+`instance_group_urls` has been removed in favor of `node_pool.managed_instance_group_urls`
 
 ### `master_auth.username` and `master_auth.password` are now removed
 
