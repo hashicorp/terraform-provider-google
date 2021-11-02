@@ -241,6 +241,12 @@ The provider will now enforce at plan time that one of these fields be set.
 
 Previously, if all of these fields were left empty, the firewall defaulted to allowing traffic from 0.0.0.0/0, which is a suboptimal default.
 
+### `source_ranges` will track changes when unspecified in a config
+
+In `3.X`, `source_ranges` wouldn't cause a diff if it was undefined in
+config but was set on the firewall itself. With 4.0.0 Terraform will now
+track changes on the block when it is not specified in a user's config.
+
 ## Resource: `google_compute_instance`
 
 ### `metadata_startup_script` is no longer set on import
