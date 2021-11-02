@@ -19,7 +19,8 @@ Quick Starts
 - [Getting Started with the Google Provider](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/getting_started)
 - [Provider Development](docs/contributing)
 
-## Documentation
+Documentation
+----------------------
 
 Full, comprehensive documentation is available on the Terraform Registry:
 
