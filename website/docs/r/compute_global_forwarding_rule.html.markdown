@@ -46,14 +46,14 @@ https://cloud.google.com/compute/docs/load-balancing/http/
 # VPC
 resource "google_compute_network" "default" {
   name                    = "tcp-proxy-xlb-network"
-  provider                = google
+  provider                = google-beta
   auto_create_subnetworks = false
 }
 
 # backend subnet
 resource "google_compute_subnetwork" "default" {
   name          = "tcp-proxy-xlb-subnet"
-  provider      = google
+  provider      = google-beta
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.id
@@ -61,13 +61,14 @@ resource "google_compute_subnetwork" "default" {
 
 # reserved IP address
 resource "google_compute_global_address" "default" {
+  provider = google-beta
   name = "tcp-proxy-xlb-ip"
 }
 
 # forwarding rule
 resource "google_compute_global_forwarding_rule" "default" {
   name                  = "tcp-proxy-xlb-forwarding-rule"
-  provider              = google
+  provider              = google-beta
   ip_protocol           = "TCP"
   load_balancing_scheme = "EXTERNAL"
   port_range            = "110"
@@ -76,12 +77,14 @@ resource "google_compute_global_forwarding_rule" "default" {
 }
 
 resource "google_compute_target_tcp_proxy" "default" {
+  provider = google-beta
   name            = "test-proxy-health-check"
   backend_service = google_compute_backend_service.default.id
 }
 
 # backend service
 resource "google_compute_backend_service" "default" {
+  provider = google-beta
   name                  = "tcp-proxy-xlb-backend-service"
   protocol              = "TCP"
   port_name             = "tcp"
@@ -97,6 +100,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
+  provider = google-beta
   name               = "tcp-proxy-health-check"
   timeout_sec        = 1
   check_interval_sec = 1
@@ -109,7 +113,7 @@ resource "google_compute_health_check" "default" {
 # instance template
 resource "google_compute_instance_template" "default" {
   name         = "tcp-proxy-xlb-mig-template"
-  provider     = google
+  provider     = google-beta
   machine_type = "e2-small"
   tags         = ["allow-health-check"]
 
@@ -154,7 +158,7 @@ resource "google_compute_instance_template" "default" {
 # MIG
 resource "google_compute_instance_group_manager" "default" {
   name     = "tcp-proxy-xlb-mig1"
-  provider = google
+  provider = google-beta
   zone     = "us-central1-c"
   named_port {
     name = "tcp"
@@ -171,7 +175,7 @@ resource "google_compute_instance_group_manager" "default" {
 # allow access from health check ranges
 resource "google_compute_firewall" "default" {
   name          = "tcp-proxy-xlb-fw-allow-hc"
-  provider      = google
+  provider      = google-beta
   direction     = "INGRESS"
   network       = google_compute_network.default.id
   source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
@@ -196,14 +200,14 @@ resource "google_compute_firewall" "default" {
 # VPC
 resource "google_compute_network" "default" {
   name                    = "l7-xlb-network"
-  provider                = google
+  provider                = google-beta
   auto_create_subnetworks = false
 }
 
 # backend subnet
 resource "google_compute_subnetwork" "default" {
   name          = "l7-xlb-subnet"
-  provider      = google
+  provider      = google-beta
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.id
@@ -211,13 +215,14 @@ resource "google_compute_subnetwork" "default" {
 
 # reserved IP address
 resource "google_compute_global_address" "default" {
+  provider = google-beta
   name = "l7-xlb-static-ip"
 }
 
 # forwarding rule
 resource "google_compute_global_forwarding_rule" "default" {
   name                  = "l7-xlb-forwarding-rule"
-  provider              = google
+  provider              = google-beta
   ip_protocol           = "TCP"
   load_balancing_scheme = "EXTERNAL"
   port_range            = "80"
@@ -228,14 +233,14 @@ resource "google_compute_global_forwarding_rule" "default" {
 # http proxy
 resource "google_compute_target_http_proxy" "default" {
   name     = "l7-xlb-target-http-proxy"
-  provider = google
+  provider = google-beta
   url_map  = google_compute_url_map.default.id
 }
 
 # url map
 resource "google_compute_url_map" "default" {
   name            = "l7-xlb-url-map"
-  provider        = google
+  provider        = google-beta
   default_service = google_compute_backend_service.default.id
 }
 
@@ -261,7 +266,7 @@ resource "google_compute_backend_service" "default" {
 # instance template
 resource "google_compute_instance_template" "default" {
   name         = "l7-xlb-mig-template"
-  provider     = google
+  provider     = google-beta
   machine_type = "e2-small"
   tags         = ["allow-health-check"]
 
@@ -309,7 +314,7 @@ resource "google_compute_instance_template" "default" {
 # health check
 resource "google_compute_health_check" "default" {
   name     = "l7-xlb-hc"
-  provider = google
+  provider = google-beta
   http_health_check {
     port_specification = "USE_SERVING_PORT"
   }
@@ -318,7 +323,7 @@ resource "google_compute_health_check" "default" {
 # MIG
 resource "google_compute_instance_group_manager" "default" {
   name     = "l7-xlb-mig1"
-  provider = google
+  provider = google-beta
   zone     = "us-central1-c"
   named_port {
     name = "http"
@@ -335,7 +340,7 @@ resource "google_compute_instance_group_manager" "default" {
 # allow access from health check ranges
 resource "google_compute_firewall" "default" {
   name          = "l7-xlb-fw-allow-hc"
-  provider      = google
+  provider      = google-beta
   direction     = "INGRESS"
   network       = google_compute_network.default.id
   source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
