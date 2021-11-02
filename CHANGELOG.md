@@ -1,4 +1,4 @@
-## 3.90.1 (Unreleased)
+## 3.90.1 (November 02, 2021)
 
 DEPRECATIONS:
 
