@@ -65,7 +65,7 @@ IMPROVEMENTS:
 * compute: added `encrypted_interconnect_router` to `google_compute_router` ([#10454](https://github.com/hashicorp/terraform-provider-google/pull/10454))
 * container: added `managed_instance_group_urls` to `google_container_node_pool` to replace `instance_group_urls` on `google_container_cluster` ([#10467](https://github.com/hashicorp/terraform-provider-google/pull/10467))
 * kms: added support for EKM to `google_kms_crypto_key.protection_level` ([#10391](https://github.com/hashicorp/terraform-provider-google/pull/10391))
-* project: support `billing_project` for `google_project_service` ([#10395](https://github.com/hashicorp/terraform-provider-google/pull/10395))
+* project: added support for `billing_project` for `google_project_service` ([#10395](https://github.com/hashicorp/terraform-provider-google/pull/10395))
 * spanner: increased the default timeout on `google_spanner_instance` operations from 4 minutes to 20 minutes, significantly reducing the likelihood that resources will time out ([#10437](https://github.com/hashicorp/terraform-provider-google/pull/10437))
 
 BUG FIXES:
