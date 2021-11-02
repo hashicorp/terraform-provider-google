@@ -1,3 +1,9 @@
+## 3.90.1 (Unreleased)
+
+DEPRECATIONS:
+
+* container: fixed an overly-broad deprecation on `master_auth`, constraining it to `master_auth.username` and `master_auth.password`
+
 ## 3.90.0 (October 26, 2021)
 
 DEPRECATIONS:
