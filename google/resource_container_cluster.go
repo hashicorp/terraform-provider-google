@@ -560,7 +560,7 @@ func resourceContainerCluster() *schema.Resource {
 						"password": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							Deprecated:  `Basic authentication was removed for GKE cluster versions >= 1.19. If master_auth is present in your config with only password or username set, you can remove the block entirely.`,
+							Deprecated:   `Basic authentication was removed for GKE cluster versions >= 1.19. If master_auth is present in your config with only password or username set, you can remove the block entirely.`,
 							AtLeastOneOf: []string{"master_auth.0.password", "master_auth.0.username", "master_auth.0.client_certificate_config"},
 							Sensitive:    true,
 							Description:  `The password to use for HTTP basic authentication when accessing the Kubernetes master endpoint.`,
@@ -569,7 +569,7 @@ func resourceContainerCluster() *schema.Resource {
 						"username": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							Deprecated:  `Basic authentication was removed for GKE cluster versions >= 1.19. If master_auth is present in your config with only password or username set, you can remove the block entirely.`,
+							Deprecated:   `Basic authentication was removed for GKE cluster versions >= 1.19. If master_auth is present in your config with only password or username set, you can remove the block entirely.`,
 							AtLeastOneOf: []string{"master_auth.0.password", "master_auth.0.username", "master_auth.0.client_certificate_config"},
 							Description:  `The username to use for HTTP basic authentication when accessing the Kubernetes master endpoint. If not present basic auth will be disabled.`,
 						},
