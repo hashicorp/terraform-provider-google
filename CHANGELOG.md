@@ -1,4 +1,4 @@
-## 4.0.0 (Unreleased)
+## 4.0.0 (November 02, 2021)
 
 NOTES:
 * compute: Google Compute Engine resources will now call the endpoint appropriate to the provider version rather than the beta endpoint by default ([#10429](https://github.com/hashicorp/terraform-provider-google/pull/10429))
