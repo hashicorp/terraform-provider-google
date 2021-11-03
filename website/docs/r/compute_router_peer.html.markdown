@@ -54,15 +54,36 @@ resource "google_compute_router_peer" "peer" {
 
 ```hcl
 resource "google_compute_router_peer" "peer" {
-   name                      = "my-router-peer"
-   router                    = "my-router"
-   region                    = "us-central1"
-   peer_ip_address           = "169.254.1.2"
-   peer_asn                  = 65513
-   advertised_route_priority = 100
-   interface                 = "interface-1"
-   enable                    = false
- }
+  name                      = "my-router-peer"
+  router                    = "my-router"
+  region                    = "us-central1"
+  peer_ip_address           = "169.254.1.2"
+  peer_asn                  = 65513
+  advertised_route_priority = 100
+  interface                 = "interface-1"
+  enable                    = false
+}
+```
+## Example Usage - Router Peer Bfd
+
+
+```hcl
+resource "google_compute_router_peer" "peer" {
+  name                      = "my-router-peer"
+  router                    = "my-router"
+  region                    = "us-central1"
+  peer_ip_address           = "169.254.1.2"
+  peer_asn                  = 65513
+  advertised_route_priority = 100
+  interface                 = "interface-1"
+
+  bfd {
+    min_receive_interval        = 1000
+    min_transmit_interval       = 1000
+    multiplier                  = 5
+    session_initialization_mode = "ACTIVE"
+  }
+}
 ```
 
 ## Argument Reference
@@ -141,6 +162,11 @@ The following arguments are supported:
   Leave this field blank to advertise no custom IP ranges.
   Structure is [documented below](#nested_advertised_ip_ranges).
 
+* `bfd` -
+  (Optional)
+  BFD configuration for the BGP peering.
+  Structure is [documented below](#nested_bfd).
+
 * `enable` -
   (Optional)
   The status of the BGP peer connection. If set to false, any active session
@@ -167,6 +193,39 @@ The following arguments are supported:
 * `description` -
   (Optional)
   User-specified description for the IP range.
+
+<a name="nested_bfd"></a>The `bfd` block supports:
+
+* `session_initialization_mode` -
+  (Required)
+  The BFD session initialization mode for this BGP peer.
+  If set to `ACTIVE`, the Cloud Router will initiate the BFD session
+  for this BGP peer. If set to `PASSIVE`, the Cloud Router will wait
+  for the peer router to initiate the BFD session for this BGP peer.
+  If set to `DISABLED`, BFD is disabled for this BGP peer.
+  Possible values are `ACTIVE`, `DISABLED`, and `PASSIVE`.
+
+* `min_transmit_interval` -
+  (Optional)
+  The minimum interval, in milliseconds, between BFD control packets
+  transmitted to the peer router. The actual value is negotiated
+  between the two routers and is equal to the greater of this value
+  and the corresponding receive interval of the other router. If set,
+  this value must be between 1000 and 30000.
+
+* `min_receive_interval` -
+  (Optional)
+  The minimum interval, in milliseconds, between BFD control packets
+  received from the peer router. The actual value is negotiated
+  between the two routers and is equal to the greater of this value
+  and the transmit interval of the other router. If set, this value
+  must be between 1000 and 30000.
+
+* `multiplier` -
+  (Optional)
+  The number of consecutive BFD packets that must be missed before
+  BFD declares that a peer is unavailable. If set, the value must
+  be a value between 5 and 16.
 
 ## Attributes Reference
 
