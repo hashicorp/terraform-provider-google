@@ -140,6 +140,55 @@ CIDR-formatted string.`,
 Where there is more than one matching route of maximum
 length, the routes with the lowest priority value win.`,
 			},
+			"bfd": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `BFD configuration for the BGP peering.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"session_initialization_mode": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ACTIVE", "DISABLED", "PASSIVE"}, false),
+							Description: `The BFD session initialization mode for this BGP peer.
+If set to 'ACTIVE', the Cloud Router will initiate the BFD session
+for this BGP peer. If set to 'PASSIVE', the Cloud Router will wait
+for the peer router to initiate the BFD session for this BGP peer.
+If set to 'DISABLED', BFD is disabled for this BGP peer. Possible values: ["ACTIVE", "DISABLED", "PASSIVE"]`,
+						},
+						"min_receive_interval": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The minimum interval, in milliseconds, between BFD control packets
+received from the peer router. The actual value is negotiated
+between the two routers and is equal to the greater of this value
+and the transmit interval of the other router. If set, this value
+must be between 1000 and 30000.`,
+							Default: 1000,
+						},
+						"min_transmit_interval": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The minimum interval, in milliseconds, between BFD control packets
+transmitted to the peer router. The actual value is negotiated
+between the two routers and is equal to the greater of this value
+and the corresponding receive interval of the other router. If set,
+this value must be between 1000 and 30000.`,
+							Default: 1000,
+						},
+						"multiplier": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `The number of consecutive BFD packets that must be missed before
+BFD declares that a peer is unavailable. If set, the value must
+be a value between 5 and 16.`,
+							Default: 5,
+						},
+					},
+				},
+			},
 			"enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -251,6 +300,12 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("advertised_ip_ranges"); ok || !reflect.DeepEqual(v, advertisedIpRangesProp) {
 		obj["advertisedIpRanges"] = advertisedIpRangesProp
+	}
+	bfdProp, err := expandNestedComputeRouterBgpPeerBfd(d.Get("bfd"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bfd"); !isEmptyValue(reflect.ValueOf(bfdProp)) && (ok || !reflect.DeepEqual(v, bfdProp)) {
+		obj["bfd"] = bfdProp
 	}
 	enableProp, err := expandNestedComputeRouterBgpPeerEnable(d.Get("enable"), d, config)
 	if err != nil {
@@ -393,6 +448,9 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("management_type", flattenNestedComputeRouterBgpPeerManagementType(res["managementType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
+	if err := d.Set("bfd", flattenNestedComputeRouterBgpPeerBfd(res["bfd"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
+	}
 	if err := d.Set("enable", flattenNestedComputeRouterBgpPeerEnable(res["enable"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
@@ -457,6 +515,12 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("advertised_ip_ranges"); ok || !reflect.DeepEqual(v, advertisedIpRangesProp) {
 		obj["advertisedIpRanges"] = advertisedIpRangesProp
+	}
+	bfdProp, err := expandNestedComputeRouterBgpPeerBfd(d.Get("bfd"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bfd"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bfdProp)) {
+		obj["bfd"] = bfdProp
 	}
 	enableProp, err := expandNestedComputeRouterBgpPeerEnable(d.Get("enable"), d, config)
 	if err != nil {
@@ -679,6 +743,80 @@ func flattenNestedComputeRouterBgpPeerManagementType(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenNestedComputeRouterBgpPeerBfd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["session_initialization_mode"] =
+		flattenNestedComputeRouterBgpPeerBfdSessionInitializationMode(original["sessionInitializationMode"], d, config)
+	transformed["min_transmit_interval"] =
+		flattenNestedComputeRouterBgpPeerBfdMinTransmitInterval(original["minTransmitInterval"], d, config)
+	transformed["min_receive_interval"] =
+		flattenNestedComputeRouterBgpPeerBfdMinReceiveInterval(original["minReceiveInterval"], d, config)
+	transformed["multiplier"] =
+		flattenNestedComputeRouterBgpPeerBfdMultiplier(original["multiplier"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNestedComputeRouterBgpPeerBfdSessionInitializationMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenNestedComputeRouterBgpPeerBfdMinTransmitInterval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenNestedComputeRouterBgpPeerBfdMinReceiveInterval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenNestedComputeRouterBgpPeerBfdMultiplier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.ParseInt(strVal, 10, 64); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenNestedComputeRouterBgpPeerEnable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return true
@@ -757,6 +895,62 @@ func expandNestedComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d Te
 }
 
 func expandNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterBgpPeerBfd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSessionInitializationMode, err := expandNestedComputeRouterBgpPeerBfdSessionInitializationMode(original["session_initialization_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSessionInitializationMode); val.IsValid() && !isEmptyValue(val) {
+		transformed["sessionInitializationMode"] = transformedSessionInitializationMode
+	}
+
+	transformedMinTransmitInterval, err := expandNestedComputeRouterBgpPeerBfdMinTransmitInterval(original["min_transmit_interval"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinTransmitInterval); val.IsValid() && !isEmptyValue(val) {
+		transformed["minTransmitInterval"] = transformedMinTransmitInterval
+	}
+
+	transformedMinReceiveInterval, err := expandNestedComputeRouterBgpPeerBfdMinReceiveInterval(original["min_receive_interval"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinReceiveInterval); val.IsValid() && !isEmptyValue(val) {
+		transformed["minReceiveInterval"] = transformedMinReceiveInterval
+	}
+
+	transformedMultiplier, err := expandNestedComputeRouterBgpPeerBfdMultiplier(original["multiplier"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMultiplier); val.IsValid() && !isEmptyValue(val) {
+		transformed["multiplier"] = transformedMultiplier
+	}
+
+	return transformed, nil
+}
+
+func expandNestedComputeRouterBgpPeerBfdSessionInitializationMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterBgpPeerBfdMinTransmitInterval(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterBgpPeerBfdMinReceiveInterval(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterBgpPeerBfdMultiplier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
