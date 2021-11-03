@@ -1,0 +1,3 @@
+```release-note:bug
+billingbudget: fixed unable to provide `labels` on `google_billing_budget`
+```
