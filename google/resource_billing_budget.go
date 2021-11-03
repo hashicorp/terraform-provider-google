@@ -619,7 +619,28 @@ func flattenBillingBudgetBudgetFilterSubaccounts(v interface{}, d *schema.Resour
 }
 
 func flattenBillingBudgetBudgetFilterLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return v
+	/*
+	   note: api only accepts below format. Also only takes a single element in the array
+	   labels = {
+	       foo = ["bar"]
+	   }
+	   until now, sdk does not take array for the map value
+	*/
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	for key, val := range original {
+		l := val.([]interface{})
+		for _, v := range l {
+			transformed[key] = v.(string)
+		}
+	}
+	return transformed
 }
 
 func flattenBillingBudgetAmount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -828,13 +849,13 @@ func expandBillingBudgetBudgetFilterSubaccounts(v interface{}, d TerraformResour
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandBillingBudgetBudgetFilterLabels(v interface{}, d TerraformResourceData, config *Config) (map[string][]string, error) {
 	if v == nil {
-		return map[string]string{}, nil
+		return map[string][]string{}, nil
 	}
-	m := make(map[string]string)
+	m := make(map[string][]string)
 	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+		m[k] = []string{val.(string)}
 	}
 	return m, nil
 }
