@@ -31,6 +31,12 @@ var defaultErrorRetryPredicates = []RetryErrorPredicateFunc{
 	// we had this in our global default error retries.
 	// Keeping it as a default for now.
 	is409OperationInProgressError,
+
+	// GCE Subnetworks are considered unready for a brief period when certain
+	// operations are performed on them, and the scope is likely too broad to
+	// apply a mutex. If we attempt an operation w/ an unready subnetwork, retry
+	// it.
+	isSubnetworkUnreadyError,
 }
 
 /** END GLOBAL ERROR RETRY PREDICATES HERE **/
@@ -93,6 +99,19 @@ func is409OperationInProgressError(err error) (bool, string) {
 	if gerr.Code == 409 && strings.Contains(gerr.Body, "operationInProgress") {
 		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 409 and error reason 'operationInProgress': %s", err)
 		return true, "Operation still in progress"
+	}
+	return false, ""
+}
+
+func isSubnetworkUnreadyError(err error) (bool, string) {
+	gerr, ok := err.(*googleapi.Error)
+	if !ok {
+		return false, ""
+	}
+
+	if gerr.Code == 400 && strings.Contains(gerr.Body, "resourceNotReady") && strings.Contains(gerr.Body, "subnetworks") {
+		log.Printf("[DEBUG] Dismissed an error as retryable based on error code 400 and error reason 'resourceNotReady' w/ `subnetwork`: %s", err)
+		return true, "Subnetwork not ready"
 	}
 	return false, ""
 }
