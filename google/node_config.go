@@ -105,6 +105,24 @@ func schemaNodeConfig() *schema.Schema {
 					Description:  `The number of local SSD disks to be attached to the node.`,
 				},
 
+				"gcfs_config": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: `GCFS configuration for this node.`,
+					ForceNew:    true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"enabled": {
+								Type:        schema.TypeBool,
+								Required:    true,
+								ForceNew:    true,
+								Description: `Whether or not GCFS is enabled`,
+							},
+						},
+					},
+				},
+
 				"machine_type": {
 					Type:        schema.TypeString,
 					Optional:    true,
@@ -298,6 +316,13 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.LocalSsdCount = int64(v.(int))
 	}
 
+	if v, ok := nodeConfig["gcfs_config"]; ok && len(v.([]interface{})) > 0 {
+		conf := v.([]interface{})[0].(map[string]interface{})
+		nc.GcfsConfig = &container.GcfsConfig{
+			Enabled: conf["enabled"].(bool),
+		}
+	}
+
 	if scopes, ok := nodeConfig["oauth_scopes"]; ok {
 		scopesSet := scopes.(*schema.Set)
 		scopes := make([]string, scopesSet.Len())
@@ -412,6 +437,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"disk_type":                c.DiskType,
 		"guest_accelerator":        flattenContainerGuestAccelerators(c.Accelerators),
 		"local_ssd_count":          c.LocalSsdCount,
+		"gcfs_config":              flattenGcfsConfig(c.GcfsConfig),
 		"service_account":          c.ServiceAccount,
 		"metadata":                 c.Metadata,
 		"image_type":               c.ImageType,
@@ -449,6 +475,16 @@ func flattenShieldedInstanceConfig(c *container.ShieldedInstanceConfig) []map[st
 		result = append(result, map[string]interface{}{
 			"enable_secure_boot":          c.EnableSecureBoot,
 			"enable_integrity_monitoring": c.EnableIntegrityMonitoring,
+		})
+	}
+	return result
+}
+
+func flattenGcfsConfig(c *container.GcfsConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"enabled": c.Enabled,
 		})
 	}
 	return result
