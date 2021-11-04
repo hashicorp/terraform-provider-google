@@ -623,6 +623,18 @@ ephemeral_storage_config {
 }
 ```
 
+* `gcfs_config` - (Optional) Parameters for the Google Container Filesystem (GCFS).
+    If unspecified, GCFS will not be enabled on the node pool. When enabling this feature you must specify `image_type = "COS_CONTAINERD"` and `node_version` from GKE versions 1.19 or later to use it.
+    For GKE versions 1.19, 1.20, and 1.21, the recommended minimum `node_version` would be 1.19.15-gke.1300, 1.20.11-gke.1300, and 1.21.5-gke.1300 respectively.
+    A `machine_type` that has more than 16 GiB of memory is also recommended.
+    Structure is [documented below](#nested_gcfs_config).
+
+```hcl
+gcfs_config {
+  enabled = true
+}
+```
+
 * `guest_accelerator` - (Optional) List of the type and count of accelerator cards attached to the instance.
     Structure [documented below](#nested_guest_accelerator).
     To support removal of guest_accelerators in Terraform 0.12 this field is an
@@ -725,6 +737,10 @@ linux_node_config {
 <a name="nested_ephemeral_storage_config"></a>The `ephemeral_storage_config` block supports:
 
 * `local_ssd_count` (Required) - Number of local SSDs to use to back ephemeral storage. Uses NVMe interfaces. Each local SSD is 375 GB in size. If zero, it means to disable using local SSDs as ephemeral storage.
+
+<a name="nested_gcfs_config"></a>The `gcfs_config` block supports:
+
+* `enabled` (Required) - Whether or not the Google Container Filesystem (GCFS) is enabled
 
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
