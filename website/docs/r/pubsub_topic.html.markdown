@@ -49,6 +49,8 @@ resource "google_pubsub_topic" "example" {
   labels = {
     foo = "bar"
   }
+
+  message_retention_duration = "86600s"
 }
 ```
 ## Example Usage - Pubsub Topic Cmek
@@ -146,6 +148,16 @@ The following arguments are supported:
   (Optional)
   Settings for validating messages published against a schema.
   Structure is [documented below](#nested_schema_settings).
+
+* `message_retention_duration` -
+  (Optional)
+  Indicates the minimum duration to retain a message after it is published
+  to the topic. If this field is set, messages published to the topic in
+  the last messageRetentionDuration are always available to subscribers.
+  For instance, it allows any attached subscription to seek to a timestamp
+  that is up to messageRetentionDuration in the past. If this field is not
+  set, message retention is controlled by settings on individual subscriptions.
+  Cannot be more than 7 days or less than 10 minutes.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
