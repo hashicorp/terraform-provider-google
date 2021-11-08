@@ -79,8 +79,8 @@ The following arguments are supported:
 * `labels` - (Optional) User labels to be specified for the job. Keys and values should follow the restrictions
    specified in the [labeling restrictions](https://cloud.google.com/compute/docs/labeling-resources#restrictions) page.
    **NOTE**: Google-provided Dataflow templates often provide default labels that begin with `goog-dataflow-provided`.
-   Unless explicitly set in config, these labels will be ignored to prevent diffs on re-apply. 
-* `transform_name_mapping` - (Optional) Only applicable when updating a pipeline. Map of transform name prefixes of the job to be replaced with the corresponding name prefixes of the new job. This field is not used outside of update.   
+   Unless explicitly set in config, these labels will be ignored to prevent diffs on re-apply.
+* `transform_name_mapping` - (Optional) Only applicable when updating a pipeline. Map of transform name prefixes of the job to be replaced with the corresponding name prefixes of the new job. This field is not used outside of update.
 * `max_workers` - (Optional) The number of workers permitted to work on the job.  More workers may improve processing speed at additional cost.
 * `on_delete` - (Optional) One of "drain" or "cancel".  Specifies behavior of deletion during `terraform destroy`.  See above note.
 * `project` - (Optional) The project in which the resource belongs. If it is not provided, the provider project is used.
@@ -88,7 +88,7 @@ The following arguments are supported:
 * `region` - (Optional) The region in which the created job should run.
 * `service_account_email` - (Optional) The Service Account email used to create the job.
 * `network` - (Optional) The network to which VMs will be assigned. If it is not provided, "default" will be used.
-* `subnetwork` - (Optional) The subnetwork to which VMs will be assigned. Should be of the form "regions/REGION/subnetworks/SUBNETWORK".
+* `subnetwork` - (Optional) The subnetwork to which VMs will be assigned. Should be of the form "regions/REGION/subnetworks/SUBNETWORK". If the [subnetwork is located in a Shared VPC network](https://cloud.google.com/dataflow/docs/guides/specifying-networks#shared), you must use the complete URL. For example `"googleapis.com/compute/v1/projects/PROJECT_ID/regions/REGION/subnetworks/SUBNET_NAME"`
 * `machine_type` - (Optional) The machine type to use for the job.
 * `kms_key_name` - (Optional) The name for the Cloud KMS key for the job. Key format is: `projects/PROJECT_ID/locations/LOCATION/keyRings/KEY_RING/cryptoKeys/KEY`
 * `ip_configuration` - (Optional) The configuration for VM IPs.  Options are `"WORKER_IP_PUBLIC"` or `"WORKER_IP_PRIVATE"`.
