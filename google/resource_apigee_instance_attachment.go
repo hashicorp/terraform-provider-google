@@ -77,6 +77,13 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 		obj["environment"] = environmentProp
 	}
 
+	lockName, err := replaceVars(d, config, "{{instance_id}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
+
 	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments")
 	if err != nil {
 		return err
@@ -172,6 +179,13 @@ func resourceApigeeInstanceAttachmentDelete(d *schema.ResourceData, meta interfa
 	}
 
 	billingProject := ""
+
+	lockName, err := replaceVars(d, config, "{{instance_id}}")
+	if err != nil {
+		return err
+	}
+	mutexKV.Lock(lockName)
+	defer mutexKV.Unlock(lockName)
 
 	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
 	if err != nil {
