@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -277,7 +278,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 		obj["sourceDiskEncryptionKey"] = sourceDiskEncryptionKeyProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{source_disk}}/createSnapshot")
+	url, err := replaceVars(d, config, "{{ComputeBasePath}}PRE_CREATE_REPLACE_ME/createSnapshot")
 	if err != nil {
 		return err
 	}
@@ -296,6 +297,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
+	url = regexp.MustCompile("PRE_CREATE_REPLACE_ME").ReplaceAllLiteralString(url, sourceDiskProp.(string))
 	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Snapshot: %s", err)
@@ -626,7 +628,7 @@ func flattenComputeSnapshotSourceDisk(v interface{}, d *schema.ResourceData, con
 	if v == nil {
 		return v
 	}
-	return NameFromSelfLinkStateFunc(v)
+	return ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {

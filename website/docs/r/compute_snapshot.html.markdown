@@ -56,7 +56,7 @@ state as plain-text. [Read more about sensitive data in state](/docs/state/sensi
 ```hcl
 resource "google_compute_snapshot" "snapshot" {
   name        = "my-snapshot"
-  source_disk = google_compute_disk.persistent.name
+  source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
   labels = {
     my_label = "value"

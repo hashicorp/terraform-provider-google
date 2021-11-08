@@ -52,7 +52,7 @@ func testAccComputeSnapshot_snapshotBasicExample(context map[string]interface{})
 	return Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
   name        = "tf-test-my-snapshot%{random_suffix}"
-  source_disk = google_compute_disk.persistent.name
+  source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
   labels = {
     my_label = "value"
