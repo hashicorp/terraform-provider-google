@@ -120,9 +120,21 @@ resource "google_apigee_environment" "apigee_env" {
   display_name = "tf-test%{random_suffix}"
 }
 
+resource "google_apigee_environment" "apigee_env_2" {
+  org_id       = google_apigee_organization.apigee_org.id
+  name         = "tf-test-2-%{random_suffix}"
+  description  = "Apigee 2 Environment"
+  display_name = "tf-test-2-%{random_suffix}"
+}
+
 resource "google_apigee_instance_attachment" "apigee_instance_attachment" {
   instance_id  = google_apigee_instance.apigee_instance.id
   environment  = google_apigee_environment.apigee_env.name
+}
+
+resource "google_apigee_instance_attachment" "apigee_instance_attachment_2" {
+  instance_id  = google_apigee_instance.apigee_instance.id
+  environment  = google_apigee_environment.apigee_env_2.name
 }
 `, context)
 }
