@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a bug in `google_compute_firewall` that would cause changes in `source_ranges` to not correctly be applied
+```

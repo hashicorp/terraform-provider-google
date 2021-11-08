@@ -106,7 +106,8 @@ func diffSuppressSourceRanges(k, old, new string, d *schema.ResourceData) bool {
 			// this allows for diff suppress on ["0.0.0.0/0"] -> []
 			return true
 		}
-		return old == new
+		// For any other source_ranges.# diff, don't suppress
+		return false
 	}
 	kLength := "source_ranges.#"
 	oldLength, newLength := d.GetChange(kLength)
@@ -130,7 +131,8 @@ func diffSuppressSourceRanges(k, old, new string, d *schema.ResourceData) bool {
 			return true
 		}
 	}
-	return old == new
+	// For any other source_ranges value diff, don't suppress
+	return false
 }
 
 func resourceComputeFirewall() *schema.Resource {
