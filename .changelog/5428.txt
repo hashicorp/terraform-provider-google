@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed a bug following import where schema is empty on `google_bigquery_table` 
+```

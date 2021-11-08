@@ -311,6 +311,9 @@ func resourceBigQueryTableSchemaCustomizeDiffFunc(d TerraformResourceDiff) error
 			// The API can return an empty schema which gets encoded to "null" during read.
 			oldSchemaText = "[]"
 		}
+		if newSchemaText == "null" {
+			newSchemaText = "[]"
+		}
 		var old, new interface{}
 		if err := json.Unmarshal([]byte(oldSchemaText), &old); err != nil {
 			// don't return error, its possible we are going from no schema to schema
