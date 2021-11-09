@@ -550,6 +550,25 @@ func resourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"confidential_nodes": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Description: `Configuration for the confidential nodes feature, which makes nodes run on confidential VMs. Warning: This configuration can't be changed (or added/removed) after cluster creation without deleting and recreating the entire cluster.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Whether Confidential Nodes feature is enabled for all nodes in this cluster.`,
+						},
+					},
+				},
+			},
+
 			"master_auth": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -1157,8 +1176,9 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			DatapathProvider:          d.Get("datapath_provider").(string),
 			PrivateIpv6GoogleAccess:   d.Get("private_ipv6_google_access").(string),
 		},
-		MasterAuth:     expandMasterAuth(d.Get("master_auth")),
-		ResourceLabels: expandStringMap(d, "resource_labels"),
+		MasterAuth:        expandMasterAuth(d.Get("master_auth")),
+		ConfidentialNodes: expandConfidentialNodes(d.Get("confidential_nodes")),
+		ResourceLabels:    expandStringMap(d, "resource_labels"),
 	}
 
 	v := d.Get("enable_shielded_nodes")
@@ -1495,6 +1515,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 	if err := d.Set("release_channel", flattenReleaseChannel(cluster.ReleaseChannel)); err != nil {
+		return err
+	}
+	if err := d.Set("confidential_nodes", flattenConfidentialNodes(cluster.ConfidentialNodes)); err != nil {
 		return err
 	}
 	if err := d.Set("enable_tpu", cluster.EnableTpu); err != nil {
@@ -2710,6 +2733,17 @@ func expandAuthenticatorGroupsConfig(configured interface{}) *container.Authenti
 	return result
 }
 
+func expandConfidentialNodes(configured interface{}) *container.ConfidentialNodes {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &container.ConfidentialNodes{
+		Enabled: config["enabled"].(bool),
+	}
+}
+
 func expandMasterAuth(configured interface{}) *container.MasterAuth {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -2930,6 +2964,16 @@ func expandMonitoringConfig(configured interface{}) *container.MonitoringConfig 
 			EnableComponents: convertStringArr(config["enable_components"].([]interface{})),
 		},
 	}
+}
+
+func flattenConfidentialNodes(c *container.ConfidentialNodes) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"enabled": c.Enabled,
+		})
+	}
+	return result
 }
 
 func flattenNetworkPolicy(c *container.NetworkPolicy) []map[string]interface{} {
