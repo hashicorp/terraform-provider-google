@@ -1,0 +1,3 @@
+```release-note:none
+asset: remove unnecessary service account dependency for asset feed examples.
+```
