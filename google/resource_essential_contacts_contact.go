@@ -45,6 +45,7 @@ func resourceEssentialContactsContact() *schema.Resource {
 			"email": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The email address to send notifications to. This does not need to be a Google account.`,
 			},
 			"language_tag": {
