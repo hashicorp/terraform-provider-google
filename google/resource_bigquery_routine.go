@@ -55,11 +55,13 @@ If language=SQL, it is the substring inside (but excluding) the parentheses.`,
 			"dataset_id": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The ID of the dataset containing this routine`,
 			},
 			"routine_id": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The ID of the the routine. The ID must contain only letters (a-z, A-Z), numbers (0-9), or underscores (_). The maximum length is 256 characters.`,
 			},
 
