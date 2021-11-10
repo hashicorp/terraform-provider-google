@@ -25,7 +25,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(t *test
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"target_service", "region", "nat_subnets.0"},
+				ImportStateVerifyIgnore: []string{"target_service", "region"},
 			},
 			{
 				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context),
@@ -34,7 +34,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(t *test
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"target_service", "region", "nat_subnets.0"},
+				ImportStateVerifyIgnore: []string{"target_service", "region"},
 			},
 		},
 	})

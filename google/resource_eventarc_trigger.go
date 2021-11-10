@@ -82,11 +82,12 @@ func resourceEventarcTrigger() *schema.Resource {
 			},
 
 			"project": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "The project for the resource",
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "The project for the resource",
 			},
 
 			"service_account": {
