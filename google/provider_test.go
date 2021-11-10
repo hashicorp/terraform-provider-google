@@ -982,7 +982,7 @@ func initializeReleaseDiffTest(c resource.TestCase) resource.TestCase {
 				replacementSteps = append(replacementSteps, newStep)
 			}
 			replacementSteps = append(replacementSteps, testStep)
-		} else {
+		} else if !testStep.ImportStateVerify {
 			replacementSteps = append(replacementSteps, testStep)
 		}
 	}

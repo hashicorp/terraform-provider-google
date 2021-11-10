@@ -107,10 +107,11 @@ func resourceComputeFirewallPolicyRule() *schema.Resource {
 			},
 
 			"target_service_accounts": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: "A list of service accounts indicating the sets of instances that are applied with this rule.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceNameList,
+				Description:      "A list of service accounts indicating the sets of instances that are applied with this rule.",
+				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 
 			"kind": {
