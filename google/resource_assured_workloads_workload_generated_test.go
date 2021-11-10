@@ -93,7 +93,7 @@ func TestAccAssuredWorkloadsWorkload_FullHandWritten(t *testing.T) {
 func testAccAssuredWorkloadsWorkload_BasicHandWritten(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_assured_workloads_workload" "primary" {
-  display_name = "workload%{random_suffix}"
+  display_name = "tf-test-name%{random_suffix}"
   labels = {
     a = "a"
   }
@@ -105,7 +105,7 @@ resource "google_assured_workloads_workload" "primary" {
 }
 
 resource "google_folder" "folder1" {
-  display_name = "workload%{random_suffix}"
+  display_name = "tf-test-name%{random_suffix}"
   parent       = "organizations/%{org_id}"
 }
 `, context)
@@ -114,7 +114,7 @@ resource "google_folder" "folder1" {
 func testAccAssuredWorkloadsWorkload_BasicHandWrittenUpdate0(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_assured_workloads_workload" "primary" {
-  display_name = "workload%{random_suffix}"
+  display_name = "tf-test-name%{random_suffix}"
   labels = {
     a = "b"
   }
@@ -126,7 +126,7 @@ resource "google_assured_workloads_workload" "primary" {
 }
 
 resource "google_folder" "folder1" {
-  display_name = "workload%{random_suffix}"
+  display_name = "tf-test-name%{random_suffix}"
   parent       = "organizations/%{org_id}"
 }
 `, context)
@@ -135,7 +135,7 @@ resource "google_folder" "folder1" {
 func testAccAssuredWorkloadsWorkload_FullHandWritten(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_assured_workloads_workload" "primary" {
-  display_name = "workload%{random_suffix}"
+  display_name = "tf-test-name%{random_suffix}"
   billing_account = "billingAccounts/%{billing_acct}"
   compliance_regime = "FEDRAMP_MODERATE"
   organization = "%{org_id}"
@@ -148,7 +148,7 @@ resource "google_assured_workloads_workload" "primary" {
 }
 
 resource "google_folder" "folder1" {
-  display_name = "workload%{random_suffix}"
+  display_name = "tf-test-name%{random_suffix}"
   parent       = "organizations/%{org_id}"
 }
 

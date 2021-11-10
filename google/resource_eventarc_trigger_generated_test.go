@@ -71,7 +71,7 @@ func TestAccEventarcTrigger_BasicHandWritten(t *testing.T) {
 func testAccEventarcTrigger_BasicHandWritten(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_eventarc_trigger" "primary" {
-	name = "trigger%{random_suffix}"
+	name = "tf-test-name%{random_suffix}"
 	location = "europe-west1"
 	matching_criteria {
 		attribute = "type"
@@ -89,11 +89,11 @@ resource "google_eventarc_trigger" "primary" {
 }
 
 resource "google_pubsub_topic" "foo" {
-	name = "topic%{random_suffix}"
+	name = "tf-test-topic%{random_suffix}"
 }
 
 resource "google_cloud_run_service" "default" {
-	name     = "tf-test-service-eventarc%{random_suffix}"
+	name     = "tf_test_event_arc_service%{random_suffix}"
 	location = "europe-west1"
 
 	metadata {
@@ -121,7 +121,7 @@ resource "google_cloud_run_service" "default" {
 func testAccEventarcTrigger_BasicHandWrittenUpdate0(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_eventarc_trigger" "primary" {
-	name = "trigger%{random_suffix}"
+	name = "tf-test-name%{random_suffix}"
 	location = "europe-west1"
 	matching_criteria {
 		attribute = "type"
@@ -141,11 +141,11 @@ resource "google_eventarc_trigger" "primary" {
 }
 
 resource "google_pubsub_topic" "foo" {
-	name = "topic%{random_suffix}"
+	name = "tf-test-topic%{random_suffix}"
 }
 
 resource "google_cloud_run_service" "default" {
-	name     = "tf-test-service-eventarc%{random_suffix}"
+	name     = "tf_test_event_arc_service%{random_suffix}"
 	location = "europe-west1"
 
 	metadata {
@@ -169,7 +169,7 @@ resource "google_cloud_run_service" "default" {
 }
 
 resource "google_cloud_run_service" "default2" {
-	name     = "tf-test-service-eventarc%{random_suffix}2"
+	name     = "tf_test_event_arc_service%{random_suffix}2"
 	location = "europe-north1"
 
 	metadata {
@@ -197,7 +197,7 @@ resource "google_cloud_run_service" "default2" {
 func testAccEventarcTrigger_BasicHandWrittenUpdate1(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_eventarc_trigger" "primary" {
-	name = "trigger%{random_suffix}"
+	name = "tf-test-name%{random_suffix}"
 	location = "europe-west1"
 	matching_criteria {
 		attribute = "type"
@@ -221,16 +221,16 @@ resource "google_eventarc_trigger" "primary" {
 }
 
 resource "google_service_account" "eventarc-sa" {
-	account_id   = "sa%{random_suffix}"
+	account_id   = "tf_test_service_account%{random_suffix}"
 	display_name = "Test Service Account"
 }
 
 resource "google_pubsub_topic" "foo" {
-	name = "topic%{random_suffix}"
+	name = "tf-test-topic%{random_suffix}"
 }
 
 resource "google_cloud_run_service" "default" {
-	name     = "tf-test-service-eventarc%{random_suffix}"
+	name     = "tf_test_event_arc_service%{random_suffix}"
 	location = "europe-west1"
 
 	metadata {
@@ -254,7 +254,7 @@ resource "google_cloud_run_service" "default" {
 }
 
 resource "google_cloud_run_service" "default2" {
-	name     = "tf-test-service-eventarc%{random_suffix}2"
+	name     = "tf_test_event_arc_service%{random_suffix}2"
 	location = "europe-north1"
 
 	metadata {

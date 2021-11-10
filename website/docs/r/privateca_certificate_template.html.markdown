@@ -18,18 +18,22 @@ layout: "google"
 page_title: "Google: google_privateca_certificate_template"
 sidebar_current: "docs-google-privateca-certificate-template"
 description: |-
-
+Certificate Authority Service provides reusable and parameterized templates that you can use for common certificate issuance scenarios. A certificate template represents a relatively static and well-defined certificate issuance schema within an organization.  A certificate template can essentially become a full-fledged vertical certificate issuance framework.
 ---
 
 # google\_privateca\_certificate\_template
 
+Certificate Authority Service provides reusable and parameterized templates that you can use for common certificate issuance scenarios. A certificate template represents a relatively static and well-defined certificate issuance schema within an organization.  A certificate template can essentially become a full-fledged vertical certificate issuance framework.
 
+For more information, see:
+* [Understanding Certificate Templates](https://cloud.google.com/certificate-authority-service/docs/certificate-template)
+* [Common configurations and Certificate Profiles](https://cloud.google.com/certificate-authority-service/docs/certificate-profile)
 ## Example Usage - basic_certificate_template
 An example of a basic privateca certificate template
 ```hcl
 resource "google_privateca_certificate_template" "primary" {
   location    = "us-west1"
-  name        = "template-test"
+  name        = "template"
   description = "An updated sample certificate template"
 
   identity_constraints {

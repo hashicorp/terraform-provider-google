@@ -18,11 +18,12 @@ layout: "google"
 page_title: "Google: google_assured_workloads_workload"
 sidebar_current: "docs-google-assured-workloads-workload"
 description: |-
-
+The AssuredWorkloads Workload resource
 ---
 
 # google\_assured\_workloads\_workload
 
+The AssuredWorkloads Workload resource
 
 ## Example Usage - basic_workload
 A basic test of a assuredworkloads api
@@ -50,7 +51,7 @@ resource "google_assured_workloads_workload" "primary" {
   }
 
   resource_settings {
-    resource_id   = "{{ring}}"
+    resource_id   = "ring"
     resource_type = "KEYRING"
   }
 }
