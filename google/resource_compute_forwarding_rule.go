@@ -156,11 +156,12 @@ func resourceComputeForwardingRule() *schema.Resource {
 			},
 
 			"project": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "The project this resource belongs in.",
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				Description:      "The project this resource belongs in.",
 			},
 
 			"region": {
