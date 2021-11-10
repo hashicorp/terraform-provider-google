@@ -58,7 +58,7 @@ func testSweepPrivatecaCertificate_template(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLPrivatecaClient(config, config.userAgent, "")
+	client := NewDCLPrivatecaClient(config, config.userAgent, "", 0)
 	err = client.DeleteAllCertificateTemplate(context.Background(), d["project"], d["location"], isDeletablePrivatecaCertificate_template)
 	if err != nil {
 		return err

@@ -39,9 +39,9 @@ func resourceEventarcTrigger() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(30 * time.Minute),
-			Delete: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -265,7 +265,7 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLEventarcClient(config, userAgent, billingProject)
+	client := NewDCLEventarcClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	res, err := client.ApplyTrigger(context.Background(), obj, createDirective...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -308,7 +308,7 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLEventarcClient(config, userAgent, billingProject)
+	client := NewDCLEventarcClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	res, err := client.GetTrigger(context.Background(), obj)
 	if err != nil {
 		resourceName := fmt.Sprintf("EventarcTrigger %q", d.Id())
@@ -382,7 +382,7 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLEventarcClient(config, userAgent, billingProject)
+	client := NewDCLEventarcClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
 	res, err := client.ApplyTrigger(context.Background(), obj, directive...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -426,7 +426,7 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLEventarcClient(config, userAgent, billingProject)
+	client := NewDCLEventarcClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	if err := client.DeleteTrigger(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting Trigger: %s", err)
 	}

@@ -254,7 +254,7 @@ func testAccCheckPrivatecaCertificateTemplateDestroyProducer(t *testing.T) func(
 				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLPrivatecaClient(config, config.userAgent, billingProject)
+			client := NewDCLPrivatecaClient(config, config.userAgent, billingProject, 0)
 			_, err := client.GetCertificateTemplate(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_privateca_certificate_template still exists %v", obj)

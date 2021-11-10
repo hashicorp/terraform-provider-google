@@ -58,7 +58,7 @@ func testSweepDataprocWorkflow_template(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLDataprocClient(config, config.userAgent, "")
+	client := NewDCLDataprocClient(config, config.userAgent, "", 0)
 	err = client.DeleteAllWorkflowTemplate(context.Background(), d["project"], d["location"], isDeletableDataprocWorkflow_template)
 	if err != nil {
 		return err

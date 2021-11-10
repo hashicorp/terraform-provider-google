@@ -38,8 +38,8 @@ func resourceComputeFirewallPolicyAssociation() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Delete: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -99,7 +99,7 @@ func resourceComputeFirewallPolicyAssociationCreate(d *schema.ResourceData, meta
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject)
+	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	res, err := client.ApplyFirewallPolicyAssociation(context.Background(), obj, createDirective...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -133,7 +133,7 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject)
+	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	res, err := client.GetFirewallPolicyAssociation(context.Background(), obj)
 	if err != nil {
 		resourceName := fmt.Sprintf("ComputeFirewallPolicyAssociation %q", d.Id())
@@ -175,7 +175,7 @@ func resourceComputeFirewallPolicyAssociationDelete(d *schema.ResourceData, meta
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject)
+	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	if err := client.DeleteFirewallPolicyAssociation(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting FirewallPolicyAssociation: %s", err)
 	}
