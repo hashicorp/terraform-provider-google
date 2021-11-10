@@ -363,7 +363,7 @@ func testAccCheckComputeServiceAttachmentDestroyProducer(t *testing.T) func(s *t
 				SelfLink:             dcl.StringOrNil(rs.Primary.Attributes["self_link"]),
 			}
 
-			client := NewDCLComputeClient(config, config.userAgent, billingProject)
+			client := NewDCLComputeClient(config, config.userAgent, billingProject, 0)
 			_, err := client.GetServiceAttachment(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_compute_service_attachment still exists %v", obj)

@@ -39,9 +39,9 @@ func resourceComputeServiceAttachment() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(30 * time.Minute),
-			Delete: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -252,7 +252,7 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject)
+	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	res, err := client.ApplyServiceAttachment(context.Background(), obj, createDirective...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -301,7 +301,7 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject)
+	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	res, err := client.GetServiceAttachment(context.Background(), obj)
 	if err != nil {
 		resourceName := fmt.Sprintf("ComputeServiceAttachment %q", d.Id())
@@ -390,7 +390,7 @@ func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interfa
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject)
+	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
 	res, err := client.ApplyServiceAttachment(context.Background(), obj, directive...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -440,7 +440,7 @@ func resourceComputeServiceAttachmentDelete(d *schema.ResourceData, meta interfa
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject)
+	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	if err := client.DeleteServiceAttachment(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting ServiceAttachment: %s", err)
 	}

@@ -58,7 +58,7 @@ func testSweepComputeService_attachment(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLComputeClient(config, config.userAgent, "")
+	client := NewDCLComputeClient(config, config.userAgent, "", 0)
 	err = client.DeleteAllServiceAttachment(context.Background(), d["project"], d["location"], isDeletableComputeService_attachment)
 	if err != nil {
 		return err

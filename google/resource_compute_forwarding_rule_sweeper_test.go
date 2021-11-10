@@ -58,7 +58,7 @@ func testSweepComputeForwarding_rule(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLComputeClient(config, config.userAgent, "")
+	client := NewDCLComputeClient(config, config.userAgent, "", 0)
 	err = client.DeleteAllForwardingRule(context.Background(), d["project"], d["location"], isDeletableComputeForwarding_rule)
 	if err != nil {
 		return err

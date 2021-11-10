@@ -28,13 +28,16 @@ import (
 	privateca "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/privateca"
 )
 
-func NewDCLAssuredWorkloadsClient(config *Config, userAgent, billingProject string) *assuredworkloads.Client {
+func NewDCLAssuredWorkloadsClient(config *Config, userAgent, billingProject string, timeout time.Duration) *assuredworkloads.Client {
 	configOptions := []dcl.ConfigOption{
 		dcl.WithHTTPClient(config.client),
 		dcl.WithUserAgent(userAgent),
 		dcl.WithLogger(dclLogger{}),
-		dcl.WithTimeout(30 * time.Minute),
 		dcl.WithBasePath(config.AssuredWorkloadsBasePath),
+	}
+
+	if timeout != 0 {
+		configOptions = append(configOptions, dcl.WithTimeout(timeout))
 	}
 
 	if config.UserProjectOverride {
@@ -48,13 +51,16 @@ func NewDCLAssuredWorkloadsClient(config *Config, userAgent, billingProject stri
 	return assuredworkloads.NewClient(dclConfig)
 }
 
-func NewDCLCloudResourceManagerClient(config *Config, userAgent, billingProject string) *cloudresourcemanager.Client {
+func NewDCLCloudResourceManagerClient(config *Config, userAgent, billingProject string, timeout time.Duration) *cloudresourcemanager.Client {
 	configOptions := []dcl.ConfigOption{
 		dcl.WithHTTPClient(config.client),
 		dcl.WithUserAgent(userAgent),
 		dcl.WithLogger(dclLogger{}),
-		dcl.WithTimeout(30 * time.Minute),
 		dcl.WithBasePath(config.CloudResourceManagerBasePath),
+	}
+
+	if timeout != 0 {
+		configOptions = append(configOptions, dcl.WithTimeout(timeout))
 	}
 
 	if config.UserProjectOverride {
@@ -68,13 +74,16 @@ func NewDCLCloudResourceManagerClient(config *Config, userAgent, billingProject 
 	return cloudresourcemanager.NewClient(dclConfig)
 }
 
-func NewDCLComputeClient(config *Config, userAgent, billingProject string) *compute.Client {
+func NewDCLComputeClient(config *Config, userAgent, billingProject string, timeout time.Duration) *compute.Client {
 	configOptions := []dcl.ConfigOption{
 		dcl.WithHTTPClient(config.client),
 		dcl.WithUserAgent(userAgent),
 		dcl.WithLogger(dclLogger{}),
-		dcl.WithTimeout(30 * time.Minute),
 		dcl.WithBasePath(config.ComputeBasePath),
+	}
+
+	if timeout != 0 {
+		configOptions = append(configOptions, dcl.WithTimeout(timeout))
 	}
 
 	if config.UserProjectOverride {
@@ -88,13 +97,16 @@ func NewDCLComputeClient(config *Config, userAgent, billingProject string) *comp
 	return compute.NewClient(dclConfig)
 }
 
-func NewDCLDataprocClient(config *Config, userAgent, billingProject string) *dataproc.Client {
+func NewDCLDataprocClient(config *Config, userAgent, billingProject string, timeout time.Duration) *dataproc.Client {
 	configOptions := []dcl.ConfigOption{
 		dcl.WithHTTPClient(config.client),
 		dcl.WithUserAgent(userAgent),
 		dcl.WithLogger(dclLogger{}),
-		dcl.WithTimeout(30 * time.Minute),
 		dcl.WithBasePath(config.DataprocBasePath),
+	}
+
+	if timeout != 0 {
+		configOptions = append(configOptions, dcl.WithTimeout(timeout))
 	}
 
 	if config.UserProjectOverride {
@@ -108,13 +120,16 @@ func NewDCLDataprocClient(config *Config, userAgent, billingProject string) *dat
 	return dataproc.NewClient(dclConfig)
 }
 
-func NewDCLEventarcClient(config *Config, userAgent, billingProject string) *eventarc.Client {
+func NewDCLEventarcClient(config *Config, userAgent, billingProject string, timeout time.Duration) *eventarc.Client {
 	configOptions := []dcl.ConfigOption{
 		dcl.WithHTTPClient(config.client),
 		dcl.WithUserAgent(userAgent),
 		dcl.WithLogger(dclLogger{}),
-		dcl.WithTimeout(30 * time.Minute),
 		dcl.WithBasePath(config.EventarcBasePath),
+	}
+
+	if timeout != 0 {
+		configOptions = append(configOptions, dcl.WithTimeout(timeout))
 	}
 
 	if config.UserProjectOverride {
@@ -128,13 +143,16 @@ func NewDCLEventarcClient(config *Config, userAgent, billingProject string) *eve
 	return eventarc.NewClient(dclConfig)
 }
 
-func NewDCLOrgPolicyClient(config *Config, userAgent, billingProject string) *orgpolicy.Client {
+func NewDCLOrgPolicyClient(config *Config, userAgent, billingProject string, timeout time.Duration) *orgpolicy.Client {
 	configOptions := []dcl.ConfigOption{
 		dcl.WithHTTPClient(config.client),
 		dcl.WithUserAgent(userAgent),
 		dcl.WithLogger(dclLogger{}),
-		dcl.WithTimeout(30 * time.Minute),
 		dcl.WithBasePath(config.OrgPolicyBasePath),
+	}
+
+	if timeout != 0 {
+		configOptions = append(configOptions, dcl.WithTimeout(timeout))
 	}
 
 	if config.UserProjectOverride {
@@ -148,13 +166,16 @@ func NewDCLOrgPolicyClient(config *Config, userAgent, billingProject string) *or
 	return orgpolicy.NewClient(dclConfig)
 }
 
-func NewDCLPrivatecaClient(config *Config, userAgent, billingProject string) *privateca.Client {
+func NewDCLPrivatecaClient(config *Config, userAgent, billingProject string, timeout time.Duration) *privateca.Client {
 	configOptions := []dcl.ConfigOption{
 		dcl.WithHTTPClient(config.client),
 		dcl.WithUserAgent(userAgent),
 		dcl.WithLogger(dclLogger{}),
-		dcl.WithTimeout(30 * time.Minute),
 		dcl.WithBasePath(config.PrivatecaBasePath),
+	}
+
+	if timeout != 0 {
+		configOptions = append(configOptions, dcl.WithTimeout(timeout))
 	}
 
 	if config.UserProjectOverride {
