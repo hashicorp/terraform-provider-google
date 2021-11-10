@@ -168,8 +168,8 @@ resource "google_org_policy_policy" "primary" {
 }
 
 resource "google_project" "basic" {
-  project_id = "tf-test-id-test%{random_suffix}"
-  name       = "tf-test-id-test%{random_suffix}"
+  project_id = "tf-test-id%{random_suffix}"
+  name       = "tf-test-id%{random_suffix}"
   org_id     = "%{org_id}"
 }
 
@@ -194,7 +194,7 @@ resource "google_org_policy_policy" "primary" {
 
 resource "google_folder" "basic" {
   parent       = "organizations/%{org_id}"
-  display_name = "folder%{random_suffix}"
+  display_name = "tf-test-folder%{random_suffix}"
 }
 
 
@@ -231,7 +231,7 @@ resource "google_org_policy_policy" "primary" {
 
 resource "google_folder" "basic" {
   parent       = "organizations/%{org_id}"
-  display_name = "folder%{random_suffix}"
+  display_name = "tf-test-folder%{random_suffix}"
 }
 
 
@@ -300,8 +300,8 @@ resource "google_org_policy_policy" "primary" {
 }
 
 resource "google_project" "basic" {
-  project_id = "tf-test-id-test%{random_suffix}"
-  name       = "tf-test-id-test%{random_suffix}"
+  project_id = "tf-test-id%{random_suffix}"
+  name       = "tf-test-id%{random_suffix}"
   org_id     = "%{org_id}"
 }
 
@@ -337,8 +337,8 @@ resource "google_org_policy_policy" "primary" {
 }
 
 resource "google_project" "basic" {
-  project_id = "tf-test-id-test%{random_suffix}"
-  name       = "tf-test-id-test%{random_suffix}"
+  project_id = "tf-test-id%{random_suffix}"
+  name       = "tf-test-id%{random_suffix}"
   org_id     = "%{org_id}"
 }
 

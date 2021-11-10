@@ -18,12 +18,17 @@ layout: "google"
 page_title: "Google: google_org_policy_policy"
 sidebar_current: "docs-google-org-policy-policy"
 description: |-
-
+An organization policy gives you programmatic control over your organization's cloud resources.  Using Organization Policies, you will be able to configure constraints across your entire resource hierarchy.
 ---
 
 # google\_org\_policy\_policy
 
+An organization policy gives you programmatic control over your organization's cloud resources.  Using Organization Policies, you will be able to configure constraints across your entire resource hierarchy.
 
+For more information, see:
+* [Understanding Org Policy concepts](https://cloud.google.com/resource-manager/docs/organization-policy/overview)
+* [The resource hierarchy](https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy)
+* [All valid constraints](https://cloud.google.com/resource-manager/docs/organization-policy/org-policy-constraints)
 ## Example Usage - enforce_policy
 A test of an enforce orgpolicy policy for a project
 ```hcl
@@ -39,8 +44,8 @@ resource "google_org_policy_policy" "primary" {
 }
 
 resource "google_project" "basic" {
-  project_id = "id-test"
-  name       = "id-test"
+  project_id = "id"
+  name       = "id"
   org_id     = "123456789"
 }
 
@@ -112,8 +117,8 @@ resource "google_org_policy_policy" "primary" {
 }
 
 resource "google_project" "basic" {
-  project_id = "id-test"
-  name       = "id-test"
+  project_id = "id"
+  name       = "id"
   org_id     = "123456789"
 }
 
