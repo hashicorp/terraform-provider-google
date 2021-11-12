@@ -549,7 +549,7 @@ The `web_server_network_access_control` supports:
   be the fully qualified resource name,
   i.e. projects/project-id/locations/location/keyRings/keyring/cryptoKeys/key. Cannot be updated.
 
-a name="nested_maintenance_window"></a>The `maintenance_window` block supports:
+<a name="nested_maintenance_window"></a>The `maintenance_window` block supports:
 * `start_time` -
   (Required)
   Start time of the first recurrence of the maintenance window.
@@ -715,6 +715,11 @@ The `software_config` block supports:
   `composer-[0-9]+\.[0-9]+(\.[0-9]+)?-airflow-[0-9]+\.[0-9]+(\.[0-9]+.*)?`.
   The Cloud Composer portion of the version is a semantic version.
   The portion of the image version following 'airflow-' is an official Apache Airflow repository release name.
+  **Important**: You can only upgrade in-place between minor Cloud Composer versions. For example, you can upgrade
+  your environment from `composer-1.16.x` to `composer-1.17.x`. You cannot upgrade between major Cloud Composer 
+  versions (from `1.x.x` to `2.x.x`). To do so, create a new environment.
+
+
 
 See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for setting up private environments. The `private_environment_config` block supports:
 
