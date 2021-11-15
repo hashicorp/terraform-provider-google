@@ -1,4 +1,4 @@
-## 4.1.0 (Unreleased)
+## 4.1.0 (November 15, 2021)
 
 IMPROVEMENTS:
 * cloudrun: Added support for secrets to GA provider. ([#10519](https://github.com/hashicorp/terraform-provider-google/pull/10519))
