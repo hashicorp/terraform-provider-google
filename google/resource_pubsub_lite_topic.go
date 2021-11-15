@@ -124,7 +124,9 @@ dropped to make room for newer ones, regardless of the value of period.`,
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `How long a published message is retained. If unset, messages will be retained as
-long as the bytes retained for each partition is below perPartitionBytes.`,
+long as the bytes retained for each partition is below perPartitionBytes. A
+duration in seconds with up to nine fractional digits, terminated by 's'.
+Example: "3.5s".`,
 						},
 					},
 				},

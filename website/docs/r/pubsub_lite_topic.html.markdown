@@ -144,7 +144,9 @@ The following arguments are supported:
 * `period` -
   (Optional)
   How long a published message is retained. If unset, messages will be retained as
-  long as the bytes retained for each partition is below perPartitionBytes.
+  long as the bytes retained for each partition is below perPartitionBytes. A
+  duration in seconds with up to nine fractional digits, terminated by 's'.
+  Example: "3.5s".
 
 <a name="nested_reservation_config"></a>The `reservation_config` block supports:
 
