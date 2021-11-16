@@ -395,6 +395,13 @@ func resourceComputeInstance() *schema.Resource {
 								},
 							},
 						},
+
+						"queue_count": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The networking queue count that's specified by users for the network interface. Both Rx and Tx queues will be set to this number. It will be empty if not specified.`,
+						},
 					},
 				},
 			},

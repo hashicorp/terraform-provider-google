@@ -1031,6 +1031,28 @@ func TestAccComputeInstanceTemplate_nictype_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_queueCount(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplateName = fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_queueCount(instanceTemplateName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := googleProviderConfig(t)
@@ -2587,4 +2609,28 @@ resource "google_compute_instance_template" "foobar" {
 	}
 }
 `, image, instance, nictype)
+}
+
+func testAccComputeInstanceTemplate_queueCount(instanceTemplateName string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+	name = "%s"
+	machine_type         = "e2-medium"
+	network_interface {
+		network = "default"
+		access_config {}
+		queue_count = 2
+	}
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+}
+`, instanceTemplateName)
 }
