@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a bug when `cache_mode` is set to FORCE_CACHE_ALL on `google_compute_backend_bucket`
+```
