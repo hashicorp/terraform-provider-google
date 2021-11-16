@@ -304,6 +304,8 @@ is desired, you will need to modify your state file manually using
 Currently, only one IPv6 access config, DIRECT_IPV6, is supported. If there is no ipv6AccessConfig
 specified, then this instance will have no external IPv6 Internet access. Structure [documented below](#nested_ipv6_access_config).
 
+* `queue_count` - (Optional) The networking queue count that's specified by users for the network interface. Both Rx and Tx queues will be set to this number. It will be empty if not specified.
+
 
 <a name="nested_access_config"></a>The `access_config` block supports:
 

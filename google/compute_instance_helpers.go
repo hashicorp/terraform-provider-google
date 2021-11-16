@@ -199,6 +199,7 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInt
 			"nic_type":           iface.NicType,
 			"stack_type":         iface.StackType,
 			"ipv6_access_config": flattenIpv6AccessConfigs(iface.Ipv6AccessConfigs),
+			"queue_count":        iface.QueueCount,
 		}
 		// Instance template interfaces never have names, so they're absent
 		// in the instance template network_interface schema. We want to use the
@@ -279,6 +280,7 @@ func expandNetworkInterfaces(d TerraformResourceData, config *Config) ([]*comput
 			AliasIpRanges:     expandAliasIpRanges(data["alias_ip_range"].([]interface{})),
 			NicType:           data["nic_type"].(string),
 			StackType:         data["stack_type"].(string),
+			QueueCount:        int64(data["queue_count"].(int)),
 			Ipv6AccessConfigs: expandIpv6AccessConfigs(data["ipv6_access_config"].([]interface{})),
 		}
 	}

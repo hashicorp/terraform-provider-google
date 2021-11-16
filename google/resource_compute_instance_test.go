@@ -2169,6 +2169,23 @@ func TestAccComputeInstance_subnetworkUpdate(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_queueCount(t *testing.T) {
+	t.Parallel()
+	instanceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_queueCountSet(instanceName),
+			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func TestComputeInstance_networkIPCustomizedDiff(t *testing.T) {
 	t.Parallel()
 
@@ -6040,4 +6057,31 @@ func testAccComputeInstance_subnetworkUpdateTwo(suffix, instance string) string 
 		}
 	}
 `, suffix, suffix, suffix, suffix, instance)
+}
+
+func testAccComputeInstance_queueCountSet(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-9"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%s"
+	machine_type = "e2-medium"
+	zone         = "us-east1-d"
+	allow_stopping_for_update = true
+
+	boot_disk {
+		initialize_params {
+			image = data.google_compute_image.my_image.id
+		}
+	}
+
+  network_interface {
+    network = "default"
+    queue_count = 2
+  }
+}
+`, instance)
 }
