@@ -1,3 +1,5 @@
+## 4.2.0 (Unreleased)
+
 ## 4.1.0 (November 15, 2021)
 
 IMPROVEMENTS:
