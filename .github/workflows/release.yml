@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+env:
+  GOPROXY: https://proxy.golang.org/
+  PROTOCOL_VERSION: "6.0"
+  PROTOCOL_VERSIONS: "6.0"
+  SIGNER: interim_signing_subkey_7685B676
+
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Read go version
+        id: go-version
+        run: |
+          content=`cat ./.go-version`
+          echo "::set-output name=content::$content"
+      - uses: actions/setup-go@v2
+        with:
+          # TODO: Replace with go-version-from-file when it is supported
+          # https://github.com/actions/setup-go/pull/62
+          go-version: ${{ steps.go-version.outputs.content }}
+      - uses: hashicorp/setup-hc-releases@v1
+        with:
+          github-token: ${{ secrets.HC_RELEASES_TOKEN }}
+          signer: ${{ env.SIGNER }}
+      - uses: hashicorp/setup-signore@v2
+        with:
+          github-token: ${{ secrets.SETUP_SIGNORE_GITHUB_TOKEN }}
+          signer: interim_signing_subkey_768B676
+      - name: Release Notes
+        run: sed -n -e "1{/# /d;}" -e "2{/^$/d;}" -e "/# \[$(git describe --abbrev=0 --exclude="$(git describe --abbrev=0 --match='v*.*.*' --tags)" --match='v*.*.*' --tags | tr -d v)/q;p" CHANGELOG.md > /tmp/RELEASE-NOTES.md
+      - name: Release Protocol Versions
+        run: |
+          manifestFile=${{ github.event.repository.name }}_manifest.json
+          if [[ -f  $manifestFile ]] && [[ $(jq '.metadata.protocol_versions' $manifestFile | jq length) -gt 0 ]]; then
+            versions=`jq '.metadata.protocol_versions' $manifestFile | jq 'sort'`
+            protoV=`echo $versions | jq '.[0]'`
+            protoVs=`echo $versions | jq 'join(", ")'`
+
+            echo "PROTOCOL_VERSION=${protoV}" >> $GITHUB_ENV
+            echo "PROTOCOL_VERSIONS=${protoVs}" >> $GITHUB_ENV
+          fi
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TF_PROVIDER_RELEASE_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TF_PROVIDER_RELEASE_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.TF_PROVIDER_RELEASE_AWS_ROLE_ARN }}
+          role-duration-seconds: 3600
+          # TODO: allow session tagging once IAM permission changes addressed
+          # Reference: https://github.com/hashicorp/hc-releases/issues/124
+          role-skip-session-tagging: true
+      - name: goreleaser release
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          args: release --release-notes /tmp/RELEASE-NOTES.md --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SIGNORE_CLIENT_ID: ${{ secrets.SIGNORE_CLIENT_ID }}
+          SIGNORE_CLIENT_SECRET: ${{ secrets.SIGNORE_CLIENT_SECRET }}
+      - name: hc-releases publish
+        run: hc-releases publish -product=${{ github.event.repository.name }}
+        env:
+          FASTLY_API_TOKEN: ${{ secrets.FASTLY_STATIC_PURGE_TOKEN }}
+          TERRAFORM_REGISTRY_SYNC_TOKEN: ${{ secrets.TF_PROVIDER_RELEASE_TERRAFORM_REGISTRY_SYNC_TOKEN }}

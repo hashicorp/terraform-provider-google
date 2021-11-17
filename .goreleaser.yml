@@ -1,0 +1,60 @@
+archives:
+  - format: zip
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+builds:
+  - env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    goos:
+      - darwin
+      - freebsd
+      - linux
+      - windows
+    goarch:
+      - '386'
+      - amd64
+      - arm
+      - arm64
+    ignore:
+      - goarch: arm
+        goos: windows
+      - goarch: arm64
+        goos: freebsd
+      - goarch: arm64
+        goos: windows
+    ldflags:
+      - -s -w -X internal/provider.Version={{.Version}}
+    mod_timestamp: '{{ .CommitTimestamp }}'
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
+  algorithm: sha256
+publishers:
+  - name: hc-releases
+    checksum: true
+    signature: true
+    cmd: hc-releases upload-file -header="x-terraform-protocol-version={{ .Env.PROTOCOL_VERSION }}" -header="x-terraform-protocol-versions={{ .Env.PROTOCOL_VERSIONS }}" {{ abs .ArtifactPath }}
+    env:
+      - AWS_DEFAULT_REGION={{ .Env.AWS_DEFAULT_REGION }}
+      - AWS_REGION={{ .Env.AWS_REGION }}
+      - AWS_ACCESS_KEY_ID={{ .Env.AWS_ACCESS_KEY_ID }}
+      - AWS_SECRET_ACCESS_KEY={{ .Env.AWS_SECRET_ACCESS_KEY }}
+      - AWS_SESSION_TOKEN={{ .Env.AWS_SESSION_TOKEN }}
+release:
+  ids:
+    - none
+signs:
+  - signature: ${artifact}.72D7468F.sig
+    cmd: sh
+    args:
+    - -c
+    - >-
+      signore
+      sign
+      --dearmor
+      --file ${artifact}
+      --signer {{ .Env.SIGNER }}
+      --out ${signature}
+    artifacts: checksum
+snapshot:
+  name_template: "{{ .Tag }}-next"
