@@ -533,11 +533,14 @@ issue certificates. Default value: "SELF_SIGNED" Possible values: ["SELF_SIGNED"
 							Description: `The URL where this CertificateAuthority's CA certificate is published. This will only be
 set for CAs that have been activated.`,
 						},
-						"crl_access_url": {
-							Type:     schema.TypeString,
+						"crl_access_urls": {
+							Type:     schema.TypeList,
 							Computed: true,
 							Description: `The URL where this CertificateAuthority's CRLs are published. This will only be set for
 CAs that have been activated.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 					},
 				},
@@ -1101,15 +1104,15 @@ func flattenPrivatecaCertificateAuthorityAccessUrls(v interface{}, d *schema.Res
 	transformed := make(map[string]interface{})
 	transformed["ca_certificate_access_url"] =
 		flattenPrivatecaCertificateAuthorityAccessUrlsCaCertificateAccessUrl(original["caCertificateAccessUrl"], d, config)
-	transformed["crl_access_url"] =
-		flattenPrivatecaCertificateAuthorityAccessUrlsCrlAccessUrl(original["crlAccessUrl"], d, config)
+	transformed["crl_access_urls"] =
+		flattenPrivatecaCertificateAuthorityAccessUrlsCrlAccessUrls(original["crlAccessUrls"], d, config)
 	return []interface{}{transformed}
 }
 func flattenPrivatecaCertificateAuthorityAccessUrlsCaCertificateAccessUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityAccessUrlsCrlAccessUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityAccessUrlsCrlAccessUrls(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
