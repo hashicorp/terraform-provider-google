@@ -577,7 +577,7 @@ In addition to the arguments listed above, the following computed attributes are
   The URL where this CertificateAuthority's CA certificate is published. This will only be
   set for CAs that have been activated.
 
-* `crl_access_url` -
+* `crl_access_urls` -
   The URL where this CertificateAuthority's CRLs are published. This will only be set for
   CAs that have been activated.
 
