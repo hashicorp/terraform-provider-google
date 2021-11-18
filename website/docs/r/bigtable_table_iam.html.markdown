@@ -19,7 +19,7 @@ Three different resources help you manage IAM policies on bigtable tables. Each 
 
 ~> **Note:** `google_bigtable_table_iam_binding` resources **can be** used in conjunction with `google_bigtable_table_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_bigtable\_instance\_iam\_policy
+## google\_bigtable\_table\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -39,7 +39,7 @@ resource "google_bigtable_table_iam_policy" "editor" {
 }
 ```
 
-## google\_bigtable\_instance\_iam\_binding
+## google\_bigtable\_table\_iam\_binding
 
 ```hcl
 resource "google_bigtable_table_iam_binding" "editor" {
@@ -52,7 +52,7 @@ resource "google_bigtable_table_iam_binding" "editor" {
 }
 ```
 
-## google\_bigtable\_instance\_iam\_member
+## google\_bigtable\_table\_iam\_member
 
 ```hcl
 resource "google_bigtable_table_iam_member" "editor" {
@@ -103,7 +103,7 @@ exported:
 
 ## Import
 
-Instance IAM resources can be imported using the project, table name, role and/or member.
+Table IAM resources can be imported using the project, table name, role and/or member.
 
 ```
 $ terraform import google_bigtable_table_iam_policy.editor "projects/{project}/tables/{table}"
