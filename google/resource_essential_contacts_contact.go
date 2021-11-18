@@ -45,6 +45,7 @@ func resourceEssentialContactsContact() *schema.Resource {
 			"email": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The email address to send notifications to. This does not need to be a Google account.`,
 			},
 			"language_tag": {
@@ -186,12 +187,6 @@ func resourceEssentialContactsContactUpdate(d *schema.ResourceData, meta interfa
 	billingProject := ""
 
 	obj := make(map[string]interface{})
-	emailProp, err := expandEssentialContactsContactEmail(d.Get("email"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("email"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, emailProp)) {
-		obj["email"] = emailProp
-	}
 	notificationCategorySubscriptionsProp, err := expandEssentialContactsContactNotificationCategorySubscriptions(d.Get("notification_category_subscriptions"), d, config)
 	if err != nil {
 		return err
@@ -212,10 +207,6 @@ func resourceEssentialContactsContactUpdate(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Updating Contact %q: %#v", d.Id(), obj)
 	updateMask := []string{}
-
-	if d.HasChange("email") {
-		updateMask = append(updateMask, "email")
-	}
 
 	if d.HasChange("notification_category_subscriptions") {
 		updateMask = append(updateMask, "notificationCategorySubscriptions")
