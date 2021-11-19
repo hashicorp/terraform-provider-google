@@ -1,4 +1,35 @@
-## 4.1.0 (Unreleased)
+## 4.2.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_compute_router_status` ([#10573](https://github.com/hashicorp/terraform-provider-google/pull/10573))
+
+IMPROVEMENTS:
+* compute: added support for `queue_count` to `google_compute_instance.network_interface` and `google_compute_instance_template.network_interface` ([#10571](https://github.com/hashicorp/terraform-provider-google/pull/10571))
+
+BUG FIXES:
+* all: fixed an issue where some documentation for new resources was not showing up in the GA provider if it was beta-only. ([#10545](https://github.com/hashicorp/terraform-provider-google/pull/10545))
+* bigquery: fixed update failure when attempting to change non-updatable fields in `google_bigquery_routine`. ([#10546](https://github.com/hashicorp/terraform-provider-google/pull/10546))
+* compute: fixed a bug when `cache_mode` is set to FORCE_CACHE_ALL on `google_compute_backend_bucket` ([#10572](https://github.com/hashicorp/terraform-provider-google/pull/10572))
+* compute: fixed a perma-diff on `google_compute_region_health_check` when `log_config.enable` is set to false ([#10553](https://github.com/hashicorp/terraform-provider-google/pull/10553))
+* servicedirectory: added support for vpc network configuration in `google_service_directory_endpoint`. ([#10569](https://github.com/hashicorp/terraform-provider-google/pull/10569))
+
+## 4.1.0 (November 15, 2021)
+
+IMPROVEMENTS:
+* cloudrun: Added support for secrets to GA provider. ([#10519](https://github.com/hashicorp/terraform-provider-google/pull/10519))
+* compute: Added `bfd` to `google_compute_router_peer` ([#10487](https://github.com/hashicorp/terraform-provider-google/pull/10487))
+* container: added `gcfs_config` to `node_config` of `google_container_node_pool` resource ([#10499](https://github.com/hashicorp/terraform-provider-google/pull/10499))
+* container: promoted `confidential_nodes` field in `google_container_cluster` to GA ([#10531](https://github.com/hashicorp/terraform-provider-google/pull/10531))
+* provider: added retries for the `resourceNotReady` error returned when attempting to add resources to a recently-modified subnetwork ([#10498](https://github.com/hashicorp/terraform-provider-google/pull/10498))
+* pubsub: added `message_retention_duration` field to `google_pubsub_topic` ([#10501](https://github.com/hashicorp/terraform-provider-google/pull/10501))
+
+BUG FIXES:
+* apigee: fixed a bug where multiple `google_apigee_instance_attachment` could not be used on the same `google_apigee_instance` ([#10520](https://github.com/hashicorp/terraform-provider-google/pull/10520))
+* bigquery: fixed a bug following import where schema is empty on `google_bigquery_table` ([#10521](https://github.com/hashicorp/terraform-provider-google/pull/10521))
+* billingbudget: fixed unable to provide `labels` on `google_billing_budget` ([#10490](https://github.com/hashicorp/terraform-provider-google/pull/10490))
+* compute: allowed `source_disk` to accept full image path on `google_compute_snapshot` ([#10516](https://github.com/hashicorp/terraform-provider-google/pull/10516))
+* compute: fixed a bug in `google_compute_firewall` that would cause changes in `source_ranges` to not correctly be applied ([#10515](https://github.com/hashicorp/terraform-provider-google/pull/10515))
+* logging: fixed a bug with updating `description` on `google_logging_project_sink`, `google_logging_folder_sink` and `google_logging_organization_sink` ([#10493](https://github.com/hashicorp/terraform-provider-google/pull/10493))
 
 ## 4.0.0 (November 02, 2021)
 
