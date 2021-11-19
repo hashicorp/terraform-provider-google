@@ -139,6 +139,50 @@ resource "google_redis_instance" "cache" {
 
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=redis_instance_mrr&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Instance Mrr
+
+
+```hcl
+resource "google_redis_instance" "cache" {
+  provider = google-beta
+  name           = "mrr-memory-cache"
+  tier           = "STANDARD_HA"
+  memory_size_gb = 5
+
+  location_id             = "us-central1-a"
+  alternative_location_id = "us-central1-f"
+
+  authorized_network = data.google_compute_network.redis-network.id
+
+  redis_version     = "REDIS_6_X"
+  display_name      = "Terraform Test Instance"
+  reserved_ip_range = "192.168.0.0/28"
+  replica_count     = 5
+  read_replicas_mode = "READ_REPLICAS_ENABLED"
+
+  labels = {
+    my_key    = "my_val"
+    other_key = "other_val"
+  }
+}
+
+// This example assumes this network already exists.
+// The API creates a tenant network per network authorized for a
+// Redis instance and that network is not deleted when the user-created
+// network (authorized_network) is deleted, so this prevents issues
+// with tenant network quota.
+// If this network hasn't been created and you are using this example in your
+// config, add an additional network resource or change
+// this from "data"to "resource"
+data "google_compute_network" "redis-network" {
+  name = "redis-test-network"
+}
+```
 
 ## Argument Reference
 
@@ -229,9 +273,27 @@ The following arguments are supported:
 * `transit_encryption_mode` -
   (Optional)
   The TLS mode of the Redis instance, If not provided, TLS is disabled for the instance.
-  - SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with server authentcation
+  - SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with server authentication
   Default value is `DISABLED`.
   Possible values are `SERVER_AUTHENTICATION` and `DISABLED`.
+
+* `replica_count` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Optional. The number of replica nodes. The valid range for the Standard Tier with 
+  read replicas enabled is [1-5] and defaults to 2. If read replicas are not enabled
+  for a Standard Tier instance, the only valid value is 1 and the default is 1. 
+  The valid value for basic tier is 0 and the default is also 0.
+
+* `read_replicas_mode` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Optional. Read replica mode. Can only be specified when trying to create the instance.
+  If not set, Memorystore Redis backend will default to READ_REPLICAS_DISABLED.
+  - READ_REPLICAS_DISABLED: If disabled, read endpoint will not be provided and the 
+  instance cannot scale up or down the number of replicas.
+  - READ_REPLICAS_ENABLED: If enabled, read endpoint will be provided and the instance 
+  can scale up and down the number of replicas.
+  Default value is `READ_REPLICAS_DISABLED`.
+  Possible values are `READ_REPLICAS_DISABLED` and `READ_REPLICAS_ENABLED`.
 
 * `region` -
   (Optional)
@@ -276,6 +338,22 @@ In addition to the arguments listed above, the following computed attributes are
   List of server CA certificates for the instance.
   Structure is [documented below](#nested_server_ca_certs).
 
+* `nodes` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Output only. Info per node.
+  Structure is [documented below](#nested_nodes).
+
+* `read_endpoint` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Output only. Hostname or IP address of the exposed readonly Redis endpoint. Standard tier only.
+  Targets all healthy replica nodes in instance. Replication is asynchronous and replica nodes
+  will exhibit some lag behind the primary. Write requests must target 'host'.
+
+* `read_endpoint_port` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Output only. The port number of the exposed readonly redis endpoint. Standard tier only. 
+  Write requests should target 'port'.
+
 
 <a name="nested_server_ca_certs"></a>The `server_ca_certs` block contains:
 
@@ -293,6 +371,14 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `sha1_fingerprint` -
   Sha1 Fingerprint of the certificate.
+
+<a name="nested_nodes"></a>The `nodes` block contains:
+
+* `id` -
+  Node identifying string. e.g. 'node-0', 'node-1'
+
+* `zone` -
+  Location of the node.
 
 ## Timeouts
 

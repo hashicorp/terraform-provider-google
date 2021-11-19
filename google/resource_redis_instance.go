@@ -202,7 +202,7 @@ network.`,
 				ValidateFunc: validation.StringInSlice([]string{"SERVER_AUTHENTICATION", "DISABLED", ""}, false),
 				Description: `The TLS mode of the Redis instance, If not provided, TLS is disabled for the instance.
 
-- SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with server authentcation Default value: "DISABLED" Possible values: ["SERVER_AUTHENTICATION", "DISABLED"]`,
+- SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with server authentication Default value: "DISABLED" Possible values: ["SERVER_AUTHENTICATION", "DISABLED"]`,
 				Default: "DISABLED",
 			},
 			"create_time": {
