@@ -1,0 +1,6 @@
+```release-note:enhancement
+apigee: Added IAM support for `google_apigee_environment`.
+```
+```release-note:breaking-change
+apigee: Replaced `org_id` with `org_name` for `google_apigee_environment`.
+```

@@ -805,8 +805,8 @@ func Provider() *schema.Provider {
 }
 
 // Generated resources: 214
-// Generated IAM resources: 87
-// Total generated resources: 301
+// Generated IAM resources: 90
+// Total generated resources: 304
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -831,6 +831,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_apigee_organization":                                   resourceApigeeOrganization(),
 			"google_apigee_instance":                                       resourceApigeeInstance(),
 			"google_apigee_environment":                                    resourceApigeeEnvironment(),
+			"google_apigee_environment_iam_binding":                        ResourceIamBinding(ApigeeEnvironmentIamSchema, ApigeeEnvironmentIamUpdaterProducer, ApigeeEnvironmentIdParseFunc),
+			"google_apigee_environment_iam_member":                         ResourceIamMember(ApigeeEnvironmentIamSchema, ApigeeEnvironmentIamUpdaterProducer, ApigeeEnvironmentIdParseFunc),
+			"google_apigee_environment_iam_policy":                         ResourceIamPolicy(ApigeeEnvironmentIamSchema, ApigeeEnvironmentIamUpdaterProducer, ApigeeEnvironmentIdParseFunc),
 			"google_apigee_envgroup":                                       resourceApigeeEnvgroup(),
 			"google_apigee_instance_attachment":                            resourceApigeeInstanceAttachment(),
 			"google_apigee_envgroup_attachment":                            resourceApigeeEnvgroupAttachment(),
