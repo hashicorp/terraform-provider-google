@@ -125,6 +125,7 @@ The following arguments are supported:
   - PYTHON ([Preview](https://cloud.google.com/products#product-launch-stages))
   - APT ([alpha](https://cloud.google.com/products#product-launch-stages))
   - YUM ([alpha](https://cloud.google.com/products#product-launch-stages))
+  - HELM ([alpha](https://cloud.google.com/products#product-launch-stages))
 
 
 - - -
