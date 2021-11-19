@@ -1,7 +1,7 @@
 ## 4.2.0 (Unreleased)
 
 FEATURES:
-* **New Data Source:** compute:  New `google_compute_router_status` data source ([#10573](https://github.com/hashicorp/terraform-provider-google/pull/10573))
+* **New Data Source:** `google_compute_router_status` ([#10573](https://github.com/hashicorp/terraform-provider-google/pull/10573))
 
 IMPROVEMENTS:
 * compute: added support for `queue_count` to `google_compute_instance.network_interface` and `google_compute_instance_template.network_interface` ([#10571](https://github.com/hashicorp/terraform-provider-google/pull/10571))
@@ -11,7 +11,7 @@ BUG FIXES:
 * bigquery: fixed update failure when attempting to change non-updatable fields in `google_bigquery_routine`. ([#10546](https://github.com/hashicorp/terraform-provider-google/pull/10546))
 * compute: fixed a bug when `cache_mode` is set to FORCE_CACHE_ALL on `google_compute_backend_bucket` ([#10572](https://github.com/hashicorp/terraform-provider-google/pull/10572))
 * compute: fixed a perma-diff on `google_compute_region_health_check` when `log_config.enable` is set to false ([#10553](https://github.com/hashicorp/terraform-provider-google/pull/10553))
-* servicedirectory: added support for vpc network configuration in google_service_directory_endpoint. ([#10569](https://github.com/hashicorp/terraform-provider-google/pull/10569))
+* servicedirectory: added support for vpc network configuration in `google_service_directory_endpoint`. ([#10569](https://github.com/hashicorp/terraform-provider-google/pull/10569))
 
 ## 4.1.0 (November 15, 2021)
 
