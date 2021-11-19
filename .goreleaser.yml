@@ -70,17 +70,5 @@ signs:
       --signer {{ .Env.SIGNER }}
       --out ${signature}
     artifacts: checksum
-  - signature: ${artifact}.72D7468F.sig
-    cmd: sh
-    args:
-    - -c
-    - >-
-      signore
-      sign
-      --dearmor
-      --file ${artifact}
-      --signer {{ .Env.SIGNER }}
-      --out ${signature}
-    artifacts: checksum
 snapshot:
   name_template: "{{ .Tag }}-next"
