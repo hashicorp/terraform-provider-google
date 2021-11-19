@@ -289,7 +289,7 @@ https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names`,
 													Computed: true,
 													Optional: true,
 													Description: `List of open ports in the container.
-More Info: 
+More Info:
 https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -809,9 +809,9 @@ version or an integer for a specific version.`,
 is assumed to be in the same project.
 If the secret is in another project, you must define an alias.
 You set the <alias> in this field, and create an annotation with the
-following structure 
+following structure
 "run.googleapis.com/secrets" = "<alias>:projects/<project-id|project-number>/secrets/<secret-name>".
-If multiple alias definitions are needed, they must be separated by 
+If multiple alias definitions are needed, they must be separated by
 commas in the annotation field.`,
 									},
 								},
