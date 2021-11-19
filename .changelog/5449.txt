@@ -1,0 +1,4 @@
+```release-note:enhancement
+redis: Added Multi read replica field `replicaCount `, `nodes`,  `readEndpoint`, `readEndpointPort`, `readReplicasMode` in `google_redis_instance `
+
+```
