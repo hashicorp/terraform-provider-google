@@ -607,7 +607,7 @@ The following arguments are supported:
 * `ports` -
   (Optional)
   List of open ports in the container.
-  More Info: 
+  More Info:
   https://cloud.google.com/run/docs/reference/rest/v1/RevisionSpec#ContainerPort
   Structure is [documented below](#nested_ports).
 
@@ -726,9 +726,9 @@ The following arguments are supported:
   is assumed to be in the same project.
   If the secret is in another project, you must define an alias.
   You set the <alias> in this field, and create an annotation with the
-  following structure 
+  following structure
   "run.googleapis.com/secrets" = "<alias>:projects/<project-id|project-number>/secrets/<secret-name>".
-  If multiple alias definitions are needed, they must be separated by 
+  If multiple alias definitions are needed, they must be separated by
   commas in the annotation field.
 
 <a name="nested_ports"></a>The `ports` block supports:
