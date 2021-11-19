@@ -40,6 +40,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 data "google_iam_policy" "admin" {
+  provider = google-beta
   binding {
     role = "roles/apigateway.viewer"
     members = [
@@ -49,6 +50,7 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_api_gateway_api_iam_policy" "policy" {
+  provider = google-beta
   project = google_api_gateway_api.api.project
   api = google_api_gateway_api.api.api_id
   policy_data = data.google_iam_policy.admin.policy_data
@@ -59,6 +61,7 @@ resource "google_api_gateway_api_iam_policy" "policy" {
 
 ```hcl
 resource "google_api_gateway_api_iam_binding" "binding" {
+  provider = google-beta
   project = google_api_gateway_api.api.project
   api = google_api_gateway_api.api.api_id
   role = "roles/apigateway.viewer"
@@ -72,6 +75,7 @@ resource "google_api_gateway_api_iam_binding" "binding" {
 
 ```hcl
 resource "google_api_gateway_api_iam_member" "member" {
+  provider = google-beta
   project = google_api_gateway_api.api.project
   api = google_api_gateway_api.api.api_id
   role = "roles/apigateway.viewer"
