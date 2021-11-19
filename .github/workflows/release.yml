@@ -7,8 +7,8 @@ on:
 
 env:
   GOPROXY: https://proxy.golang.org/
-  PROTOCOL_VERSION: "6.0"
-  PROTOCOL_VERSIONS: "6.0"
+  PROTOCOL_VERSION: "5.0"
+  PROTOCOL_VERSIONS: "5.0"
   SIGNER: interim_signing_subkey_7685B676
 
 jobs:
@@ -38,17 +38,6 @@ jobs:
           signer: interim_signing_subkey_768B676
       - name: Release Notes
         run: sed -n -e "1{/# /d;}" -e "2{/^$/d;}" -e "/# \[$(git describe --abbrev=0 --exclude="$(git describe --abbrev=0 --match='v*.*.*' --tags)" --match='v*.*.*' --tags | tr -d v)/q;p" CHANGELOG.md > /tmp/RELEASE-NOTES.md
-      - name: Release Protocol Versions
-        run: |
-          manifestFile=${{ github.event.repository.name }}_manifest.json
-          if [[ -f  $manifestFile ]] && [[ $(jq '.metadata.protocol_versions' $manifestFile | jq length) -gt 0 ]]; then
-            versions=`jq '.metadata.protocol_versions' $manifestFile | jq 'sort'`
-            protoV=`echo $versions | jq '.[0]'`
-            protoVs=`echo $versions | jq 'join(", ")'`
-
-            echo "PROTOCOL_VERSION=${protoV}" >> $GITHUB_ENV
-            echo "PROTOCOL_VERSIONS=${protoVs}" >> $GITHUB_ENV
-          fi
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.TF_PROVIDER_RELEASE_AWS_ACCESS_KEY_ID }}
