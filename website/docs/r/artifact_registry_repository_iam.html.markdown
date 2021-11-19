@@ -40,6 +40,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 data "google_iam_policy" "admin" {
+  provider = google-beta
   binding {
     role = "roles/viewer"
     members = [
@@ -49,6 +50,7 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_artifact_registry_repository_iam_policy" "policy" {
+  provider = google-beta
   project = google_artifact_registry_repository.my-repo.project
   location = google_artifact_registry_repository.my-repo.location
   repository = google_artifact_registry_repository.my-repo.name
@@ -60,6 +62,7 @@ resource "google_artifact_registry_repository_iam_policy" "policy" {
 
 ```hcl
 resource "google_artifact_registry_repository_iam_binding" "binding" {
+  provider = google-beta
   project = google_artifact_registry_repository.my-repo.project
   location = google_artifact_registry_repository.my-repo.location
   repository = google_artifact_registry_repository.my-repo.name
@@ -74,6 +77,7 @@ resource "google_artifact_registry_repository_iam_binding" "binding" {
 
 ```hcl
 resource "google_artifact_registry_repository_iam_member" "member" {
+  provider = google-beta
   project = google_artifact_registry_repository.my-repo.project
   location = google_artifact_registry_repository.my-repo.location
   repository = google_artifact_registry_repository.my-repo.name
