@@ -213,7 +213,6 @@ func schemaNodeConfig() *schema.Schema {
 						},
 					},
 				},
-
 				"taint": {
 					Type:     schema.TypeList,
 					Optional: true,
