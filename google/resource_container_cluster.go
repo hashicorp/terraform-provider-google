@@ -2824,31 +2824,31 @@ func expandAutoProvisioningDefaults(configured interface{}, prefix string, d *sc
 	if minCPUPlatform, ok := d.GetOk(prefix + "min_cpu_platform"); ok {
 		npd.MinCpuPlatform = minCPUPlatform.(string)
 	} else {
-		npd.NullFields = append(npd.NullFields, "minCPUPlatform")
+		npd.ForceSendFields = append(npd.ForceSendFields, "minCPUPlatform")
 	}
 
 	if diskSizeGb, ok := d.GetOk(prefix + "disk_size_gb"); ok {
 		npd.DiskSizeGb = int64(diskSizeGb.(int))
 	} else {
-		npd.NullFields = append(npd.NullFields, "DiskSizeGb")
+		npd.ForceSendFields = append(npd.ForceSendFields, "DiskSizeGb")
 	}
 
 	if diskType, ok := d.GetOk(prefix + "disk_type"); ok {
 		npd.DiskType = diskType.(string)
 	} else {
-		npd.NullFields = append(npd.NullFields, "DiskType")
+		npd.ForceSendFields = append(npd.ForceSendFields, "DiskType")
 	}
 
 	if imageType, ok := d.GetOk(prefix + "image_type"); ok {
 		npd.ImageType = imageType.(string)
 	} else {
-		npd.NullFields = append(npd.NullFields, "ImageType")
+		npd.ForceSendFields = append(npd.ForceSendFields, "ImageType")
 	}
 
 	if bootDiskKmsKey, ok := d.GetOk(prefix + "boot_disk_kms_key"); ok {
 		npd.BootDiskKmsKey = bootDiskKmsKey.(string)
 	} else {
-		npd.NullFields = append(npd.NullFields, "BootDiskKmsKey")
+		npd.ForceSendFields = append(npd.ForceSendFields, "BootDiskKmsKey")
 	}
 
 	if v, ok := d.GetOk(prefix + "management"); ok && len(v.([]interface{})) > 0 {
