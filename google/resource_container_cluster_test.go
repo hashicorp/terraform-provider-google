@@ -2846,6 +2846,26 @@ resource "google_container_cluster" "with_autoprovisioning" {
     }
 
     auto_provisioning_defaults {
+	  disk_size_gb      = 42
+	  disk_type         = "pd-balanced"	
+      image_type        = "UBUNTU_CONTAINERD" 
+	  min_cpu_platform  = "Intel Haswell"
+
+      upgrade_settings {
+        max_surge       = 3
+        max_unavailable = 1
+      }
+
+      management {
+        auto_repair  = true
+        auto_upgrade = true
+      }
+
+      shielded_instance_config {
+        enable_secure_boot          = true
+        enable_integrity_monitoring = true
+      }
+
       oauth_scopes = [
         "https://www.googleapis.com/auth/pubsub",
         "https://www.googleapis.com/auth/devstorage.read_only",`,
