@@ -2846,10 +2846,10 @@ resource "google_container_cluster" "with_autoprovisioning" {
     }
 
     auto_provisioning_defaults {
-	  disk_size_gb      = 42
-	  disk_type         = "pd-balanced"	
-      image_type        = "UBUNTU_CONTAINERD" 
-	  min_cpu_platform  = "Intel Haswell"
+      disk_size_gb      = 15
+      disk_type         = "pd-balanced"
+      image_type        = "UBUNTU_CONTAINERD"
+      min_cpu_platform  = "Intel Haswell"
 
       upgrade_settings {
         max_surge       = 3
