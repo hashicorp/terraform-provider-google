@@ -50,7 +50,7 @@ resource "google_pubsub_topic" "foo" {
 }
 
 resource "google_cloud_run_service" "default" {
-	name     = "event_arc_service"
+	name     = "eventarc-service"
 	location = "europe-west1"
 
 	metadata {
@@ -72,6 +72,7 @@ resource "google_cloud_run_service" "default" {
 		latest_revision = true
 	}
 }
+
 ```
 
 ## Argument Reference
