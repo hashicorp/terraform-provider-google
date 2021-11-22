@@ -93,7 +93,7 @@ resource "google_pubsub_topic" "foo" {
 }
 
 resource "google_cloud_run_service" "default" {
-	name     = "tf_test_event_arc_service%{random_suffix}"
+	name     = "tf-test-eventarc-service%{random_suffix}"
 	location = "europe-west1"
 
 	metadata {
@@ -115,6 +115,7 @@ resource "google_cloud_run_service" "default" {
 		latest_revision = true
 	}
 }
+
 `, context)
 }
 
@@ -145,7 +146,7 @@ resource "google_pubsub_topic" "foo" {
 }
 
 resource "google_cloud_run_service" "default" {
-	name     = "tf_test_event_arc_service%{random_suffix}"
+	name     = "tf-test-eventarc-service%{random_suffix}"
 	location = "europe-west1"
 
 	metadata {
@@ -169,7 +170,7 @@ resource "google_cloud_run_service" "default" {
 }
 
 resource "google_cloud_run_service" "default2" {
-	name     = "tf_test_event_arc_service%{random_suffix}2"
+	name     = "tf-test-eventarc-service%{random_suffix}2"
 	location = "europe-north1"
 
 	metadata {
@@ -191,6 +192,7 @@ resource "google_cloud_run_service" "default2" {
 		latest_revision = true
 	}
 }
+
 `, context)
 }
 
@@ -221,7 +223,7 @@ resource "google_eventarc_trigger" "primary" {
 }
 
 resource "google_service_account" "eventarc-sa" {
-	account_id   = "tf_test_service_account%{random_suffix}"
+	account_id   = "tf-test-sa%{random_suffix}"
 	display_name = "Test Service Account"
 }
 
@@ -230,7 +232,7 @@ resource "google_pubsub_topic" "foo" {
 }
 
 resource "google_cloud_run_service" "default" {
-	name     = "tf_test_event_arc_service%{random_suffix}"
+	name     = "tf-test-eventarc-service%{random_suffix}"
 	location = "europe-west1"
 
 	metadata {
@@ -254,7 +256,7 @@ resource "google_cloud_run_service" "default" {
 }
 
 resource "google_cloud_run_service" "default2" {
-	name     = "tf_test_event_arc_service%{random_suffix}2"
+	name     = "tf-test-eventarc-service%{random_suffix}2"
 	location = "europe-north1"
 
 	metadata {
@@ -276,6 +278,7 @@ resource "google_cloud_run_service" "default2" {
 		latest_revision = true
 	}
 }
+
 `, context)
 }
 
