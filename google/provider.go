@@ -690,6 +690,8 @@ func Provider() *schema.Provider {
 			GkeHubFeatureCustomEndpointEntryKey:          GkeHubFeatureCustomEndpointEntry,
 			OrgPolicyEndpointEntryKey:                    OrgPolicyEndpointEntry,
 			PrivatecaCertificateTemplateEndpointEntryKey: PrivatecaCertificateTemplateCustomEndpointEntry,
+
+			CloudBuildWorkerPoolEndpointEntryKey: CloudBuildWorkerPoolEndpointEntry,
 		},
 
 		ProviderMetaSchema: map[string]*schema.Schema{
@@ -1194,6 +1196,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 		// resources implemented within tpgtools
 		map[string]*schema.Resource{
 			"google_assured_workloads_workload":          resourceAssuredWorkloadsWorkload(),
+			"google_cloudbuild_worker_pool":              resourceCloudbuildWorkerPool(),
 			"google_compute_firewall_policy_association": resourceComputeFirewallPolicyAssociation(),
 			"google_compute_firewall_policy":             resourceComputeFirewallPolicy(),
 			"google_compute_firewall_policy_rule":        resourceComputeFirewallPolicyRule(),
@@ -1435,6 +1438,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.GkeHubBasePath = d.Get(GkeHubFeatureCustomEndpointEntryKey).(string)
 	config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
 	config.PrivatecaBasePath = d.Get(PrivatecaCertificateTemplateEndpointEntryKey).(string)
+	config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
 
 	stopCtx, ok := schema.StopContext(ctx)
 	if !ok {
