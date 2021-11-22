@@ -1,6 +1,7 @@
 module github.com/hashicorp/terraform-provider-google
+
 require (
-	cloud.google.com/go/bigtable v1.10.1
+	cloud.google.com/go/bigtable v1.11.0
 	github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20211117235310-d31aef517fa2
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/client9/misspell v0.3.4
