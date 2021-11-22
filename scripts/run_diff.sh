@@ -27,4 +27,4 @@ fi
 
 go mod edit -require=github.com/hashicorp/terraform-provider-clean-google@v0.0.0
 go mod edit -replace github.com/hashicorp/terraform-provider-clean-google=$(realpath ~/go/src/github.com/hashicorp/terraform-provider-clean-google)
-go run scripts/diff.go --resource $1
+go run scripts/diff.go --resource $1 --verbose
