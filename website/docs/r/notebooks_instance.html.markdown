@@ -295,7 +295,7 @@ The following arguments are supported:
 
 * `tags` -
   (Optional)
-  The Compute Engine tags to add to runtime.
+  The Compute Engine tags to add to instance.
 
 * `metadata` -
   (Optional)

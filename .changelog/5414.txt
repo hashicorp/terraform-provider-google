@@ -1,0 +1,4 @@
+```release-note:new-resource
+`google_notebooks_runtime`
+notebooks: Added support for Workbench Managed Notebooks
+```
