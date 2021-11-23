@@ -335,7 +335,7 @@ Format: projects/{project_id}/regions/{region}/subnetworks/{subnetwork_id}`,
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `The Compute Engine tags to add to runtime.`,
+				Description: `The Compute Engine tags to add to instance.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

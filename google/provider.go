@@ -806,9 +806,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 214
-// Generated IAM resources: 90
-// Total generated resources: 304
+// Generated resources: 215
+// Generated IAM resources: 93
+// Total generated resources: 308
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1063,6 +1063,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_notebooks_instance_iam_binding":                        ResourceIamBinding(NotebooksInstanceIamSchema, NotebooksInstanceIamUpdaterProducer, NotebooksInstanceIdParseFunc),
 			"google_notebooks_instance_iam_member":                         ResourceIamMember(NotebooksInstanceIamSchema, NotebooksInstanceIamUpdaterProducer, NotebooksInstanceIdParseFunc),
 			"google_notebooks_instance_iam_policy":                         ResourceIamPolicy(NotebooksInstanceIamSchema, NotebooksInstanceIamUpdaterProducer, NotebooksInstanceIdParseFunc),
+			"google_notebooks_runtime":                                     resourceNotebooksRuntime(),
+			"google_notebooks_runtime_iam_binding":                         ResourceIamBinding(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc),
+			"google_notebooks_runtime_iam_member":                          ResourceIamMember(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc),
+			"google_notebooks_runtime_iam_policy":                          ResourceIamPolicy(NotebooksRuntimeIamSchema, NotebooksRuntimeIamUpdaterProducer, NotebooksRuntimeIdParseFunc),
 			"google_notebooks_location":                                    resourceNotebooksLocation(),
 			"google_os_config_patch_deployment":                            resourceOSConfigPatchDeployment(),
 			"google_os_login_ssh_public_key":                               resourceOSLoginSSHPublicKey(),
