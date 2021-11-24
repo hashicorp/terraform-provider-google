@@ -68,6 +68,44 @@ resource "google_apigee_instance" "apigee_instance" {
   org_id   = google_apigee_organization.apigee_org.id
 }
 ```
+## Example Usage - Apigee Instance Cidr Range
+
+
+```hcl
+data "google_client_config" "current" {}
+
+resource "google_compute_network" "apigee_network" {
+  name = "apigee-network"
+}
+
+resource "google_compute_global_address" "apigee_range" {
+  name          = "apigee-range"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 22
+  network       = google_compute_network.apigee_network.id
+}
+
+resource "google_service_networking_connection" "apigee_vpc_connection" {
+  network                 = google_compute_network.apigee_network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.apigee_range.name]
+}
+
+resource "google_apigee_organization" "apigee_org" {
+  analytics_region   = "us-central1"
+  project_id         = data.google_client_config.current.project
+  authorized_network = google_compute_network.apigee_network.id
+  depends_on         = [google_service_networking_connection.apigee_vpc_connection]
+}
+
+resource "google_apigee_instance" "apigee_instance" {
+  name     = "tf-test%{random_suffix}"
+  location = "us-central1-b"
+  org_id   = google_apigee_organization.apigee_org.id
+  peering_cidr_range = "SLASH_22"
+}
+```
 ## Example Usage - Apigee Instance Full
 
 
@@ -171,8 +209,8 @@ The following arguments are supported:
 
 * `peering_cidr_range` -
   (Optional)
-  The size of the CIDR block range that will be reserved by the instance.
-  Possible values are `SLASH_16`, `SLASH_20`, and `SLASH_22`.
+  The size of the CIDR block range that will be reserved by the instance. For valid values, 
+  see [CidrRange](https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/v1/organizations.instances#CidrRange) on the documentation.
 
 * `description` -
   (Optional)
