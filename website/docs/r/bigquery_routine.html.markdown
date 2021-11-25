@@ -109,7 +109,7 @@ The following arguments are supported:
 * `routine_type` -
   (Optional)
   The type of routine.
-  Possible values are `SCALAR_FUNCTION` and `PROCEDURE`.
+  Possible values are `SCALAR_FUNCTION`, `PROCEDURE`, and `TABLE_VALUED_FUNCTION`.
 
 * `language` -
   (Optional)
