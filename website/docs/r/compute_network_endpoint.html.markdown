@@ -103,7 +103,7 @@ The following arguments are supported:
   The instance must be in the same zone of network endpoint group.
 
 * `port` -
-  (Required)
+  (Optional)
   Port number of network endpoint.
 
 * `ip_address` -

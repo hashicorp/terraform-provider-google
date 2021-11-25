@@ -65,7 +65,7 @@ range).`,
 			},
 			"port": {
 				Type:        schema.TypeInt,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `Port number of network endpoint.`,
 			},
