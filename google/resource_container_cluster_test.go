@@ -3723,6 +3723,23 @@ resource "google_container_cluster" "primary" {
 `, name)
 }
 
+func testAccContainerCluster_withMonitoringConfigUpdated(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  logging_config {
+	  enable_components = [ "SYSTEM_COMPONENTS", "WORKLOADS" ]
+  }
+  monitoring_config {
+	  enable_components = [ "SYSTEM_COMPONENTS", "WORKLOADS ]
+  }
+}
+`, name)
+}
+
+
 func testAccContainerCluster_withSoleTenantGroup(name string) string {
 	return fmt.Sprintf(`
 resource "google_compute_node_template" "soletenant-tmpl" {
