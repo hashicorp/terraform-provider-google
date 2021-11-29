@@ -1532,6 +1532,27 @@ func TestAccContainerCluster_withLoggingConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withSoleTenantGroup(t *testing.T) {
+	t.Parallel()
+
+	resourceName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withSoleTenantGroup(resourceName),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 	t.Parallel()
 
@@ -3700,4 +3721,35 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, name)
+}
+
+func testAccContainerCluster_withSoleTenantGroup(name string) string {
+	return fmt.Sprintf(`
+resource "google_compute_node_template" "soletenant-tmpl" {
+  name      = "%s"
+  region    = "us-central1"
+  node_type = "n1-node-96-624"
+}
+
+resource "google_compute_node_group" "group" {
+  name        = "%s"
+  zone        = "us-central1-f"
+  description = "example google_compute_node_group for Terraform Google Provider"
+
+  size          = 1
+  node_template = google_compute_node_template.soletenant-tmpl.id
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+  node_config {
+    machine_type    = "n1-standard-1"  // can't be e2 because of local-ssd
+    disk_size_gb    = 15
+    disk_type       = "pd-ssd"
+    node_group = google_compute_node_group.group.name
+  }
+}
+`, name, name, name)
 }
