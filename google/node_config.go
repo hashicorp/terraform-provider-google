@@ -266,6 +266,13 @@ func schemaNodeConfig() *schema.Schema {
 						},
 					},
 				},
+
+				"node_group": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					ForceNew:    true,
+					Description: `Setting this field will assign instances of this pool to run on the specified node group. This is useful for running workloads on sole tenant nodes.`,
+				},
 			},
 		},
 	}
@@ -402,6 +409,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.WorkloadMetadataConfig = expandWorkloadMetadataConfig(v)
 	}
 
+	if v, ok := nodeConfig["node_group"]; ok {
+		nc.NodeGroup = v.(string)
+	}
+
 	return nc
 }
 
@@ -448,6 +459,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"shielded_instance_config": flattenShieldedInstanceConfig(c.ShieldedInstanceConfig),
 		"taint":                    flattenTaints(c.Taints),
 		"workload_metadata_config": flattenWorkloadMetadataConfig(c.WorkloadMetadataConfig),
+		"node_group":               c.NodeGroup,
 	})
 
 	if len(c.OauthScopes) > 0 {
