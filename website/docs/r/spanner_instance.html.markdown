@@ -121,13 +121,13 @@ The following arguments are supported:
 
 * `num_nodes` -
   (Optional)
-  The number of nodes allocated to this instance. At most one of either node_count or processing_units
-  can be present in terraform.
+  The number of nodes allocated to this instance. Exactly one of either node_count or processing_units
+  must be present in terraform.
 
 * `processing_units` -
   (Optional)
-  The number of processing units allocated to this instance. At most one of processing_units 
-  or node_count can be present in terraform.
+  The number of processing units allocated to this instance. Exactly one of processing_units 
+  or node_count must be present in terraform.
 
 * `labels` -
   (Optional)
