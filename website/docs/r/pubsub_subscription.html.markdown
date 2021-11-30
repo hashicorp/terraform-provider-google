@@ -51,7 +51,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   ack_deadline_seconds = 20
 
@@ -83,7 +83,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   labels = {
     foo = "bar"
@@ -117,7 +117,7 @@ resource "google_pubsub_topic" "example" {
 resource "google_pubsub_subscription" "example" {
   project = "subscription-project"
   name    = "example-subscription"
-  topic   = google_pubsub_topic.example.name
+  topic   = google_pubsub_topic.example.id
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -139,7 +139,7 @@ resource "google_pubsub_topic" "example_dead_letter" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   dead_letter_policy {
     dead_letter_topic = google_pubsub_topic.example_dead_letter.id
@@ -254,7 +254,7 @@ The following arguments are supported:
   the subscribers in the order in which they are received by the Pub/Sub system. Otherwise, they
   may be delivered in any order.
 
-* `project` - (Optional) The ID of the project in which the resource belongs.
+* `project` - (Optional) The ID of the project in which the subscription belongs (not the necessarily project where the topic exists).
     If it is not provided, the provider project is used.
 
 
