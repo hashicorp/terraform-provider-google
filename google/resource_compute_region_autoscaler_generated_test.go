@@ -67,26 +67,34 @@ resource "google_compute_region_autoscaler" "foobar" {
 }
 
 resource "google_compute_instance_template" "foobar" {
-  name           = "tf-test-my-instance-template%{random_suffix}"
-    machine_type   = "e2-medium"
-  can_ip_forward = false
-
-  tags = ["foo", "bar"]
+  name         = "tf-test-my-instance-template%{random_suffix}"
+  machine_type = "e2-standard-4"
 
   disk {
-    source_image = data.google_compute_image.debian_9.id
+    source_image = "debian-cloud/debian-9"
+    disk_size_gb = 250
   }
 
   network_interface {
     network = "default"
+
+    # secret default
+    access_config {
+      network_tier = "PREMIUM"
+    }
   }
 
-  metadata = {
-    foo = "bar"
-  }
-
+  # secret default
   service_account {
-    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+    scopes = [
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring.write",
+      "https://www.googleapis.com/auth/pubsub",
+      "https://www.googleapis.com/auth/service.management.readonly",
+      "https://www.googleapis.com/auth/servicecontrol",
+      "https://www.googleapis.com/auth/trace.append",
+    ]
   }
 }
 
