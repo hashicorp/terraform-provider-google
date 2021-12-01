@@ -198,13 +198,11 @@ access Google APIs and services by using Private Google Access.`,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Description: `The purpose of the resource. This field can be either PRIVATE
-or INTERNAL_HTTPS_LOAD_BALANCER. A subnetwork with purpose set to
+				Description: `The purpose of the resource. A subnetwork with purpose set to
 INTERNAL_HTTPS_LOAD_BALANCER is a user-created subnetwork that is
-reserved for Internal HTTP(S) Load Balancing. If unspecified, the
-purpose defaults to PRIVATE.
+reserved for Internal HTTP(S) Load Balancing. 
 
-If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set 'role'.`,
+If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set the 'role' field.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
