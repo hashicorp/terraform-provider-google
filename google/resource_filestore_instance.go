@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -41,6 +42,15 @@ func resourceFilestoreInstance() *schema.Resource {
 			Create: schema.DefaultTimeout(6 * time.Minute),
 			Update: schema.DefaultTimeout(6 * time.Minute),
 			Delete: schema.DefaultTimeout(6 * time.Minute),
+		},
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceFilestoreInstanceResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceFilestoreInstanceUpgradeV0,
+				Version: 0,
+			},
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -119,17 +129,11 @@ addresses reserved for this instance.`,
 				},
 			},
 			"tier": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"TIER_UNSPECIFIED", "STANDARD", "PREMIUM", "BASIC_HDD", "BASIC_SSD", "HIGH_SCALE_SSD"}, false),
-				Description:  `The service tier of the instance. Possible values: ["TIER_UNSPECIFIED", "STANDARD", "PREMIUM", "BASIC_HDD", "BASIC_SSD", "HIGH_SCALE_SSD"]`,
-			},
-			"zone": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The name of the Filestore zone of the instance.`,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The service tier of the instance.
+Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD and ENTERPRISE (beta only)`,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -141,6 +145,23 @@ addresses reserved for this instance.`,
 				Optional:    true,
 				Description: `Resource labels to represent user-provided metadata.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"location": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `The name of the location of the instance. This can be a region for ENTERPRISE tier instances.`,
+				ExactlyOneOf: []string{},
+			},
+			"zone": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				Deprecated:   "Deprecated in favor of location.",
+				ForceNew:     true,
+				Description:  `The name of the Filestore zone of the instance.`,
+				ExactlyOneOf: []string{},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -210,7 +231,7 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{zone}}/instances?instanceId={{name}}")
+	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -229,13 +250,30 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
+	if d.Get("location") == "" {
+		zone, err := getZone(d, config)
+		if err != nil {
+			return err
+		}
+		err = d.Set("location", zone)
+		if err != nil {
+			return err
+		}
+	}
+	if strings.Contains(url, "locations//") {
+		// re-compute url now that location must be set
+		url, err = replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{name}}")
+		if err != nil {
+			return err
+		}
+	}
 	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isNotFilestoreQuotaError)
 	if err != nil {
 		return fmt.Errorf("Error creating Instance: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/instances/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -254,7 +292,7 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/instances/{{name}}")
+	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -272,7 +310,7 @@ func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{zone}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -366,7 +404,7 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{zone}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -438,7 +476,7 @@ func resourceFilestoreInstanceDelete(d *schema.ResourceData, meta interface{}) e
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{zone}}/instances/{{name}}")
+	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -471,16 +509,15 @@ func resourceFilestoreInstanceDelete(d *schema.ResourceData, meta interface{}) e
 func resourceFilestoreInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	if err := parseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<zone>[^/]+)/instances/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
-		"(?P<zone>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
+		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/instances/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
+		"(?P<location>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/instances/{{name}}")
+	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -699,4 +736,193 @@ func expandFilestoreInstanceNetworksReservedIpRange(v interface{}, d TerraformRe
 
 func expandFilestoreInstanceNetworksIpAddresses(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceFilestoreInstanceResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"file_shares": {
+				Type:     schema.TypeList,
+				Required: true,
+				Description: `File system shares on the instance. For this version, only a
+single file share is supported.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"capacity_gb": {
+							Type:     schema.TypeInt,
+							Required: true,
+							Description: `File share capacity in GiB. This must be at least 1024 GiB
+for the standard tier, or 2560 GiB for the premium tier.`,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The name of the fileshare (16 characters or less)`,
+						},
+						"nfs_export_options": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Nfs Export Options. There is a limit of 10 export options per file share.`,
+							MaxItems:    10,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"access_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"READ_ONLY", "READ_WRITE", ""}, false),
+										Description: `Either READ_ONLY, for allowing only read requests on the exported directory,
+or READ_WRITE, for allowing both read and write requests. The default is READ_WRITE. Default value: "READ_WRITE" Possible values: ["READ_ONLY", "READ_WRITE"]`,
+										Default: "READ_WRITE",
+									},
+									"anon_gid": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `An integer representing the anonymous group id with a default value of 65534.
+Anon_gid may only be set with squashMode of ROOT_SQUASH. An error will be returned
+if this field is specified for other squashMode settings.`,
+									},
+									"anon_uid": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `An integer representing the anonymous user id with a default value of 65534.
+Anon_uid may only be set with squashMode of ROOT_SQUASH. An error will be returned
+if this field is specified for other squashMode settings.`,
+									},
+									"ip_ranges": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `List of either IPv4 addresses, or ranges in CIDR notation which may mount the file share.
+Overlapping IP ranges are not allowed, both within and across NfsExportOptions. An error will be returned.
+The limit is 64 IP ranges/addresses for each FileShareConfig among all NfsExportOptions.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"squash_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validation.StringInSlice([]string{"NO_ROOT_SQUASH", "ROOT_SQUASH", ""}, false),
+										Description: `Either NO_ROOT_SQUASH, for allowing root access on the exported directory, or ROOT_SQUASH,
+for not allowing root access. The default is NO_ROOT_SQUASH. Default value: "NO_ROOT_SQUASH" Possible values: ["NO_ROOT_SQUASH", "ROOT_SQUASH"]`,
+										Default: "NO_ROOT_SQUASH",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The resource name of the instance.`,
+			},
+			"networks": {
+				Type:     schema.TypeList,
+				Required: true,
+				ForceNew: true,
+				Description: `VPC networks to which the instance is connected. For this version,
+only a single network is supported.`,
+				MinItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"modes": {
+							Type:     schema.TypeList,
+							Required: true,
+							ForceNew: true,
+							Description: `IP versions for which the instance has
+IP addresses assigned. Possible values: ["ADDRESS_MODE_UNSPECIFIED", "MODE_IPV4", "MODE_IPV6"]`,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.StringInSlice([]string{"ADDRESS_MODE_UNSPECIFIED", "MODE_IPV4", "MODE_IPV6"}, false),
+							},
+						},
+						"network": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `The name of the GCE VPC network to which the
+instance is connected.`,
+						},
+						"connect_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringInSlice([]string{"DIRECT_PEERING", "PRIVATE_SERVICE_ACCESS", ""}, false),
+							Description: `The network connect mode of the Filestore instance.
+If not provided, the connect mode defaults to
+DIRECT_PEERING. Default value: "DIRECT_PEERING" Possible values: ["DIRECT_PEERING", "PRIVATE_SERVICE_ACCESS"]`,
+							Default: "DIRECT_PEERING",
+						},
+						"reserved_ip_range": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Description: `A /29 CIDR block that identifies the range of IP
+addresses reserved for this instance.`,
+						},
+						"ip_addresses": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `A list of IPv4 or IPv6 addresses.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
+			"tier": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"TIER_UNSPECIFIED", "STANDARD", "PREMIUM", "BASIC_HDD", "BASIC_SSD", "HIGH_SCALE_SSD"}, false),
+				Description:  `The service tier of the instance. Possible values: ["TIER_UNSPECIFIED", "STANDARD", "PREMIUM", "BASIC_HDD", "BASIC_SSD", "HIGH_SCALE_SSD"]`,
+			},
+			"zone": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the Filestore zone of the instance.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A description of the instance.`,
+			},
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Resource labels to represent user-provided metadata.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
+			},
+			"etag": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `Server-specified ETag for the instance resource to prevent
+simultaneous updates from overwriting each other.`,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+	}
+}
+
+func resourceFilestoreInstanceUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+
+	rawState["location"] = rawState["zone"]
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
 }

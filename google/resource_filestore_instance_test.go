@@ -1,11 +1,40 @@
 package google
 
 import (
+	"context"
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
+
+func testResourceFilestoreInstanceStateDataV0() map[string]interface{} {
+	return map[string]interface{}{
+		"zone": "us-central1-a",
+	}
+}
+
+func testResourceFilestoreInstanceStateDataV1() map[string]interface{} {
+	v0 := testResourceFilestoreInstanceStateDataV0()
+	return map[string]interface{}{
+		"location": v0["zone"],
+		"zone":     v0["zone"],
+	}
+}
+
+func TestFilestoreInstanceStateUpgradeV0(t *testing.T) {
+	expected := testResourceFilestoreInstanceStateDataV1()
+	// linter complains about nil context even in a test setting
+	actual, err := resourceFilestoreInstanceUpgradeV0(context.Background(), testResourceFilestoreInstanceStateDataV0(), nil)
+	if err != nil {
+		t.Fatalf("error migrating state: %s", err)
+	}
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
+	}
+}
 
 func TestAccFilestoreInstance_update(t *testing.T) {
 	t.Parallel()
@@ -21,17 +50,19 @@ func TestAccFilestoreInstance_update(t *testing.T) {
 				Config: testAccFilestoreInstance_update(name),
 			},
 			{
-				ResourceName:      "google_filestore_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_filestore_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"zone", "location"},
 			},
 			{
 				Config: testAccFilestoreInstance_update2(name),
 			},
 			{
-				ResourceName:      "google_filestore_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_filestore_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"zone", "location"},
 			},
 		},
 	})
@@ -92,17 +123,19 @@ func TestAccFilestoreInstance_reservedIpRange_update(t *testing.T) {
 				Config: testAccFilestoreInstance_reservedIpRange_update(name),
 			},
 			{
-				ResourceName:      "google_filestore_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_filestore_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"zone", "location"},
 			},
 			{
 				Config: testAccFilestoreInstance_reservedIpRange_update2(name),
 			},
 			{
-				ResourceName:      "google_filestore_instance.instance",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_filestore_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"zone", "location"},
 			},
 		},
 	})

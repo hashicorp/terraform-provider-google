@@ -44,7 +44,7 @@ To get more information about Instance, see:
 ```hcl
 resource "google_filestore_instance" "instance" {
   name = "test-instance"
-  zone = "us-central1-b"
+  location = "us-central1-b"
   tier = "PREMIUM"
 
   file_shares {
@@ -70,7 +70,7 @@ resource "google_filestore_instance" "instance" {
 resource "google_filestore_instance" "instance" {
   provider = google-beta
   name = "test-instance"
-  zone = "us-central1-b"
+  location = "us-central1-b"
   tier = "BASIC_SSD"
 
   file_shares {
@@ -112,7 +112,7 @@ The following arguments are supported:
 * `tier` -
   (Required)
   The service tier of the instance.
-  Possible values are `TIER_UNSPECIFIED`, `STANDARD`, `PREMIUM`, `BASIC_HDD`, `BASIC_SSD`, and `HIGH_SCALE_SSD`.
+  Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD and ENTERPRISE (beta only)
 
 * `file_shares` -
   (Required)
@@ -125,10 +125,6 @@ The following arguments are supported:
   VPC networks to which the instance is connected. For this version,
   only a single network is supported.
   Structure is [documented below](#nested_networks).
-
-* `zone` -
-  (Required)
-  The name of the Filestore zone of the instance.
 
 
 <a name="nested_file_shares"></a>The `file_shares` block supports:
@@ -222,6 +218,14 @@ The following arguments are supported:
   (Optional)
   Resource labels to represent user-provided metadata.
 
+* `zone` -
+  (Optional, Deprecated)
+  The name of the Filestore zone of the instance.
+
+* `location` -
+  (Optional)
+  The name of the location of the instance. This can be a region for ENTERPRISE tier instances.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -230,7 +234,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{zone}}/instances/{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/instances/{{name}}`
 
 * `create_time` -
   Creation timestamp in RFC3339 text format.
@@ -255,10 +259,9 @@ This resource provides the following
 Instance can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_filestore_instance.default projects/{{project}}/locations/{{zone}}/instances/{{name}}
-$ terraform import google_filestore_instance.default {{project}}/{{zone}}/{{name}}
-$ terraform import google_filestore_instance.default {{zone}}/{{name}}
-$ terraform import google_filestore_instance.default {{name}}
+$ terraform import google_filestore_instance.default projects/{{project}}/locations/{{location}}/instances/{{name}}
+$ terraform import google_filestore_instance.default {{project}}/{{location}}/{{name}}
+$ terraform import google_filestore_instance.default {{location}}/{{name}}
 ```
 
 ## User Project Overrides

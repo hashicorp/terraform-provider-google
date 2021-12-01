@@ -61,7 +61,7 @@ func testSweepFilestoreInstance(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://file.googleapis.com/v1/projects/{{project}}/locations/{{zone}}/instances", "?")[0]
+	listTemplate := strings.Split("https://file.googleapis.com/v1/projects/{{project}}/locations/{{location}}/instances", "?")[0]
 	listUrl, err := replaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -99,7 +99,7 @@ func testSweepFilestoreInstance(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://file.googleapis.com/v1/projects/{{project}}/locations/{{zone}}/instances/{{name}}"
+		deleteTemplate := "https://file.googleapis.com/v1/projects/{{project}}/locations/{{location}}/instances/{{name}}"
 		deleteUrl, err := replaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)

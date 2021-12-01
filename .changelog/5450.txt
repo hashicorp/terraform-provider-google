@@ -1,0 +1,6 @@
+```release-note:enhancement
+filestore: added support for `ENTERPRISE` value on `google_filestore_instance` `tier`
+```
+```release-note:deprecation
+filestore: deprecated `zone` on `google_filestore_instance` in favor of `location` to allow for regional instances
+```
