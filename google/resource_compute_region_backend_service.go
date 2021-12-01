@@ -109,6 +109,8 @@ func customDiffRegionBackendService(_ context.Context, d *schema.ResourceDiff, m
 	switch d.Get("load_balancing_scheme").(string) {
 	case "INTERNAL", "EXTERNAL":
 		return validateNonManagedBackendServiceBackends(backends, d)
+	case "INTERNAL_MANAGED":
+		return nil
 	default:
 		return validateManagedBackendServiceBackends(backends, d)
 	}
