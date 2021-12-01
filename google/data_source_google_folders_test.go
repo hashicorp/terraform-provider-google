@@ -24,11 +24,8 @@ func TestAccDataSourceGoogleFolders_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.google_folders.root-test", "folders.0.name"),
 					resource.TestCheckResourceAttrSet("data.google_folders.root-test", "folders.0.display_name"),
 					resource.TestCheckResourceAttrSet("data.google_folders.root-test", "folders.0.state"),
-					resource.TestCheckResourceAttrSet("data.google_folders.root-test", "folders.0.parent"),
 					resource.TestCheckResourceAttrSet("data.google_folders.root-test", "folders.0.create_time"),
 					resource.TestCheckResourceAttrSet("data.google_folders.root-test", "folders.0.update_time"),
-					// resource.TestCheckResourceAttrSet("data.google_folders.root-test", "folders.0.delete_time"),
-					// deleteTime will only be set on a deleted folder
 					resource.TestCheckResourceAttrSet("data.google_folders.root-test", "folders.0.etag"),
 				),
 			},
