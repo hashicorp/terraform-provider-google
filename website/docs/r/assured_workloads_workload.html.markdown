@@ -40,6 +40,10 @@ resource "google_assured_workloads_workload" "primary" {
     rotation_period    = "10368000s"
   }
 
+  labels = {
+    label-one = "value-one"
+  }
+
   provisioned_resources_parent = "folders/519620126891"
 
   resource_settings {

@@ -81,6 +81,10 @@ resource "google_privateca_certificate_template" "primary" {
     }
   }
 
+  labels = {
+    label-two = "value-two"
+  }
+
   passthrough_extensions {
     additional_extensions {
       object_id_path = [1, 6]
@@ -162,6 +166,10 @@ resource "google_privateca_certificate_template" "primary" {
       location    = "update.certificate_template.json"
       title       = "New sample expression"
     }
+  }
+
+  labels = {
+    label-one = "value-one"
   }
 
   passthrough_extensions {
