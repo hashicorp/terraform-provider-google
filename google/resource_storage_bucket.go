@@ -343,6 +343,11 @@ func resourceStorageBucket() *schema.Resource {
 				Computed:    true,
 				Description: `Enables uniform bucket-level access on a bucket.`,
 			},
+			"public_access_prevention": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Prevents public access to a bucket.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -584,12 +589,11 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if d.HasChange("uniform_bucket_level_access") {
+	if d.HasChange("uniform_bucket_level_access") || d.HasChange("public_access_prevention") {
 		sb.IamConfiguration = expandIamConfiguration(d)
 	}
 
 	res, err := config.NewStorageClient(userAgent).Buckets.Patch(d.Get("name").(string), sb).Do()
-
 	if err != nil {
 		return err
 	}
@@ -732,6 +736,12 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	} else {
 		if err := d.Set("uniform_bucket_level_access", false); err != nil {
 			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
+		}
+	}
+
+	if res.IamConfiguration != nil && res.IamConfiguration.PublicAccessPrevention != "" {
+		if err := d.Set("public_access_prevention", res.IamConfiguration.PublicAccessPrevention); err != nil {
+			return fmt.Errorf("Error setting public_access_prevention: %s", err)
 		}
 	}
 
@@ -1119,13 +1129,19 @@ func expandBucketWebsite(v interface{}) *storage.BucketWebsite {
 }
 
 func expandIamConfiguration(d *schema.ResourceData) *storage.BucketIamConfiguration {
-	return &storage.BucketIamConfiguration{
+	cfg := &storage.BucketIamConfiguration{
 		ForceSendFields: []string{"UniformBucketLevelAccess"},
 		UniformBucketLevelAccess: &storage.BucketIamConfigurationUniformBucketLevelAccess{
 			Enabled:         d.Get("uniform_bucket_level_access").(bool),
 			ForceSendFields: []string{"Enabled"},
 		},
 	}
+
+	if v, ok := d.GetOk("public_access_prevention"); ok {
+		cfg.PublicAccessPrevention = v.(string)
+	}
+
+	return cfg
 }
 
 func expandStorageBucketLifecycle(v interface{}) (*storage.BucketLifecycle, error) {

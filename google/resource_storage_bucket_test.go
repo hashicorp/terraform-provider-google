@@ -590,6 +590,7 @@ func TestAccStorageBucket_forceDestroyObjectDeleteError(t *testing.T) {
 		},
 	})
 }
+
 func TestAccStorageBucket_versioning(t *testing.T) {
 	t.Parallel()
 
@@ -755,6 +756,28 @@ func TestAccStorageBucket_encryption(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucket_encryption(context),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_publicAccessPrevention(t *testing.T) {
+	t.Parallel()
+
+	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_publicAccessPrevention(bucketName, "enforced"),
 			},
 			{
 				ResourceName:            "google_storage_bucket.bucket",
@@ -1462,6 +1485,17 @@ resource "google_storage_bucket" "bucket" {
   force_destroy               = true
 }
 `, bucketName, enabled)
+}
+
+func testAccStorageBucket_publicAccessPrevention(bucketName string, prevention string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name                      = "%s"
+  location                  = "US"
+  public_access_prevention  = "%s"
+  force_destroy             = true
+}
+`, bucketName, prevention)
 }
 
 func testAccStorageBucket_encryption(context map[string]interface{}) string {
