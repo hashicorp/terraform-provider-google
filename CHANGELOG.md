@@ -1,4 +1,4 @@
-## 4.2.0 (Unreleased)
+## 4.2.0 (December 2, 2021)
 
 FEATURES:
 * **New Data Source:** `google_compute_router_status` ([#10573](https://github.com/hashicorp/terraform-provider-google/pull/10573))
