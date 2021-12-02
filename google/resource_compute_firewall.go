@@ -88,10 +88,10 @@ func resourceComputeFirewallSourceFieldsCustomizeDiff(_ context.Context, diff *s
 		_, sasOk := diff.GetOk("source_service_accounts")
 
 		_, tagsExist := diff.GetOkExists("source_tags")
-		// ranges is computed, but this is what we're trying to avoid, so we're not going to check this
+		_, rangesExist := diff.GetOkExists("source_ranges")
 		_, sasExist := diff.GetOkExists("source_service_accounts")
 
-		if !tagsOk && !rangesOk && !sasOk && !tagsExist && !sasExist {
+		if !tagsOk && !rangesOk && !sasOk && !tagsExist && !rangesExist && !sasExist {
 			return fmt.Errorf("one of source_tags, source_ranges, or source_service_accounts must be defined")
 		}
 	}
@@ -884,6 +884,7 @@ func flattenComputeFirewallAllow(v interface{}, d *schema.ResourceData, config *
 	}
 	return transformed
 }
+
 func flattenComputeFirewallAllowProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -915,6 +916,7 @@ func flattenComputeFirewallDeny(v interface{}, d *schema.ResourceData, config *C
 	}
 	return transformed
 }
+
 func flattenComputeFirewallDenyProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
