@@ -76,6 +76,15 @@ var OrgPolicyEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
+var OSConfigEndpointEntryKey = "os_config_custom_endpoint"
+var OSConfigEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_OS_CONFIG_CUSTOM_ENDPOINT",
+	}, ""),
+}
+
 var PrivatecaEndpointEntryKey = "privateca_custom_endpoint"
 var PrivatecaEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -101,6 +110,7 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 //ComputeBasePath string
 //EventarcBasePath string
 //OrgPolicyBasePath string
+//OSConfigBasePath string
 //PrivatecaBasePath string
 //RecaptchaEnterpriseBasePath string
 
@@ -111,6 +121,7 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 // ComputeEndpointEntryKey:               ComputeEndpointEntry,
 // EventarcEndpointEntryKey:               EventarcEndpointEntry,
 // OrgPolicyEndpointEntryKey:               OrgPolicyEndpointEntry,
+// OSConfigEndpointEntryKey:               OSConfigEndpointEntry,
 // PrivatecaEndpointEntryKey:               PrivatecaEndpointEntry,
 // RecaptchaEnterpriseEndpointEntryKey:               RecaptchaEnterpriseEndpointEntry,
 
@@ -121,5 +132,6 @@ var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 // config.ComputeBasePath = d.Get(ComputeEndpointEntryKey).(string)
 // config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
 // config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
+// config.OSConfigBasePath = d.Get(OSConfigEndpointEntryKey).(string)
 // config.PrivatecaBasePath = d.Get(PrivatecaEndpointEntryKey).(string)
 // config.RecaptchaEnterpriseBasePath = d.Get(RecaptchaEnterpriseEndpointEntryKey).(string)

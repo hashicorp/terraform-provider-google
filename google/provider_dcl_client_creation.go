@@ -26,6 +26,7 @@ import (
 	dataproc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataproc"
 	eventarc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
 	orgpolicy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/orgpolicy"
+	osconfig "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/osconfig"
 	privateca "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/privateca"
 	recaptchaenterprise "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/recaptchaenterprise"
 )
@@ -189,6 +190,29 @@ func NewDCLOrgPolicyClient(config *Config, userAgent, billingProject string, tim
 
 	dclConfig := dcl.NewConfig(configOptions...)
 	return orgpolicy.NewClient(dclConfig)
+}
+
+func NewDCLOSConfigClient(config *Config, userAgent, billingProject string, timeout time.Duration) *osconfig.Client {
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.OSConfigBasePath),
+	}
+
+	if timeout != 0 {
+		configOptions = append(configOptions, dcl.WithTimeout(timeout))
+	}
+
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
+	return osconfig.NewClient(dclConfig)
 }
 
 func NewDCLPrivatecaClient(config *Config, userAgent, billingProject string, timeout time.Duration) *privateca.Client {
