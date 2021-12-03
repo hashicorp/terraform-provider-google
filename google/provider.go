@@ -1209,6 +1209,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dataproc_workflow_template":          resourceDataprocWorkflowTemplate(),
 			"google_eventarc_trigger":                    resourceEventarcTrigger(),
 			"google_org_policy_policy":                   resourceOrgPolicyPolicy(),
+			"google_os_config_os_policy_assignment":      resourceOSConfigOSPolicyAssignment(),
 			"google_privateca_certificate_template":      resourcePrivatecaCertificateTemplate(),
 			"google_recaptcha_enterprise_key":            resourceRecaptchaEnterpriseKey(),
 		},
