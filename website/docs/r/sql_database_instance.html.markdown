@@ -295,6 +295,8 @@ This setting can be updated, but it cannot be removed after it is set.
 
 * `require_ssl` - (Optional) Whether SSL connections over IP are enforced or not.
 
+* `allocated_ip_range` - (Optional) The name of the allocated ip range for the private ip CloudSQL instance. For example: "google-managed-services-default". If set, the instance ip will be created in the allocated range. The range name must comply with [RFC 1035](https://datatracker.ietf.org/doc/html/rfc1035). Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.
+
 The optional `settings.ip_configuration.authorized_networks[]` sublist supports:
 
 * `expiration_time` - (Optional) The [RFC 3339](https://tools.ietf.org/html/rfc3339)

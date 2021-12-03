@@ -52,6 +52,7 @@ var (
 		"settings.0.ip_configuration.0.ipv4_enabled",
 		"settings.0.ip_configuration.0.require_ssl",
 		"settings.0.ip_configuration.0.private_network",
+		"settings.0.ip_configuration.0.allocated_ip_range",
 	}
 
 	maintenanceWindowKeys = []string{
@@ -305,6 +306,13 @@ settings.backup_configuration.binary_log_enabled are both set to true.`,
 										DiffSuppressFunc: compareSelfLinkRelativePaths,
 										AtLeastOneOf:     ipConfigurationKeys,
 										Description:      `The VPC network from which the Cloud SQL instance is accessible for private IP. For example, projects/myProject/global/networks/default. Specifying a network enables private IP. At least ipv4_enabled must be enabled or a private_network must be configured. This setting can be updated, but it cannot be removed after it is set.`,
+									},
+									"allocated_ip_range": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										AtLeastOneOf: ipConfigurationKeys,
+										Description:  `The name of the allocated ip range for the private ip CloudSQL instance. For example: "google-managed-services-default". If set, the instance ip will be created in the allocated range. The range name must comply with RFC 1035. Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.`,
 									},
 								},
 							},
@@ -1021,6 +1029,7 @@ func expandIpConfiguration(configured []interface{}) *sqladmin.IpConfiguration {
 		Ipv4Enabled:        _ipConfiguration["ipv4_enabled"].(bool),
 		RequireSsl:         _ipConfiguration["require_ssl"].(bool),
 		PrivateNetwork:     _ipConfiguration["private_network"].(string),
+		AllocatedIpRange:   _ipConfiguration["allocated_ip_range"].(string),
 		AuthorizedNetworks: expandAuthorizedNetworks(_ipConfiguration["authorized_networks"].(*schema.Set).List()),
 		ForceSendFields:    []string{"Ipv4Enabled", "RequireSsl"},
 	}
@@ -1395,9 +1404,10 @@ func flattenDatabaseFlags(databaseFlags []*sqladmin.DatabaseFlags) []map[string]
 
 func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration) interface{} {
 	data := map[string]interface{}{
-		"ipv4_enabled":    ipConfiguration.Ipv4Enabled,
-		"private_network": ipConfiguration.PrivateNetwork,
-		"require_ssl":     ipConfiguration.RequireSsl,
+		"ipv4_enabled":       ipConfiguration.Ipv4Enabled,
+		"private_network":    ipConfiguration.PrivateNetwork,
+		"allocated_ip_range": ipConfiguration.AllocatedIpRange,
+		"require_ssl":        ipConfiguration.RequireSsl,
 	}
 
 	if ipConfiguration.AuthorizedNetworks != nil {
