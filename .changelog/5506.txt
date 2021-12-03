@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed scenario where `instance_group_manager` would not start update if `wait_for_instances` was set and initial status was not `STABLE`
+```
