@@ -26,7 +26,7 @@ Four different resources help you manage your IAM policy for a folder. Each of t
 
 ## google\_folder\_iam\_policy
 
-~> **Be careful!** You can accidentally lock yourself out of your folder
+!> **Be careful!** You can accidentally lock yourself out of your folder
    using this resource. Deleting a `google_folder_iam_policy` removes access
    from anyone without permissions on its parent folder/organization. Proceed with caution.
    It's not recommended to use `google_folder_iam_policy` with your provider folder
