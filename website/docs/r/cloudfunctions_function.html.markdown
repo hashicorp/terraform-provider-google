@@ -150,6 +150,8 @@ Eg. `"nodejs10"`, `"nodejs12"`, `"nodejs14"`, `"python37"`, `"python38"`, `"pyth
 
 * `max_instances` - (Optional) The limit on the maximum number of function instances that may coexist at a given time.
 
+* `min_instances` - (Optional) The limit on the minimum number of function instances that may coexist at a given time.
+
 <a name="nested_event_trigger"></a>The `event_trigger` block supports:
 
 * `event_type` - (Required) The type of event to observe. For example: `"google.storage.object.finalize"`.
