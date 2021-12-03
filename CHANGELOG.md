@@ -1,4 +1,4 @@
-## 4.2.1 (Unreleased)
+## 4.2.1 (December 03, 2021)
 ## 4.2.0 (December 2, 2021)
 
 FEATURES:
