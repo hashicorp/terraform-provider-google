@@ -1,6 +1,4 @@
 ## 4.3.0 (Unreleased)
-BREAKING CHANGES:
-* apigee: Replaced `org_id` with `org_name` for `google_apigee_environment`. ([#10608](https://github.com/hashicorp/terraform-provider-google/pull/10608))
 
 FEATURES:
 * **New Data Source:** `google_compute_router_status` ([#10573](https://github.com/hashicorp/terraform-provider-google/pull/10573))
