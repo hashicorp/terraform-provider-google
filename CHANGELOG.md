@@ -1,4 +1,23 @@
-## 4.3.0 (Unreleased)
+## 4.4.0 (Unreleased)
+## 4.3.0 (December 7, 2021)
+
+FEATURES:
+* **New Data Source:** `google_compute_router_status` ([#10573](https://github.com/hashicorp/terraform-provider-google/pull/10573))
+* **New Data Source:** `google_folders` ([#10658](https://github.com/hashicorp/terraform-provider-google/pull/10658))
+* **New Resource:** `google_notebooks_runtime` ([#10627](https://github.com/hashicorp/terraform-provider-google/pull/10627))
+* **New Resource:** `google_vertex_ai_metadata_store` ([#10657](https://github.com/hashicorp/terraform-provider-google/pull/10657))
+* **New Resource:** `google_cloudbuild_worker_pool` ([#10617](https://github.com/hashicorp/terraform-provider-google/pull/10617))
+
+IMPROVEMENTS:
+* apigee: Added IAM support for `google_apigee_environment`. ([#10608](https://github.com/hashicorp/terraform-provider-google/pull/10608))
+* apigee: Added supported values for 'peeringCidrRange' in `google_apigee_instance`. ([#10636](https://github.com/hashicorp/terraform-provider-google/pull/10636))
+* cloudbuild: added display_name and annotations to google_cloudbuild_worker_pool for compatibility with new GA. ([#10617](https://github.com/hashicorp/terraform-provider-google/pull/10617))
+* container: added `node_group` to `node_config` for container clusters and node pools to support sole tenancy ([#10646](https://github.com/hashicorp/terraform-provider-google/pull/10646))
+* redis: Added Multi read replica field `replicaCount `, `nodes`,  `readEndpoint`, `readEndpointPort`, `readReplicasMode` in `google_redis_instance ` ([#10607](https://github.com/hashicorp/terraform-provider-google/pull/10607))
+
+BUG FIXES:
+* essentialcontacts: marked updating `email` in `google_essential_contacts_contact` as requiring recreation ([#10592](https://github.com/hashicorp/terraform-provider-google/pull/10592))
+* privateca: fixed crlAccessUrls in `CertificateAuthority ` ([#10577](https://github.com/hashicorp/terraform-provider-google/pull/10577))
 
 ## 4.2.0 (December 2, 2021)
 
