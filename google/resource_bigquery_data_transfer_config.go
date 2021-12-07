@@ -203,7 +203,7 @@ to a different credential configuration in the config will require an apply to u
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `Optional service account name. If this field is set, transfer config will
+				Description: `Service account email. If this field is set, transfer config will
 be created with this service account credentials. It requires that
 requesting user calling this API has permissions to act as this service account.`,
 				Default: "",
