@@ -1,6 +1,7 @@
 package google
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -13,6 +14,224 @@ import (
 // deleted on the API-side. This flattener creates default objects for sub-objects that match this pattern
 // to fix perma-diffs on default-only objects. For this to work all objects that are flattened from nil to
 // their default object *MUST* be set in the user's config, so they are all marked as Required in the schema.
+//
+// This file also contains shared expanders between the above resources. The expanders are required in order
+// to handle the optional primitive field in CaOptions. By adding a virtual field, the expander can distinguish
+// between an unset primitive field and a set primitive field with a default value.
+
+// Expander utilities
+
+func expandPrivatecaCertificateConfigX509ConfigCaOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	// Fields non_ca, zero_max_issuer_path_length are used to distinguish between
+	// unset booleans and booleans set with a default value.
+	// Unset is_ca or unset max_issuer_path_length either allow any values for these fields when
+	// used in an issuance policy, or allow the API to use default values when used in a
+	// certificate config. A default value of is_ca=false means that issued certificates cannot
+	// be CA certificates. A default value of max_issuer_path_length=0 means that the CA cannot
+	// issue CA certificates.
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+
+	nonCa := original["non_ca"].(bool)
+	isCa := original["is_ca"].(bool)
+
+	zeroPathLength := original["zero_max_issuer_path_length"].(bool)
+	maxIssuerPathLength := original["max_issuer_path_length"].(int)
+
+	transformed := make(map[string]interface{})
+
+	if nonCa && isCa {
+		return nil, fmt.Errorf("non_ca, is_ca can not be set to true at the same time.")
+	}
+	if zeroPathLength && maxIssuerPathLength > 0 {
+		return nil, fmt.Errorf("zero_max_issuer_path_length can not be set to true while max_issuer_path_length being set to a positive integer.")
+	}
+
+	if isCa || nonCa {
+		transformed["isCa"] = original["is_ca"]
+	}
+	if maxIssuerPathLength > 0 || zeroPathLength {
+		transformed["maxIssuerPathLength"] = original["max_issuer_path_length"]
+	}
+	return transformed, nil
+}
+
+func expandPrivatecaCertificateConfigX509ConfigKeyUsage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	if v == nil {
+		return v, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	if len(original) == 0 {
+		// Ignore empty KeyUsage
+		return nil, nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["baseKeyUsage"] =
+		expandPrivatecaCertificateConfigX509ConfigKeyUsageBaseKeyUsage(original["base_key_usage"], d, config)
+	transformed["extendedKeyUsage"] =
+		expandPrivatecaCertificateConfigX509ConfigKeyUsageExtendedKeyUsage(original["extended_key_usage"], d, config)
+	transformed["unknownExtendedKeyUsages"] =
+		expandPrivatecaCertificateConfigX509ConfigKeyUsageUnknownExtendedKeyUsages(original["unknown_extended_key_usages"], d, config)
+
+	return transformed, nil
+}
+
+func expandPrivatecaCertificateConfigX509ConfigKeyUsageBaseKeyUsage(v interface{}, d TerraformResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	if len(original) == 0 {
+		// Ignore empty BaseKeyUsage
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["digitalSignature"] = original["digital_signature"]
+	transformed["contentCommitment"] = original["content_commitment"]
+	transformed["keyEncipherment"] = original["key_encipherment"]
+	transformed["dataEncipherment"] = original["data_encipherment"]
+	transformed["keyAgreement"] = original["key_agreement"]
+	transformed["certSign"] = original["cert_sign"]
+	transformed["crlSign"] = original["crl_sign"]
+	transformed["encipherOnly"] = original["encipher_only"]
+	transformed["decipherOnly"] = original["decipher_only"]
+	return transformed
+}
+
+func expandPrivatecaCertificateConfigX509ConfigKeyUsageExtendedKeyUsage(v interface{}, d TerraformResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	if len(original) == 0 {
+		// Ignore empty ExtendedKeyUsage
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["serverAuth"] = original["server_auth"]
+	transformed["clientAuth"] = original["client_auth"]
+	transformed["codeSigning"] = original["code_signing"]
+	transformed["emailProtection"] = original["email_protection"]
+	transformed["timeStamping"] = original["time_stamping"]
+	transformed["ocspSigning"] = original["ocsp_signing"]
+	return transformed
+}
+
+func expandPrivatecaCertificateConfigX509ConfigKeyUsageUnknownExtendedKeyUsages(v interface{}, d TerraformResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	// Parses the list of object IDs
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Ignore empty UnknownExtendedKeyUsages
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"objectIdPath": original["object_id_path"],
+		})
+	}
+	return transformed
+}
+
+func expandPrivatecaCertificateConfigX509ConfigPolicyIds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	if v == nil {
+		return v, nil
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	// Parses the list of object IDs
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Ignore empty ObjectId
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"objectIdPath": original["object_id_path"],
+		})
+	}
+	return transformed, nil
+}
+
+func expandPrivatecaCertificateConfigX509ConfigAdditionalExtensions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	if v == nil {
+		return v, nil
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Ignore empty AdditionalExtensions
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"critical": original["critical"],
+			"value":    original["value"],
+			"objectId": expandPrivatecaCertificateConfigX509ConfigAdditionalExtensionsObjectId(original["object_id"], d, config),
+		})
+	}
+	return transformed, nil
+}
+
+func expandPrivatecaCertificateConfigX509ConfigAdditionalExtensionsObjectId(v interface{}, d TerraformResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	// Expects a single object ID.
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	if len(original) == 0 {
+		// Ignore empty ObjectId
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["objectIdPath"] = original["object_id_path"]
+	return transformed
+}
+
+func expandPrivatecaCertificateConfigX509ConfigAiaOcspServers(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	// List of strings, no processing necessary.
+	return v, nil
+}
+
+// Flattener utilities
 
 func flattenPrivatecaCertificateConfigX509ConfigAdditionalExtensions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
@@ -90,17 +309,24 @@ func flattenPrivatecaCertificateConfigX509ConfigCaOptions(v interface{}, d *sche
 	// and CertificateAuthority APIs.
 	if v == nil || len(v.(map[string]interface{})) == 0 {
 		v = make(map[string]interface{})
-		original := v.(map[string]interface{})
-		transformed := make(map[string]interface{})
-		transformed["is_ca"] = flattenPrivatecaCertificateConfigX509ConfigCaOptionsIsCa(original["isCa"], d, config)
-		return []interface{}{transformed}
 	}
 	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
+
+	val, exists := original["isCa"]
 	transformed["is_ca"] =
-		flattenPrivatecaCertificateConfigX509ConfigCaOptionsIsCa(original["isCa"], d, config)
+		flattenPrivatecaCertificateConfigX509ConfigCaOptionsIsCa(val, d, config)
+	if exists && !val.(bool) {
+		transformed["non_ca"] = true
+	}
+
+	val, exists = original["maxIssuerPathLength"]
 	transformed["max_issuer_path_length"] =
-		flattenPrivatecaCertificateConfigX509ConfigCaOptionsMaxIssuerPathLength(original["maxIssuerPathLength"], d, config)
+		flattenPrivatecaCertificateConfigX509ConfigCaOptionsMaxIssuerPathLength(val, d, config)
+	if exists && int(val.(float64)) == 0 {
+		transformed["zero_max_issuer_path_length"] = true
+	}
+
 	return []interface{}{transformed}
 }
 func flattenPrivatecaCertificateConfigX509ConfigCaOptionsIsCa(v interface{}, d *schema.ResourceData, config *Config) interface{} {
