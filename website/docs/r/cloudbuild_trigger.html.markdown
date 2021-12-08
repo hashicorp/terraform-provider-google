@@ -70,12 +70,13 @@ resource "google_cloudbuild_trigger" "build-trigger" {
     branch_name = "master"
     repo_name   = "my-repo"
   }
-  
+
   build {
     step {
       name = "gcr.io/cloud-builders/gsutil"
       args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
       timeout = "120s"
+      secret_env = ["MY_SECRET"]
     }
 
     source {
@@ -95,6 +96,12 @@ resource "google_cloudbuild_trigger" "build-trigger" {
       kms_key_name = "projects/myProject/locations/global/keyRings/keyring-name/cryptoKeys/key-name"
       secret_env = {
         PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
+      }
+    }
+    available_secrets {
+      secret_manager {
+        env          = "MY_SECRET"
+        version_name = "projects/myProject/secrets/mySecret/versions/latest"
       }
     }
     artifacts {
@@ -121,7 +128,7 @@ resource "google_cloudbuild_trigger" "build-trigger" {
         path = "v1"
       }
     }
-  }  
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -430,6 +437,11 @@ The following arguments are supported:
   Secrets to decrypt using Cloud Key Management Service.
   Structure is [documented below](#nested_secret).
 
+* `available_secrets` -
+  (Optional)
+  Secrets and secret environment variables.
+  Structure is [documented below](#nested_available_secrets).
+
 * `step` -
   (Required)
   The operations to be performed on the workspace.
@@ -528,6 +540,26 @@ The following arguments are supported:
   Secret environment variables must be unique across all of a build's secrets, 
   and must be used by at least one build step. Values can be at most 64 KB in size. 
   There can be at most 100 secret values across all of a build's secrets.
+
+<a name="nested_available_secrets"></a>The `available_secrets` block supports:
+
+* `secret_manager` -
+  (Required)
+  Pairs a secret environment variable with a SecretVersion in Secret Manager.
+  Structure is [documented below](#nested_secret_manager).
+
+
+<a name="nested_secret_manager"></a>The `secret_manager` block supports:
+
+* `version_name` -
+  (Required)
+  Resource name of the SecretVersion. In format: projects/*/secrets/*/versions/*
+
+* `env` -
+  (Required)
+  Environment variable name to associate with the secret. Secret environment
+  variables must be unique across all of a build's secrets, and must be used
+  by at least one build step.
 
 <a name="nested_step"></a>The `step` block supports:
 
