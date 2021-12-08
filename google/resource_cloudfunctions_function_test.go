@@ -146,6 +146,8 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(funcResourceName,
 						"max_instances", "10"),
 					resource.TestCheckResourceAttr(funcResourceName,
+						"min_instances", "3"),
+					resource.TestCheckResourceAttr(funcResourceName,
 						"ingress_settings", "ALLOW_INTERNAL_ONLY"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_HTTP, &function),
@@ -215,6 +217,8 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 						"timeout", "91"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"max_instances", "15"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"min_instances", "5"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"ingress_settings", "ALLOW_ALL"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-updated-label-value", &function),
@@ -623,6 +627,7 @@ resource "google_cloudfunctions_function" "function" {
     TEST_ENV_VARIABLE = "test-build-env-variable-value"
   }
   max_instances = 10
+  min_instances = 3
 }
 `, bucketName, zipFilePath, functionName)
 }
@@ -664,6 +669,7 @@ resource "google_cloudfunctions_function" "function" {
     NEW_ENV_VARIABLE  = "new-build-env-variable-value"
   }
   max_instances = 15
+  min_instances = 5
 }
 `, bucketName, zipFilePath, functionName)
 }
@@ -903,6 +909,7 @@ resource "google_cloudfunctions_function" "function" {
 	TEST_ENV_VARIABLE = "test-env-variable-value"
   }
   max_instances = 10
+  min_instances = 3
   vpc_connector = google_vpc_access_connector.%s.self_link
   vpc_connector_egress_settings = "PRIVATE_RANGES_ONLY"
 
