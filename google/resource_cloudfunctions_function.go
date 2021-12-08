@@ -293,6 +293,13 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 				Description:  `The limit on the maximum number of function instances that may coexist at a given time.`,
 			},
 
+			"min_instances": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  `The limit on the minimum number of function instances that may coexist at a given time.`,
+			},
+
 			"project": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -407,6 +414,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 
 	if v, ok := d.GetOk("max_instances"); ok {
 		function.MaxInstances = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("min_instances"); ok {
+		function.MinInstances = int64(v.(int))
 	}
 
 	log.Printf("[DEBUG] Creating cloud function: %s", function.Name)
@@ -527,6 +538,9 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("max_instances", function.MaxInstances); err != nil {
 		return fmt.Errorf("Error setting max_instances: %s", err)
 	}
+	if err := d.Set("min_instances", function.MinInstances); err != nil {
+		return fmt.Errorf("Error setting min_instances: %s", err)
+	}
 	if err := d.Set("region", cloudFuncId.Region); err != nil {
 		return fmt.Errorf("Error setting region: %s", err)
 	}
@@ -639,6 +653,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("max_instances") {
 		function.MaxInstances = int64(d.Get("max_instances").(int))
 		updateMaskArr = append(updateMaskArr, "maxInstances")
+	}
+
+	if d.HasChange("min_instances") {
+		function.MinInstances = int64(d.Get("min_instances").(int))
+		updateMaskArr = append(updateMaskArr, "minInstances")
 	}
 
 	if len(updateMaskArr) > 0 {
