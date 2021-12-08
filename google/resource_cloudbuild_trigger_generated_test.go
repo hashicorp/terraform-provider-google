@@ -96,12 +96,13 @@ resource "google_cloudbuild_trigger" "build-trigger" {
     branch_name = "master"
     repo_name   = "my-repo"
   }
-  
+
   build {
     step {
       name = "gcr.io/cloud-builders/gsutil"
       args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
       timeout = "120s"
+      secret_env = ["MY_SECRET"]
     }
 
     source {
@@ -121,6 +122,12 @@ resource "google_cloudbuild_trigger" "build-trigger" {
       kms_key_name = "projects/myProject/locations/global/keyRings/keyring-name/cryptoKeys/key-name"
       secret_env = {
         PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
+      }
+    }
+    available_secrets {
+      secret_manager {
+        env          = "MY_SECRET"
+        version_name = "projects/myProject/secrets/mySecret/versions/latest"
       }
     }
     artifacts {
@@ -147,7 +154,7 @@ resource "google_cloudbuild_trigger" "build-trigger" {
         path = "v1"
       }
     }
-  }  
+  }
 }
 `, context)
 }

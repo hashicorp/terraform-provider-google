@@ -37,6 +37,35 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 	})
 }
 
+func TestAccCloudBuildTrigger_available_secrets_config(t *testing.T) {
+	t.Parallel()
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_available_secrets_config(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudBuildTrigger_available_secrets_config_update(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccCloudBuildTrigger_pubsub_config(t *testing.T) {
 	t.Parallel()
 	name := fmt.Sprintf("tf-test-%d", randInt(t))
@@ -337,6 +366,56 @@ resource "google_cloudbuild_trigger" "build_trigger" {
   }
 }
   `, name)
+}
+
+func testAccCloudBuildTrigger_available_secrets_config(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name        = "%s"
+  description = "acceptance test build trigger"
+  trigger_template {
+    branch_name = "master"
+    repo_name   = "some-repo"
+  }
+  build {
+    tags   = ["team-a", "service-b"]
+    timeout = "1800s"
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "300s"
+    }
+    available_secrets {
+      secret_manager {
+        env          = "MY_SECRET"
+        version_name = "projects/myProject/secrets/mySecret/versions/latest"
+      }
+    }
+  }
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_available_secrets_config_update(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name        = "%s"
+  description = "acceptance test build trigger updated"
+  trigger_template {
+    branch_name = "master"
+    repo_name   = "some-repo"
+  }
+  build {
+    tags   = ["team-a", "service-b"]
+    timeout = "1800s"
+    step {
+      name = "gcr.io/cloud-builders/gsutil"
+      args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
+      timeout = "300s"
+    }
+  }
+}
+`, name)
 }
 
 func testAccCloudBuildTrigger_pubsub_config(name string) string {
