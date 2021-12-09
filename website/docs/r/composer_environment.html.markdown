@@ -747,6 +747,13 @@ See [documentation](https://cloud.google.com/composer/docs/how-to/managing/confi
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   When enabled, IPs from public (non-RFC1918) ranges can be used for
   `ip_allocation_policy.cluster_ipv4_cidr_block` and `ip_allocation_policy.service_ipv4_cidr_block`.
+  
+* `cloud_composer_connection_subnetwork"` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  When specified, the environment will use Private Service Connect instead of VPC peerings to connect
+  to Cloud SQL in the Tenant Project, and the PSC endpoint in the Customer Project will use an IP 
+  address from this subnetwork. This field is supported for Cloud Composer environments in 
+  versions `composer-2.*.*-airflow-*.*.*` and newer.
 
 
 The `ip_allocation_policy` block supports:
