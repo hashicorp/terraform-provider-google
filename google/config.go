@@ -1,16 +1,21 @@
 package google
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
+	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
 
 	"golang.org/x/oauth2"
@@ -46,10 +51,84 @@ import (
 	"google.golang.org/api/storage/v1"
 	"google.golang.org/api/storagetransfer/v1"
 	"google.golang.org/api/transport"
+	"google.golang.org/grpc"
 )
 
 type providerMeta struct {
 	ModuleName string `cty:"module_name"`
+}
+
+type Formatter struct {
+	TimestampFormat string
+	LogFormat       string
+}
+
+// Borrowed logic from https://github.com/sirupsen/logrus/blob/master/json_formatter.go and https://github.com/t-tomalak/logrus-easy-formatter/blob/master/formatter.go
+func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
+	if !logging.IsDebugOrHigher() {
+		return nil, nil // Suppress logs if TF_LOG is not DEBUG or TRACE
+	}
+	output := f.LogFormat
+	entry.Level = logrus.DebugLevel // Force Entries to be Debug
+
+	timestampFormat := f.TimestampFormat
+
+	output = strings.Replace(output, "%time%", entry.Time.Format(timestampFormat), 1)
+
+	output = strings.Replace(output, "%msg%", entry.Message, 1)
+
+	level := strings.ToUpper(entry.Level.String())
+	output = strings.Replace(output, "%lvl%", level, 1)
+
+	var gRPCMessageFlag bool
+	for k, val := range entry.Data {
+		switch v := val.(type) {
+		case string:
+			output = strings.Replace(output, "%"+k+"%", v, 1)
+		case int:
+			s := strconv.Itoa(v)
+			output = strings.Replace(output, "%"+k+"%", s, 1)
+		case bool:
+			s := strconv.FormatBool(v)
+			output = strings.Replace(output, "%"+k+"%", s, 1)
+		}
+
+		if k != "system" {
+			gRPCMessageFlag = true
+		}
+	}
+
+	if gRPCMessageFlag {
+		data := make(logrus.Fields, len(entry.Data)+4)
+		for k, v := range entry.Data {
+			switch v := v.(type) {
+			case error:
+				// Otherwise errors are ignored by `encoding/json`
+				// https://github.com/sirupsen/logrus/issues/137
+				data[k] = v.Error()
+			default:
+				data[k] = v
+			}
+		}
+
+		var b *bytes.Buffer
+		if entry.Buffer != nil {
+			b = entry.Buffer
+		} else {
+			b = &bytes.Buffer{}
+		}
+
+		encoder := json.NewEncoder(b)
+		encoder.SetIndent("", "  ")
+		if err := encoder.Encode(data); err != nil {
+			return nil, fmt.Errorf("failed to marshal fields to JSON, %w", err)
+		}
+
+		finalOutput := append([]byte(output), b.Bytes()...)
+		return finalOutput, nil
+	}
+
+	return []byte(output), nil
 }
 
 // Config is the configuration structure used to instantiate the Google
@@ -72,9 +151,10 @@ type Config struct {
 	// It controls the interval at which we poll for successful operations
 	PollInterval time.Duration
 
-	client    *http.Client
-	context   context.Context
-	userAgent string
+	client             *http.Client
+	context            context.Context
+	userAgent          string
+	gRPCLoggingOptions []option.ClientOption
 
 	tokenSource oauth2.TokenSource
 
@@ -395,6 +475,25 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	c.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, c.BatchingConfig)
 	c.requestBatcherIam = NewRequestBatcher("IAM", ctx, c.BatchingConfig)
 	c.PollInterval = 10 * time.Second
+
+	// gRPC Logging setup
+	logger := logrus.StandardLogger()
+
+	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetFormatter(&Formatter{
+		TimestampFormat: "2006/01/02 15:04:05",
+		LogFormat:       "%time% [%lvl%] %msg% \n",
+	})
+
+	alwaysLoggingDeciderClient := func(ctx context.Context, fullMethodName string) bool { return true }
+	grpc_logrus.ReplaceGrpcLogger(logrus.NewEntry(logger))
+
+	c.gRPCLoggingOptions = append(
+		c.gRPCLoggingOptions, option.WithGRPCDialOption(grpc.WithUnaryInterceptor(
+			grpc_logrus.PayloadUnaryClientInterceptor(logrus.NewEntry(logger), alwaysLoggingDeciderClient))),
+		option.WithGRPCDialOption(grpc.WithStreamInterceptor(
+			grpc_logrus.PayloadStreamClientInterceptor(logrus.NewEntry(logger), alwaysLoggingDeciderClient))),
+	)
 
 	return nil
 }
@@ -939,6 +1038,7 @@ func (c *Config) BigTableClientFactory(userAgent string) *BigtableClientFactory 
 	bigtableClientFactory := &BigtableClientFactory{
 		UserAgent:           userAgent,
 		TokenSource:         c.tokenSource,
+		gRPCLoggingOptions:  c.gRPCLoggingOptions,
 		BillingProject:      c.BillingProject,
 		UserProjectOverride: c.UserProjectOverride,
 	}

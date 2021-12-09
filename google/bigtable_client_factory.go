@@ -10,6 +10,7 @@ import (
 )
 
 type BigtableClientFactory struct {
+	gRPCLoggingOptions  []option.ClientOption
 	UserAgent           string
 	TokenSource         oauth2.TokenSource
 	BillingProject      string
@@ -27,6 +28,8 @@ func (s BigtableClientFactory) NewInstanceAdminClient(project string) (*bigtable
 	}
 
 	opts = append(opts, option.WithTokenSource(s.TokenSource), option.WithUserAgent(s.UserAgent))
+	opts = append(opts, s.gRPCLoggingOptions...)
+
 	return bigtable.NewInstanceAdminClient(context.Background(), project, opts...)
 }
 
@@ -41,5 +44,7 @@ func (s BigtableClientFactory) NewAdminClient(project, instance string) (*bigtab
 	}
 
 	opts = append(opts, option.WithTokenSource(s.TokenSource), option.WithUserAgent(s.UserAgent))
+	opts = append(opts, s.gRPCLoggingOptions...)
+
 	return bigtable.NewAdminClient(context.Background(), project, instance, opts...)
 }
