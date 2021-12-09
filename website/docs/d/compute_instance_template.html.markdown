@@ -203,7 +203,7 @@ The `disk_encryption_key` block supports:
     is not accessible from the Internet (this means that ssh provisioners will
     not work unless you are running Terraform can send traffic to the instance's
     network (e.g. via tunnel or because it is running on another cloud instance
-    on that network). This block can be repeated multiple times. Structure [documented below](#nested_access_config).
+    on that network). At most one access config currently supported.Structure [documented below](#nested_access_config).
 
 * `alias_ip_range` - An
     array of alias IP ranges for this network interface. Can only be specified for network
