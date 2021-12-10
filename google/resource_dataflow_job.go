@@ -204,6 +204,13 @@ func resourceDataflowJob() *schema.Resource {
 				Optional:    true,
 				Description: `Indicates if the job should use the streaming engine feature.`,
 			},
+
+			"skip_wait_on_job_termination": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `If true, treat DRAINING and CANCELLING as terminal job states and do not wait for further changes before removing from terraform state and moving on. WARNING: this will lead to job name conflicts if you do not make sure that the job names are different, e.g. by using a random_id.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -471,6 +478,11 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 
 	// Wait for state to reach terminal state (canceled/drained/done)
 	_, ok := dataflowTerminalStatesMap[d.Get("state").(string)]
+	if !ok {
+		if d.Get("skip_wait_on_job_termination").(bool) {
+			_, ok = dataflowTerminatingStatesMap[d.Get("state").(string)]
+		}
+	}
 	for !ok {
 		log.Printf("[DEBUG] Waiting for job with job state %q to terminate...", d.Get("state").(string))
 		time.Sleep(5 * time.Second)
@@ -480,6 +492,11 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Error while reading job to see if it was properly terminated: %v", err)
 		}
 		_, ok = dataflowTerminalStatesMap[d.Get("state").(string)]
+		if !ok {
+			if d.Get("skip_wait_on_job_termination").(bool) {
+				_, ok = dataflowTerminatingStatesMap[d.Get("state").(string)]
+			}
+		}
 	}
 
 	// Only remove the job from state if it's actually successfully canceled.
@@ -487,6 +504,13 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 		log.Printf("[DEBUG] Removing dataflow job with final state %q", d.Get("state").(string))
 		d.SetId("")
 		return nil
+	}
+	if d.Get("skip_wait_on_job_termination").(bool) {
+		if _, ok := dataflowTerminatingStatesMap[d.Get("state").(string)]; ok {
+			log.Printf("[DEBUG] Removing dataflow job with final state %q", d.Get("state").(string))
+			d.SetId("")
+			return nil
+		}
 	}
 	return fmt.Errorf("Unable to cancel the dataflow job '%s' - final state was %q.", d.Id(), d.Get("state").(string))
 }
