@@ -37,9 +37,9 @@ To get more information about MetadataStore, see:
 
 
 ```hcl
-resource "google_vertex_ai_metadata_store" "dataset" {
-  name          = "tf-test-"
-  description   = "magic"
+resource "google_vertex_ai_metadata_store" "store" {
+  name          = "test-store"
+  description   = "Store to test the terraform module"
   region        = "us-central1"
 }
 ```
@@ -63,7 +63,7 @@ The following arguments are supported:
 
 * `encryption_spec` -
   (Optional)
-  Customer-managed encryption key spec for a Dataset. If set, this MetadataStore and all sub-resources of this MetadataStore will be secured by this key.
+  Customer-managed encryption key spec for a MetadataStore. If set, this MetadataStore and all sub-resources of this MetadataStore will be secured by this key.
   Structure is [documented below](#nested_encryption_spec).
 
 * `region` -
