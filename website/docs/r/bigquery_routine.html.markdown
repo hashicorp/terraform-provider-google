@@ -83,6 +83,37 @@ resource "google_bigquery_routine" "sproc" {
   return_type = "{\"typeKind\" :  \"FLOAT64\"}"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=big_query_routine_tvf&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Big Query Routine Tvf
+
+
+```hcl
+resource "google_bigquery_dataset" "test" {
+	dataset_id = "dataset_id"
+}
+
+resource "google_bigquery_routine" "sproc" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_type    = "TABLE_VALUED_FUNCTION"
+  language        = "SQL"
+  definition_body = <<-EOS
+    SELECT 1 + value AS value
+  EOS
+  arguments {
+    name          = "value"
+    argument_kind = "FIXED_TYPE"
+    data_type     = jsonencode({ "typeKind" : "INT64" })
+  }
+  return_table_type = jsonencode({"columns" : [
+    { "name" : "value", "type" : { "typeKind" : "INT64" } },
+  ] })
+}
+```
 
 ## Argument Reference
 
@@ -109,7 +140,7 @@ The following arguments are supported:
 * `routine_type` -
   (Optional)
   The type of routine.
-  Possible values are `SCALAR_FUNCTION` and `PROCEDURE`.
+  Possible values are `SCALAR_FUNCTION`, `PROCEDURE`, and `TABLE_VALUED_FUNCTION`.
 
 * `language` -
   (Optional)
@@ -132,6 +163,13 @@ The following arguments are supported:
   d the order of values or replaced STRUCT field type with RECORD field type, we currently
   cannot suppress the recurring diff this causes. As a workaround, we recommend using
   the schema as returned by the API.
+
+* `return_table_type` -
+  (Optional)
+  Optional. Can be set only if routineType = "TABLE_VALUED_FUNCTION".
+  If absent, the return table type is inferred from definitionBody at query time in each query
+  that references this routine. If present, then the columns in the evaluated table result will
+  be cast to match the column types specificed in return table type, at query time.
 
 * `imported_libraries` -
   (Optional)

@@ -1,0 +1,4 @@
+```release-note:enhancement
+bigquery: added `TABLE_VALUED_FUNCTION` to routine_type on resource `bigquery_routine`
+bigquery: added field `return_table_type` to resource `bigquery_routine`
+```

@@ -113,6 +113,56 @@ resource "google_bigquery_routine" "sproc" {
 `, context)
 }
 
+func TestAccBigQueryRoutine_bigQueryRoutineTvfExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": randString(t, 10),
+	}
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBigQueryRoutineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryRoutine_bigQueryRoutineTvfExample(context),
+			},
+			{
+				ResourceName:      "google_bigquery_routine.sproc",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigQueryRoutine_bigQueryRoutineTvfExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_bigquery_dataset" "test" {
+	dataset_id = "tf_test_dataset_id%{random_suffix}"
+}
+
+resource "google_bigquery_routine" "sproc" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_type    = "TABLE_VALUED_FUNCTION"
+  language        = "SQL"
+  definition_body = <<-EOS
+    SELECT 1 + value AS value
+  EOS
+  arguments {
+    name          = "value"
+    argument_kind = "FIXED_TYPE"
+    data_type     = jsonencode({ "typeKind" : "INT64" })
+  }
+  return_table_type = jsonencode({"columns" : [
+    { "name" : "value", "type" : { "typeKind" : "INT64" } },
+  ] })
+}
+`, context)
+}
+
 func testAccCheckBigQueryRoutineDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
