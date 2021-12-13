@@ -3229,7 +3229,7 @@ resource "google_compute_instance" "foobar" {
   name           = "%s"
   machine_type   = "e2-medium"
   zone           = "us-central1-a"
-  can_ip_forward = false
+  can_ip_forward = true
   tags           = ["baz"]
 
   boot_disk {
