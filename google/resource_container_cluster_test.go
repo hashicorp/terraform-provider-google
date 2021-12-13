@@ -1415,7 +1415,7 @@ func TestAccContainerCluster_withAutopilot(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withAutopilot(containerNetName, clusterName, true),
+				Config: testAccContainerCluster_withAutopilot(containerNetName, clusterName, "us-central1", true),
 			},
 			{
 				ResourceName:            "google_container_cluster.with_autopilot",
@@ -1430,6 +1430,7 @@ func TestAccContainerCluster_withAutopilot(t *testing.T) {
 func TestAccContainerCluster_errorAutopilotLocation(t *testing.T) {
 	t.Parallel()
 
+	containerNetName := fmt.Sprintf("tf-test-container-net-%s", randString(t, 10))
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
 
 	vcrTest(t, resource.TestCase{
@@ -1438,7 +1439,7 @@ func TestAccContainerCluster_errorAutopilotLocation(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccContainerCluster_withInvalidAutopilotLocation(clusterName, "us-central1-a"),
+				Config:      testAccContainerCluster_withAutopilot(containerNetName, clusterName, "us-central1-a", true),
 				ExpectError: regexp.MustCompile(`Autopilot clusters must be regional clusters.`),
 			},
 		},
@@ -3626,7 +3627,7 @@ resource "google_container_cluster" "primary" {
 `, name)
 }
 
-func testAccContainerCluster_withAutopilot(containerNetName string, clusterName string, enabled bool) string {
+func testAccContainerCluster_withAutopilot(containerNetName string, clusterName string, location string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
 	name                    = "%s"
@@ -3657,7 +3658,7 @@ data "google_container_engine_versions" "central1a" {
 
 resource "google_container_cluster" "with_autopilot" {
 	name               = "%s"
-	location           = "us-central1"
+	location           = "%s"
 	enable_autopilot   = %v
 	min_master_version = "latest"
 	release_channel {
@@ -3678,17 +3679,7 @@ resource "google_container_cluster" "with_autopilot" {
 		enabled = true
 	}
 }
-`, containerNetName, clusterName, enabled)
-}
-
-func testAccContainerCluster_withInvalidAutopilotLocation(clusterName string, location string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "with_invalid_location" {
-  name               = "%s"
-  location           = "%s"
-  enable_autopilot	 = true
-}
-`, clusterName, location)
+`, containerNetName, clusterName, location, enabled)
 }
 
 func testAccContainerCluster_withLoggingConfigEnabled(name string) string {
