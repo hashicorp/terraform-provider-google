@@ -1,4 +1,27 @@
-## 4.4.0 (Unreleased)
+## 4.5.0 (Unreleased)
+
+## 4.4.0 (December 14, 2021)
+
+DEPRECATIONS:
+* filestore: deprecated `zone` on `google_filestore_instance` in favor of `location` to allow for regional instances ([#10662](https://github.com/hashicorp/terraform-provider-google/pull/10662))
+
+FEATURES:
+* **New Resource:** `google_os_config_os_policy_assignment` ([#10676](https://github.com/hashicorp/terraform-provider-google/pull/10676))
+* **New Resource:** `google_recaptcha_enterprise_key` ([#10672](https://github.com/hashicorp/terraform-provider-google/pull/10672))
+* **New Resource:** `google_spanner_instance_iam_policy` ([#10695](https://github.com/hashicorp/terraform-provider-google/pull/10695))
+* **New Resource:** `google_spanner_instance_iam_binding` ([#10695](https://github.com/hashicorp/terraform-provider-google/pull/10695))
+* **New Resource:** `google_spanner_instance_iam_member` ([#10695](https://github.com/hashicorp/terraform-provider-google/pull/10695))
+
+IMPROVEMENTS:
+* filestore: added support for `ENTERPRISE` value on `google_filestore_instance` `tier` ([#10662](https://github.com/hashicorp/terraform-provider-google/pull/10662))
+* privateca: added support for setting default values for basic constraints for `google_privateca_certificate`, `google_privateca_certificate_authority`, and `google_privateca_ca_pool` via the `non_ca` and `zero_max_issuer_path_length` fields ([#10702](https://github.com/hashicorp/terraform-provider-google/pull/10702))
+* sql: added field `allocated_ip_range` to resource `google_sql_database_instance` ([#10687](https://github.com/hashicorp/terraform-provider-google/pull/10687))
+
+BUG FIXES:
+* compute: Fixed incorrectly failing validation for `INTERNAL_MANAGED` `google_compute_region_backend_service`. ([#10664](https://github.com/hashicorp/terraform-provider-google/pull/10664))
+* compute: fixed scenario where `instance_group_manager` would not start update if `wait_for_instances` was set and initial status was not `STABLE` ([#10680](https://github.com/hashicorp/terraform-provider-google/pull/10680))
+* container: fixed the `ROUTES` value for the `networking_mode` field in `google_container_cluster`. A recent API change unintentionally changed the default to a `VPC_NATIVE` cluster, and removed the ability to create a `ROUTES`-based one. Provider versions prior to this one will default to `VPC_NATIVE` due to this change, and are unable to create `ROUTES` clusters. ([#10686](https://github.com/hashicorp/terraform-provider-google/pull/10686))
+
 ## 4.3.0 (December 7, 2021)
 
 FEATURES:
