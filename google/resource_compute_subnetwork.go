@@ -1157,8 +1157,8 @@ func expandComputeSubnetworkLogConfig(v interface{}, d TerraformResourceData, co
 	if len(l) == 0 || l[0] == nil {
 		purpose, ok := d.GetOkExists("purpose")
 
-		if ok && purpose.(string) == "INTERNAL_HTTPS_LOAD_BALANCER" {
-			// Subnetworks for L7ILB do not accept any values for logConfig
+		if ok && (purpose.(string) == "REGIONAL_MANAGED_PROXY" || purpose.(string) == "INTERNAL_HTTPS_LOAD_BALANCER") {
+			// Subnetworks for regional L7 ILB/XLB do not accept any values for logConfig
 			return nil, nil
 		}
 		// send enable = false to ensure logging is disabled if there is no config

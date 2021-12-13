@@ -566,10 +566,10 @@ or serverless NEG as a backend.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "INTERNAL", "INTERNAL_MANAGED", ""}, false),
+				ValidateFunc: validation.StringInSlice([]string{"EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL", "INTERNAL_MANAGED", ""}, false),
 				Description: `Indicates what kind of load balancing this regional backend service
 will be used for. A backend service created for one type of load
-balancing cannot be used with the other(s). Default value: "INTERNAL" Possible values: ["EXTERNAL", "INTERNAL", "INTERNAL_MANAGED"]`,
+balancing cannot be used with the other(s). Default value: "INTERNAL" Possible values: ["EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL", "INTERNAL_MANAGED"]`,
 				Default: "INTERNAL",
 			},
 			"locality_lb_policy": {
@@ -796,7 +796,7 @@ runtime value should be 1900. Defaults to 1900.`,
 				Optional: true,
 				Description: `A named port on a backend instance group representing the port for
 communication to the backend VMs in that group. Required when the
-loadBalancingScheme is EXTERNAL, INTERNAL_MANAGED, or INTERNAL_SELF_MANAGED
+loadBalancingScheme is EXTERNAL, EXTERNAL_MANAGED, INTERNAL_MANAGED, or INTERNAL_SELF_MANAGED
 and the backends are instance groups. The named port must be defined on each
 backend instance group. This parameter has no meaning if the backends are NEGs. API sets a
 default of "http" if not given.
@@ -3581,7 +3581,7 @@ func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta int
 		obj["iap"] = iap
 	}
 
-	if d.Get("load_balancing_scheme").(string) == "INTERNAL_MANAGED" {
+	if d.Get("load_balancing_scheme").(string) == "EXTERNAL_MANAGED" || d.Get("load_balancing_scheme").(string) == "INTERNAL_MANAGED" {
 		return obj, nil
 	}
 
