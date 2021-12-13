@@ -65,8 +65,10 @@ type Formatter struct {
 
 // Borrowed logic from https://github.com/sirupsen/logrus/blob/master/json_formatter.go and https://github.com/t-tomalak/logrus-easy-formatter/blob/master/formatter.go
 func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
-	if !logging.IsDebugOrHigher() {
-		return nil, nil // Suppress logs if TF_LOG is not DEBUG or TRACE
+	// Suppress logs if TF_LOG is not DEBUG or TRACE
+	// also suppress frequent transport spam
+	if !logging.IsDebugOrHigher() || strings.Contains(entry.Message, "transport is closing") {
+		return nil, nil
 	}
 	output := f.LogFormat
 	entry.Level = logrus.DebugLevel // Force Entries to be Debug
