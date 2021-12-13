@@ -131,6 +131,17 @@ imported JAVASCRIPT libraries.`,
 				ValidateFunc: validation.StringInSlice([]string{"SQL", "JAVASCRIPT", ""}, false),
 				Description:  `The language of the routine. Possible values: ["SQL", "JAVASCRIPT"]`,
 			},
+			"return_table_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringIsJSON,
+				StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+				Description: `Optional. Can be set only if routineType = "TABLE_VALUED_FUNCTION".
+
+If absent, the return table type is inferred from definitionBody at query time in each query
+that references this routine. If present, then the columns in the evaluated table result will
+be cast to match the column types specificed in return table type, at query time.`,
+			},
 			"return_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -150,8 +161,8 @@ the schema as returned by the API.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"SCALAR_FUNCTION", "PROCEDURE", ""}, false),
-				Description:  `The type of routine. Possible values: ["SCALAR_FUNCTION", "PROCEDURE"]`,
+				ValidateFunc: validation.StringInSlice([]string{"SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION", ""}, false),
+				Description:  `The type of routine. Possible values: ["SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION"]`,
 			},
 			"creation_time": {
 				Type:     schema.TypeInt,
@@ -213,6 +224,12 @@ func resourceBigQueryRoutineCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("return_type"); !isEmptyValue(reflect.ValueOf(returnTypeProp)) && (ok || !reflect.DeepEqual(v, returnTypeProp)) {
 		obj["returnType"] = returnTypeProp
+	}
+	returnTableTypeProp, err := expandBigQueryRoutineReturnTableType(d.Get("return_table_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("return_table_type"); !isEmptyValue(reflect.ValueOf(returnTableTypeProp)) && (ok || !reflect.DeepEqual(v, returnTableTypeProp)) {
+		obj["returnTableType"] = returnTableTypeProp
 	}
 	importedLibrariesProp, err := expandBigQueryRoutineImportedLibraries(d.Get("imported_libraries"), d, config)
 	if err != nil {
@@ -342,6 +359,9 @@ func resourceBigQueryRoutineRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("return_type", flattenBigQueryRoutineReturnType(res["returnType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Routine: %s", err)
 	}
+	if err := d.Set("return_table_type", flattenBigQueryRoutineReturnTableType(res["returnTableType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
 	if err := d.Set("imported_libraries", flattenBigQueryRoutineImportedLibraries(res["importedLibraries"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Routine: %s", err)
 	}
@@ -403,6 +423,12 @@ func resourceBigQueryRoutineUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("return_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, returnTypeProp)) {
 		obj["returnType"] = returnTypeProp
+	}
+	returnTableTypeProp, err := expandBigQueryRoutineReturnTableType(d.Get("return_table_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("return_table_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, returnTableTypeProp)) {
+		obj["returnTableType"] = returnTableTypeProp
 	}
 	importedLibrariesProp, err := expandBigQueryRoutineImportedLibraries(d.Get("imported_libraries"), d, config)
 	if err != nil {
@@ -631,6 +657,18 @@ func flattenBigQueryRoutineReturnType(v interface{}, d *schema.ResourceData, con
 	return string(b)
 }
 
+func flattenBigQueryRoutineReturnTableType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
 func flattenBigQueryRoutineImportedLibraries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
@@ -734,6 +772,18 @@ func expandBigQueryRoutineArgumentsDataType(v interface{}, d TerraformResourceDa
 }
 
 func expandBigQueryRoutineReturnType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	m := make(map[string]interface{})
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func expandBigQueryRoutineReturnTableType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	b := []byte(v.(string))
 	if len(b) == 0 {
 		return nil, nil
