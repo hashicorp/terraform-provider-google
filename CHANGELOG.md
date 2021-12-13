@@ -1,6 +1,6 @@
 ## 4.5.0 (Unreleased)
 
-## 4.4.0 (December 14, 2021)
+## 4.4.0 (December 13, 2021)
 
 DEPRECATIONS:
 * filestore: deprecated `zone` on `google_filestore_instance` in favor of `location` to allow for regional instances ([#10662](https://github.com/hashicorp/terraform-provider-google/pull/10662))
@@ -18,7 +18,7 @@ IMPROVEMENTS:
 * sql: added field `allocated_ip_range` to resource `google_sql_database_instance` ([#10687](https://github.com/hashicorp/terraform-provider-google/pull/10687))
 
 BUG FIXES:
-* compute: Fixed incorrectly failing validation for `INTERNAL_MANAGED` `google_compute_region_backend_service`. ([#10664](https://github.com/hashicorp/terraform-provider-google/pull/10664))
+* compute: fixed incorrectly failing validation for `INTERNAL_MANAGED` `google_compute_region_backend_service`. ([#10664](https://github.com/hashicorp/terraform-provider-google/pull/10664))
 * compute: fixed scenario where `instance_group_manager` would not start update if `wait_for_instances` was set and initial status was not `STABLE` ([#10680](https://github.com/hashicorp/terraform-provider-google/pull/10680))
 * container: fixed the `ROUTES` value for the `networking_mode` field in `google_container_cluster`. A recent API change unintentionally changed the default to a `VPC_NATIVE` cluster, and removed the ability to create a `ROUTES`-based one. Provider versions prior to this one will default to `VPC_NATIVE` due to this change, and are unable to create `ROUTES` clusters. ([#10686](https://github.com/hashicorp/terraform-provider-google/pull/10686))
 
