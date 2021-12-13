@@ -14,7 +14,7 @@ Manages a network peering within GCE. For more information see
 and
 [API](https://cloud.google.com/compute/docs/reference/latest/networks).
 
--> Both network must create a peering with each other for the peering
+-> Both networks must create a peering with each other for the peering
 to be functional.
 
 ~> Subnets IP ranges across peered VPC networks cannot overlap.
@@ -24,14 +24,14 @@ to be functional.
 ```hcl
 resource "google_compute_network_peering" "peering1" {
   name         = "peering1"
-  network      = google_compute_network.default.id
-  peer_network = google_compute_network.other.id
+  network      = google_compute_network.default.self_link
+  peer_network = google_compute_network.other.self_link
 }
 
 resource "google_compute_network_peering" "peering2" {
   name         = "peering2"
-  network      = google_compute_network.other.id
-  peer_network = google_compute_network.default.id
+  network      = google_compute_network.other.self_link
+  peer_network = google_compute_network.default.self_link
 }
 
 resource "google_compute_network" "default" {
