@@ -13,9 +13,6 @@ Definition of custom Cloud Build WorkerPools for running jobs with custom config
 
 -> This resource is not currently public, and requires allow-listing of projects prior to use.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
-
 
 ## Example Usage
 
