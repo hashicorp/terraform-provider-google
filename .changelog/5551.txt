@@ -1,0 +1,3 @@
+```release-note:bug
+assuredworkloads: fixed a bug preventing `google_assured_workloads_workload` from being created in any region other than us-central1
+```
