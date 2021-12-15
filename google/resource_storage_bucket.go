@@ -734,12 +734,6 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	if res.IamConfiguration != nil && res.IamConfiguration.PublicAccessPrevention != "" {
-		if err := d.Set("public_access_prevention", res.IamConfiguration.PublicAccessPrevention); err != nil {
-			return fmt.Errorf("Error setting public_access_prevention: %s", err)
-		}
-	}
-
 	if res.Billing == nil {
 		if err := d.Set("requester_pays", nil); err != nil {
 			return fmt.Errorf("Error setting requester_pays: %s", err)
