@@ -53,6 +53,14 @@ func resourceComputeSecurityPolicy() *schema.Resource {
 				Description: `The project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Default:     "CLOUD_ARMOR",
+				Description: `The type indicates the intended use of the security policy. CLOUD_ARMOR - Cloud Armor backend security policies can be configured to filter incoming HTTP requests targeting backend services. They filter requests before they hit the origin servers. CLOUD_ARMOR_EDGE - Cloud Armor edge security policies can be configured to filter incoming HTTP requests targeting backend services (including Cloud CDN-enabled) as well as backend buckets (Cloud Storage). They filter requests before the request is served from Google's cache.`,
+			},
+
 			"rule": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -256,6 +264,9 @@ func resourceComputeSecurityPolicyRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("name", securityPolicy.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
+	if err := d.Set("type", securityPolicy.Type); err != nil {
+		return fmt.Errorf("Error setting type: %s", err)
+		
 	if err := d.Set("description", securityPolicy.Description); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
