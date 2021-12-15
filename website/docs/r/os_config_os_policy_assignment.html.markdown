@@ -703,28 +703,6 @@ The `disruption_budget` block supports:
   (Optional)
   Specifies the relative value defined as a percentage, which will be multiplied by a reference value.
     
-The `validate` block supports:
-    
-* `interpreter` -
-  (Required)
-  Required. The script interpreter to use. Possible values: INTERPRETER_UNSPECIFIED, NONE, SHELL, POWERSHELL
-    
-* `args` -
-  (Optional)
-  Optional arguments to pass to the source during execution.
-    
-* `file` -
-  (Optional)
-  Required. A deb package.
-    
-* `output_file_path` -
-  (Optional)
-  Only recorded for enforce Exec. Path to an output file (that is created by this Exec) whose content will be recorded in OSPolicyResourceCompliance after a successful run. Absence or failure to read this file will result in this ExecResource being non-compliant. Output file size is limited to 100K bytes.
-    
-* `script` -
-  (Optional)
-  An inline script. The size of the script is limited to 1024 characters.
-    
 - - -
 
 * `description` -
@@ -1015,6 +993,28 @@ The `remote` block supports:
 * `sha256_checksum` -
   (Optional)
   SHA256 checksum of the remote file.
+    
+The `enforce` block supports:
+    
+* `interpreter` -
+  (Required)
+  Required. The script interpreter to use. Possible values: INTERPRETER_UNSPECIFIED, NONE, SHELL, POWERSHELL
+    
+* `args` -
+  (Optional)
+  Optional arguments to pass to the source during execution.
+    
+* `file` -
+  (Optional)
+  Required. A deb package.
+    
+* `output_file_path` -
+  (Optional)
+  Only recorded for enforce Exec. Path to an output file (that is created by this Exec) whose content will be recorded in OSPolicyResourceCompliance after a successful run. Absence or failure to read this file will result in this ExecResource being non-compliant. Output file size is limited to 100K bytes.
+    
+* `script` -
+  (Optional)
+  An inline script. The size of the script is limited to 1024 characters.
     
 ## Attributes Reference
 
