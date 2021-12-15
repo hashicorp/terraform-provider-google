@@ -1773,6 +1773,12 @@ func resourceDataprocWorkflowTemplateCreate(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 	client := NewDCLDataprocClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyWorkflowTemplate(context.Background(), obj, createDirective...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -1817,6 +1823,12 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 	client := NewDCLDataprocClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.GetWorkflowTemplate(context.Background(), obj)
 	if err != nil {
 		resourceName := fmt.Sprintf("DataprocWorkflowTemplate %q", d.Id())
@@ -1890,6 +1902,12 @@ func resourceDataprocWorkflowTemplateDelete(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 	client := NewDCLDataprocClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	if err := client.DeleteWorkflowTemplate(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting WorkflowTemplate: %s", err)
 	}

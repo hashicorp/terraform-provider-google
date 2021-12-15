@@ -247,6 +247,8 @@ type Config struct {
 	CloudResourceManagerBasePath string
 	EventarcBasePath             string
 	GkeHubBasePath               string
+	ContainerAzureBasePath       string
+	ContainerAwsBasePath         string
 	OrgPolicyBasePath            string
 	RecaptchaEnterpriseBasePath  string
 	// CloudBuild WorkerPool uses a different endpoint (v1beta1) than any other CloudBuild resources
@@ -328,7 +330,9 @@ const ResourceManagerV2BasePathKey = "ResourceManagerV2"
 const ServiceNetworkingBasePathKey = "ServiceNetworking"
 const StorageTransferBasePathKey = "StorageTransfer"
 const BigtableAdminBasePathKey = "BigtableAdmin"
-const GkeHubFeatureBasePathKey = "GkeHubFeatureBasePathKey"
+const GkeHubFeatureBasePathKey = "GkeHubFeature"
+const ContainerAwsBasePathKey = "ContainerAws"
+const ContainerAzureBasePathKey = "ContainerAzure"
 
 // Generated product base paths
 var DefaultBasePaths = map[string]string{
@@ -408,6 +412,8 @@ var DefaultBasePaths = map[string]string{
 	StorageTransferBasePathKey:      "https://storagetransfer.googleapis.com/v1/",
 	BigtableAdminBasePathKey:        "https://bigtableadmin.googleapis.com/v2/",
 	GkeHubFeatureBasePathKey:        "https://gkehub.googleapis.com/v1beta/",
+	ContainerAwsBasePathKey:         "https://{{location}}-gkemulticloud.googleapis.com/v1/",
+	ContainerAzureBasePathKey:       "https://{{location}}-gkemulticloud.googleapis.com/v1/",
 }
 
 var DefaultClientScopes = []string{

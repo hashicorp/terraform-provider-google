@@ -267,6 +267,12 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 	client := NewDCLEventarcClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyTrigger(context.Background(), obj, createDirective...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -310,6 +316,12 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 	client := NewDCLEventarcClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.GetTrigger(context.Background(), obj)
 	if err != nil {
 		resourceName := fmt.Sprintf("EventarcTrigger %q", d.Id())
@@ -384,6 +396,12 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 	client := NewDCLEventarcClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyTrigger(context.Background(), obj, directive...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -428,6 +446,12 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 	client := NewDCLEventarcClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	if err := client.DeleteTrigger(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting Trigger: %s", err)
 	}

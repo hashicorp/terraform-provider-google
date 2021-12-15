@@ -249,6 +249,12 @@ func resourceRecaptchaEnterpriseKeyCreate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 	client := NewDCLRecaptchaEnterpriseClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyKey(context.Background(), obj, createDirective...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -302,6 +308,12 @@ func resourceRecaptchaEnterpriseKeyRead(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 	client := NewDCLRecaptchaEnterpriseClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.GetKey(context.Background(), obj)
 	if err != nil {
 		resourceName := fmt.Sprintf("RecaptchaEnterpriseKey %q", d.Id())
@@ -367,6 +379,12 @@ func resourceRecaptchaEnterpriseKeyUpdate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 	client := NewDCLRecaptchaEnterpriseClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyKey(context.Background(), obj, directive...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -411,6 +429,12 @@ func resourceRecaptchaEnterpriseKeyDelete(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 	client := NewDCLRecaptchaEnterpriseClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	if err := client.DeleteKey(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting Key: %s", err)
 	}

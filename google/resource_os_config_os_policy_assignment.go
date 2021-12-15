@@ -922,6 +922,12 @@ func resourceOSConfigOSPolicyAssignmentCreate(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 	client := NewDCLOSConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyOSPolicyAssignment(context.Background(), obj, createDirective...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -964,6 +970,12 @@ func resourceOSConfigOSPolicyAssignmentRead(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 	client := NewDCLOSConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.GetOSPolicyAssignment(context.Background(), obj)
 	if err != nil {
 		resourceName := fmt.Sprintf("OSConfigOSPolicyAssignment %q", d.Id())
@@ -1046,6 +1058,12 @@ func resourceOSConfigOSPolicyAssignmentUpdate(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 	client := NewDCLOSConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyOSPolicyAssignment(context.Background(), obj, directive...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -1089,6 +1107,12 @@ func resourceOSConfigOSPolicyAssignmentDelete(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 	client := NewDCLOSConfigClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	if err := client.DeleteOSPolicyAssignment(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting OSPolicyAssignment: %s", err)
 	}
