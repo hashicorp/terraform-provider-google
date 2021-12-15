@@ -203,6 +203,12 @@ func resourceCloudbuildWorkerPoolCreate(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 	client := NewDCLcloudbuildClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyWorkerPool(context.Background(), obj, createDirective...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -245,6 +251,12 @@ func resourceCloudbuildWorkerPoolRead(d *schema.ResourceData, meta interface{}) 
 		billingProject = bp
 	}
 	client := NewDCLcloudbuildClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.GetWorkerPool(context.Background(), obj)
 	if err != nil {
 		resourceName := fmt.Sprintf("CloudbuildWorkerPool %q", d.Id())
@@ -318,6 +330,12 @@ func resourceCloudbuildWorkerPoolUpdate(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 	client := NewDCLcloudbuildClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyWorkerPool(context.Background(), obj, directive...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -361,6 +379,12 @@ func resourceCloudbuildWorkerPoolDelete(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 	client := NewDCLcloudbuildClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	if err := client.DeleteWorkerPool(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting WorkerPool: %s", err)
 	}

@@ -223,6 +223,12 @@ func resourceOrgPolicyPolicyCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 	client := NewDCLOrgPolicyClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyPolicy(context.Background(), obj, createDirective...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -257,6 +263,12 @@ func resourceOrgPolicyPolicyRead(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 	client := NewDCLOrgPolicyClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.GetPolicy(context.Background(), obj)
 	if err != nil {
 		resourceName := fmt.Sprintf("OrgPolicyPolicy %q", d.Id())
@@ -295,6 +307,12 @@ func resourceOrgPolicyPolicyUpdate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 	client := NewDCLOrgPolicyClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyPolicy(context.Background(), obj, directive...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -330,6 +348,12 @@ func resourceOrgPolicyPolicyDelete(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 	client := NewDCLOrgPolicyClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	if err := client.DeletePolicy(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting Policy: %s", err)
 	}

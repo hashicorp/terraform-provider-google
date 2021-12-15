@@ -100,6 +100,12 @@ func resourceComputeFirewallPolicyAssociationCreate(d *schema.ResourceData, meta
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.ApplyFirewallPolicyAssociation(context.Background(), obj, createDirective...)
 
 	if _, ok := err.(dcl.DiffAfterApplyError); ok {
@@ -134,6 +140,12 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	res, err := client.GetFirewallPolicyAssociation(context.Background(), obj)
 	if err != nil {
 		resourceName := fmt.Sprintf("ComputeFirewallPolicyAssociation %q", d.Id())
@@ -176,6 +188,12 @@ func resourceComputeFirewallPolicyAssociationDelete(d *schema.ResourceData, meta
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+		d.SetId("")
+		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
+	} else {
+		client.Config.BasePath = bp
+	}
 	if err := client.DeleteFirewallPolicyAssociation(context.Background(), obj); err != nil {
 		return fmt.Errorf("Error deleting FirewallPolicyAssociation: %s", err)
 	}

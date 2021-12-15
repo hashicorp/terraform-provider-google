@@ -39,6 +39,10 @@ var credsEnvVars = []string{
 	"GOOGLE_USE_DEFAULT_CREDENTIALS",
 }
 
+var projectNumberEnvVars = []string{
+	"GOOGLE_PROJECT_NUMBER",
+}
+
 var projectEnvVars = []string{
 	"GOOGLE_PROJECT",
 	"GCLOUD_PROJECT",
@@ -852,6 +856,11 @@ func getTestProject(is *terraform.InstanceState, config *Config) (string, error)
 		return config.Project, nil
 	}
 	return "", fmt.Errorf("%q: required field is not set", "project")
+}
+
+// testAccPreCheck ensures at least one of the project env variables is set.
+func getTestProjectNumberFromEnv() string {
+	return multiEnvSearch(projectNumberEnvVars)
 }
 
 // testAccPreCheck ensures at least one of the project env variables is set.

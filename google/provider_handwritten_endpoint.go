@@ -139,6 +139,26 @@ var PrivatecaCertificateTemplateCustomEndpointEntry = &schema.Schema{
 	}, DefaultBasePaths[PrivatecaBasePathKey]),
 }
 
+var ContainerAwsCustomEndpointEntryKey = "container_aws_custom_endpoint"
+var ContainerAwsCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_CONTAINERAWS_CUSTOM_ENDPOINT",
+	}, DefaultBasePaths[ContainerAwsBasePathKey]),
+}
+
+var ContainerAzureCustomEndpointEntryKey = "container_azure_custom_endpoint"
+var ContainerAzureCustomEndpointEntry = &schema.Schema{
+	Type:         schema.TypeString,
+	Optional:     true,
+	ValidateFunc: validateCustomEndpoint,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_CONTAINERAZURE_CUSTOM_ENDPOINT",
+	}, DefaultBasePaths[ContainerAzureBasePathKey]),
+}
+
 func validateCustomEndpoint(v interface{}, k string) (ws []string, errors []error) {
 	re := `.*/[^/]+/$`
 	return validateRegexp(re)(v, k)

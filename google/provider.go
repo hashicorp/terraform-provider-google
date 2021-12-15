@@ -691,6 +691,8 @@ func Provider() *schema.Provider {
 			OrgPolicyEndpointEntryKey:                    OrgPolicyEndpointEntry,
 			PrivatecaCertificateTemplateEndpointEntryKey: PrivatecaCertificateTemplateCustomEndpointEntry,
 			RecaptchaEnterpriseEndpointEntryKey:          RecaptchaEnterpriseEndpointEntry,
+			ContainerAwsCustomEndpointEntryKey:           ContainerAwsCustomEndpointEntry,
+			ContainerAzureCustomEndpointEntryKey:         ContainerAzureCustomEndpointEntry,
 
 			CloudBuildWorkerPoolEndpointEntryKey: CloudBuildWorkerPoolEndpointEntry,
 		},
@@ -745,6 +747,8 @@ func Provider() *schema.Provider {
 			"google_compute_subnetwork":                           dataSourceGoogleComputeSubnetwork(),
 			"google_compute_vpn_gateway":                          dataSourceGoogleComputeVpnGateway(),
 			"google_compute_zones":                                dataSourceGoogleComputeZones(),
+			"google_container_azure_versions":                     dataSourceGoogleContainerAzureVersions(),
+			"google_container_aws_versions":                       dataSourceGoogleContainerAwsVersions(),
 			"google_container_cluster":                            dataSourceGoogleContainerCluster(),
 			"google_container_engine_versions":                    dataSourceGoogleContainerEngineVersions(),
 			"google_container_registry_image":                     dataSourceGoogleContainerImage(),
@@ -1212,6 +1216,11 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_os_config_os_policy_assignment":      resourceOSConfigOSPolicyAssignment(),
 			"google_privateca_certificate_template":      resourcePrivatecaCertificateTemplate(),
 			"google_recaptcha_enterprise_key":            resourceRecaptchaEnterpriseKey(),
+			"google_container_aws_cluster":               resourceContainerAwsCluster(),
+			"google_container_aws_node_pool":             resourceContainerAwsNodePool(),
+			"google_container_azure_client":              resourceContainerAzureClient(),
+			"google_container_azure_cluster":             resourceContainerAzureCluster(),
+			"google_container_azure_node_pool":           resourceContainerAzureNodePool(),
 		},
 		// ------------------------------------
 		map[string]*schema.Resource{
@@ -1446,6 +1455,8 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.GkeHubBasePath = d.Get(GkeHubFeatureCustomEndpointEntryKey).(string)
 	config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
 	config.PrivatecaBasePath = d.Get(PrivatecaCertificateTemplateEndpointEntryKey).(string)
+	config.ContainerAwsBasePath = d.Get(ContainerAwsCustomEndpointEntryKey).(string)
+	config.ContainerAzureBasePath = d.Get(ContainerAzureCustomEndpointEntryKey).(string)
 	config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
 
 	stopCtx, ok := schema.StopContext(ctx)
