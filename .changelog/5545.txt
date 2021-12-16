@@ -1,0 +1,3 @@
+```release-note:bug
+billingbudget: fixed a bug where `google_billing_budget.budget_filter.labels` was not updating.
+```
