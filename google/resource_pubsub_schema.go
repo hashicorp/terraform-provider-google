@@ -28,7 +28,6 @@ func resourcePubsubSchema() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePubsubSchemaCreate,
 		Read:   resourcePubsubSchemaRead,
-		Update: resourcePubsubSchemaUpdate,
 		Delete: resourcePubsubSchemaDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -37,7 +36,6 @@ func resourcePubsubSchema() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(4 * time.Minute),
-			Update: schema.DefaultTimeout(4 * time.Minute),
 			Delete: schema.DefaultTimeout(6 * time.Minute),
 		},
 
@@ -52,6 +50,7 @@ func resourcePubsubSchema() *schema.Resource {
 			"definition": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Description: `The definition of the schema.
 This should contain a string representing the full definition of the schema
 that is a valid schema definition of the type specified in type.`,
@@ -59,6 +58,7 @@ that is a valid schema definition of the type specified in type.`,
 			"type": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"TYPE_UNSPECIFIED", "PROTOCOL_BUFFER", "AVRO", ""}, false),
 				Description:  `The type of the schema definition Default value: "TYPE_UNSPECIFIED" Possible values: ["TYPE_UNSPECIFIED", "PROTOCOL_BUFFER", "AVRO"]`,
 				Default:      "TYPE_UNSPECIFIED",
@@ -214,64 +214,6 @@ func resourcePubsubSchemaRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
-}
-
-func resourcePubsubSchemaUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	userAgent, err := generateUserAgentString(d, config.userAgent)
-	if err != nil {
-		return err
-	}
-
-	billingProject := ""
-
-	project, err := getProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Schema: %s", err)
-	}
-	billingProject = project
-
-	obj := make(map[string]interface{})
-	typeProp, err := expandPubsubSchemaType(d.Get("type"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
-		obj["type"] = typeProp
-	}
-	definitionProp, err := expandPubsubSchemaDefinition(d.Get("definition"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("definition"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, definitionProp)) {
-		obj["definition"] = definitionProp
-	}
-	nameProp, err := expandPubsubSchemaName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	log.Printf("[DEBUG] Updating Schema %q: %#v", d.Id(), obj)
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
-	res, err := sendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
-
-	if err != nil {
-		return fmt.Errorf("Error updating Schema %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating Schema %q: %#v", d.Id(), res)
-	}
-
-	return resourcePubsubSchemaRead(d, meta)
 }
 
 func resourcePubsubSchemaDelete(d *schema.ResourceData, meta interface{}) error {
