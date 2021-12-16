@@ -468,7 +468,8 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("budget_filter") {
-		updateMask = append(updateMask, "budgetFilter.projects")
+		updateMask = append(updateMask, "budgetFilter.projects",
+			"budgetFilter.labels")
 	}
 
 	if d.HasChange("amount") {
