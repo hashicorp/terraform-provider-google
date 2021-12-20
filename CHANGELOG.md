@@ -14,7 +14,7 @@ IMPROVEMENTS:
 * cloudbuild: added support for `available_secrets` to `google_cloudbuild_trigger` ([#10714](https://github.com/hashicorp/terraform-provider-google/pull/10714))
 * cloudfunctions: added support for `min_instances` to `google_cloudfunctions_function` ([#10712](https://github.com/hashicorp/terraform-provider-google/pull/10712))
 * composer: added support for Private Service Connect by adding field `cloud_composer_connection_subnetwork` in `google_composer_environment` ([#10724](https://github.com/hashicorp/terraform-provider-google/pull/10724))
-* compute: `google_compute_instance`'s `can_ip_forward` can now be updated without recreating or restarting the instance. ([#10741](https://github.com/hashicorp/terraform-provider-google/pull/10741))
+* compute: fixed bug where `google_compute_instance`'s `can_ip_forward` could not be updated without recreating or restarting the instance. ([#10741](https://github.com/hashicorp/terraform-provider-google/pull/10741))
 * compute: added field `public_access_prevention` to resource `bucket` (beta) ([#10740](https://github.com/hashicorp/terraform-provider-google/pull/10740))
 * compute: added support for regional external HTTP(S) load balancer ([#10738](https://github.com/hashicorp/terraform-provider-google/pull/10738))
 * privateca: added support for setting default values for basic constraints for `google_privateca_certificate`, `google_privateca_certificate_authority`, and `google_privateca_ca_pool` via the `non_ca` and `zero_max_issuer_path_length` fields ([#10702](https://github.com/hashicorp/terraform-provider-google/pull/10702))
