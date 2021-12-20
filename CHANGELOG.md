@@ -1,4 +1,6 @@
-## 4.5.0 (Unreleased)
+## 4.6.0 (Unreleased)
+
+## 4.5.0 (December 20, 2021)
 
 FEATURES:
 * **New Data Source:** google_container_aws_versions ([#10754](https://github.com/hashicorp/terraform-provider-google/pull/10754))
