@@ -150,6 +150,15 @@ func TestAccStorageBucket_lifecycleRulesMultiple(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
+			{
+				Config: testAccStorageBucket_lifecycleRulesMultiple_update(bucketName),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
 		},
 	})
 }
@@ -1307,7 +1316,7 @@ resource "google_storage_bucket" "bucket" {
       type = "Delete"
     }
     condition {
-	  matches_storage_class = []
+      matches_storage_class = []
       age = 10
     }
   }
@@ -1325,8 +1334,73 @@ resource "google_storage_bucket" "bucket" {
       storage_class = "NEARLINE"
     }
     condition {
-	  created_before = "2019-01-01"
-	  days_since_custom_time = 3
+      created_before = "2019-01-01"
+      days_since_custom_time = 3
+    }
+  }
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "NEARLINE"
+    }
+    condition {
+      num_newer_versions = 10
+    }
+  }
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "ARCHIVE"
+    }
+    condition {
+      with_state = "ARCHIVED"
+    }
+  }
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_lifecycleRulesMultiple_update(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "NEARLINE"
+    }
+    condition {
+      matches_storage_class = ["COLDLINE"]
+      age                   = 2
+    }
+  }
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      matches_storage_class = []
+      age = 10
+    }
+  }
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      custom_time_before = "2019-01-01"
+    }
+  }
+  lifecycle_rule {
+    action {
+      type          = "SetStorageClass"
+      storage_class = "NEARLINE"
+    }
+    condition {
+      created_before = "2019-01-01"
+      days_since_custom_time = 5
     }
   }
   lifecycle_rule {

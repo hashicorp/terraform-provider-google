@@ -1309,6 +1309,10 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
 	}
 
+	if v, ok := m["days_since_custom_time"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+	}
+
 	if v, ok := m["days_since_noncurrent_time"]; ok {
 		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
 	}
