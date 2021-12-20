@@ -18,7 +18,7 @@ IMPROVEMENTS:
 * compute: added field `public_access_prevention` to resource `bucket` (beta) ([#10740](https://github.com/hashicorp/terraform-provider-google/pull/10740))
 * compute: added support for regional external HTTP(S) load balancer ([#10738](https://github.com/hashicorp/terraform-provider-google/pull/10738))
 * privateca: added support for setting default values for basic constraints for `google_privateca_certificate`, `google_privateca_certificate_authority`, and `google_privateca_ca_pool` via the `non_ca` and `zero_max_issuer_path_length` fields ([#10702](https://github.com/hashicorp/terraform-provider-google/pull/10702))
-* provider: gRPC requests and response logging have been enabled ([#10721](https://github.com/hashicorp/terraform-provider-google/pull/10721))
+* provider: enabled gRPC requests and response logging ([#10721](https://github.com/hashicorp/terraform-provider-google/pull/10721))
 
 BUG FIXES:
 * assuredworkloads: fixed a bug preventing `google_assured_workloads_workload` from being created in any region other than us-central1 ([#10749](https://github.com/hashicorp/terraform-provider-google/pull/10749))
