@@ -296,6 +296,14 @@ The following arguments are supported:
 * `maintenance_window` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The configuration settings for Cloud Composer maintenance windows.
+ 
+* `master_authorized_networks_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configuration options for the master authorized networks feature. Enabled 
+  master authorized networks will disallow all external traffic to access 
+  Kubernetes master through HTTPS except traffic from the given CIDR blocks, 
+  Google Compute Engine Public IPs and Google Prod IPs. Structure is
+  [documented below](#nested_master_authorized_networks_config).
 
 <a name="nested_node_config"></a>The `node_config` block supports:
 
@@ -565,6 +573,24 @@ The `web_server_network_access_control` supports:
   The only allowed values for 'FREQ' field are 'FREQ=DAILY' and 'FREQ=WEEKLY;BYDAY=...'.
   Example values: 'FREQ=WEEKLY;BYDAY=TU,WE', 'FREQ=DAILY'.
 
+<a name="nested_master_authorized_networks_config"></a>The `master_authorized_networks_config` block supports:
+* `enabled` -
+  (Required)
+  Whether or not master authorized networks is enabled.
+ 
+* `cidr_blocks` -
+  `cidr_blocks `define up to 50 external networks that could access Kubernetes master through HTTPS. Structure is [documented below](#nested_cidr_blocks).
+
+<a name="nested_cidr_blocks"></a>The `cidr_blocks` supports:
+
+* `display_name` -
+  (Optional)
+  `display_name` is a field for users to identify CIDR blocks.
+
+* `cidr_block` -
+  (Required)
+  `cidr_block< must be specified in CIDR notation.
+
 ## Argument Reference - Cloud Composer 2
 
 The following arguments are supported:
@@ -629,6 +655,14 @@ The `config` block supports:
   Cloud Composer infrastructure that includes the Airflow database. Values for
   environment size are `ENVIRONMENT_SIZE_SMALL`, `ENVIRONMENT_SIZE_MEDIUM`,
   and `ENVIRONMENT_SIZE_LARGE`.
+
+* `master_authorized_networks_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configuration options for the master authorized networks feature. Enabled
+  master authorized networks will disallow all external traffic to access
+  Kubernetes master through HTTPS except traffic from the given CIDR blocks,
+  Google Compute Engine Public IPs and Google Prod IPs. Structure is
+  documented below.
 
 The `node_config` block supports:
 

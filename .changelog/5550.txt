@@ -1,0 +1,3 @@
+```release-note:enhancement
+Add support for Cloud Composer master authorized networks flag
+```
