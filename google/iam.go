@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"reflect"
 	"sort"
 	"strings"
@@ -80,13 +81,20 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 	mutexKV.Lock(mutexKey)
 	defer mutexKV.Unlock(mutexKey)
 
-	backoff := time.Second
+	// Used for introducing jitter in backoffs
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	readBackoff := time.Second
+	conflictBackoff := time.Second
+	serviceAccountReadBackoff := time.Second
 	for {
 		log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())
 		p, err := updater.GetResourceIamPolicy()
 		if isGoogleApiErrorWithCode(err, 429) {
-			log.Printf("[DEBUG] 429 while attempting to read policy for %s, waiting %v before attempting again", updater.DescribeResource(), backoff)
-			time.Sleep(backoff)
+			readBackoffWithJitter := readBackoff + time.Duration(rand.Intn(1000))*time.Millisecond
+			log.Printf("[DEBUG] 429 while attempting to read policy for %s, waiting %v before attempting again", updater.DescribeResource(), readBackoffWithJitter)
+			time.Sleep(readBackoffWithJitter)
+			readBackoff = readBackoff * 2
 			continue
 		} else if err != nil {
 			return err
@@ -141,10 +149,11 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 			break
 		}
 		if isConflictError(err) {
-			log.Printf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s\n", backoff)
-			time.Sleep(backoff)
-			backoff = backoff * 2
-			if backoff > 30*time.Second {
+			conflictBackoffWithJitter := conflictBackoff + time.Duration(rand.Intn(1000))*time.Millisecond
+			log.Printf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %v\n", conflictBackoffWithJitter)
+			time.Sleep(conflictBackoffWithJitter)
+			conflictBackoff = conflictBackoff * 2
+			if conflictBackoff > 5*time.Minute {
 				return errwrap.Wrapf(fmt.Sprintf("Error applying IAM policy to %s: Too many conflicts.  Latest error: {{err}}", updater.DescribeResource()), err)
 			}
 			continue
@@ -160,9 +169,10 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 			if rerr != nil {
 				if p.Etag != currentPolicy.Etag {
 					// not matching indicates that there is a new state to attempt to apply
-					log.Printf("current and old etag did not match for %s, retrying", updater.DescribeResource())
-					time.Sleep(backoff)
-					backoff = backoff * 2
+					serviceAccountBackoffWithJitter := serviceAccountReadBackoff + time.Duration(rand.Intn(1000))*time.Millisecond
+					log.Printf("current and old etag did not match for %s, retrying after %v", updater.DescribeResource(), serviceAccountBackoffWithJitter)
+					time.Sleep(serviceAccountBackoffWithJitter)
+					serviceAccountReadBackoff = serviceAccountReadBackoff * 2
 					continue
 				}
 
