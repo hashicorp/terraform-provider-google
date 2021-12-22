@@ -23,14 +23,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceApigeeInstanceAttachment() *schema.Resource {
+func resourceApigeeNatAddress() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApigeeInstanceAttachmentCreate,
-		Read:   resourceApigeeInstanceAttachmentRead,
-		Delete: resourceApigeeInstanceAttachmentDelete,
+		Create: resourceApigeeNatAddressCreate,
+		Read:   resourceApigeeNatAddressRead,
+		Delete: resourceApigeeNatAddressDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceApigeeInstanceAttachmentImport,
+			State: resourceApigeeNatAddressImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -39,12 +39,6 @@ func resourceApigeeInstanceAttachment() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"environment": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The resource ID of the environment.`,
-			},
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -54,15 +48,26 @@ in the format 'organizations/{{org_name}}/instances/{{instance_name}}'.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Resource ID of the NAT address.`,
+			},
+			"ip_address": {
+				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The name of the newly created  attachment (output parameter).`,
+				Description: `The allocated NAT IP address.`,
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `State of the NAT IP address.`,
 			},
 		},
 		UseJSONNumber: true,
 	}
 }
 
-func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
@@ -70,26 +75,19 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 	}
 
 	obj := make(map[string]interface{})
-	environmentProp, err := expandApigeeInstanceAttachmentEnvironment(d.Get("environment"), d, config)
+	nameProp, err := expandApigeeNatAddressName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("environment"); !isEmptyValue(reflect.ValueOf(environmentProp)) && (ok || !reflect.DeepEqual(v, environmentProp)) {
-		obj["environment"] = environmentProp
+	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
 	}
 
-	lockName, err := replaceVars(d, config, "{{instance_id}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
-
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments")
+	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses")
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Creating new InstanceAttachment: %#v", obj)
+	log.Printf("[DEBUG] Creating new NatAddress: %#v", obj)
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
@@ -99,11 +97,11 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 
 	res, err := sendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return fmt.Errorf("Error creating InstanceAttachment: %s", err)
+		return fmt.Errorf("Error creating NatAddress: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
+	id, err := replaceVars(d, config, "{{instance_id}}/natAddresses/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -113,38 +111,38 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = apigeeOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating InstanceAttachment", userAgent,
+		config, res, &opRes, "Creating NatAddress", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create InstanceAttachment: %s", err)
+		return fmt.Errorf("Error waiting to create NatAddress: %s", err)
 	}
 
-	if err := d.Set("name", flattenApigeeInstanceAttachmentName(opRes["name"], d, config)); err != nil {
+	if err := d.Set("name", flattenApigeeNatAddressName(opRes["name"], d, config)); err != nil {
 		return err
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
+	id, err = replaceVars(d, config, "{{instance_id}}/natAddresses/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating InstanceAttachment %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished creating NatAddress %q: %#v", d.Id(), res)
 
-	return resourceApigeeInstanceAttachmentRead(d, meta)
+	return resourceApigeeNatAddressRead(d, meta)
 }
 
-func resourceApigeeInstanceAttachmentRead(d *schema.ResourceData, meta interface{}) error {
+func resourceApigeeNatAddressRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
+	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -158,20 +156,23 @@ func resourceApigeeInstanceAttachmentRead(d *schema.ResourceData, meta interface
 
 	res, err := sendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeInstanceAttachment %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeNatAddress %q", d.Id()))
 	}
 
-	if err := d.Set("environment", flattenApigeeInstanceAttachmentEnvironment(res["environment"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstanceAttachment: %s", err)
+	if err := d.Set("name", flattenApigeeNatAddressName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NatAddress: %s", err)
 	}
-	if err := d.Set("name", flattenApigeeInstanceAttachmentName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading InstanceAttachment: %s", err)
+	if err := d.Set("ip_address", flattenApigeeNatAddressIpAddress(res["ipAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NatAddress: %s", err)
+	}
+	if err := d.Set("state", flattenApigeeNatAddressState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NatAddress: %s", err)
 	}
 
 	return nil
 }
 
-func resourceApigeeInstanceAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceApigeeNatAddressDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
@@ -180,20 +181,13 @@ func resourceApigeeInstanceAttachmentDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	lockName, err := replaceVars(d, config, "{{instance_id}}")
-	if err != nil {
-		return err
-	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
-
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
+	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting InstanceAttachment %q", d.Id())
+	log.Printf("[DEBUG] Deleting NatAddress %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := getBillingProject(d, config); err == nil {
@@ -202,34 +196,34 @@ func resourceApigeeInstanceAttachmentDelete(d *schema.ResourceData, meta interfa
 
 	res, err := sendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "InstanceAttachment")
+		return handleNotFoundError(err, d, "NatAddress")
 	}
 
 	err = apigeeOperationWaitTime(
-		config, res, "Deleting InstanceAttachment", userAgent,
+		config, res, "Deleting NatAddress", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Finished deleting InstanceAttachment %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished deleting NatAddress %q: %#v", d.Id(), res)
 	return nil
 }
 
-func resourceApigeeInstanceAttachmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceApigeeNatAddressImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
 	if err := parseImportId([]string{
-		"(?P<instance_id>.+)/attachments/(?P<name>.+)",
+		"(?P<instance_id>.+)/natAddresses/(?P<name>.+)",
 		"(?P<instance_id>.+)/(?P<name>.+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
+	id, err := replaceVars(d, config, "{{instance_id}}/natAddresses/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -238,14 +232,18 @@ func resourceApigeeInstanceAttachmentImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeInstanceAttachmentEnvironment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeNatAddressName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeInstanceAttachmentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeNatAddressIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func expandApigeeInstanceAttachmentEnvironment(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func flattenApigeeNatAddressState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func expandApigeeNatAddressName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
