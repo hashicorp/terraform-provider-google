@@ -51,6 +51,8 @@ var (
 		"config.0.node_config",
 		"config.0.software_config",
 		"config.0.private_environment_config",
+		"config.0.workloads_config",
+		"config.0.environment_size",
 	}
 
 	composerPrivateEnvironmentConfig = []string{
@@ -58,6 +60,7 @@ var (
 		"config.0.private_environment_config.0.master_ipv4_cidr_block",
 		"config.0.private_environment_config.0.cloud_sql_ipv4_cidr_block",
 		"config.0.private_environment_config.0.web_server_ipv4_cidr_block",
+		"config.0.private_environment_config.0.cloud_composer_network_ipv4_cidr_block",
 	}
 
 	composerIpAllocationPolicyKeys = []string{
@@ -359,8 +362,155 @@ func resourceComposerEnvironment() *schema.Resource {
 										ForceNew:     true,
 										Description:  `The CIDR block from which IP range in tenant project will be reserved for Cloud SQL. Needs to be disjoint from web_server_ipv4_cidr_block.`,
 									},
+									"cloud_composer_network_ipv4_cidr_block": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										AtLeastOneOf: composerPrivateEnvironmentConfig,
+										ForceNew:     true,
+										Description:  `The CIDR block from which IP range for Cloud Composer Network in tenant project will be reserved. Needs to be disjoint from private_cluster_config.master_ipv4_cidr_block and cloud_sql_ipv4_cidr_block. This field is supported for Cloud Composer environments in versions composer-2.*.*-airflow-*.*.* and newer.`,
+									},
 								},
 							},
+						},
+
+						"workloads_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
+							Description:  `The workloads configuration settings for the GKE cluster associated with the Cloud Composer environment. Supported for Cloud Composer environments in versions composer-2.*.*-airflow-*.*.* and newer.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"scheduler": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    false,
+										Description: `Configuration for resources used by Airflow schedulers.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cpu": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.FloatAtLeast(0),
+													Description:  `CPU request and limit for a single Airflow scheduler replica`,
+												},
+												"memory_gb": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.FloatAtLeast(0),
+													Description:  `Memory (GB) request and limit for a single Airflow scheduler replica.`,
+												},
+												"storage_gb": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.FloatAtLeast(0),
+													Description:  `Storage (GB) request and limit for a single Airflow scheduler replica.`,
+												},
+												"count": {
+													Type:         schema.TypeInt,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.IntAtLeast(0),
+													Description:  `The number of schedulers.`,
+												},
+											},
+										},
+									},
+									"web_server": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    false,
+										Description: `Configuration for resources used by Airflow web server.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cpu": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.FloatAtLeast(0),
+													Description:  `CPU request and limit for Airflow web server.`,
+												},
+												"memory_gb": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.FloatAtLeast(0),
+													Description:  `Memory (GB) request and limit for Airflow web server.`,
+												},
+												"storage_gb": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.FloatAtLeast(0),
+													Description:  `Storage (GB) request and limit for Airflow web server.`,
+												},
+											},
+										},
+									},
+									"worker": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    false,
+										Description: `Configuration for resources used by Airflow workers.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cpu": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.FloatAtLeast(0),
+													Description:  `CPU request and limit for a single Airflow worker replica.`,
+												},
+												"memory_gb": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.FloatAtLeast(0),
+													Description:  `Memory (GB) request and limit for a single Airflow worker replica.`,
+												},
+												"storage_gb": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.FloatAtLeast(0),
+													Description:  `Storage (GB) request and limit for a single Airflow worker replica.`,
+												},
+												"min_count": {
+													Type:         schema.TypeInt,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.IntAtLeast(0),
+													Description:  `Minimum number of workers for autoscaling.`,
+												},
+												"max_count": {
+													Type:         schema.TypeInt,
+													Optional:     true,
+													ForceNew:     false,
+													ValidateFunc: validation.IntAtLeast(0),
+													Description:  `Maximum number of workers for autoscaling.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"environment_size": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ForceNew:     false,
+							AtLeastOneOf: composerConfigKeys,
+							ValidateFunc: validation.StringInSlice([]string{"ENVIRONMENT_SIZE_SMALL", "ENVIRONMENT_SIZE_MEDIUM", "ENVIRONMENT_SIZE_LARGE"}, false),
+							Description:  `The size of the Cloud Composer environment. This field is supported for Cloud Composer environments in versions composer-2.*.*-airflow-*.*.* and newer.`,
 						},
 						"airflow_uri": {
 							Type:        schema.TypeString,
@@ -607,6 +757,26 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			}
 		}
 
+		if d.HasChange("config.0.workloads_config") {
+			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
+			if config != nil {
+				patchObj.Config.WorkloadsConfig = config.WorkloadsConfig
+			}
+			err = resourceComposerEnvironmentPatchField("config.WorkloadsConfig", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
+		if d.HasChange("config.0.environment_size") {
+			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
+			if config != nil {
+				patchObj.Config.EnvironmentSize = config.EnvironmentSize
+			}
+			err = resourceComposerEnvironmentPatchField("config.EnvironmentSize", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	if d.HasChange("labels") {
@@ -725,6 +895,55 @@ func flattenComposerEnvironmentConfig(envCfg *composer.EnvironmentConfig) interf
 	transformed["node_config"] = flattenComposerEnvironmentConfigNodeConfig(envCfg.NodeConfig)
 	transformed["software_config"] = flattenComposerEnvironmentConfigSoftwareConfig(envCfg.SoftwareConfig)
 	transformed["private_environment_config"] = flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg.PrivateEnvironmentConfig)
+	transformed["workloads_config"] = flattenComposerEnvironmentConfigWorkloadsConfig(envCfg.WorkloadsConfig)
+	transformed["environment_size"] = envCfg.EnvironmentSize
+	return []interface{}{transformed}
+}
+
+func flattenComposerEnvironmentConfigWorkloadsConfig(workloadsConfig *composer.WorkloadsConfig) interface{} {
+	if workloadsConfig == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformedScheduler := make(map[string]interface{})
+	transformedWebServer := make(map[string]interface{})
+	transformedWorker := make(map[string]interface{})
+
+	wlCfgScheduler := workloadsConfig.Scheduler
+	wlCfgWebServer := workloadsConfig.WebServer
+	wlCfgWorker := workloadsConfig.Worker
+
+	if wlCfgScheduler == nil {
+		transformedScheduler = nil
+	} else {
+		transformedScheduler["cpu"] = wlCfgScheduler.Cpu
+		transformedScheduler["memory_gb"] = wlCfgScheduler.MemoryGb
+		transformedScheduler["storage_gb"] = wlCfgScheduler.StorageGb
+		transformedScheduler["count"] = wlCfgScheduler.Count
+	}
+
+	if wlCfgWebServer == nil {
+		transformedWebServer = nil
+	} else {
+		transformedWebServer["cpu"] = wlCfgWebServer.Cpu
+		transformedWebServer["memory_gb"] = wlCfgWebServer.MemoryGb
+		transformedWebServer["storage_gb"] = wlCfgWebServer.StorageGb
+	}
+
+	if wlCfgWorker == nil {
+		transformedWorker = nil
+	} else {
+		transformedWorker["cpu"] = wlCfgWorker.Cpu
+		transformedWorker["memory_gb"] = wlCfgWorker.MemoryGb
+		transformedWorker["storage_gb"] = wlCfgWorker.StorageGb
+		transformedWorker["min_count"] = wlCfgWorker.MinCount
+		transformedWorker["max_count"] = wlCfgWorker.MaxCount
+	}
+
+	transformed["scheduler"] = []interface{}{transformedScheduler}
+	transformed["web_server"] = []interface{}{transformedWebServer}
+	transformed["worker"] = []interface{}{transformedWorker}
 
 	return []interface{}{transformed}
 }
@@ -739,6 +958,7 @@ func flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg *composer.P
 	transformed["master_ipv4_cidr_block"] = envCfg.PrivateClusterConfig.MasterIpv4CidrBlock
 	transformed["cloud_sql_ipv4_cidr_block"] = envCfg.CloudSqlIpv4CidrBlock
 	transformed["web_server_ipv4_cidr_block"] = envCfg.WebServerIpv4CidrBlock
+	transformed["cloud_composer_network_ipv4_cidr_block"] = envCfg.CloudComposerNetworkIpv4CidrBlock
 
 	return []interface{}{transformed}
 }
@@ -836,6 +1056,17 @@ func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, conf
 	}
 	transformed.PrivateEnvironmentConfig = transformedPrivateEnvironmentConfig
 
+	transformedWorkloadsConfig, err := expandComposerEnvironmentConfigWorkloadsConfig(original["workloads_config"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.WorkloadsConfig = transformedWorkloadsConfig
+
+	transformedEnvironmentSize, err := expandComposerEnvironmentConfigEnvironmentSize(original["environment_size"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.EnvironmentSize = transformedEnvironmentSize
 	return transformed, nil
 }
 
@@ -844,6 +1075,61 @@ func expandComposerEnvironmentConfigNodeCount(v interface{}, d *schema.ResourceD
 		return 0, nil
 	}
 	return int64(v.(int)), nil
+}
+
+func expandComposerEnvironmentConfigWorkloadsConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.WorkloadsConfig, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := &composer.WorkloadsConfig{}
+
+	if v, ok := original["scheduler"]; ok {
+		if len(v.([]interface{})) > 0 && v.([]interface{})[0] != nil {
+			transformedScheduler := &composer.SchedulerResource{}
+			originalSchedulerRaw := v.([]interface{})[0].(map[string]interface{})
+			transformedScheduler.Count = int64(originalSchedulerRaw["count"].(int))
+			transformedScheduler.Cpu = originalSchedulerRaw["cpu"].(float64)
+			transformedScheduler.MemoryGb = originalSchedulerRaw["memory_gb"].(float64)
+			transformedScheduler.StorageGb = originalSchedulerRaw["storage_gb"].(float64)
+			transformed.Scheduler = transformedScheduler
+		}
+	}
+
+	if v, ok := original["web_server"]; ok {
+		if len(v.([]interface{})) > 0 && v.([]interface{})[0] != nil {
+			transformedWebServer := &composer.WebServerResource{}
+			originalWebServerRaw := v.([]interface{})[0].(map[string]interface{})
+			transformedWebServer.Cpu = originalWebServerRaw["cpu"].(float64)
+			transformedWebServer.MemoryGb = originalWebServerRaw["memory_gb"].(float64)
+			transformedWebServer.StorageGb = originalWebServerRaw["storage_gb"].(float64)
+			transformed.WebServer = transformedWebServer
+		}
+	}
+
+	if v, ok := original["worker"]; ok {
+		if len(v.([]interface{})) > 0 && v.([]interface{})[0] != nil {
+			transformedWorker := &composer.WorkerResource{}
+			originalWorkerRaw := v.([]interface{})[0].(map[string]interface{})
+			transformedWorker.Cpu = originalWorkerRaw["cpu"].(float64)
+			transformedWorker.MemoryGb = originalWorkerRaw["memory_gb"].(float64)
+			transformedWorker.StorageGb = originalWorkerRaw["storage_gb"].(float64)
+			transformedWorker.MinCount = int64(originalWorkerRaw["min_count"].(int))
+			transformedWorker.MaxCount = int64(originalWorkerRaw["max_count"].(int))
+			transformed.Worker = transformedWorker
+		}
+	}
+
+	return transformed, nil
+}
+
+func expandComposerEnvironmentConfigEnvironmentSize(v interface{}, d *schema.ResourceData, config *Config) (string, error) {
+	if v == nil {
+		return "", nil
+	}
+	return v.(string), nil
 }
 
 func expandComposerEnvironmentConfigPrivateEnvironmentConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.PrivateEnvironmentConfig, error) {
@@ -873,6 +1159,10 @@ func expandComposerEnvironmentConfigPrivateEnvironmentConfig(v interface{}, d *s
 
 	if v, ok := original["web_server_ipv4_cidr_block"]; ok {
 		transformed.WebServerIpv4CidrBlock = v.(string)
+	}
+
+	if v, ok := original["cloud_composer_network_ipv4_cidr_block"]; ok {
+		transformed.CloudComposerNetworkIpv4CidrBlock = v.(string)
 	}
 
 	transformed.PrivateClusterConfig = subBlock
