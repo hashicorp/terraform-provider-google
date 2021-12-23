@@ -50,7 +50,7 @@ func resourceApigeeInstanceAttachment() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				Description: `The Apigee instance associated with the Apigee environment,
-in the format 'organizations/{{org_name}}/instances/{{instance_name}}'.`,
+in the format 'organisations/{{org_name}}/instances/{{instance_name}}'.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
