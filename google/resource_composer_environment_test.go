@@ -415,7 +415,7 @@ data "google_composer_image_versions" "all" {
 }
 
 locals {
-	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,  
+	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,
 	airflow_version = "1"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
 	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
 	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
@@ -526,7 +526,7 @@ data "google_composer_image_versions" "all" {
 }
 
 locals {
-	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,  
+	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,
 	airflow_version = "1"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
 	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
 	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
@@ -605,7 +605,7 @@ data "google_composer_image_versions" "all" {
 }
 
 locals {
-	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,  
+	composer_version = "1"  # both composer_version and airflow_version are parts of regex, so if either 1 or 2 version is ok "[12]" should be used,
 	airflow_version = "2"   # if sub-version is needed remember to escape "." with "\\." for example 1.2 should be written as "1\\.2"
 	reg_ex = join("", ["composer-", local.composer_version, "\\.[\\d+\\.]*\\d+.*-airflow-", local.airflow_version, "\\.[\\d+\\.]*\\d+"])
 	matching_images = [for v in data.google_composer_image_versions.all.image_versions[*].image_version_id: v if length(regexall(local.reg_ex, v)) > 0]
