@@ -209,6 +209,27 @@ func TestAccCloudBuildTrigger_fullStep(t *testing.T) {
 	})
 }
 
+func TestAccCloudBuildTrigger_cloudLogging(t *testing.T) {
+	t.Parallel()
+	name := fmt.Sprintf("tf-test-%d", randInt(t))
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_cloudLogging(name),
+			},
+			{
+				ResourceName:      "google_cloudbuild_trigger.build_trigger",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCloudBuildTrigger_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloudbuild_trigger" "build_trigger" {
@@ -655,6 +676,34 @@ resource "google_cloudbuild_trigger" "build_trigger" {
       name = "gcr.io/cloud-builders/gsutil"
       args = ["cp", "gs://mybucket/remotefile.zip", "localfile.zip"]
       timeout = "500s"
+    }
+  }
+}
+`, name)
+}
+
+func testAccCloudBuildTrigger_cloudLogging(name string) string {
+	return fmt.Sprintf(`
+resource "google_cloudbuild_trigger" "build_trigger" {
+  name = "%s"
+
+  trigger_template {
+    branch_name = "main"
+  }
+  build {
+    step {
+      name       = "gcr.io/cloud-builders/gcloud"
+      entrypoint = "bash"
+      args = ["-eEuo", "pipefail", "-c",
+        <<-EOT
+        gcloud auth list
+        declare -p
+        EOT
+      ]
+      timeout = "120s"
+    }
+    options {
+      logging = "CLOUD_LOGGING_ONLY"
     }
   }
 }
