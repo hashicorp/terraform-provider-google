@@ -1,0 +1,6 @@
+```release-note:bug
+healthcare: Added back `self_link` functionality which was accidentally removed in `4.0.0` release. 
+```
+```release-note:bug
+vpcaccess: Added back `self_link` functionality which was accidentally removed in `4.0.0` release.
+```
