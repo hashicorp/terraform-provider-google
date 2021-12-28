@@ -809,7 +809,6 @@ will not run in February, April, June, etc.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"recurring_schedule.0.weekly", "recurring_schedule.0.monthly"},
 						},
 						"start_time": {
 							Type:     schema.TypeString,
@@ -835,7 +834,6 @@ A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "201
 									},
 								},
 							},
-							ExactlyOneOf: []string{"recurring_schedule.0.weekly", "recurring_schedule.0.monthly"},
 						},
 						"last_execute_time": {
 							Type:     schema.TypeString,
@@ -3264,6 +3262,8 @@ func resourceOSConfigPatchDeploymentEncoder(d *schema.ResourceData, meta interfa
 			obj["recurringSchedule"].(map[string]interface{})["frequency"] = "MONTHLY"
 		} else if schedule["weekly"] != nil {
 			obj["recurringSchedule"].(map[string]interface{})["frequency"] = "WEEKLY"
+		} else {
+			obj["recurringSchedule"].(map[string]interface{})["frequency"] = "DAILY"
 		}
 	}
 
