@@ -798,7 +798,7 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }
@@ -856,7 +856,7 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }
@@ -918,7 +918,7 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }
@@ -1068,7 +1068,7 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }
@@ -1125,7 +1125,7 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }
@@ -1409,7 +1409,7 @@ resource "google_compute_instance_group_manager" "foobar" {
     instance_template = google_compute_instance_template.foobar.self_link
     name              = "primary"
   }
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   zone               = "us-central1-f"
   target_size        = 1
 }

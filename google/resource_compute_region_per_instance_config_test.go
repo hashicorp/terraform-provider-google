@@ -290,7 +290,7 @@ resource "google_compute_region_instance_group_manager" "rigm" {
     instance_template = google_compute_instance_template.rigm-basic.self_link
   }
 
-  base_instance_name = "rigm-no-tp"
+  base_instance_name = "tf-test-rigm-no-tp"
 
   update_policy {
     instance_redistribution_type = "NONE"

@@ -290,7 +290,7 @@ resource "google_compute_instance_group_manager" "igm" {
     instance_template = google_compute_instance_template.igm-basic.self_link
   }
 
-  base_instance_name = "igm-no-tp"
+  base_instance_name = "tf-test-igm-no-tp"
 }
 `, context)
 }
