@@ -602,13 +602,6 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	if d.Get("wait_for_instances").(bool) {
-		err := computeRIGMWaitForInstanceStatus(d, meta)
-		if err != nil {
-			return err
-		}
-	}
-
 	userAgent, err := generateUserAgentString(d, config.userAgent)
 	if err != nil {
 		return err
