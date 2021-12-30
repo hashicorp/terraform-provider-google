@@ -155,7 +155,7 @@ resource "google_compute_region_instance_group_manager" "foobar" {
     name              = "primary"
   }
   target_pools       = [google_compute_target_pool.foobar.self_link]
-  base_instance_name = "foobar"
+  base_instance_name = "tf-test-foobar"
   region             = "us-central1"
 }
 

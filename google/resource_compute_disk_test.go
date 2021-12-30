@@ -703,7 +703,7 @@ resource "google_compute_instance_template" "template" {
 
 resource "google_compute_instance_group_manager" "manager" {
   name               = "%s"
-  base_instance_name = "disk-igm"
+  base_instance_name = "tf-test-disk-igm"
   version {
     instance_template = google_compute_instance_template.template.self_link
     name              = "primary"
