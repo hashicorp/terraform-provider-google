@@ -1040,15 +1040,40 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 
 	datasetID := d.Get("dataset_id").(string)
 
-	log.Printf("[INFO] Creating BigQuery table: %s", table.TableReference.TableId)
+	if table.View != nil && table.Schema != nil {
 
-	res, err := config.NewBigQueryClient(userAgent).Tables.Insert(project, datasetID, table).Do()
-	if err != nil {
-		return err
+		log.Printf("[INFO] Removing schema from table definition because big query does not support setting schema on view creation")
+		schemaBack := table.Schema
+		table.Schema = nil
+
+		log.Printf("[INFO] Creating BigQuery table: %s without schema", table.TableReference.TableId)
+
+		res, err := config.NewBigQueryClient(userAgent).Tables.Insert(project, datasetID, table).Do()
+		if err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] BigQuery table %s has been created", res.Id)
+		d.SetId(fmt.Sprintf("projects/%s/datasets/%s/tables/%s", res.TableReference.ProjectId, res.TableReference.DatasetId, res.TableReference.TableId))
+
+		table.Schema = schemaBack
+		log.Printf("[INFO] Updating BigQuery table: %s with schema", table.TableReference.TableId)
+		if _, err = config.NewBigQueryClient(userAgent).Tables.Update(project, datasetID, res.TableReference.TableId, table).Do(); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] BigQuery table %s has been update with schema", res.Id)
+	} else {
+		log.Printf("[INFO] Creating BigQuery table: %s", table.TableReference.TableId)
+
+		res, err := config.NewBigQueryClient(userAgent).Tables.Insert(project, datasetID, table).Do()
+		if err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] BigQuery table %s has been created", res.Id)
+		d.SetId(fmt.Sprintf("projects/%s/datasets/%s/tables/%s", res.TableReference.ProjectId, res.TableReference.DatasetId, res.TableReference.TableId))
 	}
-
-	log.Printf("[INFO] BigQuery table %s has been created", res.Id)
-	d.SetId(fmt.Sprintf("projects/%s/datasets/%s/tables/%s", res.TableReference.ProjectId, res.TableReference.DatasetId, res.TableReference.TableId))
 
 	return resourceBigQueryTableRead(d, meta)
 }
