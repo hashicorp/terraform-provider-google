@@ -278,7 +278,8 @@ sourceTags may be set. If both properties are set, the firewall will
 apply to traffic that has source IP address within sourceRanges OR the
 source IP that belongs to a tag listed in the sourceTags property. The
 connection does not need to match both properties for the firewall to
-apply. Only IPv4 is supported.`,
+apply. Only IPv4 is supported. For INGRESS traffic, one of 'source_ranges',
+'source_tags' or 'source_service_accounts' is required.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -298,7 +299,8 @@ apply to traffic that has source IP address within sourceRanges OR the
 source IP belongs to an instance with service account listed in
 sourceServiceAccount. The connection does not need to match both
 properties for the firewall to apply. sourceServiceAccounts cannot be
-used at the same time as sourceTags or targetTags.`,
+used at the same time as sourceTags or targetTags. For INGRESS traffic,
+one of 'source_ranges', 'source_tags' or 'source_service_accounts' is required.`,
 				MaxItems: 10,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -317,7 +319,8 @@ address. One or both of sourceRanges and sourceTags may be set. If
 both properties are set, the firewall will apply to traffic that has
 source IP address within sourceRanges OR the source IP that belongs to
 a tag listed in the sourceTags property. The connection does not need
-to match both properties for the firewall to apply.`,
+to match both properties for the firewall to apply. For INGRESS traffic,
+one of 'source_ranges', 'source_tags' or 'source_service_accounts' is required.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
