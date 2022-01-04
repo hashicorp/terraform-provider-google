@@ -291,25 +291,21 @@ The following arguments are supported:
   The configuration used for the Private IP Cloud Composer environment. Structure is [documented below](#nested_private_environment_config).
 
 * `web_server_network_access_control` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html),
-  Cloud Composer 1 only)
+  (Optional, Cloud Composer 1 only)
   The network-level access control policy for the Airflow web server.
   If unspecified, no network-level access restrictions are applied.
 
 * `database_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html),
-  Cloud Composer 1 only)
+  (Optional, Cloud Composer 1 only)
   The configuration settings for Cloud SQL instance used internally
   by Apache Airflow software.
 
 * `web_server_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html),
-  Cloud Composer 1 only)
+  (Optional, Cloud Composer 1 only)
   The configuration settings for the Airflow web server App Engine instance.
 
 * `encryption_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html),
-  Cloud Composer 1 only)
+  (Optional, Cloud Composer 1 only)
   The encryption options for the Cloud Composer environment and its
   dependencies.
 
