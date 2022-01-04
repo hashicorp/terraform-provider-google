@@ -51,6 +51,10 @@ var (
 		"config.0.node_config",
 		"config.0.software_config",
 		"config.0.private_environment_config",
+		"config.0.web_server_network_access_control",
+		"config.0.database_config",
+		"config.0.web_server_config",
+		"config.0.encryption_config",
 		"config.0.workloads_config",
 		"config.0.environment_size",
 	}
@@ -69,6 +73,21 @@ var (
 		"config.0.node_config.0.ip_allocation_policy.0.services_secondary_range_name",
 		"config.0.node_config.0.ip_allocation_policy.0.cluster_ipv4_cidr_block",
 		"config.0.node_config.0.ip_allocation_policy.0.services_ipv4_cidr_block",
+	}
+
+	allowedIpRangesConfig = &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"value": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `IP address or range, defined using CIDR notation, of requests that this rule applies to. Examples: 192.168.1.1 or 192.168.0.0/16 or 2001:db8::/32 or 2001:0db8:0000:0042:0000:8a2e:0370:7334. IP range prefixes should be properly truncated. For example, 1.2.3.4/24 should be truncated to 1.2.3.0/24. Similarly, for IPv6, 2001:db8::1/32 should be truncated to 2001:db8::/32.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A description of this ip range.`,
+			},
+		},
 	}
 )
 
@@ -369,6 +388,77 @@ func resourceComposerEnvironment() *schema.Resource {
 										AtLeastOneOf: composerPrivateEnvironmentConfig,
 										ForceNew:     true,
 										Description:  `The CIDR block from which IP range for Cloud Composer Network in tenant project will be reserved. Needs to be disjoint from private_cluster_config.master_ipv4_cidr_block and cloud_sql_ipv4_cidr_block. This field is supported for Cloud Composer environments in versions composer-2.*.*-airflow-*.*.* and newer.`,
+									},
+								},
+							},
+						},
+						"web_server_network_access_control": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
+							Description:  `The network-level access control policy for the Airflow web server. If unspecified, no network-level access restrictions will be applied. This field is supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allowed_ip_range": {
+										Type:        schema.TypeSet,
+										Computed:    true,
+										Optional:    true,
+										Elem:        allowedIpRangesConfig,
+										Description: `A collection of allowed IP ranges with descriptions.`,
+									},
+								},
+							},
+						},
+						"database_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
+							Description:  `The configuration of Cloud SQL instance that is used by the Apache Airflow software. This field is supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"machine_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Optional. Cloud SQL machine type used by Airflow database. It has to be one of: db-n1-standard-2, db-n1-standard-4, db-n1-standard-8 or db-n1-standard-16. If not specified, db-n1-standard-2 will be used.`,
+									},
+								},
+							},
+						},
+						"web_server_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
+							Description:  `The configuration settings for the Airflow web server App Engine instance. This field is supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"machine_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Optional. Machine type on which Airflow web server is running. It has to be one of: composer-n1-webserver-2, composer-n1-webserver-4 or composer-n1-webserver-8. If not specified, composer-n1-webserver-2 will be used. Value custom is returned only in response, if Airflow web server parameters were manually changed to a non-standard values.`,
+									},
+								},
+							},
+						},
+						"encryption_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
+							Description:  `The encryption options for the Composer environment and its dependencies. This field is supported for Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"kms_key_name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Optional. Customer-managed Encryption Key available through Google's Key Management Service. Cannot be updated.`,
 									},
 								},
 							},
@@ -757,6 +847,28 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			}
 		}
 
+		if d.HasChange("config.0.database_config.0.machine_type") {
+			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
+			if config != nil {
+				patchObj.Config.DatabaseConfig = config.DatabaseConfig
+			}
+			err = resourceComposerEnvironmentPatchField("config.databaseConfig.machineType", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
+
+		if d.HasChange("config.0.web_server_config.0.machine_type") {
+			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
+			if config != nil {
+				patchObj.Config.WebServerConfig = config.WebServerConfig
+			}
+			err = resourceComposerEnvironmentPatchField("config.webServerConfig.machineType", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
+
 		if d.HasChange("config.0.workloads_config") {
 			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
 			if config != nil {
@@ -895,8 +1007,66 @@ func flattenComposerEnvironmentConfig(envCfg *composer.EnvironmentConfig) interf
 	transformed["node_config"] = flattenComposerEnvironmentConfigNodeConfig(envCfg.NodeConfig)
 	transformed["software_config"] = flattenComposerEnvironmentConfigSoftwareConfig(envCfg.SoftwareConfig)
 	transformed["private_environment_config"] = flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg.PrivateEnvironmentConfig)
+	transformed["web_server_network_access_control"] = flattenComposerEnvironmentConfigWebServerNetworkAccessControl(envCfg.WebServerNetworkAccessControl)
+	transformed["database_config"] = flattenComposerEnvironmentConfigDatabaseConfig(envCfg.DatabaseConfig)
+	transformed["web_server_config"] = flattenComposerEnvironmentConfigWebServerConfig(envCfg.WebServerConfig)
+	transformed["encryption_config"] = flattenComposerEnvironmentConfigEncryptionConfig(envCfg.EncryptionConfig)
 	transformed["workloads_config"] = flattenComposerEnvironmentConfigWorkloadsConfig(envCfg.WorkloadsConfig)
 	transformed["environment_size"] = envCfg.EnvironmentSize
+	return []interface{}{transformed}
+}
+
+func flattenComposerEnvironmentConfigWebServerNetworkAccessControl(accessControl *composer.WebServerNetworkAccessControl) interface{} {
+	if accessControl == nil || accessControl.AllowedIpRanges == nil {
+		return nil
+	}
+
+	transformed := make([]interface{}, 0, len(accessControl.AllowedIpRanges))
+	for _, ipRange := range accessControl.AllowedIpRanges {
+		data := map[string]interface{}{
+			"value":       ipRange.Value,
+			"description": ipRange.Description,
+		}
+		transformed = append(transformed, data)
+	}
+
+	webServerNetworkAccessControl := make(map[string]interface{})
+
+	webServerNetworkAccessControl["allowed_ip_range"] = schema.NewSet(schema.HashResource(allowedIpRangesConfig), transformed)
+
+	return []interface{}{webServerNetworkAccessControl}
+}
+
+func flattenComposerEnvironmentConfigDatabaseConfig(databaseCfg *composer.DatabaseConfig) interface{} {
+	if databaseCfg == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["machine_type"] = databaseCfg.MachineType
+
+	return []interface{}{transformed}
+}
+
+func flattenComposerEnvironmentConfigWebServerConfig(webServerCfg *composer.WebServerConfig) interface{} {
+	if webServerCfg == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["machine_type"] = webServerCfg.MachineType
+
+	return []interface{}{transformed}
+}
+
+func flattenComposerEnvironmentConfigEncryptionConfig(encryptionCfg *composer.EncryptionConfig) interface{} {
+	if encryptionCfg == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] = encryptionCfg.KmsKeyName
+
 	return []interface{}{transformed}
 }
 
@@ -1056,6 +1226,30 @@ func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, conf
 	}
 	transformed.PrivateEnvironmentConfig = transformedPrivateEnvironmentConfig
 
+	transformedWebServerNetworkAccessControl, err := expandComposerEnvironmentConfigWebServerNetworkAccessControl(original["web_server_network_access_control"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.WebServerNetworkAccessControl = transformedWebServerNetworkAccessControl
+
+	transformedDatabaseConfig, err := expandComposerEnvironmentConfigDatabaseConfig(original["database_config"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.DatabaseConfig = transformedDatabaseConfig
+
+	transformedWebServerConfig, err := expandComposerEnvironmentConfigWebServerConfig(original["web_server_config"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.WebServerConfig = transformedWebServerConfig
+
+	transformedEncryptionConfig, err := expandComposerEnvironmentConfigEncryptionConfig(original["encryption_config"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.EncryptionConfig = transformedEncryptionConfig
+
 	transformedWorkloadsConfig, err := expandComposerEnvironmentConfigWorkloadsConfig(original["workloads_config"], d, config)
 	if err != nil {
 		return nil, err
@@ -1075,6 +1269,77 @@ func expandComposerEnvironmentConfigNodeCount(v interface{}, d *schema.ResourceD
 		return 0, nil
 	}
 	return int64(v.(int)), nil
+}
+
+func expandComposerEnvironmentConfigWebServerNetworkAccessControl(v interface{}, d *schema.ResourceData, config *Config) (*composer.WebServerNetworkAccessControl, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+
+	allowedIpRangesRaw := original["allowed_ip_range"].(*schema.Set).List()
+	if len(allowedIpRangesRaw) == 0 {
+		return nil, nil
+	}
+
+	transformed := &composer.WebServerNetworkAccessControl{}
+	allowedIpRanges := make([]*composer.AllowedIpRange, 0, len(original))
+
+	for _, originalIpRange := range allowedIpRangesRaw {
+		originalRangeRaw := originalIpRange.(map[string]interface{})
+		transformedRange := &composer.AllowedIpRange{Value: originalRangeRaw["value"].(string)}
+		if v, ok := originalRangeRaw["description"]; ok {
+			transformedRange.Description = v.(string)
+		}
+		allowedIpRanges = append(allowedIpRanges, transformedRange)
+	}
+
+	transformed.AllowedIpRanges = allowedIpRanges
+	return transformed, nil
+}
+
+func expandComposerEnvironmentConfigDatabaseConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.DatabaseConfig, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+
+	transformed := &composer.DatabaseConfig{}
+	transformed.MachineType = original["machine_type"].(string)
+
+	return transformed, nil
+}
+
+func expandComposerEnvironmentConfigWebServerConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.WebServerConfig, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+
+	transformed := &composer.WebServerConfig{}
+	transformed.MachineType = original["machine_type"].(string)
+
+	return transformed, nil
+}
+
+func expandComposerEnvironmentConfigEncryptionConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.EncryptionConfig, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+
+	transformed := &composer.EncryptionConfig{}
+	transformed.KmsKeyName = original["kms_key_name"].(string)
+
+	return transformed, nil
 }
 
 func expandComposerEnvironmentConfigWorkloadsConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.WorkloadsConfig, error) {
