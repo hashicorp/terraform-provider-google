@@ -302,7 +302,7 @@ resource "google_cloudfunctions_function_iam_binding" "foo" {
   region = google_cloudfunctions_function.function.region
   cloud_function = google_cloudfunctions_function.function.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

@@ -536,7 +536,7 @@ resource "google_tags_tag_key" "key" {
 resource "google_tags_tag_key_iam_binding" "foo" {
   tag_key = google_tags_tag_key.key.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }
@@ -731,7 +731,7 @@ resource "google_tags_tag_value" "value" {
 resource "google_tags_tag_value_iam_binding" "foo" {
   tag_value = google_tags_tag_value.value.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

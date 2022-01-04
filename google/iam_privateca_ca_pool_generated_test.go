@@ -234,7 +234,7 @@ resource "google_privateca_ca_pool" "default" {
 resource "google_privateca_ca_pool_iam_binding" "foo" {
   ca_pool = google_privateca_ca_pool.default.id
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

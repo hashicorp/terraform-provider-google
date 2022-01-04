@@ -485,7 +485,7 @@ resource "google_apigee_environment_iam_binding" "foo" {
   org_id = google_apigee_environment.apigee_environment.org_id
   env_id = google_apigee_environment.apigee_environment.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

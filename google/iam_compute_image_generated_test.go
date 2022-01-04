@@ -214,7 +214,7 @@ resource "google_compute_image_iam_binding" "foo" {
   project = google_compute_image.example.project
   image = google_compute_image.example.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

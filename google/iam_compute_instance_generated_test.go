@@ -259,7 +259,7 @@ resource "google_compute_instance_iam_binding" "foo" {
   zone = google_compute_instance.default.zone
   instance_name = google_compute_instance.default.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

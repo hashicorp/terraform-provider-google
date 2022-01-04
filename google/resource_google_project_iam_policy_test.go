@@ -290,7 +290,7 @@ data "google_iam_policy" "admin" {
     service = "cloudkms.googleapis.com"
     audit_log_configs {
       log_type         = "DATA_READ"
-      exempted_members = ["user:paddy@hashicorp.com"]
+      exempted_members = ["user:gterraformtest1@gmail.com"]
     }
 
     audit_log_configs {
@@ -301,7 +301,7 @@ data "google_iam_policy" "admin" {
     service = "cloudsql.googleapis.com"
     audit_log_configs {
       log_type         = "DATA_READ"
-      exempted_members = ["user:paddy@hashicorp.com"]
+      exempted_members = ["user:gterraformtest1@gmail.com"]
     }
 
     audit_log_configs {
@@ -361,14 +361,14 @@ data "google_iam_policy" "expanded" {
   binding {
     role = "roles/viewer"
     members = [
-      "user:paddy@carvers.co",
+      "user:gterraformtest2@gmail.com",
     ]
   }
 
   binding {
     role = "roles/viewer"
     members = [
-      "user:paddy@hashicorp.com",
+      "user:gterraformtest1@gmail.com",
     ]
   }
 }
@@ -406,7 +406,7 @@ data "google_iam_policy" "expanded" {
     service = "cloudkms.googleapis.com"
     audit_log_configs {
       log_type         = "DATA_READ"
-      exempted_members = ["user:paddy@hashicorp.com"]
+      exempted_members = ["user:gterraformtest1@gmail.com"]
     }
 
     audit_log_configs {
@@ -417,7 +417,7 @@ data "google_iam_policy" "expanded" {
     service = "cloudkms.googleapis.com"
     audit_log_configs {
       log_type         = "DATA_READ"
-      exempted_members = ["user:paddy@hashicorp.com"]
+      exempted_members = ["user:gterraformtest1@gmail.com"]
     }
 
     audit_log_configs {

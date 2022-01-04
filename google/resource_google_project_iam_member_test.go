@@ -59,7 +59,7 @@ func TestAccProjectIamMember_multiple(t *testing.T) {
 	resourceName2 := "google_project_iam_member.multiple"
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
-	member2 := "user:paddy@hashicorp.com"
+	member2 := "user:gterraformtest1@gmail.com"
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -101,7 +101,7 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 	resourceName := "google_project_iam_member.acceptance"
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
-	member2 := "user:paddy@hashicorp.com"
+	member2 := "user:gterraformtest1@gmail.com"
 
 	vcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

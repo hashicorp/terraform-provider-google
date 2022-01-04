@@ -234,7 +234,7 @@ resource "google_compute_disk_iam_binding" "foo" {
   zone = google_compute_disk.default.zone
   name = google_compute_disk.default.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

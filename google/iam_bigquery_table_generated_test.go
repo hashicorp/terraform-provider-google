@@ -454,7 +454,7 @@ resource "google_bigquery_table_iam_binding" "foo" {
   dataset_id = google_bigquery_table.test.dataset_id
   table_id = google_bigquery_table.test.table_id
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

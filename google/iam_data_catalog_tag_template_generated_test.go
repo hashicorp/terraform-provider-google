@@ -387,7 +387,7 @@ resource "google_data_catalog_tag_template" "basic_tag_template" {
 resource "google_data_catalog_tag_template_iam_binding" "foo" {
   tag_template = google_data_catalog_tag_template.basic_tag_template.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

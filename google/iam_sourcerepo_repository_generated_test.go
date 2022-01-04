@@ -194,7 +194,7 @@ resource "google_sourcerepo_repository_iam_binding" "foo" {
   project = google_sourcerepo_repository.my-repo.project
   repository = google_sourcerepo_repository.my-repo.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

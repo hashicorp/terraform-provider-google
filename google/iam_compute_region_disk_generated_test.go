@@ -299,7 +299,7 @@ resource "google_compute_region_disk_iam_binding" "foo" {
   region = google_compute_region_disk.regiondisk.region
   name = google_compute_region_disk.regiondisk.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

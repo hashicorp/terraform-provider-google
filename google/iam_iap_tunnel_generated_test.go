@@ -284,7 +284,7 @@ resource "google_project_service" "project_service" {
 resource "google_iap_tunnel_iam_binding" "foo" {
   project = google_project_service.project_service.project
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

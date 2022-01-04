@@ -247,7 +247,7 @@ EOF
 resource "google_endpoints_service_iam_binding" "foo" {
   service_name = google_endpoints_service.endpoints_service.service_name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }
