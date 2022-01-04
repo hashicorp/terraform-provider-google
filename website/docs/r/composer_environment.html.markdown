@@ -70,6 +70,26 @@ resource "google_composer_environment" "test" {
 For more information, see the [Access Control](https://cloud.devsite.corp.google.com/composer/docs/how-to/access-control) page in the Cloud Composer documentation.
 You may need to assign additional roles depending on what the Airflow DAGs will be running.
 
+**NOTE** We STRONGLY recommend you read the [Cloud Composer guides](https://cloud.google.com/composer/docs/how-to) 
+as the Environment 
+resource requires a long deployment process and involves several layers of 
+Google Cloud infrastructure, including a Kubernetes Engine cluster, Cloud 
+Storage, and Compute networking resources. Composer manages most of these 
+resources fully and as a result, Terraform may not be able to automatically 
+find or manage the underlying resources. In particular:
+* It can take up to 50 minutes to create or update an environment resource and 
+some errors may be detected later in the process. Also, some error messages may 
+not be clear at first sight because they involve issues with the underlying 
+resources. If you encounter such errors, please review Composer logs and verify 
+if your configuration is valid against Cloud Composer before filing bugs 
+against the Terraform provider.
+* Environments create Google Cloud Storage buckets that contain your DAGs and 
+other work files. These buckets do not get deleted automatically on environment 
+deletion. This is by design; it ensures that DAGs source code and other 
+valuable data don’t get lost when an environment is deleted. [More about 
+Composer's use of Cloud Storage](https://cloud.google.com/composer/docs/concepts/cloud-storage).
+* Please review the [known issues](https://cloud.google.com/composer/docs/known-issues) for Cloud Composer if you are having problems.
+
 #### GKE and Compute Resource Dependencies (Cloud Composer 1)
 
 ```hcl
