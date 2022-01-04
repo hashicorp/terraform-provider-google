@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: promoted `node_config.0.boot_disk_kms_key` of `google_container_node_pool` to GA
+```
