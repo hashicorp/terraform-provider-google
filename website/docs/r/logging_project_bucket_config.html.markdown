@@ -25,7 +25,7 @@ resource "google_project" "default" {
 }
 
 resource "google_logging_project_bucket_config" "basic" {
-	project    = google_project.default.name
+	project    = google_project.default.id
 	location  = "global"
 	retention_days = 30
 	bucket_id = "_Default"
