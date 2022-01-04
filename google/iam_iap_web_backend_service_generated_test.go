@@ -234,7 +234,7 @@ resource "google_iap_web_backend_service_iam_binding" "foo" {
   project = google_compute_backend_service.default.project
   web_backend_service = google_compute_backend_service.default.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

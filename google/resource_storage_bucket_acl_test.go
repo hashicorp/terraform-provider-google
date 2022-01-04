@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	roleEntityBasic1        = "OWNER:user-paddy@hashicorp.com"
-	roleEntityBasic1_reader = "READER:user-paddy@hashicorp.com"
-	roleEntityBasic2        = "READER:user-paddy@carvers.co"
+	roleEntityBasic1        = "OWNER:user-gterraformtest1@gmail.com"
+	roleEntityBasic1_reader = "READER:user-gterraformtest1@gmail.com"
+	roleEntityBasic2        = "READER:user-gterraformtest2@gmail.com"
 	roleEntityBasic3_owner  = "OWNER:user-paddy@paddy.io"
 	roleEntityBasic3_reader = "READER:user-foran.paddy@gmail.com"
 
@@ -372,7 +372,7 @@ resource "google_storage_bucket" "bucket" {
 resource "google_storage_bucket_acl" "acl" {
   bucket         = google_storage_bucket.bucket.name
   role_entity = [
-	"READER:user-paddy@carvers.co"
+	"READER:user-gterraformtest2@gmail.com"
   ]
 }
 `, bucketName)

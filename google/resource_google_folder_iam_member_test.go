@@ -73,7 +73,7 @@ func TestAccFolderIamMember_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderIamBindingExists(t, &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
-						Members: []string{"user:admin@hashicorptest.com", "user:paddy@hashicorp.com"},
+						Members: []string{"user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"},
 					}, org, fname),
 				),
 			},
@@ -105,7 +105,7 @@ func TestAccFolderIamMember_remove(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleFolderIamBindingExists(t, &cloudresourcemanager.Binding{
 						Role:    "roles/compute.instanceAdmin",
-						Members: []string{"user:admin@hashicorptest.com", "user:paddy@hashicorp.com"},
+						Members: []string{"user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"},
 					}, org, fname),
 				),
 			},
@@ -150,13 +150,13 @@ resource "google_folder_iam_member" "acceptance" {
 
 resource "google_folder_iam_member" "multiple" {
   folder = google_folder.acceptance.name
-  member = "user:paddy@hashicorp.com"
+  member = "user:gterraformtest1@gmail.com"
   role   = "roles/compute.instanceAdmin"
 }
 
 resource "google_folder_iam_member" "condition" {
   folder = google_folder.acceptance.name
-  member = "user:paddy@hashicorp.com"
+  member = "user:gterraformtest1@gmail.com"
   role   = "roles/compute.instanceAdmin"
   condition {
     title       = "expires_after_2019_12_31"

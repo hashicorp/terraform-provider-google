@@ -272,7 +272,7 @@ resource "google_cloud_run_service_iam_binding" "foo" {
   project = google_cloud_run_service.default.project
   service = google_cloud_run_service.default.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

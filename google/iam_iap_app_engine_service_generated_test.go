@@ -453,7 +453,7 @@ resource "google_iap_app_engine_service_iam_binding" "foo" {
   app_id = "${google_app_engine_standard_app_version.version.project}"
   service = "${google_app_engine_standard_app_version.version.service}"
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

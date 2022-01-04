@@ -322,7 +322,7 @@ resource "google_iap_web_type_app_engine_iam_binding" "foo" {
   project = google_app_engine_application.app.project
   app_id = google_app_engine_application.app.app_id
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

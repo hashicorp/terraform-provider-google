@@ -279,7 +279,7 @@ resource "google_notebooks_runtime_iam_binding" "foo" {
   location = google_notebooks_runtime.runtime.location
   runtime_name = google_notebooks_runtime.runtime.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

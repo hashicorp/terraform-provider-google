@@ -259,7 +259,7 @@ resource "google_compute_subnetwork_iam_binding" "foo" {
   region = google_compute_subnetwork.network-with-private-secondary-ip-ranges.region
   subnetwork = google_compute_subnetwork.network-with-private-secondary-ip-ranges.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

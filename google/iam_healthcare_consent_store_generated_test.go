@@ -224,7 +224,7 @@ resource "google_healthcare_consent_store_iam_binding" "foo" {
   dataset = google_healthcare_consent_store.my-consent.dataset
   consent_store_id = google_healthcare_consent_store.my-consent.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }

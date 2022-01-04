@@ -354,7 +354,7 @@ resource "google_binary_authorization_attestor_iam_binding" "foo" {
   project = google_binary_authorization_attestor.attestor.project
   attestor = google_binary_authorization_attestor.attestor.name
   role = "%{role}"
-  members = ["user:admin@hashicorptest.com", "user:paddy@hashicorp.com"]
+  members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
 }
 `, context)
 }
