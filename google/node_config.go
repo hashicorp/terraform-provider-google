@@ -267,6 +267,12 @@ func schemaNodeConfig() *schema.Schema {
 					},
 				},
 
+				"boot_disk_kms_key": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					ForceNew:    true,
+					Description: `The Customer Managed Encryption Key used to encrypt the boot disk attached to each node in the node pool.`,
+				},
 				"node_group": {
 					Type:        schema.TypeString,
 					Optional:    true,
@@ -409,6 +415,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.WorkloadMetadataConfig = expandWorkloadMetadataConfig(v)
 	}
 
+	if v, ok := nodeConfig["boot_disk_kms_key"]; ok {
+		nc.BootDiskKmsKey = v.(string)
+	}
+
 	if v, ok := nodeConfig["node_group"]; ok {
 		nc.NodeGroup = v.(string)
 	}
@@ -459,6 +469,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"shielded_instance_config": flattenShieldedInstanceConfig(c.ShieldedInstanceConfig),
 		"taint":                    flattenTaints(c.Taints),
 		"workload_metadata_config": flattenWorkloadMetadataConfig(c.WorkloadMetadataConfig),
+		"boot_disk_kms_key":        c.BootDiskKmsKey,
 		"node_group":               c.NodeGroup,
 	})
 

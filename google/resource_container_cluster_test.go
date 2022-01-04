@@ -816,6 +816,30 @@ func TestAccContainerCluster_withWorkloadMetadataConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withBootDiskKmsKey(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randString(t, 10))
+	kms := BootstrapKMSKeyInLocation(t, "us-central1")
+
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withBootDiskKmsKey(getTestProjectFromEnv(), clusterName, kms.CryptoKey.Name),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_boot_disk_kms_key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_network(t *testing.T) {
 	t.Parallel()
 
@@ -2673,6 +2697,38 @@ resource "google_container_cluster" "with_workload_metadata_config" {
   }
 }
 `, clusterName)
+}
+
+func testAccContainerCluster_withBootDiskKmsKey(project, clusterName, kmsKeyName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+
+resource "google_project_iam_member" "kms-project-binding" {
+  project = data.google_project.project.project_id
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
+}
+
+resource "google_container_cluster" "with_boot_disk_kms_key" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  release_channel {
+    channel = "RAPID"
+  }
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+
+    image_type = "COS_CONTAINERD"
+
+    boot_disk_kms_key = "%s"
+  }
+}
+`, project, clusterName, kmsKeyName)
 }
 
 func testAccContainerCluster_networkRef(cluster, network string) string {
