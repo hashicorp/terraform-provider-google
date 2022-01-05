@@ -48,10 +48,12 @@ GOOGLE_BILLING_ACCOUNT
 When running tests, specify which to run using `TESTARGS`, such as:
 
 ```
-make testacc TEST=./google TESTARGS='-run=TestAccContainerNodePool_basic'
+TF_LOG=TRACE make testacc TEST=./google TESTARGS='-run=TestAccContainerNodePool_basic' > output.log
 ```
 
 The `TESTARGS` variable is regexp-like, so multiple tests can be run in parallel by specifying a common substring of those tests (for example, `TestAccContainerNodePool` to run all node pool tests). There are 1500+ tests, and running all of them takes over 4 hours and requires a lot of GCP quota.
+
+Note: `TF_LOG=TRACE` is optional; it [enables verbose logging](https://www.terraform.io/docs/internals/debugging.html) during tests, including all API request/response cycles. `> output.log` redirects the test output to a file for analysis, which is useful because `TRACE` logging can be extremely verbose.
 
 ### Ensuring no plan-time difference to latest provider release (optional)
 
@@ -59,7 +61,7 @@ In a case where you are editing an existing field you might want to ensure the r
 
 ```
 export RELEASE_DIFF=true
-make testacc TEST=./google TESTARGS='-run=TestAccContainerNodePool_basic'
+TF_LOG=TRACE make testacc TEST=./google TESTARGS='-run=TestAccContainerNodePool_basic' > output.log
 ```
 
 ### Writing Tests
@@ -89,7 +91,7 @@ Running provider tests often can lead to dangling test resources caused by test 
 Sweepers run by using the `-sweep` and `-sweep-run` `TESTARGS` flags:
 
 ```
-make testacc TEST=./google TESTARGS='-sweep=us-central1 -sweep-run=<sweeper-name-here>'
+TF_LOG=TRACE make testacc TEST=./google TESTARGS='-sweep=us-central1 -sweep-run=<sweeper-name-here>' > output.log
 ```
 
 ## Instructing terraform to use a local copy of the provider
